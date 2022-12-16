@@ -1,11 +1,23 @@
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub, SinonStub } from "sinon";
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import {
+  createStubInstance,
+  reset,
+  restore,
+  SinonStubbedInstance,
+  stub,
+  spy,
+  SinonStub,
+  promise,
+  SinonMock,
+  mock as sinonMock,
+} from "sinon";
+import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
 import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, BigNumber, utils, Contract } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
+import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/nxtp-contracts";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -18,53 +30,74 @@ const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connex
 const mockAssetId = mock.asset.A.address;
 
 const chainId = 1337;
+
 describe("SdkBase", () => {
   let nxtpSdkBase: NxtpSdkBase;
-  let config;
-
-  let chainReader: SinonStubbedInstance<ChainReader>;
+  let config: ConfigFns.NxtpSdkConfig;
+  let logger: SinonStubbedInstance<Logger>;
 
   beforeEach(async () => {
-    chainReader = createStubInstance(ChainReader);
+    logger = createStubInstance(Logger);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+
     stub(ConfigFns, "getConfig").resolves(config);
-
-    nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
-
-    (nxtpSdkBase as any).chainReader = chainReader;
-
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+
+    nxtpSdkBase = new NxtpSdkBase(mockConfig, logger, mockChainData);
   });
+
   afterEach(() => {
     restore();
     reset();
   });
 
-  describe("#create", () => {
+  describe("#instance", () => {
     it("happy: should work", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
       expect(nxtpSdkBase.config).to.not.be.null;
       expect(nxtpSdkBase.chainData).to.not.be.null;
 
+      expect(nxtpSdkBase.getConnext).to.be.a("function");
+      expect(nxtpSdkBase.getERC20).to.be.a("function");
       expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
-      expect(nxtpSdkBase.xcall).to.be.a("function");
-      expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
       expect(nxtpSdkBase.changeSignerAddress).to.be.a("function");
+      expect(nxtpSdkBase.parseConnextTransactionReceipt).to.be.a("function");
+      expect(nxtpSdkBase.calculateCanonicalKey).to.be.a("function");
     });
+  });
 
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkBase.create(config)).to.be.rejectedWith(ChainDataUndefined);
+  describe("#getConnext", () => {
+    it("happy: should work", async () => {
+      const connext = nxtpSdkBase.getConnext(mock.domain.A);
+      expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#getERC20", () => {
+    it("happy: should work", async () => {
+      const erc20 = nxtpSdkBase.getERC20(mock.domain.A, mock.asset.A.address);
+      expect(erc20).to.not.be.undefined;
     });
   });
 
   describe("#approveIfNeeded", () => {
-    it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
+    const mockParams = {
+      connext: mock.contracts.deployments().connext(Number(mock.chain.A)),
+      tokenAddress: mock.asset.A.address,
+    };
+    let connextContract;
+    let erc20Contract;
+    const provider = providers.getDefaultProvider();
 
-      await expect(nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).to.be.rejectedWith(
-        SignerAddressMissing,
-      );
+    beforeEach(async () => {
+      connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
+      const erc20abi = [
+        "function decimals() public view returns (uint256)",
+        "function symbol() public view returns (string memory)",
+        "function allowance(address,address) public view returns (uint256)",
+        "function approve(address,uint256) external returns (bool)",
+      ];
+      erc20Contract = new Contract(mockParams.tokenAddress, erc20abi);
     });
 
     it("happy: should work for Native", async () => {
@@ -73,344 +106,47 @@ describe("SdkBase", () => {
     });
 
     it("happy: should work for ERC20 when allowance sufficient", async () => {
-      chainReader.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000001");
+      const mockERC20 = {
+        allowance: function () {
+          return 1;
+        },
+      };
+
+      stub(nxtpSdkBase, "getConnext").resolves(connextContract);
+      stub(nxtpSdkBase, "getERC20").resolves(mockERC20 as any);
 
       const res = await nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1");
       expect(res).to.be.undefined;
     });
 
-    it("happy: should work for ERC20 when allowance in-sufficient", async () => {
-      chainReader.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000000");
-      const data = getErc20Interface().encodeFunctionData("approve", [mockConnextAddresss, constants.MaxUint256]);
-
-      const mockApproveTxRequest: providers.TransactionRequest = {
-        to: mockAssetId,
-        data,
-        from: mock.config().signerAddress,
-        value: 0,
-        chainId,
+    it("happy: should work for ERC20 when allowance insufficient", async () => {
+      const mockERC20 = {
+        allowance: function (): number {
+          return 0;
+        },
+        populateTransaction: {
+          approve(spender: string, amount: number, overrides?): { data: string; to: string } {
+            return {
+              data: "0x",
+              to: connextContract.address,
+            };
+          },
+        },
       };
 
+      stub(nxtpSdkBase, "getConnext").resolves(connextContract);
+      stub(nxtpSdkBase, "getERC20").resolves(mockERC20 as any);
+
+      const approve = spy(mockERC20.populateTransaction, "approve");
       const res = await nxtpSdkBase.approveIfNeeded(mock.domain.A, mockAssetId, "1");
-      expect(res).to.be.deep.eq(mockApproveTxRequest);
-    });
-  });
-
-  describe("#xCall", () => {
-    let getConversionRateStub: SinonStub;
-    let getDecimalsForAssetStub: SinonStub;
-    let getHardcodedGasLimitsStub: SinonStub;
-    let relayerFee = BigNumber.from("1");
-    beforeEach(() => {
-      getConversionRateStub = stub(SharedFns, "getConversionRate");
-      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
-      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
-    });
-    afterEach(() => {
-      restore();
-      reset();
+      expect(approve).calledOnce;
     });
 
     it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-      };
-
-      await expect(nxtpSdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
-    it("happy: should work if ERC20", async () => {
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: relayerFee,
-        chainId,
-      };
-
-      const origin = mock.entity.callParams().originDomain;
-      // const relayerFeeStr = relayerFee.toString();
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-        relayerFee: relayerFee.toString(),
-      };
-
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
-      expect(res).to.be.deep.eq(mockXCallRequest);
-    });
-
-    it("happy: should use xCallIntoLocal if receiveLocal is used", async () => {
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: relayerFee,
-        chainId,
-      };
-
-      const origin = mock.entity.callParams().originDomain;
-      // const relayerFeeStr = relayerFee.toString();
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-        relayerFee: relayerFee.toString(),
-        receiveLocal: true,
-      };
-
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
-      expect(res).to.be.deep.eq(mockXCallRequest);
-    });
-
-    // TODO: Add relayer fee calculation at xcall
-    it.skip("happy: should calculate the relayerFee if args.relayerFee is zero", async () => {
-      getConversionRateStub.resolves(1);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-
-      stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
-
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: BigNumber.from("50000"),
-        chainId,
-      };
-
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-      };
-
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
-      expect(res).to.be.deep.eq(mockXCallRequest);
-    });
-  });
-
-  describe("#bumpTransfer", () => {
-    const mockXTransfer = mock.entity.xtransfer();
-
-    const mockBumpTransferParams = {
-      domain: mockXTransfer.xparams.originDomain,
-      transferId: mockXTransfer.transferId,
-      relayerFee: "1",
-    };
-
-    it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
-
-      await expect(nxtpSdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
-    it("happy: should work", async () => {
-      const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
-
-      const mockBumpTransferTxRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: BigNumber.from(mockBumpTransferParams.relayerFee),
-        chainId,
-      };
-
-      const res = await nxtpSdkBase.bumpTransfer(mockBumpTransferParams);
-      expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
-    });
-  });
-
-  describe("estimateRelayerFee", () => {
-    let getGelatoEstimatedFeeStub: SinonStub;
-    let getConversionRateStub: SinonStub;
-    let getDecimalsForAssetStub: SinonStub;
-    let getHardcodedGasLimitsStub: SinonStub;
-    beforeEach(() => {
-      getGelatoEstimatedFeeStub = stub(SharedFns, "getGelatoEstimatedFee");
-      getConversionRateStub = stub(SharedFns, "getConversionRate");
-      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
-      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
-    it("should return 0 if origin/destination native asset price is 0", async () => {
-      getConversionRateStub.resolves(0);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
-      const relayerFee = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-      expect(relayerFee.toString()).to.be.eq("0");
-    });
-    it("should add callData gasAmount", async () => {
-      getConversionRateStub.resolves(1);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
-      const callDataGasAmount = 10000;
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-        callDataGasAmount,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 30000, false]);
-      expect(res.toString()).to.be.eq("60000");
-    });
-    it("should properly handle the difference in decimals", async () => {
-      getConversionRateStub.onFirstCall().resolves(1);
-      getConversionRateStub.onSecondCall().resolves(1);
-      getDecimalsForAssetStub.onFirstCall().resolves(6);
-      getDecimalsForAssetStub.onSecondCall().resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(utils.parseUnits("5", 16));
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      expect(res.toString()).to.be.eq(utils.parseUnits("6", 4).toString());
-    });
-
-    it("should work with different prices", async () => {
-      const mockToken1Price = 1;
-      const mockToken2Price = 2;
-      getConversionRateStub.onFirstCall().resolves(mockToken1Price);
-      getConversionRateStub.onSecondCall().resolves(mockToken2Price);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      const mockPrice = BigNumber.from("50000");
-      getGelatoEstimatedFeeStub.resolves(mockPrice);
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      const impactedMockPrice1 = Math.floor(mockToken1Price * 1000);
-      const impactedMockPrice2 = Math.floor(mockToken2Price * 1000);
-
-      const expectedPrice = mockPrice
-        .add(mockPrice.mul(SharedFns.relayerBufferPercentage).div(100))
-        .mul(impactedMockPrice2)
-        .div(impactedMockPrice1);
-      expect(res.toString()).to.be.eq(expectedPrice.toString());
-    });
-
-    it("should work with float-point prices", async () => {
-      const mockToken1Price = 1.50035869;
-      const mockToken2Price = 3.0001568;
-      getConversionRateStub.onFirstCall().resolves(mockToken1Price);
-      getConversionRateStub.onSecondCall().resolves(mockToken2Price);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      const mockPrice = BigNumber.from("50000");
-      getGelatoEstimatedFeeStub.resolves(mockPrice);
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      const impactedMockPrice1 = Math.floor(mockToken1Price * 1000);
-      const impactedMockPrice2 = Math.floor(mockToken2Price * 1000);
-      const expectedPrice = mockPrice
-        .add(mockPrice.mul(SharedFns.relayerBufferPercentage).div(100))
-        .mul(impactedMockPrice2)
-        .div(impactedMockPrice1);
-      expect(res.toString()).to.be.eq(expectedPrice.toString());
+      nxtpSdkBase.config.signerAddress = undefined;
+      await expect(nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).to.be.rejectedWith(
+        SignerAddressMissing,
+      );
     });
   });
 
@@ -419,6 +155,38 @@ describe("SdkBase", () => {
       const mockSignerAddress = mkAddress("0xabcdef456");
       await nxtpSdkBase.changeSignerAddress(mockSignerAddress);
       expect(nxtpSdkBase.config.signerAddress).to.be.eq(mockSignerAddress);
+    });
+  });
+
+  describe("#parseConnextTransactionReceipt", () => {
+    it("happy: should work", async () => {
+      const res = nxtpSdkBase.parseConnextTransactionReceipt(mock.ethers.receipt());
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with original logs", async () => {
+      stub(SharedFns, "parseConnextLog").returns("OK");
+      const transactionReceipt = mock.ethers.receipt({
+        logs: [
+          {
+            transactionIndex: 32,
+            blockNumber: 10771144,
+            transactionHash: "0xa6006c58f3ac55c04afc9eb4fe8338525ce71bf35399e7bf8ec1cf034ff76554",
+            address: "0x2307Ed9f152FA9b3DcDfe2385d279D8C2A9DF2b0",
+            topics: [
+              "0x7f9a44468cd4a3c9115f4484cc70939547e8d807c832f32b8c049302f9813001",
+              "0x0b7a810f9ac0f240337bce82fe42f3c9d31147aa1477fb8cad52618e5ca514d7",
+            ],
+            data: "0x00000000000000000000000000000000000000000000000000000000000001000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff900000000000000000000000000000000000000000000001b1ae4d6e2ef50000000000000000000000000000000000000000000000000001b1ae4d6e2ef5000000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff90000000000000000000000000000000000000000000000000000000000006c6100000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec2900000000000000000000000000000000000000000000000000000000000000800000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff900000000000000000000000000000000000000000000001b1ae4d6e2ef5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec29000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000004570000000000000000000000000000000000000000000000000000000000000d03000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a5000008ad0000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff903000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec2900000000000000000000000000000000000000000000001b1ae4d6e2ef50000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a0b7a810f9ac0f240337bce82fe42f3c9d31147aa1477fb8cad52618e5ca514d7000000000000000000000000000000000000000000000000000000",
+            logIndex: 62,
+            blockHash: "0x964a3c385444cc0fd0b258d67ccb37d249d431914fe767e86f40fba4d0ecc0e7",
+            removed: false,
+          },
+        ],
+      });
+      const res = nxtpSdkBase.parseConnextTransactionReceipt(transactionReceipt);
+      expect(res).to.not.be.undefined;
     });
   });
 });

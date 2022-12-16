@@ -1,6 +1,6 @@
 import { constants, providers, BigNumber } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
-import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
+import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
@@ -16,17 +16,12 @@ export class NxtpSdkBase {
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
   protected readonly logger: Logger;
-  protected readonly chainReader: ChainReader;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
-    this.chainReader = new ChainReader(
-      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
-      this.config.chains,
-    );
   }
 
   getConnext = memoize(
