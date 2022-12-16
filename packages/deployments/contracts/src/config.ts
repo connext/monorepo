@@ -207,6 +207,10 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
+    etherscan: {
+      apiKey: process.env.ARBISCAN_API_KEY!,
+      apiUrl: "https://api.arbiscan.io/",
+    },
   },
   fuji: {
     accounts: { mnemonic },
@@ -248,8 +252,8 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://goerli-rollup-explorer.arbitrum.io",
+        apiKey: process.env.ARBISCAN_API_KEY!,
+        apiUrl: "https://api-goerli.arbiscan.io/",
       },
     },
   },
