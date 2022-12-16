@@ -181,20 +181,22 @@ export const saveMessages = async (
     poolToUse,
   );
 
-  xMessages = xMessages.map((_message) => {
-    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _message.transferId);
+  xMessages = xMessages
+    .map((_message) => {
+      const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _message.transferId);
 
-    const messageBody = dbTransfer
-      ? encodeMessageBody(
-          dbTransfer.canonical_domain!,
-          dbTransfer.canonical_id!,
-          dbTransfer.bridged_amt!,
-          dbTransfer.transfer_id,
-        )
-      : "";
-    _message.origin.message = messageBody;
-    return _message;
-  });
+      const messageBody = dbTransfer
+        ? encodeMessageBody(
+            dbTransfer.canonical_domain!,
+            dbTransfer.canonical_id!,
+            dbTransfer.bridged_amt!,
+            dbTransfer.transfer_id,
+          )
+        : "";
+      _message.origin.message = messageBody;
+      return _message;
+    })
+    .filter((_message) => !!_message.origin.message);
 
   const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
