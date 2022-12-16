@@ -4,14 +4,14 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getChainData } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { NxtpSdkBase } from "./sdkBase";
+import { NxtpSdkShared } from "./sdkShared";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
  * @classdesc SDK class encapsulating router functions.
  *
  */
-export class NxtpSdkRouter extends NxtpSdkBase {
+export class NxtpSdkRouter extends NxtpSdkShared {
   private static _instance: NxtpSdkRouter;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {

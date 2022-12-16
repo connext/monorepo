@@ -6,7 +6,7 @@ import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
-import { NxtpSdkBase } from "./sdkBase";
+import { NxtpSdkShared } from "./sdkShared";
 
 export class Pool implements IPoolData {
   domainId: string;
@@ -77,7 +77,7 @@ export class Pool implements IPoolData {
  *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
  */
-export class NxtpSdkPool extends NxtpSdkBase {
+export class NxtpSdkPool extends NxtpSdkShared {
   private static _instance: NxtpSdkPool;
   private readonly priceFeed: PriceFeed;
 
