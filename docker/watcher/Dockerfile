@@ -24,8 +24,6 @@ COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
 COPY packages/agents/watcher/package.json /tmp/build/packages/agents/watcher/
-COPY packages/agents/relayer/package.json /tmp/build/packages/agents/relayer/
-COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
@@ -41,8 +39,6 @@ RUN yarn install
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
 COPY packages/agents/watcher /tmp/build/packages/agents/watcher
-COPY packages/agents/relayer /tmp/build/packages/agents/relayer
-COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
