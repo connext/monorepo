@@ -408,12 +408,6 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__transferTokenOwnership_onlyRemote();
     }
 
-    // ensure asset is currently approved because `s.canonicalToRepresentation` does
-    // not get cleared when asset is removed from allowlist
-    if (!s.tokenConfigs[key].approval) {
-      revert TokenFacet__transferTokenOwnership_notApproved();
-    }
-
     // ensure the total supply of this asset is 0 (i.e. we are not restricting our
     // ability to mint and burn for assets that are actively bridged to this domain)
     if (IERC20Metadata(local).totalSupply() > 0) {
