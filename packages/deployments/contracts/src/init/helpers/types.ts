@@ -72,6 +72,7 @@ export type SpokeMessagingDeployments = {
 export type DomainDeployments = {
   // Diamond.
   Connext: Deployment;
+  Multisend: Deployment;
 
   // Messaging Layer.
   // ConnectorManager

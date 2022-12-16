@@ -20,8 +20,16 @@ export const setupMessaging = async (protocol: ProtocolStack, chainData: any): P
   const { RootManager, MainnetConnector, HubConnectors, MerkleTreeManagerForRoot, MerkleTreeManagerForSpoke } = hub
     .deployments.messaging as HubMessagingDeployments;
 
+  /// MARK - Multisend
   // Make a transaction accumulator for sending our update atomically (all at once) using multisend.
   const multisendAccumulator: MultisendAccumulator = new Map();
+  for (const network of protocol.networks) {
+    // Set up each chain in the map with the correct deployment for multisend ahead of time.
+    multisendAccumulator.set(+network.chain, {
+      deployment: network.deployments.Multisend,
+      updates: [],
+    });
+  }
 
   /// ******************** MESSAGING ********************
   /// MARK - Init

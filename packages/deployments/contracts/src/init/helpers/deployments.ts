@@ -67,9 +67,9 @@ export const getDeployments = (args: {
   }
 
   // Custom function to format lookup by env and double check that the contract retrieved is not null.
-  const getContract = (contract: string): any => {
+  const getContract = (contract: string, ignoreEnv?: boolean): any => {
     const isConnext = contract.includes("Connext");
-    const key = isConnext ? `Connext${env}_DiamondProxy` : contract + env;
+    const key = isConnext ? `Connext${env}_DiamondProxy` : ignoreEnv ? contract : contract + env;
     const result = contracts[key];
     if (!result) {
       throw new Error(`Contract ${key} was not found in deployments.json!`);
@@ -84,8 +84,8 @@ export const getDeployments = (args: {
       : undefined;
 
     if (implementation) {
-      const implementation_with_env = useStaging ? implementation?.concat("Staging") : implementation;
-      const found = contracts[implementation_with_env];
+      const implementationWithEnv = useStaging ? implementation?.concat("Staging") : implementation;
+      const found = contracts[implementationWithEnv];
       if (found && found.abi) {
         abi = found.abi as any[];
       }
@@ -107,6 +107,7 @@ export const getDeployments = (args: {
 
   return {
     Connext: getContract("Connext_DiamondProxy"),
+    Multisend: getContract("Multisend", true),
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),
