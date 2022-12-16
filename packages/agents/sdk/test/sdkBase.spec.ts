@@ -18,7 +18,7 @@ const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connex
 const chainId = 1337;
 
 describe("SdkBase", () => {
-  let nxtpSdkBridge: NxtpSdkBase;
+  let nxtpSdkBase: NxtpSdkBase;
   let config: ConfigFns.NxtpSdkConfig;
 
   beforeEach(async () => {
@@ -27,7 +27,7 @@ describe("SdkBase", () => {
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
-    nxtpSdkBridge = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
+    nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -37,13 +37,13 @@ describe("SdkBase", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpSdkBridge).to.not.be.undefined;
-      expect(nxtpSdkBridge.config).to.not.be.null;
-      expect(nxtpSdkBridge.chainData).to.not.be.null;
+      expect(nxtpSdkBase).to.not.be.undefined;
+      expect(nxtpSdkBase.config).to.not.be.null;
+      expect(nxtpSdkBase.chainData).to.not.be.null;
 
-      expect(nxtpSdkBridge.xcall).to.be.a("function");
-      expect(nxtpSdkBridge.bumpTransfer).to.be.a("function");
-      expect(nxtpSdkBridge.estimateRelayerFee).to.be.a("function");
+      expect(nxtpSdkBase.xcall).to.be.a("function");
+      expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
+      expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
     });
   });
 
@@ -90,7 +90,7 @@ describe("SdkBase", () => {
         relayerFee: relayerFee.toString(),
       };
 
-      const res = await nxtpSdkBridge.xcall(sdkXcallArgs);
+      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
@@ -121,7 +121,7 @@ describe("SdkBase", () => {
         receiveLocal: true,
       };
 
-      const res = await nxtpSdkBridge.xcall(sdkXcallArgs);
+      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
@@ -137,7 +137,7 @@ describe("SdkBase", () => {
         gasPriceFactor: "10000",
       });
 
-      stub(nxtpSdkBridge, "estimateRelayerFee").resolves(BigNumber.from("50000"));
+      stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
       const mockXcallArgs = mock.entity.xcallArgs();
       const data = getConnextInterface().encodeFunctionData("xcall", [
         mockXcallArgs.destination,
@@ -163,19 +163,19 @@ describe("SdkBase", () => {
         origin,
       };
 
-      const res = await nxtpSdkBridge.xcall(sdkXcallArgs);
+      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("should error if signerAddress is undefined", async () => {
-      nxtpSdkBridge.config.signerAddress = undefined;
+      nxtpSdkBase.config.signerAddress = undefined;
       const origin = mock.entity.callParams().originDomain;
       const sdkXcallArgs = {
         ...mock.entity.xcallArgs(),
         origin,
       };
 
-      await expect(nxtpSdkBridge.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(nxtpSdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
@@ -189,13 +189,13 @@ describe("SdkBase", () => {
     };
 
     it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBridge as any).config.signerAddress = undefined;
+      (nxtpSdkBase as any).config.signerAddress = undefined;
 
-      await expect(nxtpSdkBridge.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(nxtpSdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
     });
 
     it("happy: should work", async () => {
-      nxtpSdkBridge.config.signerAddress = mockConfig.signerAddress;
+      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
@@ -206,7 +206,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBridge.bumpTransfer(mockBumpTransferParams);
+      const res = await nxtpSdkBase.bumpTransfer(mockBumpTransferParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
     });
   });
@@ -236,7 +236,7 @@ describe("SdkBase", () => {
         gasPriceFactor: "10000",
       });
       getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
-      const relayerFee = await nxtpSdkBridge.estimateRelayerFee({
+      const relayerFee = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
@@ -259,7 +259,7 @@ describe("SdkBase", () => {
       getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
       const callDataGasAmount = 10000;
 
-      const res = await nxtpSdkBridge.estimateRelayerFee({
+      const res = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
         callDataGasAmount,
@@ -284,7 +284,7 @@ describe("SdkBase", () => {
       });
       getGelatoEstimatedFeeStub.resolves(utils.parseUnits("5", 16));
 
-      const res = await nxtpSdkBridge.estimateRelayerFee({
+      const res = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
@@ -312,7 +312,7 @@ describe("SdkBase", () => {
       const mockPrice = BigNumber.from("50000");
       getGelatoEstimatedFeeStub.resolves(mockPrice);
 
-      const res = await nxtpSdkBridge.estimateRelayerFee({
+      const res = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
@@ -347,7 +347,7 @@ describe("SdkBase", () => {
       const mockPrice = BigNumber.from("50000");
       getGelatoEstimatedFeeStub.resolves(mockPrice);
 
-      const res = await nxtpSdkBridge.estimateRelayerFee({
+      const res = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
