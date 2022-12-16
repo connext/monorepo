@@ -120,7 +120,6 @@ export const getCanonicalHash = (canonicalDomain: string, _canonicalId: string):
  * @returns Encoded message body
  */
 export const encodeMessageBody = (transfer: XTransfer, originConnext: string): string => {
-  console.log(transfer, originConnext);
   const messageBody = defaultAbiCoder.encode(
     [MessageBodyEncoding],
     [
@@ -133,7 +132,6 @@ export const encodeMessageBody = (transfer: XTransfer, originConnext: string): s
       },
     ],
   );
-  console.log(messageBody);
   return defaultAbiCoder.encode(
     ["uint32", "bytes32", "uint32", "uint32", "bytes32", "bytes"],
     [
@@ -141,7 +139,7 @@ export const encodeMessageBody = (transfer: XTransfer, originConnext: string): s
       mkBytes32(originConnext),
       transfer.xparams.nonce,
       transfer.xparams.destinationDomain,
-      transfer.xparams.to,
+      mkBytes32(transfer.xparams.to),
       messageBody,
     ],
   );
