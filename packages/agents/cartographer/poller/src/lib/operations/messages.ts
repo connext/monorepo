@@ -30,7 +30,7 @@ export const retrieveOriginMessages = async () => {
         destinationDomain: _message.destinationDomain,
         transferId: _message.transferId,
         origin: { index: _message.index, root: _message.root, message: _message.message },
-        originConnext: getDeployedConnextContract(domainToChainId(+_message.domain), config.environment)!.address,
+        originConnext: config.chains[_message.domain].deployments.connext,
       };
     });
 

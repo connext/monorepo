@@ -1,6 +1,7 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
+import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { bind } from "../bindings";
 import { CartographerConfig, getConfig } from "../config";
@@ -15,7 +16,7 @@ export const makePoller = async (_configOverride?: CartographerConfig) => {
   // Get ChainData and parse out configuration.
   const chainData = await getChainData();
   context.chainData = chainData;
-  context.config = _configOverride ?? (await getConfig());
+  context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
 
   context.logger = new Logger({
     level: context.config.logLevel,

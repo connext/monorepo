@@ -3,13 +3,21 @@ import { existsSync, readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, TLogLevel, TDatabaseConfig } from "@connext/nxtp-utils";
+import { ajv, TLogLevel, TDatabaseConfig, TAddress, ChainData } from "@connext/nxtp-utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 const DEFAULT_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
-export const TChains = Type.Record(Type.String(), Type.Object({}));
+export const TChains = Type.Record(
+  Type.String(),
+  Type.Object({
+    deployments: Type.Object({
+      connext: TAddress,
+    }),
+  }),
+);
 export const TService = Type.Union([
   Type.Literal("roots"),
   Type.Literal("transfers"),
@@ -42,7 +50,10 @@ export type CartographerConfig = Static<typeof Cartographer>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (): CartographerConfig => {
+export const getEnvConfig = (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): CartographerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -85,6 +96,30 @@ export const getEnvConfig = (): CartographerConfig => {
     healthUrls: process.env.CARTOGRAPHER_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
   };
 
+  const contractPostfix: ContractPostfix =
+    nxtpConfig.environment === "production"
+      ? ""
+      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
+
+  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+    const chainDataForChain = chainData.get(domainId);
+
+    // Make sure deployments is filled out correctly.
+    // allow passed in address to override
+    // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
+    nxtpConfig.chains[domainId].deployments = {
+      connext:
+        chainConfig.deployments?.connext ??
+        (() => {
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          if (!res) {
+            throw new Error(`No Connext contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+    };
+  });
+
   const validate = ajv.compile(Cartographer);
 
   const valid = validate(nxtpConfig);
@@ -103,9 +138,12 @@ let nxtpConfig: CartographerConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (): Promise<CartographerConfig> => {
+export const getConfig = async (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): Promise<CartographerConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig();
+    nxtpConfig = getEnvConfig(chainData, deployments);
   }
   return nxtpConfig;
 };
