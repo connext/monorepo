@@ -161,7 +161,7 @@ export const TransferButton = ({
       }
       if (!failed) {
         try {
-          const xcall_request = await sdk.nxtpSdkBase.xcall(xcallParams);
+          const xcall_request = await sdk.nxtpSdkBridge.xcall(xcallParams);
           if (xcall_request) {
             let gasLimit: string = await signer.estimateGas(xcall_request);
             if (gasLimit) {
