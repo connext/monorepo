@@ -393,6 +393,8 @@ contract TokenFacet is BaseConnextFacet {
    * @dev You *CANNOT* call this function if there is a nonzero supply of the local asset
    * (indicating that some funds are still locked on the canonical domain, and you may
    * lose your ability to burn / mint them)
+   * @dev You also MUST ensure you are careful with the _newOwner you supply as this is
+   * for the most basic ownership structures (ie no accept or timelock)
    * @param _canonical - The canonical id and domain to remove
    * @param _newOwner - The new owner
    */
