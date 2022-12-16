@@ -9,6 +9,7 @@ import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStable
 import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {ERC20} from "../../../../contracts/core/connext/helpers/OZERC20.sol";
+import {BridgeToken} from "../../../../contracts/core/connext/helpers/BridgeToken.sol";
 import {TokenFacet} from "../../../../contracts/core/connext/facets/TokenFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenId} from "../../../../contracts/core/connext/libraries/TokenId.sol";
@@ -524,7 +525,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     this.removeAssetId(TokenId(_domain, _canonicalId), _local, _local);
   }
 
-  // updateLiquidityCap
+  // ============ updateLiquidityCap ============
   function test_TokenFacet__updateLiquidityCap_failsIfNotCanonicalDomain() public {
     s.domain = 123123;
     vm.prank(_owner);
@@ -569,7 +570,7 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     assertEq(s.tokenConfigs[key].cap, updated);
   }
 
-  // updateDetails
+  // ============ updateDetails ============
   function test_TokenFacet__updateDetails_failsIfNoLocal() public {
     s.domain = _canonicalDomain + 2;
     bytes32 key = utils_calculateCanonicalHash();
@@ -619,5 +620,79 @@ contract TokenFacetTest is TokenFacet, FacetHelper {
     // assertEq
     assertEq(IBridgeToken(_local).name(), updatedName);
     assertEq(IBridgeToken(_local).symbol(), updatedSymbol);
+  }
+
+  // ============ transferTokenOwnership ============
+
+  // should fail if not local asset
+  function test_TokenFacet__transferTokenOwnership_failsIfNotLocal() public {
+    s.domain = _canonicalDomain + 2;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.tokenConfigs[key].representation = address(0);
+    s.tokenConfigs[key].adoptedDecimals = 1;
+
+    vm.expectRevert(TokenFacet.TokenFacet__transferTokenOwnership_localNotFound.selector);
+    vm.prank(_owner);
+    this.transferTokenOwnership(TokenId(_canonicalDomain, _canonicalId), address(1232688));
+  }
+
+  // should fail if on canonical domain
+  function test_TokenFacet__transferTokenOwnership_failsIfOnCanonical() public {
+    s.domain = _canonicalDomain;
+    bytes32 key = utils_calculateCanonicalHash();
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].adoptedDecimals = 1;
+
+    vm.expectRevert(TokenFacet.TokenFacet__transferTokenOwnership_onlyRemote.selector);
+    vm.prank(_owner);
+    this.transferTokenOwnership(TokenId(_canonicalDomain, _canonicalId), address(1232688));
+  }
+
+  // should fail if supply > 0
+  function test_TokenFacet__transferTokenOwnership_failsIfNonzeroSupply() public {
+    _local = address(new TestERC20("Test", "T"));
+    bytes32 key = utils_calculateCanonicalHash();
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].adoptedDecimals = 1;
+
+    assertTrue(0 < TestERC20(_local).totalSupply());
+
+    vm.expectRevert(TokenFacet.TokenFacet__transferTokenOwnership_nonzeroSupply.selector);
+    vm.prank(_owner);
+    this.transferTokenOwnership(TokenId(_canonicalDomain, _canonicalId), address(1232688));
+  }
+
+  // should fail if token has no `transferOwnership` function
+  function test_TokenFacet__transferTokenOwnership_failsIfNotOwnable() public {
+    _local = address(new TestERC20("Test", "T"));
+    bytes32 key = utils_calculateCanonicalHash();
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].adoptedDecimals = 1;
+
+    vm.expectRevert();
+    vm.prank(_owner);
+    this.transferTokenOwnership(TokenId(_canonicalDomain, _canonicalId), address(1232688));
+  }
+
+  // should work
+  // - token emits event
+  // - owner updated on token
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+  function test_TokenFacet__transferTokenOwnership_works() public {
+    _local = address(new BridgeToken(18, "Test", "T"));
+    bytes32 key = utils_calculateCanonicalHash();
+    s.tokenConfigs[key].representation = _local;
+    s.tokenConfigs[key].adoptedDecimals = 1;
+
+    address newOwner = address(1232688);
+
+    vm.expectEmit(true, true, true, true);
+    emit OwnershipTransferred(address(this), newOwner);
+
+    vm.prank(_owner);
+    this.transferTokenOwnership(TokenId(_canonicalDomain, _canonicalId), newOwner);
+
+    assertEq(BridgeToken(_local).owner(), newOwner);
   }
 }
