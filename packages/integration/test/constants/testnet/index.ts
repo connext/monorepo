@@ -376,8 +376,12 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
     pollInterval: 4_000,
     environment: "staging",
     chains: {
-      [ORIGIN.domain]: {},
-      [DESTINATION.domain]: {},
+      [ORIGIN.domain]: {
+        deployments: { connext: ORIGIN.config.deployments.connext },
+      },
+      [DESTINATION.domain]: {
+        deployments: { connext: DESTINATION.config.deployments.connext },
+      },
     },
     healthUrls: {},
     service: "messages",
