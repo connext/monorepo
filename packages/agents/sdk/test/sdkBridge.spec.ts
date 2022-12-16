@@ -1,41 +1,25 @@
-import {
-  createStubInstance,
-  reset,
-  restore,
-  SinonStubbedInstance,
-  stub,
-  spy,
-  SinonStub,
-  promise,
-  SinonMock,
-  mock as sinonMock,
-} from "sinon";
-import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils, Contract } from "ethers";
+import { reset, restore, stub, SinonStub } from "sinon";
+import { expect } from "@connext/nxtp-utils";
+import { getConnextInterface } from "@connext/nxtp-txservice";
+import { constants, providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkBridge } from "../src/sdkBridge";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
-import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/nxtp-contracts";
+import { SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import { resolveProperties } from "ethers/lib/utils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
-const mockAssetId = mock.asset.A.address;
-
 const chainId = 1337;
 
 describe("SdkBridge", () => {
   let nxtpSdkBridge: NxtpSdkBridge;
   let config: ConfigFns.NxtpSdkConfig;
-  let logger: SinonStubbedInstance<Logger>;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
