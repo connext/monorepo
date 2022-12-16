@@ -691,6 +691,7 @@ export type local1337_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['local1337_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
+  message?: Maybe<Scalars['local1337_Bytes']>;
   root?: Maybe<Scalars['local1337_Bytes']>;
   transactionHash?: Maybe<Scalars['local1337_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
@@ -734,6 +735,12 @@ export type local1337_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  message?: InputMaybe<Scalars['local1337_Bytes']>;
+  message_not?: InputMaybe<Scalars['local1337_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   root?: InputMaybe<Scalars['local1337_Bytes']>;
   root_not?: InputMaybe<Scalars['local1337_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
@@ -785,6 +792,7 @@ export type local1337_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
+  | 'message'
   | 'root'
   | 'transactionHash'
   | 'blockNumber'

@@ -686,6 +686,7 @@ type local1338_OriginMessage {
   destinationDomain: BigInt
   leaf: local1338_Bytes
   index: BigInt
+  message: local1338_Bytes
   root: local1338_Bytes
   transactionHash: local1338_Bytes
   blockNumber: BigInt
@@ -729,6 +730,12 @@ input local1338_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
+  message: local1338_Bytes
+  message_not: local1338_Bytes
+  message_in: [local1338_Bytes!]
+  message_not_in: [local1338_Bytes!]
+  message_contains: local1338_Bytes
+  message_not_contains: local1338_Bytes
   root: local1338_Bytes
   root_not: local1338_Bytes
   root_in: [local1338_Bytes!]
@@ -780,6 +787,7 @@ enum local1338_OriginMessage_orderBy {
   destinationDomain
   leaf
   index
+  message
   root
   transactionHash
   blockNumber

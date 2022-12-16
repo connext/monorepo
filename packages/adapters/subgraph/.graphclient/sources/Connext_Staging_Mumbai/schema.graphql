@@ -686,6 +686,7 @@ type stagingmumbai_OriginMessage {
   destinationDomain: BigInt
   leaf: stagingmumbai_Bytes
   index: BigInt
+  message: stagingmumbai_Bytes
   root: stagingmumbai_Bytes
   transactionHash: stagingmumbai_Bytes
   blockNumber: BigInt
@@ -729,6 +730,12 @@ input stagingmumbai_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
+  message: stagingmumbai_Bytes
+  message_not: stagingmumbai_Bytes
+  message_in: [stagingmumbai_Bytes!]
+  message_not_in: [stagingmumbai_Bytes!]
+  message_contains: stagingmumbai_Bytes
+  message_not_contains: stagingmumbai_Bytes
   root: stagingmumbai_Bytes
   root_not: stagingmumbai_Bytes
   root_in: [stagingmumbai_Bytes!]
@@ -780,6 +787,7 @@ enum stagingmumbai_OriginMessage_orderBy {
   destinationDomain
   leaf
   index
+  message
   root
   transactionHash
   blockNumber

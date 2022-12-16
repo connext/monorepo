@@ -691,6 +691,7 @@ export type stagingarbitrumgoerli_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
+  message?: Maybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   root?: Maybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
@@ -734,6 +735,12 @@ export type stagingarbitrumgoerli_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  message?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  message_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   root?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   root_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
@@ -785,6 +792,7 @@ export type stagingarbitrumgoerli_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
+  | 'message'
   | 'root'
   | 'transactionHash'
   | 'blockNumber'

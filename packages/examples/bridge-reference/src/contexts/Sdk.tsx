@@ -1,4 +1,4 @@
-import { NxtpSdkBase, NxtpSdkPool, NxtpSdkRouter, NxtpSdkStableSwap, NxtpSdkUtils } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, NxtpSdkPool, NxtpSdkRouter, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { useContext } from "react";
 
 import { createCtx } from "../utils/context";
@@ -7,7 +7,6 @@ type SDK = {
   nxtpSdkBase: NxtpSdkBase;
   nxtpSdkUtils: NxtpSdkUtils;
   nxtpSdkRouter: NxtpSdkRouter;
-  nxtpSdkStableSwap: NxtpSdkStableSwap;
   nxtpSdkPool: NxtpSdkPool;
 };
 

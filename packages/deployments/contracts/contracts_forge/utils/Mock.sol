@@ -58,6 +58,7 @@ contract MockXAppConnectionManager is IConnectorManager {
 contract MockHome is IOutbox {
   uint32 public domain;
   bytes32 public immutable MESSAGE_HASH = bytes32("test message");
+  bytes public MESSAGE_BODY = bytes("test message");
 
   constructor(uint32 _domain) {
     domain = _domain;
@@ -67,9 +68,9 @@ contract MockHome is IOutbox {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external returns (bytes32) {
+  ) external returns (bytes32, bytes memory) {
     1 == 1;
-    return MESSAGE_HASH;
+    return (MESSAGE_HASH, bytes("test message"));
   }
 
   function localDomain() external returns (uint32) {

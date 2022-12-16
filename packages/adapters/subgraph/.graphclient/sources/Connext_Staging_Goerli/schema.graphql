@@ -686,6 +686,7 @@ type staginggoerli_OriginMessage {
   destinationDomain: BigInt
   leaf: staginggoerli_Bytes
   index: BigInt
+  message: staginggoerli_Bytes
   root: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   blockNumber: BigInt
@@ -729,6 +730,12 @@ input staginggoerli_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
+  message: staginggoerli_Bytes
+  message_not: staginggoerli_Bytes
+  message_in: [staginggoerli_Bytes!]
+  message_not_in: [staginggoerli_Bytes!]
+  message_contains: staginggoerli_Bytes
+  message_not_contains: staginggoerli_Bytes
   root: staginggoerli_Bytes
   root_not: staginggoerli_Bytes
   root_in: [staginggoerli_Bytes!]
@@ -780,6 +787,7 @@ enum staginggoerli_OriginMessage_orderBy {
   destinationDomain
   leaf
   index
+  message
   root
   transactionHash
   blockNumber
