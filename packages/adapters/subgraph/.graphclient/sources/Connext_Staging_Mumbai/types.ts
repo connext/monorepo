@@ -691,6 +691,7 @@ export type stagingmumbai_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
+  message?: Maybe<Scalars['stagingmumbai_Bytes']>;
   root?: Maybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
@@ -734,6 +735,12 @@ export type stagingmumbai_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  message?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
@@ -785,6 +792,7 @@ export type stagingmumbai_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
+  | 'message'
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
