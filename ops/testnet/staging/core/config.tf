@@ -46,7 +46,7 @@ locals {
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
   watcher_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_watcher_config },
+    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
