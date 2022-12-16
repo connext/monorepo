@@ -2,9 +2,8 @@ import { Logger, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkBase } from "./sdkBase";
 import { NxtpSdkUtils } from "./sdkUtils";
-import { NxtpSdkBridge } from "./sdkBridge";
+import { NxtpSdkBase } from "./sdkBase";
 import { NxtpSdkRouter } from "./sdkRouter";
 import { NxtpSdkPool } from "./sdkPool";
 
@@ -14,7 +13,6 @@ export const create = async (
   chainData?: Map<string, ChainData>,
 ): Promise<{
   nxtpSdkBase: NxtpSdkBase;
-  nxtpSdkBridge: NxtpSdkBridge;
   nxtpSdkUtils: NxtpSdkUtils;
   nxtpSdkRouter: NxtpSdkRouter;
   nxtpSdkPool: NxtpSdkPool;
@@ -24,9 +22,8 @@ export const create = async (
 
   const nxtpSdkBase = new NxtpSdkBase(nxtpConfig, logger, chainData!);
   const nxtpSdkUtils = await NxtpSdkUtils.create(nxtpConfig, logger, chainData);
-  const nxtpSdkBridge = await NxtpSdkBridge.create(nxtpConfig, logger, chainData);
   const nxtpSdkRouter = await NxtpSdkRouter.create(nxtpConfig, logger, chainData);
   const nxtpSdkPool = await NxtpSdkPool.create(nxtpConfig, logger, chainData);
 
-  return { nxtpSdkBase, nxtpSdkBridge, nxtpSdkUtils, nxtpSdkRouter, nxtpSdkPool };
+  return { nxtpSdkBase, nxtpSdkUtils, nxtpSdkRouter, nxtpSdkPool };
 };
