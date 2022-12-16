@@ -284,8 +284,4 @@ export class NxtpSdkBridge extends NxtpSdkBase {
 
     return relayerFeeInOrginNativeAsset;
   }
-
-  async changeSignerAddress(signerAddress: string) {
-    this.config.signerAddress = signerAddress;
-  }
 }
