@@ -1,6 +1,6 @@
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { reset, restore, stub } from "sinon";
 import { expect, mkAddress } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
+import { getConnextInterface } from "@connext/nxtp-txservice";
 import { constants, providers, BigNumber } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkRouter } from "../src/sdkRouter";
@@ -14,26 +14,20 @@ const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments.connext;
-const mockAssetId = mock.asset.A.address;
+const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
 
 const chainId = 1337;
 describe("SdkRouter", () => {
   let nxtpRouter: NxtpSdkRouter;
-  let config;
-
-  let chainReader: SinonStubbedInstance<ChainReader>;
+  let config: ConfigFns.NxtpSdkConfig;
 
   beforeEach(async () => {
-    chainReader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+
     stub(ConfigFns, "getConfig").resolves(config);
+    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     nxtpRouter = await NxtpSdkRouter.create(mockConfig, undefined, mockChainData);
-
-    (nxtpRouter as any).chainReader = chainReader;
-
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
   });
   afterEach(() => {
     restore();
@@ -63,12 +57,6 @@ describe("SdkRouter", () => {
       assetId: mock.asset.A.address,
       router: mock.address.router,
     };
-
-    it("should error if signerAddress is undefined", async () => {
-      (nxtpRouter as any).config.signerAddress = undefined;
-
-      await expect(nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
-    });
 
     it("happy: should work if ERC20", async () => {
       const data = getConnextInterface().encodeFunctionData("addRouterLiquidityFor", [
@@ -114,13 +102,11 @@ describe("SdkRouter", () => {
       const res = await nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams);
       expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
     });
-  });
 
-  describe("#changeSignerAddress", () => {
-    it("happy: should work", async () => {
-      const mockSignerAddress = mkAddress("0xabcdef456");
-      await nxtpRouter.changeSignerAddress(mockSignerAddress);
-      expect(nxtpRouter.config.signerAddress).to.be.eq(mockSignerAddress);
+    it("should error if signerAddress is undefined", async () => {
+      (nxtpRouter as any).config.signerAddress = undefined;
+
+      await expect(nxtpRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 });
