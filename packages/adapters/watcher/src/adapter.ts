@@ -1,6 +1,6 @@
 import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
-import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
+import { alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram, alertViaKeybase } from "./alert";
 import { Pauser } from "./pause";
 import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse, WatcherConfig } from "./types";
 import { AssetVerifier } from "./verifiers";
@@ -47,6 +47,9 @@ export class WatcherAdapter {
       twilioToPhoneNumbers,
       telegramApiKey,
       telegramChatId,
+      keybaseUser,
+      keybaseKey,
+      keybaseChannel,
     } = config;
 
     const errors = [];
@@ -80,6 +83,16 @@ export class WatcherAdapter {
     } catch (e: unknown) {
       logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
       errors.push(e);
+    }
+
+    if (keybaseUser && keybaseKey) {
+      // attempt to alert via keybase
+      try {
+        await alertViaKeybase(report, keybaseUser, keybaseKey, keybaseChannel);
+      } catch (e: unknown) {
+        logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
+        errors.push(e);
+      }
     }
 
     if (errors.length) {
