@@ -83,14 +83,17 @@ export const getPropagateParams = async (
       l2SpokeConnector.address,
       l1Provider,
     );
+    const gasLimitForAutoRedeem = L1ToL2MessageGasParams.gasLimit.mul(5);
     logger.info(`Got message gas params`, requestContext, methodContext, {
       maxFeePerGas: L1ToL2MessageGasParams.maxFeePerGas.toString(),
       maxSubmissionCost: L1ToL2MessageGasParams.maxSubmissionFee.toString(),
       gasLimit: L1ToL2MessageGasParams.gasLimit.toString(),
+      gasLimitForAutoRedeem: gasLimitForAutoRedeem.toString(),
     });
 
     submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(5).toString();
-    maxGas = L1ToL2MessageGasParams.gasLimit.toString();
+    // multiply gasLimit by 15 to be successful in auto-redeem
+    maxGas = gasLimitForAutoRedeem.toString();
     callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
   } catch (err: unknown) {
     console.log(err);
