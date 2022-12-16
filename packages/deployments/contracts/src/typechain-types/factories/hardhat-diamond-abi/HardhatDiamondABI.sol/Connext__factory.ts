@@ -690,6 +690,12 @@ const _abi = [
         name: "local",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "messageBody",
+        type: "bytes",
+      },
     ],
     name: "XCalled",
     type: "event",
