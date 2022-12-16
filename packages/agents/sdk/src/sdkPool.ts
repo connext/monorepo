@@ -1,6 +1,6 @@
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
-import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
@@ -19,7 +19,6 @@ export class Pool implements IPoolData {
   lpTokenAddress: string;
   canonicalHash: string; // hash of the domain and canonicalId
   address?: string; // no address if internal pool
-  // TODO: Add token index mapping to tokenAddress
 
   constructor(
     domainId: string,
@@ -94,7 +93,6 @@ export class NxtpSdkPool extends NxtpSdkBase {
     _config: NxtpSdkConfig,
     _logger?: Logger,
     _chainData?: Map<string, ChainData>,
-    _chainReader?: ChainReader,
   ): Promise<NxtpSdkPool> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {

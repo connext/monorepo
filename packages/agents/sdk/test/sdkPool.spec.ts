@@ -1,33 +1,28 @@
-import { createStubInstance, reset, restore, stub, spy, mock as sinon_mock } from "sinon";
+import { reset, restore, stub, spy } from "sinon";
 import { expect, getCanonicalHash } from "@connext/nxtp-utils";
-import { ChainReader, getConnextInterface, getDeployedConnextContract } from "@connext/nxtp-txservice";
-import { providers, utils, BigNumber, Contract, Signer } from "ethers";
+import { getConnextInterface } from "@connext/nxtp-txservice";
+import { providers, utils, BigNumber, Contract } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkPool, Pool } from "../src/sdkPool";
-import { getEnvConfig, NxtpSdkConfig } from "../src/config";
-import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/nxtp-contracts";
+import { getEnvConfig } from "../src/config";
+import { Connext } from "@connext/nxtp-contracts";
 
 import * as ConfigFns from "../src/config";
-import * as SharedFns from "../src/lib/helpers/shared";
-import { Logger } from "@connext/nxtp-utils";
-import { ERC20__factory } from "@connext/nxtp-contracts/dist/src/typechain-types/factories/contracts/core/connext/helpers/OZERC20.sol";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 describe("NxtpSdkPool", () => {
-  let config: NxtpSdkConfig;
-  let logger = createStubInstance(Logger);
-  let chainReader: ChainReader;
   let nxtpPool: NxtpSdkPool;
+  let config: ConfigFns.NxtpSdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-    chainReader = new ChainReader(logger, mockConfig);
-    nxtpPool = await NxtpSdkPool.create(mockConfig, undefined, mockChainData, chainReader);
 
     stub(ConfigFns, "getConfig").resolves(config);
+
+    nxtpPool = await NxtpSdkPool.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -225,31 +220,35 @@ describe("NxtpSdkPool", () => {
 
     it("happy: should work", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(nxtpPool, "getRepresentation").resolves("1");
-      stub(nxtpPool, "getAdopted").resolves("2");
+      stub(nxtpPool, "getRepresentation").resolves(mockParams.poolTokens[0]);
+      stub(nxtpPool, "getAdopted").resolves(mockParams.poolTokens[1]);
       stub(nxtpPool, "getLPTokenAddress").resolves(mockParams.lpTokenAddress);
+      stub(nxtpPool, "getPoolTokenBalance").resolves(mockParams.poolBalances[0]);
+      stub(nxtpPool, "getPoolTokenIndex").resolves(0);
 
       const provider = providers.getDefaultProvider();
       const connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
-
-      const erc20abi = [
-        "function decimals() public view returns (uint256)",
-        "function symbol() public view returns (string memory)",
-      ];
-      const erc20Contract = new Contract(mockParams.tokenAddress, erc20abi);
+      const mockERC20 = {
+        symbol: function () {
+          return "TSTA";
+        },
+        decimals: function () {
+          return 18;
+        },
+      };
 
       stub(nxtpPool, "getConnext").resolves(connextContract as Connext);
-      stub(nxtpPool, "getERC20").resolves(erc20Contract as IERC20);
+      stub(nxtpPool, "getERC20").resolves(mockERC20 as any);
 
-      // const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
+      const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
 
-      // expect(res!.domainId).to.equal(mockParams.domainId);
-      // expect(res!.name).to.equal(mockParams.poolName);
-      // expect(res!.symbol).to.equal(mockParams.poolSymbol);
-      // expect(res!.tokens).to.deep.equal(mockParams.poolTokens);
-      // expect(res!.decimals).to.deep.equal(mockParams.poolDecimals);
-      // expect(res!.balances).to.deep.equal(mockParams.poolBalances);
-      // expect(res!.lpTokenAddress).to.equal(mockParams.lpTokenAddress);
+      expect(res!.domainId).to.equal(mockParams.domainId);
+      expect(res!.name).to.equal(mockParams.poolName);
+      expect(res!.symbol).to.equal(mockParams.poolSymbol);
+      expect(res!.tokens).to.deep.equal(mockParams.poolTokens);
+      expect(res!.decimals).to.deep.equal(mockParams.poolDecimals);
+      expect(res!.balances).to.deep.equal(mockParams.poolBalances);
+      expect(res!.lpTokenAddress).to.equal(mockParams.lpTokenAddress);
     });
 
     it("should throw if local domain is canonical", async () => {
@@ -262,10 +261,6 @@ describe("NxtpSdkPool", () => {
 
     it("should return undefined if local token is adopted", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.key]);
-      stub(chainReader, "readTx").onCall(0).resolves("0x");
-
-      // stub call to canonicalToAdopted()
-      stub(nxtpPool.connext, "decodeFunctionResult").onCall(0).returns([mockParams.key]);
 
       expect(nxtpPool.getPool(mockParams.domainId, mockParams.key)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),
