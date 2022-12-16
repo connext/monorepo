@@ -86,7 +86,8 @@ contract BridgeFacet is BaseConnextFacet {
     TransferInfo params,
     address asset,
     uint256 amount,
-    address local
+    address local,
+    bytes messageBody
   );
 
   /**
@@ -588,7 +589,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Send the crosschain message.
-    bytes32 messageHash = _sendMessage(
+    (bytes32 messageHash, bytes memory messageBody) = _sendMessage(
       transferId,
       _params.destinationDomain,
       remoteInstance,
@@ -599,7 +600,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount, local);
+    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount, local, messageBody);
 
     return transferId;
   }
@@ -951,7 +952,7 @@ contract BridgeFacet is BaseConnextFacet {
     address _local,
     uint256 _amount,
     bool _isCanonical
-  ) private returns (bytes32) {
+  ) private returns (bytes32, bytes memory) {
     // Remove tokens from circulation on this chain if applicable.
     if (_amount > 0) {
       if (!_isCanonical) {
@@ -974,8 +975,8 @@ contract BridgeFacet is BaseConnextFacet {
     // Send message to destination chain bridge router.
     bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(_destination, _connextion, _messageBody);
 
-    // return message hash
-    return _messageHash;
+    // return message hash and unhashed body
+    return (_messageHash, _messageBody);
   }
 
   /**
