@@ -91,13 +91,6 @@ describe("SdkBase", () => {
 
     beforeEach(async () => {
       connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
-      const erc20abi = [
-        "function decimals() public view returns (uint256)",
-        "function symbol() public view returns (string memory)",
-        "function allowance(address,address) public view returns (uint256)",
-        "function approve(address,uint256) external returns (bool)",
-      ];
-      erc20Contract = new Contract(mockParams.tokenAddress, erc20abi);
     });
 
     it("happy: should work for Native", async () => {
