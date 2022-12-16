@@ -11,9 +11,6 @@
   "references": [
     {
       "path": "../../utils/tsconfig.build.json"
-    },
-    {
-      "path": "../../agents/relayer/tsconfig.build.json"
     }
   ]
 }
