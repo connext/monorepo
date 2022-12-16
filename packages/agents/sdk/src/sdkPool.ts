@@ -411,13 +411,6 @@ export class NxtpSdkPool extends NxtpSdkBase {
 
   // ------------------- Read Operations ------------------- //
 
-  async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
-    const connextContract = await this.getConnext(domainId);
-    const tokenId = await connextContract.getTokenId(tokenAddress);
-
-    return [tokenId.domain.toString(), tokenId.id];
-  }
-
   async getLPTokenAddress(domainId: string, tokenAddress: string): Promise<string> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),

@@ -109,4 +109,11 @@ export class NxtpSdkBase {
   calculateCanonicalKey(domainId: string, tokenId: string): string {
     return getCanonicalHash(domainId, tokenId);
   }
+
+  async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
+    const connextContract = await this.getConnext(domainId);
+    const tokenId = await connextContract.getTokenId(tokenAddress);
+
+    return [tokenId.domain.toString(), tokenId.id];
+  }
 }

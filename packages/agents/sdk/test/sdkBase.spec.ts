@@ -63,6 +63,7 @@ describe("SdkBase", () => {
       expect(nxtpSdkBase.changeSignerAddress).to.be.a("function");
       expect(nxtpSdkBase.parseConnextTransactionReceipt).to.be.a("function");
       expect(nxtpSdkBase.calculateCanonicalKey).to.be.a("function");
+      expect(nxtpSdkBase.getCanonicalTokenId).to.be.a("function");
     });
   });
 
