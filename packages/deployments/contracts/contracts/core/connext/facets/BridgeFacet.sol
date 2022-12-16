@@ -589,18 +589,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Send the crosschain message.
-    (bytes32 messageHash, bytes memory messageBody) = _sendMessage(
-      transferId,
-      _params.destinationDomain,
-      remoteInstance,
-      canonical,
-      local,
-      _params.bridgedAmt,
-      isCanonical
-    );
-
-    // emit event
-    emit XCalled(transferId, _params.nonce, messageHash, _params, _asset, _amount, local, messageBody);
+    _sendMessageAndEmit(transferId, _params, _asset, _amount, remoteInstance, canonical, local, isCanonical);
 
     return transferId;
   }
@@ -930,13 +919,13 @@ contract BridgeFacet is BaseConnextFacet {
     return (_fastTransferAmount, adopted);
   }
 
-  // ============ Internal: Send ============
+  // ============ Internal: Send & Emit Xcalled============
 
   /**
    * @notice Format and send transfer message to a remote chain.
    *
    * @param _transferId Unique identifier for the transfer.
-   * @param _destination The destination domain.
+   * @param _params The TransferInfo.
    * @param _connextion The connext instance on the destination domain.
    * @param _canonical The canonical token ID/domain info.
    * @param _local The local token address.
@@ -944,20 +933,22 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _isCanonical Whether or not the local token is the canonical asset (i.e. this is the token's
    * "home" chain).
    */
-  function _sendMessage(
+  function _sendMessageAndEmit(
     bytes32 _transferId,
-    uint32 _destination,
+    TransferInfo memory _params,
+    address _asset,
+    uint256 _amount,
     bytes32 _connextion,
     TokenId memory _canonical,
     address _local,
-    uint256 _amount,
     bool _isCanonical
-  ) private returns (bytes32, bytes memory) {
+  ) private {
     // Remove tokens from circulation on this chain if applicable.
-    if (_amount > 0) {
+    uint256 bridgedAmt = _params.bridgedAmt;
+    if (bridgedAmt > 0) {
       if (!_isCanonical) {
         // If the token originates on a remote chain, burn the representational tokens on this chain.
-        IBridgeToken(_local).burn(address(this), _amount);
+        IBridgeToken(_local).burn(address(this), bridgedAmt);
       }
       // IFF the token IS the canonical token (i.e. originates on this chain), we lock the input tokens in escrow
       // in this contract, as an equal amount of representational assets will be minted on the destination chain.
@@ -968,15 +959,20 @@ contract BridgeFacet is BaseConnextFacet {
       _canonical.domain,
       _canonical.id,
       BridgeMessage.Types.Transfer,
-      _amount,
+      bridgedAmt,
       _transferId
     );
 
     // Send message to destination chain bridge router.
-    bytes32 _messageHash = IOutbox(s.xAppConnectionManager.home()).dispatch(_destination, _connextion, _messageBody);
-
     // return message hash and unhashed body
-    return (_messageHash, _messageBody);
+    (bytes32 messageHash, bytes memory messageBody) = IOutbox(s.xAppConnectionManager.home()).dispatch(
+      _params.destinationDomain,
+      _connextion,
+      _messageBody
+    );
+
+    // emit event
+    emit XCalled(_transferId, _params.nonce, messageHash, _params, _asset, _amount, _local, messageBody);
   }
 
   /**
