@@ -36,6 +36,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       transferId
       destinationDomain
       transactionHash
+      message
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
