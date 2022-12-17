@@ -358,12 +358,8 @@ locals {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
-            name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+            name    = "BigBroERC20"
+            address = "0x2D4A671E49d39Fc13F9237f60B6E6FDd16d8Ad4d"
           }
         ]
       }
@@ -371,48 +367,18 @@ locals {
         providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
         assets = [
           {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
-          {
-            name    = "WETH"
-            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
-          }
-        ]
-      }
-      "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
-          },
-          {
-            name    = "WETH"
-            address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
-          }
-        ]
-      }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
-          },
-          {
-            name    = "WETH"
-            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+            name    = "BigBroERC20"
+            address = "0xF6dbBbDa9F1F891C12FF4E0aB0FF65a228B72a94"
           }
         ]
       }
     }
     web3SignerUrl = "https://${module.watcher_web3signer.service_endpoint}"
     environment   = var.stage
-    discordHookUrl: "https://discord.com/api/webhooks/${var.discord_webhook_key}"
-    telegramApiKey: "${var.telegram_api_key}"
-    telegramChatId: "${var.telegram_chat_id}"
-    keybaseUser: "${var.keybase_user}"
-    keybaseKey: "${var.keybase_key}"
+    discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
+    telegramApiKey = "${var.telegram_api_key}"
+    telegramChatId = "${var.telegram_chat_id}"
+    keybaseUser = "${var.keybase_user}"
+    keybaseKey = "${var.keybase_key}"
   })
 }
