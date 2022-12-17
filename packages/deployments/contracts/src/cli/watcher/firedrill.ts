@@ -16,7 +16,7 @@ export const optionDefinitions: commandLineArgs.OptionDefinition[] = [
   { name: "period", type: Number, defaultValue: 172_800_000 }, // default 48h
 ];
 
-export const ruinWeekend = async () => {
+export const wouldYouLikeToPlayAGame = async () => {
   let cmdArgs: any;
   try {
     cmdArgs = commandLineArgs(optionDefinitions);

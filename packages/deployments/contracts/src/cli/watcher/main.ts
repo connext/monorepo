@@ -1,3 +1,3 @@
-import { ruinWeekend } from "./firedrill";
+import { wouldYouLikeToPlayAGame } from "./firedrill";
 
-ruinWeekend();
+wouldYouLikeToPlayAGame();
