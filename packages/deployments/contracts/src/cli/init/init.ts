@@ -6,8 +6,8 @@ import commandLineArgs from "command-line-args";
 import { ajv, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, domainToChainId } from "../domain";
-import { hardhatNetworks } from "../config";
+import { canonizeId, domainToChainId } from "../../domain";
+import { hardhatNetworks } from "../../config";
 
 import {
   ProtocolStack,
