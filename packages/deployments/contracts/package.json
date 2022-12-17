@@ -21,7 +21,8 @@
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "hardhat": "hardhat",
     "size": "hardhat size-contracts",
-    "initialize": "ts-node ./src/init/main.ts",
+    "initialize": "ts-node ./src/cli/init/main.ts",
+    "firedrill": "ts-node ./src/cli/firedrill/main.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",
