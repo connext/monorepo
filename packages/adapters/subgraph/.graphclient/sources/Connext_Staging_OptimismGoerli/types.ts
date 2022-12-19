@@ -691,8 +691,8 @@ export type stagingoptimismgoerli_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  root?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<stagingoptimismgoerli_RootCount>;
@@ -735,18 +735,18 @@ export type stagingoptimismgoerli_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   message_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  root?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
@@ -792,8 +792,8 @@ export type stagingoptimismgoerli_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';

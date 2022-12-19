@@ -59,6 +59,22 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           desired: RootManager.address,
         });
 
+        /// MARK - Connectors: Mirrors
+        // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+        console.log("\tVerifying mirror connectors are set correctly.");
+        await updateIfNeeded({
+          deployment: HubConnector,
+          desired: SpokeConnector.address,
+          read: { method: "mirrorConnector", args: [] },
+          write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
+        });
+        await updateIfNeeded({
+          deployment: SpokeConnector,
+          desired: HubConnector.address,
+          read: { method: "mirrorConnector", args: [] },
+          write: { method: "setMirrorConnector", args: [HubConnector.address] },
+        });
+
         /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
@@ -89,20 +105,13 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
         });
 
-        /// MARK - Connectors: Mirrors
-        // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
-        console.log("\tVerifying mirror connectors are set correctly.");
-        await updateIfNeeded({
-          deployment: HubConnector,
-          desired: SpokeConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
-        });
+        /// MARK - Connectors: Allowlist Senders
+        console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
         await updateIfNeeded({
           deployment: SpokeConnector,
-          desired: HubConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [HubConnector.address] },
+          desired: true,
+          read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
+          write: { method: "addSender", args: [spoke.deployments.Connext.address] },
         });
 
         /// MARK - MerkleTreeManager
@@ -122,15 +131,6 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
           desired: SpokeConnector.address,
           read: { method: "xAppConnectionManager", args: [] },
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
-        });
-
-        /// MARK - Connectors: Allowlist Senders
-        console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
-        await updateIfNeeded({
-          deployment: SpokeConnector,
-          desired: true,
-          read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
-          write: { method: "addSender", args: [spoke.deployments.Connext.address] },
         });
       }
     }
@@ -160,6 +160,14 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     deployment: MainnetConnector,
     desired: RootManager.address,
     read: "ROOT_MANAGER",
+  });
+
+  // Make sure connext is allowlisted sender for MainnetConnector.
+  await updateIfNeeded({
+    deployment: MainnetConnector,
+    desired: true,
+    read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
+    write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
 
   // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
@@ -205,12 +213,5 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
-  });
-
-  await updateIfNeeded({
-    deployment: MainnetConnector,
-    desired: true,
-    read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
-    write: { method: "addSender", args: [hub.deployments.Connext.address] },
   });
 };

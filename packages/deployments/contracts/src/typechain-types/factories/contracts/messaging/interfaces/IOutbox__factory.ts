@@ -72,6 +72,11 @@ const _abi = [
         name: "",
         type: "bytes32",
       },
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
     ],
     stateMutability: "nonpayable",
     type: "function",

@@ -142,17 +142,18 @@ const proposeDiamondUpgrade = async (
   }
 
   // If no changes detected, do nothing
-  if (!changesDetected) {
+  if (!changesDetected || facetCuts.length === 0) {
+    console.log(`no diamond upgrade proposal needed`);
     return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
   const acceptanceTime = await contract.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
-    console.log(`cut has already been proposed`);
+    console.log(`cut has already been proposed:`, facetCuts);
     return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
-  console.log("calling propose");
+  console.log("calling propose with", facetCuts);
 
   // Propose facet cut
   return { cuts: facetCuts, tx: await contract.proposeDiamondCut(facetCuts, constants.AddressZero, "0x"), abi: abi };

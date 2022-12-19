@@ -28,31 +28,31 @@ variable "environment" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:sha-64dc7c9"
+  default     = "ghcr.io/connext/router-publisher:sha-b5bb49a"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:sha-64dc7c9"
+  default     = "ghcr.io/connext/router-subscriber:sha-b5bb49a"
 }
 
 variable "full_image_name_router_executor" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-executor:sha-64dc7c9"
+  default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
 }
 
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-publisher:sha-64dc7c9"
+  default     = "ghcr.io/connext/sequencer-publisher:sha-b5bb49a"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-subscriber:sha-64dc7c9"
+  default     = "ghcr.io/connext/sequencer-subscriber:sha-b5bb49a"
 }
 
 variable "lighthouse_image_tag" {
@@ -144,7 +144,7 @@ variable "postgres_user" {
 variable "full_image_name_relayer" {
   type        = string
   description = "relayer image name"
-  default     = "ghcr.io/connext/relayer:sha-64dc7c9"
+  default     = "ghcr.io/connext/relayer:sha-b5bb49a"
 }
 variable "relayer_web3_signer_private_key" {
   type = string
@@ -153,4 +153,41 @@ variable "relayer_web3_signer_private_key" {
 variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
+}
+
+variable "full_image_name_watcher" {
+  type        = string
+  description = "watcher image name"
+  default     = "ghcr.io/connext/watcher:sha-b5bb49a"
+}
+variable "watcher_web3_signer_private_key" {
+  type = string
+}
+variable "admin_token_watcher" {
+  type    = string
+  default = "blahblah"
+}
+
+variable "discord_webhook_key" {
+  type = string
+}
+
+variable "telegram_api_key" {
+  type = string
+}
+
+variable "telegram_chat_id" {
+  type = string
+}
+
+variable "keybase_user" {
+  type = string
+}
+
+variable "keybase_key" {
+  type = string
+}
+
+variable "keybase_channel" {
+  type = string
 }

@@ -7,6 +7,14 @@ export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
 });
+export const KeybaseChannelSchema = Type.Object({
+  name: Type.String(),
+  public: Type.Boolean(),
+  membersType: Type.Optional(Type.String()),
+  topicType: Type.Optional(Type.String()),
+  topicName: Type.Optional(Type.String()),
+});
+export type KeybaseChannel = Static<typeof KeybaseChannelSchema>;
 
 export const WatcherConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
@@ -29,6 +37,9 @@ export const WatcherConfigSchema = Type.Object({
   twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
+  keybaseUser: Type.Optional(Type.String()),
+  keybaseKey: Type.Optional(Type.String()),
+  keybaseChannel: Type.Optional(KeybaseChannelSchema),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
@@ -83,6 +94,13 @@ export const getEnvConfig = (): WatcherConfig => {
       process.env.TWILIO_TO_PHONE_NUMBERS || configJson.twilioToPhoneNumbers || configFile.twilioToPhoneNumbers || [],
     telegramApiKey: process.env.TELEGRAM_API_KEY || configJson.telegramApiKey || configFile.telegramApiKey,
     telegramChatId: process.env.TELEGRAM_CHAT_ID || configJson.telegramChatId || configFile.telegramChatId,
+    keybaseUser: process.env.KEYBASE_USER || configJson.keybaseUser || configFile.keybaseUser,
+    keybaseKey: process.env.KEYBASE_KEY || configJson.keybaseKey || configFile.keybaseKey,
+    keybaseChannel: process.env.KEYBASE_CHANNEL_CONFIG
+      ? JSON.parse(process.env.KEYBASE_CHANNEL_CONFIG)
+      : configJson.keybaseChannel
+      ? configJson.keybaseChannel
+      : configFile.keybaseChannel,
   };
 
   const validate = ajv.compile(WatcherConfigSchema);

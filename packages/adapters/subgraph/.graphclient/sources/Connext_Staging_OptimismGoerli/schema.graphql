@@ -686,8 +686,8 @@ type stagingoptimismgoerli_OriginMessage {
   destinationDomain: BigInt
   leaf: stagingoptimismgoerli_Bytes
   index: BigInt
-  root: stagingoptimismgoerli_Bytes
   message: stagingoptimismgoerli_Bytes
+  root: stagingoptimismgoerli_Bytes
   transactionHash: stagingoptimismgoerli_Bytes
   blockNumber: BigInt
   rootCount: stagingoptimismgoerli_RootCount
@@ -730,18 +730,18 @@ input stagingoptimismgoerli_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  root: stagingoptimismgoerli_Bytes
-  root_not: stagingoptimismgoerli_Bytes
-  root_in: [stagingoptimismgoerli_Bytes!]
-  root_not_in: [stagingoptimismgoerli_Bytes!]
-  root_contains: stagingoptimismgoerli_Bytes
-  root_not_contains: stagingoptimismgoerli_Bytes
   message: stagingoptimismgoerli_Bytes
   message_not: stagingoptimismgoerli_Bytes
   message_in: [stagingoptimismgoerli_Bytes!]
   message_not_in: [stagingoptimismgoerli_Bytes!]
   message_contains: stagingoptimismgoerli_Bytes
   message_not_contains: stagingoptimismgoerli_Bytes
+  root: stagingoptimismgoerli_Bytes
+  root_not: stagingoptimismgoerli_Bytes
+  root_in: [stagingoptimismgoerli_Bytes!]
+  root_not_in: [stagingoptimismgoerli_Bytes!]
+  root_contains: stagingoptimismgoerli_Bytes
+  root_not_contains: stagingoptimismgoerli_Bytes
   transactionHash: stagingoptimismgoerli_Bytes
   transactionHash_not: stagingoptimismgoerli_Bytes
   transactionHash_in: [stagingoptimismgoerli_Bytes!]
@@ -787,8 +787,8 @@ enum stagingoptimismgoerli_OriginMessage_orderBy {
   destinationDomain
   leaf
   index
-  root
   message
+  root
   transactionHash
   blockNumber
   rootCount

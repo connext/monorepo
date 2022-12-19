@@ -691,8 +691,8 @@ export type staginggoerli_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['staginggoerli_Bytes']>;
   message?: Maybe<Scalars['staginggoerli_Bytes']>;
+  root?: Maybe<Scalars['staginggoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<staginggoerli_RootCount>;
@@ -735,18 +735,18 @@ export type staginggoerli_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   message?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   message_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   message_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
@@ -792,8 +792,8 @@ export type staginggoerli_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';

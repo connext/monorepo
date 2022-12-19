@@ -1,4 +1,4 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 /**
  * AMB information contained below is used for setting up the testbed environment in deployment step
@@ -301,9 +301,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
             outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-            maxSubmissionCostCap: DEFAULT_PROCESS_GAS,
+            maxSubmissionCostCap: utils.parseUnits("200", "gwei"),
             maxGasCap: DEFAULT_PROCESS_GAS,
-            gasPriceCap: DEFAULT_RESERVE_GAS,
+            gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
           },
         },
       },
@@ -327,31 +327,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      97: {
-        prefix: "Multichain",
-        networkName: "Chapel",
-        ambs: {
-          // AnyCallV6Proxy on goerli
-          // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-          hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-          // AnyCallV6Proxy on chapel/bsc testnet
-          // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-          spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            mirrorChainId: "97",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-          spoke: {
-            mirrorChainId: "5",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-        },
-      },
+      // 97: {
+      //   prefix: "Multichain",
+      //   networkName: "Chapel",
+      //   ambs: {
+      //     // AnyCallV6Proxy on goerli
+      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
+      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
+      //     // AnyCallV6Proxy on chapel/bsc testnet
+      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
+      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   custom: {
+      //     hub: {
+      //       mirrorChainId: "97",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //     spoke: {
+      //       mirrorChainId: "5",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //   },
+      // },
       5: {
         prefix: "Mainnet",
         ambs: {

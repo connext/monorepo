@@ -101,6 +101,10 @@ export const calculateAmountReceivedSchema = Type.Object({
   isNextAsset: Type.Optional(Type.Boolean()),
 });
 
+export const getTokenPriceSchema = Type.Object({
+  tokenSymbol: Type.String(),
+});
+
 export const getPoolSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
@@ -221,4 +225,22 @@ export const getYieldDataSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   days: Type.Optional(Type.Number()),
+});
+
+export const addLiquidityForRouterSchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    router: Type.String(),
+  }),
+});
+
+export const removeRouterLiquiditySchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    recipient: Type.String(),
+  }),
 });

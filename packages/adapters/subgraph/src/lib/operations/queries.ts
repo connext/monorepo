@@ -33,10 +33,10 @@ export const ORIGIN_MESSAGE_ENTITY = `
       leaf
       index
       root
-      message
       transferId
       destinationDomain
       transactionHash
+      message
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
