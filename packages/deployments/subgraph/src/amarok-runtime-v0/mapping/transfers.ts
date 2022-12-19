@@ -130,6 +130,7 @@ export function handleExecuted(event: Executed): void {
   // Assets
   transfer.bridgedAmt = event.params.args.params.bridgedAmt;
   transfer.normalizedIn = event.params.args.params.normalizedIn;
+  transfer.amountOut = event.params.amount;
   transfer.canonicalId = event.params.args.params.canonicalId;
   transfer.canonicalDomain = event.params.args.params.canonicalDomain;
   transfer.asset = getOrCreateAsset(event.params.local).id;
