@@ -80,9 +80,9 @@ export default task("redeem", "Process a transaction on a spoke for L1 -> L2 mes
       throw new Error(`Only arbitrum-goerli supported, requesting redeem for spoke ${spoke}`);
     }
     // get the l2 provider
-    const l2Provider = getProviderFromHardhatConfig(hardhatConfig, spoke);
+    const l2Provider = getProviderFromHardhatConfig(spoke);
     // get the l1 provider
-    const l1Provider = getProviderFromHardhatConfig(hardhatConfig, protocolConfig.hub);
+    const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub);
 
     await redeemFromArbitrum(tx, deployer, force, l1Provider, l2Provider);
   });
