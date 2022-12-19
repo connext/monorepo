@@ -142,7 +142,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       slippage: entity.slippage,
       originSender: entity.originSender,
       bridgedAmt: entity.bridgedAmt,
-      amountOut: entity.amountOut,
+      amount: entity.amount,
       normalizedIn: entity.normalizedIn,
       nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
       canonicalId: entity.canonicalId,
@@ -162,10 +162,10 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       // Assets
       assets: {
         transacting:
-          entity.amountOut && entity.asset
+          entity.amount && entity.asset
             ? {
                 asset: entity.asset?.adoptedAsset ?? constants.AddressZero,
-                amount: entity.amountOut,
+                amount: entity.amount,
               }
             : undefined,
         local: {
