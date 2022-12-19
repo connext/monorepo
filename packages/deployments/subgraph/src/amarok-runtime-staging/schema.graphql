@@ -79,6 +79,7 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
+  amount: BigInt
 
   # Message
   message: OriginMessage
