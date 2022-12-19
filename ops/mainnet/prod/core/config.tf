@@ -345,7 +345,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "${var.connext_relayer_api_key}",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
