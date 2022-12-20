@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
@@ -846,7 +847,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     async (
       domainId: string,
       tokenAddress: string,
-      days = 1,
+      days: number = 1,
     ): Promise<
       | {
           apr: number;
