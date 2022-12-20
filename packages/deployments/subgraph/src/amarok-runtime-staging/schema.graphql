@@ -159,19 +159,6 @@ type OriginMessage @entity {
   rootCount: RootCount
 }
 
-type DestinationMessage @entity {
-  id: ID!
-
-  # Process Transaction
-  leaf: Bytes
-  processed: Boolean
-  returnData: Bytes
-  success: Boolean
-
-  transactionHash: Bytes
-  blockNumber: BigInt
-}
-
 type AggregateRoot @entity {
   id: ID!
   root: Bytes!
