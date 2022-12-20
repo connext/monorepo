@@ -118,6 +118,7 @@ type DestinationTransfer @entity {
 
   # Asset
   asset: Asset
+  amount: BigInt
 
   # calculated
   routersFee: BigInt
@@ -156,19 +157,6 @@ type OriginMessage @entity {
 
   # root count RD
   rootCount: RootCount
-}
-
-type DestinationMessage @entity {
-  id: ID!
-
-  # Process Transaction
-  leaf: Bytes
-  processed: Boolean
-  returnData: Bytes
-  success: Boolean
-
-  transactionHash: Bytes
-  blockNumber: BigInt
 }
 
 type AggregateRoot @entity {

@@ -1,17 +1,6 @@
 /* eslint-disable prefer-const */
-import {
-  NewConnector,
-  AggregateRootReceived,
-  MessageSent,
-  Process,
-} from "../../../generated/SpokeConnector/SpokeConnector";
-import {
-  AggregateRoot,
-  RootMessageSent,
-  ConnectorMeta,
-  RootCount,
-  DestinationMessage,
-} from "../../../generated/schema";
+import { NewConnector, AggregateRootReceived, MessageSent } from "../../../generated/SpokeConnector/SpokeConnector";
+import { AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -74,22 +63,4 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
   aggregateRoot.root = event.params.root;
   aggregateRoot.blockNumber = event.block.number;
   aggregateRoot.save();
-}
-
-export function handleProcess(event: Process): void {
-  // Process(bytes32 leaf, bool success, bytes returnData);
-  let message = DestinationMessage.load(event.params.leaf.toHexString());
-  if (message == null) {
-    message = new DestinationMessage(event.params.leaf.toHexString());
-  }
-
-  message.leaf = event.params.leaf;
-  message.success = event.params.success;
-  message.returnData = event.params.returnData;
-
-  message.transactionHash = event.transaction.hash;
-  message.processed = true; // always true, todo: remove from schema
-
-  message.blockNumber = event.block.number;
-  message.save();
 }

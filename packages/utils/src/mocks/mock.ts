@@ -17,7 +17,6 @@ import {
   RootMessage,
   XCallArgs,
   OriginMessage,
-  DestinationMessage,
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
@@ -362,13 +361,6 @@ export const mock = {
       index: Math.floor(Date.now() / 1000),
       root: getRandomBytes32(),
       message: getRandomBytes32(),
-      ...overrides,
-    }),
-    destinationMessage: (overrides: Partial<DestinationMessage> = {}): DestinationMessage => ({
-      domain: mock.domain.A,
-      leaf: getRandomBytes32(),
-      processed: false,
-      returnData: getRandomBytes32(),
       ...overrides,
     }),
     xMessage: (overrides: Partial<XMessage> = {}): XMessage => ({

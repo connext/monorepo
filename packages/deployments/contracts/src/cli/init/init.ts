@@ -18,6 +18,7 @@ import {
   InitConfig,
   InitConfigSchema,
   AssetStack,
+  SpokeMessagingDeployments,
 } from "./helpers";
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
@@ -229,7 +230,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* CONNEXT *********************
   /// MARK - Enroll Handlers
-  console.log("\n\nEnrolling handlers");
+  console.log("\n\nENROLLING HANDLERS");
   for (let i = 0; i < protocol.networks.length; i++) {
     const targetNetwork = protocol.networks[i];
     const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
@@ -243,6 +244,56 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           method: "enrollRemoteRouter",
           args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
         },
+        chainData,
+      });
+    }
+  }
+
+  /// ********************* Relayer Proxy **********************
+  /// MARK - relayer proxy
+  console.log("\n\nCONFIGURE RELAYER PROXY");
+  // On all domains, ensure the following are correctly set:
+  // - connext
+  // - spoke connector
+  // - gelato relayer -- TODO: need to update config
+  // - gelato fee collector -- TODO: need to update config
+  for (const network of protocol.networks) {
+    const isHub = network.domain === protocol.hub;
+    const { Connext, messaging } = network.deployments;
+
+    // update connext
+    await updateIfNeeded({
+      deployment: messaging.RelayerProxy,
+      desired: Connext.address,
+      read: { method: "connext" },
+      write: { method: "setConnext", args: [Connext.address] },
+      chainData,
+    });
+
+    // update spoke -- use MainnetConnector key if on hub
+    const spokeConnector = isHub
+      ? (messaging as HubMessagingDeployments).MainnetConnector.address
+      : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
+    await updateIfNeeded({
+      deployment: messaging.RelayerProxy,
+      desired: spokeConnector,
+      read: { method: "spokeConnector" },
+      write: { method: "setSpokeConnector", args: [spokeConnector] },
+      chainData,
+    });
+
+    // TODO: gelato relayer
+    // TODO: gelato fee connector
+
+    // On hub, ensure the following are correctly set:
+    // - root manager
+    if (isHub) {
+      const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
+      await updateIfNeeded({
+        deployment: messaging.RelayerProxy,
+        desired: rootManager,
+        read: { method: "rootManager" },
+        write: { method: "setRootManager", args: [rootManager] },
         chainData,
       });
     }
