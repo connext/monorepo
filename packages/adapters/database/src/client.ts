@@ -268,6 +268,16 @@ export const getCheckPoint = async (
   return BigNumber.from(result?.check_point ?? 0).toNumber();
 };
 
+export const getDomainFromRoot = async (
+  root: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  const result = await db.selectOne("messages", { root }).run(poolToUse);
+  return result?.origin_domain;
+};
+
 export const getTransferByTransferId = async (
   transfer_id: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
