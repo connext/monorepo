@@ -24,6 +24,10 @@ export class NxtpSdkShared {
     this.contracts = getContractInterfaces();
   }
 
+  getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
+    return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
+  });
+
   getConnext = memoize(
     async (domainId: string): Promise<Connext> => {
       const connextAddress = this.config.chains[domainId]?.deployments?.connext;
@@ -31,7 +35,7 @@ export class NxtpSdkShared {
         throw new ContractAddressMissing();
       }
 
-      const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+      const provider = this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -39,7 +43,7 @@ export class NxtpSdkShared {
 
   getERC20 = memoize(
     async (domainId: string, tokenAddress: string): Promise<IERC20> => {
-      const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+      const provider = this.getProvider(domainId);
       return IERC20__factory.connect(tokenAddress, provider);
     },
     { promise: true },
