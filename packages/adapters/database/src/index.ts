@@ -99,6 +99,7 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
   getUnProcessedMessages: (
+    origin_domain: string,
     limit?: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",

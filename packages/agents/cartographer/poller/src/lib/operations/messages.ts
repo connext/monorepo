@@ -45,36 +45,30 @@ export const updateMessages = async () => {
   const {
     adapters: { database },
     logger,
+    domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
-  logger.debug("Updating messages", requestContext, methodContext);
-  const pendingMessages = await database.getUnProcessedMessages();
-  const messageLeavesByDomain: Map<string, string[]> = new Map();
-  for (const pendingMessage of pendingMessages) {
-    if (messageLeavesByDomain.has(pendingMessage.destinationDomain)) {
-      messageLeavesByDomain.get(pendingMessage.destinationDomain)?.push(pendingMessage.leaf);
-    } else {
-      messageLeavesByDomain.set(pendingMessage.destinationDomain, [pendingMessage.leaf]);
+  for (const domain of domains) {
+    logger.debug("Updating messages", requestContext, methodContext, { domain });
+    const pendingMessages = await database.getUnProcessedMessages(domain);
+    const messageHashes = pendingMessages.map((message) => message.leaf);
+    const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
+
+    const xMessages: XMessage[] = [];
+    for (const pendingMessage of pendingMessages) {
+      const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
+      if (!completed) continue;
+      xMessages.push({
+        ...pendingMessage,
+        destination: {
+          processed: true,
+          returnData: "",
+        },
+      });
     }
+    await database.saveMessages(xMessages);
+    logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length, domain });
   }
-  const messageHashes = pendingMessages.map((message) => message.leaf);
-  const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
-
-  const xMessages: XMessage[] = [];
-  for (const pendingMessage of pendingMessages) {
-    const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
-    if (!completed) continue;
-    xMessages.push({
-      ...pendingMessage,
-      destination: {
-        processed: true,
-        returnData: "",
-      },
-    });
-  }
-
-  await database.saveMessages(xMessages);
-  logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length });
 };
 
 export const retrieveSentRootMessages = async () => {
