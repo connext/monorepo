@@ -10,7 +10,7 @@ import { ChainsProvider } from "../contexts/Chains";
 import { AssetsProvider } from "../contexts/Assets";
 import { BalancesProvider } from "../contexts/Balances";
 import { SdkProvider } from "../contexts/Sdk";
-import { Pool } from "../components/Pool";
+import { Pools } from "../components/Pools";
 import { CrossChainTransfer } from "../components/CrossChainTransfer";
 
 const App = () => {
@@ -37,7 +37,7 @@ const App = () => {
                     <p>Pool</p>
                   </div>
                   <div className="flex justify-center items-center">
-                    <Pool />
+                    <Pools />
                   </div>
                 </div>
               </SdkProvider>

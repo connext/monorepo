@@ -16,7 +16,7 @@ type staginggoerli_AggregatedMessageRoot {
   id: ID!
   index: BigInt!
   receivedRoot: staginggoerli_Bytes!
-  domain: BigInt!
+  domain: BigInt
 }
 
 input staginggoerli_AggregatedMessageRoot_filter {
