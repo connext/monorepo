@@ -181,6 +181,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: "0x1300000000000000000000000000000000000000",
           bridgedAmt: undefined,
+          amount: "100",
           normalizedIn: undefined,
           nonce: 0,
           canonicalId: undefined,
@@ -191,7 +192,10 @@ describe("Helpers:parse", () => {
           status: "Executed",
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
-            transacting: undefined,
+            transacting: {
+              amount: "100",
+              asset: "0x0000000000000000000000000000000000000000",
+            },
             local: { asset: constants.AddressZero, amount: undefined },
           },
           execute: {
@@ -240,6 +244,7 @@ describe("Helpers:parse", () => {
           originSender: "0x1300000000000000000000000000000000000000",
           bridgedAmt: undefined,
           normalizedIn: undefined,
+          amount: undefined,
           nonce: 0,
           canonicalId: undefined,
         },

@@ -140,6 +140,7 @@ export const DestinationTransferSchema = Type.Intersect([
       originSender: TAddress,
       bridgedAmt: Type.String(),
       normalizedIn: TIntegerString,
+      amount: TIntegerString,
       nonce: Type.Optional(Type.Number()),
       canonicalId: Type.String(),
     }),
