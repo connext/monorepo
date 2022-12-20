@@ -114,7 +114,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
 const convertToDbAggregatedRoot = (root: AggregatedRoot): s.aggregated_roots.Insertable => {
   return {
     id: root.id,
-    domain: root.domain,
+    domain: root.domain!,
     received_root: root.receivedRoot,
     domain_index: root.index,
   };
