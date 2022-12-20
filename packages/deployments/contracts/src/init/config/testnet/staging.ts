@@ -3,8 +3,8 @@ import { InitConfig } from "../../helpers";
 export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
   hub: "1735353714", /// GOERLI
   supportedDomains: [
-    "1735353714",
-    "1735356532",
+    "1735353714", /// GOERLI
+    "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
     //"1667785072", // CHAPEL
@@ -86,6 +86,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
         "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
         "0xf6d4f65325b258b2d70797CA7576CF8CD03Ed7b8",
+        "0x8cFAcF1d7f052faA1aED6e793f0C451b5dEA8c1E",
       ],
     },
   },
