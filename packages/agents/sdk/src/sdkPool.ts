@@ -786,10 +786,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const endTimestamp = unixTimestamp;
       const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
-      const startTimestamp = endTimestamp - 86_400;
+      const startTimestamp = endTimestamp - 86_400; // 24 hours prior
       let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
-      const perBatch = 1000;
+      const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
 
       const tokenSwapEvents: any[] = [];
