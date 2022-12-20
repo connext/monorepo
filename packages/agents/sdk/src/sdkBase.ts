@@ -1,5 +1,13 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs, WETHAbi } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  XCallArgs,
+  WETHAbi,
+  MultisendTransaction,
+  encodeMultisendCall,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import {
@@ -292,22 +300,77 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @returns providers.TransactionRequest object.
    */
   async wrapEthAndXCall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
-    const calls: string[] = [];
+    const txs: MultisendTransaction[] = [];
     const { asset, amount: _amount, origin } = args;
     const amount = BigNumber.from(_amount);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    let chainId = this.config.chains[origin].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(origin, this.chainData);
+    }
 
     const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
     const weth = new utils.Interface(WETHAbi);
 
     // 1. WETH.deposit(amount)
-    calls.push(weth.encodeFunctionData("deposit", [amount]));
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("deposit", [amount]),
+      value: amount,
+    });
 
     // 2. WETH.withdraw(amount)
-    calls.push(weth.encodeFunctionData("withdraw", [amount]));
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("withdraw", [amount]),
+    });
 
     // 3. WETH.approve(connext)
-    calls.push(weth.encodeFunctionData("approve", [amount, ConnextContractAddress]));
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("approve", [amount, ConnextContractAddress]),
+    });
 
     // 4. xcall(args)
+    const xcallRequest = await this.xcall(args);
+
+    // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
+    // for token approval.
+    if (!xcallRequest.to || ConnextContractAddress !== xcallRequest.to) {
+      throw new Error(
+        "Formatted XCall recipient address did not match expected Connext address!" +
+          `Got: ${xcallRequest.to}; Expected: ${ConnextContractAddress}`,
+      );
+    }
+
+    const relayerFee = BigNumber.from(args.relayerFee ?? "0");
+    // Sanity check: value is correct.
+    if (!xcallRequest.value || !BigNumber.from(xcallRequest.value).eq(relayerFee)) {
+      throw new Error(
+        "Formatted XCall msg.value did not match expected value (args.relayerFee)." +
+          `Got: ${xcallRequest.value?.toString()}; Expected: ${args.relayerFee}`,
+      );
+    }
+
+    txs.push({
+      to: ConnextContractAddress,
+      data: xcallRequest.data!.toString(),
+      value: relayerFee,
+    });
+
+    // 5. Format Multisend call in an ethers TransactionRequest object.
+    const txRequest: providers.TransactionRequest = {
+      to: ConnextContractAddress,
+      value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+      data: encodeMultisendCall(txs),
+      from: signerAddress,
+      chainId,
+    };
+    return txRequest;
   }
 }
