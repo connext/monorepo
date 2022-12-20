@@ -835,14 +835,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   calculateYield(
     feesEarned: number,
-    feesEarnedAgo: number,
     principal: number,
     days: number,
   ): {
     apr: number;
     apy: number;
   } {
-    const rate = (feesEarned - feesEarnedAgo) / principal;
+    const rate = feesEarned / principal;
     const period = 365 / days;
     const apr = rate * period;
     const apy = (1 + rate) ** period - 1;
@@ -866,28 +865,18 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const provider = this.getProvider(domainId);
       const block = await provider.getBlock("latest");
       const endTimestamp = block.timestamp;
-      const endDate = new Date(endTimestamp * 1000);
-      const startDate = new Date();
-      startDate.setDate(endDate.getDate() - days);
-      const startTimestamp = Math.floor(startDate.getTime() / 1000);
 
-      const yieldStatsEnd = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
-      const yieldStatsStart = await this.getYieldStatsForDay(domainId, tokenAddress, startTimestamp);
+      const yieldStats = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
 
-      if (yieldStatsEnd && yieldStatsStart) {
+      if (yieldStats) {
         const {
           totalFeesFormatted: feesEarnedToday,
           totalLiquidityFormatted: totalLiquidityToday,
           totalVolume,
           totalVolumeFormatted,
-        } = yieldStatsEnd;
+        } = yieldStats;
 
-        let feesEarnedDaysAgo = 0;
-        if (days > 1) {
-          ({ totalFeesFormatted: feesEarnedDaysAgo } = yieldStatsStart);
-        }
-
-        const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
+        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidityToday, days);
 
         return {
           apr: Math.max(apr, 0),
