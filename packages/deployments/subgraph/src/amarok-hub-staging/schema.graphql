@@ -17,7 +17,7 @@ type AggregatedMessageRoot @entity {
   id: ID! # Same as index.
   index: BigInt! # Index in the aggregate tree.
   receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
-  domain: BigInt
+  domain: BigInt!
 }
 
 type RootManagerMeta @entity {
