@@ -114,7 +114,7 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
 const convertToDbAggregatedRoot = (root: AggregatedRoot): s.aggregated_roots.Insertable => {
   return {
     id: root.id,
-    domain: root.domain!,
+    domain: root.domain,
     received_root: root.receivedRoot,
     domain_index: root.index,
   };
@@ -266,16 +266,6 @@ export const getCheckPoint = async (
 
   const result = await db.selectOne("checkpoints", { check_name }).run(poolToUse);
   return BigNumber.from(result?.check_point ?? 0).toNumber();
-};
-
-export const getDomainFromRoot = async (
-  root: string,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
-  const poolToUse = _pool ?? pool;
-
-  const result = await db.selectOne("messages", { root }).run(poolToUse);
-  return result?.origin_domain;
 };
 
 export const getTransferByTransferId = async (

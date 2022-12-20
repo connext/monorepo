@@ -24,7 +24,6 @@ import {
   saveProcessedRootMessages,
   saveCheckPoint,
   getCheckPoint,
-  getDomainFromRoot,
   transaction,
   getRootMessages,
   saveAggregatedRoots,
@@ -87,7 +86,6 @@ export type Database = {
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
-  getDomainFromRoot: (root: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
   saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -189,7 +187,6 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveProcessedRootMessages,
     saveCheckPoint,
     getCheckPoint,
-    getDomainFromRoot,
     transaction,
     saveAggregatedRoots,
     savePropagatedRoots,

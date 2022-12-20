@@ -22,22 +22,9 @@ export const updateAggregatedRoots = async () => {
       limit: limit,
     });
 
-    const _aggregatedRoots: AggregatedRoot[] = await subgraph.getGetAggregatedRootsByDomain([
+    const aggregatedRoots: AggregatedRoot[] = await subgraph.getGetAggregatedRootsByDomain([
       { hub, index: offset, limit },
     ]);
-
-    const _aggregatedRootsWithDomain: AggregatedRoot[] = await Promise.all(
-      _aggregatedRoots.map(async (_aggregateRoot) => {
-        const result = _aggregateRoot;
-        if (!result.domain) {
-          result.domain = await database.getDomainFromRoot(result.receivedRoot);
-        }
-
-        return result;
-      }),
-    );
-
-    const aggregatedRoots = _aggregatedRootsWithDomain.filter((i) => i.domain);
 
     // Reset offset at the end of the cycle.
     const newOffset = aggregatedRoots.length == 0 ? 0 : aggregatedRoots[aggregatedRoots.length - 1].index;

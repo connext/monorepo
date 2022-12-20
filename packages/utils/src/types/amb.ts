@@ -58,7 +58,7 @@ export type RootMessage = Static<typeof RootMessageSchema>;
 
 export const AggregatedRootSchema = Type.Object({
   id: Type.String(),
-  domain: Type.Optional(Type.String()),
+  domain: Type.String(),
   receivedRoot: Type.String(),
   index: Type.Number({ minimum: 0 }),
 });
