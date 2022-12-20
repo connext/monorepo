@@ -43,7 +43,7 @@ export const retrieveOriginMessages = async () => {
 
 export const updateMessages = async () => {
   const {
-    adapters: { subgraph, database },
+    adapters: { database },
     logger,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
@@ -57,17 +57,18 @@ export const updateMessages = async () => {
       messageLeavesByDomain.set(pendingMessage.destinationDomain, [pendingMessage.leaf]);
     }
   }
+  const messageHashes = pendingMessages.map((message) => message.leaf);
+  const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
 
-  const destinationMessages = await subgraph.getDestinationMessagesByDomainAndLeaf(messageLeavesByDomain);
   const xMessages: XMessage[] = [];
   for (const pendingMessage of pendingMessages) {
-    const destinationMessage = destinationMessages.find((_message) => _message.leaf === pendingMessage.leaf);
-    if (!destinationMessage) continue;
+    const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
+    if (!completed) continue;
     xMessages.push({
       ...pendingMessage,
       destination: {
-        processed: destinationMessage.processed,
-        returnData: destinationMessage.returnData,
+        processed: true,
+        returnData: "",
       },
     });
   }

@@ -18,7 +18,6 @@ import {
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
-import * as ReaderFns from "../src/reader";
 import * as ParserFns from "../src/lib/helpers/parse";
 
 import * as ExecuteFns from "../src/lib/helpers/execute";

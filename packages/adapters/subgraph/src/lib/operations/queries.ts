@@ -654,29 +654,6 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   `;
 };
 
-export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, string[]>) => {
-  const { config } = getContext();
-  let combinedQuery = "";
-  for (const domain of params.keys()) {
-    const prefix = config.sources[domain].prefix;
-    const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
-    combinedQuery += `
-    ${prefix}_destinationMessages ( 
-      where: { 
-        leaf_in: [${leafs}] 
-      }
-    ) {
-      ${DESTINATION_MESSAGE_ENTITY}
-    }`;
-  }
-
-  return gql`
-    query GetOriginMessages {
-      ${combinedQuery}
-    }
-  `;
-};
-
 export const getSentRootMessagesByDomainAndBlockQuery = (
   params: { domain: string; offset: number; limit: number }[],
 ) => {
