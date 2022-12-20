@@ -73,6 +73,7 @@ export const updateMessages = async () => {
     });
   }
 
+  console.log("xMessages: ", xMessages);
   await database.saveMessages(xMessages);
   logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length });
 };

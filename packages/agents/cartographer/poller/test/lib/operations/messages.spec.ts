@@ -43,6 +43,7 @@ describe("Message operations", () => {
         mockOriginMessageSubgraphResponse[1].index,
       );
     });
+
     it("initial conditions", async () => {
       (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
       await retrieveOriginMessages();
@@ -73,14 +74,17 @@ describe("Message operations", () => {
       await updateMessages();
       expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly([]);
     });
+
     it("should work", async () => {
       const pendingMessage1 = mock.entity.xMessage({ leaf: "0x1" });
       const pendingMessage2 = mock.entity.xMessage({ leaf: "0x2" });
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([pendingMessage1, pendingMessage2]);
 
+      const transfer1 = mock.entity.xtransfer({ messageHash: pendingMessage1.leaf });
+      const transfer2 = mock.entity.xtransfer({ messageHash: pendingMessage2.leaf });
       (mockContext.adapters.database.getCompletedTransfersByMessageHashes as SinonStub).resolves([
-        pendingMessage1,
-        pendingMessage2,
+        transfer1,
+        transfer2,
       ]);
       await updateMessages();
       const response = [
@@ -101,6 +105,7 @@ describe("Message operations", () => {
       ];
       expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly(response);
     });
+
     it("initial conditions", async () => {
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([]);
       await updateMessages();
