@@ -62,6 +62,7 @@
   "function pause()",
   "function paused() view returns (bool)",
   "function pendingAggregateRoots(bytes32) view returns (uint256)",
+  "function ping() pure returns (bytes)",
   "function processMessage(bytes)",
   "function processMessageFromRoot(uint256,address,bytes)",
   "function proposeNewOwner(address)",

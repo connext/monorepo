@@ -155,6 +155,10 @@ abstract contract Connector is ProposedOwnable, IConnector {
     return _verifySender(_expected);
   }
 
+  function ping() external pure returns (bytes memory) {
+    return bytes("pong");
+  }
+
   // ============ Virtual Functions ============
 
   /**

@@ -24,6 +24,7 @@
   "function delay() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
+  "function ping() pure returns (bytes)",
   "function processMessage(bytes)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
