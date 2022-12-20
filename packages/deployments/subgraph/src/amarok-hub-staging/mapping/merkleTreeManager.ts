@@ -18,8 +18,10 @@ export function handleLeavesInserted(event: LeavesInserted): void {
     }
 
     const rootAggregatedInstance = RootAggregated.load(leaf);
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    instance.domain = rootAggregatedInstance!.domain;
+    if (rootAggregatedInstance != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      instance.domain = rootAggregatedInstance!.domain;
+    }
     instance.index = index;
     instance.receivedRoot = Bytes.fromHexString(leaf);
     instance.save();
