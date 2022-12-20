@@ -1,6 +1,7 @@
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
+import memoize from "memoizee";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
@@ -116,7 +117,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param unixTimestamp The unix time, in seconds.
    */
   async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    const provider = this.getProvider(domainId);
 
     let min = 0;
     let max = await provider.getBlockNumber();
@@ -811,7 +812,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
       for (const event of tokenSwapEvents) {
         const tokensSold: BigNumber = event.args.tokensSold;
         totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
-
         totalVolume = totalVolume.add(tokensSold);
       }
 
@@ -849,55 +849,58 @@ export class NxtpSdkPool extends NxtpSdkShared {
     return { apr, apy };
   }
 
-  async getYieldData(
-    domainId: string,
-    tokenAddress: string,
-    days = 1,
-  ): Promise<
-    | {
-        apr: number;
-        apy: number;
-        volume: BigNumber;
-        volumeFormatted: number;
+  getYieldData = memoize(
+    async (
+      domainId: string,
+      tokenAddress: string,
+      days = 1,
+    ): Promise<
+      | {
+          apr: number;
+          apy: number;
+          volume: BigNumber;
+          volumeFormatted: number;
+        }
+      | undefined
+    > => {
+      const provider = this.getProvider(domainId);
+      const block = await provider.getBlock("latest");
+      const endTimestamp = block.timestamp;
+      const endDate = new Date(endTimestamp * 1000);
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - days);
+      const startTimestamp = Math.floor(startDate.getTime() / 1000);
+
+      const yieldStatsEnd = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+      const yieldStatsStart = await this.getYieldStatsForDay(domainId, tokenAddress, startTimestamp);
+
+      if (yieldStatsEnd && yieldStatsStart) {
+        const {
+          totalFeesFormatted: feesEarnedToday,
+          totalLiquidityFormatted: totalLiquidityToday,
+          totalVolume,
+          totalVolumeFormatted,
+        } = yieldStatsEnd;
+
+        let feesEarnedDaysAgo = 0;
+        if (days > 1) {
+          ({ totalFeesFormatted: feesEarnedDaysAgo } = yieldStatsStart);
+        }
+
+        const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
+
+        return {
+          apr: Math.max(apr, 0),
+          apy: Math.max(apy, 0),
+          volume: totalVolume,
+          volumeFormatted: totalVolumeFormatted,
+        };
       }
-    | undefined
-  > {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    const block = await provider.getBlock("latest");
-    const endTimestamp = block.timestamp;
-    const endDate = new Date(endTimestamp * 1000);
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - days);
-    const startTimestamp = Math.floor(startDate.getTime() / 1000);
 
-    const yieldStatsEnd = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
-    const yieldStatsStart = await this.getYieldStatsForDay(domainId, tokenAddress, startTimestamp);
-
-    if (yieldStatsEnd && yieldStatsStart) {
-      const {
-        totalFeesFormatted: feesEarnedToday,
-        totalLiquidityFormatted: totalLiquidityToday,
-        totalVolume,
-        totalVolumeFormatted,
-      } = yieldStatsEnd;
-
-      let feesEarnedDaysAgo = 0;
-      if (days > 1) {
-        ({ totalFeesFormatted: feesEarnedDaysAgo } = yieldStatsStart);
-      }
-
-      const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
-
-      return {
-        apr: Math.max(apr, 0),
-        apy: Math.max(apy, 0),
-        volume: totalVolume,
-        volumeFormatted: totalVolumeFormatted,
-      };
-    }
-
-    return;
-  }
+      return;
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   async getLiquidityMiningAprPerPool(
     totalTokens: number,
