@@ -92,6 +92,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
+    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
     "processed(bytes32)": FunctionFragment;
@@ -117,6 +118,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "delay"
       | "mirrorConnector"
       | "owner"
+      | "ping"
       | "processMessage"
       | "processMessageFromRoot"
       | "processed"
@@ -152,6 +154,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -225,6 +228,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -414,6 +418,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    ping(overrides?: CallOverrides): Promise<[string]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -490,6 +496,8 @@ export interface OptimismHubConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  ping(overrides?: CallOverrides): Promise<string>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -563,6 +571,8 @@ export interface OptimismHubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -704,6 +714,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    ping(overrides?: CallOverrides): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -780,6 +792,8 @@ export interface OptimismHubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,

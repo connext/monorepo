@@ -26,6 +26,7 @@
   "function fxRoot() view returns (address)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
+  "function ping() pure returns (bytes)",
   "function processMessage(bytes)",
   "function processedExits(bytes32) view returns (bool)",
   "function proposeNewOwner(address)",

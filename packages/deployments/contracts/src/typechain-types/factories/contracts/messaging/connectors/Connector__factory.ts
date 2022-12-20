@@ -281,6 +281,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "ping",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes",

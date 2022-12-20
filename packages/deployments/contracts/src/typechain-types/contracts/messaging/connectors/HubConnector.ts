@@ -38,6 +38,7 @@ export interface HubConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
+    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -59,6 +60,7 @@ export interface HubConnectorInterface extends utils.Interface {
       | "delay"
       | "mirrorConnector"
       | "owner"
+      | "ping"
       | "processMessage"
       | "proposeNewOwner"
       | "proposed"
@@ -90,6 +92,7 @@ export interface HubConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -141,6 +144,7 @@ export interface HubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -307,6 +311,8 @@ export interface HubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    ping(overrides?: CallOverrides): Promise<[string]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -362,6 +368,8 @@ export interface HubConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  ping(overrides?: CallOverrides): Promise<string>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -414,6 +422,8 @@ export interface HubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -528,6 +538,8 @@ export interface HubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    ping(overrides?: CallOverrides): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -583,6 +595,8 @@ export interface HubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
