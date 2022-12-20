@@ -1,5 +1,5 @@
-import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { constants, providers, BigNumber, utils } from "ethers";
+import { Logger, createLoggingContext, ChainData, XCallArgs, WETHAbi } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import {
@@ -14,6 +14,12 @@ import {
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
+
+type NxtpSdkXCallArgs = Omit<XCallArgs, "callData" | "delegate"> &
+  Partial<XCallArgs> & {
+    origin: string;
+    relayerFee?: string;
+  } & { receiveLocal?: boolean };
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -50,14 +56,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
    * @returns providers.TransactionRequest object.
    */
-
-  async xcall(
-    args: Omit<XCallArgs, "callData" | "delegate"> &
-      Partial<XCallArgs> & {
-        origin: string;
-        relayerFee?: string;
-      } & { receiveLocal?: boolean },
-  ): Promise<providers.TransactionRequest> {
+  async xcall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
 
@@ -283,5 +282,32 @@ export class NxtpSdkBase extends NxtpSdkShared {
     });
 
     return relayerFeeInOrginNativeAsset;
+  }
+
+  /**
+   *
+   * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
+   * @param args.amount - Will be used as the amount of ETH to deposit into WETH contract and withdraw as WETH.
+   * @param args.asset - Should be the target wrapper contract (e.g. WETH) address.
+   * @returns providers.TransactionRequest object.
+   */
+  async wrapEthAndXCall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
+    const calls: string[] = [];
+    const { asset, amount: _amount, origin } = args;
+    const amount = BigNumber.from(_amount);
+
+    const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
+    const weth = new utils.Interface(WETHAbi);
+
+    // 1. WETH.deposit(amount)
+    calls.push(weth.encodeFunctionData("deposit", [amount]));
+
+    // 2. WETH.withdraw(amount)
+    calls.push(weth.encodeFunctionData("withdraw", [amount]));
+
+    // 3. WETH.approve(connext)
+    calls.push(weth.encodeFunctionData("approve", [amount, ConnextContractAddress]));
+
+    // 4. xcall(args)
   }
 }

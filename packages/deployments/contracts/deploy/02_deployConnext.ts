@@ -328,6 +328,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("relayerProxy: ", relayerProxy.address);
   }
 
+  {
+    // NOTE: Multicall will be shared between staging and production environments; we do not
+    // deploy 1 for each.
+    // Multicall utility contract is used by the SDK to conveniently wrap ETH => WETH before
+    // making xcalls transferring WETH tokens.
+    const multicallContractName = "Multicall";
+    let deployment = await hre.deployments.getOrNull(multicallContractName);
+    if (!deployment) {
+      console.log("Deploying Multicall contract...");
+      deployment = await hre.deployments.deploy(multicallContractName, {
+        from: deployer.address,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        contract: "Multicall",
+      });
+      console.log(`Deployed Multicall contract to ${deployment.address}!`);
+    } else {
+      console.log(`Multicall contract already deployed at ${deployment.address}`);
+    }
+  }
+
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
