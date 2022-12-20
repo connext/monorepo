@@ -60,7 +60,6 @@
   "function pause()",
   "function paused() view returns (bool)",
   "function pendingAggregateRoots(bytes32) view returns (uint256)",
-  "function ping() pure returns (bytes)",
   "function processMessage(bytes)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
