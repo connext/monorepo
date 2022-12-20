@@ -15,18 +15,18 @@
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0x3d5007D50Bb9E9B766977B3e8148333Bb43edCbE",
-        "startBlock": 8162906
+        "address": "0x991c140943c8E16b6F6F03DBE592b0598f1A821D",
+        "startBlock": 8166026
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x1C0CCa91fa6481f11c7b798E265B07Dc9Cf3F5CE",
-        "startBlock": 8162905
+        "address": "0xF8da1Dc3955164Ae7693B0bfec3E9776916521E7",
+        "startBlock": 8166025
       },
       {
         "name": "ArbitrumHubConnector",
-        "address": "0x1D62bd5FFC25c39D08F636bb460Cfb27A059c1E4",
-        "startBlock": 8162907
+        "address": "0x0B0Ebfa60A319ec8693dD04cdCF917529C3da27f",
+        "startBlock": 8166027
       }
     ]
   }
