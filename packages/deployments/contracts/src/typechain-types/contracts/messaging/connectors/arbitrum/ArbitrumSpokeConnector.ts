@@ -70,6 +70,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "pendingAggregateRoots(bytes32)": FunctionFragment;
+    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -122,6 +123,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
       | "pause"
       | "paused"
       | "pendingAggregateRoots"
+      | "ping"
       | "processMessage"
       | "proposeNewOwner"
       | "proposed"
@@ -230,6 +232,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
     functionFragment: "pendingAggregateRoots",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -380,6 +383,7 @@ export interface ArbitrumSpokeConnectorInterface extends utils.Interface {
     functionFragment: "pendingAggregateRoots",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -839,6 +843,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    ping(overrides?: CallOverrides): Promise<[string]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1015,6 +1021,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  ping(overrides?: CallOverrides): Promise<string>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1186,6 +1194,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1522,6 +1532,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    ping(overrides?: CallOverrides): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1698,6 +1710,8 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,

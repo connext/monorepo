@@ -38,6 +38,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
+    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])": FunctionFragment;
     "processed(bytes32)": FunctionFragment;
@@ -62,6 +63,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
       | "delay"
       | "mirrorConnector"
       | "owner"
+      | "ping"
       | "processMessage"
       | "processMessageFromRoot"
       | "processed"
@@ -96,6 +98,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -165,6 +168,7 @@ export interface ZkSyncHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -350,6 +354,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    ping(overrides?: CallOverrides): Promise<[string]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -424,6 +430,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  ping(overrides?: CallOverrides): Promise<string>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -495,6 +503,8 @@ export interface ZkSyncHubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -634,6 +644,8 @@ export interface ZkSyncHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    ping(overrides?: CallOverrides): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -708,6 +720,8 @@ export interface ZkSyncHubConnector extends BaseContract {
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,

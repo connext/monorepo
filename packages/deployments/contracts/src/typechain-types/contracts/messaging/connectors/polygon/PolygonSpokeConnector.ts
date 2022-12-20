@@ -71,6 +71,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "pendingAggregateRoots(bytes32)": FunctionFragment;
+    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint256,address,bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -125,6 +126,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "pause"
       | "paused"
       | "pendingAggregateRoots"
+      | "ping"
       | "processMessage"
       | "processMessageFromRoot"
       | "proposeNewOwner"
@@ -235,6 +237,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "pendingAggregateRoots",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -394,6 +397,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "pendingAggregateRoots",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -861,6 +865,8 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    ping(overrides?: CallOverrides): Promise<[string]>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1046,6 +1052,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  ping(overrides?: CallOverrides): Promise<string>;
+
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1226,6 +1234,8 @@ export interface PolygonSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1558,6 +1568,8 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    ping(overrides?: CallOverrides): Promise<BigNumber>;
+
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1743,6 +1755,8 @@ export interface PolygonSpokeConnector extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
