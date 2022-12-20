@@ -82,9 +82,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
   private static _instance: NxtpSdkPool;
   private readonly priceFeed: PriceFeed;
 
-  // key is "domainId-canonicalKey"
-  private pools = new Map<string, Pool>();
-
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
     this.priceFeed = new PriceFeed();
@@ -639,77 +636,74 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
-  async getPool(domainId: string, tokenAddress: string): Promise<Pool | undefined> {
-    const { requestContext, methodContext } = createLoggingContext(this.getPool.name);
-    this.logger.info("Method start", requestContext, methodContext, {
-      domainId,
-      tokenAddress,
-    });
+  getPool = memoize(
+    async (domainId: string, tokenAddress: string): Promise<Pool | undefined> => {
+      const { requestContext, methodContext } = createLoggingContext(this.getPool.name);
+      this.logger.info("Method start", requestContext, methodContext, {
+        domainId,
+        tokenAddress,
+      });
 
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
+      const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
 
-    if (canonicalDomain == domainId) {
-      this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
-      return;
-    }
+      if (canonicalDomain == domainId) {
+        this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
+        return;
+      }
 
-    const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+      const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
-    let pool = this.pools.get([domainId, key].join("-"));
-    if (pool) {
+      const [local, adopted, lpTokenAddress] = await Promise.all([
+        this.getRepresentation(domainId, tokenAddress),
+        this.getAdopted(domainId, tokenAddress),
+        this.getLPTokenAddress(domainId, tokenAddress),
+      ]);
+
+      if (local == adopted) {
+        this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
+        return;
+      }
+
+      const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
+        this.getERC20(domainId, local),
+        this.getERC20(domainId, adopted),
+      ]);
+
+      const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
+        adoptedErc20Contract.decimals(),
+        this.getPoolTokenBalance(domainId, adopted, adopted),
+        adoptedErc20Contract.symbol(),
+        localErc20Contract.decimals(),
+        this.getPoolTokenBalance(domainId, local, local),
+        this.getPoolTokenIndex(domainId, tokenAddress, local),
+      ]);
+
+      // Use index order that appears on-chain
+      const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
+        localIdx == 0
+          ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
+          : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
+
+      const indices = new Map<string, number>();
+      indices.set(asset0, 0);
+      indices.set(asset1, 1);
+
+      const pool = new Pool(
+        domainId,
+        `${tokenSymbol}-Pool`,
+        `${tokenSymbol}-next${tokenSymbol}`,
+        [asset0, asset1],
+        indices,
+        [asset0Decimals, asset1Decimals],
+        [asset0Balance, asset1Balance],
+        lpTokenAddress,
+        key,
+      );
+
       return pool;
-    }
-
-    const [local, adopted, lpTokenAddress] = await Promise.all([
-      this.getRepresentation(domainId, tokenAddress),
-      this.getAdopted(domainId, tokenAddress),
-      this.getLPTokenAddress(domainId, tokenAddress),
-    ]);
-
-    if (local == adopted) {
-      this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
-      return;
-    }
-
-    const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
-      this.getERC20(domainId, local),
-      this.getERC20(domainId, adopted),
-    ]);
-
-    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
-      adoptedErc20Contract.decimals(),
-      this.getPoolTokenBalance(domainId, adopted, adopted),
-      adoptedErc20Contract.symbol(),
-      localErc20Contract.decimals(),
-      this.getPoolTokenBalance(domainId, local, local),
-      this.getPoolTokenIndex(domainId, tokenAddress, local),
-    ]);
-
-    // Use index order that appears on-chain
-    const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
-      localIdx == 0
-        ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
-        : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
-
-    const indices = new Map<string, number>();
-    indices.set(asset0, 0);
-    indices.set(asset1, 1);
-
-    pool = new Pool(
-      domainId,
-      `${tokenSymbol}-Pool`,
-      `${tokenSymbol}-next${tokenSymbol}`,
-      [asset0, asset1],
-      indices,
-      [asset0Decimals, asset1Decimals],
-      [asset0Balance, asset1Balance],
-      lpTokenAddress,
-      key,
-    );
-    this.pools.set([domainId, key].join("-"), pool);
-
-    return pool;
-  }
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   /**
    * Returns the Pools that a user has LP tokens for.
