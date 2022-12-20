@@ -11,7 +11,6 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
-  DestinationMessage,
   RootMessage,
   AggregatedRoot,
   PropagatedRoot,
@@ -41,7 +40,6 @@ import {
   getDestinationTransfersByNonceQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
-  getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
@@ -620,37 +618,6 @@ export class SubgraphReader {
       .map(parser.originMessage);
 
     return originMessages;
-  }
-
-  /**
-   * Gets all the destination messages by domain and message leaf
-   */
-  public async getDestinationMessagesByDomainAndLeaf(params: Map<string, string[]>): Promise<DestinationMessage[]> {
-    const { parser, execute } = getHelpers();
-
-    let destinationMessages: DestinationMessage[] = [];
-    if (!params || params.size === 0) {
-      return destinationMessages;
-    }
-
-    const destinationMessageQuery = getDestinationMessagesByDomainAndLeafQuery(params);
-    const response = await execute(destinationMessageQuery);
-    const _messages: any[] = [];
-    for (const key of response.keys()) {
-      const value = response.get(key);
-      const flatten = value?.flat();
-      const _message = flatten?.map((x) => {
-        return { ...x, domain: key };
-      });
-      _messages.push(_message);
-    }
-
-    destinationMessages = _messages
-      .flat()
-      .filter((x: any) => !!x)
-      .map(parser.destinationMessage);
-
-    return destinationMessages;
   }
 
   /**

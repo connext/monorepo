@@ -351,6 +351,21 @@ export const getTransfersWithDestinationPending = async (
   return transfer_ids;
 };
 
+export const getCompletedTransfersByMessageHashes = async (
+  message_hashes: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const x = await db
+    .select("transfers", {
+      message_hash: db.conditions.isIn(message_hashes),
+      status: db.conditions.isIn([XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow]),
+    })
+    .run(poolToUse);
+  return x.map(convertFromDbTransfer);
+};
+
 export const saveRouterBalances = async (
   routerBalances: RouterBalance[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
