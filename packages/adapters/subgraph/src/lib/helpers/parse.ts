@@ -315,7 +315,7 @@ export const aggregatedRoot = (entity: any): AggregatedRoot => {
   if (!entity) {
     throw new NxtpError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "receivedRoot", "index"]) {
+  for (const field of ["id", "domain", "receivedRoot", "index"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -326,7 +326,7 @@ export const aggregatedRoot = (entity: any): AggregatedRoot => {
 
   return {
     id: entity.id,
-    domain: entity?.domain,
+    domain: entity.domain,
     receivedRoot: entity.receivedRoot,
     index: entity.index,
   };
