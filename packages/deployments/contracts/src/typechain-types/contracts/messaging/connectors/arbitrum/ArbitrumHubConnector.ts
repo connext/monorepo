@@ -70,7 +70,6 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "mirrorConnector()": FunctionFragment;
     "outbox()": FunctionFragment;
     "owner()": FunctionFragment;
-    "ping()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processMessageFromRoot(uint64,bytes32,bytes32,bytes32[],uint256,(address,address,uint256,uint256,uint256,uint256,bytes))": FunctionFragment;
     "processed(uint256)": FunctionFragment;
@@ -102,7 +101,6 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "mirrorConnector"
       | "outbox"
       | "owner"
-      | "ping"
       | "processMessage"
       | "processMessageFromRoot"
       | "processed"
@@ -150,7 +148,6 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "outbox", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "ping", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -240,7 +237,6 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "outbox", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
     data: BytesLike
@@ -488,8 +484,6 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    ping(overrides?: CallOverrides): Promise<[string]>;
-
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -585,8 +579,6 @@ export interface ArbitrumHubConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  ping(overrides?: CallOverrides): Promise<string>;
-
   processMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -679,8 +671,6 @@ export interface ArbitrumHubConnector extends BaseContract {
     outbox(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
-
-    ping(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -869,8 +859,6 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    ping(overrides?: CallOverrides): Promise<BigNumber>;
-
     processMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -968,8 +956,6 @@ export interface ArbitrumHubConnector extends BaseContract {
     outbox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    ping(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,

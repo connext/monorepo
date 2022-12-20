@@ -10,8 +10,8 @@
       },
       {
         "name": "Connector",
-        "address": "0xf6b1db29eE17547DDDe7C3989570C47ac6478645",
-        "startBlock": 8169321
+        "address": "0x1A1FcD6FE9372E6e9391FEDBe249A9a7E32D8Aaf",
+        "startBlock": 8170989
       },
       {
         "name": "MerkleTreeManager",
@@ -31,8 +31,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x7874E18CEc31a86deef68db0dA48887c5f23B125",
-        "startBlock": 3594411
+        "address": "0xc3162C1087995CC3695c8c1f704B86f8e0F37156",
+        "startBlock": 3602343
       },
       {
         "name": "MerkleTreeManager",
@@ -52,8 +52,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x1e6a615394fed8f47bc34ff2d41b1e88593a311c",
-        "startBlock": 29928434
+        "address": "0xF0BDAB8B69F14c1d91B834075235de7FFa8A1918",
+        "startBlock": 29939453
       },
       {
         "name": "MerkleTreeManager",
@@ -73,8 +73,8 @@
       },
       {
         "name": "Connector",
-        "address": "0x4029ab90d84c10ae6a70fbf8f4cfa63a7ee1f0c8",
-        "startBlock": 3230373
+        "address": "0x644bbF6754527603DB30509AAB74bbeC4FD6EFaD",
+        "startBlock": 3247166
       },
       {
         "name": "MerkleTreeManager",

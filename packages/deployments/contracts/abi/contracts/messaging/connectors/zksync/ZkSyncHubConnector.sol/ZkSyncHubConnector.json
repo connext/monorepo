@@ -23,7 +23,6 @@
   "function delay() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
-  "function ping() pure returns (bytes)",
   "function processMessage(bytes)",
   "function processMessageFromRoot(uint32,uint256,uint16,bytes,bytes32[])",
   "function processed(bytes32) view returns (bool)",
