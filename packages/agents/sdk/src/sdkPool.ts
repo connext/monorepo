@@ -891,24 +891,21 @@ export class NxtpSdkPool extends NxtpSdkShared {
     { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
   );
 
-  async getLiquidityMiningAprPerPool(
-    totalTokens: number,
-    totalBlocks: number,
-    numPools: number,
-    tokenSymbol: string,
-    poolTVL: number,
-  ) {
-    // Numbers for Optimism:
-    //  totalTokens = 250_000
-    //  totalBlocks = 657_436 // 3 months
-    //  numPools = 2
-    const blocksPerDay = 7160;
-    const period = 365 / (totalBlocks / blocksPerDay);
-    const tokenPrice = await this.getTokenPrice(tokenSymbol);
-    const tokenValuePerPool = (totalTokens / numPools) * tokenPrice;
-    const rate = tokenValuePerPool / poolTVL;
-    const apr = rate * period;
+  getLiquidityMiningAprPerPool = memoize(
+    async (totalTokens: number, totalBlocks: number, numPools: number, tokenSymbol: string, poolTVL: number) => {
+      // Numbers for Optimism:
+      //  totalTokens = 250_000
+      //  totalBlocks = 657_436 // 3 months
+      //  numPools = 2
+      const blocksPerDay = 7160;
+      const period = 365 / (totalBlocks / blocksPerDay);
+      const tokenPrice = await this.getTokenPrice(tokenSymbol);
+      const tokenValuePerPool = (totalTokens / numPools) * tokenPrice;
+      const rate = tokenValuePerPool / poolTVL;
+      const apr = rate * period;
 
-    return apr;
-  }
+      return apr;
+    },
+    { promise: true },
+  );
 }

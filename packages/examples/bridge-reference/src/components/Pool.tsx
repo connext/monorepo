@@ -64,7 +64,6 @@ export const Pool = ({ chain, asset }: Props) => {
 
   return (
     <>
-      <div>hi</div>
       <div>{JSON.stringify(pool)}</div>
       <div>{JSON.stringify(yieldData)}</div>
     </>
