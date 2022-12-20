@@ -426,6 +426,7 @@ export const transaction = async (
 };
 
 export const getUnProcessedMessages = async (
+  origin_domain: string,
   limit = 100,
   offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
@@ -435,7 +436,7 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false },
+      { processed: false, origin_domain },
       {
         limit,
         offset,

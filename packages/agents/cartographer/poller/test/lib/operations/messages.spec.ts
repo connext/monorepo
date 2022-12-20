@@ -72,7 +72,7 @@ describe("Message operations", () => {
         mock.entity.xMessage(),
       ]);
       await updateMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
     });
 
     it("should work", async () => {
@@ -103,13 +103,13 @@ describe("Message operations", () => {
           },
         },
       ];
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly(response);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledWithExactly(response);
     });
 
     it("initial conditions", async () => {
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([]);
       await updateMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
     });
   });
 
