@@ -62,10 +62,8 @@ export const updateMessages = async () => {
 
   const xMessages: XMessage[] = [];
   for (const pendingMessage of pendingMessages) {
-    const destinationMessage = completedTransfers.find(
-      (transfer) => transfer.origin?.messageHash === pendingMessage.leaf,
-    );
-    if (!destinationMessage) continue;
+    const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
+    if (!completed) continue;
     xMessages.push({
       ...pendingMessage,
       destination: {

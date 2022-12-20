@@ -78,26 +78,24 @@ describe("Message operations", () => {
       const pendingMessage2 = mock.entity.xMessage({ leaf: "0x2" });
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([pendingMessage1, pendingMessage2]);
 
-      const dstMessage1 = mock.entity.destinationMessage({ leaf: "0x1" });
-      const dstMessage2 = mock.entity.destinationMessage({ leaf: "0x2" });
-      (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([
-        dstMessage1,
-        dstMessage2,
+      (mockContext.adapters.database.getCompletedTransfersByMessageHashes as SinonStub).resolves([
+        pendingMessage1,
+        pendingMessage2,
       ]);
       await updateMessages();
       const response = [
         {
           ...pendingMessage1,
           destination: {
-            processed: dstMessage1.processed,
-            returnData: dstMessage1.returnData,
+            processed: true,
+            returnData: "",
           },
         },
         {
           ...pendingMessage2,
           destination: {
-            processed: dstMessage2.processed,
-            returnData: dstMessage2.returnData,
+            processed: true,
+            returnData: "",
           },
         },
       ];

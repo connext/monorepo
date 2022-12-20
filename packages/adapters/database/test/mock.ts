@@ -10,6 +10,7 @@ export const mockDatabase = (): Database => {
     getTransfersByStatus: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithDestinationPending: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithOriginPending: stub().resolves([mock.entity.xtransfer()]),
+    getCompletedTransfersByMessageHashes: stub().resolves([mock.entity.xtransfer()]),
     saveCheckPoint: stub().resolves(),
     saveMessages: stub().resolves(),
     saveProcessedRootMessages: stub().resolves(),
