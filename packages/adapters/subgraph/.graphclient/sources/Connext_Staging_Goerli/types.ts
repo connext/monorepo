@@ -377,6 +377,7 @@ export type staginggoerli_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['staginggoerli_Bytes']>;
   asset?: Maybe<staginggoerli_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['staginggoerli_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
@@ -546,6 +547,14 @@ export type staginggoerli_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<staginggoerli_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +675,7 @@ export type staginggoerli_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
+import memoize from "memoizee";
 
 import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
@@ -81,9 +83,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
   private static _instance: NxtpSdkPool;
   private readonly priceFeed: PriceFeed;
 
-  // key is "domainId-canonicalKey"
-  private pools = new Map<string, Pool>();
-
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
     this.priceFeed = new PriceFeed();
@@ -116,7 +115,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param unixTimestamp The unix time, in seconds.
    */
   async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
+    const provider = this.getProvider(domainId);
 
     let min = 0;
     let max = await provider.getBlockNumber();
@@ -638,77 +637,74 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
-  async getPool(domainId: string, tokenAddress: string): Promise<Pool | undefined> {
-    const { requestContext, methodContext } = createLoggingContext(this.getPool.name);
-    this.logger.info("Method start", requestContext, methodContext, {
-      domainId,
-      tokenAddress,
-    });
+  getPool = memoize(
+    async (domainId: string, tokenAddress: string): Promise<Pool | undefined> => {
+      const { requestContext, methodContext } = createLoggingContext(this.getPool.name);
+      this.logger.info("Method start", requestContext, methodContext, {
+        domainId,
+        tokenAddress,
+      });
 
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
+      const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
 
-    if (canonicalDomain == domainId) {
-      this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
-      return;
-    }
+      if (canonicalDomain == domainId) {
+        this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
+        return;
+      }
 
-    const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+      const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
-    let pool = this.pools.get([domainId, key].join("-"));
-    if (pool) {
+      const [local, adopted, lpTokenAddress] = await Promise.all([
+        this.getRepresentation(domainId, tokenAddress),
+        this.getAdopted(domainId, tokenAddress),
+        this.getLPTokenAddress(domainId, tokenAddress),
+      ]);
+
+      if (local == adopted) {
+        this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
+        return;
+      }
+
+      const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
+        this.getERC20(domainId, local),
+        this.getERC20(domainId, adopted),
+      ]);
+
+      const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
+        adoptedErc20Contract.decimals(),
+        this.getPoolTokenBalance(domainId, adopted, adopted),
+        adoptedErc20Contract.symbol(),
+        localErc20Contract.decimals(),
+        this.getPoolTokenBalance(domainId, local, local),
+        this.getPoolTokenIndex(domainId, tokenAddress, local),
+      ]);
+
+      // Use index order that appears on-chain
+      const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
+        localIdx == 0
+          ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
+          : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
+
+      const indices = new Map<string, number>();
+      indices.set(asset0, 0);
+      indices.set(asset1, 1);
+
+      const pool = new Pool(
+        domainId,
+        `${tokenSymbol}-Pool`,
+        `${tokenSymbol}-next${tokenSymbol}`,
+        [asset0, asset1],
+        indices,
+        [asset0Decimals, asset1Decimals],
+        [asset0Balance, asset1Balance],
+        lpTokenAddress,
+        key,
+      );
+
       return pool;
-    }
-
-    const [local, adopted, lpTokenAddress] = await Promise.all([
-      this.getRepresentation(domainId, tokenAddress),
-      this.getAdopted(domainId, tokenAddress),
-      this.getLPTokenAddress(domainId, tokenAddress),
-    ]);
-
-    if (local == adopted) {
-      this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
-      return;
-    }
-
-    const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
-      this.getERC20(domainId, local),
-      this.getERC20(domainId, adopted),
-    ]);
-
-    const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
-      adoptedErc20Contract.decimals(),
-      this.getPoolTokenBalance(domainId, adopted, adopted),
-      adoptedErc20Contract.symbol(),
-      localErc20Contract.decimals(),
-      this.getPoolTokenBalance(domainId, local, local),
-      this.getPoolTokenIndex(domainId, tokenAddress, local),
-    ]);
-
-    // Use index order that appears on-chain
-    const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
-      localIdx == 0
-        ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
-        : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
-
-    const indices = new Map<string, number>();
-    indices.set(asset0, 0);
-    indices.set(asset1, 1);
-
-    pool = new Pool(
-      domainId,
-      `${tokenSymbol}-Pool`,
-      `${tokenSymbol}-next${tokenSymbol}`,
-      [asset0, asset1],
-      indices,
-      [asset0Decimals, asset1Decimals],
-      [asset0Balance, asset1Balance],
-      lpTokenAddress,
-      key,
-    );
-    this.pools.set([domainId, key].join("-"), pool);
-
-    return pool;
-  }
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   /**
    * Returns the Pools that a user has LP tokens for.
@@ -785,10 +781,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const endTimestamp = unixTimestamp;
       const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
-      const startTimestamp = endTimestamp - 86_400;
+      const startTimestamp = endTimestamp - 86_400; // 24 hours prior
       let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
-      const perBatch = 1000;
+      const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
 
       const tokenSwapEvents: any[] = [];
@@ -811,7 +807,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
       for (const event of tokenSwapEvents) {
         const tokensSold: BigNumber = event.args.tokensSold;
         totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
-
         totalVolume = totalVolume.add(tokensSold);
       }
 
@@ -835,88 +830,77 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   calculateYield(
     feesEarned: number,
-    feesEarnedAgo: number,
     principal: number,
     days: number,
   ): {
     apr: number;
     apy: number;
   } {
-    const rate = (feesEarned - feesEarnedAgo) / principal;
+    const rate = feesEarned / principal;
     const period = 365 / days;
     const apr = rate * period;
     const apy = (1 + rate) ** period - 1;
     return { apr, apy };
   }
 
-  async getYieldData(
-    domainId: string,
-    tokenAddress: string,
-    days = 1,
-  ): Promise<
-    | {
-        apr: number;
-        apy: number;
-        volume: BigNumber;
-        volumeFormatted: number;
+  getYieldData = memoize(
+    async (
+      domainId: string,
+      tokenAddress: string,
+      days: number = 1,
+    ): Promise<
+      | {
+          apr: number;
+          apy: number;
+          volume: BigNumber;
+          volumeFormatted: number;
+        }
+      | undefined
+    > => {
+      const provider = this.getProvider(domainId);
+      const block = await provider.getBlock("latest");
+      const endTimestamp = block.timestamp;
+
+      const yieldStats = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+
+      if (yieldStats) {
+        const {
+          totalFeesFormatted: feesEarnedToday,
+          totalLiquidityFormatted: totalLiquidityToday,
+          totalVolume,
+          totalVolumeFormatted,
+        } = yieldStats;
+
+        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidityToday, days);
+
+        return {
+          apr: Math.max(apr, 0),
+          apy: Math.max(apy, 0),
+          volume: totalVolume,
+          volumeFormatted: totalVolumeFormatted,
+        };
       }
-    | undefined
-  > {
-    const provider = new providers.JsonRpcProvider(this.config.chains[domainId].providers[0]);
-    const block = await provider.getBlock("latest");
-    const endTimestamp = block.timestamp;
-    const endDate = new Date(endTimestamp * 1000);
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - days);
-    const startTimestamp = Math.floor(startDate.getTime() / 1000);
 
-    const yieldStatsEnd = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
-    const yieldStatsStart = await this.getYieldStatsForDay(domainId, tokenAddress, startTimestamp);
+      return;
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
-    if (yieldStatsEnd && yieldStatsStart) {
-      const {
-        totalFeesFormatted: feesEarnedToday,
-        totalLiquidityFormatted: totalLiquidityToday,
-        totalVolume,
-        totalVolumeFormatted,
-      } = yieldStatsEnd;
+  getLiquidityMiningAprPerPool = memoize(
+    async (totalTokens: number, totalBlocks: number, numPools: number, tokenSymbol: string, poolTVL: number) => {
+      // Numbers for Optimism:
+      //  totalTokens = 250_000
+      //  totalBlocks = 657_436 // 3 months
+      //  numPools = 2
+      const blocksPerDay = 7160;
+      const period = 365 / (totalBlocks / blocksPerDay);
+      const tokenPrice = await this.getTokenPrice(tokenSymbol);
+      const tokenValuePerPool = (totalTokens / numPools) * tokenPrice;
+      const rate = tokenValuePerPool / poolTVL;
+      const apr = rate * period;
 
-      let feesEarnedDaysAgo = 0;
-      if (days > 1) {
-        ({ totalFeesFormatted: feesEarnedDaysAgo } = yieldStatsStart);
-      }
-
-      const { apr, apy } = this.calculateYield(feesEarnedToday, feesEarnedDaysAgo, totalLiquidityToday, days);
-
-      return {
-        apr: Math.max(apr, 0),
-        apy: Math.max(apy, 0),
-        volume: totalVolume,
-        volumeFormatted: totalVolumeFormatted,
-      };
-    }
-
-    return;
-  }
-
-  async getLiquidityMiningAprPerPool(
-    totalTokens: number,
-    totalBlocks: number,
-    numPools: number,
-    tokenSymbol: string,
-    poolTVL: number,
-  ) {
-    // Numbers for Optimism:
-    //  totalTokens = 250_000
-    //  totalBlocks = 657_436 // 3 months
-    //  numPools = 2
-    const blocksPerDay = 7160;
-    const period = 365 / (totalBlocks / blocksPerDay);
-    const tokenPrice = await this.getTokenPrice(tokenSymbol);
-    const tokenValuePerPool = (totalTokens / numPools) * tokenPrice;
-    const rate = tokenValuePerPool / poolTVL;
-    const apr = rate * period;
-
-    return apr;
-  }
+      return apr;
+    },
+    { promise: true },
+  );
 }

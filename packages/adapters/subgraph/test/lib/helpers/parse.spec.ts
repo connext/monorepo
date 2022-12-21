@@ -1,16 +1,7 @@
-import {
-  expect,
-  mkAddress,
-  mkBytes32,
-  OriginMessage,
-  DestinationMessage,
-  RootMessage,
-  ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, OriginMessage, RootMessage, ReceivedAggregateRoot } from "@connext/nxtp-utils";
 import {
   destinationTransfer,
   originMessage,
-  destinationMessage,
   rootMessage,
   originTransfer,
   receivedAggregateRoot,
@@ -181,6 +172,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: "0x1300000000000000000000000000000000000000",
           bridgedAmt: undefined,
+          amount: "100",
           normalizedIn: undefined,
           nonce: 0,
           canonicalId: undefined,
@@ -191,7 +183,10 @@ describe("Helpers:parse", () => {
           status: "Executed",
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           assets: {
-            transacting: undefined,
+            transacting: {
+              amount: "100",
+              asset: "0x0000000000000000000000000000000000000000",
+            },
             local: { asset: constants.AddressZero, amount: undefined },
           },
           execute: {
@@ -240,6 +235,7 @@ describe("Helpers:parse", () => {
           originSender: "0x1300000000000000000000000000000000000000",
           bridgedAmt: undefined,
           normalizedIn: undefined,
+          amount: undefined,
           nonce: 0,
           canonicalId: undefined,
         },
@@ -361,15 +357,8 @@ describe("Helpers:parse", () => {
       }).to.throw("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
     });
 
-    it("should throw if wrong message type", () => {
-      const entity: OriginMessage = mock.entity.destinationMessage();
-      expect(() => {
-        originMessage(entity);
-      }).to.throw("Subgraph `OriginMessage` entity parser: Message entity missing required field");
-    });
-
     it("should throw if a required field is missing", () => {
-      const entity: OriginMessage = {};
+      const entity: OriginMessage = {} as any;
 
       expect(() => {
         originMessage(entity);
@@ -381,34 +370,7 @@ describe("Helpers:parse", () => {
       expect(originMessage(entity)).to.be.deep.eq(entity);
     });
   });
-  describe("#destinationMessage", () => {
-    it("should throw if the entity is undefined", () => {
-      const entity = undefined;
-      expect(() => {
-        destinationMessage(entity);
-      }).to.throw("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
-    });
 
-    it("should throw if wrong message type", () => {
-      const entity: DestinationMessage = mock.entity.originMessage();
-      expect(() => {
-        destinationMessage(entity);
-      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
-    });
-
-    it("should throw if a required field is missing", () => {
-      const entity: DestinationMessage = {};
-
-      expect(() => {
-        destinationMessage(entity);
-      }).to.throw("Subgraph `DestinationMessage` entity parser: Message entity missing required field");
-    });
-
-    it("should parse valid destination message", () => {
-      const entity: DestinationMessage = mock.entity.destinationMessage();
-      expect(destinationMessage(entity)).to.be.deep.eq(entity);
-    });
-  });
   describe("#rootMessage", () => {
     it("should throw if the entity is undefined", () => {
       const entity = undefined;
@@ -417,15 +379,8 @@ describe("Helpers:parse", () => {
       }).to.throw("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
     });
 
-    it("should throw if wrong message type", () => {
-      const entity: RootMessage = mock.entity.destinationMessage();
-      expect(() => {
-        rootMessage(entity);
-      }).to.throw("Subgraph `RootMessage` entity parser: Message entity missing required field");
-    });
-
     it("should throw if a required field is missing", () => {
-      const entity: RootMessage = {};
+      const entity: RootMessage = {} as any;
 
       expect(() => {
         rootMessage(entity);
@@ -453,7 +408,7 @@ describe("Helpers:parse", () => {
     });
 
     it("should throw if a required field is missing", () => {
-      const entity: ReceivedAggregateRoot = {};
+      const entity: ReceivedAggregateRoot = {} as any;
 
       expect(() => {
         receivedAggregateRoot(entity);

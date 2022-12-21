@@ -39,6 +39,9 @@ module.exports = {
     // Avoid foo!.bar wherever possible, but this is too onerous.
     "@typescript-eslint/no-non-null-assertion": "off",
 
+    // For NextJS
+    "@next/next/no-html-link-for-pages": "off",
+
     // Clean up unused vars before committing, but this is too onerous during dev.
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-var-requires": ["off"],

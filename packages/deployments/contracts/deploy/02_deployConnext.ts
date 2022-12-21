@@ -229,6 +229,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
     { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
+    { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [] },
     { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
     { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
