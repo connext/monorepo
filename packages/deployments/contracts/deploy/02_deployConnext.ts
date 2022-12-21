@@ -328,27 +328,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("relayerProxy: ", relayerProxy.address);
   }
 
-  {
-    // NOTE: Multisend will be shared between staging and production environments; we do not
-    // deploy 1 for each.
-    // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
-    // making xcalls transferring WETH tokens.
-    const multicallContractName = "Multisend";
-    let deployment = await hre.deployments.getOrNull(multicallContractName);
-    if (!deployment) {
-      console.log("Deploying Multisend contract...");
-      deployment = await hre.deployments.deploy(multicallContractName, {
-        from: deployer.address,
-        log: true,
-        skipIfAlreadyDeployed: true,
-        contract: "Multisend",
-      });
-      console.log(`Deployed Multisend contract to ${deployment.address}!`);
-    } else {
-      console.log(`Multisend contract already deployed at ${deployment.address}`);
-    }
-  }
-
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
