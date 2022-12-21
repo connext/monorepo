@@ -5,7 +5,6 @@ import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { CrossChainMessenger } from "@eth-optimism/sdk";
 
-import hardhatConfig from "../../hardhat.config";
 import {
   Env,
   getConnectorName,
@@ -118,9 +117,10 @@ const processFromArbitrumRoot = async (
   const event = blocksForLog.filter((l) => l.sendRoot == expectedSendRoot).sort((a, b) => a.number - b.number)[0];
   console.log("event", event);
   // verify confirm data to ensure the node is correct
-  const node = await RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, deployer).getNode(
-    event.nodeNum as BigNumberish,
-  );
+  const node = await RollupUserLogic__factory.connect(
+    arbNetwork.ethBridge.rollup,
+    deployer.connect(hubProvider),
+  ).getNode(event.nodeNum as BigNumberish);
   if (
     node.confirmData.toLowerCase() !==
     keccak256(defaultAbiCoder.encode(["bytes32", "bytes32"], [event.hash, event.sendRoot])).toLowerCase()
@@ -202,9 +202,9 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       const protocolConfig = getMessagingProtocolConfig(networkType);
 
       // get the l2 provider
-      const l2Provider = getProviderFromHardhatConfig(hardhatConfig, spoke);
+      const l2Provider = getProviderFromHardhatConfig(spoke);
       // get the l1 provider
-      const l1Provider = getProviderFromHardhatConfig(hardhatConfig, protocolConfig.hub);
+      const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub);
 
       // see what prefix this spoke is
       const prefix = protocolConfig.configs[spoke].prefix;

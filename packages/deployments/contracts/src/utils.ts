@@ -1,10 +1,12 @@
 import { config } from "dotenv";
 import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
-import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
+
+import { hardhatNetworks } from "./config";
 
 config();
 
@@ -196,12 +198,9 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
   return deployments;
 };
 
-export const getProviderFromHardhatConfig = (
-  hardhatConfig: HardhatUserConfig,
-  chainId: number,
-): providers.JsonRpcProvider => {
+export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpcProvider => {
   // Get the provider address from the hardhat config on given chain
-  const url = (Object.values(hardhatConfig.networks!).find((n) => n?.chainId === chainId) as any)?.url;
+  const url = (Object.values(hardhatNetworks).find((n: any) => n?.chainId === chainId) as any)?.url;
   if (!url) {
     throw new Error(`No provider url found for ${chainId}`);
   }
@@ -209,7 +208,6 @@ export const getProviderFromHardhatConfig = (
 };
 
 export const executeOnAllConnectors = async <T = any>(
-  hardhatConfig: HardhatUserConfig,
   env: Env,
   protocolNetwork: ProtocolNetwork,
   fn: (d: ConnectorDeployment, provider: providers.JsonRpcProvider) => Promise<T>,
@@ -217,7 +215,7 @@ export const executeOnAllConnectors = async <T = any>(
   const deployments = getConnectorDeployments(env, protocolNetwork);
   const results = [];
   for (const deploy of deployments) {
-    results.push(await fn(deploy, getProviderFromHardhatConfig(hardhatConfig, deploy.chain)));
+    results.push(await fn(deploy, getProviderFromHardhatConfig(deploy.chain)));
   }
   return results;
 };
