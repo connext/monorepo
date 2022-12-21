@@ -22,7 +22,7 @@
     "hardhat": "hardhat",
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
-    "firedrill": "ts-node ./src/cli/firedrill/main.ts",
+    "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",
