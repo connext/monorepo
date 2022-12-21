@@ -159,7 +159,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingarbitrumgoerli_
+          value: arbitrumgoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
