@@ -15,6 +15,7 @@ const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
+const mockMultisendAddress = mockConfig.chains[mock.domain.A].deployments!.multisend;
 const chainId = 1337;
 
 describe("SdkBase", () => {
@@ -42,6 +43,7 @@ describe("SdkBase", () => {
       expect(nxtpSdkBase.chainData).to.not.be.null;
 
       expect(nxtpSdkBase.xcall).to.be.a("function");
+      expect(nxtpSdkBase.wrapEthAndXCall).to.be.a("function");
       expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
       expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
     });
@@ -179,11 +181,65 @@ describe("SdkBase", () => {
     });
   });
 
+  describe("#wrapEthAndXCall", () => {
+    let getConversionRateStub: SinonStub;
+    let getDecimalsForAssetStub: SinonStub;
+    let getHardcodedGasLimitsStub: SinonStub;
+    let relayerFee = BigNumber.from("1");
+
+    beforeEach(() => {
+      getConversionRateStub = stub(SharedFns, "getConversionRate");
+      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
+      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("happy: should work for wrap", async () => {
+      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
+      const mockXcallArgs = mock.entity.xcallArgs();
+      const mockEncodedData =
+        "0x8d80ff0a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000024b00beefbeefbeef00000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000004d0e30db000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000abcdef12300000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000abcdef1230000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001048aac16ba000000000000000000000000000000000000000000000000000000000000341a000000000000000000000000aaa0000000000000000000000000000000000000000000000000000000000000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+      const mockWrapEthAndXCallRequest: providers.TransactionRequest = {
+        to: mockMultisendAddress,
+        data: mockEncodedData,
+        from: mock.config().signerAddress,
+        value: BigNumber.from(mockXcallArgs.amount).add(relayerFee),
+        chainId,
+      };
+
+      const origin = mock.entity.callParams().originDomain;
+      const sdkXcallArgs = {
+        ...mock.entity.xcallArgs(),
+        relayerFee: relayerFee.toString(),
+        origin,
+      };
+
+      const res = await nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs);
+      expect(res).to.be.deep.eq(mockWrapEthAndXCallRequest);
+    });
+
+    it("should error if signerAddress is undefined", async () => {
+      nxtpSdkBase.config.signerAddress = undefined;
+      const origin = mock.entity.callParams().originDomain;
+      const sdkXcallArgs = {
+        ...mock.entity.xcallArgs(),
+        origin,
+      };
+
+      await expect(nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
+    });
+  });
+
   describe("#bumpTransfer", () => {
     const mockXTransfer = mock.entity.xtransfer();
 
     const mockBumpTransferParams = {
-      domain: mockXTransfer.xparams.originDomain,
+      domainId: mockXTransfer.xparams.originDomain,
       transferId: mockXTransfer.transferId,
       relayerFee: "1",
     };
