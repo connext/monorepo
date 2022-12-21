@@ -1,14 +1,13 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
 
 import {
   RootPropagated as RootPropagatedEvent,
   RootReceived as RootReceivedEvent,
-  RootsAggregated as RootsAggregatedEvent,
   ConnectorAdded as ConnectorAddedEvent,
   ConnectorRemoved as ConnectorRemovedEvent,
 } from "../../../generated/RootManager/RootManager";
-import { RootPropagated, AggregatedMessageRoot, RootAggregated, RootManagerMeta } from "../../../generated/schema";
+import { RootPropagated, RootAggregated, RootManagerMeta } from "../../../generated/schema";
 
 const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
 
@@ -25,30 +24,6 @@ export function handleRootReceived(event: RootReceivedEvent): void {
   instance.index = event.params.queueIndex;
 
   instance.save();
-}
-
-export function handleRootsAggregated(event: RootsAggregatedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
-  const numMessageRootsAggregated = event.params.aggregatedMessageRoots.length;
-  // Pre-count = the number of nodes in the tree *before* we inserted these message root nodes.
-  const aggregateTreePreCount = event.params.count.minus(BigInt.fromI32(numMessageRootsAggregated));
-  for (let i = 0; i < numMessageRootsAggregated; i++) {
-    const leaf = event.params.aggregatedMessageRoots[i].toHexString();
-    // Index of insertion for each leaf will be (whatever the aggregate tree count was before
-    // insertion of all these message roots) + index in the array of message roots.
-    const index = aggregateTreePreCount.plus(BigInt.fromI32(i));
-
-    let instance = AggregatedMessageRoot.load(`${key}-${index}`); // Should ALWAYS be null.
-    if (instance == null) {
-      instance = new AggregatedMessageRoot(`${key}-${index}`);
-    }
-
-    let rootAggregatedInstance = RootAggregated.load(leaf);
-    instance.domain = rootAggregatedInstance!.domain;
-    instance.index = index;
-    instance.receivedRoot = Bytes.fromHexString(leaf);
-    instance.save();
-  }
 }
 
 export function handleRootPropagated(event: RootPropagatedEvent): void {

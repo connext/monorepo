@@ -59,7 +59,12 @@
   },
   {
     "inputs": [],
-    "name": "BaseConnextFacet__getAdoptedAsset_notAllowlisted",
+    "name": "AssetLogic__getConfig_notRegistered",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__getAdoptedAsset_assetNotFound",
     "type": "error"
   },
   {
@@ -114,6 +119,16 @@
   },
   {
     "inputs": [],
+    "name": "TokenFacet__addAssetId_badBurn",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenFacet__addAssetId_badMint",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
     "type": "error"
   },
@@ -139,6 +154,11 @@
   },
   {
     "inputs": [],
+    "name": "TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
     "type": "error"
   },
@@ -160,6 +180,11 @@
   {
     "inputs": [],
     "name": "TokenFacet__updateDetails_notApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenFacet__updateDetails_onlyRemote",
     "type": "error"
   },
   {
@@ -579,6 +604,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCustodiedAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1403,6 +1447,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "updated",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "XAppConnectionManagerSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
         "name": "transferId",
@@ -1510,6 +1573,12 @@
         "internalType": "address",
         "name": "local",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "messageBody",
+        "type": "bytes"
       }
     ],
     "name": "XCalled",
@@ -2336,32 +2405,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "AssetAllowlistRemovalProposed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "renounced",
-        "type": "bool"
-      }
-    ],
-    "name": "AssetAllowlistRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
         "name": "admin",
         "type": "address"
@@ -2493,32 +2536,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "assetAllowlistRemoved",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "assetAllowlistTimestamp",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -2592,9 +2609,15 @@
   },
   {
     "inputs": [],
-    "name": "proposeAssetAllowlistRemoval",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "paused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -2660,13 +2683,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "removeAssetAllowlist",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3555,14 +3571,26 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      },
+      {
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_local",
-        "type": "address"
       },
       {
         "internalType": "address payable",
@@ -3578,14 +3606,26 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      },
+      {
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_local",
-        "type": "address"
       },
       {
         "internalType": "address payable",
@@ -3716,6 +3756,247 @@
     "inputs": [],
     "name": "StableSwapFacet__getSwapToken_outOfRange",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "tokenAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "fees",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "invariant",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "AddLiquidity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newAdminFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "NewAdminFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newSwapFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "NewSwapFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "tokenAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "RemoveLiquidity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "tokenAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "fees",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "invariant",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "RemoveLiquidityImbalance",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpTokenSupply",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "boughtId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokensBought",
+        "type": "uint256"
+      }
+    ],
+    "name": "RemoveLiquidityOne",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokensSold",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokensBought",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "soldId",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "boughtId",
+        "type": "uint128"
+      }
+    ],
+    "name": "TokenSwap",
+    "type": "event"
   },
   {
     "inputs": [
