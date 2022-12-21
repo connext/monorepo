@@ -1,7 +1,6 @@
 import {
   AggregatedRoot,
   chainDataToMap,
-  DestinationMessage,
   DestinationTransfer,
   mkAddress,
   mkBytes32,
@@ -142,11 +141,6 @@ export const mockOriginMessageSubgraphResponse = [
   mock.entity.originMessage() as OriginMessage,
 ];
 
-export const mockDestinationMessageSubgraphResponse = [
-  mock.entity.destinationMessage() as DestinationMessage,
-  mock.entity.destinationMessage() as DestinationMessage,
-];
-
 export const mockAggregatedRootSubgraphResponse = [
   mock.entity.aggregatedRoot() as AggregatedRoot,
   mock.entity.aggregatedRoot() as AggregatedRoot,
@@ -220,7 +214,6 @@ export const mockConnectorMeta = [
 export const mockSubgraph = () =>
   createStubInstance(SubgraphReader, {
     getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
-    getDestinationMessagesByDomainAndLeaf: Promise.resolve(mockDestinationMessageSubgraphResponse),
     getSentRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
     getProcessedRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
     getLatestBlockNumber: Promise.resolve(mockBlockNumber),

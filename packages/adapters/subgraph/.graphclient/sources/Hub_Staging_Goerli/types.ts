@@ -25,7 +25,7 @@ export type staginggoerli_AggregatedMessageRoot = {
   id: Scalars['ID'];
   index: Scalars['BigInt'];
   receivedRoot: Scalars['staginggoerli_Bytes'];
-  domain: Scalars['BigInt'];
+  domain?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_AggregatedMessageRoot_filter = {

@@ -88,8 +88,6 @@ dataSources:
       eventHandlers:
         - event: AggregateRootReceived(bytes32)
           handler: handleAggregateRootReceived
-        - event: Process(bytes32,bool,bytes)
-          handler: handleProcess
         - event: MessageSent(bytes,bytes,address)
           handler: handleMessageSent
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)

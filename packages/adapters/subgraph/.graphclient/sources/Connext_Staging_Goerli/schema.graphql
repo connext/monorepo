@@ -379,6 +379,7 @@ type staginggoerli_DestinationTransfer {
   normalizedIn: BigInt
   canonicalId: staginggoerli_Bytes
   asset: staginggoerli_Asset
+  amount: BigInt
   routersFee: BigInt
   executedCaller: staginggoerli_Bytes
   executedTransactionHash: staginggoerli_Bytes
@@ -539,6 +540,14 @@ input staginggoerli_DestinationTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: staginggoerli_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
   routersFee: BigInt
   routersFee_not: BigInt
   routersFee_gt: BigInt
@@ -659,6 +668,7 @@ enum staginggoerli_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  amount
   routersFee
   executedCaller
   executedTransactionHash

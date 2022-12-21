@@ -43,6 +43,7 @@ describe("Message operations", () => {
         mockOriginMessageSubgraphResponse[1].index,
       );
     });
+
     it("initial conditions", async () => {
       (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
       await retrieveOriginMessages();
@@ -71,42 +72,44 @@ describe("Message operations", () => {
         mock.entity.xMessage(),
       ]);
       await updateMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
     });
+
     it("should work", async () => {
       const pendingMessage1 = mock.entity.xMessage({ leaf: "0x1" });
       const pendingMessage2 = mock.entity.xMessage({ leaf: "0x2" });
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([pendingMessage1, pendingMessage2]);
 
-      const dstMessage1 = mock.entity.destinationMessage({ leaf: "0x1" });
-      const dstMessage2 = mock.entity.destinationMessage({ leaf: "0x2" });
-      (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([
-        dstMessage1,
-        dstMessage2,
+      const transfer1 = mock.entity.xtransfer({ messageHash: pendingMessage1.leaf });
+      const transfer2 = mock.entity.xtransfer({ messageHash: pendingMessage2.leaf });
+      (mockContext.adapters.database.getCompletedTransfersByMessageHashes as SinonStub).resolves([
+        transfer1,
+        transfer2,
       ]);
       await updateMessages();
       const response = [
         {
           ...pendingMessage1,
           destination: {
-            processed: dstMessage1.processed,
-            returnData: dstMessage1.returnData,
+            processed: true,
+            returnData: "",
           },
         },
         {
           ...pendingMessage2,
           destination: {
-            processed: dstMessage2.processed,
-            returnData: dstMessage2.returnData,
+            processed: true,
+            returnData: "",
           },
         },
       ];
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly(response);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledWithExactly(response);
     });
+
     it("initial conditions", async () => {
       (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([]);
       await updateMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledOnceWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
     });
   });
 
