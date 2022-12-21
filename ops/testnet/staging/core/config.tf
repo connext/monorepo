@@ -358,10 +358,6 @@ locals {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
             name    = "BigBroERC20"
             address = "0x2D4A671E49d39Fc13F9237f60B6E6FDd16d8Ad4d"
           }
@@ -370,10 +366,6 @@ locals {
       "1735356532" = {
         providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
         assets = [
-          {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
           {
             name    = "BigBroERC20"
             address = "0xF6dbBbDa9F1F891C12FF4E0aB0FF65a228B72a94"
