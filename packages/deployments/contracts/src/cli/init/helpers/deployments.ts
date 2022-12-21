@@ -27,6 +27,7 @@ export const getDeployments = (args: {
   const env = useStaging ? "Staging" : "";
 
   const deployer = _deployer.connect(chainInfo.rpc);
+  console.log("chainInfo.rpc: ", chainInfo.rpc);
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];
@@ -71,9 +72,9 @@ export const getDeployments = (args: {
     Connext: getContract("Connext_DiamondProxy", chain, useStaging),
     messaging: isHub
       ? {
-          RootManager: getContract("RootManager", chain, useStaging),
-          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging),
-          WatcherManager: getContract("WatcherManager", chain, useStaging),
+          RootManager: getContract("RootManager", chain, useStaging, deployer),
+          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer),
           HubConnectors: connectors,
           MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy", chain, useStaging, deployer),
           MerkleTreeManagerForSpoke: getContract(
