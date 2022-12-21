@@ -291,72 +291,6 @@ export type staginggoerli_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type staginggoerli_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['staginggoerli_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type staginggoerli_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type staginggoerli_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -1125,8 +1059,6 @@ export type Query = {
   staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
   staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
   staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
-  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
-  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
   staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
   staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
   staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
@@ -1303,24 +1235,6 @@ export type Querystaginggoerli_originMessagesArgs = {
   orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_OriginMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2054,8 +1968,6 @@ export type Subscription = {
   staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
   staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
   staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
-  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
-  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
   staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
   staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
   staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
@@ -2232,24 +2144,6 @@ export type Subscriptionstaginggoerli_originMessagesArgs = {
   orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_OriginMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2461,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   staginggoerli_originMessages: InContextSdkMethod<Query['staginggoerli_originMessages'], Querystaginggoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  staginggoerli_destinationMessage: InContextSdkMethod<Query['staginggoerli_destinationMessage'], Querystaginggoerli_destinationMessageArgs, MeshContext>,
-  /** null **/
-  staginggoerli_destinationMessages: InContextSdkMethod<Query['staginggoerli_destinationMessages'], Querystaginggoerli_destinationMessagesArgs, MeshContext>,
-  /** null **/
   staginggoerli_aggregateRoot: InContextSdkMethod<Query['staginggoerli_aggregateRoot'], Querystaginggoerli_aggregateRootArgs, MeshContext>,
   /** null **/
   staginggoerli_aggregateRoots: InContextSdkMethod<Query['staginggoerli_aggregateRoots'], Querystaginggoerli_aggregateRootsArgs, MeshContext>,
@@ -2537,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_originMessage: InContextSdkMethod<Subscription['staginggoerli_originMessage'], Subscriptionstaginggoerli_originMessageArgs, MeshContext>,
   /** null **/
   staginggoerli_originMessages: InContextSdkMethod<Subscription['staginggoerli_originMessages'], Subscriptionstaginggoerli_originMessagesArgs, MeshContext>,
-  /** null **/
-  staginggoerli_destinationMessage: InContextSdkMethod<Subscription['staginggoerli_destinationMessage'], Subscriptionstaginggoerli_destinationMessageArgs, MeshContext>,
-  /** null **/
-  staginggoerli_destinationMessages: InContextSdkMethod<Subscription['staginggoerli_destinationMessages'], Subscriptionstaginggoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
   staginggoerli_aggregateRoot: InContextSdkMethod<Subscription['staginggoerli_aggregateRoot'], Subscriptionstaginggoerli_aggregateRootArgs, MeshContext>,
   /** null **/

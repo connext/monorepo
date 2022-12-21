@@ -25,7 +25,7 @@ export type goerli_AggregatedMessageRoot = {
   id: Scalars['ID'];
   index: Scalars['BigInt'];
   receivedRoot: Scalars['goerli_Bytes'];
-  domain: Scalars['BigInt'];
+  domain?: Maybe<Scalars['BigInt']>;
 };
 
 export type goerli_AggregatedMessageRoot_filter = {
