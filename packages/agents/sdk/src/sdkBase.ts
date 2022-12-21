@@ -314,8 +314,13 @@ export class NxtpSdkBase extends NxtpSdkShared {
       chainId = await getChainIdFromDomain(origin, this.chainData);
     }
 
-    const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
+    const connextContractAddress = this.config.chains[origin].deployments?.connext;
+    const multisendContractAddress = this.config.chains[origin].deployments?.multisend;
     const weth = new utils.Interface(WETHAbi);
+
+    if (!multisendContractAddress) {
+      throw new Error(`Multisend contract deployment not found for chain ${chainId}! Unable to perform multicall.`);
+    }
 
     // 1. WETH.deposit(amount)
     txs.push({
@@ -333,7 +338,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     // 3. WETH.approve(connext)
     txs.push({
       to: asset,
-      data: weth.encodeFunctionData("approve", [amount, ConnextContractAddress]),
+      data: weth.encodeFunctionData("approve", [amount, connextContractAddress]),
     });
 
     // 4. xcall(args)
@@ -341,10 +346,10 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
     // for token approval.
-    if (!xcallRequest.to || ConnextContractAddress !== xcallRequest.to) {
+    if (!xcallRequest.to || connextContractAddress !== xcallRequest.to) {
       throw new Error(
         "Formatted XCall recipient address did not match expected Connext address!" +
-          `Got: ${xcallRequest.to}; Expected: ${ConnextContractAddress}`,
+          `Got: ${xcallRequest.to}; Expected: ${connextContractAddress}`,
       );
     }
 
@@ -358,14 +363,14 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
 
     txs.push({
-      to: ConnextContractAddress,
+      to: connextContractAddress,
       data: xcallRequest.data!.toString(),
       value: relayerFee,
     });
 
     // 5. Format Multisend call in an ethers TransactionRequest object.
     const txRequest: providers.TransactionRequest = {
-      to: ConnextContractAddress,
+      to: multisendContractAddress,
       value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
       data: encodeMultisendCall(txs),
       from: signerAddress,
