@@ -179,11 +179,77 @@ describe("SdkBase", () => {
     });
   });
 
+  describe("#wrapEthAndXCall", () => {
+    let getConversionRateStub: SinonStub;
+    let getDecimalsForAssetStub: SinonStub;
+    let getHardcodedGasLimitsStub: SinonStub;
+    let relayerFee = BigNumber.from("1");
+
+    beforeEach(() => {
+      getConversionRateStub = stub(SharedFns, "getConversionRate");
+      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
+      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("happy: should work", async () => {
+      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
+      const mockXcallArgs = mock.entity.xcallArgs();
+      const data = getConnextInterface().encodeFunctionData("xcall", [
+        mockXcallArgs.destination,
+        mockXcallArgs.to,
+        mockXcallArgs.asset,
+        mockXcallArgs.delegate,
+        mockXcallArgs.amount,
+        mockXcallArgs.slippage,
+        mockXcallArgs.callData,
+      ]);
+      const mockWrapEthAndXCallRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+        from: mock.config().signerAddress,
+        value: relayerFee,
+        chainId,
+      };
+
+      const origin = mock.entity.callParams().originDomain;
+      const sdkXcallArgs = {
+        destination: mock.entity.callParams().destinationDomain,
+        to: mock.entity.callParams().to,
+        asset: constants.AddressZero,
+        delegate: mock.entity.callParams().to,
+        amount: utils.parseEther("1").toString(),
+        slippage: "1000",
+        callData: "0x",
+        origin,
+        relayerFee: relayerFee.toString(),
+      };
+
+      const res = await nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs);
+      expect(res).to.be.deep.eq(mockWrapEthAndXCallRequest);
+    });
+
+    it("should error if signerAddress is undefined", async () => {
+      nxtpSdkBase.config.signerAddress = undefined;
+      const origin = mock.entity.callParams().originDomain;
+      const sdkXcallArgs = {
+        ...mock.entity.xcallArgs(),
+        origin,
+      };
+
+      await expect(nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
+    });
+  });
+
   describe("#bumpTransfer", () => {
     const mockXTransfer = mock.entity.xtransfer();
 
     const mockBumpTransferParams = {
-      domain: mockXTransfer.xparams.originDomain,
+      domainId: mockXTransfer.xparams.originDomain,
       transferId: mockXTransfer.transferId,
       relayerFee: "1",
     };
