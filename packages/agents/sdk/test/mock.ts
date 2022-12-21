@@ -24,6 +24,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          multisend: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -34,6 +35,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          multisend: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -71,13 +73,28 @@ export const mock = {
       spokeConnector.encodeFunctionData.returns(encodedDataMock);
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const relayerProxy = createStubInstance(utils.Interface);
+      relayerProxy.encodeFunctionData.returns(encodedDataMock);
+      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const relayerProxyHub = createStubInstance(utils.Interface);
+      relayerProxyHub.encodeFunctionData.returns(encodedDataMock);
+      relayerProxyHub.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const rootManager = createStubInstance(utils.Interface);
+      rootManager.encodeFunctionData.returns(encodedDataMock);
+      rootManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
-        erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
+        // erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
+        relayerProxyHub: relayerProxyHub as unknown as ConnextContractInterfaces["relayerProxyHub"],
+        rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -90,6 +107,8 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        relayerProxy: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        multisend: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

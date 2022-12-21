@@ -1,5 +1,13 @@
-import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { constants, providers, BigNumber, utils } from "ethers";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  XCallArgs,
+  WETHAbi,
+  MultisendTransaction,
+  encodeMultisendCall,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import {
@@ -14,6 +22,12 @@ import {
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
+
+type NxtpSdkXCallArgs = Omit<XCallArgs, "callData" | "delegate"> &
+  Partial<XCallArgs> & {
+    origin: string;
+    relayerFee?: string;
+  } & { receiveLocal?: boolean };
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -50,14 +64,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
    * @returns providers.TransactionRequest object.
    */
-
-  async xcall(
-    args: Omit<XCallArgs, "callData" | "delegate"> &
-      Partial<XCallArgs> & {
-        origin: string;
-        relayerFee?: string;
-      } & { receiveLocal?: boolean },
-  ): Promise<providers.TransactionRequest> {
+  async xcall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
 
@@ -91,7 +98,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     //   });
     // }
 
-    const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(origin)).address;
 
     // Get the origin chain ID.
     let chainId = this.config.chains[origin].chainId;
@@ -147,7 +154,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
   }
 
   async bumpTransfer(params: {
-    domain: string;
+    domainId: string;
     transferId: string;
     relayerFee: string;
   }): Promise<providers.TransactionRequest> {
@@ -159,13 +166,13 @@ export class NxtpSdkBase extends NxtpSdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domain, transferId, relayerFee } = params;
+    const { domainId, transferId, relayerFee } = params;
 
-    let chainId = this.config.chains[domain].chainId;
+    let chainId = this.config.chains[domainId].chainId;
     if (!chainId) {
-      chainId = await getChainIdFromDomain(domain, this.chainData);
+      chainId = await getChainIdFromDomain(domainId, this.chainData);
     }
-    const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
@@ -283,5 +290,86 @@ export class NxtpSdkBase extends NxtpSdkShared {
     });
 
     return relayerFeeInOrginNativeAsset;
+  }
+
+  /**
+   *
+   * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
+   * @param args.amount - Will be used as the amount of ETH to deposit into WETH contract and withdraw as WETH.
+   * @param args.asset - Should be the target wrapper contract (e.g. WETH) address.
+   * @returns providers.TransactionRequest object.
+   */
+  async wrapEthAndXCall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
+    const txs: MultisendTransaction[] = [];
+    const { asset, amount: _amount, origin } = args;
+    const amount = BigNumber.from(_amount);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    let chainId = this.config.chains[origin].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(origin, this.chainData);
+    }
+
+    const connextContractAddress = (await this.getConnext(origin)).address;
+    const multisendContractAddress = this.config.chains[origin].deployments?.multisend;
+    const weth = new utils.Interface(WETHAbi);
+
+    if (!multisendContractAddress) {
+      throw new Error(`Multisend contract deployment not found for chain ${chainId}! Unable to perform multicall.`);
+    }
+
+    // 1. WETH.deposit(amount)
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("deposit"),
+      value: amount,
+    });
+
+    // 2. WETH.approve(connext)
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
+    });
+
+    // 3. xcall(args)
+    const xcallRequest = await this.xcall(args);
+
+    // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
+    // for token approval.
+    if (!xcallRequest.to || connextContractAddress !== xcallRequest.to) {
+      throw new Error(
+        "Formatted XCall recipient address did not match expected Connext address!" +
+          `Got: ${xcallRequest.to}; Expected: ${connextContractAddress}`,
+      );
+    }
+
+    const relayerFee = BigNumber.from(args.relayerFee ?? "0");
+    // Sanity check: value is correct.
+    if (!xcallRequest.value || !BigNumber.from(xcallRequest.value).eq(relayerFee)) {
+      throw new Error(
+        "Formatted XCall msg.value did not match expected value (args.relayerFee)." +
+          `Got: ${xcallRequest.value?.toString()}; Expected: ${args.relayerFee}`,
+      );
+    }
+
+    txs.push({
+      to: connextContractAddress,
+      data: xcallRequest.data!.toString(),
+      value: relayerFee,
+    });
+
+    // 5. Format Multisend call in an ethers TransactionRequest object.
+    const txRequest: providers.TransactionRequest = {
+      to: multisendContractAddress,
+      value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+      data: encodeMultisendCall(txs),
+      from: signerAddress,
+      chainId,
+    };
+    return txRequest;
   }
 }

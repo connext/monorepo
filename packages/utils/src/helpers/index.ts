@@ -8,6 +8,7 @@ export * from "./hex";
 export * from "./math";
 export * from "./domain";
 export * from "./merkle";
+export * from "./multisend";
 export * from "./parse";
 export * from "./signatures";
 export * from "./swap";
