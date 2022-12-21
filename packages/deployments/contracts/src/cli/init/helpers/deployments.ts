@@ -27,6 +27,7 @@ export const getDeployments = (args: {
   const env = useStaging ? "Staging" : "";
 
   const deployer = _deployer.connect(chainInfo.rpc);
+  console.log("chainInfo.rpc: ", chainInfo.rpc);
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];
