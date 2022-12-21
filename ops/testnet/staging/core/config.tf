@@ -318,6 +318,7 @@ locals {
     environment = var.stage
     databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
     hubDomain   = "1735353714"
+    proverBatchSize = 1
   })
 
   local_relayer_config = jsonencode({
