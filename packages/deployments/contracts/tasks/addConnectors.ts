@@ -56,7 +56,6 @@ export default task("add-connectors", "Add all connectors to the root manager")
     );
 
     await executeOnAllConnectors(
-      hardhatConfig,
       env,
       networkType,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {

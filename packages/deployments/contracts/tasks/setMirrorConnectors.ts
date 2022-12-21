@@ -22,7 +22,6 @@ export default task("set-mirror-connectors", "Add a remote router")
     console.log("deployer: ", deployer.address);
 
     await executeOnAllConnectors(
-      hardhatConfig,
       env,
       networkType ?? ProtocolNetwork.TESTNET,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
