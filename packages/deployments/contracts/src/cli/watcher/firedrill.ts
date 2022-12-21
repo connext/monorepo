@@ -86,7 +86,6 @@ export const wouldYouLikeToPlayAGame = async () => {
     const deployments = getDeployments({
       deployer,
       chainInfo: { chain: chainId.toString(), rpc },
-      useStaging: true, // always staging
     });
 
     networks.push({
@@ -99,7 +98,7 @@ export const wouldYouLikeToPlayAGame = async () => {
 
   /// MARK - mint big bro token
   // randomly select network (hub excluded by supported domains check)
-  const idx = Math.ceil(Math.random() * networks.length);
+  const idx = Math.floor(Math.random() * networks.length);
   const {
     deployments: {
       WatcherToken: { contract },
