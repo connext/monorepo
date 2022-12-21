@@ -46,7 +46,7 @@ export const hardhatNetworks = {
   mainnet: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 1,
-    url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://eth-rpc.gateway.pokt.network",
+    url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
   },
   ropsten: {
