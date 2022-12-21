@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
-import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
