@@ -291,72 +291,6 @@ export type stagingmumbai_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type stagingmumbai_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type stagingmumbai_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type stagingmumbai_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -1125,8 +1059,6 @@ export type Query = {
   stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
   stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
   stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
   stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
   stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
   stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
@@ -1303,24 +1235,6 @@ export type Querystagingmumbai_originMessagesArgs = {
   orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2054,8 +1968,6 @@ export type Subscription = {
   stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
   stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
   stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
   stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
   stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
   stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
@@ -2232,24 +2144,6 @@ export type Subscriptionstagingmumbai_originMessagesArgs = {
   orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2461,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmumbai_originMessages: InContextSdkMethod<Query['stagingmumbai_originMessages'], Querystagingmumbai_originMessagesArgs, MeshContext>,
   /** null **/
-  stagingmumbai_destinationMessage: InContextSdkMethod<Query['stagingmumbai_destinationMessage'], Querystagingmumbai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  stagingmumbai_destinationMessages: InContextSdkMethod<Query['stagingmumbai_destinationMessages'], Querystagingmumbai_destinationMessagesArgs, MeshContext>,
-  /** null **/
   stagingmumbai_aggregateRoot: InContextSdkMethod<Query['stagingmumbai_aggregateRoot'], Querystagingmumbai_aggregateRootArgs, MeshContext>,
   /** null **/
   stagingmumbai_aggregateRoots: InContextSdkMethod<Query['stagingmumbai_aggregateRoots'], Querystagingmumbai_aggregateRootsArgs, MeshContext>,
@@ -2537,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_originMessage: InContextSdkMethod<Subscription['stagingmumbai_originMessage'], Subscriptionstagingmumbai_originMessageArgs, MeshContext>,
   /** null **/
   stagingmumbai_originMessages: InContextSdkMethod<Subscription['stagingmumbai_originMessages'], Subscriptionstagingmumbai_originMessagesArgs, MeshContext>,
-  /** null **/
-  stagingmumbai_destinationMessage: InContextSdkMethod<Subscription['stagingmumbai_destinationMessage'], Subscriptionstagingmumbai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  stagingmumbai_destinationMessages: InContextSdkMethod<Subscription['stagingmumbai_destinationMessages'], Subscriptionstagingmumbai_destinationMessagesArgs, MeshContext>,
   /** null **/
   stagingmumbai_aggregateRoot: InContextSdkMethod<Subscription['stagingmumbai_aggregateRoot'], Subscriptionstagingmumbai_aggregateRootArgs, MeshContext>,
   /** null **/
