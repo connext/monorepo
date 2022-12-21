@@ -75,7 +75,7 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.OPSCAN_API_KEY!,
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-optimistic.etherscan.io/",
       },
     },
@@ -105,7 +105,7 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.OPSCAN_API_KEY!,
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-goerli-optimistic.etherscan.io/",
       },
     },
