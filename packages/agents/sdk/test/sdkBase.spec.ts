@@ -15,6 +15,7 @@ const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
+const mockMultisendAddress = mockConfig.chains[mock.domain.A].deployments!.multisend;
 const chainId = 1337;
 
 describe("SdkBase", () => {
@@ -42,6 +43,7 @@ describe("SdkBase", () => {
       expect(nxtpSdkBase.chainData).to.not.be.null;
 
       expect(nxtpSdkBase.xcall).to.be.a("function");
+      expect(nxtpSdkBase.wrapEthAndXCall).to.be.a("function");
       expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
       expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
     });
@@ -196,29 +198,24 @@ describe("SdkBase", () => {
       reset();
     });
 
-    it("happy: should work", async () => {
+    it("happy: should work for wrap", async () => {
       nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
       const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
+      const mockEncodedData =
+        "0x8d80ff0a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002c400beefbeefbeef00000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000004d0e30db000beefbeefbeef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000242e1a7d4d0000000000000000000000000000000000000000000000000de0b6b3a764000000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000abcdef12300000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000abcdef1230000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001048aac16ba000000000000000000000000000000000000000000000000000000000000341a000000000000000000000000aaa0000000000000000000000000000000000000000000000000000000000000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
       const mockWrapEthAndXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
+        to: mockMultisendAddress,
+        data: mockEncodedData,
         from: mock.config().signerAddress,
-        value: relayerFee,
+        value: BigNumber.from(mockXcallArgs.amount).add(relayerFee),
         chainId,
       };
 
       const origin = mock.entity.callParams().originDomain;
       const sdkXcallArgs = {
         ...mock.entity.xcallArgs(),
+        relayerFee: relayerFee.toString(),
         origin,
       };
 

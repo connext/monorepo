@@ -24,6 +24,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          multisend: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -34,6 +35,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          multisend: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
