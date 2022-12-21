@@ -68,12 +68,12 @@ export const getDeployments = (args: {
   }
 
   return {
-    Connext: getContract("Connext_DiamondProxy", chain, useStaging),
+    Connext: getContract("Connext_DiamondProxy", chain, useStaging, deployer),
     messaging: isHub
       ? {
-          RootManager: getContract("RootManager", chain, useStaging),
-          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging),
-          WatcherManager: getContract("WatcherManager", chain, useStaging),
+          RootManager: getContract("RootManager", chain, useStaging, deployer),
+          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer),
           HubConnectors: connectors,
           MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy", chain, useStaging, deployer),
           MerkleTreeManagerForSpoke: getContract(

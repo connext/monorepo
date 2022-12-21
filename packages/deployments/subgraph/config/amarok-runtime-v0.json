@@ -157,5 +157,26 @@
         "startBlock": 29956465
       }
     ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2",
+        "startBlock": 3268972
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x0f4e2866d874b94fc7424d7469deb13c8ae7738f",
+        "startBlock": 3268962
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x88D6229f1d6f3512aeAF5e0790af91606ADbC7dc",
+        "startBlock": 3268960
+      }
+    ]
   }
 ]
