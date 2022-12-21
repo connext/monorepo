@@ -63,19 +63,19 @@ export const Header = () => {
       let environment: "staging" | "production" | undefined = undefined;
 
       if (
-        process.env.PUBLIC_NETWORK === "testnet" ||
-        process.env.PUBLIC_NETWORK === "mainnet" ||
-        process.env.PUBLIC_NETWORK === "local"
+        process.env.NEXT_PUBLIC_NETWORK === "testnet" ||
+        process.env.NEXT_PUBLIC_NETWORK === "mainnet" ||
+        process.env.NEXT_PUBLIC_NETWORK === "local"
       ) {
-        network = process.env.PUBLIC_NETWORK;
-      } else if (!process.env.PUBLIC_ENVIRONMENT) {
-        console.error("Wrong PUBLIC_NETWORK environment variable");
+        network = process.env.NEXT_PUBLIC_NETWORK;
+      } else if (!process.env.NEXT_PUBLIC_ENVIRONMENT) {
+        console.error("Wrong NEXT_PUBLIC_NETWORK environment variable");
       }
 
-      if (process.env.PUBLIC_ENVIRONMENT === "staging" || process.env.PUBLIC_ENVIRONMENT === "production") {
-        environment = process.env.PUBLIC_ENVIRONMENT;
-      } else if (!process.env.PUBLIC_ENVIRONMENT) {
-        console.error("Wrong PUBLIC_ENVIRONMENT environment variable");
+      if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging" || process.env.NEXT_PUBLIC_ENVIRONMENT === "production") {
+        environment = process.env.NEXT_PUBLIC_ENVIRONMENT;
+      } else if (!process.env.NEXT_PUBLIC_ENVIRONMENT) {
+        console.error("Wrong NEXT_PUBLIC_ENVIRONMENT environment variable");
       }
 
       const config: NxtpSdkConfig = {
@@ -127,7 +127,7 @@ export const Header = () => {
           <div className="hidden sm:block">
             <div className="normal-case text-base font-semibold text-white">Connext</div>
             <div className="max-w-min bg-blue-600 rounded whitespace-nowrap text-white pb-0.5 px-1.5 mt-0.5">
-              {process.env.PUBLIC_NETWORK}
+              {process.env.NEXT_PUBLIC_NETWORK}
             </div>
           </div>
         </div>

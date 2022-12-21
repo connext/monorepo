@@ -32,14 +32,6 @@ export const OriginMessageSchema = Type.Object({
 });
 export type OriginMessage = Static<typeof OriginMessageSchema>;
 
-export const DestinationMessageSchema = Type.Object({
-  domain: Type.String(),
-  leaf: Type.String(),
-  processed: Type.Boolean(),
-  returnData: Type.String(),
-});
-export type DestinationMessage = Static<typeof DestinationMessageSchema>;
-
 export const RootMessageSchema = Type.Object({
   id: Type.String(),
   spokeDomain: Type.String(),

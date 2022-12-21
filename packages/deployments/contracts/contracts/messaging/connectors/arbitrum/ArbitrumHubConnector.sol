@@ -211,7 +211,8 @@ contract ArbitrumHubConnector is HubConnector {
     require(_message.callData.length == 100, "!length");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes32 _data = _message.callData.ref(0).index(4, 32);
+    // the calldata is 100 bytes long, the last 32 bytes represent the root to be aggregated.
+    bytes32 _data = _message.callData.ref(0).index(68, 32);
 
     // Update root manager
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _data);

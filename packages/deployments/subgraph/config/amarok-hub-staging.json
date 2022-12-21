@@ -5,28 +5,28 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0x6429D5D2Bf0Ab0965ceceC37BBDDD2b28fe300dD",
-        "startBlock": 8145706
+        "address": "0x0310DB8043520BF31fBEf5350D1E3d451C6de68a",
+        "startBlock": 8170987
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xc6c37278b8EFd73ea72d02D4f99aebA736f1c879",
-        "startBlock": 8145705
+        "address": "0xc18C57043055a4619f62937c803C10373e311182",
+        "startBlock": 8162897
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0xb514A1e1D8453faE5d4ca8e1d9443Ca2E2F9b128",
-        "startBlock": 8145712
+        "address": "0x73C7206B0b8aeeE14D73238139c4d25B3D044cAf",
+        "startBlock": 8170992
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x34AC54353968Ff6d16Cf1c86a7C5D948B55D6Ea8",
-        "startBlock": 8145711
+        "address": "0x9537a48b72b1879F3e6B6c9FD34Cac3d05946dE0",
+        "startBlock": 8170990
       },
       {
         "name": "ArbitrumHubConnector",
-        "address": "0x75c08E5F1Db9074A59bBC7773E9785F8EA70c8b7",
-        "startBlock": 8145713
+        "address": "0x7Cc2798d6f7C00E19F6DA0eFD9e4a0c5497FD928",
+        "startBlock": 8170993
       }
     ]
   }

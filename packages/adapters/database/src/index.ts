@@ -44,6 +44,7 @@ import {
   getHubNodes,
   getRoot,
   putRoot,
+  getCompletedTransfersByMessageHashes,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -74,6 +75,10 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
+  getCompletedTransfersByMessageHashes: (
+    message_hashes: string[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getRootMessages: (
@@ -94,6 +99,7 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
   getUnProcessedMessages: (
+    origin_domain: string,
     limit?: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
@@ -180,6 +186,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,
+    getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveMessages,
     getRootMessages,

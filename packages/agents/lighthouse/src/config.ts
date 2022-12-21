@@ -10,7 +10,7 @@ import { existsSync, readFileSync } from "./mockable";
 // Polling mins and defaults.
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
-const DEFAULT_PROVER_BATCH_SIZE = 100;
+const DEFAULT_PROVER_BATCH_SIZE = 10;
 
 dotenvConfig();
 

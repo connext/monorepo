@@ -25,6 +25,7 @@ export const TChainConfig = Type.Object({
   deployments: Type.Optional(
     Type.Object({
       connext: TAddress,
+      multisend: Type.Optional(TAddress),
       stableSwap: Type.Optional(TAddress),
     }),
   ),
@@ -51,6 +52,7 @@ export const TValidationChainConfig = Type.Object({
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
+    multisend: Type.Optional(TAddress),
     stableSwap: Type.Optional(TAddress),
   }),
 });
@@ -111,11 +113,22 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
-          if (!res) {
-            throw new Error(`No Connext contract address for domain ${domainId}`);
+          if (chainDataForChain) {
+            const res = deployments.connext(chainDataForChain.chainId, contractPostfix);
+            if (res) {
+              return res.address;
+            }
           }
-          return res.address;
+          throw new Error(`No Connext contract address for domain ${domainId}`);
+        })(),
+      multisend:
+        chainConfig.deployments?.multisend ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.multisend(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
         })(),
     };
 

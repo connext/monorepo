@@ -1,20 +1,48 @@
 [
-    {
-        "id": "test",
-        "symbol": "TEST",
-        "name": "Test",
-        "is_stablecoin": true,
-        "contracts": [
-            {
-                "contract_address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
-                "chain_id": 5,
-                "contract_decimals": 18
-            },
-            {
-                "contract_address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
-                "chain_id": 420,
-                "contract_decimals": 18
-            }
-        ]
-    }
+  {
+    "id": "test",
+    "symbol": "TEST",
+    "name": "Test",
+    "is_stablecoin": true,
+    "contracts": [
+      {
+        "contract_address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+        "chain_id": 5,
+        "contract_decimals": 18
+      },
+      {
+        "contract_address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
+        "chain_id": 420,
+        "contract_decimals": 18
+      },
+      {
+        "contract_address": "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
+        "chain_id": 80001,
+        "contract_decimals": 18
+      }
+    ]
+  },
+  {
+    "id": "weth",
+    "symbol": "WETH",
+    "name": "Wrapped Ether",
+    "is_stablecoin": false,
+    "contracts": [
+      {
+        "contract_address": "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        "chain_id": 5,
+        "contract_decimals": 18
+      },
+      {
+        "contract_address": "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
+        "chain_id": 420,
+        "contract_decimals": 18
+      },
+      {
+        "contract_address": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+        "chain_id": 80001,
+        "contract_decimals": 18
+      }
+    ]
+  }
 ]

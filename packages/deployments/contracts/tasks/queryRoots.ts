@@ -42,7 +42,6 @@ export default task("query-roots", "Read balances of accounts")
     const protocol = getMessagingProtocolConfig(networkType ?? ProtocolNetwork.TESTNET);
 
     await executeOnAllConnectors(
-      config,
       env,
       ProtocolNetwork.TESTNET,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
@@ -73,7 +72,7 @@ export default task("query-roots", "Read balances of accounts")
             hash,
             protocol.hub,
             chain,
-            getProviderFromHardhatConfig(config, protocol.hub),
+            getProviderFromHardhatConfig(protocol.hub),
             provider,
             relay,
             deployer,
