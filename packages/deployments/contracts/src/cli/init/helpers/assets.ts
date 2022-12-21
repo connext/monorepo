@@ -1,7 +1,7 @@
 import { constants, utils } from "ethers";
 import { ChainData } from "@connext/nxtp-utils";
 
-import { canonizeId } from "../../domain";
+import { canonizeId } from "../../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";

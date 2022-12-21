@@ -1,8 +1,10 @@
 import { providers } from "ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
+import { Deployment } from "../../types";
+
 import { log } from "./log";
-import { CallSchema, Deployment } from "./types";
+import { CallSchema } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 3;
 

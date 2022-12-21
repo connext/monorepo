@@ -1,9 +1,10 @@
 import { Contract, ethers, Wallet } from "ethers";
 
-import _Deployments from "../../../deployments.json";
-import { ConnextInterface } from "../../contracts";
+import _Deployments from "../../../../deployments.json";
+import { getContract } from "../../helpers";
+import { Deployment } from "../../types";
 
-import { Deployment, DomainDeployments } from "./types";
+import { DomainDeployments } from "./types";
 
 const Deployments = _Deployments as any;
 
@@ -66,62 +67,28 @@ export const getDeployments = (args: {
     }
   }
 
-  // Custom function to format lookup by env and double check that the contract retrieved is not null.
-  const getContract = (contract: string): any => {
-    const isConnext = contract.includes("Connext");
-    const key = isConnext ? `Connext${env}_DiamondProxy` : contract + env;
-    const result = contracts[key];
-    if (!result) {
-      throw new Error(`Contract ${key} was not found in deployments.json!`);
-    } else if (!result.address || !result.abi) {
-      throw new Error(`Contract ${key} was missing address or ABI in deployments.json!`);
-    }
-
-    // Use the ABI of the implementation contract, if applicable.
-    let abi = result.abi as any[];
-    const implementation = contract.includes("UpgradeBeaconProxy")
-      ? contract.replace("UpgradeBeaconProxy", "")
-      : undefined;
-
-    if (implementation) {
-      const implementation_with_env = useStaging ? implementation?.concat("Staging") : implementation;
-      const found = contracts[implementation_with_env];
-      if (found && found.abi) {
-        abi = found.abi as any[];
-      }
-    }
-
-    return {
-      proxy: key,
-      name: isConnext ? "Connext" : implementation ?? contract,
-      address: result.address,
-      abi,
-      contract: new Contract(
-        result.address as string,
-        // Special case if this is the Connext diamond.
-        isConnext ? ConnextInterface : abi,
-        deployer,
-      ),
-    };
-  };
-
   return {
-    Connext: getContract("Connext_DiamondProxy"),
+    Connext: getContract("Connext_DiamondProxy", chain, useStaging),
     messaging: isHub
       ? {
-          RootManager: getContract("RootManager"),
-          MainnetConnector: getContract("MainnetSpokeConnector"),
-          WatcherManager: getContract("WatcherManager"),
+          RootManager: getContract("RootManager", chain, useStaging),
+          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging),
+          WatcherManager: getContract("WatcherManager", chain, useStaging),
           HubConnectors: connectors,
-          MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy"),
-          MerkleTreeManagerForSpoke: getContract("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
-          RelayerProxy: getContract("RelayerProxyHub"),
+          MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy", chain, useStaging, deployer),
+          MerkleTreeManagerForSpoke: getContract(
+            "MerkleTreeManagerSpokeUpgradeBeaconProxy",
+            chain,
+            useStaging,
+            deployer,
+          ),
+          RelayerProxy: getContract("RelayerProxyHub", chain, useStaging, deployer),
         }
       : {
           SpokeConnector: connectors[0],
-          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy"),
-          WatcherManager: getContract("WatcherManager"),
-          RelayerProxy: getContract("RelayerProxy"),
+          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy", chain, useStaging, deployer),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer),
+          RelayerProxy: getContract("RelayerProxy", chain, useStaging, deployer),
         },
   };
 };

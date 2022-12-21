@@ -1,6 +1,8 @@
 import { TAddress } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
-import { Contract, providers, Wallet } from "ethers";
+import { providers, Wallet } from "ethers";
+
+import { Deployment } from "../../types";
 
 // NOTE: Agents will currently be allowlisted/blacklisted respectively on ALL domains.
 export const AgentStackSchema = Type.Object({
@@ -43,14 +45,6 @@ export const AssetStackSchema = Type.Object({
   ),
 });
 export type AssetStack = Static<typeof AssetStackSchema>;
-
-export type Deployment = {
-  proxy?: string;
-  name: string;
-  address: string;
-  abi: any[];
-  contract: Contract;
-};
 
 export type HubMessagingDeployments = {
   RootManager: Deployment;
