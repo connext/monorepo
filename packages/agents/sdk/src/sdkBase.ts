@@ -329,19 +329,13 @@ export class NxtpSdkBase extends NxtpSdkShared {
       value: amount,
     });
 
-    // 2. WETH.withdraw(amount)
-    txs.push({
-      to: asset,
-      data: weth.encodeFunctionData("withdraw", [amount]),
-    });
-
-    // 3. WETH.approve(connext)
+    // 2. WETH.approve(connext)
     txs.push({
       to: asset,
       data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
     });
 
-    // 4. xcall(args)
+    // 3. xcall(args)
     const xcallRequest = await this.xcall(args);
 
     // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
