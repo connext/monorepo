@@ -40,6 +40,23 @@ Content-Type: application/json
 }
 
 ##############
+### POST wrapEthAndXCall
+POST {{baseUrl}}/wrapEthAndXCall
+Content-Type: application/json
+
+{
+  "destination": "9991",
+  "to": "{{yourAddress}}",
+  "asset": "0x0000000000000000000000000000000000000000",
+  "delegate": "{{yourAddress}}",
+  "amount": "100",
+  "slippage": "10000",
+  "callData": "0x",
+  "origin": "1735353714",
+  "receiveLocal": true
+}
+
+##############
 ### GET getCanonicalTokenId
 GET {{baseUrl}}/getCanonicalTokenId/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 

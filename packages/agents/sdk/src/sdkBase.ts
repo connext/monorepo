@@ -98,7 +98,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     //   });
     // }
 
-    const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(origin)).address;
 
     // Get the origin chain ID.
     let chainId = this.config.chains[origin].chainId;
@@ -154,7 +154,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
   }
 
   async bumpTransfer(params: {
-    domain: string;
+    domainId: string;
     transferId: string;
     relayerFee: string;
   }): Promise<providers.TransactionRequest> {
@@ -166,13 +166,13 @@ export class NxtpSdkBase extends NxtpSdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domain, transferId, relayerFee } = params;
+    const { domainId, transferId, relayerFee } = params;
 
-    let chainId = this.config.chains[domain].chainId;
+    let chainId = this.config.chains[domainId].chainId;
     if (!chainId) {
-      chainId = await getChainIdFromDomain(domain, this.chainData);
+      chainId = await getChainIdFromDomain(domainId, this.chainData);
     }
-    const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
@@ -314,7 +314,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       chainId = await getChainIdFromDomain(origin, this.chainData);
     }
 
-    const connextContractAddress = this.config.chains[origin].deployments?.connext;
+    const connextContractAddress = (await this.getConnext(origin)).address;
     const multisendContractAddress = this.config.chains[origin].deployments?.multisend;
     const weth = new utils.Interface(WETHAbi);
 

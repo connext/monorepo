@@ -18,4 +18,17 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
       reply.status(200).send(txReq);
     },
   );
+
+  s.post<{ Body: SdkServerApiXCall }>(
+    "/wrapEthAndXCall",
+    {
+      schema: {
+        body: SdkServerApiXCallSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.wrapEthAndXCall(request.body);
+      reply.status(200).send(txReq);
+    },
+  );
 };
