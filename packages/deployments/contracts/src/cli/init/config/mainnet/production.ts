@@ -1,3 +1,5 @@
+import { utils } from "ethers";
+
 import { InitConfig } from "../../helpers";
 
 export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
@@ -6,7 +8,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "6648936", // MAINNET
     "1869640809", // OPTIMISM
     "1886350457", // POLYGON
-    // "1634886255", // ARBITRUM ONE
+    "1634886255", // ARBITRUM ONE
     "6450786", // BNB
     "6778479", // GNOSIS
   ],
@@ -17,6 +19,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         decimals: 6,
+        cap: utils.parseUnits("10000000", 6).toString(),
       },
       representations: {
         "1869640809": {
@@ -47,6 +50,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
         decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         "1869640809": {
@@ -77,6 +81,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44",
         decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         // optimism
@@ -112,6 +117,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0x3f6740b5898c5D3650ec6eAce9a649Ac791e44D7",
         decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         // optimism

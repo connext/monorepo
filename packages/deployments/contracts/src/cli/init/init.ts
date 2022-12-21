@@ -109,6 +109,7 @@ export const sanitizeAndInit = async () => {
         domain: asset.canonical.domain,
         address: asset.canonical.address,
         decimals: asset.canonical.decimals,
+        cap: asset.canonical.cap,
       },
       representations: {},
     };
