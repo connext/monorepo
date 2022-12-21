@@ -108,6 +108,11 @@
         "name": "SpokeConnector",
         "address": "0x0B52373feF50E9A80168930F8184d141687Eaa20",
         "startBlock": 8120897
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x15D889ba5ec6548AE158a85953D907c6D78DE834",
+        "startBlock": 8162903
       }
     ]
   },
