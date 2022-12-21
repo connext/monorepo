@@ -291,72 +291,6 @@ export type goerli_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type goerli_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['goerli_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['goerli_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['goerli_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type goerli_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['goerli_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['goerli_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['goerli_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['goerli_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<goerli_BlockChangedFilter>;
-};
-
-export type goerli_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type goerli_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type goerli_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['goerli_Bytes']>;
   asset?: Maybe<goerli_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['goerli_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['goerli_Bytes']>;
@@ -546,6 +481,14 @@ export type goerli_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<goerli_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type goerli_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type goerli_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['goerli_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['goerli_Bytes']>;
   message?: Maybe<Scalars['goerli_Bytes']>;
+  root?: Maybe<Scalars['goerli_Bytes']>;
   transactionHash?: Maybe<Scalars['goerli_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<goerli_RootCount>;
@@ -735,18 +679,18 @@ export type goerli_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['goerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['goerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['goerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   message?: InputMaybe<Scalars['goerli_Bytes']>;
   message_not?: InputMaybe<Scalars['goerli_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   message_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  root?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
@@ -792,8 +736,8 @@ export type goerli_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   goerli_destinationTransfers: Array<goerli_DestinationTransfer>;
   goerli_originMessage?: Maybe<goerli_OriginMessage>;
   goerli_originMessages: Array<goerli_OriginMessage>;
-  goerli_destinationMessage?: Maybe<goerli_DestinationMessage>;
-  goerli_destinationMessages: Array<goerli_DestinationMessage>;
   goerli_aggregateRoot?: Maybe<goerli_AggregateRoot>;
   goerli_aggregateRoots: Array<goerli_AggregateRoot>;
   goerli_connectorMeta?: Maybe<goerli_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Querygoerli_originMessagesArgs = {
   orderBy?: InputMaybe<goerli_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<goerli_OrderDirection>;
   where?: InputMaybe<goerli_OriginMessage_filter>;
-  block?: InputMaybe<goerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querygoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<goerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querygoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<goerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<goerli_OrderDirection>;
-  where?: InputMaybe<goerli_DestinationMessage_filter>;
   block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   goerli_destinationTransfers: Array<goerli_DestinationTransfer>;
   goerli_originMessage?: Maybe<goerli_OriginMessage>;
   goerli_originMessages: Array<goerli_OriginMessage>;
-  goerli_destinationMessage?: Maybe<goerli_DestinationMessage>;
-  goerli_destinationMessages: Array<goerli_DestinationMessage>;
   goerli_aggregateRoot?: Maybe<goerli_AggregateRoot>;
   goerli_aggregateRoots: Array<goerli_AggregateRoot>;
   goerli_connectorMeta?: Maybe<goerli_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptiongoerli_originMessagesArgs = {
   orderBy?: InputMaybe<goerli_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<goerli_OrderDirection>;
   where?: InputMaybe<goerli_OriginMessage_filter>;
-  block?: InputMaybe<goerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptiongoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<goerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptiongoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<goerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<goerli_OrderDirection>;
-  where?: InputMaybe<goerli_DestinationMessage_filter>;
   block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   goerli_originMessages: InContextSdkMethod<Query['goerli_originMessages'], Querygoerli_originMessagesArgs, MeshContext>,
   /** null **/
-  goerli_destinationMessage: InContextSdkMethod<Query['goerli_destinationMessage'], Querygoerli_destinationMessageArgs, MeshContext>,
-  /** null **/
-  goerli_destinationMessages: InContextSdkMethod<Query['goerli_destinationMessages'], Querygoerli_destinationMessagesArgs, MeshContext>,
-  /** null **/
   goerli_aggregateRoot: InContextSdkMethod<Query['goerli_aggregateRoot'], Querygoerli_aggregateRootArgs, MeshContext>,
   /** null **/
   goerli_aggregateRoots: InContextSdkMethod<Query['goerli_aggregateRoots'], Querygoerli_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   goerli_originMessage: InContextSdkMethod<Subscription['goerli_originMessage'], Subscriptiongoerli_originMessageArgs, MeshContext>,
   /** null **/
   goerli_originMessages: InContextSdkMethod<Subscription['goerli_originMessages'], Subscriptiongoerli_originMessagesArgs, MeshContext>,
-  /** null **/
-  goerli_destinationMessage: InContextSdkMethod<Subscription['goerli_destinationMessage'], Subscriptiongoerli_destinationMessageArgs, MeshContext>,
-  /** null **/
-  goerli_destinationMessages: InContextSdkMethod<Subscription['goerli_destinationMessages'], Subscriptiongoerli_destinationMessagesArgs, MeshContext>,
   /** null **/
   goerli_aggregateRoot: InContextSdkMethod<Subscription['goerli_aggregateRoot'], Subscriptiongoerli_aggregateRootArgs, MeshContext>,
   /** null **/
