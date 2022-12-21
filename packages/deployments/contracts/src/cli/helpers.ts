@@ -1,7 +1,7 @@
 import { Contract, Wallet } from "ethers";
 
 import _Deployments from "../../deployments.json";
-import { ConnextInterface } from "../../../contracts";
+import { ConnextInterface } from "../contracts";
 
 import { Deployment } from "./types";
 
