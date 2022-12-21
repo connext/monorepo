@@ -218,15 +218,8 @@ describe("SdkBase", () => {
 
       const origin = mock.entity.callParams().originDomain;
       const sdkXcallArgs = {
-        destination: mock.entity.callParams().destinationDomain,
-        to: mock.entity.callParams().to,
-        asset: constants.AddressZero,
-        delegate: mock.entity.callParams().to,
-        amount: utils.parseEther("1").toString(),
-        slippage: "1000",
-        callData: "0x",
+        ...mock.entity.xcallArgs(),
         origin,
-        relayerFee: relayerFee.toString(),
       };
 
       const res = await nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs);

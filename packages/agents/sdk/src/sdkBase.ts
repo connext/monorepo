@@ -325,7 +325,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     // 1. WETH.deposit(amount)
     txs.push({
       to: asset,
-      data: weth.encodeFunctionData("deposit", [amount]),
+      data: weth.encodeFunctionData("deposit"),
       value: amount,
     });
 
@@ -338,7 +338,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     // 3. WETH.approve(connext)
     txs.push({
       to: asset,
-      data: weth.encodeFunctionData("approve", [amount, connextContractAddress]),
+      data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
     });
 
     // 4. xcall(args)
