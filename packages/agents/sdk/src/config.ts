@@ -113,11 +113,22 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
-          if (!res) {
-            throw new Error(`No Connext contract address for domain ${domainId}`);
+          if (chainDataForChain) {
+            const res = deployments.connext(chainDataForChain.chainId, contractPostfix);
+            if (res) {
+              return res.address;
+            }
           }
-          return res.address;
+          throw new Error(`No Connext contract address for domain ${domainId}`);
+        })(),
+      multisend:
+        chainConfig.deployments?.multisend ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.multisend(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
         })(),
     };
 
