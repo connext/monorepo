@@ -16,4 +16,4 @@ export const SUPPORTED_DOMAINS: Record<string, string[]> = {
 };
 
 // Minimum amount of gas wallet should have on chain to trigger watchers
-export const MIN_WALLET_GAS = utils.formatUnits("50", "gwei");
+export const MIN_WALLET_GAS = utils.parseUnits("50", "gwei");
