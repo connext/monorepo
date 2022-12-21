@@ -4,6 +4,10 @@ class Coinbase {
   private readonly _baseUrl: string = "https://api.pro.coinbase.com";
 
   getPriceByTokenSymbol = async (symbol: string, base = "USD"): Promise<number> => {
+    if (!symbol) {
+      throw new Error(`coinbase: no symbol`);
+    }
+
     // pair "USDC-USD" doesn't exist so just return $1
     if (symbol === "USDC") {
       return 1;
