@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.2
+
+- [all] Multisend contract, sdk fixes, update deps
+
 ## Amarok 0.2.1-beta.13
 
 - [sdk] pool fixes
