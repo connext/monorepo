@@ -2421,7 +2421,6 @@ __metadata:
     chai: 4.3.6
     chai-as-promised: 7.1.1
     chai-subset: 1.6.0
-    eccrypto-js: 5.4.0
     eslint: 8.26.0
     ethers: 5.7.2
     graphql-request: 5.0.0
@@ -8042,7 +8041,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aes-js@npm:3.1.2, aes-js@npm:^3.1.1, aes-js@npm:^3.1.2":
+"aes-js@npm:^3.1.1, aes-js@npm:^3.1.2":
   version: 3.1.2
   resolution: "aes-js@npm:3.1.2"
   checksum: 062154d50b1e433cc8c3b8ca7879f3a6375d5e79c2a507b2b6c4ec920b4cd851bf2afa7f65c98761a9da89c0ab618cbe6529e8e9a1c71f93290b53128fb8f712
@@ -12399,21 +12398,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eccrypto-js@npm:5.4.0":
-  version: 5.4.0
-  resolution: "eccrypto-js@npm:5.4.0"
-  dependencies:
-    aes-js: 3.1.2
-    enc-utils: 2.1.0
-    hash.js: 1.1.7
-    js-sha3: 0.8.0
-    pbkdf2: ^3.0.17
-    randombytes: 2.1.0
-    secp256k1: 3.8.0
-  checksum: d415f89259c4c13808c34436ecb782645096dbe7c96d5d18e19df1908ba1e1487a9b49726f72bbf4ec7637e933cd65bc92e2f7f5410c2859cb9d8dbf82c82dc8
-  languageName: node
-  linkType: hard
-
 "ecdsa-sig-formatter@npm:1.0.11":
   version: 1.0.11
   resolution: "ecdsa-sig-formatter@npm:1.0.11"
@@ -12484,17 +12468,6 @@ __metadata:
   version: 3.0.0
   resolution: "emojis-list@npm:3.0.0"
   checksum: ddaaa02542e1e9436c03970eeed445f4ed29a5337dfba0fe0c38dfdd2af5da2429c2a0821304e8a8d1cadf27fdd5b22ff793571fa803ae16852a6975c65e8e70
-  languageName: node
-  linkType: hard
-
-"enc-utils@npm:2.1.0":
-  version: 2.1.0
-  resolution: "enc-utils@npm:2.1.0"
-  dependencies:
-    bn.js: 4.11.8
-    is-typedarray: 1.0.0
-    typedarray-to-buffer: 3.1.5
-  checksum: b57fa384b1c63c314bcf11c747af99735938ba5ec677a44ba5de686de8823ad8617016a4750ddd4be55c2ed99e1529b62be570f0411eb517175237edd0df7074
   languageName: node
   linkType: hard
 
@@ -22627,7 +22600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"randombytes@npm:2.1.0, randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.0.6, randombytes@npm:^2.1.0":
+"randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.0.6, randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
   dependencies:
@@ -23796,7 +23769,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secp256k1@npm:3.8.0, secp256k1@npm:^3.6.2":
+"secp256k1@npm:4.0.3, secp256k1@npm:^4.0.1, secp256k1@npm:^4.0.2":
+  version: 4.0.3
+  resolution: "secp256k1@npm:4.0.3"
+  dependencies:
+    elliptic: ^6.5.4
+    node-addon-api: ^2.0.0
+    node-gyp: latest
+    node-gyp-build: ^4.2.0
+  checksum: 21e219adc0024fbd75021001358780a3cc6ac21273c3fcaef46943af73969729709b03f1df7c012a0baab0830fb9a06ccc6b42f8d50050c665cb98078eab477b
+  languageName: node
+  linkType: hard
+
+"secp256k1@npm:^3.6.2":
   version: 3.8.0
   resolution: "secp256k1@npm:3.8.0"
   dependencies:
@@ -23810,18 +23795,6 @@ __metadata:
     node-gyp: latest
     safe-buffer: ^5.1.2
   checksum: 37aaae687a8de9b7bc733ab26bc89c4302b9c681d69d71d531842d99d3af9301a4e30dbe40122793ec64b7a08b8fee8d2330397b7b2dd3a7e404ed259a458089
-  languageName: node
-  linkType: hard
-
-"secp256k1@npm:4.0.3, secp256k1@npm:^4.0.1, secp256k1@npm:^4.0.2":
-  version: 4.0.3
-  resolution: "secp256k1@npm:4.0.3"
-  dependencies:
-    elliptic: ^6.5.4
-    node-addon-api: ^2.0.0
-    node-gyp: latest
-    node-gyp-build: ^4.2.0
-  checksum: 21e219adc0024fbd75021001358780a3cc6ac21273c3fcaef46943af73969729709b03f1df7c012a0baab0830fb9a06ccc6b42f8d50050c665cb98078eab477b
   languageName: node
   linkType: hard
 
