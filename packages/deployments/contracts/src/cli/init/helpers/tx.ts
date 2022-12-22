@@ -91,7 +91,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
       });
     } else {
       return await contract[write.method](...write.args, {
-        gasLimit: 2000000,
+        gasLimit: 2500000,
       });
     }
   };

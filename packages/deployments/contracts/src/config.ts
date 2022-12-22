@@ -69,13 +69,13 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://rpc.ankr.com/optimism",
+    url: "https://opt-mainnet.g.alchemy.com/v2/8BWDXI7MUClvQt07W0LBi_9_i6tbeaQc",
     companionNetworks: {
       hub: "mainnet",
     },
     verify: {
       etherscan: {
-        apiKey: process.env.OPSCAN_API_KEY!,
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-optimistic.etherscan.io/",
       },
     },
@@ -105,7 +105,7 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.OPSCAN_API_KEY!,
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-goerli-optimistic.etherscan.io/",
       },
     },

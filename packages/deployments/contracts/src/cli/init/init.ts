@@ -109,6 +109,7 @@ export const sanitizeAndInit = async () => {
         domain: asset.canonical.domain,
         address: asset.canonical.address,
         decimals: asset.canonical.decimals,
+        cap: asset.canonical.cap,
       },
       representations: {},
     };
@@ -223,6 +224,14 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   const chainData = await getChainData(true);
+
+  for (const asset of protocol.assets) {
+    await setupAsset({
+      asset,
+      networks: protocol.networks,
+      chainData,
+    });
+  }
 
   /// ********************* Messaging **********************
   /// MARK - Messaging

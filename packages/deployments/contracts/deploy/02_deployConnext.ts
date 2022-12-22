@@ -178,6 +178,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
+  console.log("acceptance delay: ", acceptanceDelay);
+
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
   const domain = chainIdToDomain(network.chainId);
