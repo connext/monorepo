@@ -1,11 +1,4 @@
-import {
-  createLoggingContext,
-  GELATO_RELAYER_ADDRESS,
-  NATIVE_TOKEN,
-  NxtpError,
-  RequestContext,
-  RootManagerMeta,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
@@ -84,18 +77,19 @@ export const propagate = async () => {
   // encode data
   const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
 
-  const relayerAddress = GELATO_RELAYER_ADDRESS;
   logger.info("Getting gas estimate", requestContext, methodContext, {
     hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
+    totalFee: _totalFee.toString(),
   });
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
+    value: _totalFee,
   });
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
