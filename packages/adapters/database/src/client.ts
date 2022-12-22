@@ -360,7 +360,11 @@ export const getCompletedTransfersByMessageHashes = async (
   const x = await db
     .select("transfers", {
       message_hash: db.conditions.isIn(message_hashes),
-      status: db.conditions.isIn([XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow]),
+      status: db.conditions.isIn([
+        XTransferStatus.CompletedFast,
+        XTransferStatus.CompletedSlow,
+        XTransferStatus.Reconciled,
+      ]),
     })
     .run(poolToUse);
   return x.map(convertFromDbTransfer);
