@@ -291,72 +291,6 @@ export type bnb_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type bnb_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['bnb_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['bnb_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['bnb_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type bnb_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['bnb_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['bnb_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['bnb_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
-};
-
-export type bnb_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type bnb_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type bnb_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['bnb_Bytes']>;
   asset?: Maybe<bnb_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['bnb_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['bnb_Bytes']>;
@@ -546,6 +481,14 @@ export type bnb_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<bnb_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type bnb_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type bnb_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['bnb_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['bnb_Bytes']>;
   message?: Maybe<Scalars['bnb_Bytes']>;
+  root?: Maybe<Scalars['bnb_Bytes']>;
   transactionHash?: Maybe<Scalars['bnb_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<bnb_RootCount>;
@@ -735,18 +679,18 @@ export type bnb_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['bnb_Bytes']>;
-  root_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   message?: InputMaybe<Scalars['bnb_Bytes']>;
   message_not?: InputMaybe<Scalars['bnb_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
   message_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  root?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   transactionHash?: InputMaybe<Scalars['bnb_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['bnb_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
@@ -792,8 +736,8 @@ export type bnb_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   bnb_destinationTransfers: Array<bnb_DestinationTransfer>;
   bnb_originMessage?: Maybe<bnb_OriginMessage>;
   bnb_originMessages: Array<bnb_OriginMessage>;
-  bnb_destinationMessage?: Maybe<bnb_DestinationMessage>;
-  bnb_destinationMessages: Array<bnb_DestinationMessage>;
   bnb_aggregateRoot?: Maybe<bnb_AggregateRoot>;
   bnb_aggregateRoots: Array<bnb_AggregateRoot>;
   bnb_connectorMeta?: Maybe<bnb_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Querybnb_originMessagesArgs = {
   orderBy?: InputMaybe<bnb_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_OriginMessage_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_DestinationMessage_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   bnb_destinationTransfers: Array<bnb_DestinationTransfer>;
   bnb_originMessage?: Maybe<bnb_OriginMessage>;
   bnb_originMessages: Array<bnb_OriginMessage>;
-  bnb_destinationMessage?: Maybe<bnb_DestinationMessage>;
-  bnb_destinationMessages: Array<bnb_DestinationMessage>;
   bnb_aggregateRoot?: Maybe<bnb_AggregateRoot>;
   bnb_aggregateRoots: Array<bnb_AggregateRoot>;
   bnb_connectorMeta?: Maybe<bnb_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionbnb_originMessagesArgs = {
   orderBy?: InputMaybe<bnb_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_OriginMessage_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_DestinationMessage_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   bnb_originMessages: InContextSdkMethod<Query['bnb_originMessages'], Querybnb_originMessagesArgs, MeshContext>,
   /** null **/
-  bnb_destinationMessage: InContextSdkMethod<Query['bnb_destinationMessage'], Querybnb_destinationMessageArgs, MeshContext>,
-  /** null **/
-  bnb_destinationMessages: InContextSdkMethod<Query['bnb_destinationMessages'], Querybnb_destinationMessagesArgs, MeshContext>,
-  /** null **/
   bnb_aggregateRoot: InContextSdkMethod<Query['bnb_aggregateRoot'], Querybnb_aggregateRootArgs, MeshContext>,
   /** null **/
   bnb_aggregateRoots: InContextSdkMethod<Query['bnb_aggregateRoots'], Querybnb_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   bnb_originMessage: InContextSdkMethod<Subscription['bnb_originMessage'], Subscriptionbnb_originMessageArgs, MeshContext>,
   /** null **/
   bnb_originMessages: InContextSdkMethod<Subscription['bnb_originMessages'], Subscriptionbnb_originMessagesArgs, MeshContext>,
-  /** null **/
-  bnb_destinationMessage: InContextSdkMethod<Subscription['bnb_destinationMessage'], Subscriptionbnb_destinationMessageArgs, MeshContext>,
-  /** null **/
-  bnb_destinationMessages: InContextSdkMethod<Subscription['bnb_destinationMessages'], Subscriptionbnb_destinationMessagesArgs, MeshContext>,
   /** null **/
   bnb_aggregateRoot: InContextSdkMethod<Subscription['bnb_aggregateRoot'], Subscriptionbnb_aggregateRootArgs, MeshContext>,
   /** null **/

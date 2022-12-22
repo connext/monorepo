@@ -12,6 +12,11 @@
         "name": "SpokeConnector",
         "address": "0xF7c4d7dcEc2c09A15f2Db5831d6d25eAEf0a296c",
         "startBlock": 16232872
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x28a9e7bbed277092e2431f186e1af898962d4e92",
+        "startBlock": 16232868
       }
     ]
   },
@@ -28,6 +33,11 @@
         "name": "SpokeConnector",
         "address": "0x96fDDc1A6FBDb232e9adA1fFc1026799F85128e9",
         "startBlock": 37100525
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x73B1d7aE726919Dd4B6f50d7c3EBF3660F253f82",
+        "startBlock": 37100519
       }
     ]
   },
@@ -44,6 +54,11 @@
         "name": "SpokeConnector",
         "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
         "startBlock": 53023760
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x88483B3e3B4DD7cEdB8EFcef81F6dC9adb6292D5",
+        "startBlock": 53023711
       }
     ]
   },
@@ -60,6 +75,11 @@
         "name": "SpokeConnector",
         "address": "0xFD81392229b6252cF761459d370C239Be3aFc54F",
         "startBlock": 47824521
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x8533004Ecb90151cD821dc2Fafb78797d8fdd085",
+        "startBlock": 47822370
       }
     ]
   },
@@ -76,6 +96,11 @@
         "name": "SpokeConnector",
         "address": "0x126A99af70eC62921C07E67943aCF61bF304Ef55",
         "startBlock": 24097138
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x995dfd686f4953B059355Df769cc4CE672983aF1",
+        "startBlock": 24097135
       }
     ]
   },
@@ -92,6 +117,11 @@
         "name": "SpokeConnector",
         "address": "0x771B2c910D76ecf84B100559CF3Ec4cB2e8D4aC5",
         "startBlock": 25562274
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
+        "startBlock": 25562272
       }
     ]
   },

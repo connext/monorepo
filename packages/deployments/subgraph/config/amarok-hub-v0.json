@@ -9,6 +9,11 @@
         "startBlock": 16232834
       },
       {
+        "name": "MerkleTreeManager",
+        "address": "0x7D2596D7E44b0990611d390Fbb0Bd24e64845694",
+        "startBlock": 16232831
+      },
+      {
         "name": "PolygonHubConnector",
         "address": "0xb01bc38909413f5dbb8f18a9b5787a62ce1282ae",
         "startBlock": 16233024

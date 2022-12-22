@@ -291,72 +291,6 @@ export type arbitrumone_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type arbitrumone_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['arbitrumone_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['arbitrumone_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type arbitrumone_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
-};
-
-export type arbitrumone_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type arbitrumone_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type arbitrumone_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumone_Bytes']>;
   asset?: Maybe<arbitrumone_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['arbitrumone_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
@@ -546,6 +481,14 @@ export type arbitrumone_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<arbitrumone_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type arbitrumone_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['arbitrumone_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['arbitrumone_Bytes']>;
   message?: Maybe<Scalars['arbitrumone_Bytes']>;
+  root?: Maybe<Scalars['arbitrumone_Bytes']>;
   transactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<arbitrumone_RootCount>;
@@ -735,18 +679,18 @@ export type arbitrumone_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  root_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
   message_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   transactionHash?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
@@ -792,8 +736,8 @@ export type arbitrumone_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   arbitrumone_destinationTransfers: Array<arbitrumone_DestinationTransfer>;
   arbitrumone_originMessage?: Maybe<arbitrumone_OriginMessage>;
   arbitrumone_originMessages: Array<arbitrumone_OriginMessage>;
-  arbitrumone_destinationMessage?: Maybe<arbitrumone_DestinationMessage>;
-  arbitrumone_destinationMessages: Array<arbitrumone_DestinationMessage>;
   arbitrumone_aggregateRoot?: Maybe<arbitrumone_AggregateRoot>;
   arbitrumone_aggregateRoots: Array<arbitrumone_AggregateRoot>;
   arbitrumone_connectorMeta?: Maybe<arbitrumone_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Queryarbitrumone_originMessagesArgs = {
   orderBy?: InputMaybe<arbitrumone_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_OriginMessage_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_DestinationMessage_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   arbitrumone_destinationTransfers: Array<arbitrumone_DestinationTransfer>;
   arbitrumone_originMessage?: Maybe<arbitrumone_OriginMessage>;
   arbitrumone_originMessages: Array<arbitrumone_OriginMessage>;
-  arbitrumone_destinationMessage?: Maybe<arbitrumone_DestinationMessage>;
-  arbitrumone_destinationMessages: Array<arbitrumone_DestinationMessage>;
   arbitrumone_aggregateRoot?: Maybe<arbitrumone_AggregateRoot>;
   arbitrumone_aggregateRoots: Array<arbitrumone_AggregateRoot>;
   arbitrumone_connectorMeta?: Maybe<arbitrumone_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionarbitrumone_originMessagesArgs = {
   orderBy?: InputMaybe<arbitrumone_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_OriginMessage_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_DestinationMessage_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumone_originMessages: InContextSdkMethod<Query['arbitrumone_originMessages'], Queryarbitrumone_originMessagesArgs, MeshContext>,
   /** null **/
-  arbitrumone_destinationMessage: InContextSdkMethod<Query['arbitrumone_destinationMessage'], Queryarbitrumone_destinationMessageArgs, MeshContext>,
-  /** null **/
-  arbitrumone_destinationMessages: InContextSdkMethod<Query['arbitrumone_destinationMessages'], Queryarbitrumone_destinationMessagesArgs, MeshContext>,
-  /** null **/
   arbitrumone_aggregateRoot: InContextSdkMethod<Query['arbitrumone_aggregateRoot'], Queryarbitrumone_aggregateRootArgs, MeshContext>,
   /** null **/
   arbitrumone_aggregateRoots: InContextSdkMethod<Query['arbitrumone_aggregateRoots'], Queryarbitrumone_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_originMessage: InContextSdkMethod<Subscription['arbitrumone_originMessage'], Subscriptionarbitrumone_originMessageArgs, MeshContext>,
   /** null **/
   arbitrumone_originMessages: InContextSdkMethod<Subscription['arbitrumone_originMessages'], Subscriptionarbitrumone_originMessagesArgs, MeshContext>,
-  /** null **/
-  arbitrumone_destinationMessage: InContextSdkMethod<Subscription['arbitrumone_destinationMessage'], Subscriptionarbitrumone_destinationMessageArgs, MeshContext>,
-  /** null **/
-  arbitrumone_destinationMessages: InContextSdkMethod<Subscription['arbitrumone_destinationMessages'], Subscriptionarbitrumone_destinationMessagesArgs, MeshContext>,
   /** null **/
   arbitrumone_aggregateRoot: InContextSdkMethod<Subscription['arbitrumone_aggregateRoot'], Subscriptionarbitrumone_aggregateRootArgs, MeshContext>,
   /** null **/
