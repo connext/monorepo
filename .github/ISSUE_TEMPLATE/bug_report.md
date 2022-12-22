@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve
 title: This thing buggin my g
-labels: "bug \U0001F41B"
+labels: "bug \U0001F41B, ui \U0001F3A8"
 assignees: ''
 
 ---
