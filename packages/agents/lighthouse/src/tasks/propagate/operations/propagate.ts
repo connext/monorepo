@@ -82,6 +82,7 @@ export const propagate = async () => {
     to: rootManagerAddress,
     data: encodedData,
     from: relayerProxyHubAddress,
+    totalFee: _totalFee.toString(),
   });
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
