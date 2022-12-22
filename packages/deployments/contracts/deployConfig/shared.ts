@@ -301,7 +301,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
             outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-            maxSubmissionCostCap: utils.parseUnits("200", "gwei"),
+            maxSubmissionCostCap: utils.parseUnits("100000", "gwei"),
             maxGasCap: DEFAULT_PROCESS_GAS,
             gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
           },
@@ -457,7 +457,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://etherscan.io/address/0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840
             outbox: "0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840",
-            maxSubmissionCostCap: utils.parseUnits("200", "gwei"),
+            maxSubmissionCostCap: utils.parseUnits("100000", "gwei"),
             maxGasCap: DEFAULT_PROCESS_GAS,
             gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
           },
