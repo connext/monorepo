@@ -79,7 +79,9 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     Params: { domainId: string };
     Body: providers.TransactionRequest;
   }>("/sendTransaction/:domainId", async (request, reply) => {
-    request.body.gasLimit = ethers.BigNumber.from("2000000");
+    const feeData = await configuredProviders[request.params.domainId].getFeeData();
+    // request.body.gasLimit = ethers.BigNumber.from("20000");
+    request.body.gasPrice = feeData.gasPrice!;
     const txRes = await signer.connect(configuredProviders[request.params.domainId]).sendTransaction(request.body);
     const txRec = await txRes.wait();
     reply.status(200).send(txRec);
