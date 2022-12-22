@@ -84,18 +84,19 @@ export const propagate = async () => {
   // encode data
   const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
 
-  const relayerAddress = GELATO_RELAYER_ADDRESS;
+  // const relayerAddress = GELATO_RELAYER_ADDRESS;
   logger.info("Getting gas estimate", requestContext, methodContext, {
     hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
   });
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
+    value: _totalFee,
   });
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
