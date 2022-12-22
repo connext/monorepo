@@ -291,72 +291,6 @@ export type xdai_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type xdai_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['xdai_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['xdai_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['xdai_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type xdai_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['xdai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['xdai_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['xdai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
-};
-
-export type xdai_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type xdai_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type xdai_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['xdai_Bytes']>;
   asset?: Maybe<xdai_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['xdai_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['xdai_Bytes']>;
@@ -546,6 +481,14 @@ export type xdai_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<xdai_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type xdai_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type xdai_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['xdai_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['xdai_Bytes']>;
   message?: Maybe<Scalars['xdai_Bytes']>;
+  root?: Maybe<Scalars['xdai_Bytes']>;
   transactionHash?: Maybe<Scalars['xdai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<xdai_RootCount>;
@@ -735,18 +679,18 @@ export type xdai_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['xdai_Bytes']>;
-  root_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   message?: InputMaybe<Scalars['xdai_Bytes']>;
   message_not?: InputMaybe<Scalars['xdai_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
   message_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  root?: InputMaybe<Scalars['xdai_Bytes']>;
+  root_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   transactionHash?: InputMaybe<Scalars['xdai_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['xdai_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
@@ -792,8 +736,8 @@ export type xdai_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   xdai_destinationTransfers: Array<xdai_DestinationTransfer>;
   xdai_originMessage?: Maybe<xdai_OriginMessage>;
   xdai_originMessages: Array<xdai_OriginMessage>;
-  xdai_destinationMessage?: Maybe<xdai_DestinationMessage>;
-  xdai_destinationMessages: Array<xdai_DestinationMessage>;
   xdai_aggregateRoot?: Maybe<xdai_AggregateRoot>;
   xdai_aggregateRoots: Array<xdai_AggregateRoot>;
   xdai_connectorMeta?: Maybe<xdai_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Queryxdai_originMessagesArgs = {
   orderBy?: InputMaybe<xdai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_OriginMessage_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryxdai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryxdai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_DestinationMessage_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   xdai_destinationTransfers: Array<xdai_DestinationTransfer>;
   xdai_originMessage?: Maybe<xdai_OriginMessage>;
   xdai_originMessages: Array<xdai_OriginMessage>;
-  xdai_destinationMessage?: Maybe<xdai_DestinationMessage>;
-  xdai_destinationMessages: Array<xdai_DestinationMessage>;
   xdai_aggregateRoot?: Maybe<xdai_AggregateRoot>;
   xdai_aggregateRoots: Array<xdai_AggregateRoot>;
   xdai_connectorMeta?: Maybe<xdai_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionxdai_originMessagesArgs = {
   orderBy?: InputMaybe<xdai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_OriginMessage_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionxdai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionxdai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_DestinationMessage_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_originMessages: InContextSdkMethod<Query['xdai_originMessages'], Queryxdai_originMessagesArgs, MeshContext>,
   /** null **/
-  xdai_destinationMessage: InContextSdkMethod<Query['xdai_destinationMessage'], Queryxdai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  xdai_destinationMessages: InContextSdkMethod<Query['xdai_destinationMessages'], Queryxdai_destinationMessagesArgs, MeshContext>,
-  /** null **/
   xdai_aggregateRoot: InContextSdkMethod<Query['xdai_aggregateRoot'], Queryxdai_aggregateRootArgs, MeshContext>,
   /** null **/
   xdai_aggregateRoots: InContextSdkMethod<Query['xdai_aggregateRoots'], Queryxdai_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   xdai_originMessage: InContextSdkMethod<Subscription['xdai_originMessage'], Subscriptionxdai_originMessageArgs, MeshContext>,
   /** null **/
   xdai_originMessages: InContextSdkMethod<Subscription['xdai_originMessages'], Subscriptionxdai_originMessagesArgs, MeshContext>,
-  /** null **/
-  xdai_destinationMessage: InContextSdkMethod<Subscription['xdai_destinationMessage'], Subscriptionxdai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  xdai_destinationMessages: InContextSdkMethod<Subscription['xdai_destinationMessages'], Subscriptionxdai_destinationMessagesArgs, MeshContext>,
   /** null **/
   xdai_aggregateRoot: InContextSdkMethod<Subscription['xdai_aggregateRoot'], Subscriptionxdai_aggregateRootArgs, MeshContext>,
   /** null **/

@@ -473,7 +473,13 @@ export const getAggregateRoot = async (
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the most recent unprocessed propagated root
-  const root = await db.selectOne("aggregated_roots", { received_root: messageRoot }).run(poolToUse);
+  const root = await db
+    .selectOne(
+      "aggregated_roots",
+      { received_root: messageRoot },
+      { limit: 1, order: { by: "domain_index", direction: "DESC" } },
+    )
+    .run(poolToUse);
   if (!root) return undefined;
 
   // NOTE: id is made up of propagated_root and aggregateRoot index in subgraph ==> id = `${propagated_root}-${index}`

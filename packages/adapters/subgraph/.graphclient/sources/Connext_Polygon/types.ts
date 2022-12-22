@@ -291,72 +291,6 @@ export type polygon_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type polygon_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['polygon_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['polygon_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['polygon_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type polygon_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['polygon_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['polygon_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['polygon_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['polygon_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['polygon_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['polygon_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
-};
-
-export type polygon_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type polygon_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type polygon_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['polygon_Bytes']>;
   asset?: Maybe<polygon_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['polygon_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['polygon_Bytes']>;
@@ -546,6 +481,14 @@ export type polygon_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<polygon_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type polygon_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type polygon_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['polygon_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['polygon_Bytes']>;
   message?: Maybe<Scalars['polygon_Bytes']>;
+  root?: Maybe<Scalars['polygon_Bytes']>;
   transactionHash?: Maybe<Scalars['polygon_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<polygon_RootCount>;
@@ -735,18 +679,18 @@ export type polygon_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['polygon_Bytes']>;
-  root_not?: InputMaybe<Scalars['polygon_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['polygon_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   message?: InputMaybe<Scalars['polygon_Bytes']>;
   message_not?: InputMaybe<Scalars['polygon_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
   message_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  root?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   transactionHash?: InputMaybe<Scalars['polygon_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['polygon_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
@@ -792,8 +736,8 @@ export type polygon_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   polygon_destinationTransfers: Array<polygon_DestinationTransfer>;
   polygon_originMessage?: Maybe<polygon_OriginMessage>;
   polygon_originMessages: Array<polygon_OriginMessage>;
-  polygon_destinationMessage?: Maybe<polygon_DestinationMessage>;
-  polygon_destinationMessages: Array<polygon_DestinationMessage>;
   polygon_aggregateRoot?: Maybe<polygon_AggregateRoot>;
   polygon_aggregateRoots: Array<polygon_AggregateRoot>;
   polygon_connectorMeta?: Maybe<polygon_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Querypolygon_originMessagesArgs = {
   orderBy?: InputMaybe<polygon_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_OriginMessage_filter>;
-  block?: InputMaybe<polygon_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querypolygon_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<polygon_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querypolygon_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<polygon_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<polygon_OrderDirection>;
-  where?: InputMaybe<polygon_DestinationMessage_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   polygon_destinationTransfers: Array<polygon_DestinationTransfer>;
   polygon_originMessage?: Maybe<polygon_OriginMessage>;
   polygon_originMessages: Array<polygon_OriginMessage>;
-  polygon_destinationMessage?: Maybe<polygon_DestinationMessage>;
-  polygon_destinationMessages: Array<polygon_DestinationMessage>;
   polygon_aggregateRoot?: Maybe<polygon_AggregateRoot>;
   polygon_aggregateRoots: Array<polygon_AggregateRoot>;
   polygon_connectorMeta?: Maybe<polygon_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionpolygon_originMessagesArgs = {
   orderBy?: InputMaybe<polygon_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_OriginMessage_filter>;
-  block?: InputMaybe<polygon_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionpolygon_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<polygon_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionpolygon_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<polygon_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<polygon_OrderDirection>;
-  where?: InputMaybe<polygon_DestinationMessage_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   polygon_originMessages: InContextSdkMethod<Query['polygon_originMessages'], Querypolygon_originMessagesArgs, MeshContext>,
   /** null **/
-  polygon_destinationMessage: InContextSdkMethod<Query['polygon_destinationMessage'], Querypolygon_destinationMessageArgs, MeshContext>,
-  /** null **/
-  polygon_destinationMessages: InContextSdkMethod<Query['polygon_destinationMessages'], Querypolygon_destinationMessagesArgs, MeshContext>,
-  /** null **/
   polygon_aggregateRoot: InContextSdkMethod<Query['polygon_aggregateRoot'], Querypolygon_aggregateRootArgs, MeshContext>,
   /** null **/
   polygon_aggregateRoots: InContextSdkMethod<Query['polygon_aggregateRoots'], Querypolygon_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   polygon_originMessage: InContextSdkMethod<Subscription['polygon_originMessage'], Subscriptionpolygon_originMessageArgs, MeshContext>,
   /** null **/
   polygon_originMessages: InContextSdkMethod<Subscription['polygon_originMessages'], Subscriptionpolygon_originMessagesArgs, MeshContext>,
-  /** null **/
-  polygon_destinationMessage: InContextSdkMethod<Subscription['polygon_destinationMessage'], Subscriptionpolygon_destinationMessageArgs, MeshContext>,
-  /** null **/
-  polygon_destinationMessages: InContextSdkMethod<Subscription['polygon_destinationMessages'], Subscriptionpolygon_destinationMessagesArgs, MeshContext>,
   /** null **/
   polygon_aggregateRoot: InContextSdkMethod<Subscription['polygon_aggregateRoot'], Subscriptionpolygon_aggregateRootArgs, MeshContext>,
   /** null **/
