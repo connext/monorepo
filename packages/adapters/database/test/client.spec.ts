@@ -260,15 +260,27 @@ describe("Database client", () => {
             t.origin!.xcall.timestamp = index + 1;
             return t;
           }),
+      )
+      .concat(
+        Array(3)
+          .fill(0)
+          .map((_a, index) => {
+            const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+            t.xparams.nonce = index + 1;
+            t.origin!.xcall.timestamp = index + 1;
+            return t;
+          }),
       );
 
     transfers[1].origin!.messageHash = mkHash("0xaaa");
     transfers[5].origin!.messageHash = mkHash("0xbbb");
+    transfers[10].origin!.messageHash = mkHash("0xccc");
     await saveTransfers(transfers, pool);
-    const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb")], pool);
-    expect(set.length).to.eq(2);
+    const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")], pool);
+    expect(set.length).to.eq(3);
     expect(set[0].origin?.messageHash).eq(mkHash("0xaaa"));
     expect(set[1].origin?.messageHash).eq(mkHash("0xbbb"));
+    expect(set[3].origin?.messageHash).eq(mkHash("0xccc"));
   });
 
   it("should save valid boolean fields", async () => {
