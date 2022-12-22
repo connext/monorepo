@@ -25,7 +25,7 @@ export type mainnet_AggregatedMessageRoot = {
   id: Scalars['ID'];
   index: Scalars['BigInt'];
   receivedRoot: Scalars['mainnet_Bytes'];
-  domain: Scalars['BigInt'];
+  domain?: Maybe<Scalars['BigInt']>;
 };
 
 export type mainnet_AggregatedMessageRoot_filter = {

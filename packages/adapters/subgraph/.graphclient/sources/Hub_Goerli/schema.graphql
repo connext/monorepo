@@ -16,7 +16,7 @@ type goerli_AggregatedMessageRoot {
   id: ID!
   index: BigInt!
   receivedRoot: goerli_Bytes!
-  domain: BigInt!
+  domain: BigInt
 }
 
 input goerli_AggregatedMessageRoot_filter {

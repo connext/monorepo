@@ -4,8 +4,6 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
-  getCanonicalTokenIdSchema,
-  calculateCanonicalKeySchema,
   getLPTokenAddressSchema,
   getLPTokenSupplySchema,
   getTokenUserBalanceSchema,
@@ -25,6 +23,8 @@ import {
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
+  calculateAmountReceivedSchema,
+  getTokenPriceSchema,
   getYieldStatsForDaySchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
@@ -34,34 +34,6 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
   // ------------------- Read Operations ------------------- //
-
-  s.get(
-    "/getCanonicalTokenId/:domainId/:tokenAddress",
-    {
-      schema: {
-        params: getCanonicalTokenIdSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenAddress } = request.params;
-      const res = await sdkPoolInstance.getCanonicalTokenId(domainId, tokenAddress);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.get(
-    "/calculateCanonicalKey/:domainId/:tokenId",
-    {
-      schema: {
-        params: calculateCanonicalKeySchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenId } = request.params;
-      const res = await sdkPoolInstance.calculateCanonicalKey(domainId, tokenId);
-      reply.status(200).send(res);
-    },
-  );
 
   s.get(
     "/getLPTokenAddress/:domainId/:tokenAddress",
@@ -241,6 +213,42 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, amountX, tokenX, tokenY } = request.body;
       const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/calculateAmountReceived",
+    {
+      schema: {
+        body: calculateAmountReceivedSchema,
+      },
+    },
+    async (request, reply) => {
+      const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount, isNextAsset } =
+        request.body;
+      const res = await sdkPoolInstance.calculateAmountReceived(
+        originDomain,
+        destinationDomain,
+        originTokenAddress,
+        destinationTokenAddress,
+        amount,
+        isNextAsset,
+      );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.get(
+    "/getTokenPrice/:tokenSymbol",
+    {
+      schema: {
+        params: getTokenPriceSchema,
+      },
+    },
+    async (request, reply) => {
+      const { tokenSymbol } = request.params;
+      const res = await sdkPoolInstance.getTokenPrice(tokenSymbol);
       reply.status(200).send(res);
     },
   );

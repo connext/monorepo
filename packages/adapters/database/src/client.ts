@@ -351,6 +351,25 @@ export const getTransfersWithDestinationPending = async (
   return transfer_ids;
 };
 
+export const getCompletedTransfersByMessageHashes = async (
+  message_hashes: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const x = await db
+    .select("transfers", {
+      message_hash: db.conditions.isIn(message_hashes),
+      status: db.conditions.isIn([
+        XTransferStatus.CompletedFast,
+        XTransferStatus.CompletedSlow,
+        XTransferStatus.Reconciled,
+      ]),
+    })
+    .run(poolToUse);
+  return x.map(convertFromDbTransfer);
+};
+
 export const saveRouterBalances = async (
   routerBalances: RouterBalance[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -411,6 +430,7 @@ export const transaction = async (
 };
 
 export const getUnProcessedMessages = async (
+  origin_domain: string,
   limit = 100,
   offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
@@ -420,7 +440,7 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false },
+      { processed: false, origin_domain },
       {
         limit,
         offset,
@@ -457,7 +477,13 @@ export const getAggregateRoot = async (
 ): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the most recent unprocessed propagated root
-  const root = await db.selectOne("aggregated_roots", { received_root: messageRoot }).run(poolToUse);
+  const root = await db
+    .selectOne(
+      "aggregated_roots",
+      { received_root: messageRoot },
+      { limit: 1, order: { by: "domain_index", direction: "DESC" } },
+    )
+    .run(poolToUse);
   if (!root) return undefined;
 
   // NOTE: id is made up of propagated_root and aggregateRoot index in subgraph ==> id = `${propagated_root}-${index}`

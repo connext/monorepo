@@ -53,6 +53,7 @@ export function handleXCalled(event: XCalled): void {
   message.leaf = event.params.messageHash;
   message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
+  message.message = event.params.messageBody;
   message.save();
   transfer.message = message.id;
 
@@ -130,6 +131,7 @@ export function handleExecuted(event: Executed): void {
   // Assets
   transfer.bridgedAmt = event.params.args.params.bridgedAmt;
   transfer.normalizedIn = event.params.args.params.normalizedIn;
+  transfer.amount = event.params.amount;
   transfer.canonicalId = event.params.args.params.canonicalId;
   transfer.canonicalDomain = event.params.args.params.canonicalDomain;
   transfer.asset = getOrCreateAsset(event.params.local).id;

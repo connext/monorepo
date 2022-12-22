@@ -270,6 +270,8 @@ export type { WatcherManager } from "./contracts/messaging/WatcherManager";
 export { WatcherManager__factory } from "./factories/contracts/messaging/WatcherManager__factory";
 export type { IProposedOwnable } from "./contracts/shared/interfaces/IProposedOwnable";
 export { IProposedOwnable__factory } from "./factories/contracts/shared/interfaces/IProposedOwnable__factory";
+export type { MultiSend } from "./contracts/shared/libraries/Multisend.sol/MultiSend";
+export { MultiSend__factory } from "./factories/contracts/shared/libraries/Multisend.sol/MultiSend__factory";
 export type { TypedMemView } from "./contracts/shared/libraries/TypedMemView";
 export { TypedMemView__factory } from "./factories/contracts/shared/libraries/TypedMemView__factory";
 export type { ProposedOwnable } from "./contracts/shared/ProposedOwnable";

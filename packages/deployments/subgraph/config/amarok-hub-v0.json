@@ -5,23 +5,33 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0xaADbb1083ba67c6022F6281Dc820470Cdfeda616",
-        "startBlock": 16023336
+        "address": "0xd5d61E9dfb6680Cba8353988Ba0337802811C2e1",
+        "startBlock": 16232834
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x7D2596D7E44b0990611d390Fbb0Bd24e64845694",
+        "startBlock": 16232831
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0xCdb88cE83e026046CF3aAFA0650EB5F4EB2F3048",
-        "startBlock": 16023344
+        "address": "0xb01bc38909413f5dbb8f18a9b5787a62ce1282ae",
+        "startBlock": 16233024
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0xc324B7984990248D86dfe90edf7E3657De2565bA",
-        "startBlock": 16023343
+        "address": "0x4a0126Ee88018393b1AD2455060Bc350eAd9908A",
+        "startBlock": 16232890
       },
       {
         "name": "GnosisHubConnector",
-        "address": "0xcb0840e861456da0483166ad4b0f3dc251586b4a",
-        "startBlock": 16117801
+        "address": "0x245F757d660C3ec65416168690431076d58d6413",
+        "startBlock": 16232981
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0xd151C9ef49cE2d30B829a98A07767E3280F70961",
+        "startBlock": 16233513
       }
     ]
   },
@@ -31,18 +41,28 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0xdEFcb49A7E32028Ea2A5CD4dc2ba9C1B72027D78",
-        "startBlock": 8004163
+        "address": "0x94e1c90fb33FEc184B183625BBf096F713CA74a3",
+        "startBlock": 8173339
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x2A2A9a4B612678E081b74a0bBcfD51DE726a9bd7",
+        "startBlock": 8173338
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0xbf0BC241679EE1854D19C17B45FEbEED870e5366",
-        "startBlock": 8005151
+        "address": "0x9060E2B92a4e8D4EAd05B7f3D736e3DA33955fa5",
+        "startBlock": 8173346
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x3CA7bf21Ed40D708Aaf884b17D447C0Fd5246067",
-        "startBlock": 8005149
+        "address": "0xa9eB35ebC739e753BCb5B75D2753A9023A0AC1D8",
+        "startBlock": 8173345
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0x58d3464e5AAb9c598A7059d182720a04aD59b01F",
+        "startBlock": 8173347
       }
     ]
   }

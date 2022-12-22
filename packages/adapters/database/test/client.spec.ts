@@ -12,6 +12,7 @@ import {
   RootMessage,
   AggregatedRoot,
   PropagatedRoot,
+  mkHash,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -48,6 +49,7 @@ import {
   getMessageRootFromIndex,
   getMessageRootCount,
   transaction,
+  getCompletedTransfersByMessageHashes,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -228,6 +230,57 @@ describe("Database client", () => {
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 1, 9, "DESC", pool);
     expect(set1.length).to.eq(1);
     expect(set1[0].xparams.nonce).to.eq(1);
+  });
+
+  it("should get completed transfers by message hash", async () => {
+    const transfers = Array(3)
+      .fill(0)
+      .map((_a, index) => {
+        const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+        t.xparams.nonce = index + 1;
+        t.origin!.xcall.timestamp = index + 1;
+        return t;
+      })
+      .concat(
+        Array(3)
+          .fill(0)
+          .map((_a, index) => {
+            const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedSlow });
+            t.xparams.nonce = index + 1;
+            t.origin!.xcall.timestamp = index + 1;
+            return t;
+          }),
+      )
+      .concat(
+        Array(3)
+          .fill(0)
+          .map((_a, index) => {
+            const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+            t.xparams.nonce = index + 1;
+            t.origin!.xcall.timestamp = index + 1;
+            return t;
+          }),
+      )
+      .concat(
+        Array(3)
+          .fill(0)
+          .map((_a, index) => {
+            const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+            t.xparams.nonce = index + 1;
+            t.origin!.xcall.timestamp = index + 1;
+            return t;
+          }),
+      );
+
+    transfers[1].origin!.messageHash = mkHash("0xaaa");
+    transfers[5].origin!.messageHash = mkHash("0xbbb");
+    transfers[10].origin!.messageHash = mkHash("0xccc");
+    await saveTransfers(transfers, pool);
+    const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")], pool);
+    expect(set.length).to.eq(3);
+    expect(set[0].origin?.messageHash).eq(mkHash("0xaaa"));
+    expect(set[1].origin?.messageHash).eq(mkHash("0xbbb"));
+    expect(set[3].origin?.messageHash).eq(mkHash("0xccc"));
   });
 
   it("should save valid boolean fields", async () => {
@@ -739,8 +792,9 @@ describe("Database client", () => {
     await expect(saveAggregatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
-    await expect(getUnProcessedMessages(undefined as any, undefined as any, undefined as any, undefined as any)).to
-      .eventually.not.be.rejected;
+    await expect(
+      getUnProcessedMessages(undefined as any, undefined as any, undefined as any, undefined as any, undefined as any),
+    ).to.eventually.not.be.rejected;
     await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be

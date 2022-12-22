@@ -2,7 +2,6 @@ import {
   NxtpError,
   DestinationTransfer,
   OriginMessage,
-  DestinationMessage,
   RootMessage,
   AggregatedRoot,
   PropagatedRoot,
@@ -142,6 +141,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       slippage: entity.slippage,
       originSender: entity.originSender,
       bridgedAmt: entity.bridgedAmt,
+      amount: entity.amount,
       normalizedIn: entity.normalizedIn,
       nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
       canonicalId: entity.canonicalId,
@@ -161,10 +161,10 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       // Assets
       assets: {
         transacting:
-          entity.amountOut && entity.asset
+          entity.amount && entity.asset
             ? {
                 asset: entity.asset?.adoptedAsset ?? constants.AddressZero,
-                amount: entity.amountOut,
+                amount: entity.amount,
               }
             : undefined,
         local: {
@@ -209,7 +209,7 @@ export const originMessage = (entity: any): OriginMessage => {
   if (!entity) {
     throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
   }
-  for (const field of ["index", "leaf", "root", "message", "domain", "destinationDomain", "transferId"]) {
+  for (const field of ["index", "leaf", "root", "domain", "destinationDomain", "transferId", "message"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
         missingField: field,
@@ -226,28 +226,6 @@ export const originMessage = (entity: any): OriginMessage => {
     leaf: entity.leaf,
     root: entity.root,
     message: entity.message,
-  };
-};
-
-export const destinationMessage = (entity: any): DestinationMessage => {
-  // Sanity checks.
-  if (!entity) {
-    throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
-  }
-  for (const field of ["leaf", "processed", "returnData", "domain"]) {
-    if (entity[field] === undefined) {
-      throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
-        missingField: field,
-        entity,
-      });
-    }
-  }
-
-  return {
-    domain: entity.domain,
-    leaf: entity.leaf,
-    processed: entity.processed,
-    returnData: entity.returnData,
   };
 };
 

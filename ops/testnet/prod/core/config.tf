@@ -99,6 +99,19 @@ locals {
           }
         ]
       }
+      "1734439522" = {
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+          },
+          {
+            name    = "WETH"
+            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+          }
+        ]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -109,7 +122,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -145,7 +158,13 @@ locals {
           limit      = 1
           queueLimit = 10000
           subscribe  = true
-        }
+        },
+        {
+          name       = "1734439522"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -162,6 +181,11 @@ locals {
           exchange = "sequencerX"
           target   = "9991"
           keys     = ["9991"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1734439522"
+          keys     = ["1734439522"]
         }
       ]
       executerTimeout = 300000
@@ -228,6 +252,19 @@ locals {
           }
         ]
       }
+      "1734439522" = {
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}", "https://goerli-rollup.arbitrum.io/rpc"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+          },
+          {
+            name    = "WETH"
+            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+          }
+        ]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -249,6 +286,9 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
+      "1734439522" = {
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -261,7 +301,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -276,8 +316,8 @@ locals {
 
   local_relayer_config = jsonencode({
     redis = {
-      host = module.sequencer_cache.redis_instance_address,
-      port = module.sequencer_cache.redis_instance_port
+      host = module.relayer_cache.redis_instance_address,
+      port = module.relayer_cache.redis_instance_port
     }
     server = {
       adminToken = var.admin_token_relayer
@@ -292,6 +332,9 @@ locals {
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+      }
+      "1734439522" = {
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
     }
     environment   = var.stage

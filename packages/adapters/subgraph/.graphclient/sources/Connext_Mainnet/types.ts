@@ -291,72 +291,6 @@ export type mainnet_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type mainnet_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['mainnet_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['mainnet_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['mainnet_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type mainnet_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['mainnet_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['mainnet_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-};
-
-export type mainnet_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type mainnet_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type mainnet_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mainnet_Bytes']>;
   asset?: Maybe<mainnet_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['mainnet_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['mainnet_Bytes']>;
@@ -546,6 +481,14 @@ export type mainnet_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mainnet_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type mainnet_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type mainnet_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['mainnet_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['mainnet_Bytes']>;
   message?: Maybe<Scalars['mainnet_Bytes']>;
+  root?: Maybe<Scalars['mainnet_Bytes']>;
   transactionHash?: Maybe<Scalars['mainnet_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<mainnet_RootCount>;
@@ -735,18 +679,18 @@ export type mainnet_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   message?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_not?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   message_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
@@ -792,8 +736,8 @@ export type mainnet_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   mainnet_destinationTransfers: Array<mainnet_DestinationTransfer>;
   mainnet_originMessage?: Maybe<mainnet_OriginMessage>;
   mainnet_originMessages: Array<mainnet_OriginMessage>;
-  mainnet_destinationMessage?: Maybe<mainnet_DestinationMessage>;
-  mainnet_destinationMessages: Array<mainnet_DestinationMessage>;
   mainnet_aggregateRoot?: Maybe<mainnet_AggregateRoot>;
   mainnet_aggregateRoots: Array<mainnet_AggregateRoot>;
   mainnet_connectorMeta?: Maybe<mainnet_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Querymainnet_originMessagesArgs = {
   orderBy?: InputMaybe<mainnet_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_OriginMessage_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_DestinationMessage_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   mainnet_destinationTransfers: Array<mainnet_DestinationTransfer>;
   mainnet_originMessage?: Maybe<mainnet_OriginMessage>;
   mainnet_originMessages: Array<mainnet_OriginMessage>;
-  mainnet_destinationMessage?: Maybe<mainnet_DestinationMessage>;
-  mainnet_destinationMessages: Array<mainnet_DestinationMessage>;
   mainnet_aggregateRoot?: Maybe<mainnet_AggregateRoot>;
   mainnet_aggregateRoots: Array<mainnet_AggregateRoot>;
   mainnet_connectorMeta?: Maybe<mainnet_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionmainnet_originMessagesArgs = {
   orderBy?: InputMaybe<mainnet_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_OriginMessage_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_DestinationMessage_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_originMessages: InContextSdkMethod<Query['mainnet_originMessages'], Querymainnet_originMessagesArgs, MeshContext>,
   /** null **/
-  mainnet_destinationMessage: InContextSdkMethod<Query['mainnet_destinationMessage'], Querymainnet_destinationMessageArgs, MeshContext>,
-  /** null **/
-  mainnet_destinationMessages: InContextSdkMethod<Query['mainnet_destinationMessages'], Querymainnet_destinationMessagesArgs, MeshContext>,
-  /** null **/
   mainnet_aggregateRoot: InContextSdkMethod<Query['mainnet_aggregateRoot'], Querymainnet_aggregateRootArgs, MeshContext>,
   /** null **/
   mainnet_aggregateRoots: InContextSdkMethod<Query['mainnet_aggregateRoots'], Querymainnet_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   mainnet_originMessage: InContextSdkMethod<Subscription['mainnet_originMessage'], Subscriptionmainnet_originMessageArgs, MeshContext>,
   /** null **/
   mainnet_originMessages: InContextSdkMethod<Subscription['mainnet_originMessages'], Subscriptionmainnet_originMessagesArgs, MeshContext>,
-  /** null **/
-  mainnet_destinationMessage: InContextSdkMethod<Subscription['mainnet_destinationMessage'], Subscriptionmainnet_destinationMessageArgs, MeshContext>,
-  /** null **/
-  mainnet_destinationMessages: InContextSdkMethod<Subscription['mainnet_destinationMessages'], Subscriptionmainnet_destinationMessagesArgs, MeshContext>,
   /** null **/
   mainnet_aggregateRoot: InContextSdkMethod<Subscription['mainnet_aggregateRoot'], Subscriptionmainnet_aggregateRootArgs, MeshContext>,
   /** null **/

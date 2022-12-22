@@ -26,8 +26,6 @@ dataSources:
       eventHandlers:
         - event: RootReceived(uint32,bytes32,uint256)
           handler: handleRootReceived
-        - event: RootsAggregated(bytes32,uint256,bytes32[])
-          handler: handleRootsAggregated
         - event: RootPropagated(bytes32,uint256,bytes32)
           handler: handleRootPropagated
         - event: ConnectorAdded(uint32,address,uint32[],address[])
@@ -35,6 +33,29 @@ dataSources:
         - event: ConnectorRemoved(uint32,address,uint32[],address[],address)
           handler: handleConnectorRemoved
       file: ./src/amarok-hub-v0/mapping/rootManager.ts
+  # MERKLE TREE MANAGER events
+  - kind: ethereum/contract
+    name: MerkleTreeManager
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MerkleTreeManager
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - OriginMessage
+        - RootCount
+      abis:
+        - name: MerkleTreeManager
+          file: ./src/amarok-hub-v0/abis/MerkleTreeManager.json
+      eventHandlers:
+        - event: LeavesInserted(bytes32,uint256,bytes32[])
+          handler: handleLeavesInserted
+      file: ./src/amarok-hub-v0/mapping/merkleTreeManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
     name: PolygonHubConnector
@@ -89,67 +110,13 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleOptimismNewConnector
       file: ./src/amarok-hub-v0/mapping/optimism.ts
-  # # BnbHubConnector.sol events
-  # - kind: ethereum/contract
-  #   name: BnbHubConnector
-  #   network: "{{network}}"
-  #   source:
-  #     address: "{{address}}"
-  #     abi: BnbHubConnector
-  #     # prettier-ignore
-  #     startBlock: {{startBlock}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Asset
-  #       - AssetBalance
-  #       - Router
-  #       - Transfer
-  #     abis:
-  #       - name: BnbHubConnector
-  #         file: ./src/amarok-hub-v0/abis/BnbHubConnector.json
-  #     eventHandlers:
-  #       - event: MessageProcessed(bytes,address)
-  #         handler: handleBnbMessageProcessed
-  #       - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-  #         handler: handleBnbNewConnector
-  #     file: ./src/amarok-hub-v0/mapping/bnb.ts
   # ArbitrumHubConnector.sol events
-  # - kind: ethereum/contract
-  #   name: ArbitrumHubConnector
-  #   network: "{{network}}"
-  #   source:
-  #     address: "{{address}}"
-  #     abi: ArbitrumHubConnector
-  #     # prettier-ignore
-  #     startBlock: {{startBlock}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Asset
-  #       - AssetBalance
-  #       - Router
-  #       - Transfer
-  #     abis:
-  #       - name: ArbitrumHubConnector
-  #         file: ./src/amarok-hub-v0/abis/ArbitrumHubConnector.json
-  #     eventHandlers:
-  #       - event: MessageProcessed(bytes,address)
-  #         handler: handleArbitrumMessageProcessed
-  #       - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-  #         handler: handleArbitrumNewConnector
-  #     file: ./src/amarok-hub-v0/mapping/arbitrum.ts
-  # GnosisHubConnector.sol events
   - kind: ethereum/contract
-    name: GnosisHubConnector
+    name: ArbitrumHubConnector
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: GnosisHubConnector
+      abi: ArbitrumHubConnector
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -162,11 +129,11 @@ dataSources:
         - Router
         - Transfer
       abis:
-        - name: GnosisHubConnector
-          file: ./src/amarok-hub-v0/abis/GnosisHubConnector.json
+        - name: ArbitrumHubConnector
+          file: ./src/amarok-hub-v0/abis/ArbitrumHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
-          handler: handleGnosisMessageProcessed
+          handler: handleArbitrumMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-          handler: handleGnosisNewConnector
-      file: ./src/amarok-hub-v0/mapping/gnosis.ts
+          handler: handleArbitrumNewConnector
+      file: ./src/amarok-hub-v0/mapping/arbitrum.ts

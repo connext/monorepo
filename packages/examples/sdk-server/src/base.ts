@@ -3,8 +3,6 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
 
-import { approveIfNeededSchema } from "./types/api";
-
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
@@ -21,16 +19,15 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
   );
 
-  s.post(
-    "/approveIfNeeded",
+  s.post<{ Body: SdkServerApiXCall }>(
+    "/wrapEthAndXCall",
     {
       schema: {
-        body: approveIfNeededSchema,
+        body: SdkServerApiXCallSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, assetId, amount, infiniteApprove } = request.body;
-      const txReq = await sdkBaseInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
+      const txReq = await sdkBaseInstance.wrapEthAndXCall(request.body);
       reply.status(200).send(txReq);
     },
   );

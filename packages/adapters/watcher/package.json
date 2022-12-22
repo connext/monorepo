@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-watcher",
-  "version": "0.2.1-beta.11",
+  "version": "0.2.1-rc.1",
   "description": "adapter for watcher related calls, monitoring, and functionality",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,6 +29,7 @@
     "@pagerduty/pdjs": "^2.2.4",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",
+    "keybase-bot": "^3.6.1",
     "twilio": "^3.83.4"
   },
   "devDependencies": {

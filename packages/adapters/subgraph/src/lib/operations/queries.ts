@@ -33,10 +33,10 @@ export const ORIGIN_MESSAGE_ENTITY = `
       leaf
       index
       root
-      message
       transferId
       destinationDomain
       transactionHash
+      message
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
@@ -644,29 +644,6 @@ export const getOriginMessagesByDomainAndIndexQuery = (
       orderDirection: asc
     ) {
       ${ORIGIN_MESSAGE_ENTITY}
-    }`;
-  }
-
-  return gql`
-    query GetOriginMessages {
-      ${combinedQuery}
-    }
-  `;
-};
-
-export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, string[]>) => {
-  const { config } = getContext();
-  let combinedQuery = "";
-  for (const domain of params.keys()) {
-    const prefix = config.sources[domain].prefix;
-    const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
-    combinedQuery += `
-    ${prefix}_destinationMessages ( 
-      where: { 
-        leaf_in: [${leafs}] 
-      }
-    ) {
-      ${DESTINATION_MESSAGE_ENTITY}
     }`;
   }
 

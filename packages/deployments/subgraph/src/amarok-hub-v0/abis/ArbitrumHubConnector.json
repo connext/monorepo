@@ -27,19 +27,24 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_defaultGasPrice",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
         "name": "_outbox",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxSubmissionCostCap",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxGasCap",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_gasPriceCap",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -47,12 +52,12 @@
   },
   {
     "inputs": [],
-    "name": "NotCrossChainCall",
+    "name": "Connector__processMessage_notUsed",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
+    "name": "NotCrossChainCall",
     "type": "error"
   },
   {
@@ -67,17 +72,17 @@
   },
   {
     "inputs": [],
+    "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
     "type": "error"
   },
   {
@@ -91,22 +96,91 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "TypedMemView__index_indexMoreThan32Bytes",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loc",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "len",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "slice",
+        "type": "uint256"
+      }
+    ],
+    "name": "TypedMemView__index_overrun",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "previous",
+        "name": "_previous",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "current",
+        "name": "_updated",
         "type": "uint256"
       }
     ],
-    "name": "DefaultGasPriceUpdated",
+    "name": "GasPriceCapUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_previous",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "MaxGasCapUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_previous",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "MaxSubmissionCapUpdated",
     "type": "event"
   },
   {
@@ -139,6 +213,12 @@
       },
       {
         "indexed": false,
+        "internalType": "bytes",
+        "name": "encodedData",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "caller",
         "type": "address"
@@ -164,25 +244,6 @@
       }
     ],
     "name": "MirrorConnectorUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previous",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "current",
-        "type": "uint256"
-      }
-    ],
-    "name": "MirrorGasUpdated",
     "type": "event"
   },
   {
@@ -255,6 +316,19 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "ticketId",
+        "type": "uint256"
+      }
+    ],
+    "name": "RetryableTicketCreated",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "AMB",
     "outputs": [
@@ -315,7 +389,7 @@
   },
   {
     "inputs": [],
-    "name": "defaultGasPrice",
+    "name": "delay",
     "outputs": [
       {
         "internalType": "uint256",
@@ -328,7 +402,33 @@
   },
   {
     "inputs": [],
-    "name": "delay",
+    "name": "gasPriceCap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxGasCap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxSubmissionCostCap",
     "outputs": [
       {
         "internalType": "uint256",
@@ -347,19 +447,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "mirrorGas",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -576,9 +663,27 @@
         "internalType": "bytes",
         "name": "_data",
         "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
       }
     ],
     "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "setGasPriceCap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -587,11 +692,24 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_defaultGasPrice",
+        "name": "_updated",
         "type": "uint256"
       }
     ],
-    "name": "setDefaultGasPrice",
+    "name": "setMaxGasCap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxSubmissionCostCap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -605,19 +723,6 @@
       }
     ],
     "name": "setMirrorConnector",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMirrorGas",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -640,5 +745,9 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

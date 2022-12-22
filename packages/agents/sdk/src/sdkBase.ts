@@ -1,11 +1,14 @@
-import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { constants, providers, BigNumber, utils } from "ethers";
 import {
-  getContractInterfaces,
-  ConnextContractInterfaces,
-  contractDeployments,
-  ChainReader,
-} from "@connext/nxtp-txservice";
+  Logger,
+  createLoggingContext,
+  ChainData,
+  XCallArgs,
+  WETHAbi,
+  MultisendTransaction,
+  encodeMultisendCall,
+} from "@connext/nxtp-utils";
+import { contractDeployments } from "@connext/nxtp-txservice";
 
 import {
   getChainData,
@@ -18,26 +21,22 @@ import {
 } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
+import { NxtpSdkShared } from "./sdkShared";
+
+type NxtpSdkXCallArgs = Omit<XCallArgs, "callData" | "delegate"> &
+  Partial<XCallArgs> & {
+    origin: string;
+    relayerFee?: string;
+  } & { receiveLocal?: boolean };
 
 /**
- * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
+ * @classdesc SDK class encapsulating bridge functions.
  */
-export class NxtpSdkBase {
-  public readonly config: NxtpSdkConfig;
-  private readonly logger: Logger;
-  private contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
-  private chainReader: ChainReader;
-  public readonly chainData: Map<string, ChainData>;
+export class NxtpSdkBase extends NxtpSdkShared {
+  private static _instance: NxtpSdkBase;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
-    this.config = config;
-    this.logger = logger;
-    this.chainData = chainData;
-    this.contracts = getContractInterfaces();
-    this.chainReader = new ChainReader(
-      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
-      this.config.chains,
-    );
+    super(config, logger, chainData);
   }
 
   static async create(
@@ -55,75 +54,7 @@ export class NxtpSdkBase {
       ? _logger.child({ name: "NxtpSdkBase" })
       : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkBase(nxtpConfig, logger, chainData);
-  }
-
-  async approveIfNeeded(
-    domain: string,
-    assetId: string,
-    amount: string,
-    infiniteApprove = true,
-  ): Promise<providers.TransactionRequest | undefined> {
-    const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
-
-    const signerAddress = this.config.signerAddress;
-    this.logger.info("Method start", requestContext, methodContext, {
-      domain,
-      assetId,
-      amount,
-      signerAddress,
-    });
-
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
-    let chainId = this.config.chains[domain].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domain, this.chainData);
-    }
-
-    if (assetId !== constants.AddressZero) {
-      const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
-
-      const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        signerAddress,
-        ConnextContractAddress,
-      ]);
-      this.logger.debug("Got approved data", requestContext, methodContext, { approvedData });
-      const approvedEncoded = await this.chainReader.readTx({
-        to: assetId,
-        data: approvedData,
-        chainId: Number(domain),
-      });
-      this.logger.debug("Got approved data", requestContext, methodContext, { approvedEncoded });
-      const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
-      this.logger.debug("Got approved data", requestContext, methodContext, { approved });
-
-      this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
-      if (BigNumber.from(approved).lt(amount)) {
-        const data = this.contracts.erc20.encodeFunctionData("approve", [
-          ConnextContractAddress,
-          infiniteApprove ? constants.MaxUint256 : amount,
-        ]);
-        const txRequest = {
-          to: assetId,
-          data,
-          from: signerAddress,
-          value: 0,
-          chainId,
-        };
-        this.logger.info("Approve transaction created", requestContext, methodContext, txRequest);
-        return txRequest;
-      } else {
-        this.logger.info("Allowance sufficient", requestContext, methodContext, {
-          approved: approved.toString(),
-          amount,
-        });
-        return undefined;
-      }
-    }
-    return undefined;
+    return this._instance || (this._instance = new NxtpSdkBase(nxtpConfig, logger, chainData));
   }
 
   /**
@@ -133,14 +64,7 @@ export class NxtpSdkBase {
    * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
    * @returns providers.TransactionRequest object.
    */
-
-  public async xcall(
-    args: Omit<XCallArgs, "callData" | "delegate"> &
-      Partial<XCallArgs> & {
-        origin: string;
-        relayerFee?: string;
-      } & { receiveLocal?: boolean },
-  ): Promise<providers.TransactionRequest> {
+  async xcall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
 
@@ -174,7 +98,7 @@ export class NxtpSdkBase {
     //   });
     // }
 
-    const ConnextContractAddress = this.config.chains[origin].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(origin)).address;
 
     // Get the origin chain ID.
     let chainId = this.config.chains[origin].chainId;
@@ -230,7 +154,7 @@ export class NxtpSdkBase {
   }
 
   async bumpTransfer(params: {
-    domain: string;
+    domainId: string;
     transferId: string;
     relayerFee: string;
   }): Promise<providers.TransactionRequest> {
@@ -242,13 +166,13 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const { domain, transferId, relayerFee } = params;
+    const { domainId, transferId, relayerFee } = params;
 
-    let chainId = this.config.chains[domain].chainId;
+    let chainId = this.config.chains[domainId].chainId;
     if (!chainId) {
-      chainId = await getChainIdFromDomain(domain, this.chainData);
+      chainId = await getChainIdFromDomain(domainId, this.chainData);
     }
-    const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
@@ -368,7 +292,84 @@ export class NxtpSdkBase {
     return relayerFeeInOrginNativeAsset;
   }
 
-  async changeSignerAddress(signerAddress: string) {
-    this.config.signerAddress = signerAddress;
+  /**
+   *
+   * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
+   * @param args.amount - Will be used as the amount of ETH to deposit into WETH contract and withdraw as WETH.
+   * @param args.asset - Should be the target wrapper contract (e.g. WETH) address.
+   * @returns providers.TransactionRequest object.
+   */
+  async wrapEthAndXCall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
+    const txs: MultisendTransaction[] = [];
+    const { asset, amount: _amount, origin } = args;
+    const amount = BigNumber.from(_amount);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    let chainId = this.config.chains[origin].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(origin, this.chainData);
+    }
+
+    const connextContractAddress = (await this.getConnext(origin)).address;
+    const multisendContractAddress = this.config.chains[origin].deployments?.multisend;
+    const weth = new utils.Interface(WETHAbi);
+
+    if (!multisendContractAddress) {
+      throw new Error(`Multisend contract deployment not found for chain ${chainId}! Unable to perform multicall.`);
+    }
+
+    // 1. WETH.deposit(amount)
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("deposit"),
+      value: amount,
+    });
+
+    // 2. WETH.approve(connext)
+    txs.push({
+      to: asset,
+      data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
+    });
+
+    // 3. xcall(args)
+    const xcallRequest = await this.xcall(args);
+
+    // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
+    // for token approval.
+    if (!xcallRequest.to || connextContractAddress !== xcallRequest.to) {
+      throw new Error(
+        "Formatted XCall recipient address did not match expected Connext address!" +
+          `Got: ${xcallRequest.to}; Expected: ${connextContractAddress}`,
+      );
+    }
+
+    const relayerFee = BigNumber.from(args.relayerFee ?? "0");
+    // Sanity check: value is correct.
+    if (!xcallRequest.value || !BigNumber.from(xcallRequest.value).eq(relayerFee)) {
+      throw new Error(
+        "Formatted XCall msg.value did not match expected value (args.relayerFee)." +
+          `Got: ${xcallRequest.value?.toString()}; Expected: ${args.relayerFee}`,
+      );
+    }
+
+    txs.push({
+      to: connextContractAddress,
+      data: xcallRequest.data!.toString(),
+      value: relayerFee,
+    });
+
+    // 5. Format Multisend call in an ethers TransactionRequest object.
+    const txRequest: providers.TransactionRequest = {
+      to: multisendContractAddress,
+      value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+      data: encodeMultisendCall(txs),
+      from: signerAddress,
+      chainId,
+    };
+    return txRequest;
   }
 }

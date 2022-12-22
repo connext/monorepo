@@ -13,7 +13,8 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = var.stage },
-    { name = "DD_SERVICE", value = "router-${var.environment}" }
+    { name = "DD_SERVICE", value = "router-${var.environment}" },
+    { name = "GRAPH_API_KEY", value = var.graph_api_key }
   ]
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
@@ -24,6 +25,7 @@ locals {
     DD_SERVICE        = "router-${var.environment}"
     DD_API_KEY        = var.dd_api_key,
     DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
+    GRAPH_API_KEY     = var.graph_api_key
   }
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
@@ -90,16 +92,16 @@ locals {
           address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
         }]
       }
-      # "1634886255" = {
-      #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
-      #   assets = [{
-      #     name    = "USDC"
-      #     address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
-      #     }, {
-      #     name    = "WETH"
-      #     address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
-      #   }]
-      # }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        assets = [{
+          name    = "USDC"
+          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
+        }]
+      }
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
         assets = [{
@@ -130,7 +132,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -202,11 +204,11 @@ locals {
           target   = "1886350457"
           keys     = ["1886350457"]
         },
-        # {
-        #   exchange = "sequencerX"
-        #   target   = "1634886255"
-        #   keys     = ["1634886255"]
-        # }
+        {
+          exchange = "sequencerX"
+          target   = "1634886255"
+          keys     = ["1634886255"]
+        },
         {
           exchange = "sequencerX"
           target   = "6450786"
@@ -273,16 +275,16 @@ locals {
           address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
         }]
       },
-      # "1634886255" = {
-      #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_1}", "https://rpc.ankr.com/arbitrum"]
-      #   assets = [{
-      #     name    = "USDC"
-      #     address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
-      #     }, {
-      #     name    = "WETH"
-      #     address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
-      #   }]
-      # }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_1}", "https://rpc.ankr.com/arbitrum"]
+        assets = [{
+          name    = "USDC"
+          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
+          }, {
+          name    = "WETH"
+          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
+        }]
+      },
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
         assets = [{
@@ -324,9 +326,9 @@ locals {
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
       },
-      # "1634886255" = {
-      #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
-      # }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+      },
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
@@ -345,7 +347,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "${var.connext_relayer_api_key}",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -359,8 +361,8 @@ locals {
 
   local_relayer_config = jsonencode({
     redis = {
-      host = module.sequencer_cache.redis_instance_address,
-      port = module.sequencer_cache.redis_instance_port
+      host = module.relayer_cache.redis_instance_address,
+      port = module.relayer_cache.redis_instance_port
     }
     server = {
       adminToken = var.admin_token_relayer
@@ -376,9 +378,9 @@ locals {
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
       },
-      # "1634886255" = {
-      #   providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
-      # }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+      },
       "6450786" = {
         providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }

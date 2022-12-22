@@ -16,7 +16,12 @@ function sigsFromABI(abi: any[]): string[] {
     .map((fragment: any) => Interface.getSighash(FunctionFragment.from(fragment as unknown as FunctionFragment)));
 }
 
-type FacetOptions = { name: string; contract: string; args: any[] };
+type FacetOptions = {
+  name: string;
+  contract: string;
+  args?: any[];
+  deterministic?: boolean | string;
+};
 
 const proposeDiamondUpgrade = async (
   facets: FacetOptions[],
@@ -41,7 +46,12 @@ const proposeDiamondUpgrade = async (
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet
-  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
+  facets.push({
+    name: "_DefaultDiamondLoupeFacet",
+    contract: "DiamondLoupeFacet",
+    args: [],
+    deterministic: true,
+  });
 
   let changesDetected = false;
 
@@ -132,17 +142,18 @@ const proposeDiamondUpgrade = async (
   }
 
   // If no changes detected, do nothing
-  if (!changesDetected) {
+  if (!changesDetected || facetCuts.length === 0) {
+    console.log(`no diamond upgrade proposal needed`);
     return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
   const acceptanceTime = await contract.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
-    console.log(`cut has already been proposed`);
+    console.log(`cut has already been proposed:`, facetCuts);
     return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
-  console.log("calling propose");
+  console.log("calling propose with", facetCuts);
 
   // Propose facet cut
   return { cuts: facetCuts, tx: await contract.proposeDiamondCut(facetCuts, constants.AddressZero, "0x"), abi: abi };
@@ -156,7 +167,7 @@ const proposeDiamondUpgrade = async (
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chainId = await hre.getChainId();
 
-  const acceptanceDelay = 0; // 604800 = 7 days
+  const acceptanceDelay = SKIP_SETUP.includes(parseInt(chainId)) ? 604800 : 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -166,6 +177,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const deployer = _deployer as Wallet;
   console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
+
+  console.log("acceptance delay: ", acceptanceDelay);
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
@@ -218,6 +231,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
     { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
     { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
+    { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [] },
     { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
     { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },

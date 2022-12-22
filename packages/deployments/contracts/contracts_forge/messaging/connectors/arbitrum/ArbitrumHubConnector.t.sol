@@ -206,12 +206,13 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     );
 
     // should call root manager
-    bytes32 data = _message.callData.ref(0).index(4, 32);
+    bytes32 data = _message.callData.ref(0).index(68, 32);
+    assertEq(abi.encode(data), _root);
     vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, data));
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(_message.callData, address(this));
+    emit MessageProcessed(abi.encode(data), address(this));
 
     // make call
     ArbitrumHubConnector(_l1Connector).processMessageFromRoot(

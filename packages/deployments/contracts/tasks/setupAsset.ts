@@ -79,6 +79,7 @@ export default task("setup-asset", "Configures an asset")
       console.log("representation name:", representationName);
       console.log("representation symbol:", representationSymbol);
       console.log("adopted: ", adopted);
+      console.log("local: ", local);
       console.log("pool: ", pool);
       console.log("cap: ", cap);
       console.log("domain: ", domain);
@@ -94,6 +95,11 @@ export default task("setup-asset", "Configures an asset")
         ["bytes"],
         [defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
       );
+
+      const network = await ethers.provider.getNetwork();
+      if (network.chainId === 1 && +cap === 0) {
+        throw new Error(`Must have nonzero cap on prod canonical domains`);
+      }
 
       console.log("key: ", key);
       const [approved] = connext.interface.decodeFunctionResult(

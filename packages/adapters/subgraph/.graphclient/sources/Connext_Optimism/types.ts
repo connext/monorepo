@@ -291,72 +291,6 @@ export type optimism_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type optimism_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['optimism_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['optimism_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['optimism_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type optimism_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['optimism_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-};
-
-export type optimism_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type optimism_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type optimism_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['optimism_Bytes']>;
   asset?: Maybe<optimism_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['optimism_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['optimism_Bytes']>;
@@ -546,6 +481,14 @@ export type optimism_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<optimism_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type optimism_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type optimism_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['optimism_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['optimism_Bytes']>;
   message?: Maybe<Scalars['optimism_Bytes']>;
+  root?: Maybe<Scalars['optimism_Bytes']>;
   transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<optimism_RootCount>;
@@ -735,18 +679,18 @@ export type optimism_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   message?: InputMaybe<Scalars['optimism_Bytes']>;
   message_not?: InputMaybe<Scalars['optimism_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   message_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  root?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
@@ -792,8 +736,8 @@ export type optimism_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   optimism_destinationTransfers: Array<optimism_DestinationTransfer>;
   optimism_originMessage?: Maybe<optimism_OriginMessage>;
   optimism_originMessages: Array<optimism_OriginMessage>;
-  optimism_destinationMessage?: Maybe<optimism_DestinationMessage>;
-  optimism_destinationMessages: Array<optimism_DestinationMessage>;
   optimism_aggregateRoot?: Maybe<optimism_AggregateRoot>;
   optimism_aggregateRoots: Array<optimism_AggregateRoot>;
   optimism_connectorMeta?: Maybe<optimism_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Queryoptimism_originMessagesArgs = {
   orderBy?: InputMaybe<optimism_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_OriginMessage_filter>;
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryoptimism_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryoptimism_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimism_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<optimism_OrderDirection>;
-  where?: InputMaybe<optimism_DestinationMessage_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   optimism_destinationTransfers: Array<optimism_DestinationTransfer>;
   optimism_originMessage?: Maybe<optimism_OriginMessage>;
   optimism_originMessages: Array<optimism_OriginMessage>;
-  optimism_destinationMessage?: Maybe<optimism_DestinationMessage>;
-  optimism_destinationMessages: Array<optimism_DestinationMessage>;
   optimism_aggregateRoot?: Maybe<optimism_AggregateRoot>;
   optimism_aggregateRoots: Array<optimism_AggregateRoot>;
   optimism_connectorMeta?: Maybe<optimism_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionoptimism_originMessagesArgs = {
   orderBy?: InputMaybe<optimism_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_OriginMessage_filter>;
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionoptimism_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionoptimism_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimism_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<optimism_OrderDirection>;
-  where?: InputMaybe<optimism_DestinationMessage_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimism_originMessages: InContextSdkMethod<Query['optimism_originMessages'], Queryoptimism_originMessagesArgs, MeshContext>,
   /** null **/
-  optimism_destinationMessage: InContextSdkMethod<Query['optimism_destinationMessage'], Queryoptimism_destinationMessageArgs, MeshContext>,
-  /** null **/
-  optimism_destinationMessages: InContextSdkMethod<Query['optimism_destinationMessages'], Queryoptimism_destinationMessagesArgs, MeshContext>,
-  /** null **/
   optimism_aggregateRoot: InContextSdkMethod<Query['optimism_aggregateRoot'], Queryoptimism_aggregateRootArgs, MeshContext>,
   /** null **/
   optimism_aggregateRoots: InContextSdkMethod<Query['optimism_aggregateRoots'], Queryoptimism_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   optimism_originMessage: InContextSdkMethod<Subscription['optimism_originMessage'], Subscriptionoptimism_originMessageArgs, MeshContext>,
   /** null **/
   optimism_originMessages: InContextSdkMethod<Subscription['optimism_originMessages'], Subscriptionoptimism_originMessagesArgs, MeshContext>,
-  /** null **/
-  optimism_destinationMessage: InContextSdkMethod<Subscription['optimism_destinationMessage'], Subscriptionoptimism_destinationMessageArgs, MeshContext>,
-  /** null **/
-  optimism_destinationMessages: InContextSdkMethod<Subscription['optimism_destinationMessages'], Subscriptionoptimism_destinationMessagesArgs, MeshContext>,
   /** null **/
   optimism_aggregateRoot: InContextSdkMethod<Subscription['optimism_aggregateRoot'], Subscriptionoptimism_aggregateRootArgs, MeshContext>,
   /** null **/

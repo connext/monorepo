@@ -1,9 +1,9 @@
 import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
-import { getPropagateParamsArbitrum, getPropagateParamsBnb } from "../helpers";
+import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
 import { getContext } from "../propagate";
 
 export type ExtraPropagateParam = {
@@ -24,6 +24,7 @@ export const getParamsForDomainFn: Record<
   "1634886255": getPropagateParamsArbitrum,
   "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
+  "6778479": getPropagateParamsGnosis,
 };
 
 export const propagate = async () => {
@@ -50,6 +51,7 @@ export const propagate = async () => {
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
+  let _totalFee = constants.Zero;
 
   for (const domain of domains) {
     const connector = rootManagerMeta.connectors[domains.indexOf(domain)];
@@ -65,6 +67,7 @@ export const propagate = async () => {
       );
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
+      _totalFee = _totalFee.add(BigNumber.from(propagateParam._fee));
     } else {
       _encodedData.push("0x");
       _fees.push("0");
@@ -74,22 +77,23 @@ export const propagate = async () => {
   // encode data
   const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
 
-  const relayerAddress = await relayers[0].instance.getRelayerAddress(hubChainId);
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
+  logger.info("Getting gas estimate", requestContext, methodContext, {
     hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
+    totalFee: _totalFee.toString(),
   });
-
   const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
     chainId: hubChainId,
     to: rootManagerAddress,
     data: encodedData,
-    from: relayerAddress,
+    from: relayerProxyHubAddress,
+    value: _totalFee,
   });
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+  logger.info("Got gas estimate", requestContext, methodContext, { gasLimit: gasLimit.toString() });
 
   let fee = BigNumber.from(0);
   try {

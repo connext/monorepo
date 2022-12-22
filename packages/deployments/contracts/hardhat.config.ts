@@ -51,6 +51,9 @@ import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
+import "./tasks/connector/redeem";
+import "./tasks/pause";
+import "./tasks/unpause";
 import { hardhatNetworks } from "./src/config";
 
 envConfig();
@@ -93,15 +96,17 @@ const config: HardhatUserConfig = {
       kovan: process.env.ETHERSCAN_API_KEY!,
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
-      "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
-      "gnosis-testnet": process.env.ETHERSCAN_API_KEY!,
+      "optimism-goerli": process.env.OPTIMISM_ETHERSCAN_API_KEY!,
+      "gnosis-testnet": process.env.GNOSISSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
+      chapel: process.env.BNBSCAN_API_KEY!,
       // mainnets
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
       optimism: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
       bnb: process.env.BNBSCAN_API_KEY!,
-      chapel: process.env.BNBSCAN_API_KEY!,
+      "arbitrum-one": process.env.ARBISCAN_API_KEY!,
+      xdai: process.env.GNOSISSCAN_API_KEY!,
     },
     customChains: [
       {

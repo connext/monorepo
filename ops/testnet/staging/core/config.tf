@@ -45,6 +45,18 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
+  watcher_env_vars = [
+    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "watcher-${var.environment}" }
+  ]
+  watcher_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.watcher_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ]
 }
 
 locals {
@@ -122,7 +134,7 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
@@ -299,19 +311,20 @@ locals {
       },
       {
         type   = "Connext",
-        apiKey = "foo",
+        apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
     environment = var.stage
     databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
     hubDomain   = "1735353714"
+    proverBatchSize = 1
   })
 
   local_relayer_config = jsonencode({
     redis = {
-      host = module.sequencer_cache.redis_instance_address,
-      port = module.sequencer_cache.redis_instance_port
+      host = module.relayer_cache.redis_instance_address,
+      port = module.relayer_cache.redis_instance_port
     }
     server = {
       adminToken = var.admin_token_relayer
@@ -333,5 +346,41 @@ locals {
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
+  })
+
+  local_watcher_config = jsonencode({
+    server = {
+      adminToken = var.admin_token_watcher
+    }
+    logLevel = "debug"
+    hubDomain: "1735353714"
+    chains = {
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "BigBroERC20"
+            address = "0x2D4A671E49d39Fc13F9237f60B6E6FDd16d8Ad4d"
+          }
+        ]
+      }
+      "1735356532" = {
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
+        assets = [
+          {
+            name    = "BigBroERC20"
+            address = "0xF6dbBbDa9F1F891C12FF4E0aB0FF65a228B72a94"
+          }
+        ]
+      }
+    }
+    web3SignerUrl = "https://${module.watcher_web3signer.service_endpoint}"
+    environment   = var.stage
+    discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
+    telegramApiKey = "${var.telegram_api_key}"
+    telegramChatId = "${var.telegram_chat_id}"
+    keybaseUser = "${var.keybase_user}"
+    keybaseKey = "${var.keybase_key}"
+    keybaseChannel = "${var.keybase_channel}"
   })
 }

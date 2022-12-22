@@ -16,7 +16,7 @@ type mainnet_AggregatedMessageRoot {
   id: ID!
   index: BigInt!
   receivedRoot: mainnet_Bytes!
-  domain: BigInt!
+  domain: BigInt
 }
 
 input mainnet_AggregatedMessageRoot_filter {

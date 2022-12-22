@@ -25,15 +25,11 @@ describe("Index", () => {
   });
   describe("#create", () => {
     it("happy: should return class instances", async () => {
-      const { nxtpSdkBase, nxtpSdkRouter, nxtpSdkStableSwap, nxtpSdkUtils } = await create(
-        config,
-        undefined,
-        mockChainData,
-      );
+      const { nxtpSdkBase, nxtpSdkRouter, nxtpSdkUtils, nxtpSdkPool } = await create(config, undefined, mockChainData);
       expect(nxtpSdkBase).to.not.be.undefined;
       expect(nxtpSdkRouter).to.not.be.undefined;
-      expect(nxtpSdkStableSwap).to.not.be.undefined;
       expect(nxtpSdkUtils).to.not.be.undefined;
+      expect(nxtpSdkPool).to.not.be.undefined;
 
       expect(nxtpSdkBase.xcall).to.be.a("function");
     });

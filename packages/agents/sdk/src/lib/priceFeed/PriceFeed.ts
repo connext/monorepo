@@ -28,6 +28,11 @@ class PriceFeed {
   }
 
   async getPriceByTokenSymbol(tokenSymbol: string) {
+    // "USDC-USD" doesn't exist on coinbase api
+    if (tokenSymbol === "USDC") {
+      return 1;
+    }
+
     if (this.aliases[tokenSymbol]) {
       tokenSymbol = this.aliases[tokenSymbol];
     }

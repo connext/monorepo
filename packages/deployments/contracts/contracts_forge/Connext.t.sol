@@ -23,7 +23,6 @@ import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 import {MessagingUtils} from "./utils/Messaging.sol";
 
-
 import "forge-std/console.sol";
 
 // Holds all balances that are impacted by an xcall
@@ -59,7 +58,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     TransferInfo params,
     address asset,
     uint256 amount,
-    address local
+    address local,
+    bytes messageBody
   );
 
   event Executed(
@@ -408,7 +408,8 @@ contract ConnextTest is ForgeHelper, Deployer {
         params,
         asset,
         amount,
-        (params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0)) ? address(0) : _originLocal
+        (params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0)) ? address(0) : _originLocal,
+        MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_BODY()
       );
     }
 

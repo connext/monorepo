@@ -5,13 +5,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x01EdE4Fdf8CF7Ef9942a935305C3145f8dAa180A",
-        "startBlock": 16023403
+        "address": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+        "startBlock": 16233067
       },
       {
         "name": "SpokeConnector",
-        "address": "0xDCf026d7FBBFFC1633c79E97a2b4Dae1C374406B",
-        "startBlock": 16023342
+        "address": "0xF7c4d7dcEc2c09A15f2Db5831d6d25eAEf0a296c",
+        "startBlock": 16232872
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x28a9e7bbed277092e2431f186e1af898962d4e92",
+        "startBlock": 16232868
       }
     ]
   },
@@ -21,13 +26,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x7A76e7874f3c2222352386e9a2FC8922C2F3032B",
-        "startBlock": 35913416
+        "address": "0x11984dc4465481512eb5b777E44061C158CF2259",
+        "startBlock": 37100616
       },
       {
         "name": "SpokeConnector",
-        "address": "0x2eD45c03Ea0A8bdFEd64A56e4A679E9935CC071a",
-        "startBlock": 35913290
+        "address": "0x96fDDc1A6FBDb232e9adA1fFc1026799F85128e9",
+        "startBlock": 37100525
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x73B1d7aE726919Dd4B6f50d7c3EBF3660F253f82",
+        "startBlock": 37100519
       }
     ]
   },
@@ -37,13 +47,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x17aB9B14AC7659390B3994f9e67Bf833e60Ec1BD",
-        "startBlock": 40743551
+        "address": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
+        "startBlock": 53024543
       },
       {
         "name": "SpokeConnector",
-        "address": "0x59d908Fbbbe670388EB1BD5CAf30Af47cEcB25b8",
-        "startBlock": 40742813
+        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
+        "startBlock": 53023760
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x88483B3e3B4DD7cEdB8EFcef81F6dC9adb6292D5",
+        "startBlock": 53023711
       }
     ]
   },
@@ -53,13 +68,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
-        "startBlock": 35021501
+        "address": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+        "startBlock": 47824793
       },
       {
         "name": "SpokeConnector",
-        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
-        "startBlock": 35021115
+        "address": "0xFD81392229b6252cF761459d370C239Be3aFc54F",
+        "startBlock": 47824521
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x8533004Ecb90151cD821dc2Fafb78797d8fdd085",
+        "startBlock": 47822370
       }
     ]
   },
@@ -69,13 +89,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xB99Cd2B5d0192787950740026B4d32635d5c9Eb6",
-        "startBlock": 23471543
+        "address": "0xCd401c10afa37d641d2F594852DA94C700e4F2CE",
+        "startBlock": 24097172
       },
       {
         "name": "SpokeConnector",
-        "address": "0xA93C4a6e19BeE415cAb341D19046c799a80A1496",
-        "startBlock": 23499973
+        "address": "0x126A99af70eC62921C07E67943aCF61bF304Ef55",
+        "startBlock": 24097138
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x995dfd686f4953B059355Df769cc4CE672983aF1",
+        "startBlock": 24097135
       }
     ]
   },
@@ -85,13 +110,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xB3378c2832cfFD06660dcd78f6768D7a8FBEa95b",
-        "startBlock": 25300828
+        "address": "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109",
+        "startBlock": 25562301
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8Ef3E1300857FDF616dfE2fcBced4ac6a61Fe774",
-        "startBlock": 25300820
+        "address": "0x771B2c910D76ecf84B100559CF3Ec4cB2e8D4aC5",
+        "startBlock": 25562274
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
+        "startBlock": 25562272
       }
     ]
   },
@@ -101,13 +131,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xb35937ce4fFB5f72E90eAD83c10D33097a4F18D2",
-        "startBlock": 8005164
+        "address": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649",
+        "startBlock": 8173349
       },
       {
         "name": "SpokeConnector",
-        "address": "0x4e550A8de890fE35d1a38aEbEc02E4531Da1283b",
-        "startBlock": 8005148
+        "address": "0xE9c7095c956F9F75e21dD99027aDF6bFfFa9BA9A",
+        "startBlock": 8173343
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x7839D0b5486d8d7fDD0dc4195426681f08a7b3fe",
+        "startBlock": 8173342
       }
     ]
   },
@@ -117,13 +152,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0x0C70d6E9760DEE639aC761f3564a190220DF5E44",
-        "startBlock": 2895103
+        "address": "0x5Ea1bb242326044699C3d81341c5f535d5Af1504",
+        "startBlock": 3613102
       },
       {
         "name": "SpokeConnector",
-        "address": "0xc004fcd38cF20c8b6765a8f8162b47F939FE7f44",
-        "startBlock": 2895043
+        "address": "0xEe8608Cc250c8f9aAc5045930Fc9661F64464774",
+        "startBlock": 3613083
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xF0E8d77FB11FE01CF6576B9E0F780AfF20c5176e",
+        "startBlock": 3613078
       }
     ]
   },
@@ -133,13 +173,39 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xa2F2ed226d4569C8eC09c175DDEeF4d41Bab4627",
-        "startBlock": 29296638
+        "address": "0x2334937846Ab2A3FCE747b32587e1A1A2f6EEC5a",
+        "startBlock": 29956478
       },
       {
         "name": "SpokeConnector",
-        "address": "0x7C70114080BA9635eA1638C9A81Ee30dBb6abE55",
-        "startBlock": 29296607
+        "address": "0x8d2690fDc417a231d6D919F9cb1f2fB317B36af5",
+        "startBlock": 29956468
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xEf8317C06643aDDeC80441ce5ae184aa207a94fD",
+        "startBlock": 29956465
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2",
+        "startBlock": 3268972
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x0f4e2866d874b94fc7424d7469deb13c8ae7738f",
+        "startBlock": 3268962
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x88D6229f1d6f3512aeAF5e0790af91606ADbC7dc",
+        "startBlock": 3268960
       }
     ]
   }

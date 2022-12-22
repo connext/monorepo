@@ -291,72 +291,6 @@ export type mumbai_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type mumbai_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['mumbai_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['mumbai_Bytes']>;
-  success?: Maybe<Scalars['Boolean']>;
-  transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type mumbai_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['mumbai_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  success?: InputMaybe<Scalars['Boolean']>;
-  success_not?: InputMaybe<Scalars['Boolean']>;
-  success_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  success_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-};
-
-export type mumbai_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'success'
-  | 'transactionHash'
-  | 'blockNumber';
-
 export type mumbai_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
@@ -377,6 +311,7 @@ export type mumbai_DestinationTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
   asset?: Maybe<mumbai_Asset>;
+  amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['mumbai_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['mumbai_Bytes']>;
@@ -546,6 +481,14 @@ export type mumbai_DestinationTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mumbai_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee?: InputMaybe<Scalars['BigInt']>;
   routersFee_not?: InputMaybe<Scalars['BigInt']>;
   routersFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -666,6 +609,7 @@ export type mumbai_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'amount'
   | 'routersFee'
   | 'executedCaller'
   | 'executedTransactionHash'
@@ -691,8 +635,8 @@ export type mumbai_OriginMessage = {
   destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['mumbai_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['mumbai_Bytes']>;
   message?: Maybe<Scalars['mumbai_Bytes']>;
+  root?: Maybe<Scalars['mumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   rootCount?: Maybe<mumbai_RootCount>;
@@ -735,18 +679,18 @@ export type mumbai_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   message?: InputMaybe<Scalars['mumbai_Bytes']>;
   message_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
   message_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
@@ -792,8 +736,8 @@ export type mumbai_OriginMessage_orderBy =
   | 'destinationDomain'
   | 'leaf'
   | 'index'
-  | 'root'
   | 'message'
+  | 'root'
   | 'transactionHash'
   | 'blockNumber'
   | 'rootCount';
@@ -1115,8 +1059,6 @@ export type Query = {
   mumbai_destinationTransfers: Array<mumbai_DestinationTransfer>;
   mumbai_originMessage?: Maybe<mumbai_OriginMessage>;
   mumbai_originMessages: Array<mumbai_OriginMessage>;
-  mumbai_destinationMessage?: Maybe<mumbai_DestinationMessage>;
-  mumbai_destinationMessages: Array<mumbai_DestinationMessage>;
   mumbai_aggregateRoot?: Maybe<mumbai_AggregateRoot>;
   mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
   mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
@@ -1293,24 +1235,6 @@ export type Querymumbai_originMessagesArgs = {
   orderBy?: InputMaybe<mumbai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<mumbai_OrderDirection>;
   where?: InputMaybe<mumbai_OriginMessage_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_DestinationMessage_filter>;
   block?: InputMaybe<mumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2044,8 +1968,6 @@ export type Subscription = {
   mumbai_destinationTransfers: Array<mumbai_DestinationTransfer>;
   mumbai_originMessage?: Maybe<mumbai_OriginMessage>;
   mumbai_originMessages: Array<mumbai_OriginMessage>;
-  mumbai_destinationMessage?: Maybe<mumbai_DestinationMessage>;
-  mumbai_destinationMessages: Array<mumbai_DestinationMessage>;
   mumbai_aggregateRoot?: Maybe<mumbai_AggregateRoot>;
   mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
   mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
@@ -2222,24 +2144,6 @@ export type Subscriptionmumbai_originMessagesArgs = {
   orderBy?: InputMaybe<mumbai_OriginMessage_orderBy>;
   orderDirection?: InputMaybe<mumbai_OrderDirection>;
   where?: InputMaybe<mumbai_OriginMessage_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_DestinationMessage_filter>;
   block?: InputMaybe<mumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2451,10 +2355,6 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mumbai_originMessages: InContextSdkMethod<Query['mumbai_originMessages'], Querymumbai_originMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_destinationMessage: InContextSdkMethod<Query['mumbai_destinationMessage'], Querymumbai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  mumbai_destinationMessages: InContextSdkMethod<Query['mumbai_destinationMessages'], Querymumbai_destinationMessagesArgs, MeshContext>,
-  /** null **/
   mumbai_aggregateRoot: InContextSdkMethod<Query['mumbai_aggregateRoot'], Querymumbai_aggregateRootArgs, MeshContext>,
   /** null **/
   mumbai_aggregateRoots: InContextSdkMethod<Query['mumbai_aggregateRoots'], Querymumbai_aggregateRootsArgs, MeshContext>,
@@ -2527,10 +2427,6 @@ export type _SubgraphErrorPolicy_ =
   mumbai_originMessage: InContextSdkMethod<Subscription['mumbai_originMessage'], Subscriptionmumbai_originMessageArgs, MeshContext>,
   /** null **/
   mumbai_originMessages: InContextSdkMethod<Subscription['mumbai_originMessages'], Subscriptionmumbai_originMessagesArgs, MeshContext>,
-  /** null **/
-  mumbai_destinationMessage: InContextSdkMethod<Subscription['mumbai_destinationMessage'], Subscriptionmumbai_destinationMessageArgs, MeshContext>,
-  /** null **/
-  mumbai_destinationMessages: InContextSdkMethod<Subscription['mumbai_destinationMessages'], Subscriptionmumbai_destinationMessagesArgs, MeshContext>,
   /** null **/
   mumbai_aggregateRoot: InContextSdkMethod<Subscription['mumbai_aggregateRoot'], Subscriptionmumbai_aggregateRootArgs, MeshContext>,
   /** null **/

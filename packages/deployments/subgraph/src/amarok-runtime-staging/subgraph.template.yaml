@@ -41,7 +41,7 @@ dataSources:
           handler: handleRouterLiquidityAdded
         - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityRemoved
-        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,address)
+        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,address,bytes)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,indexed address,((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),address,uint256,address)
           handler: handleExecuted
@@ -78,26 +78,43 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Asset
-        - AssetBalance
-        - Router
-        - Transfer
+        - AggregateRoot
+        - RootMessageSent
+        - ConnectorMeta
+        - DestinationMessage
       abis:
         - name: SpokeConnector
           file: ./src/amarok-runtime-staging/abis/SpokeConnector.json
       eventHandlers:
         - event: AggregateRootReceived(bytes32)
           handler: handleAggregateRootReceived
-        # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
-        - event: Dispatch(bytes32,uint256,bytes32,bytes)
-          handler: handleDispatch
-        # Process(bytes32 leaf, bool success, bytes returnData);
-        - event: Process(bytes32,bool,bytes)
-          handler: handleProcess
         - event: MessageSent(bytes,bytes,address)
           handler: handleMessageSent
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
+      file: ./src/amarok-runtime-staging/mapping/index.ts
+  # MERKLE TREE MANAGER events
+  - kind: ethereum/contract
+    name: MerkleTreeManager
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MerkleTreeManager
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - OriginMessage
+        - RootCount
+      abis:
+        - name: MerkleTreeManager
+          file: ./src/amarok-runtime-staging/abis/MerkleTreeManager.json
+      eventHandlers:
+        - event: LeafInserted(bytes32,uint256,bytes32)
+          handler: handleLeafInserted
       file: ./src/amarok-runtime-staging/mapping/index.ts
 templates:
   # STABLE SWAP events
@@ -111,10 +128,9 @@ templates:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Asset
-        - AssetBalance
-        - Router
-        - Transfer
+        - StableSwap
+        - StableSwapLiquidity
+        - PooledToken
       abis:
         - name: StableSwap
           file: ./src/amarok-runtime-staging/abis/StableSwap.json
