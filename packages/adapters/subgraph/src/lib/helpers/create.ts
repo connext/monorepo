@@ -31,6 +31,7 @@ export const create = async (
   const config: SubgraphMap = {
     sources: {},
     supported: {},
+    assetId: {},
   };
   [...chaindata.values()].forEach((chainData) => {
     if (networks.map((n) => n.replace("test_", "")).includes(chainData.network)) {
@@ -42,6 +43,7 @@ export const create = async (
           ? `${env}${chainData.network}`
           : chainData.network,
       };
+      config.assetId[chainData.domainId] = { ...chainData.assetId };
       config.supported[chainData.domainId] = true;
     } else {
       config.supported[chainData.domainId] = false;
