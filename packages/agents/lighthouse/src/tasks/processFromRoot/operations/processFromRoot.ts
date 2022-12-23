@@ -57,6 +57,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Gnosis",
     processorFunctionName: "executeSignatures",
   },
+  "1634886255": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
 };
 
 export const processFromRoot = async () => {

@@ -169,12 +169,12 @@ locals {
           queueLimit = 10000
           subscribe  = true
         },
-        # {
-        #   name       = "1634886255"
-        #   limit      = 1
-        #   queueLimit = 10000
-        #   subscribe  = true
-        # }
+        {
+          name       = "1634886255"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
         {
           name       = "6450786"
           limit      = 1
