@@ -164,11 +164,14 @@ export const sanitizeAndInit = async () => {
       useStaging,
     });
 
+    // TODO: relayers and agents should also be configured per-network. when this is done,
+    // ensure the relayerFeeVault can be passed in
     networks.push({
       chain: chainId.toString(),
       domain,
       rpc,
       deployments,
+      relayerFeeVault: deployments.messaging.RelayerProxy.address,
     });
   }
 
@@ -256,6 +259,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         chainData,
       });
     }
+  }
+
+  /// MARK - Set relayerFeeVault
+  console.log("\n\nENROLLING RELAYER FEE VAULT");
+  for (const network of protocol.networks) {
+    const {
+      relayerFeeVault,
+      deployments: { Connext },
+    } = network;
+
+    await updateIfNeeded({
+      deployment: Connext,
+      desired: relayerFeeVault,
+      read: { method: "relayerFeeVault" },
+      write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
+      chainData,
+    });
   }
 
   /// ********************* Relayer Proxy **********************
