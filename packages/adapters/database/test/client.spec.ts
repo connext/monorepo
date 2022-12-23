@@ -280,7 +280,7 @@ describe("Database client", () => {
     expect(set.length).to.eq(3);
     expect(set[0].origin?.messageHash).eq(mkHash("0xaaa"));
     expect(set[1].origin?.messageHash).eq(mkHash("0xbbb"));
-    expect(set[3].origin?.messageHash).eq(mkHash("0xccc"));
+    expect(set[2].origin?.messageHash).eq(mkHash("0xccc"));
   });
 
   it("should save valid boolean fields", async () => {
