@@ -31,7 +31,6 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",
-    "@gelatonetwork/relay-sdk": "3.0.0",
     "@sinclair/typebox": "0.25.16",
     "@types/aws-lambda": "8.10.109",
     "datadog-lambda-js": "6.85.0",

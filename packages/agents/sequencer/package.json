@@ -38,7 +38,6 @@
     "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@gelatonetwork/relay-sdk": "3.0.0",
     "@sinclair/typebox": "0.25.16",
     "dd-trace": "3.9.3",
     "dotenv": "16.0.3",

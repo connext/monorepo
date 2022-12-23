@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@gelatonetwork/relay-sdk": "3.0.0",
+    "@gelatonetwork/relay-sdk": "2.1.0",
     "@maticnetwork/maticjs": "3.5.0",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.16",
