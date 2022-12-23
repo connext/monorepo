@@ -27,6 +27,7 @@
     "@connext/nxtp-relayer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@gelatonetwork/relay-sdk": "3.0.0",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0"
   },
