@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.3
+
+- [contracts] Multisend mainnet deployments
+
 ## Amarok 0.2.1-rc.2
 
 - [all] Multisend contract, sdk fixes, update deps
