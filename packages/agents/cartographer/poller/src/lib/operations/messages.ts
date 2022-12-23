@@ -1,7 +1,8 @@
 import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
+import { messagePrefix } from "@ethersproject/hash";
 
 import { getContext } from "../../shared";
-
+const markableDomains = ["6450786"];
 export const retrieveOriginMessages = async () => {
   const {
     adapters: { subgraph, database },
@@ -88,11 +89,16 @@ export const retrieveSentRootMessages = async () => {
       limit: limit,
     });
 
-    const sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+    const _sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
 
     // Reset offset at the end of the cycle.
     const newOffset =
-      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0));
+      _sentRootMessages.length == 0 ? 0 : Math.max(..._sentRootMessages.map((message) => message.blockNumber ?? 0));
+
+    const sentRootMessages = _sentRootMessages.map((message) => ({
+      ...message,
+      processed: markableDomains.includes(message.spokeDomain) ? true : message.processed,
+    }));
 
     await database.saveSentRootMessages(sentRootMessages);
 
