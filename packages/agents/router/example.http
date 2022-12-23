@@ -1,4 +1,5 @@
 @routerUrl = http://localhost:8080
+@routerUrl = https://router-publisher.mainnet.connext.ninja
 @routerUrl = https://router-publisher.testnet.connext.ninja
 @routerUrl = https://router-publisher.testnet.staging.connext.ninja
 
