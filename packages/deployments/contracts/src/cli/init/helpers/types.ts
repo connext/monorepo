@@ -85,6 +85,9 @@ export type NetworkStack = {
 
   // NOTE: If deployments are not specified in JSON config, we will attempt to retrieve them locally.
   deployments: DomainDeployments;
+
+  // relayer fee vault for this network
+  relayerFeeVault: string;
 };
 
 export type ProtocolStack = {
