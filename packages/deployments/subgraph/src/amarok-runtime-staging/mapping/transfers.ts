@@ -44,7 +44,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.canonicalId = event.params.params.canonicalId;
   transfer.canonicalDomain = event.params.params.canonicalDomain;
   transfer.asset = getOrCreateAsset(event.params.local).id;
-  transfer.isLocal = event.params.asset === event.params.local;
+  transfer.receivedLocal = event.params.asset === event.params.local;
 
   // Message
   let message = OriginMessage.load(event.params.messageHash.toHex());
