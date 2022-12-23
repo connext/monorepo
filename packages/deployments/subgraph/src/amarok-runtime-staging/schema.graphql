@@ -79,6 +79,7 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
+  isLocal: Boolean
 
   # Message
   message: OriginMessage
