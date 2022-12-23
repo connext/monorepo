@@ -71,6 +71,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
       // Event Data
       messageHash: entity.messageHash,
+      receivedLocal: entity.receivedLocal,
 
       // Assets
       assets: {

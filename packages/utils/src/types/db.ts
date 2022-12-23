@@ -84,6 +84,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       ? {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
+          receivedLocal: transfer.received_local,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),

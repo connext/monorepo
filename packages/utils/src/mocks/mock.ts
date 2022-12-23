@@ -170,6 +170,7 @@ export const mock = {
         asset?: string;
         transferId?: string;
         messageHash?: string;
+        receivedLocal?: boolean;
         nonce?: number;
         user?: string;
         routers?: string[];
@@ -194,6 +195,7 @@ export const mock = {
       const user: string = overrides.user ?? mkAddress("0xfaded");
       const routers = overrides.routers ?? [mock.address.router];
       const messageHash: string = overrides.messageHash ?? getRandomBytes32();
+      const receivedLocal: boolean = overrides.receivedLocal ?? false;
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = !!status;
@@ -223,6 +225,7 @@ export const mock = {
               chain: originChain,
 
               messageHash,
+              receivedLocal,
 
               // Assets
               assets: {
