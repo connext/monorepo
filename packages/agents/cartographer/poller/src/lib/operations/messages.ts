@@ -1,8 +1,9 @@
 import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
-import { messagePrefix } from "@ethersproject/hash";
 
 import { getContext } from "../../shared";
-const markableDomains = ["6450786"];
+
+const markableDomainsForRootMessage = ["6450786"];
+
 export const retrieveOriginMessages = async () => {
   const {
     adapters: { subgraph, database },
@@ -97,7 +98,7 @@ export const retrieveSentRootMessages = async () => {
 
     const sentRootMessages = _sentRootMessages.map((message) => ({
       ...message,
-      processed: markableDomains.includes(message.spokeDomain) ? true : message.processed,
+      processed: markableDomainsForRootMessage.includes(message.spokeDomain) ? true : message.processed,
     }));
 
     await database.saveSentRootMessages(sentRootMessages);
