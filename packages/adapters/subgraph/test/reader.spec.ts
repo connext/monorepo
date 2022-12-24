@@ -211,11 +211,14 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
       expect(await subgraphReader.getOriginTransferById("1111", mkBytes32())).to.be.undefined;
     });
+
     it("should return originTransfer", async () => {
       response.set("1111", [[mockOriginTransferEntity]]);
       executeStub.resolves(response);
       expect(await subgraphReader.getOriginTransferById("1111", mkBytes32())).to.be.deep.eq(
-        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       );
     });
   });
@@ -230,7 +233,9 @@ describe("SubgraphReader", () => {
       response.set("1111", [[mockOriginTransferEntity]]);
       executeStub.resolves(response);
       expect(await subgraphReader.getOriginTransferByHash("1111", mkBytes32())).to.be.deep.eq(
-        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       );
     });
   });
@@ -261,8 +266,12 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, transferIDs: [] });
 
       expect(await subgraphReader.getOriginTransfersById(agents)).to.be.deep.eq([
-        ParserFns.originTransfer(mockOriginTransferEntity),
-        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       ]);
     });
   });
@@ -295,8 +304,12 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 0 });
 
       expect(await subgraphReader.getOriginTransfers(agents)).to.be.deep.eq([
-        ParserFns.originTransfer(mockOriginTransferEntity),
-        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       ]);
     });
   });
@@ -312,8 +325,12 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 0 });
 
       expect(await subgraphReader.getOriginTransfersByNonce(agents)).to.be.deep.eq([
-        ParserFns.originTransfer(mockOriginTransferEntity),
-        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       ]);
     });
   });
@@ -415,15 +432,39 @@ describe("SubgraphReader", () => {
       txIdsByDestinationDomain.set("3331", [mkBytes32("0xaaa111"), mkBytes32("0xaaa222")]);
       txIdsByDestinationDomain.set("1111", [mkBytes32("0xbbb111"), mkBytes32("0xbbb222")]);
       const allTxById = new Map<string, XTransfer>();
-      allTxById.set(mkBytes32("0xaaa111"), ParserFns.originTransfer(originTransferEntity1));
-      allTxById.set(mkBytes32("0xaaa222"), ParserFns.originTransfer(originTransferEntity2));
-      allTxById.set(mkBytes32("0xbbb111"), ParserFns.originTransfer(originTransferEntity3));
-      allTxById.set(mkBytes32("0xbbb222"), ParserFns.originTransfer(originTransferEntity4));
+      allTxById.set(
+        mkBytes32("0xaaa111"),
+        ParserFns.originTransfer(originTransferEntity1, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      );
+      allTxById.set(
+        mkBytes32("0xaaa222"),
+        ParserFns.originTransfer(originTransferEntity2, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      );
+      allTxById.set(
+        mkBytes32("0xbbb111"),
+        ParserFns.originTransfer(originTransferEntity3, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      );
+      allTxById.set(
+        mkBytes32("0xbbb222"),
+        ParserFns.originTransfer(originTransferEntity4, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      );
       const xcalledTransfers = await subgraphReader.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       expect(xcalledTransfers.length).to.be.eq(2);
       expect(xcalledTransfers).to.be.deep.eq([
-        ParserFns.originTransfer(originTransferEntity2),
-        ParserFns.originTransfer(originTransferEntity4),
+        ParserFns.originTransfer(originTransferEntity2, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(originTransferEntity4, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       ]);
     });
   });
@@ -447,15 +488,21 @@ describe("SubgraphReader", () => {
         destinationDomain: "3331",
       };
       const originTransfers: OriginTransfer[] = [
-        ParserFns.originTransfer(originTransferEntity1),
-        ParserFns.originTransfer(originTransferEntity2),
+        ParserFns.originTransfer(originTransferEntity1, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(originTransferEntity2, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
       ];
 
       const destinationTransferEntity = { ...mockDestinationTransferEntity, transferId: mkBytes32("0xaaa111") };
 
       response.set("3331", [[destinationTransferEntity]]);
       executeStub.resolves(response);
-      const transferEntity: XTransfer = ParserFns.originTransfer(originTransferEntity1);
+      const transferEntity: XTransfer = ParserFns.originTransfer(originTransferEntity1, {
+        [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+      });
       transferEntity.destination = ParserFns.destinationTransfer(destinationTransferEntity).destination;
       expect(await subgraphReader.getDestinationTransfers(originTransfers)).to.be.deep.eq([transferEntity]);
     });

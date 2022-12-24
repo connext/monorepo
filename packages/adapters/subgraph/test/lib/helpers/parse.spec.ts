@@ -10,14 +10,14 @@ import {
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { mock } from "@connext/nxtp-utils";
 import { restore, reset } from "sinon";
-import { constants } from "ethers";
+import { constants, utils } from "ethers";
 
 describe("Helpers:parse", () => {
   describe("#originTransfer", () => {
     it("should throw if the entity is undefined", () => {
       const entity = undefined;
       expect(() => {
-        originTransfer(entity);
+        originTransfer(entity, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
     });
 
@@ -29,10 +29,10 @@ describe("Helpers:parse", () => {
         reconciledTransactionHash: mkBytes32(),
       };
       expect(() => {
-        originTransfer(entity1);
+        originTransfer(entity1, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
       expect(() => {
-        originTransfer(entity2);
+        originTransfer(entity2, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
     });
 
@@ -46,12 +46,14 @@ describe("Helpers:parse", () => {
       };
 
       expect(() => {
-        originTransfer(entity);
+        originTransfer(entity, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field");
     });
 
     it("happy-1: should parse the originTransfer entity", () => {
-      expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
+      expect(
+        originTransfer(mockOriginTransferEntity, { [mockOriginTransferEntity.asset]: { symbol: "ETH", decimals: 18 } }),
+      ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
           originDomain: "1111",
@@ -64,7 +66,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: undefined,
           bridgedAmt: undefined,
-          normalizedIn: undefined,
+          normalizedIn: "100",
           nonce: 0,
           canonicalId: undefined,
         },
@@ -72,7 +74,10 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: constants.AddressZero, amount: undefined },
+            transacting: {
+              asset: constants.AddressZero,
+              amount: utils.formatUnits(mockOriginTransferEntity.normalizedIn, 18),
+            },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
@@ -89,7 +94,10 @@ describe("Helpers:parse", () => {
     });
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
-        originTransfer({ ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined }),
+        originTransfer(
+          { ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined },
+          { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } },
+        ),
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
@@ -103,7 +111,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: undefined,
           bridgedAmt: undefined,
-          normalizedIn: undefined,
+          normalizedIn: "100",
           nonce: 0,
           canonicalId: undefined,
         },
@@ -111,7 +119,10 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: constants.AddressZero, amount: undefined },
+            transacting: {
+              asset: constants.AddressZero,
+              amount: utils.formatUnits(mockOriginTransferEntity.normalizedIn, 18),
+            },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
