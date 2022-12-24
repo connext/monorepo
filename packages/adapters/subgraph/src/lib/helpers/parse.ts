@@ -58,9 +58,8 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
 
   // get the decimals
   // FIXME: https://github.com/connext/nxtp/issues/2862
-  // @ts-ignore
   const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
-  const originDecimals = getDecimals(asset, transactingAsset);
+  const originDecimals = getDecimals(asset, transactingAsset as string);
 
   return {
     // Meta Data
