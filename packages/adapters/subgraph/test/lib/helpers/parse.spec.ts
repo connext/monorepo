@@ -76,7 +76,7 @@ describe("Helpers:parse", () => {
           assets: {
             transacting: {
               asset: constants.AddressZero,
-              amount: utils.formatUnits(mockOriginTransferEntity.normalizedIn, 18),
+              amount: mockOriginTransferEntity.normalizedIn,
             },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
@@ -92,6 +92,7 @@ describe("Helpers:parse", () => {
         destination: undefined,
       });
     });
+
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
         originTransfer(
@@ -121,7 +122,61 @@ describe("Helpers:parse", () => {
           assets: {
             transacting: {
               asset: constants.AddressZero,
-              amount: utils.formatUnits(mockOriginTransferEntity.normalizedIn, 18),
+              amount: mockOriginTransferEntity.normalizedIn,
+            },
+            bridged: { asset: constants.AddressZero, amount: undefined },
+          },
+          xcall: {
+            caller: "0x2000000000000000000000000000000000000000",
+            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 0,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 0,
+          },
+        },
+        destination: undefined,
+      });
+    });
+
+    it("happy-3: should parse the originTransfer entity with non-standard decimals", () => {
+      expect(
+        originTransfer(
+          {
+            ...mockOriginTransferEntity,
+            timestamp: undefined,
+            blockNumber: undefined,
+            normalizedIn: "72850291000000000000",
+            asset: {
+              adoptedAsset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            },
+          },
+          { ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]: { symbol: "USDC", decimals: 6 } },
+        ),
+      ).to.be.deep.eq({
+        transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+        xparams: {
+          originDomain: "1111",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
+          to: "0x1000000000000000000000000000000000000000",
+          delegate: undefined,
+          receiveLocal: false,
+          callData: "0x",
+          slippage: undefined,
+          originSender: undefined,
+          bridgedAmt: undefined,
+          normalizedIn: "72850291000000000000",
+          nonce: 0,
+          canonicalId: undefined,
+        },
+        origin: {
+          chain: 4,
+          messageHash: undefined,
+          assets: {
+            transacting: {
+              asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+              amount: "72850291",
             },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
