@@ -13,9 +13,9 @@ import {
 import { BigNumber, constants, utils } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
+import { AssetId } from "../entities";
 
 import { getHelpers } from ".";
-import { AssetId } from "../entities";
 
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
 export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
@@ -58,6 +58,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
 
   // get the decimals
   // FIXME: https://github.com/connext/nxtp/issues/2862
+  // @ts-ignore
   const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset);
 
@@ -94,7 +95,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       assets: {
         transacting: {
           asset: transactingAsset,
-          amount: utils.formatUnits(entity.normalizedIn, originDecimals),
+          amount: utils.formatUnits(entity.normalizedIn as string, originDecimals),
         },
         bridged: {
           asset: entity.asset?.id ?? constants.AddressZero,
