@@ -94,7 +94,10 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       assets: {
         transacting: {
           asset: transactingAsset,
-          amount: utils.formatUnits(entity.normalizedIn as string, originDecimals),
+          // convert to proper units from 18
+          amount: BigNumber.from(entity.normalizedIn as string)
+            .div(BigNumber.from(10).pow(18 - originDecimals))
+            .toString(),
         },
         bridged: {
           asset: entity.asset?.id ?? constants.AddressZero,
