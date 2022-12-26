@@ -258,10 +258,10 @@ module "lighthouse_prover_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse_prover"
+  container_family    = "lighthouse-prover"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-prover-${var.environment}", LIGHTHOUSE_SERVICE = "prover" })
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
   schedule_expression = "rate(5 minutes)"
 }
 
@@ -269,10 +269,10 @@ module "lighthouse_process_from_root_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse_process_from_root"
+  container_family    = "lighthouse-process-from-root"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-process-from-root-${var.environment}", LIGHTHOUSE_SERVICE = "process" })
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(5 minutes)"
 }
 
@@ -281,10 +281,10 @@ module "lighthouse_propagate_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse_propagate"
+  container_family    = "lighthouse-propagate"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { DD_SERVICE = "lighthouse-propagate-${var.environment}", LIGHTHOUSE_SERVICE = "propagate" })
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
   schedule_expression = "rate(5 minutes)"
 }
 
