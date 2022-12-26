@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.1-rc.3",
+  "version": "0.2.1-rc.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
