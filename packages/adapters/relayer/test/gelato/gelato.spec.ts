@@ -1,4 +1,4 @@
-import { stub, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
+import { stub, SinonStub, SinonStubbedInstance } from "sinon";
 import {
   mkAddress,
   expect,
@@ -7,8 +7,6 @@ import {
   GELATO_RELAYER_ADDRESS,
   RelayerTaskStatus,
   mkBytes32,
-  BaseRequestContext,
-  RelayResponse,
   createRequestContext,
 } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
