@@ -88,10 +88,10 @@ module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
   docker_image_tag    = var.cartographer_image_tag
-  container_family    = "cartographer_routers"
+  container_family    = "cartographer-routers"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-routers-${var.environment}", CARTOGRAPHER_SERVICE = "routers" })
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "routers" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -99,10 +99,10 @@ module "cartographer-transfers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
   docker_image_tag    = var.cartographer_image_tag
-  container_family    = "cartographer_transfers"
+  container_family    = "cartographer-transfers"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-transfers-${var.environment}", CARTOGRAPHER_SERVICE = "transfers" })
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -110,10 +110,10 @@ module "cartographer-messages-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
   docker_image_tag    = var.cartographer_image_tag
-  container_family    = "cartographer_messages"
+  container_family    = "cartographer-messages"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-messages-${var.environment}", CARTOGRAPHER_SERVICE = "messages" })
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "messages" })
   schedule_expression = "rate(1 minute)"
 }
 
@@ -121,10 +121,10 @@ module "cartographer-roots-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
   docker_image_tag    = var.cartographer_image_tag
-  container_family    = "cartographer_roots"
+  container_family    = "cartographer-roots"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.cartographer_env_vars, { DD_SERVICE = "cartographer-roots-${var.environment}", CARTOGRAPHER_SERVICE = "roots" })
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "roots" })
   schedule_expression = "rate(1 minute)"
 }
 
