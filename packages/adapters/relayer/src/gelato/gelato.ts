@@ -21,7 +21,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { axiosGet, axiosPost, gelatoRelayWithSponsoredCall } from "../mockable";
+import { axiosGet, axiosPost } from "../mockable";
 
 import { gelatoRelay, url } from ".";
 
@@ -151,17 +151,13 @@ export const waitForTaskCompletion = async (
  * @param taskId - The task Id we want to get the status for
  * @returns - transactionHash
  */
-export const getTransactionHash = async (taskId: string): Promise<string> => {
-  let result;
+export const getTransactionHash = async (taskId: string): Promise<string | undefined> => {
   try {
-    const apiEndpoint = `${url}/tasks/status/${taskId}`;
-    const res = await axiosGet(apiEndpoint);
-    result = res.data.data[0]?.transactionHash;
+    const res = await gelatoRelay.getTaskStatus(taskId);
+    return res?.transactionHash;
   } catch (error: unknown) {
     throw new UnableToGetTransactionHash(taskId, { err: jsonifyError(error as Error) });
   }
-
-  return result;
 };
 
 export const gelatoSDKSend = async (
@@ -169,9 +165,9 @@ export const gelatoSDKSend = async (
   sponsorApiKey: string,
   options: RelayRequestOptions = {},
 ): Promise<RelayResponse> => {
-  let response;
   try {
-    response = await gelatoRelayWithSponsoredCall(request, sponsorApiKey, options);
+    const response = await gelatoRelay.sponsoredCall(request, sponsorApiKey, options);
+    return response;
   } catch (error: unknown) {
     throw new RelayerSendFailed({
       error: jsonifyError(error as Error),
@@ -179,7 +175,6 @@ export const gelatoSDKSend = async (
       request,
     });
   }
-  return response;
 };
 
 const GAS_LIMIT_FOR_RELAYER = "4000000";
