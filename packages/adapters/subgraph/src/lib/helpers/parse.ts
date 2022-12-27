@@ -10,16 +10,28 @@ import {
   RootManagerMeta,
   ReceivedAggregateRoot,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
+import { AssetId } from "../entities";
 
 import { getHelpers } from ".";
 
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
 export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
 
-export const originTransfer = (entity: any): OriginTransfer => {
+// helper to find decimals from key in chaindata record of given domain. defaults to 18 if not found
+const getDecimals = (assets: Record<string, AssetId>, assetId: string): number => {
+  return (
+    assets[assetId]?.decimals ??
+    assets[assetId.toLowerCase()]?.decimals ??
+    assets[utils.getAddress(assetId)]?.decimals ??
+    assets[assetId.toUpperCase()]?.decimals ??
+    18
+  );
+};
+
+export const originTransfer = (entity: any, asset: Record<string, AssetId>): OriginTransfer => {
   // Sanity checks.
   if (!entity) {
     throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
@@ -43,6 +55,11 @@ export const originTransfer = (entity: any): OriginTransfer => {
       });
     }
   }
+
+  // get the decimals
+  // FIXME: https://github.com/connext/nxtp/issues/2862
+  const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
+  const originDecimals = getDecimals(asset, transactingAsset as string);
 
   return {
     // Meta Data
@@ -73,10 +90,17 @@ export const originTransfer = (entity: any): OriginTransfer => {
       messageHash: entity.messageHash,
 
       // Assets
+      // FIXME: https://github.com/connext/nxtp/issues/2862
       assets: {
         transacting: {
-          asset: entity.asset?.adoptedAsset ?? constants.AddressZero,
-          amount: entity.normalizedIn,
+          asset: transactingAsset,
+          // convert to proper units from 18
+          amount:
+            originDecimals === 18
+              ? entity.normalizedIn // shortcut
+              : BigNumber.from(entity.normalizedIn as string)
+                  .div(BigNumber.from(10).pow(18 - originDecimals))
+                  .toString(),
         },
         bridged: {
           asset: entity.asset?.id ?? constants.AddressZero,
