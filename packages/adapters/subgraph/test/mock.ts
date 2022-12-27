@@ -25,18 +25,30 @@ export const mockChainData = chainDataToMap([
     chainId: 4,
     domainId: "1111",
     network: "rinkeby",
+    assetId: {
+      [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+      [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+    },
   },
   {
     name: "Goerli Testnet",
     chainId: 5,
     domainId: "3331",
     network: "goerli",
+    assetId: {
+      [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+      [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+    },
   },
   {
     name: "Local Testnet",
     chainId: 65555,
     domainId: "5555555555555",
     network: "localtest",
+    assetId: {
+      [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+      [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+    },
   },
 ]);
 export const mockResponse: Map<string, any[]> = new Map();
@@ -67,6 +79,7 @@ export const mockOriginTransferEntity = {
   ...mockCallData,
   chainId: 4,
   asset: mkAddress("0x11"),
+  normalizedIn: "100",
   amount: "100",
   bridgedAsset: mkAddress("0x12"),
   bridgedAmount: "100",
@@ -113,6 +126,16 @@ const defaultContext: { config: SubgraphMap } = {
       "3331": { domain: "3331", prefix: "goerli" },
     },
     supported: { "1111": true, "3331": true, "5555555555555": false },
+    assetId: {
+      "1111": {
+        [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+        [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+      },
+      "3331": {
+        [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+        [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+      },
+    },
   },
 };
 export let mockContext: any;
