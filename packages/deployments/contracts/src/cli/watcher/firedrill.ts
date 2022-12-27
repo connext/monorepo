@@ -108,9 +108,9 @@ export const wouldYouLikeToPlayAGame = async () => {
   // create callback
   const mint = async () => {
     console.log(`sending mint tx to: ${contract.address}`);
-    const mintTx = contract.mint(deployer.address, utils.formatEther("1"));
+    const mintTx = await contract.mint(deployer.address, utils.parseEther("1"));
     console.log(`submitted mint tx to: ${contract.address}: ${mintTx.hash}`);
-    const receipt = mintTx.wait();
+    const receipt = await mintTx.wait();
     console.log(`mined mint tx: ${receipt.transactionHash}`);
   };
 

@@ -188,6 +188,6 @@ variable "keybase_key" {
   type = string
 }
 
-variable "keybase_channel" {
+variable "keybase_channel_name" {
   type = string
 }
