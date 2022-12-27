@@ -5,7 +5,7 @@ locals {
     DATABASE_URL        = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext",
     ENVIRONMENT         = var.environment,
     STAGE               = var.stage,
-    DD_ENV              = var.stage,
+    DD_ENV              = "${var.environment}:${var.stage}",
     DD_LOGS_ENABLED     = true,
     DD_API_KEY          = var.dd_api_key
     DD_LAMBDA_HANDLER   = "packages/agents/cartographer/poller/dist/index.handler"

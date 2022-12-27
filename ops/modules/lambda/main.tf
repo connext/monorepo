@@ -49,7 +49,7 @@ resource "aws_lambda_function" "executable" {
   timeout       = 500
   memory_size   = 1024
   environment {
-    variables = var.container_env_vars
+    variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }
 }
 
