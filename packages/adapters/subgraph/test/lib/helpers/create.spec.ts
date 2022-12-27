@@ -1,4 +1,4 @@
-import { chainDataToMap, expect } from "@connext/nxtp-utils";
+import { chainDataToMap, expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, restore, reset } from "sinon";
 import * as GraphClientFns from "../../../src/lib/helpers/graphclient";
 import { create, getNetwork } from "../../../src/lib/helpers/create";
@@ -39,6 +39,16 @@ describe("Helpers:create", () => {
           "3331": { domain: "3331", prefix: "staginggoerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
+        assetId: {
+          "1111": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+          "3331": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+        },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
@@ -52,6 +62,16 @@ describe("Helpers:create", () => {
           "3331": { domain: "3331", prefix: "goerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
+        assetId: {
+          "1111": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+          "3331": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+        },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
@@ -65,6 +85,16 @@ describe("Helpers:create", () => {
           "3331": { domain: "3331", prefix: "goerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
+        assetId: {
+          "1111": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+          "3331": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+        },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
@@ -77,6 +107,10 @@ describe("Helpers:create", () => {
           chainId: 4,
           domainId: "1111",
           network: "rinkeby",
+          assetId: {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
         },
       ]);
       const subgraphMap = await create(_chainData);
@@ -85,6 +119,12 @@ describe("Helpers:create", () => {
           "1111": { domain: "1111", prefix: "rinkeby" },
         },
         supported: { "1111": true },
+        assetId: {
+          "1111": {
+            [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },
+            [mkAddress("0x12")]: { symbol: "USDC", decimals: 6 },
+          },
+        },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });

@@ -17,7 +17,7 @@ resource "aws_ecs_task_definition" "service" {
       image       = var.docker_image
       cpu         = var.cpu
       memory      = var.memory
-      environment = var.container_env_vars
+      environment = concat(var.container_env_vars, [{ name = "DD_SERVICE", value = var.container_family }])
       networkMode = "awsvpc"
       logConfiguration = {
         logDriver = "awsfirelens",
