@@ -292,12 +292,13 @@ export class SubgraphReader {
    */
   public async getOriginTransferById(domain: string, transferId: string): Promise<OriginTransfer | undefined> {
     const { parser, execute, getPrefixForDomain } = getHelpers();
+    const { config } = getContext();
     const prefix: string = getPrefixForDomain(domain);
 
     const query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
-    return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
+    return transfers.length === 1 ? parser.originTransfer(transfers[0], config.assetId[domain]) : undefined;
   }
 
   /**
@@ -310,12 +311,13 @@ export class SubgraphReader {
    */
   public async getOriginTransferByHash(domain: string, hash: string): Promise<OriginTransfer | undefined> {
     const { parser, execute, getPrefixForDomain } = getHelpers();
+    const { config } = getContext();
     const prefix: string = getPrefixForDomain(domain);
 
     const query = getOriginTransfersByTransactionHashesQuery(prefix, [`"${hash}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
-    return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
+    return transfers.length === 1 ? parser.originTransfer(transfers[0], config.assetId[domain]) : undefined;
   }
 
   /**
@@ -346,6 +348,7 @@ export class SubgraphReader {
    */
   public async getOriginTransfers(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
+    const { config } = getContext();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);
 
@@ -358,13 +361,14 @@ export class SubgraphReader {
     const originTransfers: XTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
-      .map(parser.originTransfer);
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
 
     return originTransfers;
   }
 
   public async getOriginTransfersByNonce(params: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
+    const { config } = getContext();
     const xcalledXQuery = getOriginTransfersByNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
@@ -377,7 +381,7 @@ export class SubgraphReader {
     const originTransfers: XTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
-      .map(parser.originTransfer);
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
 
     return originTransfers;
   }
@@ -411,6 +415,7 @@ export class SubgraphReader {
 
   public async getOriginTransfersById(params: Map<string, SubgraphQueryByTransferIDsMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
+    const { config } = getContext();
     const xcalledXQuery = getOriginTransfersByIDsCombinedQuery(params);
     const response = await execute(xcalledXQuery);
 
@@ -423,7 +428,7 @@ export class SubgraphReader {
     const originTransfers: XTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
-      .map(parser.originTransfer);
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
 
     return originTransfers;
   }
@@ -487,6 +492,7 @@ export class SubgraphReader {
     latestNonces: Map<string, number>;
   }> {
     const { execute, parser } = getHelpers();
+    const { config } = getContext();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
@@ -497,7 +503,10 @@ export class SubgraphReader {
       const value = response.get(domain);
       const xtransfersByDomain = (value ?? [])[0];
       for (const xtransfer of xtransfersByDomain) {
-        allTxById.set(xtransfer.transferId as string, parser.originTransfer(xtransfer));
+        allTxById.set(
+          xtransfer.transferId as string,
+          parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]),
+        );
         latestNonces.set(domain, xtransfer.nonce as number);
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           txIdsByDestinationDomain

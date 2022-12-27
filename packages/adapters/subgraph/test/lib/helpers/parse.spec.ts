@@ -10,14 +10,14 @@ import {
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { mock } from "@connext/nxtp-utils";
 import { restore, reset } from "sinon";
-import { constants } from "ethers";
+import { constants, utils } from "ethers";
 
 describe("Helpers:parse", () => {
   describe("#originTransfer", () => {
     it("should throw if the entity is undefined", () => {
       const entity = undefined;
       expect(() => {
-        originTransfer(entity);
+        originTransfer(entity, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
     });
 
@@ -29,10 +29,10 @@ describe("Helpers:parse", () => {
         reconciledTransactionHash: mkBytes32(),
       };
       expect(() => {
-        originTransfer(entity1);
+        originTransfer(entity1, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
       expect(() => {
-        originTransfer(entity2);
+        originTransfer(entity2, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
     });
 
@@ -46,12 +46,14 @@ describe("Helpers:parse", () => {
       };
 
       expect(() => {
-        originTransfer(entity);
+        originTransfer(entity, { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } });
       }).to.throw("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field");
     });
 
     it("happy-1: should parse the originTransfer entity", () => {
-      expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
+      expect(
+        originTransfer(mockOriginTransferEntity, { [mockOriginTransferEntity.asset]: { symbol: "ETH", decimals: 18 } }),
+      ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
           originDomain: "1111",
@@ -64,7 +66,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: undefined,
           bridgedAmt: undefined,
-          normalizedIn: undefined,
+          normalizedIn: "100",
           nonce: 0,
           canonicalId: undefined,
         },
@@ -72,7 +74,10 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: constants.AddressZero, amount: undefined },
+            transacting: {
+              asset: constants.AddressZero,
+              amount: mockOriginTransferEntity.normalizedIn,
+            },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
@@ -87,9 +92,13 @@ describe("Helpers:parse", () => {
         destination: undefined,
       });
     });
+
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
-        originTransfer({ ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined }),
+        originTransfer(
+          { ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined },
+          { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } },
+        ),
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
@@ -103,7 +112,7 @@ describe("Helpers:parse", () => {
           slippage: undefined,
           originSender: undefined,
           bridgedAmt: undefined,
-          normalizedIn: undefined,
+          normalizedIn: "100",
           nonce: 0,
           canonicalId: undefined,
         },
@@ -111,7 +120,64 @@ describe("Helpers:parse", () => {
           chain: 4,
           messageHash: undefined,
           assets: {
-            transacting: { asset: constants.AddressZero, amount: undefined },
+            transacting: {
+              asset: constants.AddressZero,
+              amount: mockOriginTransferEntity.normalizedIn,
+            },
+            bridged: { asset: constants.AddressZero, amount: undefined },
+          },
+          xcall: {
+            caller: "0x2000000000000000000000000000000000000000",
+            transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
+            timestamp: 0,
+            gasPrice: "10000000000",
+            gasLimit: "1000000",
+            blockNumber: 0,
+          },
+        },
+        destination: undefined,
+      });
+    });
+
+    it("happy-3: should parse the originTransfer entity with non-standard decimals", () => {
+      expect(
+        originTransfer(
+          {
+            ...mockOriginTransferEntity,
+            timestamp: undefined,
+            blockNumber: undefined,
+            normalizedIn: "72850291000000000000",
+            asset: {
+              adoptedAsset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            },
+          },
+          { ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]: { symbol: "USDC", decimals: 6 } },
+        ),
+      ).to.be.deep.eq({
+        transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+        xparams: {
+          originDomain: "1111",
+          destinationDomain: "3331",
+          canonicalDomain: undefined,
+          to: "0x1000000000000000000000000000000000000000",
+          delegate: undefined,
+          receiveLocal: false,
+          callData: "0x",
+          slippage: undefined,
+          originSender: undefined,
+          bridgedAmt: undefined,
+          normalizedIn: "72850291000000000000",
+          nonce: 0,
+          canonicalId: undefined,
+        },
+        origin: {
+          chain: 4,
+          messageHash: undefined,
+          assets: {
+            transacting: {
+              asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+              amount: "72850291",
+            },
             bridged: { asset: constants.AddressZero, amount: undefined },
           },
           xcall: {
