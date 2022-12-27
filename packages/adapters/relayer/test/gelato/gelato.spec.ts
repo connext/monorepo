@@ -44,17 +44,6 @@ const mockTxHash = mkBytes32("0xbbb");
 const logger = new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" });
 describe("Adapters: Gelato", () => {
   let isChainSupportedByGelatoStub: SinonStub<[chainId: number], Promise<boolean>>;
-  let gelatoV0SendStub: SinonStub<
-    [
-      chainId: number,
-      dest: string,
-      data: string,
-      relayerFee: string,
-      logger: Logger,
-      _requestContext: BaseRequestContext,
-    ],
-    Promise<RelayResponse>
-  >;
   let chainReaderMock: SinonStubbedInstance<ChainReader>;
   let axiosPostStub: SinonStub;
   let axiosGetStub: SinonStub;
@@ -74,6 +63,11 @@ describe("Adapters: Gelato", () => {
   });
 
   describe("#isChainSupportedByGelato", () => {
+    it("should error", async () => {
+      gelatoRelayMock.isNetworkSupported.rejects(new Error("Request failed!"));
+      await expect(isChainSupportedByGelato(1337)).to.eventually.be.rejectedWith(UnableToGetGelatoSupportedChains);
+    });
+
     it("should return true if a chain is supported by gelato", async () => {
       expect(await isChainSupportedByGelato(1337)).to.be.true;
     });
@@ -115,6 +109,62 @@ describe("Adapters: Gelato", () => {
   describe("#getTaskStatus", () => {
     it("happy: should get task status from gelato", async () => {
       expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.Blacklisted,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.Blacklisted);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.Cancelled,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.Cancelled);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.CheckPending,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.ExecPending,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.ExecPending);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.ExecReverted,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.ExecReverted);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.NotFound,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.NotFound);
+    });
+
+    it("happy: should get task status from gelato", async () => {
+      gelatoRelayMock.getTaskStatus.resolves({
+        taskState: RelayerTaskStatus.WaitingForConfirmation,
+        transactionHash: mockTxHash,
+      });
+      expect(await getTaskStatus("0x")).to.be.eq(RelayerTaskStatus.WaitingForConfirmation);
     });
 
     it("should return NotFound if the request fails", async () => {
@@ -246,6 +296,22 @@ describe("Adapters: Gelato", () => {
 
     it("should error if gelato returns error", async () => {
       gelatoSDKSendStub.rejects("oh no");
+      expect(
+        send(
+          Number(mock.chain.A),
+          mock.domain.A,
+          mkAddress(),
+          "0xbeed",
+          "foo",
+          chainReaderMock,
+          logger,
+          loggingContext.requestContext,
+        ),
+      ).to.eventually.be.rejectedWith(RelayerSendFailed);
+    });
+
+    it("should error if gelato returns no response", async () => {
+      gelatoSDKSendStub.resolves();
       expect(
         send(
           Number(mock.chain.A),
