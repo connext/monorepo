@@ -160,13 +160,14 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92",
-        "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47",
-        "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007",
-        "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE",
-        "0xe8a5eE73f3c8F1Cd55915f6Eb5Fc7df4206f3C78",
-        "0x43728A95386D64384C76Afd416Dcc8118869BA6c",
-        "0x62B1a88CCc6BC5e6FF91FB2FCD29Ab4F819b35C6",
+        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
+        "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
+        "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
+        "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007", // gelato mainnet
+        "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE", // gelato polygon
+        "0xe8a5eE73f3c8F1Cd55915f6Eb5Fc7df4206f3C78", // gelato optimism
+        "0x43728A95386D64384C76Afd416Dcc8118869BA6c", // gelato bsc
+        "0x62B1a88CCc6BC5e6FF91FB2FCD29Ab4F819b35C6", // gelato gnosis
       ],
     },
   },

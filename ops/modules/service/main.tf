@@ -17,7 +17,7 @@ resource "aws_ecs_task_definition" "service" {
       image       = var.docker_image
       cpu         = var.cpu
       memory      = var.memory
-      environment = var.container_env_vars
+      environment = concat(var.container_env_vars, [{ name = "DD_SERVICE", value = var.container_family }])
       networkMode = "awsvpc"
       logConfiguration = {
         logDriver = "awsfirelens",
@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "service" {
           apiKey     = var.dd_api_key,
           dd_service = var.container_family,
           dd_source  = "fargate-app",
-          dd_tags    = "domain:${var.domain},env:${var.environment},stage:${var.stage},service:${var.container_family}",
+          dd_tags    = "env:${var.environment}-${var.stage},domain:${var.domain},environment:${var.environment},stage:${var.stage},service:${var.container_family}",
           TLS        = "on",
           provider   = "ecs"
         }
