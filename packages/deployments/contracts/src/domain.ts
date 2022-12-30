@@ -11,6 +11,7 @@ if (!(globalThis as any).fetch) {
 export type Address = string;
 
 // Hex domains calculated using `getHexDomainFromString`
+// alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
 const chainIdToDomainMapping: Map<number, number> = new Map([
   // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
@@ -29,6 +30,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
+  [59140, 0x68656c6c6f], // Consensys zkEvm test (conzkt interpreted as int) 109330246036340
   // local
   [1337, 1337],
   [1338, 1338],

@@ -16,9 +16,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    address _mirrorConnector,
-    uint256 _gasCap,
-    uint256 _mirrorChainId
+    address _mirrorConnector
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) ConsensysBase() {}
 
   // ============ Private fns ============

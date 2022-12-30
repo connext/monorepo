@@ -49,17 +49,6 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
   },
-  ropsten: {
-    accounts: { mnemonic },
-    chainId: 3,
-    url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
-  },
-  rinkeby: {
-    accounts: { mnemonic },
-    chainId: 4,
-    url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
-    gasPrice: utils.parseUnits("20", "gwei").toNumber(),
-  },
   goerli: {
     accounts: { mnemonic },
     chainId: 5,
@@ -78,19 +67,6 @@ export const hardhatNetworks = {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-optimistic.etherscan.io/",
       },
-    },
-  },
-  kovan: {
-    accounts: { mnemonic },
-    chainId: 42,
-    url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
-  },
-  "optimism-kovan": {
-    accounts: { mnemonic },
-    chainId: 69,
-    url: "https://kovan.optimism.io",
-    companionNetworks: {
-      hub: "kovan",
     },
   },
   "optimism-goerli": {
@@ -150,11 +126,6 @@ export const hardhatNetworks = {
       },
     },
   },
-  fuse: {
-    accounts: { mnemonic },
-    chainId: 122,
-    url: "https://rpc.fuse.io/",
-  },
   matic: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 137,
@@ -174,32 +145,6 @@ export const hardhatNetworks = {
     chainId: 250,
     url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
   },
-  moonriver: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 1285,
-    url: "https://rpc.moonriver.moonbeam.network",
-    gasPrice: 5000000000,
-  },
-  moonbeam: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 1284,
-    url: "https://rpc.api.moonbeam.network",
-  },
-  mbase: {
-    accounts: { mnemonic },
-    chainId: 1287,
-    url: "https://moonbeam-alpha.api.onfinality.io/public",
-  },
-  evmos: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 9001,
-    url: "https://eth.bd.evmos.org:8545",
-  },
-  "evmos-testnet": {
-    accounts: { mnemonic },
-    chainId: 9000,
-    url: "https://eth.bd.evmos.dev:8545",
-  },
   "arbitrum-one": {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 42161,
@@ -211,16 +156,6 @@ export const hardhatNetworks = {
       apiKey: process.env.ARBISCAN_API_KEY!,
       apiUrl: "https://api.arbiscan.io/",
     },
-  },
-  fuji: {
-    accounts: { mnemonic },
-    chainId: 43113,
-    url: "https://api.avax-test.network/ext/bc/C/rpc",
-  },
-  avalanche: {
-    url: "https://api.avax.network/ext/bc/C/rpc",
-    chainId: 43114,
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
   },
   mumbai: {
     accounts: { mnemonic },
@@ -234,11 +169,6 @@ export const hardhatNetworks = {
         apiKey: process.env.POLYGONSCAN_API_KEY!,
       },
     },
-  },
-  "arbitrum-rinkeby": {
-    accounts: { mnemonic },
-    chainId: 421611,
-    url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
   },
   "arbitrum-goerli": {
     accounts: { mnemonic },
@@ -269,6 +199,14 @@ export const hardhatNetworks = {
         apiKey: process.env.ETHERSCAN_API_KEY!,
         apiUrl: "https://blockscout.chiadochain.net/api",
       },
+    },
+  },
+  consensys: {
+    accounts: { mnemonic },
+    chainId: 59140,
+    url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
+    companionNetworks: {
+      hub: "goerli",
     },
   },
 };
