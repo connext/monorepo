@@ -36,6 +36,18 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   {}
 
   // ============ Override Fns ============
+  /**
+   * @notice Processes a message received by an AMB
+   * @dev This is called by AMBs to process messages originating from mirror connector
+   * This is overridden to avoid the msg.sender == AMB check on `Connector.processMessage`
+   * due to the L2 msg.sender from calls being the L1 msg.sender address, which is checked
+   * on the `_verifySender` call in `_processMessage`
+   */
+  function processMessage(bytes memory _data) external override {
+    _processMessage(_data);
+    emit MessageProcessed(_data, msg.sender);
+  }
+
   function _verifySender(address _expected) internal view override returns (bool) {
     // NOTE: msg.sender is preserved for L1 -> L2 calls. See the L2 contract in the tutorial
     // here: https://v2-docs.zksync.io/dev/tutorials/cross-chain-tutorial.html#l2-counter
