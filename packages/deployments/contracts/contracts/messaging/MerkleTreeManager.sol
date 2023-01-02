@@ -58,6 +58,11 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    */
   mapping(bytes32 => LeafStatus) public leaves;
 
+  /**
+   * @notice domain => next available nonce for the domain.
+   */
+  mapping(uint32 => uint32) public nonces;
+
   // ============ Modifiers ============
 
   modifier onlyArborist() {
@@ -140,6 +145,15 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ========= Public Functions =========
 
   /**
+   * @notice Used to increment nonce
+   * @param _domain The domain the nonce will be used for
+   * @return _nonce The incremented nonce
+   */
+  function incrementNonce(uint32 _domain) public onlyArborist returns (uint32 _nonce) {
+    _nonce = nonces[_domain]++;
+  }
+
+  /**
    * @notice Used to track proven leaves
    * @param _leaf The leaf to mark as proven
    */
@@ -205,5 +219,5 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   }
 
   // ============ Upgrade Gap ============
-  uint256[47] private __GAP; // gap for upgrade safety
+  uint256[46] private __GAP; // gap for upgrade safety
 }

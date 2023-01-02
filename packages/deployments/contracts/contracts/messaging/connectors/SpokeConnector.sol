@@ -141,11 +141,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   mapping(address => bool) public allowlistedSenders;
 
-  /**
-   * @notice domain => next available nonce for the domain.
-   */
-  mapping(uint32 => uint32) public nonces;
-
   // ============ Modifiers ============
 
   modifier onlyAllowlistedSender() {
@@ -317,7 +312,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes memory _messageBody
   ) external onlyAllowlistedSender returns (bytes32, bytes memory) {
     // Get the next nonce for the destination domain, then increment it.
-    uint32 _nonce = nonces[_destinationDomain]++;
+    uint32 _nonce = MERKLE.incrementNonce(_destinationDomain);
 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
