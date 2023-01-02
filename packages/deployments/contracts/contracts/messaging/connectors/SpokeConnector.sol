@@ -66,16 +66,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Structs ============
 
-  // Status of Message:
-  //   0 - None - message has not been proven or processed
-  //   1 - Proven - message inclusion proof has been validated
-  //   2 - Processed - message has been dispatched to recipient
-  enum MessageStatus {
-    None,
-    Proven,
-    Processed
-  }
-
   /**
    * Struct for submitting a proof for a given message. Used in `proveAndProcess` below.
    * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
@@ -155,11 +145,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice domain => next available nonce for the domain.
    */
   mapping(uint32 => uint32) public nonces;
-
-  /**
-   * @notice Mapping of message leaves to MessageStatus, keyed on leaf.
-   */
-  mapping(bytes32 => MessageStatus) public messages;
 
   // ============ Modifiers ============
 
@@ -403,7 +388,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // Handle proving this message root is included in the target aggregate root.
     proveMessageRoot(_messageRoot, _aggregateRoot, _aggregatePath, _aggregateIndex);
     // Assuming the inbound message root was proven, the first message is now considered proven.
-    messages[_messageHash] = MessageStatus.Proven;
+    MERKLE.markAsProven(_messageHash);
 
     // Now we handle proving all remaining messages in the batch - they should all share the same
     // inbound root!
@@ -414,7 +399,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       // Make sure this root matches the validated inbound root.
       require(_calculatedRoot == _messageRoot, "!sharedRoot");
       // Message is proven!
-      messages[_messageHash] = MessageStatus.Proven;
+      MERKLE.markAsProven(_messageHash);
 
       unchecked {
         ++i;
@@ -485,7 +470,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Checks whether a given message is valid. If so, calculates the expected inbound root from an
    * origin chain given a leaf (message hash), the index of the leaf, and the merkle proof of inclusion.
-   * @dev Reverts if message's MessageStatus != None (i.e. if message was already proven or processed).
+   * @dev Reverts if message's LeafStatus != None (i.e. if message was already proven or processed).
    *
    * @param _messageHash Leaf (message hash) that requires proving.
    * @param _messagePath Merkle path of inclusion for the leaf.
@@ -498,7 +483,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint256 _messageIndex
   ) internal view returns (bytes32) {
     // Ensure that the given message has not already been proven and processed.
-    require(messages[_messageHash] == MessageStatus.None, "!MessageStatus.None");
+    require(MERKLE.leaves(_messageHash) == MerkleTreeManager.LeafStatus.None, "!LeafStatus.None");
     // Calculate the expected inbound root from the message origin based on the proof.
     // NOTE: Assuming a valid message was submitted with correct path/index, this should be an inbound root
     // that the hub has received. If the message were invalid, the root calculated here would not exist in the
@@ -557,12 +542,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     require(_m.destination() == DOMAIN, "!destination");
     // ensure message has been proven
     bytes32 _messageHash = _m.keccak();
-    require(messages[_messageHash] == MessageStatus.Proven, "!proven");
     // check re-entrancy guard
     // require(entered == 1, "!reentrant");
     // entered = 0;
     // update message status as processed
-    messages[_messageHash] = MessageStatus.Processed;
+    MERKLE.markAsProcessed(_messageHash);
     // A call running out of gas TYPICALLY errors the whole tx. We want to
     // a) ensure the call has a sufficient amount of gas to make a
     //    meaningful state change.

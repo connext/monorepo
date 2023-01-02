@@ -152,4 +152,36 @@ contract MerkleTreeManagerTest is ForgeHelper {
 
     merkle.setArborist(address(1));
   }
+
+  function test_Merkle__markAsProven_failsIfNotArborist() public {
+    vm.expectRevert("!arborist");
+    vm.prank(address(1231));
+    merkle.markAsProven(bytes32(bytes("123123")));
+  }
+
+  function test_Merkle__markAsProven_failsIfBadStatus() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    vm.expectRevert("!empty");
+    merkle.markAsProven(leaf);
+  }
+
+  function test_Merkle__markAsProven_works() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    assertTrue(merkle.leaves(leaf) == MerkleTreeManager.LeafStatus.Proven);
+  }
+
+  function test_Merkle__markAsProcessed_failsIfBadStatus() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    vm.expectRevert("!proven");
+    merkle.markAsProcessed(leaf);
+  }
+
+  function test_Merkle__markAsProcessed_works() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    merkle.markAsProcessed(leaf);
+    assertTrue(merkle.leaves(leaf) == MerkleTreeManager.LeafStatus.Processed);
+  }
 }
