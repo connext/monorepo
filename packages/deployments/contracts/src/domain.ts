@@ -30,7 +30,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
-  [59140, 0x68656c6c6f], // Consensys zkEvm test (conzkt interpreted as int) 109330246036340
+  [59140, 0x636f6e74], // Consensys zkEvm test (cont interpreted as int) 1668247156
   // local
   [1337, 1337],
   [1338, 1338],
