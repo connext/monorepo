@@ -108,6 +108,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       slippage
       originSender
       bridgedAmt
+      amount
       normalizedIn
       canonicalId
 
