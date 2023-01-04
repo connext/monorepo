@@ -52,7 +52,7 @@ export const makeWatcher = async () => {
       : new Web3Signer(context.config.web3SignerUrl!);
 
     context.logger.info("Watcher sanitized config", requestContext, methodContext, {
-      address: context.adapters.wallet.address,
+      address: context.adapters.wallet.address ?? (await context.adapters.wallet.getAddress()),
       chains: context.config.chains,
       logLevel: context.config.logLevel,
       environment: context.config.environment,
