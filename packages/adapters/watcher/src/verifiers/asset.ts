@@ -64,6 +64,7 @@ export class AssetVerifier extends Verifier {
         domain,
         chainId,
         connext: connext.address,
+        asset,
         assetKey,
         data: canonicalToRepresentationCalldata,
         result: representationRes,
