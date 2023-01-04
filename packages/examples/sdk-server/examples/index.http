@@ -323,6 +323,10 @@ Content-Type: application/json
 GET {{baseUrl}}/getRoutersData
 
 ##############
+### GET getAssetsData
+GET {{baseUrl}}/getAssetsData
+
+##############
 ### GET getBlockNumberFromUnixTimestamp
 GET {{baseUrl}}/getBlockNumberFromUnixTimestamp/9991/1669746235
 

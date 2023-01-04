@@ -10,9 +10,9 @@ export const TChainConfig = Type.Object({
 export const KeybaseChannelSchema = Type.Object({
   name: Type.String(),
   public: Type.Boolean(),
-  membersType: Type.Optional(Type.String()),
-  topicType: Type.Optional(Type.String()),
-  topicName: Type.Optional(Type.String()),
+  membersType: Type.String(),
+  topicType: Type.String(),
+  topicName: Type.String(),
 });
 export type KeybaseChannel = Static<typeof KeybaseChannelSchema>;
 
@@ -100,7 +100,13 @@ export const getEnvConfig = (): WatcherConfig => {
       ? JSON.parse(process.env.KEYBASE_CHANNEL_CONFIG)
       : configJson.keybaseChannel
       ? configJson.keybaseChannel
-      : configFile.keybaseChannel,
+      : configFile.keybaseChannel || {
+          name: "connext",
+          public: false,
+          topicType: "chat",
+          membersType: "team",
+          topicName: "alerts",
+        },
   };
 
   const validate = ajv.compile(WatcherConfigSchema);

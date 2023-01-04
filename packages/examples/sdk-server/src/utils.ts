@@ -102,4 +102,9 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Nxt
     const res = await sdkUtilsInstance.getRoutersData();
     reply.status(200).send(res);
   });
+
+  s.get("/getAssetsData", async (request, reply) => {
+    const res = await sdkUtilsInstance.getAssetsData();
+    reply.status(200).send(res);
+  });
 };

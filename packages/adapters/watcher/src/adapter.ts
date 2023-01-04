@@ -35,8 +35,8 @@ export class WatcherAdapter {
   }
 
   public async alert(report: Report, config: WatcherConfig): Promise<void> {
-    const { requestContext, methodContext, logger } = report;
-    logger.info("alert: Attempt to alert", requestContext, methodContext, report);
+    const { requestContext, methodContext, logger, ...res } = report;
+    logger.info("alert: Attempt to alert", requestContext, methodContext, { report: res });
 
     const {
       discordHookUrl,
@@ -85,12 +85,12 @@ export class WatcherAdapter {
       errors.push(e);
     }
 
-    if (keybaseUser && keybaseKey) {
+    if (keybaseUser && keybaseKey && keybaseChannel) {
       // attempt to alert via keybase
       try {
         await alertViaKeybase(report, keybaseUser, keybaseKey, keybaseChannel);
       } catch (e: unknown) {
-        logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
+        logger.error("alert: failed to alert via keybase", requestContext, methodContext, jsonifyError(e as Error));
         errors.push(e);
       }
     }
