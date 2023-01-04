@@ -721,7 +721,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
 
     const assetsData = await this.getAssetsData();
-    const assets: string[] = Object.values(assetsData).map((data: any) => data.adopted);
+    const assets: string[] = Object.values(assetsData).map((data) => (data as any).adopted);
 
     await Promise.all(
       assets.map(async (asset: string) => {
