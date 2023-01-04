@@ -6,7 +6,7 @@ import memoize from "memoizee";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { IPoolStats, IPoolData } from "./interfaces";
+import { IPoolStats, IPoolData, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { NxtpSdkShared } from "./sdkShared";
 
@@ -720,12 +720,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
 
-    const assetsData = await this.getAssetsData();
-    const assets: string[] = Object.values(assetsData).map((data) => (data as any).adopted);
+    const assetsData: AssetData[] = await this.getAssetsData();
 
     await Promise.all(
-      assets.map(async (asset: string) => {
-        const pool = await this.getPool(domainId, asset);
+      Object.values(assetsData).map(async (data) => {
+        const pool = await this.getPool(domainId, data.adopted);
         if (pool) {
           const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
           const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
@@ -736,7 +735,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
             poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
           });
         } else {
-          this.logger.info("No pool for asset", requestContext, methodContext, { asset });
+          this.logger.info("No pool for asset", requestContext, methodContext, { data });
         }
       }),
     );

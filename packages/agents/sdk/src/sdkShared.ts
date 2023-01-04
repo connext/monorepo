@@ -5,6 +5,7 @@ import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxt
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
+import { AssetData } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig } from "./config";
 
@@ -92,7 +93,7 @@ export class NxtpSdkShared {
     return undefined;
   }
 
-  async getAssetsData(): Promise<any> {
+  async getAssetsData(): Promise<AssetData[]> {
     const uri = formatUrl(this.config.cartographerUrl!, "assets");
     // Validate uri
     validateUri(uri);
