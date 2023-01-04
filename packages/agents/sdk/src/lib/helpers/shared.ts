@@ -9,6 +9,7 @@ import {
   getDecimalsForAsset as _getDecimalsForAsset,
   getGelatoEstimatedFee as _getGelatoEstimatedFee,
   getHardcodedGasLimits as _getHardcodedGasLimits,
+  calculateRelayerFee as _calculateRelayerFee,
   axiosGet,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
@@ -23,6 +24,7 @@ export const getConversionRate = _getConversionRate;
 export const getGelatoEstimatedFee = _getGelatoEstimatedFee;
 export const getHardcodedGasLimits = _getHardcodedGasLimits;
 export const getDecimalsForAsset = _getDecimalsForAsset;
+export const calculateRelayerFee = _calculateRelayerFee;
 
 export const validateUri = (uri: string): void => {
   const validateInput = ajv.compile(TUrl);
