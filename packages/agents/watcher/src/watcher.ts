@@ -58,6 +58,17 @@ export const makeWatcher = async () => {
       environment: context.config.environment,
       hubDomain: context.config.hubDomain,
       interval: context.config.interval,
+      twilioAccountSid: (context.config.telegramApiKey ?? "").charAt(0),
+      twilioAuthToken: (context.config.twilioAuthToken ?? "").charAt(0),
+      twilioToPhoneNumbers: (context.config.twilioToPhoneNumbers ?? []).length,
+      discordHookUrl: context.config.discordHookUrl,
+      pagerDutyRoutingKey: (context.config.pagerDutyRoutingKey ?? "").charAt(0),
+      twilioNumber: (context.config.twilioAuthToken ?? "").charAt(0),
+      telegramApiKey: (context.config.telegramApiKey ?? "").charAt(0),
+      telegramChatId: context.config.telegramChatId,
+      keybaseUser: context.config.keybaseUser,
+      keybaseChannel: context.config.keybaseChannel,
+      keybaseKey: (context.config.keybaseKey ?? "").charAt(0),
     });
 
     /// MARK - Asset Setup
