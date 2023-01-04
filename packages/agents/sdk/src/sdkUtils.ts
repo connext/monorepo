@@ -43,6 +43,14 @@ export class NxtpSdkUtils extends NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  async getAssetsData(): Promise<any> {
+    const uri = formatUrl(this.config.cartographerUrl!, "assets");
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
   async getTransfersByUser(params: {
     userAddress: string;
     status?: XTransferStatus;
