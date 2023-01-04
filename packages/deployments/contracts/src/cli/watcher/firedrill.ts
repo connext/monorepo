@@ -79,8 +79,13 @@ export const wouldYouLikeToPlayAGame = async () => {
     const rpc = new providers.JsonRpcProvider(chainConfig.url);
 
     // ensure deployer has funds
-    if ((await deployer.connect(rpc).getBalance()).lt(MIN_WALLET_GAS)) {
-      throw new Error(`deployer needs more funds on ${chainId}`);
+    const balance = await deployer.connect(rpc).getBalance();
+    if (balance.lt(MIN_WALLET_GAS)) {
+      throw new Error(
+        `Deployer (${deployer.address}) needs more funds on ${chainId}. Has: ${utils.formatEther(
+          balance,
+        )}; Needs: ${utils.formatEther(MIN_WALLET_GAS)}`,
+      );
     }
 
     const deployments = getDeployments({
