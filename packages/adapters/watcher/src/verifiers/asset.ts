@@ -60,6 +60,15 @@ export class AssetVerifier extends Verifier {
         to: connext.address,
         data: canonicalToRepresentationCalldata,
       });
+      this.context.logger.warn("Queried for representation asset", undefined, undefined, {
+        domain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: canonicalToRepresentationCalldata,
+        result: representationRes,
+      });
 
       const representation = ConnextInterface.decodeFunctionResult(
         "canonicalToRepresentation(bytes32)",

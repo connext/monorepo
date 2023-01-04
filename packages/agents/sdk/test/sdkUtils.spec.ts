@@ -42,6 +42,7 @@ describe("SdkUtils", () => {
       expect(nxtpUtils.chainData).to.not.be.null;
 
       expect(nxtpUtils.getRoutersData).to.be.a("function");
+      expect(nxtpUtils.getAssetsData).to.be.a("function");
       expect(nxtpUtils.getTransfersByUser).to.be.a("function");
       expect(nxtpUtils.getTransfers).to.be.a("function");
       expect(nxtpUtils.getTransfersByStatus).to.be.a("function");
@@ -68,6 +69,21 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getRoutersData()).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getAssetsData", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getAssetsData();
+
+      expect(res.data).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(nxtpUtils.getAssetsData()).to.be.rejectedWith(UriInvalid);
     });
   });
 

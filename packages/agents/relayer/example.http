@@ -1,7 +1,7 @@
 @relayerUrl = http://localhost:8080
 @relayerUrl = https://relayer.testnet.staging.connext.ninja
 @relayerUrl = https://relayer.mainnet.connext.ninja
-@adminToken = Ns6IUs5cCqrD
+@adminToken = blablah
 
 ### PING
 GET {{relayerUrl}}/ping
