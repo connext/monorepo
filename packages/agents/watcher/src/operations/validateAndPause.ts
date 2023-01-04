@@ -25,7 +25,7 @@ export const pauseAndAlert = async (requestContext: RequestContext, reason: stri
   const methodContext = createMethodContext("pauseAndAlert");
 
   const domains = Object.keys(config.chains);
-  logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason: "ADD REASON" });
+  logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason });
   const paused = await watcher.pause(requestContext, reason, domains);
   logger.warn("Paused contracts, alerting", requestContext, methodContext, { paused });
   await watcher.alert(

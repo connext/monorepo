@@ -66,6 +66,9 @@ export const makeWatcher = async () => {
       context.config.hubDomain,
       context.config.chains[context.config.hubDomain].assets.map((a) => a.address),
     );
+    if (assetInfo.length == 0) {
+      context.logger.warn("No assets found in subgraph", requestContext, methodContext);
+    }
     context.logger.info("Got asset info from subgraph", requestContext, methodContext, { assetInfo });
 
     /// MARK - Watcher Adapter
