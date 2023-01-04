@@ -35,8 +35,8 @@ export class WatcherAdapter {
   }
 
   public async alert(report: Report, config: WatcherConfig): Promise<void> {
-    const { requestContext, methodContext, logger } = report;
-    logger.info("alert: Attempt to alert", requestContext, methodContext, report);
+    const { requestContext, methodContext, logger, ...res } = report;
+    logger.info("alert: Attempt to alert", requestContext, methodContext, { report: res });
 
     const {
       discordHookUrl,
