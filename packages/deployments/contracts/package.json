@@ -38,7 +38,6 @@
   "license": "ISC",
   "devDependencies": {
     "@arbitrum/sdk": "3.0.0-beta.12",
-    "@eth-optimism/sdk": "1.6.9",
     "@matterlabs/zksync-contracts": "0.4.2",
     "@nomiclabs/hardhat-ethers": "2.2.1",
     "@nomiclabs/hardhat-etherscan": "3.1.2",
@@ -73,6 +72,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "^1.0.0",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@typescript-eslint/eslint-plugin": "5.42.0",
