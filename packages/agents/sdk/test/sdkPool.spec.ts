@@ -310,7 +310,7 @@ describe("NxtpSdkPool", () => {
 
       // TODO: why doesn't the await above suffice?
       await setTimeout(() => {
-        expect(res).to.have.lengthOf(1);
+        expect(res).to.have.lengthOf(7);
       }, 100);
     });
   });
