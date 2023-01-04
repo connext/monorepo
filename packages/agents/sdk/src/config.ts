@@ -17,7 +17,6 @@ export const TAssetDescription = Type.Object({
 export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
   gasStations: Type.Optional(Type.Array(Type.String())),
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
@@ -29,6 +28,7 @@ export const TChainConfig = Type.Object({
       stableSwap: Type.Optional(TAddress),
     }),
   ),
+  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -46,7 +46,6 @@ export const NxtpSdkConfigSchema = Type.Object({
 export type NxtpSdkConfig = Static<typeof NxtpSdkConfigSchema>;
 
 export const TValidationChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain
   providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
@@ -55,6 +54,7 @@ export const TValidationChainConfig = Type.Object({
     multisend: Type.Optional(TAddress),
     stableSwap: Type.Optional(TAddress),
   }),
+  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
 export const NxtpValidationSdkConfigSchema = Type.Object({
