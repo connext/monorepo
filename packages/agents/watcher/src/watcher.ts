@@ -51,6 +51,15 @@ export const makeWatcher = async () => {
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
 
+    context.logger.info("Watcher sanitized config", requestContext, methodContext, {
+      address: context.adapters.wallet.address,
+      chains: context.config.chains,
+      logLevel: context.config.logLevel,
+      environment: context.config.environment,
+      hubDomain: context.config.hubDomain,
+      interval: context.config.interval,
+    });
+
     /// MARK - Asset Setup
     context.adapters.subgraph = await setupSubgraphReader(
       context.logger,
@@ -131,7 +140,9 @@ export const setupSubgraphReader = async (
       allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
     }
   }
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {
+    allowedChainData: [...allowedChainData.entries()],
+  });
   const subgraphReader = await SubgraphReader.create(allowedChainData, environment, subgraphPrefix);
 
   // Pull support for domains that don't have a subgraph.
