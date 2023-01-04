@@ -1,10 +1,10 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog } from "./lib/helpers";
+import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig } from "./config";
 
@@ -90,6 +90,14 @@ export class NxtpSdkShared {
       }
     }
     return undefined;
+  }
+
+  async getAssetsData(): Promise<any> {
+    const uri = formatUrl(this.config.cartographerUrl!, "assets");
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async changeSignerAddress(signerAddress: string) {
