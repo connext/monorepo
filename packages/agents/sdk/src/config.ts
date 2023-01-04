@@ -5,8 +5,6 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { getChainData } from "./lib/helpers";
 
-const DEFAULT_SLIPPAGE = 10000; // in BPS
-
 export const TAssetDescription = Type.Object({
   name: Type.String(),
   address: TAddress,
@@ -38,7 +36,6 @@ export const NxtpSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   cartographerUrl: Type.Optional(Type.String()),
-  slippage: Type.Optional(Type.Number({ minimum: 0, maximum: 10000 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
@@ -62,7 +59,6 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   cartographerUrl: Type.String(),
-  slippage: Type.Number({ minimum: 0, maximum: 10000 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
@@ -81,18 +77,16 @@ export const getEnvConfig = (
     ..._nxtpConfig,
     logLevel: _nxtpConfig.logLevel || "info",
     network: _nxtpConfig.network || "mainnet",
-    slippage: _nxtpConfig.slippage || DEFAULT_SLIPPAGE,
     environment: _nxtpConfig.environment || "production",
-    cartographerUrl: _nxtpConfig.cartographerUrl || "https://postgrest.testnet.connext.ninja",
+    cartographerUrl:
+      _nxtpConfig.network === "mainnet"
+        ? _nxtpConfig.environment === "production"
+          ? "https://postgrest.mainnet.connext.ninja"
+          : "https://postgrest.mainnet.staging.connext.ninja"
+        : _nxtpConfig.environment === "production"
+        ? "https://postgrest.testnet.connext.ninja"
+        : "https://postgrest.testnet.staging.connext.ninja",
   };
-  nxtpConfig.cartographerUrl =
-    _nxtpConfig.cartographerUrl ?? nxtpConfig.network === "mainnet"
-      ? nxtpConfig.environment === "production"
-        ? "https://postgrest.mainnet.connext.ninja"
-        : "https://postgrest.mainnet.staging.connext.ninja"
-      : nxtpConfig.environment === "production"
-      ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.testnet.staging.connext.ninja";
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
@@ -166,8 +160,6 @@ export const getConfig = async (
   if (!chainData) {
     chainData = await getChainData();
   }
-  if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
-  }
+  nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   return nxtpConfig;
 };
