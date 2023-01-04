@@ -4,7 +4,7 @@ import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_F
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
-import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
+import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
@@ -720,9 +720,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
 
+    const assetsData = await this.getAssetsData();
+    const assets: string[] = Object.values(assetsData).map((data: any) => data.adopted);
+
     await Promise.all(
-      Object.values(this.config.chains[domainId].assets).map(async (asset: AssetDescription) => {
-        const pool = await this.getPool(domainId, asset.address);
+      assets.map(async (asset: string) => {
+        const pool = await this.getPool(domainId, asset);
         if (pool) {
           const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
           const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
