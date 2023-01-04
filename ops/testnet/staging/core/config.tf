@@ -388,9 +388,5 @@ locals {
     telegramChatId = "${var.telegram_chat_id}"
     keybaseUser    = "${var.keybase_user}"
     keybaseKey     = "${var.keybase_key}"
-    keybaseChannel = {
-      name   = "${var.keybase_channel_name}"
-      public = true
-    }
   })
 }
