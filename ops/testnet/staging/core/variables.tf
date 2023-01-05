@@ -182,14 +182,11 @@ variable "telegram_chat_id" {
   type = string
 }
 
-variable "keybase_user" {
+variable "betteruptime_api_key" {
   type = string
 }
 
-variable "keybase_key" {
+variable "betteruptime_requester_email" {
   type = string
-}
-
-variable "keybase_channel_name" {
-  type = string
+  default = "layne@connext.network"
 }
