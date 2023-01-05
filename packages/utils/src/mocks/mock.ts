@@ -224,6 +224,8 @@ export const mock = {
 
               messageHash,
 
+              relayerFee: "0",
+
               // Assets
               assets: {
                 transacting: {

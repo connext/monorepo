@@ -89,6 +89,8 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       // Event Data
       messageHash: entity.messageHash,
 
+      relayerFee: entity.relayerFee,
+
       // Assets
       // FIXME: https://github.com/connext/nxtp/issues/2862
       assets: {

@@ -3763,6 +3763,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee: string | null;
+      /**
+      * **transfers.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -4053,6 +4059,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee: string | null;
+      /**
+      * **transfers.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee: string | null;
     }
     export interface Whereable {
       /**
@@ -4343,6 +4355,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4633,6 +4651,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4923,6 +4947,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
