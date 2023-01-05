@@ -83,6 +83,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+      txOrigin
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
@@ -124,6 +125,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+      executedTxOrigin
 
       # Reconciled Transaction
       reconciledCaller
@@ -132,6 +134,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledGasPrice
       reconciledGasLimit
       reconciledBlockNumber
+      reconciledTxOrigin
 `;
 
 export const BLOCK_NUMBER_ENTITY = `

@@ -3763,6 +3763,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee: string | null;
+      /**
+      * **transfers.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -4053,6 +4071,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee: string | null;
+      /**
+      * **transfers.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
     }
     export interface Whereable {
       /**
@@ -4343,6 +4379,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4633,6 +4687,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4923,6 +4995,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

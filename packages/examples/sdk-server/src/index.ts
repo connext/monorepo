@@ -60,6 +60,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     signerAddress: signerAddress,
     network: configJson.network,
     environment: configJson.environment,
+    cartographerUrl: configJson.cartographerUrl,
   };
 
   const { nxtpSdkBase, nxtpSdkPool, nxtpSdkUtils, nxtpSdkRouter } = await create(nxtpConfig);
