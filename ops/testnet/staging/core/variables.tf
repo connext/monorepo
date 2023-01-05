@@ -181,3 +181,12 @@ variable "telegram_api_key" {
 variable "telegram_chat_id" {
   type = string
 }
+
+variable "betteruptime_api_key" {
+  type = string
+}
+
+variable "betteruptime_requester_email" {
+  type = string
+  default = "layne@connext.network"
+}
