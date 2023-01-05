@@ -334,8 +334,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
   async calculateAmountReceived(
     originDomain: string,
     destinationDomain: string,
-    originTokenAddress: string,
-    destinationTokenAddress: string,
+    _originTokenAddress: string,
+    _destinationTokenAddress: string,
     amount: BigNumberish,
     isNextAsset = false,
   ): Promise<{
@@ -345,6 +345,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
     destinationSlippage: BigNumberish;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+
+    const originTokenAddress = utils.getAddress(_originTokenAddress);
+    const destinationTokenAddress = utils.getAddress(_destinationTokenAddress);
+
     this.logger.info("Method start", requestContext, methodContext, {
       originDomain,
       destinationDomain,
