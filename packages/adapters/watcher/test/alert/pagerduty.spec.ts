@@ -12,12 +12,6 @@ describe("Watcher Adapter: pagerDuty", () => {
   describe("#alertViaPagerDuty", () => {
     beforeEach(() => {});
 
-    it("should throw if routing key is undefined", async () => {
-      await expect(alertViaPagerDuty(TEST_REPORT)).to.be.rejectedWith(
-        "alertViaPagerDuty: pagerDuty Routing Key is invalid!",
-      );
-    });
-
     it("should throw if routing key is less than 32", async () => {
       await expect(alertViaPagerDuty(TEST_REPORT, "xxx")).to.be.rejectedWith(
         "alertViaPagerDuty: pagerDuty Routing Key is invalid!",

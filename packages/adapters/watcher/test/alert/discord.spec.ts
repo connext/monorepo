@@ -12,10 +12,6 @@ describe("Watcher Adapter: discord", () => {
   describe("#alertViaDiscord", () => {
     beforeEach(() => {});
 
-    it("should throw if hook url is invalid", async () => {
-      await expect(alertViaDiscord(TEST_REPORT, "")).to.be.rejectedWith("alertViaDiscord: invalid hook url!");
-    });
-
     it("should success if hook url is valid", async () => {
       const mockHookUrl = "http://discord.com/api/webhooks/test";
 

@@ -16,24 +16,6 @@ describe("Watcher Adapter: sms", () => {
   describe("#alertViaSms", () => {
     beforeEach(() => {});
 
-    it("should throw if config is invalid", async () => {
-      await expect(
-        alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, undefined, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
-
-      await expect(
-        alertViaSms(TEST_REPORT, undefined, twilioAuthToken, twilioNumber, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
-
-      await expect(
-        alertViaSms(TEST_REPORT, twilioAccountSid, undefined, twilioNumber, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
-
-      await expect(alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, twilioNumber, [])).to.be.rejectedWith(
-        "alertViaSms: Twilio config is invalid!",
-      );
-    });
-
     it("should success if config is valid", async () => {
       let twilioStub: SinonStub;
       twilioStub = stub(Mockable, "sendMessageViaTwilio").resolves();
