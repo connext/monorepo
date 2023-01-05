@@ -195,9 +195,9 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.estimateRelayerFee.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const relayerFeeInOrginNativeAsset = await calculateRelayerFee(params, this.chainData, this.logger);
+    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(params, this.chainData, this.logger);
 
-    return relayerFeeInOrginNativeAsset;
+    return relayerFeeInOriginNativeAsset;
   }
 
   /**
