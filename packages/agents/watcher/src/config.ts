@@ -29,6 +29,7 @@ export const WatcherConfigSchema = Type.Object({
   twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
+  betterUptimeApiKey: Type.Optional(Type.String()),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
@@ -83,6 +84,8 @@ export const getEnvConfig = (): WatcherConfig => {
       process.env.TWILIO_TO_PHONE_NUMBERS || configJson.twilioToPhoneNumbers || configFile.twilioToPhoneNumbers || [],
     telegramApiKey: process.env.TELEGRAM_API_KEY || configJson.telegramApiKey || configFile.telegramApiKey,
     telegramChatId: process.env.TELEGRAM_CHAT_ID || configJson.telegramChatId || configFile.telegramChatId,
+    betterUptimeApiKey:
+      process.env.BETTER_UPTIME_API_KEY || configJson.betterUptimeApiKey || configFile.betterUptimeApiKey,
   };
 
   const validate = ajv.compile(WatcherConfigSchema);

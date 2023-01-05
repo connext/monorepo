@@ -81,6 +81,7 @@ export const WatcherConfigSchema = Type.Object({
   twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
+  betterUptimeApiKey: Type.Optional(Type.String()),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
