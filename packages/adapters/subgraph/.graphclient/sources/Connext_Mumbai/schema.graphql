@@ -320,12 +320,14 @@ type mumbai_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: mumbai_Bytes
   reconciledCaller: mumbai_Bytes
   reconciledTransactionHash: mumbai_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: mumbai_Bytes
 }
 
 input mumbai_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input mumbai_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: mumbai_Bytes
+  executedTxOrigin_not: mumbai_Bytes
+  executedTxOrigin_in: [mumbai_Bytes!]
+  executedTxOrigin_not_in: [mumbai_Bytes!]
+  executedTxOrigin_contains: mumbai_Bytes
+  executedTxOrigin_not_contains: mumbai_Bytes
   reconciledCaller: mumbai_Bytes
   reconciledCaller_not: mumbai_Bytes
   reconciledCaller_in: [mumbai_Bytes!]
@@ -577,6 +585,12 @@ input mumbai_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: mumbai_Bytes
+  reconciledTxOrigin_not: mumbai_Bytes
+  reconciledTxOrigin_in: [mumbai_Bytes!]
+  reconciledTxOrigin_not_in: [mumbai_Bytes!]
+  reconciledTxOrigin_contains: mumbai_Bytes
+  reconciledTxOrigin_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum mumbai_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -764,6 +780,7 @@ type mumbai_OriginTransfer {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: mumbai_Bytes
 }
 
 input mumbai_OriginTransfer_filter {
@@ -975,6 +992,12 @@ input mumbai_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: mumbai_Bytes
+  txOrigin_not: mumbai_Bytes
+  txOrigin_in: [mumbai_Bytes!]
+  txOrigin_not_in: [mumbai_Bytes!]
+  txOrigin_contains: mumbai_Bytes
+  txOrigin_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
 }
@@ -1006,6 +1029,7 @@ enum mumbai_OriginTransfer_orderBy {
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type mumbai_PooledToken {

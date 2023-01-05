@@ -16,7 +16,7 @@ POST {{sequencerUrl}}/execute-slow
 Content-Type: application/json
 
 {
-  "executorVersion":"0.2.1-rc.8",
+  "executorVersion":"0.2.1-rc.10",
   "transferId":"0x55462e36ab9baabfc106ad843b6a84ad230ff994450b8b5bedda2b13a8ab28e4",
   "origin":"6648936",
   "relayerFee": {

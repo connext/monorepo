@@ -54,6 +54,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     xcall_gas_price: transfer.origin?.xcall?.gasPrice,
     xcall_gas_limit: transfer.origin?.xcall?.gasLimit,
     xcall_block_number: transfer.origin?.xcall?.blockNumber,
+    xcall_tx_origin: transfer.origin?.xcall?.txOrigin,
 
     destination_chain: transfer.destination?.chain,
     status: transfer.destination?.status,
@@ -70,6 +71,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_gas_limit: transfer.destination?.execute?.gasLimit,
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
+    execute_tx_origin: transfer.destination?.execute?.txOrigin,
 
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,
@@ -77,6 +79,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     reconcile_gas_price: transfer.destination?.reconcile?.gasPrice,
     reconcile_gas_limit: transfer.destination?.reconcile?.gasLimit,
     reconcile_block_number: transfer.destination?.reconcile?.blockNumber,
+    reconcile_tx_origin: transfer.destination?.reconcile?.txOrigin,
   };
 };
 

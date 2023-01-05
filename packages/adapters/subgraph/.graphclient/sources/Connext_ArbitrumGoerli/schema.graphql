@@ -320,12 +320,14 @@ type arbitrumgoerli_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: arbitrumgoerli_Bytes
   reconciledCaller: arbitrumgoerli_Bytes
   reconciledTransactionHash: arbitrumgoerli_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: arbitrumgoerli_Bytes
 }
 
 input arbitrumgoerli_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input arbitrumgoerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: arbitrumgoerli_Bytes
+  executedTxOrigin_not: arbitrumgoerli_Bytes
+  executedTxOrigin_in: [arbitrumgoerli_Bytes!]
+  executedTxOrigin_not_in: [arbitrumgoerli_Bytes!]
+  executedTxOrigin_contains: arbitrumgoerli_Bytes
+  executedTxOrigin_not_contains: arbitrumgoerli_Bytes
   reconciledCaller: arbitrumgoerli_Bytes
   reconciledCaller_not: arbitrumgoerli_Bytes
   reconciledCaller_in: [arbitrumgoerli_Bytes!]
@@ -577,6 +585,12 @@ input arbitrumgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: arbitrumgoerli_Bytes
+  reconciledTxOrigin_not: arbitrumgoerli_Bytes
+  reconciledTxOrigin_in: [arbitrumgoerli_Bytes!]
+  reconciledTxOrigin_not_in: [arbitrumgoerli_Bytes!]
+  reconciledTxOrigin_contains: arbitrumgoerli_Bytes
+  reconciledTxOrigin_not_contains: arbitrumgoerli_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumgoerli_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum arbitrumgoerli_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -764,6 +780,7 @@ type arbitrumgoerli_OriginTransfer {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: arbitrumgoerli_Bytes
 }
 
 input arbitrumgoerli_OriginTransfer_filter {
@@ -975,6 +992,12 @@ input arbitrumgoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: arbitrumgoerli_Bytes
+  txOrigin_not: arbitrumgoerli_Bytes
+  txOrigin_in: [arbitrumgoerli_Bytes!]
+  txOrigin_not_in: [arbitrumgoerli_Bytes!]
+  txOrigin_contains: arbitrumgoerli_Bytes
+  txOrigin_not_contains: arbitrumgoerli_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumgoerli_BlockChangedFilter
 }
@@ -1006,6 +1029,7 @@ enum arbitrumgoerli_OriginTransfer_orderBy {
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type arbitrumgoerli_PooledToken {
