@@ -72,15 +72,6 @@ export type Report = {
   rpcs: string[];
 };
 //  { name: string; public: boolean; topicType?: string; membersType?: string; topicName?: string }
-export const KeybaseChannelSchema = Type.Object({
-  name: Type.String(),
-  public: Type.Boolean(),
-  membersType: Type.Optional(Type.String()),
-  topicType: Type.Optional(Type.String()),
-  topicName: Type.Optional(Type.String()),
-});
-export type KeybaseChannel = Static<typeof KeybaseChannelSchema>;
-
 export const WatcherConfigSchema = Type.Object({
   discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
   pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
@@ -90,9 +81,6 @@ export const WatcherConfigSchema = Type.Object({
   twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
-  keybaseUser: Type.Optional(Type.String()),
-  keybaseKey: Type.Optional(Type.String()),
-  keybaseChannel: Type.Optional(KeybaseChannelSchema),
 });
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;

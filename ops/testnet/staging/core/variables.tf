@@ -181,15 +181,3 @@ variable "telegram_api_key" {
 variable "telegram_chat_id" {
   type = string
 }
-
-variable "keybase_user" {
-  type = string
-}
-
-variable "keybase_key" {
-  type = string
-}
-
-variable "keybase_channel_name" {
-  type = string
-}
