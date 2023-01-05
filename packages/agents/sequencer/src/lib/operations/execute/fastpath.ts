@@ -60,21 +60,18 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // TODO: Check that a relayer is configured/approved for this chain (?).
 
-  // Check to see if we have the XCall data saved locally for this.
-  let transfer = await cache.transfers.getTransfer(transferId);
+  // Get the XCall from the subgraph for this transfer.
+  let transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
-    // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getOriginTransferById(origin, transferId);
-    if (!transfer || !transfer.origin) {
-      // Router shouldn't be bidding on a transfer that doesn't exist.
-      throw new MissingXCall(origin, transferId, {
-        bid,
-      });
-    }
-    // Store the transfer locally. We will use this as a reference later when we execute this transfer
-    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
-    await cache.transfers.storeTransfers([transfer]);
+    // Router shouldn't be bidding on a transfer that doesn't exist.
+    throw new MissingXCall(origin, transferId, {
+      bid,
+    });
   }
+
+  // Store the transfer locally. We will use this as a reference later when we execute this transfer
+  // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+  await cache.transfers.storeTransfers([transfer]);
 
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
