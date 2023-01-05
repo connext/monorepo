@@ -2,7 +2,7 @@ import { SinonStub, stub } from "sinon";
 
 import { TEST_REPORT } from "../utils";
 import { alertViaPagerDuty } from "../../src/alert";
-import { expect } from "@connext/nxtp-utils";
+import { expect, mkHash } from "@connext/nxtp-utils";
 import * as Mockable from "../../src/mockable";
 
 describe("Watcher Adapter: pagerDuty", () => {
@@ -10,7 +10,12 @@ describe("Watcher Adapter: pagerDuty", () => {
   beforeEach(() => {});
 
   describe("#alertViaPagerDuty", () => {
-    beforeEach(() => {});
+    let triggerStub: SinonStub;
+    beforeEach(() => {
+      triggerStub = stub(Mockable, "pagerDutyTrigger");
+    });
+
+    afterEach(() => triggerStub.restore())
 
     it("should throw if routing key is less than 32", async () => {
       await expect(alertViaPagerDuty(TEST_REPORT, "xxx")).to.be.rejectedWith(
@@ -19,13 +24,18 @@ describe("Watcher Adapter: pagerDuty", () => {
     });
 
     it("should success if config is valid", async () => {
-      let triggerStub: SinonStub;
-      triggerStub = stub(Mockable, "pagerDutyTrigger").resolves();
+      triggerStub.resolves();
 
       await expect(alertViaPagerDuty(TEST_REPORT, pagerDutyRoutingKey)).to.not.rejected;
       expect(triggerStub.callCount).to.be.eq(1);
+    });
 
-      triggerStub.restore();
+    it("should handle transactions in report", async () => {
+      TEST_REPORT.relevantTransactions = [{ hash: mkHash("0x1") }] as any;
+      triggerStub.resolves();
+
+      await expect(alertViaPagerDuty(TEST_REPORT, pagerDutyRoutingKey)).to.not.rejected;
+      expect(triggerStub.callCount).to.be.eq(1);
     });
   });
 });
