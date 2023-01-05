@@ -44,7 +44,6 @@ export class WatcherAdapter {
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
     const { requestContext, methodContext, logger, ...res } = report;
-    logger.info("alert: Attempt to alert", requestContext, methodContext, { report: res });
 
     const {
       discordHookUrl,
@@ -56,67 +55,99 @@ export class WatcherAdapter {
       telegramApiKey,
       telegramChatId,
       betterUptimeApiKey,
+      betterUptimeRequesterEmail,
     } = config;
+
+    const discordAlert = !!discordHookUrl;
+    const pagerDutyAlert = !!pagerDutyRoutingKey;
+    const smsAlert = !!(twilioAccountSid && twilioAuthToken && twilioNumber && twilioToPhoneNumbers?.length);
+    const telegramAlert = telegramApiKey && telegramChatId;
+    const betterUptimeAlert = !!(betterUptimeApiKey && betterUptimeRequesterEmail);
+    logger.info("alert: Attempt to alert", requestContext, methodContext, {
+      report: res,
+      alerts: {
+        discord: discordAlert,
+        pagerDuty: pagerDutyAlert,
+        sms: smsAlert,
+        telegram: telegramAlert,
+        betterUptime: betterUptimeAlert,
+      },
+    });
 
     const errors = await Promise.all([
       // attempt to alert via discord
-      async () => {
-        try {
-          await alertViaDiscord(report, discordHookUrl);
-        } catch (e: unknown) {
-          logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
-          return e;
+      (async () => {
+        if (discordAlert) {
+          try {
+            await alertViaDiscord(report, discordHookUrl);
+          } catch (e: unknown) {
+            logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
+            return e;
+          }
         }
-      },
+      })(),
       // attempt to alert via pager duty
-      async () => {
-        try {
-          await alertViaPagerDuty(report, pagerDutyRoutingKey);
-        } catch (e: unknown) {
-          logger.error(
-            "alert: failed to alert via pager duty",
-            requestContext,
-            methodContext,
-            jsonifyError(e as Error),
-          );
-          return e;
+      (async () => {
+        if (pagerDutyAlert) {
+          try {
+            await alertViaPagerDuty(report, pagerDutyRoutingKey);
+          } catch (e: unknown) {
+            logger.error(
+              "alert: failed to alert via pager duty",
+              requestContext,
+              methodContext,
+              jsonifyError(e as Error),
+            );
+            return e;
+          }
         }
-      },
+      })(),
       // attempt to alert via sms (twilio service)
-      async () => {
-        try {
-          await alertViaSms(report, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers);
-        } catch (e: unknown) {
-          logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
-          return e;
+      (async () => {
+        if (smsAlert) {
+          try {
+            await alertViaSms(report, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers);
+          } catch (e: unknown) {
+            logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
+            return e;
+          }
         }
-      },
+      })(),
       // attempt to alert via telegram
-      async () => {
-        try {
-          await alertViaTelegram(report, telegramApiKey, telegramChatId);
-        } catch (e: unknown) {
-          logger.error("alert: failed to alert via telegram", requestContext, methodContext, jsonifyError(e as Error));
-          return e;
+      (async () => {
+        if (telegramAlert) {
+          try {
+            await alertViaTelegram(report, telegramApiKey, telegramChatId);
+          } catch (e: unknown) {
+            logger.error(
+              "alert: failed to alert via telegram",
+              requestContext,
+              methodContext,
+              jsonifyError(e as Error),
+            );
+            return e;
+          }
         }
-      },
+      })(),
       // attempt to alert via telegram
-      async () => {
-        try {
-          await alertViaBetterUptime(report, betterUptimeApiKey);
-        } catch (e: unknown) {
-          logger.error(
-            "alert: failed to alert via better uptime",
-            requestContext,
-            methodContext,
-            jsonifyError(e as Error),
-          );
-          return e;
+      (async () => {
+        if (betterUptimeAlert) {
+          try {
+            await alertViaBetterUptime(report, betterUptimeApiKey, betterUptimeRequesterEmail);
+          } catch (e: unknown) {
+            logger.error(
+              "alert: failed to alert via better uptime",
+              requestContext,
+              methodContext,
+              jsonifyError(e as Error),
+            );
+            return e;
+          }
         }
-      },
+      })(),
     ]);
 
-    if (errors.filter((x) => !!x).length) {
+    if (errors.filter((x) => !!x).length > 0) {
       throw errors;
     }
   }
