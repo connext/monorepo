@@ -82,6 +82,7 @@ export const WatcherAlertsConfigSchema = Type.Object({
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
   betterUptimeApiKey: Type.Optional(Type.String()),
+  betterUptimeRequesterEmail: Type.Optional(Type.String()),
 });
 
 export type WatcherAlertsConfig = Static<typeof WatcherAlertsConfigSchema>;

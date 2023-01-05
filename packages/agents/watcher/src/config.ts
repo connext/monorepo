@@ -81,6 +81,10 @@ export const getEnvConfig = (): WatcherConfig => {
     telegramChatId: process.env.TELEGRAM_CHAT_ID || configJson.telegramChatId || configFile.telegramChatId,
     betterUptimeApiKey:
       process.env.BETTER_UPTIME_API_KEY || configJson.betterUptimeApiKey || configFile.betterUptimeApiKey,
+    betterUptimeRequesterEmail:
+      process.env.BETTER_UPTIME_REQUESTER_EMAIL ||
+      configJson.betterUptimeRequesterEmail ||
+      configFile.betterUptimeRequesterEmail,
   };
 
   const validate = ajv.compile(WatcherConfigSchema);
