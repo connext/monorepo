@@ -319,12 +319,14 @@ export type arbitrumone_DestinationTransfer = {
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedTxOrigin?: Maybe<Scalars['arbitrumone_Bytes']>;
   reconciledCaller?: Maybe<Scalars['arbitrumone_Bytes']>;
   reconciledTransactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledTxOrigin?: Maybe<Scalars['arbitrumone_Bytes']>;
 };
 
 
@@ -541,6 +543,12 @@ export type arbitrumone_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTxOrigin?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
@@ -585,6 +593,12 @@ export type arbitrumone_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTxOrigin?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
 };
@@ -617,12 +631,14 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'executedGasPrice'
   | 'executedGasLimit'
   | 'executedBlockNumber'
+  | 'executedTxOrigin'
   | 'reconciledCaller'
   | 'reconciledTransactionHash'
   | 'reconciledTimestamp'
   | 'reconciledGasPrice'
   | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
+  | 'reconciledBlockNumber'
+  | 'reconciledTxOrigin';
 
 /** Defines the order direction, either ascending or descending */
 export type arbitrumone_OrderDirection =
@@ -769,6 +785,7 @@ export type arbitrumone_OriginTransfer = {
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  txOrigin?: Maybe<Scalars['arbitrumone_Bytes']>;
 };
 
 export type arbitrumone_OriginTransfer_filter = {
@@ -980,6 +997,12 @@ export type arbitrumone_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  txOrigin?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
 };
@@ -1010,7 +1033,8 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'timestamp'
   | 'gasPrice'
   | 'gasLimit'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'txOrigin';
 
 export type arbitrumone_PooledToken = {
   id: Scalars['ID'];
