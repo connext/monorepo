@@ -2,7 +2,15 @@ import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
-import { Verifier, VerifierContext, AssetInfo, Report, PauseResponse, VerifyResponse, WatcherConfig } from "./types";
+import {
+  Verifier,
+  VerifierContext,
+  AssetInfo,
+  Report,
+  PauseResponse,
+  VerifyResponse,
+  WatcherAlertsConfig,
+} from "./types";
 import { AssetVerifier } from "./verifiers";
 
 // Aggregation class for interfacing with all adapter functionality.
@@ -34,7 +42,7 @@ export class WatcherAdapter {
     return await this.pauser.pause(reason, domains);
   }
 
-  public async alert(report: Report, config: WatcherConfig): Promise<void> {
+  public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
     const { requestContext, methodContext, logger, ...res } = report;
     logger.info("alert: Attempt to alert", requestContext, methodContext, { report: res });
 

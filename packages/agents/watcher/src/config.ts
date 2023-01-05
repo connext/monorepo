@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "fs";
 
+import { WatcherAlertsConfigSchema } from "@connext/nxtp-adapters-watcher";
 import { ajv, TAssetDescription, TLogLevel } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 
@@ -8,29 +9,23 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
 });
 
-export const WatcherConfigSchema = Type.Object({
-  chains: Type.Record(Type.String(), TChainConfig),
-  logLevel: TLogLevel,
-  mnemonic: Type.Optional(Type.String()),
-  web3SignerUrl: Type.Optional(Type.String({ format: "uri" })),
-  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  hubDomain: Type.String(),
-  server: Type.Object({
-    adminToken: Type.String(),
-    port: Type.Number(),
-    host: Type.String(),
+export const WatcherConfigSchema = Type.Intersect([
+  Type.Object({
+    chains: Type.Record(Type.String(), TChainConfig),
+    logLevel: TLogLevel,
+    mnemonic: Type.Optional(Type.String()),
+    web3SignerUrl: Type.Optional(Type.String({ format: "uri" })),
+    environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+    hubDomain: Type.String(),
+    server: Type.Object({
+      adminToken: Type.String(),
+      port: Type.Number(),
+      host: Type.String(),
+    }),
+    interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
   }),
-  interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
-  discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
-  pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
-  twilioNumber: Type.Optional(Type.String()),
-  twilioAccountSid: Type.Optional(Type.String()),
-  twilioAuthToken: Type.Optional(Type.String()),
-  twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
-  telegramApiKey: Type.Optional(Type.String()),
-  telegramChatId: Type.Optional(Type.String()),
-  betterUptimeApiKey: Type.Optional(Type.String()),
-});
+  WatcherAlertsConfigSchema,
+]);
 
 export type WatcherConfig = Static<typeof WatcherConfigSchema>;
 

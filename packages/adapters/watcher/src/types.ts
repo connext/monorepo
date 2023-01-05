@@ -72,7 +72,7 @@ export type Report = {
   rpcs: string[];
 };
 //  { name: string; public: boolean; topicType?: string; membersType?: string; topicName?: string }
-export const WatcherConfigSchema = Type.Object({
+export const WatcherAlertsConfigSchema = Type.Object({
   discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
   pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
   twilioNumber: Type.Optional(Type.String()),
@@ -84,4 +84,4 @@ export const WatcherConfigSchema = Type.Object({
   betterUptimeApiKey: Type.Optional(Type.String()),
 });
 
-export type WatcherConfig = Static<typeof WatcherConfigSchema>;
+export type WatcherAlertsConfig = Static<typeof WatcherAlertsConfigSchema>;
