@@ -17,9 +17,11 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecuteSlowCompleted,
+  NotEnoughRelayerFee,
 } from "../../errors";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
+import { getHelpers } from "../../helpers";
 
 export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
@@ -122,6 +124,10 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
+  const {
+    relayerfee: { canSubmitToRelayer },
+  } = getHelpers();
+
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
@@ -142,6 +148,11 @@ export const executeSlowPathData = async (
       transferId,
       executorData,
     });
+  }
+
+  const { canSubmit, needed } = await canSubmitToRelayer(transfer);
+  if (!canSubmit) {
+    throw new NotEnoughRelayerFee({ transferId, relayerFee: transfer.origin?.relayerFee, needed });
   }
 
   let taskId: string | undefined;

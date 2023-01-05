@@ -7,6 +7,8 @@ import {
   getMinimumBidsCountForRound,
 } from "./auctions";
 
+import { canSubmitToRelayer } from "./relayerfee";
+
 export const getHelpers = () => {
   return {
     auctions: {
@@ -16,6 +18,9 @@ export const getHelpers = () => {
       getBidsRoundMap,
       getAllSubsets,
       getMinimumBidsCountForRound,
+    },
+    relayerfee: {
+      canSubmitToRelayer,
     },
   };
 };
