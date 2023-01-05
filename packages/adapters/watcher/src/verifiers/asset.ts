@@ -60,7 +60,8 @@ export class AssetVerifier extends Verifier {
         to: connext.address,
         data: canonicalToRepresentationCalldata,
       });
-      this.context.logger.warn("Queried for representation asset", undefined, undefined, {
+
+      this.context.logger.debug("Queried for representation asset", undefined, undefined, {
         domain,
         chainId,
         connext: connext.address,

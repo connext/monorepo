@@ -319,12 +319,14 @@ export type polygon_DestinationTransfer = {
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedTxOrigin?: Maybe<Scalars['polygon_Bytes']>;
   reconciledCaller?: Maybe<Scalars['polygon_Bytes']>;
   reconciledTransactionHash?: Maybe<Scalars['polygon_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledTxOrigin?: Maybe<Scalars['polygon_Bytes']>;
 };
 
 
@@ -541,6 +543,12 @@ export type polygon_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTxOrigin?: InputMaybe<Scalars['polygon_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['polygon_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['polygon_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
@@ -585,6 +593,12 @@ export type polygon_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTxOrigin?: InputMaybe<Scalars['polygon_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_BlockChangedFilter>;
 };
@@ -617,12 +631,14 @@ export type polygon_DestinationTransfer_orderBy =
   | 'executedGasPrice'
   | 'executedGasLimit'
   | 'executedBlockNumber'
+  | 'executedTxOrigin'
   | 'reconciledCaller'
   | 'reconciledTransactionHash'
   | 'reconciledTimestamp'
   | 'reconciledGasPrice'
   | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
+  | 'reconciledBlockNumber'
+  | 'reconciledTxOrigin';
 
 /** Defines the order direction, either ascending or descending */
 export type polygon_OrderDirection =
@@ -769,6 +785,7 @@ export type polygon_OriginTransfer = {
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  txOrigin?: Maybe<Scalars['polygon_Bytes']>;
 };
 
 export type polygon_OriginTransfer_filter = {
@@ -980,6 +997,12 @@ export type polygon_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  txOrigin?: InputMaybe<Scalars['polygon_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_BlockChangedFilter>;
 };
@@ -1010,7 +1033,8 @@ export type polygon_OriginTransfer_orderBy =
   | 'timestamp'
   | 'gasPrice'
   | 'gasLimit'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'txOrigin';
 
 export type polygon_PooledToken = {
   id: Scalars['ID'];

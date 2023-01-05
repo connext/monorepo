@@ -22,9 +22,14 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Nxt
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
-      const res = await sdkUtilsInstance.getTransfersByUser(params);
-      reply.status(200).send(res);
+      try {
+        const { params } = request.body;
+        const res = await sdkUtilsInstance.getTransfersByUser(params);
+        reply.status(200).send(res);
+      } catch (e: unknown) {
+        console.log(e);
+        reply.status(500).send((e as Error).message);
+      }
     },
   );
 

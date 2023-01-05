@@ -52,12 +52,23 @@ export const makeWatcher = async () => {
       : new Web3Signer(context.config.web3SignerUrl!);
 
     context.logger.info("Watcher sanitized config", requestContext, methodContext, {
-      address: context.adapters.wallet.address,
+      address: context.adapters.wallet.address ?? (await context.adapters.wallet.getAddress()),
       chains: context.config.chains,
       logLevel: context.config.logLevel,
       environment: context.config.environment,
       hubDomain: context.config.hubDomain,
       interval: context.config.interval,
+      twilioAccountSid: (context.config.telegramApiKey ?? "").charAt(0),
+      twilioAuthToken: (context.config.twilioAuthToken ?? "").charAt(0),
+      twilioToPhoneNumbers: (context.config.twilioToPhoneNumbers ?? []).length,
+      discordHookUrl: context.config.discordHookUrl,
+      pagerDutyRoutingKey: (context.config.pagerDutyRoutingKey ?? "").charAt(0),
+      twilioNumber: (context.config.twilioAuthToken ?? "").charAt(0),
+      telegramApiKey: (context.config.telegramApiKey ?? "").charAt(0),
+      telegramChatId: context.config.telegramChatId,
+      keybaseUser: context.config.keybaseUser,
+      keybaseChannel: context.config.keybaseChannel,
+      keybaseKey: (context.config.keybaseKey ?? "").charAt(0),
     });
 
     /// MARK - Asset Setup

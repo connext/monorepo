@@ -245,6 +245,7 @@ export const mock = {
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
                 blockNumber: 7654321,
+                txOrigin: user,
               },
             }
           : undefined,
@@ -284,6 +285,7 @@ export const mock = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
+                      txOrigin: user,
                     }
                   : undefined,
 
@@ -296,6 +298,7 @@ export const mock = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "100000",
                       blockNumber: 5651390,
+                      txOrigin: user,
                     }
                   : undefined,
             }
