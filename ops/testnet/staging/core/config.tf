@@ -386,7 +386,7 @@ locals {
     discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
     telegramApiKey = "${var.telegram_api_key}"
     telegramChatId = "${var.telegram_chat_id}"
-    keybaseUser    = "${var.keybase_user}"
-    keybaseKey     = "${var.keybase_key}"
+    betterUptimeApiKey = "${var.betteruptime_api_key}"
+    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }
