@@ -774,9 +774,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const tokenSwapEvents: any[] = [];
       while (startBlock < endBlock) {
         tokenSwapEvents.push(
-          ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
+          ...(await connextContract.queryFilter(
+            connextContract.filters.TokenSwap(pool.canonicalHash),
+            startBlock,
+            endBatchBlock,
+          )),
         );
-
         startBlock = endBatchBlock;
         endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
       }
