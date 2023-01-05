@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
-import { XCalled, Executed, Reconciled } from "../../../generated/Connext/Connext";
+import { XCalled, Executed, Reconciled, TransferRelayerFeesIncreased } from "../../../generated/Connext/Connext";
 import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
 
 import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
@@ -212,3 +212,5 @@ export function handleReconciled(event: Reconciled): void {
 
   transfer.save();
 }
+
+export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased): void {}
