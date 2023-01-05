@@ -39,6 +39,8 @@ export const XTransferOriginSchema = Type.Object({
     }),
   }),
 
+  relayerFee: TIntegerString,
+
   // XCall Transaction
   xcall: Type.Intersect([XTransferMethodCallSchema]),
 });
