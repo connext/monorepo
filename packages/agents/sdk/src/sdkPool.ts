@@ -725,7 +725,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     await Promise.all(
       Object.values(assetsData).map(async (data) => {
         if (data.domain === domainId) {
-          const pool = await this.getPool(domainId, data.adopted);
+          const pool = await this.getPool(domainId, data.local);
           if (pool) {
             const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
             const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
