@@ -7,7 +7,7 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { NxtpSdkConfig } from "./config";
+import { NxtpSdkConfig, domainsToChainNames } from "./config";
 
 /**
  * @classdesc Base class to facilitate on-chain interactions with Connext.
@@ -49,6 +49,18 @@ export class NxtpSdkShared {
     },
     { promise: true },
   );
+
+  static domainToChainName(domainId: string) {
+    return domainsToChainNames[domainId];
+  }
+
+  static async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
+    const baseUrl = "https://coins.llama.fi";
+    const uri = formatUrl(baseUrl, "block");
+    const chainName = this.domainToChainName(domainId);
+    const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+    return res.height;
+  }
 
   async approveIfNeeded(
     domainId: string,
