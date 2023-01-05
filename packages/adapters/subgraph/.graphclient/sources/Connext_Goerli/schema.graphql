@@ -320,12 +320,14 @@ type goerli_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: goerli_Bytes
   reconciledCaller: goerli_Bytes
   reconciledTransactionHash: goerli_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: goerli_Bytes
 }
 
 input goerli_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input goerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: goerli_Bytes
+  executedTxOrigin_not: goerli_Bytes
+  executedTxOrigin_in: [goerli_Bytes!]
+  executedTxOrigin_not_in: [goerli_Bytes!]
+  executedTxOrigin_contains: goerli_Bytes
+  executedTxOrigin_not_contains: goerli_Bytes
   reconciledCaller: goerli_Bytes
   reconciledCaller_not: goerli_Bytes
   reconciledCaller_in: [goerli_Bytes!]
@@ -577,6 +585,12 @@ input goerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: goerli_Bytes
+  reconciledTxOrigin_not: goerli_Bytes
+  reconciledTxOrigin_in: [goerli_Bytes!]
+  reconciledTxOrigin_not_in: [goerli_Bytes!]
+  reconciledTxOrigin_contains: goerli_Bytes
+  reconciledTxOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum goerli_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -764,6 +780,7 @@ type goerli_OriginTransfer {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: goerli_Bytes
 }
 
 input goerli_OriginTransfer_filter {
@@ -975,6 +992,12 @@ input goerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: goerli_Bytes
+  txOrigin_not: goerli_Bytes
+  txOrigin_in: [goerli_Bytes!]
+  txOrigin_not_in: [goerli_Bytes!]
+  txOrigin_contains: goerli_Bytes
+  txOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
 }
@@ -1006,6 +1029,7 @@ enum goerli_OriginTransfer_orderBy {
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type goerli_PooledToken {

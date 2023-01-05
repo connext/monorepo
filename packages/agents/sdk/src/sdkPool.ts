@@ -724,18 +724,20 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     await Promise.all(
       Object.values(assetsData).map(async (data) => {
-        const pool = await this.getPool(domainId, data.adopted);
-        if (pool) {
-          const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-          const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
-          const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[1], userAddress);
-          result.push({
-            info: pool,
-            lpTokenBalance: lpTokenUserBalance,
-            poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-          });
-        } else {
-          this.logger.info("No pool for asset", requestContext, methodContext, { data });
+        if (data.domain === domainId) {
+          const pool = await this.getPool(domainId, data.local);
+          if (pool) {
+            const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
+            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[1], userAddress);
+            result.push({
+              info: pool,
+              lpTokenBalance: lpTokenUserBalance,
+              poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+            });
+          } else {
+            this.logger.info("No pool for asset", requestContext, methodContext, { data });
+          }
         }
       }),
     );
