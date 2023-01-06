@@ -118,6 +118,7 @@ export const SequencerConfigSchema = Type.Object({
       apiKey: Type.String(),
     }),
   ),
+  relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

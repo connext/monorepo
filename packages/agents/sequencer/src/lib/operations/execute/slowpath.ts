@@ -54,20 +54,16 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     });
   }
 
-  // Check to see if we have the XCall data saved locally for this.
-  let transfer = await cache.transfers.getTransfer(transferId);
+  // Get the XCall from the subgraph for this transfer.
+  let transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
-    // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getOriginTransferById(origin, transferId);
-    if (!transfer || !transfer.origin) {
-      throw new MissingXCall(origin, transferId, {
-        executorData,
-      });
-    }
-    // Store the transfer locally. We will use this as a reference later when we execute this transfer
-    // in the cycle, for both encoding data and passing relayer fee to the relayer.
-    await cache.transfers.storeTransfers([transfer]);
+    throw new MissingXCall(origin, transferId, {
+      executorData,
+    });
   }
+  // Store the transfer locally. We will use this as a reference later when we execute this transfer
+  // in the cycle, for both encoding data and passing relayer fee to the relayer.
+  await cache.transfers.storeTransfers([transfer]);
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);

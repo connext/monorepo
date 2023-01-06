@@ -88,7 +88,7 @@ describe("Operations:Execute:FastPath", () => {
     it("happy: should store bid in auction cache", async () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       const transferId = transfer.transferId;
-      getTransferStub.resolves(transfer);
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(transfer);
 
       const bid: Bid = mock.entity.bid({ transferId });
 
@@ -103,7 +103,6 @@ describe("Operations:Execute:FastPath", () => {
         destination: transfer.xparams.destinationDomain,
         bid,
       });
-      expect(getTransferStub).to.have.been.calledOnceWithExactly(transferId);
       expect(getStatusStub.callCount).to.eq(2);
       expect(getStatusStub.getCall(0).args).to.be.deep.eq([transferId]);
       expect(getStatusStub.getCall(1).args).to.be.deep.eq([transferId]);
