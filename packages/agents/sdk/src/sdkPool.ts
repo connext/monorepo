@@ -17,7 +17,7 @@ export class Pool implements IPoolData {
   tokens: string[]; // index order specified when the pool was initialized
   tokenIndices: Map<string, number>; // maps token to its index in the pool
   decimals: number[];
-  balances: BigNumber[];
+  balances: BigNumber[]; // stored in token's native precision
   lpTokenAddress: string;
   canonicalHash: string; // hash of the domain and canonicalId
   address?: string; // no address if internal pool
@@ -108,35 +108,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   // ------------------- Utils ------------------- //
-
-  /**
-   * Finds the block closest to the desired timestamp.
-   * @param domainId The domain to search for the block.
-   * @param unixTimestamp The unix time, in seconds.
-   */
-  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
-    const provider = this.getProvider(domainId);
-
-    let min = 0;
-    let max = await provider.getBlockNumber();
-    let closest = Math.floor((max + min) / 2);
-    let closestBlock = await provider.getBlock(closest);
-
-    while (min <= max) {
-      if (closestBlock.timestamp === unixTimestamp) {
-        return closestBlock.number;
-      } else if (closestBlock.timestamp > unixTimestamp) {
-        max = closest - 1;
-      } else {
-        min = closest + 1;
-      }
-
-      closest = Math.floor((max + min) / 2);
-      closestBlock = await provider.getBlock(closest);
-    }
-
-    return closestBlock.number;
-  }
 
   /**
    * Returns the default deadline. Set to 1 hour from current time.
@@ -450,6 +421,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     return index;
   }
 
+  /**
+   * Returns the balances of the tokens in a pool.
+   * @param domainId The domain id of the pool.
+   * @param tokenAddress The address of local or adopted token.
+   */
   async getPoolTokenBalance(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<BigNumber> {
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
@@ -787,10 +763,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     if (pool) {
       const endTimestamp = unixTimestamp;
-      const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+      const endBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
       const startTimestamp = endTimestamp - 86_400; // 24 hours prior
-      let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
+      let startBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
       const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
@@ -798,16 +774,19 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const tokenSwapEvents: any[] = [];
       while (startBlock < endBlock) {
         tokenSwapEvents.push(
-          ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
+          ...(await connextContract.queryFilter(
+            connextContract.filters.TokenSwap(pool.canonicalHash),
+            startBlock,
+            endBatchBlock,
+          )),
         );
-
         startBlock = endBatchBlock;
         endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
       }
 
       const swapStorage = await connextContract.getSwapStorage(key);
       const basisPoints = swapStorage.swapFee;
-      const FEE_DENOMINATOR = "10000000000"; // 10**10
+      const FEE_DENOMINATOR = 1e10;
       const decimals = pool.decimals[0];
 
       let totalVolume = BigNumber.from(0);

@@ -38,7 +38,6 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getConnext).to.be.a("function");
       expect(nxtpPool.getERC20).to.be.a("function");
-      expect(nxtpPool.getBlockNumberFromUnixTimestamp).to.be.a("function");
       expect(nxtpPool.getDefaultDeadline).to.be.a("function");
       expect(nxtpPool.calculateCanonicalKey).to.be.a("function");
       expect(nxtpPool.calculateSwap).to.be.a("function");
