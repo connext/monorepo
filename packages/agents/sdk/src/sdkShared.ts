@@ -118,7 +118,12 @@ export class NxtpSdkShared {
     const asset = assetsData.find((assetData) => {
       return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
     });
-    return asset?.local == tokenAddress ? true : false;
+
+    if (asset) {
+      return utils.getAddress(asset.local) == tokenAddress ? true : false;
+    }
+
+    return;
   }
 
   async changeSignerAddress(signerAddress: string) {
