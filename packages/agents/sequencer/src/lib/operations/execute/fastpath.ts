@@ -61,7 +61,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   // TODO: Check that a relayer is configured/approved for this chain (?).
 
   // Get the XCall from the subgraph for this transfer.
-  let transfer = await subgraph.getOriginTransferById(origin, transferId);
+  const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
     // Router shouldn't be bidding on a transfer that doesn't exist.
     throw new MissingXCall(origin, transferId, {

@@ -55,7 +55,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   }
 
   // Get the XCall from the subgraph for this transfer.
-  let transfer = await subgraph.getOriginTransferById(origin, transferId);
+  const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
     throw new MissingXCall(origin, transferId, {
       executorData,
