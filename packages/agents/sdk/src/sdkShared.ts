@@ -113,6 +113,18 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  async isNextAsset(tokenAddress: string): Promise<boolean> {
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return assetData.local == tokenAddress || assetData.adopted == tokenAddress;
+    });
+    if (!asset) {
+      throw new Error("Asset is not registered in a pool");
+    }
+
+    return asset.local == tokenAddress ? true : false;
+  }
+
   async changeSignerAddress(signerAddress: string) {
     this.config.signerAddress = signerAddress;
   }
