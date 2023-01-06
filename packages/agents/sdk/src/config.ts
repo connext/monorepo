@@ -81,9 +81,7 @@ export const getEnvConfig = (
     cartographerUrl: _nxtpConfig.cartographerUrl
       ? _nxtpConfig.cartographerUrl
       : _nxtpConfig.network === "mainnet"
-      ? _nxtpConfig.environment === "production"
-        ? "https://postgrest.mainnet.connext.ninja"
-        : "https://postgrest.mainnet.staging.connext.ninja"
+      ? "https://postgrest.mainnet.connext.ninja"
       : _nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja",
