@@ -66,9 +66,8 @@ export const makeWatcher = async () => {
       twilioNumber: (context.config.twilioAuthToken ?? "").charAt(0),
       telegramApiKey: (context.config.telegramApiKey ?? "").charAt(0),
       telegramChatId: context.config.telegramChatId,
-      keybaseUser: context.config.keybaseUser,
-      keybaseChannel: context.config.keybaseChannel,
-      keybaseKey: (context.config.keybaseKey ?? "").charAt(0),
+      betterUptimeRequesterEmail: context.config.betterUptimeRequesterEmail,
+      betterUptimeApiKey: (context.config.betterUptimeApiKey ?? "").charAt(0),
     });
 
     /// MARK - Asset Setup

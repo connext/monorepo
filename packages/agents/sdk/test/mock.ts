@@ -14,7 +14,6 @@ export const mock = {
     signerAddress: mkAddress("0xabcdef123"),
     logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",
-    slippage: 10000,
     environment: "staging",
     chains: {
       [mock.domain.A]: {

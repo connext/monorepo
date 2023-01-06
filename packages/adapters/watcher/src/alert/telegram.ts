@@ -1,9 +1,7 @@
-import { jsonifyError } from "@connext/nxtp-utils";
-
 import { axiosPost } from "../mockable";
 import { Report } from "../types";
 
-export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?: string) => {
+export const alertViaTelegram = async (report: Report, apiKey: string, chatId: string) => {
   const {
     timestamp,
     event,
@@ -16,16 +14,6 @@ export const alertViaTelegram = async (report: Report, apiKey?: string, chatId?:
     relevantTransactions,
     rpcs,
   } = report;
-
-  if (!chatId || !apiKey) {
-    logger.error(
-      "Failed to alert via telegram",
-      requestContext,
-      methodContext,
-      jsonifyError(new Error("Telegram alert config is invalid!")),
-    );
-    throw new Error("alertViaTelegram: Telegram alert config is invalid!");
-  }
 
   logger.info("Sending message via telegram", requestContext, methodContext, {
     timestamp,

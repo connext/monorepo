@@ -1,4 +1,3 @@
-import { jsonifyError } from "@connext/nxtp-utils";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
 import { sendMessageViaTwilio } from "../mockable";
@@ -6,10 +5,10 @@ import { Report } from "../types";
 
 export const alertViaSms = async (
   report: Report,
-  accountSid?: string,
-  authToken?: string,
-  twilioNumber?: string,
-  toPhoneNumbers?: string[],
+  accountSid: string,
+  authToken: string,
+  twilioNumber: string,
+  toPhoneNumbers: string[],
 ): Promise<MessageInstance[]> => {
   const {
     timestamp,
@@ -23,16 +22,6 @@ export const alertViaSms = async (
     relevantTransactions,
     rpcs,
   } = report;
-
-  if (!twilioNumber || !accountSid || !authToken || !toPhoneNumbers || toPhoneNumbers.length == 0) {
-    logger.error(
-      "Failed to alert via sms",
-      requestContext,
-      methodContext,
-      jsonifyError(new Error("Twilio config is invalid!")),
-    );
-    throw new Error("alertViaSms: Twilio config is invalid!");
-  }
 
   logger.info("Sending message via twilio", requestContext, methodContext, {
     timestamp,
