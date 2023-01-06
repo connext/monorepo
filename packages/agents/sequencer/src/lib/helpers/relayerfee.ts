@@ -31,7 +31,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     logger,
   );
 
-  const minimumFeeNeeded = estimatedRelayerFee.mul(Math.floor(100 - config.relayerFeeTolerance));
+  const minimumFeeNeeded = estimatedRelayerFee.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
   const canSubmit = BigNumber.from(origin.relayerFee).gte(minimumFeeNeeded);
 
   return { canSubmit, needed: minimumFeeNeeded.toString() };

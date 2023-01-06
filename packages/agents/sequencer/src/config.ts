@@ -11,7 +11,7 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
-const DEFAULT_RELAYER_FEE_TOLERANCE = 100;
+const DEFAULT_RELAYER_FEE_TOLERANCE = 10;
 
 dotEnvConfig();
 
