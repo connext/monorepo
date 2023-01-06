@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber } from "ethers";
+import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
@@ -113,16 +113,12 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
-  async isNextAsset(tokenAddress: string): Promise<boolean> {
+  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
-      return assetData.local == tokenAddress || assetData.adopted == tokenAddress;
+      return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
     });
-    if (!asset) {
-      throw new Error("Asset is not registered in a pool");
-    }
-
-    return asset.local == tokenAddress ? true : false;
+    return asset?.local == tokenAddress ? true : false;
   }
 
   async changeSignerAddress(signerAddress: string) {
