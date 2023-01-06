@@ -1,7 +1,7 @@
 <div align="center">
   <!-- PROJECT LOGO -->
   <a href="https://github.com/connext/monorepo">
-    <img src="https://images.squarespace-cdn.com/content/v1/619f86b8de2c6f4f7fa201c0/8eaeca35-ccf3-495f-9e9a-19fbec796187/connext__Logo+%2B+WhiteText+MultiColor.png?format=1500w" alt="Logo" width="320" height="80">
+    <img src="https://github.com/connext/brand/blob/main/connext__Logo__BlackText_MultiColor.png?raw=true" alt="Logo" width="320" height="80">
   </a>
 
 [![Test Sops][sops-shield]][sops-url] [![Deploy Testnet][deploy-testnet-shield]][deploy-testnet-url] [![Build Test Deploy][build-test-deploy-shield]][build-test-deploy-url]
