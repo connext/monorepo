@@ -36,6 +36,7 @@ describe("Operations:Execute:FastPath", () => {
   let setLiquidityStub: SinonStub;
   let getLiquidityStub: SinonStub;
   let publishStub: SinonStub;
+  let canSubmitToRelayerStub: SinonStub;
 
   // operations
   let sendExecuteFastToRelayerStub: SinonStub<any[], any>;
@@ -70,6 +71,7 @@ describe("Operations:Execute:FastPath", () => {
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
     getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
+    canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
 
     getHelpersStub.returns({
       auctions: {
@@ -78,6 +80,9 @@ describe("Operations:Execute:FastPath", () => {
         getBidsRoundMap,
         getAllSubsets,
         getMinimumBidsCountForRound,
+      },
+      relayerfee: {
+        canSubmitToRelayer: canSubmitToRelayerStub,
       },
     });
 
@@ -177,7 +182,7 @@ describe("Operations:Execute:FastPath", () => {
         }),
         transferId: bid.transferId,
       };
-      getTransferStub.resolves(transfer);
+      (ctxMock.adapters.subgraph as any).getOriginTransferById.resolves(transfer);
       await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
   });
