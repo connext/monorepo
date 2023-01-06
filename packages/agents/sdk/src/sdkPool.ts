@@ -123,7 +123,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param tokenAddress The address of local or adopted token.
    * @param tokenIndexFrom The index of the token to sell.
    * @param tokenIndexTo The index of the token to buy.
-   * @param amount The number of tokens to sell.
+   * @param amount The number of tokens to sell, in the "From" token's native precision.
+   * @returns Minimum amount received, in the "To" token's native precision.
    */
   async calculateSwap(
     domainId: string,
@@ -302,13 +303,21 @@ export class NxtpSdkPool extends NxtpSdkShared {
     return this.calculatePriceImpact(rate, marketRate);
   }
 
+  /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   * @param originDomain The domain id of the origin chain.
+   * @param destinationDomain The domain id of the destination chain.
+   * @param originTokenAddress The address of the token to be bridged from origin.
+   * @param destinationTokenAddress The address of the token to be received on destination.
+   * @param amount The amount of the origin token to bridge, in the origin token's native precision.
+   * @returns Estimated amount received, in the destination token's native precision.
+   */
   async calculateAmountReceived(
     originDomain: string,
     destinationDomain: string,
-    _originTokenAddress: string,
-    _destinationTokenAddress: string,
+    originTokenAddress: string,
+    destinationTokenAddress: string,
     amount: BigNumberish,
-    isNextAsset = false,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -317,29 +326,28 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
 
-    const originTokenAddress = utils.getAddress(_originTokenAddress);
-    const destinationTokenAddress = utils.getAddress(_destinationTokenAddress);
+    const _originTokenAddress = utils.getAddress(originTokenAddress);
+    const _destinationTokenAddress = utils.getAddress(destinationTokenAddress);
 
     this.logger.info("Method start", requestContext, methodContext, {
       originDomain,
       destinationDomain,
-      originTokenAddress,
-      destinationTokenAddress,
+      _originTokenAddress,
+      _destinationTokenAddress,
       amount,
-      isNextAsset,
     });
 
     // Calculate origin swap
     const originPool = await this.getPool(originDomain, originTokenAddress);
     let originAmountReceived = amount;
 
-    // nextAssets don't need to be swapped on origin
-    if (!isNextAsset && originPool) {
+    // Swap if supplied origin token is an adopted asset
+    if (!(await this.isNextAsset(originTokenAddress)) && originPool) {
       originAmountReceived = await this.calculateSwap(
         originDomain,
-        originTokenAddress,
-        originPool.tokenIndices.get(originTokenAddress)!,
-        originPool.tokenIndices.get(originTokenAddress)! == 0 ? 1 : 0,
+        _originTokenAddress,
+        originPool.tokenIndices.get(_originTokenAddress)!,
+        originPool.tokenIndices.get(_originTokenAddress)! == 0 ? 1 : 0,
         amount,
       );
     }
@@ -353,12 +361,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
     let destinationAmountReceived = destinationAmount;
 
-    if (destinationPool) {
+    // Swap if desired destination token is an adopted asset
+    if (!(await this.isNextAsset(destinationTokenAddress)) && destinationPool) {
       destinationAmountReceived = await this.calculateSwap(
         destinationDomain,
         destinationTokenAddress,
-        destinationPool.tokenIndices.get(destinationTokenAddress)!,
         destinationPool.tokenIndices.get(destinationTokenAddress)! == 0 ? 1 : 0,
+        destinationPool.tokenIndices.get(destinationTokenAddress)!,
         destinationAmount,
       );
     }
@@ -613,7 +622,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Pool Data ------------------- //
 
   /**
-   * Returns the StableSwap Pool for a given asset.
+   * Returns the StableSwap Pool details for a given asset.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
