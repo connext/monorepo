@@ -65,6 +65,8 @@ export function handleXCalled(event: XCalled): void {
   transfer.gasPrice = event.transaction.gasPrice;
   transfer.gasLimit = event.transaction.gasLimit;
   transfer.blockNumber = event.block.number;
+  // transaction caller is tx.origin
+  transfer.txOrigin = event.transaction.from;
 
   transfer.save();
 }
@@ -151,6 +153,7 @@ export function handleExecuted(event: Executed): void {
   transfer.executedGasPrice = event.transaction.gasPrice;
   transfer.executedGasLimit = event.transaction.gasLimit;
   transfer.executedBlockNumber = event.block.number;
+  transfer.executedTxOrigin = event.transaction.from;
 
   transfer.save();
 }
@@ -209,6 +212,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledGasPrice = event.transaction.gasPrice;
   transfer.reconciledGasLimit = event.transaction.gasLimit;
   transfer.reconciledBlockNumber = event.block.number;
+  transfer.reconciledTxOrigin = event.transaction.from;
 
   transfer.save();
 }

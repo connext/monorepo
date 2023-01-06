@@ -1,7 +1,7 @@
 <div align="center">
   <!-- PROJECT LOGO -->
-  <a href="https://github.com/connext/nxtp">
-    <img src="https://images.squarespace-cdn.com/content/v1/619f86b8de2c6f4f7fa201c0/8eaeca35-ccf3-495f-9e9a-19fbec796187/connext__Logo+%2B+WhiteText+MultiColor.png?format=1500w" alt="Logo" width="320" height="80">
+  <a href="https://github.com/connext/monorepo">
+    <img src="https://github.com/connext/brand/blob/main/connext__Logo__BlackText_MultiColor.png?raw=true" alt="Logo" width="320" height="80">
   </a>
 
 [![Test Sops][sops-shield]][sops-url] [![Deploy Testnet][deploy-testnet-shield]][deploy-testnet-url] [![Build Test Deploy][build-test-deploy-shield]][build-test-deploy-url]
@@ -24,12 +24,12 @@
     <a href="https://testnet.bridge.connext.network/">View Testnet Bridge (Connext Amarok)</a>
     <br />
     <br />
-    <a href="https://github.com/connext/nxtp/issues">Report Bug</a>
+    <a href="https://github.com/connext/monorepo/issues">Report Bug</a>
     <br />
     <a href="https://immunefi.com/bounty/connext/">Bug Bounty Program</a>
     <br />
     <br />
-    <a href="https://github.com/connext/nxtp/issues">Request Feature</a>
+    <a href="https://github.com/connext/monorepo/issues">Request Feature</a>
   </p>
 </div>
 
@@ -77,31 +77,31 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 
 ### Architecture
 
-- [adapters](https://github.com/connext/nxtp/tree/main/packages/adapters) - Wrappers around external modules. These adapters can be shared between different packages.
+- [adapters](https://github.com/connext/monorepo/tree/main/packages/adapters) - Wrappers around external modules. These adapters can be shared between different packages.
 
-  - [Cache](https://github.com/connext/nxtp/tree/main/packages/adapters/cache) is a wrapper around all the redis based caches that are used.
-  - [Database](https://github.com/connext/nxtp/tree/main/packages/adapters/database) is implementation of schema and client for the database.
-  - [Subrgaph](https://github.com/connext/nxtp/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
-  - [TxService](https://github.com/connext/nxtp/tree/main/packages/adapters/txservice) resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
-  - [Web3Signer](https://github.com/connext/nxtp/tree/main/packages/adapters/web3signer) is a wrapper around Web3Signer, which is a secure way of signing which does not require to include mnemonics in the app itself.
+  - [Cache](https://github.com/connext/monorepo/tree/main/packages/adapters/cache) is a wrapper around all the redis based caches that are used.
+  - [Database](https://github.com/connext/monorepo/tree/main/packages/adapters/database) is implementation of schema and client for the database.
+  - [Subrgaph](https://github.com/connext/monorepo/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
+  - [TxService](https://github.com/connext/monorepo/tree/main/packages/adapters/txservice) resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
+  - [Web3Signer](https://github.com/connext/monorepo/tree/main/packages/adapters/web3signer) is a wrapper around Web3Signer, which is a secure way of signing which does not require to include mnemonics in the app itself.
 
-- [agents](https://github.com/connext/nxtp/tree/main/packages/agents) - Core infra Hosted services for Functionality and UX.
+- [agents](https://github.com/connext/monorepo/tree/main/packages/agents) - Core infra Hosted services for Functionality and UX.
 
-  - [Cartographer](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph and provides an API to query raw and computed data.
-  - [Lighthouse](https://github.com/connext/nxtp/tree/main/packages/agents/lighthouse) is an implementation for execution layer.
-  - [Relayer](https://github.com/connext/nxtp/tree/main/packages/agents/relayer) is an implementatino of a relayer in case we can't use Gelato
-  - [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
-  - [SDK](https://github.com/connext/nxtp/tree/main/packages/agents/sdk) - is a JS wrapper around the contract calls themselves and can be used by integrations
-  - [Sequencer](https://github.com/connext/nxtp/tree/main/packages/agents/sequencer) - is the agent module which is in charge of sourcing bids from routers and puts fast liquidity bids onto the chain itself.
+  - [Cartographer](https://github.com/connext/monorepo/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph and provides an API to query raw and computed data.
+  - [Lighthouse](https://github.com/connext/monorepo/tree/main/packages/agents/lighthouse) is an implementation for execution layer.
+  - [Relayer](https://github.com/connext/monorepo/tree/main/packages/agents/relayer) is an implementatino of a relayer in case we can't use Gelato
+  - [Router](https://github.com/connext/monorepo/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
+  - [SDK](https://github.com/connext/monorepo/tree/main/packages/agents/sdk) - is a JS wrapper around the contract calls themselves and can be used by integrations
+  - [Sequencer](https://github.com/connext/monorepo/tree/main/packages/agents/sequencer) - is the agent module which is in charge of sourcing bids from routers and puts fast liquidity bids onto the chain itself.
 
-- [deployments](https://github.com/connext/nxtp/tree/main/packages/deployments)
+- [deployments](https://github.com/connext/monorepo/tree/main/packages/deployments)
 
-  - [Contracts](https://github.com/connext/nxtp/tree/main/packages/deployments/contracts) - Contracts are the contracts that we deploy and the deployment scripts
-  - [Subgraph](https://github.com/connext/nxtp/tree/main/packages/deployments/subgraph) is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third party graph providers
+  - [Contracts](https://github.com/connext/monorepo/tree/main/packages/deployments/contracts) - Contracts are the contracts that we deploy and the deployment scripts
+  - [Subgraph](https://github.com/connext/monorepo/tree/main/packages/deployments/subgraph) is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third party graph providers
 
-- [examples](https://github.com/connext/nxtp/tree/main/packages/examples) - these are not used in production, but contains ways to use the SDK that are illustrative of how to integrate NXTP
-- [integration](https://github.com/connext/nxtp/tree/main/packages/integration) - Utilities for integration test
-- [utils](https://github.com/connext/nxtp/tree/main/packages/utils) - Collection of helper functions that are shared thoughout the different packages
+- [examples](https://github.com/connext/monorepo/tree/main/packages/examples) - these are not used in production, but contains ways to use the SDK that are illustrative of how to integrate Connext
+- [integration](https://github.com/connext/monorepo/tree/main/packages/integration) - Utilities for integration test
+- [utils](https://github.com/connext/monorepo/tree/main/packages/utils) - Collection of helper functions that are shared thoughout the different packages
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -201,19 +201,19 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-Project Link: [https://github.com/connext/nxtp](https://github.com/connext/nxtp)
+Project Link: [https://github.com/connext/monorepo](https://github.com/connext/monorepo)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[sops-shield]: https://github.com/connext/nxtp/actions/workflows/test-sops.yaml/badge.svg
-[sops-url]: https://github.com/connext/nxtp/actions/workflows/test-sops.yaml
-[deploy-testnet-shield]: https://github.com/connext/nxtp/actions/workflows/deploy-testnet.yaml/badge.svg
-[deploy-testnet-url]: https://github.com/connext/nxtp/actions/workflows/deploy-testnet.yaml
-[build-test-deploy-shield]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy.yml/badge.svg
-[build-test-deploy-url]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy.yml
+[sops-shield]: https://github.com/connext/monorepo/actions/workflows/test-sops.yaml/badge.svg
+[sops-url]: https://github.com/connext/monorepo/actions/workflows/test-sops.yaml
+[deploy-testnet-shield]: https://github.com/connext/monorepo/actions/workflows/deploy-testnet.yaml/badge.svg
+[deploy-testnet-url]: https://github.com/connext/monorepo/actions/workflows/deploy-testnet.yaml
+[build-test-deploy-shield]: https://github.com/connext/monorepo/actions/workflows/build-test-deploy.yml/badge.svg
+[build-test-deploy-url]: https://github.com/connext/monorepo/actions/workflows/build-test-deploy.yml
 [discord-shield]: https://img.shields.io/discord/454734546869551114?&logo=discord
 [discord-url]: https://discord.gg/m93Sqf4
 [twitter-shield]: https://img.shields.io/twitter/follow/ConnextNetwork?style=social

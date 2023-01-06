@@ -67,3 +67,6 @@ GET {{postgrestUrl}}/transfers?routers=cs.{0x41da7e2e59e021d45e29b9adb682715299e
 
 ### GET UN PROCESSED MESSAGES
 GET {{postgrestUrl}}/messages
+
+### GET ASSETS
+GET {{postgrestUrl}}/assets

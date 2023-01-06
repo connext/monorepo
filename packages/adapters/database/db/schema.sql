@@ -136,34 +136,34 @@ CREATE TABLE public.transfers (
     receive_local boolean,
     origin_chain character varying(255),
     origin_transacting_asset character(42),
-    origin_transacting_amount numeric,
+    origin_transacting_amount character varying(255),
     origin_bridged_asset character(42),
-    origin_bridged_amount numeric,
+    origin_bridged_amount character varying(255),
     xcall_caller character(42),
     xcall_transaction_hash character(66),
     xcall_timestamp integer,
-    xcall_gas_price numeric,
-    xcall_gas_limit numeric,
+    xcall_gas_price character varying(255),
+    xcall_gas_limit character varying(255),
     xcall_block_number integer,
     destination_chain character varying(255),
     status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
     routers character(42)[],
     destination_transacting_asset character(42),
-    destination_transacting_amount numeric,
+    destination_transacting_amount character varying(255),
     destination_local_asset character(42),
-    destination_local_amount numeric,
+    destination_local_amount character varying(255),
     execute_caller character(42),
     execute_transaction_hash character(66),
     execute_timestamp integer,
-    execute_gas_price numeric,
-    execute_gas_limit numeric,
+    execute_gas_price character varying(255),
+    execute_gas_limit character varying(255),
     execute_block_number integer,
     execute_origin_sender character(42),
     reconcile_caller character(42),
     reconcile_transaction_hash character(66),
     reconcile_timestamp integer,
-    reconcile_gas_price numeric,
-    reconcile_gas_limit numeric,
+    reconcile_gas_price character varying(255),
+    reconcile_gas_limit character varying(255),
     reconcile_block_number integer,
     update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     delegate character(42),
@@ -171,10 +171,10 @@ CREATE TABLE public.transfers (
     canonical_domain character varying(255),
     slippage numeric,
     origin_sender character(42),
-    bridged_amt numeric,
-    normalized_in numeric,
+    bridged_amt character varying(255),
+    normalized_in character varying(255),
     canonical_id character(66),
-    router_fee numeric
+    router_fee character varying(255)
 );
 
 
@@ -210,7 +210,7 @@ CREATE VIEW public.daily_transfer_metrics AS
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN (tf.origin_bridged_amount = (0)::numeric) THEN tf.transfer_id
+            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
             ELSE NULL::bpchar
         END) AS zero_amount_transfer_count,
     count(
@@ -273,7 +273,7 @@ CREATE VIEW public.daily_transfer_volume AS
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum(tf.origin_transacting_amount) AS volume
+    sum((tf.origin_transacting_amount)::numeric) AS volume
    FROM public.transfers tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
@@ -292,7 +292,7 @@ CREATE VIEW public.hourly_transfer_metrics AS
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN (tf.origin_bridged_amount = (0)::numeric) THEN tf.transfer_id
+            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
             ELSE NULL::bpchar
         END) AS zero_amount_transfer_count,
     count(
@@ -355,7 +355,7 @@ CREATE VIEW public.hourly_transfer_volume AS
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum(tf.origin_transacting_amount) AS volume
+    sum((tf.origin_transacting_amount)::numeric) AS volume
    FROM public.transfers tf
   GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
@@ -480,7 +480,7 @@ CREATE VIEW public.transfer_volume AS
     (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
     tf.origin_domain AS origin_chain,
     tf.origin_transacting_asset AS asset,
-    sum(tf.origin_transacting_amount) AS volume
+    sum((tf.origin_transacting_amount)::numeric) AS volume
    FROM public.transfers tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
 
@@ -736,4 +736,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221027123722'),
     ('20221118203009'),
     ('20221122235058'),
-    ('20221130222017');
+    ('20221130222017'),
+    ('20221207151852'),
+    ('20221216164744'),
+    ('20230104142147');

@@ -50,7 +50,7 @@ export class NxtpSdkUtils extends NxtpSdkShared {
   }): Promise<any> {
     const { userAddress, status, range } = params;
 
-    const userIdentifier = `xcall_caller=eq.${userAddress.toLowerCase()}&`;
+    const userIdentifier = `xcall_tx_origin=eq.${userAddress.toLowerCase()}&`;
     const statusIdentifier = status ? `status=eq.${status}` : "";
 
     const searchIdentifier = userIdentifier + statusIdentifier;

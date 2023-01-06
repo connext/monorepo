@@ -4,9 +4,9 @@ import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_F
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
-import { NxtpSdkConfig, getConfig, AssetDescription } from "./config";
+import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { IPoolStats, IPoolData } from "./interfaces";
+import { IPoolStats, IPoolData, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { NxtpSdkShared } from "./sdkShared";
 
@@ -334,8 +334,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
   async calculateAmountReceived(
     originDomain: string,
     destinationDomain: string,
-    originTokenAddress: string,
-    destinationTokenAddress: string,
+    _originTokenAddress: string,
+    _destinationTokenAddress: string,
     amount: BigNumberish,
     isNextAsset = false,
   ): Promise<{
@@ -345,6 +345,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
     destinationSlippage: BigNumberish;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+
+    const originTokenAddress = utils.getAddress(_originTokenAddress);
+    const destinationTokenAddress = utils.getAddress(_destinationTokenAddress);
+
     this.logger.info("Method start", requestContext, methodContext, {
       originDomain,
       destinationDomain,
@@ -720,20 +724,24 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
 
+    const assetsData: AssetData[] = await this.getAssetsData();
+
     await Promise.all(
-      Object.values(this.config.chains[domainId].assets).map(async (asset: AssetDescription) => {
-        const pool = await this.getPool(domainId, asset.address);
-        if (pool) {
-          const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-          const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
-          const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[1], userAddress);
-          result.push({
-            info: pool,
-            lpTokenBalance: lpTokenUserBalance,
-            poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-          });
-        } else {
-          this.logger.info("No pool for asset", requestContext, methodContext, { asset });
+      Object.values(assetsData).map(async (data) => {
+        if (data.domain === domainId) {
+          const pool = await this.getPool(domainId, data.local);
+          if (pool) {
+            const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
+            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[1], userAddress);
+            result.push({
+              info: pool,
+              lpTokenBalance: lpTokenUserBalance,
+              poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+            });
+          } else {
+            this.logger.info("No pool for asset", requestContext, methodContext, { data });
+          }
         }
       }),
     );
