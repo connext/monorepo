@@ -3,7 +3,7 @@
 # @routerUrl = https://router-publisher.testnet.connext.ninja
 # @routerUrl = https://router-publisher.testnet.staging.connext.ninja
 
-@adminToken = unspanktheunbanked
+@adminToken = foobar
 
 @chainId = 4
 @assetId = 0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198
