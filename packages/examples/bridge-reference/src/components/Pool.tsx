@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IPoolData } from "@connext/nxtp-sdk";
+import { Pool as SdkPool } from "@connext/nxtp-sdk";
 
 import { Chain } from "../types/chain";
 import { useChains } from "../contexts/Chains";
@@ -25,7 +25,7 @@ export const Pool = ({ chain, asset }: Props) => {
     state: { sdk },
   } = useSdk();
 
-  const [pool, setPool] = useState<IPoolData | undefined>(undefined);
+  const [pool, setPool] = useState<SdkPool | undefined>(undefined);
   const [yieldData, setYieldData] = useState<any | undefined>(undefined);
 
   useEffect(() => {

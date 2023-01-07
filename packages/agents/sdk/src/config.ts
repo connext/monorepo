@@ -81,9 +81,7 @@ export const getEnvConfig = (
     cartographerUrl: _nxtpConfig.cartographerUrl
       ? _nxtpConfig.cartographerUrl
       : _nxtpConfig.network === "mainnet"
-      ? _nxtpConfig.environment === "production"
-        ? "https://postgrest.mainnet.connext.ninja"
-        : "https://postgrest.mainnet.staging.connext.ninja"
+      ? "https://postgrest.mainnet.connext.ninja"
       : _nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja",
@@ -163,4 +161,13 @@ export const getConfig = async (
   }
   nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   return nxtpConfig;
+};
+
+export const domainsToChainNames: Record<string, string> = {
+  "6648936": "ethereum",
+  "1869640809": "optimism",
+  "1886350457": "polygon",
+  "1634886255": "arbitrum",
+  "6450786": "bsc",
+  "6778479": "xdai",
 };

@@ -86,8 +86,6 @@ export type { TransparentUpgradeableProxy } from "./@openzeppelin/contracts/prox
 export { TransparentUpgradeableProxy__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy__factory";
 export type { Pausable } from "./@openzeppelin/contracts/security/Pausable";
 export { Pausable__factory } from "./factories/@openzeppelin/contracts/security/Pausable__factory";
-export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";
-export { ERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/ERC20__factory";
 export type { IERC20Permit } from "./@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol/IERC20Permit";
 export { IERC20Permit__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol/IERC20Permit__factory";
 export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata";
@@ -138,6 +136,8 @@ export type { LPToken } from "./contracts/core/connext/helpers/LPToken";
 export { LPToken__factory } from "./factories/contracts/core/connext/helpers/LPToken__factory";
 export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/OwnerPausableUpgradeable";
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
+export type { ERC20 } from "./contracts/core/connext/helpers/OZERC20.sol/ERC20";
+export { ERC20__factory } from "./factories/contracts/core/connext/helpers/OZERC20.sol/ERC20__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
 export type { ISpokeConnector } from "./contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector";
