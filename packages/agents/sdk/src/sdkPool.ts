@@ -293,8 +293,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
     // Calculate destination swap
-    const key = this.calculateCanonicalKey(originDomain, originTokenAddress);
-    const destinationAssetData = await this.getAssetsByKey(key);
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, originTokenAddress);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
     if (!destinationAssetData) {
       throw new Error("Origin token cannot be bridged to any token on this destination domain");
     }
@@ -314,7 +315,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
       );
     }
 
-    const destinationSlippage = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
+    const destinationSlippage = BigNumber.from(
+      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+    );
 
     return {
       amountReceived: destinationAmountReceived,

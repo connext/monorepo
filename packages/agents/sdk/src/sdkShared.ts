@@ -113,10 +113,10 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
-  async getAssetsByKey(key: string): Promise<AssetData | undefined> {
+  async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
-      return assetData.key == key;
+      return assetData.domain == domainId && assetData.key == key;
     });
 
     if (asset) {
