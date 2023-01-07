@@ -113,6 +113,19 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return assetData.domain == domainId && assetData.key == key;
+    });
+
+    if (asset) {
+      return asset;
+    }
+
+    return;
+  }
+
   async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
