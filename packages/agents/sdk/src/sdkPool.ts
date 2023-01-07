@@ -6,71 +6,9 @@ import memoize from "memoizee";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { IPoolStats, IPoolData, AssetData } from "./interfaces";
+import { Pool, PoolAsset, AssetData, AssetType } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { NxtpSdkShared } from "./sdkShared";
-
-export class Pool implements IPoolData {
-  domainId: string;
-  name: string;
-  symbol: string; // in the form of <TKN>-next<TKN>
-  tokens: string[]; // index order specified when the pool was initialized
-  tokenIndices: Map<string, number>; // maps token to its index in the pool
-  decimals: number[];
-  balances: BigNumber[];
-  lpTokenAddress: string;
-  canonicalHash: string; // hash of the domain and canonicalId
-  address?: string; // no address if internal pool
-
-  constructor(
-    domainId: string,
-    name: string,
-    symbol: string,
-    tokens: string[],
-    tokenIndices: Map<string, number>,
-    decimals: number[],
-    balances: BigNumber[],
-    lpTokenAddress: string,
-    canonicalHash: string,
-    address?: string,
-  ) {
-    this.domainId = domainId;
-    this.name = name;
-    this.symbol = symbol;
-    this.tokens = tokens;
-    this.tokenIndices = tokenIndices;
-    this.decimals = decimals;
-    this.balances = balances;
-    this.lpTokenAddress = lpTokenAddress;
-    this.canonicalHash = canonicalHash;
-    this.address = address;
-  }
-
-  async getLiquidity(): Promise<string> {
-    // TODO: get this from cartographer
-    return "100";
-  }
-
-  async getVolume(): Promise<string> {
-    // TODO: get this from cartographer
-    return "100";
-  }
-
-  async getFees(): Promise<string> {
-    // TODO: get this from cartographer
-    return "100";
-  }
-
-  async getApy(): Promise<{ week: string; month: string; year: string; total: string }> {
-    // TODO: get this from cartographer
-    return {
-      week: "100",
-      month: "100",
-      year: "100",
-      total: "100",
-    };
-  }
-}
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -110,35 +48,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Utils ------------------- //
 
   /**
-   * Finds the block closest to the desired timestamp.
-   * @param domainId The domain to search for the block.
-   * @param unixTimestamp The unix time, in seconds.
-   */
-  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
-    const provider = this.getProvider(domainId);
-
-    let min = 0;
-    let max = await provider.getBlockNumber();
-    let closest = Math.floor((max + min) / 2);
-    let closestBlock = await provider.getBlock(closest);
-
-    while (min <= max) {
-      if (closestBlock.timestamp === unixTimestamp) {
-        return closestBlock.number;
-      } else if (closestBlock.timestamp > unixTimestamp) {
-        max = closest - 1;
-      } else {
-        min = closest + 1;
-      }
-
-      closest = Math.floor((max + min) / 2);
-      closestBlock = await provider.getBlock(closest);
-    }
-
-    return closestBlock.number;
-  }
-
-  /**
    * Returns the default deadline. Set to 1 hour from current time.
    */
   getDefaultDeadline(): number {
@@ -152,7 +61,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param tokenAddress The address of local or adopted token.
    * @param tokenIndexFrom The index of the token to sell.
    * @param tokenIndexTo The index of the token to buy.
-   * @param amount The number of tokens to sell.
+   * @param amount The number of tokens to sell, in the "From" token's native precision.
+   * @returns Minimum amount received, in the "To" token's native precision.
    */
   async calculateSwap(
     domainId: string,
@@ -261,7 +171,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.decimals[0];
+      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
       totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
       return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
     }
@@ -292,7 +202,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.decimals[0];
+      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
       totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
       return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
     }
@@ -331,13 +241,21 @@ export class NxtpSdkPool extends NxtpSdkShared {
     return this.calculatePriceImpact(rate, marketRate);
   }
 
+  /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   * @param originDomain The domain id of the origin chain.
+   * @param destinationDomain The domain id of the destination chain.
+   * @param originTokenAddress The address of the token to be bridged from origin.
+   * @param amount The amount of the origin token to bridge, in the origin token's native precision.
+   * @param receiveLocal Whether the desired destination token is the local asset ("nextAsset").
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   */
   async calculateAmountReceived(
     originDomain: string,
     destinationDomain: string,
-    _originTokenAddress: string,
-    _destinationTokenAddress: string,
+    originTokenAddress: string,
     amount: BigNumberish,
-    isNextAsset = false,
+    receiveLocal = false,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -346,29 +264,26 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
 
-    const originTokenAddress = utils.getAddress(_originTokenAddress);
-    const destinationTokenAddress = utils.getAddress(_destinationTokenAddress);
+    const _originTokenAddress = utils.getAddress(originTokenAddress);
 
     this.logger.info("Method start", requestContext, methodContext, {
       originDomain,
       destinationDomain,
-      originTokenAddress,
-      destinationTokenAddress,
+      _originTokenAddress,
       amount,
-      isNextAsset,
     });
 
     // Calculate origin swap
     const originPool = await this.getPool(originDomain, originTokenAddress);
     let originAmountReceived = amount;
 
-    // nextAssets don't need to be swapped on origin
-    if (!isNextAsset && originPool) {
+    // Swap IFF supplied origin token is an adopted asset
+    if (!(await this.isNextAsset(originTokenAddress)) && originPool) {
       originAmountReceived = await this.calculateSwap(
         originDomain,
-        originTokenAddress,
-        originPool.tokenIndices.get(originTokenAddress)!,
-        originPool.tokenIndices.get(originTokenAddress)! == 0 ? 1 : 0,
+        _originTokenAddress,
+        originPool.assets.get(AssetType.ADOPTED)!.index,
+        originPool.assets.get(AssetType.LOCAL)!.index,
         amount,
       );
     }
@@ -378,21 +293,31 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
     // Calculate destination swap
-    const destinationPool = await this.getPool(destinationDomain, destinationTokenAddress);
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, originTokenAddress);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    if (!destinationAssetData) {
+      throw new Error("Origin token cannot be bridged to any token on this destination domain");
+    }
+
+    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
     const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
     let destinationAmountReceived = destinationAmount;
 
-    if (destinationPool) {
+    // Swap IFF desired destination token is an adopted asset
+    if (!receiveLocal && destinationPool) {
       destinationAmountReceived = await this.calculateSwap(
         destinationDomain,
-        destinationTokenAddress,
-        destinationPool.tokenIndices.get(destinationTokenAddress)!,
-        destinationPool.tokenIndices.get(destinationTokenAddress)! == 0 ? 1 : 0,
+        destinationAssetData.local,
+        destinationPool.assets.get(AssetType.LOCAL)!.index,
+        destinationPool.assets.get(AssetType.ADOPTED)!.index,
         destinationAmount,
       );
     }
 
-    const destinationSlippage = destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount);
+    const destinationSlippage = BigNumber.from(
+      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+    );
 
     return {
       amountReceived: destinationAmountReceived,
@@ -450,6 +375,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     return index;
   }
 
+  /**
+   * Returns the balances of the tokens in a pool.
+   * @param domainId The domain id of the pool.
+   * @param tokenAddress The address of local or adopted token.
+   */
   async getPoolTokenBalance(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<BigNumber> {
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
@@ -637,7 +567,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Pool Data ------------------- //
 
   /**
-   * Returns the StableSwap Pool for a given asset.
+   * Returns the StableSwap Pool details for a given asset.
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    */
@@ -674,36 +604,60 @@ export class NxtpSdkPool extends NxtpSdkShared {
         this.getERC20(domainId, adopted),
       ]);
 
-      const [adoptedDecimals, adoptedBalance, tokenSymbol, localDecimals, localBalance, localIdx] = await Promise.all([
-        adoptedErc20Contract.decimals(),
-        this.getPoolTokenBalance(domainId, adopted, adopted),
+      const [
+        adoptedName,
+        adoptedSymbol,
+        adoptedBalance,
+        adoptedDecimals,
+        adoptedIdx,
+        localName,
+        localSymbol,
+        localBalance,
+        localDecimals,
+        localIdx,
+      ] = await Promise.all([
+        adoptedErc20Contract.name(),
         adoptedErc20Contract.symbol(),
-        localErc20Contract.decimals(),
+        this.getPoolTokenBalance(domainId, adopted, adopted),
+        adoptedErc20Contract.decimals(),
+        this.getPoolTokenIndex(domainId, tokenAddress, adopted),
+        localErc20Contract.name(),
+        localErc20Contract.symbol(),
         this.getPoolTokenBalance(domainId, local, local),
+        localErc20Contract.decimals(),
         this.getPoolTokenIndex(domainId, tokenAddress, local),
       ]);
 
-      // Use index order that appears on-chain
-      const [asset0, asset0Decimals, asset0Balance, asset1, asset1Decimals, asset1Balance] =
-        localIdx == 0
-          ? [local, localDecimals, localBalance, adopted, adoptedDecimals, adoptedBalance]
-          : [adopted, adoptedDecimals, adoptedBalance, local, localDecimals, localBalance];
+      const localAsset: PoolAsset = {
+        address: local,
+        name: localName,
+        symbol: localSymbol,
+        decimals: localDecimals,
+        index: localIdx,
+        balance: localBalance,
+      };
 
-      const indices = new Map<string, number>();
-      indices.set(asset0, 0);
-      indices.set(asset1, 1);
+      const adoptedAsset: PoolAsset = {
+        address: adopted,
+        name: adoptedName,
+        symbol: adoptedSymbol,
+        decimals: adoptedDecimals,
+        index: adoptedIdx,
+        balance: adoptedBalance,
+      };
 
-      const pool = new Pool(
-        domainId,
-        `${tokenSymbol}-Pool`,
-        `${tokenSymbol}-next${tokenSymbol}`,
-        [asset0, asset1],
-        indices,
-        [asset0Decimals, asset1Decimals],
-        [asset0Balance, asset1Balance],
-        lpTokenAddress,
-        key,
-      );
+      const assets = new Map<AssetType, PoolAsset>();
+      assets.set(AssetType.LOCAL, localAsset);
+      assets.set(AssetType.ADOPTED, adoptedAsset);
+
+      const pool: Pool = {
+        domainId: domainId,
+        name: `${localSymbol}-Pool`,
+        symbol: `${localSymbol}-next${localSymbol}`,
+        assets: assets,
+        lpTokenAddress: lpTokenAddress,
+        canonicalHash: key,
+      };
 
       return pool;
     },
@@ -732,8 +686,16 @@ export class NxtpSdkPool extends NxtpSdkShared {
           const pool = await this.getPool(domainId, data.local);
           if (pool) {
             const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[0], userAddress);
-            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.tokens[1], userAddress);
+            const adoptedTokenUserBalance = await this.getTokenUserBalance(
+              domainId,
+              pool.assets.get(AssetType.ADOPTED)!.address,
+              userAddress,
+            );
+            const localTokenUserBalance = await this.getTokenUserBalance(
+              domainId,
+              pool.assets.get(AssetType.LOCAL)!.address,
+              userAddress,
+            );
             result.push({
               info: pool,
               lpTokenBalance: lpTokenUserBalance,
@@ -747,22 +709,6 @@ export class NxtpSdkPool extends NxtpSdkShared {
     );
 
     return result;
-  }
-
-  async getPoolStats(domainId: string, tokenAddress: string): Promise<IPoolStats | undefined> {
-    const pool = await this.getPool(domainId, tokenAddress);
-    if (pool) {
-      const stats: IPoolStats = {
-        liquidity: await pool.getLiquidity(),
-        volume: await pool.getVolume(),
-        fees: await pool.getFees(),
-        apy: await pool.getApy(),
-      };
-
-      return stats;
-    }
-
-    return;
   }
 
   async getYieldStatsForDay(
@@ -787,10 +733,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     if (pool) {
       const endTimestamp = unixTimestamp;
-      const endBlock = await this.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+      const endBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
       const startTimestamp = endTimestamp - 86_400; // 24 hours prior
-      let startBlock = await this.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
+      let startBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
       const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
@@ -798,17 +744,20 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const tokenSwapEvents: any[] = [];
       while (startBlock < endBlock) {
         tokenSwapEvents.push(
-          ...(await connextContract.queryFilter(connextContract.filters.TokenSwap(), startBlock, endBatchBlock)),
+          ...(await connextContract.queryFilter(
+            connextContract.filters.TokenSwap(pool.canonicalHash),
+            startBlock,
+            endBatchBlock,
+          )),
         );
-
         startBlock = endBatchBlock;
         endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
       }
 
       const swapStorage = await connextContract.getSwapStorage(key);
       const basisPoints = swapStorage.swapFee;
-      const FEE_DENOMINATOR = "10000000000"; // 10**10
-      const decimals = pool.decimals[0];
+      const FEE_DENOMINATOR = 1e10;
+      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
 
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
@@ -818,8 +767,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
         totalVolume = totalVolume.add(tokensSold);
       }
 
-      const reserve0 = pool.balances[0];
-      const reserve1 = pool.balances[1];
+      const reserve0 = pool.assets.get(AssetType.LOCAL)!.balance;
+      const reserve1 = pool.assets.get(AssetType.ADOPTED)!.balance;
       const totalLiquidity = reserve0.add(reserve1);
       const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
       const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));

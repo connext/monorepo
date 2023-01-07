@@ -1,25 +1,27 @@
-export interface IPoolStats {
-  liquidity: string;
-  volume: string;
-  fees: string;
-  apy: {
-    week: string;
-    month: string;
-    year: string;
-    total: string;
-  };
-}
+import { BigNumber } from "ethers";
 
-export interface IPoolData {
+export type Pool = {
   domainId: string;
   name: string;
-  symbol: string;
-  tokens: string[];
-  tokenIndices: Map<string, number>;
-  decimals: number[];
+  symbol: string; // in the form of <TKN>-next<TKN>
+  assets: Map<AssetType, PoolAsset>;
   lpTokenAddress: string;
-  canonicalHash: string;
-  address?: string;
+  canonicalHash: string; // hash of the domain and canonicalId, AKA "key"
+  address?: string; // address of the pool contract, no address if internal pool
+};
+
+export type PoolAsset = {
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  index: number;
+  balance: BigNumber;
+};
+
+export enum AssetType {
+  LOCAL,
+  ADOPTED,
 }
 
 export type AssetData = {
