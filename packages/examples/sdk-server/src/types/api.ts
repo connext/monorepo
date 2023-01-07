@@ -96,7 +96,6 @@ export const calculateAmountReceivedSchema = Type.Object({
   originDomain: Type.String(),
   destinationDomain: Type.String(),
   originTokenAddress: Type.String(),
-  destinationTokenAddress: Type.String(),
   amount: Type.String(),
 });
 
