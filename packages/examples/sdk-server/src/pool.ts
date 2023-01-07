@@ -225,15 +225,13 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
       },
     },
     async (request, reply) => {
-      const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount, isNextAsset } =
-        request.body;
+      const { originDomain, destinationDomain, originTokenAddress, destinationTokenAddress, amount } = request.body;
       const res = await sdkPoolInstance.calculateAmountReceived(
         originDomain,
         destinationDomain,
         originTokenAddress,
         destinationTokenAddress,
         amount,
-        isNextAsset,
       );
       reply.status(200).send(res);
     },

@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber } from "ethers";
+import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
@@ -111,6 +111,19 @@ export class NxtpSdkShared {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
+  }
+
+  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
+    });
+
+    if (asset) {
+      return utils.getAddress(asset.local) == tokenAddress ? true : false;
+    }
+
+    return;
   }
 
   async changeSignerAddress(signerAddress: string) {

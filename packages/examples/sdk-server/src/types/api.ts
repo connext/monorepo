@@ -98,7 +98,6 @@ export const calculateAmountReceivedSchema = Type.Object({
   originTokenAddress: Type.String(),
   destinationTokenAddress: Type.String(),
   amount: Type.String(),
-  isNextAsset: Type.Optional(Type.Boolean()),
 });
 
 export const getTokenPriceSchema = Type.Object({
