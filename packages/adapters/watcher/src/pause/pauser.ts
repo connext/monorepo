@@ -38,9 +38,10 @@ export class Pauser extends Verifier {
 
         // 2. If not paused, call pause tx
         if (!paused) {
-          const pauseCalldata = connextInterface.encodeFunctionData("pause", []);
+          const pauseCalldata = connextInterface.encodeFunctionData("pause");
 
           try {
+            // TODO: send at 1.5x estimate
             const receipt = await txservice.sendTx(
               { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId: +domain },
               requestContext,
@@ -58,6 +59,7 @@ export class Pauser extends Verifier {
               paused: false,
               error: error,
               relevantTransaction: "",
+              calldata: pauseCalldata,
             };
           }
         } else {
