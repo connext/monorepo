@@ -166,13 +166,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
     ]);
 
-    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
-
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
-      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
+      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      const totalAmount = [amountX, amountY].reduce(
+        (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
+        BigNumber.from("0"),
+      );
       return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
     }
 
@@ -197,13 +199,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
     ]);
 
-    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
-
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
-      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
+      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      const totalAmount = [amountX, amountY].reduce(
+        (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
+        BigNumber.from("0"),
+      );
       return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
     }
 
