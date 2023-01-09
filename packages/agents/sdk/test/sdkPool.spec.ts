@@ -4,7 +4,7 @@ import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, Contract } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkPool } from "../src/sdkPool";
-import { AssetType, PoolAsset, Pool } from "../src/interfaces";
+import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
 import { Connext } from "@connext/nxtp-contracts";
 
@@ -17,15 +17,6 @@ const mockDeployments = mock.contracts.deployments();
 describe("NxtpSdkPool", () => {
   let nxtpPool: NxtpSdkPool;
   let config: ConfigFns.NxtpSdkConfig;
-
-  const mockPool: Pool = {
-    domainId: mock.domain.A,
-    name: `TSTA-Pool`,
-    symbol: `TSTA-TSTA`,
-    assets: new Map<AssetType, PoolAsset>(),
-    lpTokenAddress: utils.formatBytes32String("1337"),
-    canonicalHash: utils.formatBytes32String("13337"),
-  };
 
   const localAsset: PoolAsset = {
     address: mock.asset.A.address,
@@ -45,8 +36,15 @@ describe("NxtpSdkPool", () => {
     balance: BigNumber.from("100"),
   };
 
-  mockPool.assets.set(AssetType.LOCAL, localAsset);
-  mockPool.assets.set(AssetType.ADOPTED, adoptedAsset);
+  const mockPool: Pool = {
+    domainId: mock.domain.A,
+    name: `TSTA-Pool`,
+    symbol: `TSTA-TSTA`,
+    local: localAsset,
+    adopted: adoptedAsset,
+    lpTokenAddress: utils.formatBytes32String("1337"),
+    canonicalHash: utils.formatBytes32String("13337"),
+  };
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
@@ -136,7 +134,7 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.addLiquidity(
         mockPool.domainId,
-        mockPool.assets.get(AssetType.LOCAL)!.address,
+        mockPool.local.address,
         mockParams.amounts,
         mockParams.minToMint,
         mockParams.deadline,
@@ -172,7 +170,7 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.removeLiquidity(
         mockPool.domainId,
-        mockPool.assets.get(AssetType.LOCAL)!.address,
+        mockPool.local.address,
         mockParams.amount,
         mockParams.minAmounts,
         mockParams.deadline,
@@ -213,7 +211,7 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.swap(
         mockPool.domainId,
-        mockPool.assets.get(AssetType.LOCAL)!.address,
+        mockPool.local.address,
         mockParams.from,
         mockParams.to,
         mockParams.amount,
@@ -233,8 +231,8 @@ describe("NxtpSdkPool", () => {
 
     it("happy: should work", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(nxtpPool, "getRepresentation").resolves(mockPool.assets.get(AssetType.LOCAL)!.address);
-      stub(nxtpPool, "getAdopted").resolves(mockPool.assets.get(AssetType.ADOPTED)!.address);
+      stub(nxtpPool, "getRepresentation").resolves(mockPool.local.address);
+      stub(nxtpPool, "getAdopted").resolves(mockPool.adopted.address);
       stub(nxtpPool, "getLPTokenAddress").resolves(mockPool.lpTokenAddress);
       stub(nxtpPool, "getPoolTokenBalance").resolves(localAsset.balance);
       stub(nxtpPool, "getPoolTokenIndex").resolves(0);
@@ -256,7 +254,7 @@ describe("NxtpSdkPool", () => {
       stub(nxtpPool, "getConnext").resolves(connextContract as Connext);
       stub(nxtpPool, "getERC20").resolves(mockERC20 as any);
 
-      const res = await nxtpPool.getPool(mockPool.domainId, mockPool.assets.get(AssetType.LOCAL)!.address);
+      const res = await nxtpPool.getPool(mockPool.domainId, mockPool.local.address);
 
       expect(res!.domainId).to.equal(mockPool.domainId);
       expect(res!.name).to.equal(mockPool.name);
@@ -267,7 +265,7 @@ describe("NxtpSdkPool", () => {
     it("should throw if local domain is canonical", async () => {
       stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      expect(nxtpPool.getPool(mockPool.domainId, mockPool.assets.get(AssetType.LOCAL)!.address)).to.be.rejectedWith(
+      expect(nxtpPool.getPool(mockPool.domainId, mockPool.local.address)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),
       );
     });
@@ -355,13 +353,13 @@ describe("NxtpSdkPool", () => {
 
   describe("#calculateAmountReceived", () => {
     const mockAssetData = {
-      local: mockPool.assets.get(AssetType.LOCAL)!.address,
-      adopted: mockPool.assets.get(AssetType.ADOPTED)!.address,
+      local: mockPool.local.address,
+      adopted: mockPool.adopted.address,
       canonical_id: utils.formatBytes32String("0"),
       canonical_domain: mockPool.domainId,
       domain: mockPool.domainId,
       key: mockPool.canonicalHash,
-      id: mockPool.assets.get(AssetType.LOCAL)!.address,
+      id: mockPool.local.address,
     };
 
     it("happy: should work with canonical origin asset", async () => {
@@ -376,7 +374,7 @@ describe("NxtpSdkPool", () => {
       const res = await nxtpPool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
-        mockPool.assets.get(AssetType.ADOPTED)!.address,
+        mockPool.adopted.address,
         BigNumber.from("1000000"),
       );
 
@@ -400,7 +398,7 @@ describe("NxtpSdkPool", () => {
       const res = await nxtpPool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
-        mockPool.assets.get(AssetType.ADOPTED)!.address,
+        mockPool.adopted.address,
         BigNumber.from("1000000"),
       );
 
