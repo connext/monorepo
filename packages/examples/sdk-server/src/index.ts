@@ -58,7 +58,9 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
+    network: configJson.network,
     environment: configJson.environment,
+    cartographerUrl: configJson.cartographerUrl,
   };
 
   const { nxtpSdkBase, nxtpSdkPool, nxtpSdkUtils, nxtpSdkRouter } = await create(nxtpConfig);
@@ -67,7 +69,8 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   sdkPoolInstance = nxtpSdkPool;
   sdkUtilsInstance = nxtpSdkUtils;
   sdkRouterInstance = nxtpSdkRouter;
-  console.log(`Initialized SDK with config ${nxtpConfig}`);
+  console.log(`Initialized SDK with config:`);
+  console.log(nxtpConfig);
 
   // Register routes
 

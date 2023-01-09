@@ -9,35 +9,39 @@ describe("Watcher Adapter: sms", () => {
   let twilioNumber = "123324523523";
   let twilioAccountSid = "test";
   let twilioAuthToken = "test";
-  let twilioToPhoneNumbers = ["21348728349"];
+  let twilioToPhoneNumbers = ["21348728349", "12312312"];
 
   beforeEach(() => {});
 
   describe("#alertViaSms", () => {
     beforeEach(() => {});
 
-    it("should throw if config is invalid", async () => {
-      await expect(
-        alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, undefined, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
+    it("should fail if alerting fails", async () => {
+      let twilioStub: SinonStub;
+      twilioStub = stub(Mockable, "sendMessageViaTwilio").rejects();
 
-      await expect(
-        alertViaSms(TEST_REPORT, undefined, twilioAuthToken, twilioNumber, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
+      await expect(alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers)).to
+        .be.rejected;
+      expect(twilioStub.callCount).to.be.eq(1);
 
-      await expect(
-        alertViaSms(TEST_REPORT, twilioAccountSid, undefined, twilioNumber, twilioToPhoneNumbers),
-      ).to.be.rejectedWith("alertViaSms: Twilio config is invalid!");
+      twilioStub.restore();
+    });
 
-      await expect(alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, twilioNumber, [])).to.be.rejectedWith(
-        "alertViaSms: Twilio config is invalid!",
-      );
+    it("should skip invalid numbers", async () => {
+      let twilioStub: SinonStub;
+      twilioStub = stub(Mockable, "sendMessageViaTwilio").resolves();
+
+      await expect(alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers)).to
+        .not.rejected;
+      expect(twilioStub.callCount).to.be.eq(twilioToPhoneNumbers.length);
+
+      twilioStub.restore();
     });
 
     it("should success if config is valid", async () => {
       let twilioStub: SinonStub;
       twilioStub = stub(Mockable, "sendMessageViaTwilio").resolves();
-
+      twilioToPhoneNumbers = ["21348728349", "123-12-3-12"];
       await expect(alertViaSms(TEST_REPORT, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers)).to
         .not.rejected;
       expect(twilioStub.callCount).to.be.eq(1);

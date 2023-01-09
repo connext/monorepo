@@ -1,4 +1,4 @@
-import { constants } from "ethers";
+import { Contract, constants } from "ethers";
 import { defaultAbiCoder, hexlify, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
@@ -66,12 +66,6 @@ export default task("setup-asset", "Configures an asset")
       }
       const pool = _pool ?? constants.AddressZero;
       const cap = _cap ?? 0;
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextName = getDeploymentName("Connext", env);
-        const connextDeployment = await deployments.get(connextName);
-        connextAddress = connextDeployment.address;
-      }
 
       console.log("canonical:", canonical);
       console.log("domain:", domain);
@@ -84,7 +78,12 @@ export default task("setup-asset", "Configures an asset")
       console.log("cap: ", cap);
       console.log("domain: ", domain);
       console.log("deployer: ", deployer.address);
-      const connext = await ethers.getContractAt("Connext", connextAddress);
+      const connextName = getDeploymentName("Connext", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      console.log("connextAddress: ", connextAddress);
+
+      const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       console.log("connextAddress: ", connextAddress);
 
       const canonicalTokenId = {

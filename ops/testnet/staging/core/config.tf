@@ -363,7 +363,7 @@ locals {
     hubDomain : "1735353714"
     chains = {
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "BigBroERC20"
@@ -372,7 +372,7 @@ locals {
         ]
       }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "BigBroERC20"
@@ -386,11 +386,7 @@ locals {
     discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
     telegramApiKey = "${var.telegram_api_key}"
     telegramChatId = "${var.telegram_chat_id}"
-    keybaseUser    = "${var.keybase_user}"
-    keybaseKey     = "${var.keybase_key}"
-    keybaseChannel = {
-      name   = "${var.keybase_channel_name}"
-      public = true
-    }
+    betterUptimeApiKey = "${var.betteruptime_api_key}"
+    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }

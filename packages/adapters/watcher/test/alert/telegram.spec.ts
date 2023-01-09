@@ -15,16 +15,6 @@ describe("Watcher Adapter: telegram", () => {
   describe("#alertViaTelegram", () => {
     beforeEach(() => {});
 
-    it("should throw if chatId or apiKey is invalid", async () => {
-      await expect(alertViaTelegram(TEST_REPORT, telegramApiKey, undefined)).to.be.rejectedWith(
-        "alertViaTelegram: Telegram alert config is invalid!",
-      );
-
-      await expect(alertViaTelegram(TEST_REPORT, undefined, telegramChatId)).to.be.rejectedWith(
-        "alertViaTelegram: Telegram alert config is invalid!",
-      );
-    });
-
     it("should success if config is valid", async () => {
       let axiosPostStub: SinonStub;
       axiosPostStub = stub(Mockable, "axiosPost").resolves({ code: 200, data: "ok" });

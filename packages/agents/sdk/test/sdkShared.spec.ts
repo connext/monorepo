@@ -60,6 +60,9 @@ describe("SdkShared", () => {
       expect(nxtpSdkShared.getConnext).to.be.a("function");
       expect(nxtpSdkShared.getERC20).to.be.a("function");
       expect(nxtpSdkShared.approveIfNeeded).to.be.a("function");
+      expect(nxtpSdkShared.getAssetsData).to.be.a("function");
+      expect(nxtpSdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
+      expect(nxtpSdkShared.isNextAsset).to.be.a("function");
       expect(nxtpSdkShared.changeSignerAddress).to.be.a("function");
       expect(nxtpSdkShared.parseConnextTransactionReceipt).to.be.a("function");
       expect(nxtpSdkShared.calculateCanonicalKey).to.be.a("function");

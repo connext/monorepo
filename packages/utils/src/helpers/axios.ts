@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
 
 import { NxtpError } from "../types";
 
@@ -8,9 +8,13 @@ export class AxiosQueryError extends NxtpError {
   }
 }
 
-export const axiosPost = async <T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D): Promise<R> => {
+export const axiosPost = async <T = any, R = AxiosResponse<T>, D = any>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>,
+): Promise<R> => {
   try {
-    const response = await axios.post<T, R, D>(url, data);
+    const response = await axios.post<T, R, D>(url, data, config);
     return response;
   } catch (error: unknown) {
     const errorObj: any = {};
