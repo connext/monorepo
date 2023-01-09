@@ -657,7 +657,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const pool: Pool = {
         domainId: domainId,
         name: `${localSymbol}-Pool`,
-        symbol: `${localSymbol}-next${localSymbol}`,
+        symbol: `${localSymbol}-${localSymbol}`,
         assets: assets,
         lpTokenAddress: lpTokenAddress,
         canonicalHash: key,

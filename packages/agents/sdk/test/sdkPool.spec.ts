@@ -21,7 +21,7 @@ describe("NxtpSdkPool", () => {
   const mockPool: Pool = {
     domainId: mock.domain.A,
     name: `TSTA-Pool`,
-    symbol: `TSTA-nextTSTA`,
+    symbol: `TSTA-TSTA`,
     assets: new Map<AssetType, PoolAsset>(),
     lpTokenAddress: utils.formatBytes32String("1337"),
     canonicalHash: utils.formatBytes32String("13337"),
