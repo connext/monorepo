@@ -118,9 +118,8 @@ export class TransfersCache extends Cache {
             ...sanitizeNull(existing),
             ...sanitizeNull(transfer),
 
-            // Origin may exist on existing and/or input transfer, either one is fine since new input can't possibly
-            // have new information.
-            origin: existing.origin ?? transfer.origin,
+            // Origin may exist on existing and/or input transfer, old one needs to be replaced because users could bump a transfer
+            origin: transfer.origin,
 
             // Destination may exist on both existing and input transfer, we need to do a nested collation in case
             // the new transfer has new information (e.g. existing has Executed data, new transfer includes Reconcile).
