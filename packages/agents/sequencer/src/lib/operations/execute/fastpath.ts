@@ -60,21 +60,18 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // TODO: Check that a relayer is configured/approved for this chain (?).
 
-  // Check to see if we have the XCall data saved locally for this.
-  let transfer = await cache.transfers.getTransfer(transferId);
+  // Get the XCall from the subgraph for this transfer.
+  const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
-    // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getOriginTransferById(origin, transferId);
-    if (!transfer || !transfer.origin) {
-      // Router shouldn't be bidding on a transfer that doesn't exist.
-      throw new MissingXCall(origin, transferId, {
-        bid,
-      });
-    }
-    // Store the transfer locally. We will use this as a reference later when we execute this transfer
-    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
-    await cache.transfers.storeTransfers([transfer]);
+    // Router shouldn't be bidding on a transfer that doesn't exist.
+    throw new MissingXCall(origin, transferId, {
+      bid,
+    });
   }
+
+  // Store the transfer locally. We will use this as a reference later when we execute this transfer
+  // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+  await cache.transfers.storeTransfers([transfer]);
 
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
@@ -140,6 +137,7 @@ export const executeFastPathData = async (
   let taskId: string | undefined;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
+    relayerfee: { canSubmitToRelayer },
   } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeFastPathData.name, _requestContext);
   logger.debug(`Method start: ${executeFastPathData.name}`, requestContext, methodContext);
@@ -217,6 +215,21 @@ export const executeFastPathData = async (
     await cache.auctions.setExecStatus(transferId, ExecStatus.Completed);
     return { taskId };
   }
+
+  const { canSubmit, needed } = await canSubmitToRelayer(transfer);
+  if (!canSubmit) {
+    logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
+      transferId,
+      relayerFee: transfer.origin.relayerFee,
+      needed,
+    });
+
+    return { taskId };
+  }
+
+  // TODO: Enforce relayer fee
+  // At the time of sequencer relayer submission, check the amount that the user sent as relayer fee against the SDK-determined relayer fee.
+  // If it is not enough (within a certain tolerance), sequencer should error and refuse to submit the tx, and drop the message.
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));

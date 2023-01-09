@@ -331,6 +331,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         url: `http://${LOCALHOST}:8082`,
       },
     ],
+    relayerFeeTolerance: 20,
   };
 })();
 

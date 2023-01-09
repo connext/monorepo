@@ -5,3 +5,9 @@ export class RelayerSendFailed extends NxtpError {
     super(`Relayer Send Failed`, context, RelayerSendFailed.name);
   }
 }
+
+export class NotEnoughRelayerFee extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Relayer fee not enough`, context, NotEnoughRelayerFee.name);
+  }
+}

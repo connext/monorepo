@@ -1,8 +1,14 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
-import { XCalled, Executed, Reconciled } from "../../../generated/Connext/Connext";
-import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
+import { XCalled, Executed, Reconciled, TransferRelayerFeesIncreased } from "../../../generated/Connext/Connext";
+import {
+  Router,
+  OriginTransfer,
+  DestinationTransfer,
+  OriginMessage,
+  TransferRelayerFee,
+} from "../../../generated/schema";
 
 import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
 
@@ -56,6 +62,13 @@ export function handleXCalled(event: XCalled): void {
   message.message = event.params.messageBody;
   message.save();
   transfer.message = message.id;
+
+  let transferRelayerFeeEntity = TransferRelayerFee.load(event.params.transferId.toHexString());
+  if (transferRelayerFeeEntity == null) {
+    transfer.relayerFee = BigInt.fromI32(0);
+  } else {
+    transfer.relayerFee = transferRelayerFeeEntity.fee;
+  }
 
   // XCall Transaction
   // NOTE: Using originSender as the caller, since it should have been set to msg.sender.
@@ -215,4 +228,27 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledTxOrigin = event.transaction.from;
 
   transfer.save();
+}
+
+/**
+ * Updates subgraph records when TransferRelayerFeesIncreased events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased): void {
+  let transferRelayerFeeEntity = TransferRelayerFee.load(event.params.transferId.toHexString());
+  if (transferRelayerFeeEntity == null) {
+    transferRelayerFeeEntity = new TransferRelayerFee(event.params.transferId.toHexString());
+    transferRelayerFeeEntity.transferId = event.params.transferId;
+    transferRelayerFeeEntity.fee = BigInt.fromI32(0);
+  }
+
+  transferRelayerFeeEntity.fee = transferRelayerFeeEntity.fee!.plus(event.params.increase);
+  transferRelayerFeeEntity.save();
+
+  let originTransfer = OriginTransfer.load(event.params.transferId.toHexString());
+  if (originTransfer != null) {
+    originTransfer.relayerFee = transferRelayerFeeEntity.fee;
+    originTransfer.save();
+  }
 }

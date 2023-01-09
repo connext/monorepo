@@ -11,6 +11,7 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
+const DEFAULT_RELAYER_FEE_TOLERANCE = 10;
 
 dotEnvConfig();
 
@@ -95,6 +96,13 @@ export const getEnvConfig = (
       : configJson.relayers
       ? configJson.relayers
       : configFile.relayers,
+    relayerFeeTolerance: process.env.RELAYER_FEE_TOLERANCE
+      ? Number(process.env.RELAYER_FEE_TOLERANCE)
+      : configJson.relayerFeeTolerance
+      ? configJson.relayerFeeTolerance
+      : configFile.relayerFeeTolerance
+      ? configFile.relayerFeeTolerance
+      : DEFAULT_RELAYER_FEE_TOLERANCE,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
