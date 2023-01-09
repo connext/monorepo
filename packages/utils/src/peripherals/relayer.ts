@@ -75,7 +75,6 @@ export const calculateRelayerFee = async (
   // add relayerFee bump to estimatedRelayerFee
   const bumpedFee = estimatedRelayerFee.add(estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage)).div(100));
 
-  // TODO: Convert the estimatedRelayerFee to the originNativeToken
   const [originTokenPrice, destinationTokenPrice, originTokenDecimals, destinationTokenDecimals] = await Promise.all([
     getConversionRate(originChainId, undefined, undefined),
     getConversionRate(destinationChainId, undefined, undefined),
@@ -104,10 +103,10 @@ export const calculateRelayerFee = async (
 
   if (logger) {
     logger.info("Fee estimation completed!", undefined, undefined, {
-      bumpedFee,
+      bumpedFee: bumpedFee.toString(),
       originTokenPrice,
       destinationTokenPrice,
-      relayerFeeInOrginNativeAsset,
+      relayerFeeInOrginNativeAsset: relayerFeeInOrginNativeAsset.toString(),
     });
   }
   return relayerFeeInOrginNativeAsset;
