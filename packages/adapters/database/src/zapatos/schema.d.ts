@@ -7,21 +7,21 @@ Copyright (C) 2020 - 2022 George MacKerron
 Released under the MIT licence: see LICENCE file
 */
 
-declare module 'zapatos/schema' {
-
-  import type * as db from 'zapatos/db';
+declare module "zapatos/schema" {
+  import type * as db from "zapatos/db";
 
   // got a type error on schemaVersionCanary below? update by running `npx zapatos`
-  export interface schemaVersionCanary extends db.SchemaVersionCanary { version: 104 }
-
+  export interface schemaVersionCanary extends db.SchemaVersionCanary {
+    version: 104;
+  }
 
   /* === schema: public === */
 
   /* --- enums --- */
 
-  export type transfer_status = 'CompletedFast' | 'CompletedSlow' | 'Executed' | 'Reconciled' | 'XCalled';
+  export type transfer_status = "CompletedFast" | "CompletedSlow" | "Executed" | "Reconciled" | "XCalled";
   export namespace every {
-    export type transfer_status = ['CompletedFast', 'CompletedSlow', 'Executed', 'Reconciled', 'XCalled'];
+    export type transfer_status = ["CompletedFast", "CompletedSlow", "Executed", "Reconciled", "XCalled"];
   }
 
   /* --- tables --- */
@@ -31,141 +31,184 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace aggregated_roots {
-    export type Table = 'aggregated_roots';
+    export type Table = "aggregated_roots";
     export interface Selectable {
       /**
-      * **aggregated_roots.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **aggregated_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **aggregated_roots.received_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.received_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       received_root: string;
       /**
-      * **aggregated_roots.domain_index**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain_index**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       domain_index: number;
     }
     export interface JSONSelectable {
       /**
-      * **aggregated_roots.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **aggregated_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **aggregated_roots.received_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.received_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       received_root: string;
       /**
-      * **aggregated_roots.domain_index**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain_index**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       domain_index: number;
     }
     export interface Whereable {
       /**
-      * **aggregated_roots.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **aggregated_roots.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **aggregated_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **aggregated_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **aggregated_roots.received_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      received_root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **aggregated_roots.received_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      received_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **aggregated_roots.domain_index**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
-      domain_index?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **aggregated_roots.domain_index**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
+      domain_index?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **aggregated_roots.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **aggregated_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **aggregated_roots.received_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.received_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       received_root: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **aggregated_roots.domain_index**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **aggregated_roots.domain_index**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       domain_index: number | db.Parameter<number> | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **aggregated_roots.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **aggregated_roots.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **aggregated_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **aggregated_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **aggregated_roots.received_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      received_root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **aggregated_roots.received_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      received_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **aggregated_roots.domain_index**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
-      domain_index?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+       * **aggregated_roots.domain_index**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
+      domain_index?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'aggregated_roots_pkey';
+    export type UniqueIndex = "aggregated_roots_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -174,171 +217,225 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace asset_balances {
-    export type Table = 'asset_balances';
+    export type Table = "asset_balances";
     export interface Selectable {
       /**
-      * **asset_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_canonical_id: string;
       /**
-      * **asset_balances.asset_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_domain: string;
       /**
-      * **asset_balances.router_address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.router_address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       router_address: string;
       /**
-      * **asset_balances.balance**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.balance**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       balance: number;
       /**
-      * **asset_balances.fees_earned**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.fees_earned**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       fees_earned: number;
     }
     export interface JSONSelectable {
       /**
-      * **asset_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_canonical_id: string;
       /**
-      * **asset_balances.asset_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_domain: string;
       /**
-      * **asset_balances.router_address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.router_address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       router_address: string;
       /**
-      * **asset_balances.balance**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.balance**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       balance: number;
       /**
-      * **asset_balances.fees_earned**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.fees_earned**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       fees_earned: number;
     }
     export interface Whereable {
       /**
-      * **asset_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      asset_canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **asset_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      asset_canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **asset_balances.asset_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      asset_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **asset_balances.asset_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      asset_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **asset_balances.router_address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      router_address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **asset_balances.router_address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      router_address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **asset_balances.balance**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **asset_balances.balance**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      balance?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **asset_balances.fees_earned**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **asset_balances.fees_earned**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      fees_earned?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **asset_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_canonical_id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **asset_balances.asset_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.asset_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       asset_domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **asset_balances.router_address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **asset_balances.router_address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       router_address: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **asset_balances.balance**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.balance**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
       /**
-      * **asset_balances.fees_earned**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **asset_balances.fees_earned**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **asset_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      asset_canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **asset_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      asset_canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **asset_balances.asset_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      asset_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **asset_balances.asset_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      asset_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **asset_balances.router_address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      router_address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **asset_balances.router_address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      router_address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **asset_balances.balance**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+       * **asset_balances.balance**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      balance?:
+        | number
+        | db.Parameter<number>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
       /**
-      * **asset_balances.fees_earned**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+       * **asset_balances.fees_earned**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      fees_earned?:
+        | number
+        | db.Parameter<number>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'asset_balances_pkey';
+    export type UniqueIndex = "asset_balances_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -347,231 +444,305 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace assets {
-    export type Table = 'assets';
+    export type Table = "assets";
     export interface Selectable {
       /**
-      * **assets.local**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.local**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       local: string;
       /**
-      * **assets.adopted**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.adopted**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       adopted: string;
       /**
-      * **assets.canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_id: string;
       /**
-      * **assets.canonical_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_domain: string;
       /**
-      * **assets.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       key: string | null;
       /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       id: string | null;
     }
     export interface JSONSelectable {
       /**
-      * **assets.local**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.local**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       local: string;
       /**
-      * **assets.adopted**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.adopted**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       adopted: string;
       /**
-      * **assets.canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_id: string;
       /**
-      * **assets.canonical_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_domain: string;
       /**
-      * **assets.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       key: string | null;
       /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       id: string | null;
     }
     export interface Whereable {
       /**
-      * **assets.local**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      local?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.local**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      local?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.adopted**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.adopted**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      adopted?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.canonical_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.canonical_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      key?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      key?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **assets.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **assets.local**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.local**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       local: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **assets.adopted**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.adopted**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       adopted: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **assets.canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **assets.canonical_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.canonical_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       canonical_domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **assets.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **assets.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       key?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **assets.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **assets.local**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      local?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **assets.local**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      local?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **assets.adopted**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **assets.adopted**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      adopted?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **assets.canonical_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **assets.canonical_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **assets.canonical_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **assets.canonical_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **assets.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **assets.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **assets.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      key?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **assets.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      key?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **assets.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **assets.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'assets_pkey';
+    export type UniqueIndex = "assets_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -580,81 +751,107 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace checkpoints {
-    export type Table = 'checkpoints';
+    export type Table = "checkpoints";
     export interface Selectable {
       /**
-      * **checkpoints.check_name**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **checkpoints.check_name**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       check_name: string;
       /**
-      * **checkpoints.check_point**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **checkpoints.check_point**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       check_point: number;
     }
     export interface JSONSelectable {
       /**
-      * **checkpoints.check_name**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **checkpoints.check_name**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       check_name: string;
       /**
-      * **checkpoints.check_point**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **checkpoints.check_point**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       check_point: number;
     }
     export interface Whereable {
       /**
-      * **checkpoints.check_name**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      check_name?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **checkpoints.check_name**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      check_name?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **checkpoints.check_point**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      check_point?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **checkpoints.check_point**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      check_point?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **checkpoints.check_name**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **checkpoints.check_name**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       check_name: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **checkpoints.check_point**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
+       * **checkpoints.check_point**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
       check_point?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **checkpoints.check_name**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      check_name?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **checkpoints.check_name**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      check_name?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **checkpoints.check_point**
-      * - `numeric` in database
-      * - `NOT NULL`, default: `0`
-      */
-      check_point?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+       * **checkpoints.check_point**
+       * - `numeric` in database
+       * - `NOT NULL`, default: `0`
+       */
+      check_point?:
+        | number
+        | db.Parameter<number>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'checkpoints_pkey';
+    export type UniqueIndex = "checkpoints_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -663,84 +860,107 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace daily_router_tvl {
-    export type Table = 'daily_router_tvl';
+    export type Table = "daily_router_tvl";
     export interface Selectable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       latest_transfer_day: Date | null;
       /**
-      * **daily_router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_router_tvl.router**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.router**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       tvl: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       latest_transfer_day: db.DateString | null;
       /**
-      * **daily_router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_router_tvl.router**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.router**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       tvl: number | null;
     }
     export interface Whereable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      latest_transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      latest_transfer_day?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_router_tvl.router**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_router_tvl.router**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      router?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      tvl?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -751,7 +971,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -760,318 +987,430 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace daily_transfer_metrics {
-    export type Table = 'daily_transfer_metrics';
+    export type Table = "daily_transfer_metrics";
     export interface Selectable {
       /**
-      * **daily_transfer_metrics.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_date: Date | null;
       /**
-      * **daily_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **daily_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       unique_user_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       zero_amount_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       xcalled_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       executed_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       reconciled_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedfast_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedslow_transfer_count: db.Int8String | null;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttv_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttr_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttv_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttr_in_secs: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **daily_transfer_metrics.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_date: db.DateString | null;
       /**
-      * **daily_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **daily_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       unique_user_count: number | null;
       /**
-      * **daily_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       zero_amount_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       xcalled_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       executed_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       reconciled_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedfast_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedslow_transfer_count: number | null;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttv_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttr_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttv_in_secs: number | null;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttr_in_secs: number | null;
     }
     export interface Whereable {
       /**
-      * **daily_transfer_metrics.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      transfer_date?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      router?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      unique_user_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      unique_user_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      zero_amount_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      xcalled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      xcalled_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      executed_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      executed_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      reconciled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      reconciled_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      completedfast_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      completedfast_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      completedslow_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      completedslow_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      fastpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      fastpath_avg_ttv_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      fastpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      fastpath_avg_ttr_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slowpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slowpath_avg_ttv_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slowpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slowpath_avg_ttr_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -1082,7 +1421,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -1091,138 +1437,176 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace daily_transfer_volume {
-    export type Table = 'daily_transfer_volume';
+    export type Table = "daily_transfer_volume";
     export interface Selectable {
       /**
-      * **daily_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **daily_transfer_volume.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_date: Date | null;
       /**
-      * **daily_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **daily_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **daily_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **daily_transfer_volume.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_date: db.DateString | null;
       /**
-      * **daily_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **daily_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **daily_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **daily_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **daily_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface Whereable {
       /**
-      * **daily_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_volume.transfer_date**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.transfer_date**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      transfer_date?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **daily_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      router?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **daily_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      volume?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -1233,7 +1617,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -1242,318 +1633,430 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace hourly_transfer_metrics {
-    export type Table = 'hourly_transfer_metrics';
+    export type Table = "hourly_transfer_metrics";
     export interface Selectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
       transfer_hour: Date | null;
       /**
-      * **hourly_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **hourly_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **hourly_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       unique_user_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       zero_amount_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       xcalled_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       executed_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       reconciled_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedfast_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedslow_transfer_count: db.Int8String | null;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttv_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttr_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttv_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttr_in_secs: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
       transfer_hour: db.TimestampTzString | null;
       /**
-      * **hourly_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **hourly_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **hourly_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       unique_user_count: number | null;
       /**
-      * **hourly_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       zero_amount_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       xcalled_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       executed_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       reconciled_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedfast_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       completedslow_transfer_count: number | null;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttv_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fastpath_avg_ttr_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttv_in_secs: number | null;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slowpath_avg_ttr_in_secs: number | null;
     }
     export interface Whereable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
-      transfer_hour?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
+      transfer_hour?:
+        | (db.TimestampTzString | Date)
+        | db.Parameter<db.TimestampTzString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.TimestampTzString | Date) | db.Parameter<db.TimestampTzString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      router?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.unique_user_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      unique_user_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.unique_user_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      unique_user_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.zero_amount_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.zero_amount_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      zero_amount_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      xcalled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.xcalled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      xcalled_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      executed_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.executed_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      executed_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      reconciled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.reconciled_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      reconciled_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.completedfast_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      completedfast_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.completedfast_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      completedfast_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.completedslow_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      completedslow_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.completedslow_transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      completedslow_transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      fastpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.fastpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      fastpath_avg_ttv_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      fastpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.fastpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      fastpath_avg_ttr_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slowpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.slowpath_avg_ttv_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slowpath_avg_ttv_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slowpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_metrics.slowpath_avg_ttr_in_secs**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slowpath_avg_ttr_in_secs?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -1564,7 +2067,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -1573,138 +2083,176 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace hourly_transfer_volume {
-    export type Table = 'hourly_transfer_volume';
+    export type Table = "hourly_transfer_volume";
     export interface Selectable {
       /**
-      * **hourly_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **hourly_transfer_volume.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
       transfer_hour: Date | null;
       /**
-      * **hourly_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **hourly_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **hourly_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **hourly_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **hourly_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **hourly_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **hourly_transfer_volume.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
       transfer_hour: db.TimestampTzString | null;
       /**
-      * **hourly_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **hourly_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **hourly_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
       router: string | null;
       /**
-      * **hourly_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **hourly_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **hourly_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface Whereable {
       /**
-      * **hourly_transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_volume.transfer_hour**
-      * - `timestamptz` in database
-      * - Nullable, no default
-      */
-      transfer_hour?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.transfer_hour**
+       * - `timestamptz` in database
+       * - Nullable, no default
+       */
+      transfer_hour?:
+        | (db.TimestampTzString | Date)
+        | db.Parameter<db.TimestampTzString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.TimestampTzString | Date) | db.Parameter<db.TimestampTzString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **hourly_transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_volume.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_volume.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.router**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      router?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **hourly_transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **hourly_transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      volume?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -1715,7 +2263,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -1724,111 +2279,145 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace merkle_cache {
-    export type Table = 'merkle_cache';
+    export type Table = "merkle_cache";
     export interface Selectable {
       /**
-      * **merkle_cache.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **merkle_cache.domain_path**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain_path**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       domain_path: string;
       /**
-      * **merkle_cache.tree_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.tree_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       tree_root: string;
     }
     export interface JSONSelectable {
       /**
-      * **merkle_cache.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **merkle_cache.domain_path**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain_path**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       domain_path: string;
       /**
-      * **merkle_cache.tree_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.tree_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       tree_root: string;
     }
     export interface Whereable {
       /**
-      * **merkle_cache.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **merkle_cache.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **merkle_cache.domain_path**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain_path?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **merkle_cache.domain_path**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain_path?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **merkle_cache.tree_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      tree_root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **merkle_cache.tree_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      tree_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **merkle_cache.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **merkle_cache.domain_path**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.domain_path**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       domain_path: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **merkle_cache.tree_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **merkle_cache.tree_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       tree_root: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **merkle_cache.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **merkle_cache.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **merkle_cache.domain_path**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain_path?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **merkle_cache.domain_path**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain_path?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **merkle_cache.tree_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      tree_root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **merkle_cache.tree_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      tree_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'merkle_cache_pkey';
+    export type UniqueIndex = "merkle_cache_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -1837,261 +2426,352 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace messages {
-    export type Table = 'messages';
+    export type Table = "messages";
     export interface Selectable {
       /**
-      * **messages.leaf**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.leaf**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       leaf: string;
       /**
-      * **messages.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string;
       /**
-      * **messages.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **messages.index**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **messages.index**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       index: number | null;
       /**
-      * **messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root: string | null;
       /**
-      * **messages.message**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.message**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       message: string | null;
       /**
-      * **messages.processed**
-      * - `bool` in database
-      * - Nullable, default: `false`
-      */
+       * **messages.processed**
+       * - `bool` in database
+       * - Nullable, default: `false`
+       */
       processed: boolean | null;
       /**
-      * **messages.return_data**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.return_data**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       return_data: string | null;
     }
     export interface JSONSelectable {
       /**
-      * **messages.leaf**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.leaf**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       leaf: string;
       /**
-      * **messages.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string;
       /**
-      * **messages.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **messages.index**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **messages.index**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       index: number | null;
       /**
-      * **messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root: string | null;
       /**
-      * **messages.message**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.message**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       message: string | null;
       /**
-      * **messages.processed**
-      * - `bool` in database
-      * - Nullable, default: `false`
-      */
+       * **messages.processed**
+       * - `bool` in database
+       * - Nullable, default: `false`
+       */
       processed: boolean | null;
       /**
-      * **messages.return_data**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.return_data**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       return_data: string | null;
     }
     export interface Whereable {
       /**
-      * **messages.leaf**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      leaf?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.leaf**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      leaf?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.index**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      index?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **messages.index**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      index?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.message**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.message**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      message?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.processed**
-      * - `bool` in database
-      * - Nullable, default: `false`
-      */
-      processed?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+       * **messages.processed**
+       * - `bool` in database
+       * - Nullable, default: `false`
+       */
+      processed?:
+        | boolean
+        | db.Parameter<boolean>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **messages.return_data**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      return_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **messages.return_data**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      return_data?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **messages.leaf**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.leaf**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       leaf: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **messages.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **messages.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **messages.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **messages.index**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **messages.index**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       index?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **messages.message**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.message**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **messages.processed**
-      * - `bool` in database
-      * - Nullable, default: `false`
-      */
+       * **messages.processed**
+       * - `bool` in database
+       * - Nullable, default: `false`
+       */
       processed?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **messages.return_data**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **messages.return_data**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       return_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **messages.leaf**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      leaf?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **messages.leaf**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      leaf?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **messages.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **messages.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **messages.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **messages.index**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      index?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.index**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      index?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **messages.message**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.message**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      message?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **messages.processed**
-      * - `bool` in database
-      * - Nullable, default: `false`
-      */
-      processed?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.processed**
+       * - `bool` in database
+       * - Nullable, default: `false`
+       */
+      processed?:
+        | boolean
+        | db.Parameter<boolean>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **messages.return_data**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      return_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **messages.return_data**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      return_data?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'messages_pkey';
+    export type UniqueIndex = "messages_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2100,141 +2780,186 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace propagated_roots {
-    export type Table = 'propagated_roots';
+    export type Table = "propagated_roots";
     export interface Selectable {
       /**
-      * **propagated_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **propagated_roots.aggregate_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.aggregate_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       aggregate_root: string;
       /**
-      * **propagated_roots.leaf_count**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.leaf_count**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       leaf_count: number;
       /**
-      * **propagated_roots.domains_hash**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **propagated_roots.domains_hash**
+       * - `text` in database
+       * - Nullable, no default
+       */
       domains_hash: string | null;
     }
     export interface JSONSelectable {
       /**
-      * **propagated_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **propagated_roots.aggregate_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.aggregate_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       aggregate_root: string;
       /**
-      * **propagated_roots.leaf_count**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.leaf_count**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       leaf_count: number;
       /**
-      * **propagated_roots.domains_hash**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **propagated_roots.domains_hash**
+       * - `text` in database
+       * - Nullable, no default
+       */
       domains_hash: string | null;
     }
     export interface Whereable {
       /**
-      * **propagated_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **propagated_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **propagated_roots.aggregate_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      aggregate_root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **propagated_roots.aggregate_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      aggregate_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **propagated_roots.leaf_count**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
-      leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **propagated_roots.leaf_count**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
+      leaf_count?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **propagated_roots.domains_hash**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      domains_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **propagated_roots.domains_hash**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      domains_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **propagated_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **propagated_roots.aggregate_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.aggregate_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       aggregate_root: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **propagated_roots.leaf_count**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
+       * **propagated_roots.leaf_count**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
       leaf_count: number | db.Parameter<number> | db.SQLFragment;
       /**
-      * **propagated_roots.domains_hash**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **propagated_roots.domains_hash**
+       * - `text` in database
+       * - Nullable, no default
+       */
       domains_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **propagated_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **propagated_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **propagated_roots.aggregate_root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      aggregate_root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **propagated_roots.aggregate_root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      aggregate_root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **propagated_roots.leaf_count**
-      * - `numeric` in database
-      * - `NOT NULL`, no default
-      */
-      leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+       * **propagated_roots.leaf_count**
+       * - `numeric` in database
+       * - `NOT NULL`, no default
+       */
+      leaf_count?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
       /**
-      * **propagated_roots.domains_hash**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      domains_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **propagated_roots.domains_hash**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      domains_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'propagated_roots_aggregate_root_key' | 'propagated_roots_pkey';
+    export type UniqueIndex = "propagated_roots_aggregate_root_key" | "propagated_roots_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2243,141 +2968,184 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace received_aggregate_roots {
-    export type Table = 'received_aggregate_roots';
+    export type Table = "received_aggregate_roots";
     export interface Selectable {
       /**
-      * **received_aggregate_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **received_aggregate_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **received_aggregate_roots.root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       root: string;
       /**
-      * **received_aggregate_roots.block_number**
-      * - `int4` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.block_number**
+       * - `int4` in database
+       * - `NOT NULL`, no default
+       */
       block_number: number;
     }
     export interface JSONSelectable {
       /**
-      * **received_aggregate_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **received_aggregate_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string;
       /**
-      * **received_aggregate_roots.root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       root: string;
       /**
-      * **received_aggregate_roots.block_number**
-      * - `int4` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.block_number**
+       * - `int4` in database
+       * - `NOT NULL`, no default
+       */
       block_number: number;
     }
     export interface Whereable {
       /**
-      * **received_aggregate_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **received_aggregate_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **received_aggregate_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **received_aggregate_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **received_aggregate_roots.root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **received_aggregate_roots.root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **received_aggregate_roots.block_number**
-      * - `int4` in database
-      * - `NOT NULL`, no default
-      */
-      block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **received_aggregate_roots.block_number**
+       * - `int4` in database
+       * - `NOT NULL`, no default
+       */
+      block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **received_aggregate_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **received_aggregate_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **received_aggregate_roots.root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       root: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **received_aggregate_roots.block_number**
-      * - `int4` in database
-      * - `NOT NULL`, no default
-      */
+       * **received_aggregate_roots.block_number**
+       * - `int4` in database
+       * - `NOT NULL`, no default
+       */
       block_number: number | db.Parameter<number> | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **received_aggregate_roots.id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **received_aggregate_roots.id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **received_aggregate_roots.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **received_aggregate_roots.domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **received_aggregate_roots.root**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **received_aggregate_roots.root**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **received_aggregate_roots.block_number**
-      * - `int4` in database
-      * - `NOT NULL`, no default
-      */
-      block_number?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+       * **received_aggregate_roots.block_number**
+       * - `int4` in database
+       * - `NOT NULL`, no default
+       */
+      block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'received_aggregate_roots_pkey';
+    export type UniqueIndex = "received_aggregate_roots_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2386,411 +3154,558 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace root_messages {
-    export type Table = 'root_messages';
+    export type Table = "root_messages";
     export interface Selectable {
       /**
-      * **root_messages.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **root_messages.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **root_messages.spoke_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.spoke_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       spoke_domain: string | null;
       /**
-      * **root_messages.hub_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.hub_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       hub_domain: string | null;
       /**
-      * **root_messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root: string | null;
       /**
-      * **root_messages.caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       caller: string | null;
       /**
-      * **root_messages.sent_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       sent_transaction_hash: string | null;
       /**
-      * **root_messages.sent_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       sent_timestamp: number | null;
       /**
-      * **root_messages.gas_price**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_price**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_price: number | null;
       /**
-      * **root_messages.gas_limit**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_limit**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_limit: number | null;
       /**
-      * **root_messages.block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       block_number: number | null;
       /**
-      * **root_messages.processed**
-      * - `bool` in database
-      * - `NOT NULL`, default: `false`
-      */
+       * **root_messages.processed**
+       * - `bool` in database
+       * - `NOT NULL`, default: `false`
+       */
       processed: boolean;
       /**
-      * **root_messages.processed_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.processed_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       processed_transaction_hash: string | null;
       /**
-      * **root_messages.leaf_count**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.leaf_count**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       leaf_count: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **root_messages.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **root_messages.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string;
       /**
-      * **root_messages.spoke_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.spoke_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       spoke_domain: string | null;
       /**
-      * **root_messages.hub_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.hub_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       hub_domain: string | null;
       /**
-      * **root_messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root: string | null;
       /**
-      * **root_messages.caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       caller: string | null;
       /**
-      * **root_messages.sent_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       sent_transaction_hash: string | null;
       /**
-      * **root_messages.sent_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       sent_timestamp: number | null;
       /**
-      * **root_messages.gas_price**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_price**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_price: number | null;
       /**
-      * **root_messages.gas_limit**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_limit**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_limit: number | null;
       /**
-      * **root_messages.block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       block_number: number | null;
       /**
-      * **root_messages.processed**
-      * - `bool` in database
-      * - `NOT NULL`, default: `false`
-      */
+       * **root_messages.processed**
+       * - `bool` in database
+       * - `NOT NULL`, default: `false`
+       */
       processed: boolean;
       /**
-      * **root_messages.processed_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.processed_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       processed_transaction_hash: string | null;
       /**
-      * **root_messages.leaf_count**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.leaf_count**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       leaf_count: number | null;
     }
     export interface Whereable {
       /**
-      * **root_messages.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.spoke_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      spoke_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.spoke_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      spoke_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.hub_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      hub_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.hub_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      hub_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.sent_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      sent_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.sent_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      sent_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.sent_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      sent_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.sent_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      sent_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.gas_price**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.gas_price**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      gas_price?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.gas_limit**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.gas_limit**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      gas_limit?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.processed**
-      * - `bool` in database
-      * - `NOT NULL`, default: `false`
-      */
-      processed?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.processed**
+       * - `bool` in database
+       * - `NOT NULL`, default: `false`
+       */
+      processed?:
+        | boolean
+        | db.Parameter<boolean>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.processed_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      processed_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.processed_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      processed_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.leaf_count**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **root_messages.leaf_count**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      leaf_count?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **root_messages.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
+       * **root_messages.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
       id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **root_messages.spoke_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.spoke_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       spoke_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.hub_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.hub_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       hub_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.sent_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       sent_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.sent_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.sent_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       sent_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.gas_price**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_price**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.gas_limit**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.gas_limit**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **root_messages.block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.processed**
-      * - `bool` in database
-      * - `NOT NULL`, default: `false`
-      */
+       * **root_messages.processed**
+       * - `bool` in database
+       * - `NOT NULL`, default: `false`
+       */
       processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.processed_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **root_messages.processed_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       processed_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.leaf_count**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **root_messages.leaf_count**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **root_messages.id**
-      * - `text` in database
-      * - `NOT NULL`, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **root_messages.id**
+       * - `text` in database
+       * - `NOT NULL`, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **root_messages.spoke_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      spoke_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.spoke_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      spoke_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.hub_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      hub_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.hub_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      hub_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.root**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.root**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      root?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.sent_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      sent_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.sent_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      sent_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.sent_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      sent_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.sent_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      sent_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.gas_price**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.gas_price**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      gas_price?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.gas_limit**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.gas_limit**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      gas_limit?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.processed**
-      * - `bool` in database
-      * - `NOT NULL`, default: `false`
-      */
-      processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment>;
+       * **root_messages.processed**
+       * - `bool` in database
+       * - `NOT NULL`, default: `false`
+       */
+      processed?:
+        | boolean
+        | db.Parameter<boolean>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.processed_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      processed_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.processed_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      processed_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.leaf_count**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **root_messages.leaf_count**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      leaf_count?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'root_messages_pkey';
+    export type UniqueIndex = "root_messages_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2799,66 +3714,84 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace router_tvl {
-    export type Table = 'router_tvl';
+    export type Table = "router_tvl";
     export interface Selectable {
       /**
-      * **router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       latest_transfer_day: Date | null;
       /**
-      * **router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       tvl: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       latest_transfer_day: db.DateString | null;
       /**
-      * **router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       tvl: number | null;
     }
     export interface Whereable {
       /**
-      * **router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      latest_transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **router_tvl.latest_transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      latest_transfer_day?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **router_tvl.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **router_tvl.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **router_tvl.tvl**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      tvl?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -2869,7 +3802,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2878,51 +3818,67 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace routers {
-    export type Table = 'routers';
+    export type Table = "routers";
     export interface Selectable {
       /**
-      * **routers.address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **routers.address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       address: string;
     }
     export interface JSONSelectable {
       /**
-      * **routers.address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **routers.address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       address: string;
     }
     export interface Whereable {
       /**
-      * **routers.address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers.address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **routers.address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **routers.address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       address: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **routers.address**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **routers.address**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'routers_pkey';
+    export type UniqueIndex = "routers_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -2931,246 +3887,311 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace routers_with_balances {
-    export type Table = 'routers_with_balances';
+    export type Table = "routers_with_balances";
     export interface Selectable {
       /**
-      * **routers_with_balances.address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       address: string | null;
       /**
-      * **routers_with_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset_canonical_id: string | null;
       /**
-      * **routers_with_balances.asset_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.asset_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       asset_domain: string | null;
       /**
-      * **routers_with_balances.router_address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.router_address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       router_address: string | null;
       /**
-      * **routers_with_balances.balance**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.balance**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       balance: number | null;
       /**
-      * **routers_with_balances.local**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.local**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       local: string | null;
       /**
-      * **routers_with_balances.adopted**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.adopted**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       adopted: string | null;
       /**
-      * **routers_with_balances.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **routers_with_balances.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **routers_with_balances.domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       domain: string | null;
       /**
-      * **routers_with_balances.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       key: string | null;
       /**
-      * **routers_with_balances.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       id: string | null;
       /**
-      * **routers_with_balances.fees_earned**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.fees_earned**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fees_earned: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **routers_with_balances.address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       address: string | null;
       /**
-      * **routers_with_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset_canonical_id: string | null;
       /**
-      * **routers_with_balances.asset_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.asset_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       asset_domain: string | null;
       /**
-      * **routers_with_balances.router_address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.router_address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       router_address: string | null;
       /**
-      * **routers_with_balances.balance**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.balance**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       balance: number | null;
       /**
-      * **routers_with_balances.local**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.local**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       local: string | null;
       /**
-      * **routers_with_balances.adopted**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.adopted**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       adopted: string | null;
       /**
-      * **routers_with_balances.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **routers_with_balances.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **routers_with_balances.domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       domain: string | null;
       /**
-      * **routers_with_balances.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       key: string | null;
       /**
-      * **routers_with_balances.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       id: string | null;
       /**
-      * **routers_with_balances.fees_earned**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **routers_with_balances.fees_earned**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       fees_earned: number | null;
     }
     export interface Whereable {
       /**
-      * **routers_with_balances.address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.asset_canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset_canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.asset_canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset_canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.asset_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      asset_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.asset_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      asset_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.router_address**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      router_address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.router_address**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      router_address?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.balance**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.balance**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      balance?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.local**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      local?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.local**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      local?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.adopted**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      adopted?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.adopted**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      adopted?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.key**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      key?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.key**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      key?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **routers_with_balances.fees_earned**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **routers_with_balances.fees_earned**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      fees_earned?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3181,7 +4202,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -3190,51 +4218,67 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace schema_migrations {
-    export type Table = 'schema_migrations';
+    export type Table = "schema_migrations";
     export interface Selectable {
       /**
-      * **schema_migrations.version**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **schema_migrations.version**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       version: string;
     }
     export interface JSONSelectable {
       /**
-      * **schema_migrations.version**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **schema_migrations.version**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       version: string;
     }
     export interface Whereable {
       /**
-      * **schema_migrations.version**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      version?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **schema_migrations.version**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      version?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **schema_migrations.version**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **schema_migrations.version**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       version: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **schema_migrations.version**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      version?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **schema_migrations.version**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      version?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'schema_migrations_pkey';
+    export type UniqueIndex = "schema_migrations_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -3243,102 +4287,133 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace transfer_count {
-    export type Table = 'transfer_count';
+    export type Table = "transfer_count";
     export interface Selectable {
       /**
-      * **transfer_count.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfer_count.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_day: Date | null;
       /**
-      * **transfer_count.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfer_count.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **transfer_count.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: db.Int8String | null;
     }
     export interface JSONSelectable {
       /**
-      * **transfer_count.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfer_count.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_day: db.DateString | null;
       /**
-      * **transfer_count.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfer_count.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **transfer_count.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfer_count.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       transfer_count: number | null;
     }
     export interface Whereable {
       /**
-      * **transfer_count.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_count.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_count.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_count.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      transfer_day?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfer_count.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_count.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_count.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_count.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_count.transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_count.transfer_count**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      transfer_count?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3349,7 +4424,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -3358,102 +4440,130 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace transfer_volume {
-    export type Table = 'transfer_volume';
+    export type Table = "transfer_volume";
     export interface Selectable {
       /**
-      * **transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfer_volume.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_day: Date | null;
       /**
-      * **transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfer_volume.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
       transfer_day: db.DateString | null;
       /**
-      * **transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       asset: string | null;
       /**
-      * **transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       volume: number | null;
     }
     export interface Whereable {
       /**
-      * **transfer_volume.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_volume.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_volume.transfer_day**
-      * - `date` in database
-      * - Nullable, no default
-      */
-      transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_volume.transfer_day**
+       * - `date` in database
+       * - Nullable, no default
+       */
+      transfer_day?:
+        | (db.DateString | Date)
+        | db.Parameter<db.DateString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.DateString | Date) | db.Parameter<db.DateString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfer_volume.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_volume.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_volume.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_volume.asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfer_volume.volume**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfer_volume.volume**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      volume?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3464,7 +4574,14 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -3473,1551 +4590,2170 @@ declare module 'zapatos/schema' {
    * - Table in database
    */
   export namespace transfers {
-    export type Table = 'transfers';
+    export type Table = "transfers";
     export interface Selectable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.transfer_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       transfer_id: string;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfers.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       nonce: db.Int8String | null;
       /**
-      * **transfers.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to: string | null;
       /**
-      * **transfers.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data: string | null;
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string;
       /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local: boolean | null;
       /**
-      * **transfers.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfers.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset: string | null;
       /**
-      * **transfers.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount: string | null;
       /**
-      * **transfers.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset: string | null;
       /**
-      * **transfers.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount: string | null;
       /**
-      * **transfers.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller: string | null;
       /**
-      * **transfers.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash: string | null;
       /**
-      * **transfers.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp: number | null;
       /**
-      * **transfers.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price: string | null;
       /**
-      * **transfers.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit: string | null;
       /**
-      * **transfers.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number: number | null;
       /**
-      * **transfers.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'XCalled'::transfer_status`
-      */
+       * **transfers.status**
+       * - `transfer_status` in database
+       * - `NOT NULL`, default: `'XCalled'::transfer_status`
+       */
       status: transfer_status;
       /**
-      * **transfers.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers: string[] | null;
       /**
-      * **transfers.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset: string | null;
       /**
-      * **transfers.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount: string | null;
       /**
-      * **transfers.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset: string | null;
       /**
-      * **transfers.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount: string | null;
       /**
-      * **transfers.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller: string | null;
       /**
-      * **transfers.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash: string | null;
       /**
-      * **transfers.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp: number | null;
       /**
-      * **transfers.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price: string | null;
       /**
-      * **transfers.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit: string | null;
       /**
-      * **transfers.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number: number | null;
       /**
-      * **transfers.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender: string | null;
       /**
-      * **transfers.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller: string | null;
       /**
-      * **transfers.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash: string | null;
       /**
-      * **transfers.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp: number | null;
       /**
-      * **transfers.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price: string | null;
       /**
-      * **transfers.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit: string | null;
       /**
-      * **transfers.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number: number | null;
       /**
-      * **transfers.update_time**
-      * - `timestamp` in database
-      * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
-      */
+       * **transfers.update_time**
+       * - `timestamp` in database
+       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
+       */
       update_time: Date;
       /**
-      * **transfers.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate: string | null;
       /**
-      * **transfers.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash: string | null;
       /**
-      * **transfers.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **transfers.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage: number | null;
       /**
-      * **transfers.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender: string | null;
       /**
-      * **transfers.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt: string | null;
       /**
-      * **transfers.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in: string | null;
       /**
-      * **transfers.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **transfers.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee: string | null;
       /**
-      * **transfers.xcall_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.relayer_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      relayer_fee: string | null;
+      /*
+       * **transfers.xcall_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_tx_origin: string | null;
       /**
-      * **transfers.execute_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_tx_origin: string | null;
       /**
-      * **transfers.reconcile_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_tx_origin: string | null;
     }
     export interface JSONSelectable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.transfer_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       transfer_id: string;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfers.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       nonce: number | null;
       /**
-      * **transfers.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to: string | null;
       /**
-      * **transfers.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data: string | null;
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string;
       /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local: boolean | null;
       /**
-      * **transfers.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfers.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset: string | null;
       /**
-      * **transfers.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount: string | null;
       /**
-      * **transfers.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset: string | null;
       /**
-      * **transfers.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount: string | null;
       /**
-      * **transfers.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller: string | null;
       /**
-      * **transfers.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash: string | null;
       /**
-      * **transfers.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp: number | null;
       /**
-      * **transfers.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price: string | null;
       /**
-      * **transfers.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit: string | null;
       /**
-      * **transfers.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number: number | null;
       /**
-      * **transfers.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'XCalled'::transfer_status`
-      */
+       * **transfers.status**
+       * - `transfer_status` in database
+       * - `NOT NULL`, default: `'XCalled'::transfer_status`
+       */
       status: transfer_status;
       /**
-      * **transfers.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers: string[] | null;
       /**
-      * **transfers.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset: string | null;
       /**
-      * **transfers.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount: string | null;
       /**
-      * **transfers.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset: string | null;
       /**
-      * **transfers.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount: string | null;
       /**
-      * **transfers.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller: string | null;
       /**
-      * **transfers.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash: string | null;
       /**
-      * **transfers.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp: number | null;
       /**
-      * **transfers.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price: string | null;
       /**
-      * **transfers.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit: string | null;
       /**
-      * **transfers.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number: number | null;
       /**
-      * **transfers.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender: string | null;
       /**
-      * **transfers.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller: string | null;
       /**
-      * **transfers.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash: string | null;
       /**
-      * **transfers.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp: number | null;
       /**
-      * **transfers.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price: string | null;
       /**
-      * **transfers.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit: string | null;
       /**
-      * **transfers.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number: number | null;
       /**
-      * **transfers.update_time**
-      * - `timestamp` in database
-      * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
-      */
+       * **transfers.update_time**
+       * - `timestamp` in database
+       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
+       */
       update_time: db.TimestampString;
       /**
-      * **transfers.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate: string | null;
       /**
-      * **transfers.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash: string | null;
       /**
-      * **transfers.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **transfers.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage: number | null;
       /**
-      * **transfers.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender: string | null;
       /**
-      * **transfers.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt: string | null;
       /**
-      * **transfers.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in: string | null;
       /**
-      * **transfers.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **transfers.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee: string | null;
       /**
-      * **transfers.xcall_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.relayer_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      relayer_fee: string | null;
+      /*
+       * **transfers.xcall_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_tx_origin: string | null;
       /**
-      * **transfers.execute_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_tx_origin: string | null;
       /**
-      * **transfers.reconcile_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_tx_origin: string | null;
     }
     export interface Whereable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.transfer_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      transfer_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfers.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      to?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      call_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      call_data?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-      receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
+      receive_local?:
+        | boolean
+        | db.Parameter<boolean>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'XCalled'::transfer_status`
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.status**
+       * - `transfer_status` in database
+       * - `NOT NULL`, default: `'XCalled'::transfer_status`
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
-      routers?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
+      routers?:
+        | string[]
+        | db.Parameter<string[]>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_local_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_local_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_local_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_origin_sender?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.update_time**
-      * - `timestamp` in database
-      * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.update_time**
+       * - `timestamp` in database
+       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.TimestampString | Date) | db.Parameter<db.TimestampString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfers.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      delegate?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      delegate?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      message_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      message_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slippage?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slippage?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_sender?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      bridged_amt?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      bridged_amt?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      normalized_in?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      normalized_in?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      router_fee?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.xcall_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.relayer_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      relayer_fee?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /*
+       * **transfers.xcall_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.execute_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.execute_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.reconcile_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers.reconcile_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.transfer_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
       transfer_id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment;
+       * **transfers.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?: (number | db.Int8String) | db.Parameter<number | db.Int8String> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
+       * **transfers.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
       origin_domain: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'XCalled'::transfer_status`
-      */
+       * **transfers.status**
+       * - `transfer_status` in database
+       * - `NOT NULL`, default: `'XCalled'::transfer_status`
+       */
       status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.update_time**
-      * - `timestamp` in database
-      * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment;
+       * **transfers.update_time**
+       * - `timestamp` in database
+       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | db.DefaultType
+        | db.SQLFragment;
       /**
-      * **transfers.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.xcall_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.relayer_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /*
+       * **transfers.xcall_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.execute_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.execute_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.reconcile_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers.reconcile_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **transfers.transfer_id**
+       * - `bpchar` in database
+       * - `NOT NULL`, no default
+       */
+      transfer_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | null | db.DefaultType | db.SQLFragment
+          >;
       /**
-      * **transfers.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      to?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      call_data?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+       * **transfers.origin_domain**
+       * - `varchar` in database
+       * - `NOT NULL`, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-      receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
+      receive_local?:
+        | boolean
+        | db.Parameter<boolean>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'XCalled'::transfer_status`
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment>;
+       * **transfers.status**
+       * - `transfer_status` in database
+       * - `NOT NULL`, default: `'XCalled'::transfer_status`
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
-      routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
+      routers?:
+        | string[]
+        | db.Parameter<string[]>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_local_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_local_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_origin_sender?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.update_time**
-      * - `timestamp` in database
-      * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment>;
+       * **transfers.update_time**
+       * - `timestamp` in database
+       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<
+            any,
+            (db.TimestampString | Date) | db.Parameter<db.TimestampString | Date> | db.DefaultType | db.SQLFragment
+          >;
       /**
-      * **transfers.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      delegate?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      delegate?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      message_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slippage?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_sender?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      bridged_amt?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      normalized_in?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      router_fee?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.xcall_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.relayer_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      relayer_fee?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /*
+       * **transfers.xcall_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.execute_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.execute_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.reconcile_tx_origin**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers.reconcile_tx_origin**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_tx_origin?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'transfers_pkey';
+    export type UniqueIndex = "transfers_pkey";
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
@@ -5026,1548 +6762,2347 @@ declare module 'zapatos/schema' {
    * - View in database
    */
   export namespace transfers_with_ttr_ttv {
-    export type Table = 'transfers_with_ttr_ttv';
+    export type Table = "transfers_with_ttr_ttv";
     export interface Selectable {
       /**
-      * **transfers_with_ttr_ttv.transfer_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.transfer_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       transfer_id: string | null;
       /**
-      * **transfers_with_ttr_ttv.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       nonce: db.Int8String | null;
       /**
-      * **transfers_with_ttr_ttv.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to: string | null;
       /**
-      * **transfers_with_ttr_ttv.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local: boolean | null;
       /**
-      * **transfers_with_ttr_ttv.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **transfers_with_ttr_ttv.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfers_with_ttr_ttv.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers: string[] | null;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.update_time**
-      * - `timestamp` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.update_time**
+       * - `timestamp` in database
+       * - Nullable, no default
+       */
       update_time: Date | null;
       /**
-      * **transfers_with_ttr_ttv.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate: string | null;
       /**
-      * **transfers_with_ttr_ttv.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage: number | null;
       /**
-      * **transfers_with_ttr_ttv.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender: string | null;
       /**
-      * **transfers_with_ttr_ttv.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt: string | null;
       /**
-      * **transfers_with_ttr_ttv.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in: string | null;
       /**
-      * **transfers_with_ttr_ttv.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **transfers_with_ttr_ttv.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee: string | null;
       /**
-      * **transfers_with_ttr_ttv.ttr**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttr**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttr: number | null;
       /**
-      * **transfers_with_ttr_ttv.ttv**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttv**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttv: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **transfers_with_ttr_ttv.transfer_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.transfer_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       transfer_id: string | null;
       /**
-      * **transfers_with_ttr_ttv.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
       nonce: number | null;
       /**
-      * **transfers_with_ttr_ttv.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to: string | null;
       /**
-      * **transfers_with_ttr_ttv.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local: boolean | null;
       /**
-      * **transfers_with_ttr_ttv.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain: string | null;
       /**
-      * **transfers_with_ttr_ttv.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status: transfer_status | null;
       /**
-      * **transfers_with_ttr_ttv.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers: string[] | null;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset: string | null;
       /**
-      * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp: number | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit: string | null;
       /**
-      * **transfers_with_ttr_ttv.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number: number | null;
       /**
-      * **transfers_with_ttr_ttv.update_time**
-      * - `timestamp` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.update_time**
+       * - `timestamp` in database
+       * - Nullable, no default
+       */
       update_time: db.TimestampString | null;
       /**
-      * **transfers_with_ttr_ttv.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate: string | null;
       /**
-      * **transfers_with_ttr_ttv.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash: string | null;
       /**
-      * **transfers_with_ttr_ttv.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain: string | null;
       /**
-      * **transfers_with_ttr_ttv.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage: number | null;
       /**
-      * **transfers_with_ttr_ttv.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender: string | null;
       /**
-      * **transfers_with_ttr_ttv.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt: string | null;
       /**
-      * **transfers_with_ttr_ttv.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in: string | null;
       /**
-      * **transfers_with_ttr_ttv.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id: string | null;
       /**
-      * **transfers_with_ttr_ttv.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee: string | null;
       /**
-      * **transfers_with_ttr_ttv.ttr**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttr**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttr: number | null;
       /**
-      * **transfers_with_ttr_ttv.ttv**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttv**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttv: number | null;
     }
     export interface Whereable {
       /**
-      * **transfers_with_ttr_ttv.transfer_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.transfer_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      transfer_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfers_with_ttr_ttv.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      to?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      call_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      call_data?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-      receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
+      receive_local?:
+        | boolean
+        | db.Parameter<boolean>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
-      routers?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
+      routers?:
+        | string[]
+        | db.Parameter<string[]>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_local_asset?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_local_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_local_amount?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_origin_sender?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_caller?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_timestamp?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_price?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_block_number?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.update_time**
-      * - `timestamp` in database
-      * - Nullable, no default
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.update_time**
+       * - `timestamp` in database
+       * - Nullable, no default
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<
+            any,
+            (db.TimestampString | Date) | db.Parameter<db.TimestampString | Date> | db.SQLFragment | db.ParentColumn
+          >;
       /**
-      * **transfers_with_ttr_ttv.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      delegate?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      delegate?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      message_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      message_hash?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slippage?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slippage?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_sender?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      bridged_amt?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      bridged_amt?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      normalized_in?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      normalized_in?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      router_fee?:
+        | string
+        | db.Parameter<string>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.ttr**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      ttr?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.ttr**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      ttr?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.ttv**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      ttv?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+       * **transfers_with_ttr_ttv.ttv**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      ttv?:
+        | number
+        | db.Parameter<number>
+        | db.SQLFragment
+        | db.ParentColumn
+        | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **transfers_with_ttr_ttv.transfer_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.transfer_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       transfer_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment;
+       * **transfers_with_ttr_ttv.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?: (number | db.Int8String) | db.Parameter<number | db.Int8String> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
       call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
       receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       xcall_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
       status?: transfer_status | db.Parameter<transfer_status> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
       routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       reconcile_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.update_time**
-      * - `timestamp` in database
-      * - Nullable, no default
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | null | db.DefaultType | db.SQLFragment;
+       * **transfers_with_ttr_ttv.update_time**
+       * - `timestamp` in database
+       * - Nullable, no default
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | null
+        | db.DefaultType
+        | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       delegate?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       canonical_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
       slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
       canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.ttr**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttr**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.ttv**
-      * - `int4` in database
-      * - Nullable, no default
-      */
+       * **transfers_with_ttr_ttv.ttv**
+       * - `int4` in database
+       * - Nullable, no default
+       */
       ttv?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **transfers_with_ttr_ttv.transfer_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      transfer_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.transfer_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      transfer_id?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.nonce**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.nonce**
+       * - `int8` in database
+       * - Nullable, no default
+       */
+      nonce?:
+        | (number | db.Int8String)
+        | db.Parameter<number | db.Int8String>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<
+            any,
+            (number | db.Int8String) | db.Parameter<number | db.Int8String> | null | db.DefaultType | db.SQLFragment
+          >;
       /**
-      * **transfers_with_ttr_ttv.to**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.to**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      to?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.call_data**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.call_data**
+       * - `text` in database
+       * - Nullable, no default
+       */
+      call_data?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-      receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.receive_local**
+       * - `bool` in database
+       * - Nullable, no default
+       */
+      receive_local?:
+        | boolean
+        | db.Parameter<boolean>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_chain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_bridged_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_bridged_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      origin_bridged_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_bridged_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      origin_bridged_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      xcall_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      xcall_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      xcall_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.xcall_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.xcall_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      xcall_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_chain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_chain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_chain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.status**
-      * - `transfer_status` in database
-      * - Nullable, no default
-      */
-      status?: transfer_status | db.Parameter<transfer_status> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.status**
+       * - `transfer_status` in database
+       * - Nullable, no default
+       */
+      status?:
+        | transfer_status
+        | db.Parameter<transfer_status>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.routers**
-      * - `_bpchar` in database
-      * - Nullable, no default
-      */
-      routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.routers**
+       * - `_bpchar` in database
+       * - Nullable, no default
+       */
+      routers?:
+        | string[]
+        | db.Parameter<string[]>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_transacting_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_transacting_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_transacting_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_transacting_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_transacting_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_local_asset**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      destination_local_asset?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.destination_local_amount**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      destination_local_amount?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.destination_local_amount**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      destination_local_amount?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      execute_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      execute_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      execute_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.execute_origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.execute_origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      execute_origin_sender?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_caller**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_caller**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_caller?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_transaction_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_transaction_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      reconcile_transaction_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_timestamp**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_timestamp**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_timestamp?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_price**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_price?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_gas_price**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_price?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_gas_limit**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      reconcile_gas_limit?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_gas_limit**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      reconcile_gas_limit?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.reconcile_block_number**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.reconcile_block_number**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      reconcile_block_number?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.update_time**
-      * - `timestamp` in database
-      * - Nullable, no default
-      */
-      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.update_time**
+       * - `timestamp` in database
+       * - Nullable, no default
+       */
+      update_time?:
+        | (db.TimestampString | Date)
+        | db.Parameter<db.TimestampString | Date>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<
+            any,
+            | (db.TimestampString | Date)
+            | db.Parameter<db.TimestampString | Date>
+            | null
+            | db.DefaultType
+            | db.SQLFragment
+          >;
       /**
-      * **transfers_with_ttr_ttv.delegate**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      delegate?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.delegate**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      delegate?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.message_hash**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.message_hash**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      message_hash?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.canonical_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      canonical_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.canonical_domain**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      canonical_domain?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.slippage**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.slippage**
+       * - `numeric` in database
+       * - Nullable, no default
+       */
+      slippage?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.origin_sender**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.origin_sender**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      origin_sender?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.bridged_amt**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      bridged_amt?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.bridged_amt**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      bridged_amt?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.normalized_in**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      normalized_in?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.normalized_in**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      normalized_in?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.canonical_id**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      canonical_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.canonical_id**
+       * - `bpchar` in database
+       * - Nullable, no default
+       */
+      canonical_id?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.router_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.router_fee**
+       * - `varchar` in database
+       * - Nullable, no default
+       */
+      router_fee?:
+        | string
+        | db.Parameter<string>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.ttr**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.ttr**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      ttr?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.ttv**
-      * - `int4` in database
-      * - Nullable, no default
-      */
-      ttv?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+       * **transfers_with_ttr_ttv.ttv**
+       * - `int4` in database
+       * - Nullable, no default
+       */
+      ttv?:
+        | number
+        | db.Parameter<number>
+        | null
+        | db.DefaultType
+        | db.SQLFragment
+        | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQLExpression =
+      | Table
+      | db.ColumnNames<Updatable | (keyof Updatable)[]>
+      | db.ColumnValues<Updatable>
+      | Whereable
+      | Column
+      | db.ParentColumn
+      | db.GenericSQLExpression;
     export type SQL = SQLExpression | SQLExpression[];
   }
 
   /* --- aggregate types --- */
 
-  export namespace public {  
-    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
-    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
-    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
-    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
-    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
-    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
-    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
-    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
-  
-    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, transfers.Table];
+  export namespace public {
+    export type Table =
+      | aggregated_roots.Table
+      | asset_balances.Table
+      | assets.Table
+      | checkpoints.Table
+      | daily_router_tvl.Table
+      | daily_transfer_metrics.Table
+      | daily_transfer_volume.Table
+      | hourly_transfer_metrics.Table
+      | hourly_transfer_volume.Table
+      | merkle_cache.Table
+      | messages.Table
+      | propagated_roots.Table
+      | received_aggregate_roots.Table
+      | root_messages.Table
+      | router_tvl.Table
+      | routers.Table
+      | routers_with_balances.Table
+      | schema_migrations.Table
+      | transfer_count.Table
+      | transfer_volume.Table
+      | transfers.Table
+      | transfers_with_ttr_ttv.Table;
+    export type Selectable =
+      | aggregated_roots.Selectable
+      | asset_balances.Selectable
+      | assets.Selectable
+      | checkpoints.Selectable
+      | daily_router_tvl.Selectable
+      | daily_transfer_metrics.Selectable
+      | daily_transfer_volume.Selectable
+      | hourly_transfer_metrics.Selectable
+      | hourly_transfer_volume.Selectable
+      | merkle_cache.Selectable
+      | messages.Selectable
+      | propagated_roots.Selectable
+      | received_aggregate_roots.Selectable
+      | root_messages.Selectable
+      | router_tvl.Selectable
+      | routers.Selectable
+      | routers_with_balances.Selectable
+      | schema_migrations.Selectable
+      | transfer_count.Selectable
+      | transfer_volume.Selectable
+      | transfers.Selectable
+      | transfers_with_ttr_ttv.Selectable;
+    export type JSONSelectable =
+      | aggregated_roots.JSONSelectable
+      | asset_balances.JSONSelectable
+      | assets.JSONSelectable
+      | checkpoints.JSONSelectable
+      | daily_router_tvl.JSONSelectable
+      | daily_transfer_metrics.JSONSelectable
+      | daily_transfer_volume.JSONSelectable
+      | hourly_transfer_metrics.JSONSelectable
+      | hourly_transfer_volume.JSONSelectable
+      | merkle_cache.JSONSelectable
+      | messages.JSONSelectable
+      | propagated_roots.JSONSelectable
+      | received_aggregate_roots.JSONSelectable
+      | root_messages.JSONSelectable
+      | router_tvl.JSONSelectable
+      | routers.JSONSelectable
+      | routers_with_balances.JSONSelectable
+      | schema_migrations.JSONSelectable
+      | transfer_count.JSONSelectable
+      | transfer_volume.JSONSelectable
+      | transfers.JSONSelectable
+      | transfers_with_ttr_ttv.JSONSelectable;
+    export type Whereable =
+      | aggregated_roots.Whereable
+      | asset_balances.Whereable
+      | assets.Whereable
+      | checkpoints.Whereable
+      | daily_router_tvl.Whereable
+      | daily_transfer_metrics.Whereable
+      | daily_transfer_volume.Whereable
+      | hourly_transfer_metrics.Whereable
+      | hourly_transfer_volume.Whereable
+      | merkle_cache.Whereable
+      | messages.Whereable
+      | propagated_roots.Whereable
+      | received_aggregate_roots.Whereable
+      | root_messages.Whereable
+      | router_tvl.Whereable
+      | routers.Whereable
+      | routers_with_balances.Whereable
+      | schema_migrations.Whereable
+      | transfer_count.Whereable
+      | transfer_volume.Whereable
+      | transfers.Whereable
+      | transfers_with_ttr_ttv.Whereable;
+    export type Insertable =
+      | aggregated_roots.Insertable
+      | asset_balances.Insertable
+      | assets.Insertable
+      | checkpoints.Insertable
+      | daily_router_tvl.Insertable
+      | daily_transfer_metrics.Insertable
+      | daily_transfer_volume.Insertable
+      | hourly_transfer_metrics.Insertable
+      | hourly_transfer_volume.Insertable
+      | merkle_cache.Insertable
+      | messages.Insertable
+      | propagated_roots.Insertable
+      | received_aggregate_roots.Insertable
+      | root_messages.Insertable
+      | router_tvl.Insertable
+      | routers.Insertable
+      | routers_with_balances.Insertable
+      | schema_migrations.Insertable
+      | transfer_count.Insertable
+      | transfer_volume.Insertable
+      | transfers.Insertable
+      | transfers_with_ttr_ttv.Insertable;
+    export type Updatable =
+      | aggregated_roots.Updatable
+      | asset_balances.Updatable
+      | assets.Updatable
+      | checkpoints.Updatable
+      | daily_router_tvl.Updatable
+      | daily_transfer_metrics.Updatable
+      | daily_transfer_volume.Updatable
+      | hourly_transfer_metrics.Updatable
+      | hourly_transfer_volume.Updatable
+      | merkle_cache.Updatable
+      | messages.Updatable
+      | propagated_roots.Updatable
+      | received_aggregate_roots.Updatable
+      | root_messages.Updatable
+      | router_tvl.Updatable
+      | routers.Updatable
+      | routers_with_balances.Updatable
+      | schema_migrations.Updatable
+      | transfer_count.Updatable
+      | transfer_volume.Updatable
+      | transfers.Updatable
+      | transfers_with_ttr_ttv.Updatable;
+    export type UniqueIndex =
+      | aggregated_roots.UniqueIndex
+      | asset_balances.UniqueIndex
+      | assets.UniqueIndex
+      | checkpoints.UniqueIndex
+      | daily_router_tvl.UniqueIndex
+      | daily_transfer_metrics.UniqueIndex
+      | daily_transfer_volume.UniqueIndex
+      | hourly_transfer_metrics.UniqueIndex
+      | hourly_transfer_volume.UniqueIndex
+      | merkle_cache.UniqueIndex
+      | messages.UniqueIndex
+      | propagated_roots.UniqueIndex
+      | received_aggregate_roots.UniqueIndex
+      | root_messages.UniqueIndex
+      | router_tvl.UniqueIndex
+      | routers.UniqueIndex
+      | routers_with_balances.UniqueIndex
+      | schema_migrations.UniqueIndex
+      | transfer_count.UniqueIndex
+      | transfer_volume.UniqueIndex
+      | transfers.UniqueIndex
+      | transfers_with_ttr_ttv.UniqueIndex;
+    export type Column =
+      | aggregated_roots.Column
+      | asset_balances.Column
+      | assets.Column
+      | checkpoints.Column
+      | daily_router_tvl.Column
+      | daily_transfer_metrics.Column
+      | daily_transfer_volume.Column
+      | hourly_transfer_metrics.Column
+      | hourly_transfer_volume.Column
+      | merkle_cache.Column
+      | messages.Column
+      | propagated_roots.Column
+      | received_aggregate_roots.Column
+      | root_messages.Column
+      | router_tvl.Column
+      | routers.Column
+      | routers_with_balances.Column
+      | schema_migrations.Column
+      | transfer_count.Column
+      | transfer_volume.Column
+      | transfers.Column
+      | transfers_with_ttr_ttv.Column;
+
+    export type AllBaseTables = [
+      aggregated_roots.Table,
+      asset_balances.Table,
+      assets.Table,
+      checkpoints.Table,
+      merkle_cache.Table,
+      messages.Table,
+      propagated_roots.Table,
+      received_aggregate_roots.Table,
+      root_messages.Table,
+      routers.Table,
+      schema_migrations.Table,
+      transfers.Table,
+    ];
     export type AllForeignTables = [];
-    export type AllViews = [daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
+    export type AllViews = [
+      daily_router_tvl.Table,
+      daily_transfer_metrics.Table,
+      daily_transfer_volume.Table,
+      hourly_transfer_metrics.Table,
+      hourly_transfer_volume.Table,
+      router_tvl.Table,
+      routers_with_balances.Table,
+      transfer_count.Table,
+      transfer_volume.Table,
+      transfers_with_ttr_ttv.Table,
+    ];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
+    export type AllTablesAndViews = [
+      aggregated_roots.Table,
+      asset_balances.Table,
+      assets.Table,
+      checkpoints.Table,
+      daily_router_tvl.Table,
+      daily_transfer_metrics.Table,
+      daily_transfer_volume.Table,
+      hourly_transfer_metrics.Table,
+      hourly_transfer_volume.Table,
+      merkle_cache.Table,
+      messages.Table,
+      propagated_roots.Table,
+      received_aggregate_roots.Table,
+      root_messages.Table,
+      router_tvl.Table,
+      routers.Table,
+      routers_with_balances.Table,
+      schema_migrations.Table,
+      transfer_count.Table,
+      transfer_volume.Table,
+      transfers.Table,
+      transfers_with_ttr_ttv.Table,
+    ];
   }
-
-
 
   /* === global aggregate types === */
 
-  export type Schema = 'public';
+  export type Schema = "public";
   export type Table = public.Table;
   export type Selectable = public.Selectable;
   export type JSONSelectable = public.JSONSelectable;
@@ -6577,214 +9112,212 @@ declare module 'zapatos/schema' {
   export type UniqueIndex = public.UniqueIndex;
   export type Column = public.Column;
 
-  export type AllSchemas = ['public'];
+  export type AllSchemas = ["public"];
   export type AllBaseTables = [...public.AllBaseTables];
   export type AllForeignTables = [...public.AllForeignTables];
   export type AllViews = [...public.AllViews];
   export type AllMaterializedViews = [...public.AllMaterializedViews];
   export type AllTablesAndViews = [...public.AllTablesAndViews];
 
-
   /* === lookups === */
 
   export type SelectableForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.Selectable;
-    "asset_balances": asset_balances.Selectable;
-    "assets": assets.Selectable;
-    "checkpoints": checkpoints.Selectable;
-    "daily_router_tvl": daily_router_tvl.Selectable;
-    "daily_transfer_metrics": daily_transfer_metrics.Selectable;
-    "daily_transfer_volume": daily_transfer_volume.Selectable;
-    "hourly_transfer_metrics": hourly_transfer_metrics.Selectable;
-    "hourly_transfer_volume": hourly_transfer_volume.Selectable;
-    "merkle_cache": merkle_cache.Selectable;
-    "messages": messages.Selectable;
-    "propagated_roots": propagated_roots.Selectable;
-    "received_aggregate_roots": received_aggregate_roots.Selectable;
-    "root_messages": root_messages.Selectable;
-    "router_tvl": router_tvl.Selectable;
-    "routers": routers.Selectable;
-    "routers_with_balances": routers_with_balances.Selectable;
-    "schema_migrations": schema_migrations.Selectable;
-    "transfer_count": transfer_count.Selectable;
-    "transfer_volume": transfer_volume.Selectable;
-    "transfers": transfers.Selectable;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Selectable;
+    aggregated_roots: aggregated_roots.Selectable;
+    asset_balances: asset_balances.Selectable;
+    assets: assets.Selectable;
+    checkpoints: checkpoints.Selectable;
+    daily_router_tvl: daily_router_tvl.Selectable;
+    daily_transfer_metrics: daily_transfer_metrics.Selectable;
+    daily_transfer_volume: daily_transfer_volume.Selectable;
+    hourly_transfer_metrics: hourly_transfer_metrics.Selectable;
+    hourly_transfer_volume: hourly_transfer_volume.Selectable;
+    merkle_cache: merkle_cache.Selectable;
+    messages: messages.Selectable;
+    propagated_roots: propagated_roots.Selectable;
+    received_aggregate_roots: received_aggregate_roots.Selectable;
+    root_messages: root_messages.Selectable;
+    router_tvl: router_tvl.Selectable;
+    routers: routers.Selectable;
+    routers_with_balances: routers_with_balances.Selectable;
+    schema_migrations: schema_migrations.Selectable;
+    transfer_count: transfer_count.Selectable;
+    transfer_volume: transfer_volume.Selectable;
+    transfers: transfers.Selectable;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.Selectable;
   }[T];
 
   export type JSONSelectableForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.JSONSelectable;
-    "asset_balances": asset_balances.JSONSelectable;
-    "assets": assets.JSONSelectable;
-    "checkpoints": checkpoints.JSONSelectable;
-    "daily_router_tvl": daily_router_tvl.JSONSelectable;
-    "daily_transfer_metrics": daily_transfer_metrics.JSONSelectable;
-    "daily_transfer_volume": daily_transfer_volume.JSONSelectable;
-    "hourly_transfer_metrics": hourly_transfer_metrics.JSONSelectable;
-    "hourly_transfer_volume": hourly_transfer_volume.JSONSelectable;
-    "merkle_cache": merkle_cache.JSONSelectable;
-    "messages": messages.JSONSelectable;
-    "propagated_roots": propagated_roots.JSONSelectable;
-    "received_aggregate_roots": received_aggregate_roots.JSONSelectable;
-    "root_messages": root_messages.JSONSelectable;
-    "router_tvl": router_tvl.JSONSelectable;
-    "routers": routers.JSONSelectable;
-    "routers_with_balances": routers_with_balances.JSONSelectable;
-    "schema_migrations": schema_migrations.JSONSelectable;
-    "transfer_count": transfer_count.JSONSelectable;
-    "transfer_volume": transfer_volume.JSONSelectable;
-    "transfers": transfers.JSONSelectable;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.JSONSelectable;
+    aggregated_roots: aggregated_roots.JSONSelectable;
+    asset_balances: asset_balances.JSONSelectable;
+    assets: assets.JSONSelectable;
+    checkpoints: checkpoints.JSONSelectable;
+    daily_router_tvl: daily_router_tvl.JSONSelectable;
+    daily_transfer_metrics: daily_transfer_metrics.JSONSelectable;
+    daily_transfer_volume: daily_transfer_volume.JSONSelectable;
+    hourly_transfer_metrics: hourly_transfer_metrics.JSONSelectable;
+    hourly_transfer_volume: hourly_transfer_volume.JSONSelectable;
+    merkle_cache: merkle_cache.JSONSelectable;
+    messages: messages.JSONSelectable;
+    propagated_roots: propagated_roots.JSONSelectable;
+    received_aggregate_roots: received_aggregate_roots.JSONSelectable;
+    root_messages: root_messages.JSONSelectable;
+    router_tvl: router_tvl.JSONSelectable;
+    routers: routers.JSONSelectable;
+    routers_with_balances: routers_with_balances.JSONSelectable;
+    schema_migrations: schema_migrations.JSONSelectable;
+    transfer_count: transfer_count.JSONSelectable;
+    transfer_volume: transfer_volume.JSONSelectable;
+    transfers: transfers.JSONSelectable;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.JSONSelectable;
   }[T];
 
   export type WhereableForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.Whereable;
-    "asset_balances": asset_balances.Whereable;
-    "assets": assets.Whereable;
-    "checkpoints": checkpoints.Whereable;
-    "daily_router_tvl": daily_router_tvl.Whereable;
-    "daily_transfer_metrics": daily_transfer_metrics.Whereable;
-    "daily_transfer_volume": daily_transfer_volume.Whereable;
-    "hourly_transfer_metrics": hourly_transfer_metrics.Whereable;
-    "hourly_transfer_volume": hourly_transfer_volume.Whereable;
-    "merkle_cache": merkle_cache.Whereable;
-    "messages": messages.Whereable;
-    "propagated_roots": propagated_roots.Whereable;
-    "received_aggregate_roots": received_aggregate_roots.Whereable;
-    "root_messages": root_messages.Whereable;
-    "router_tvl": router_tvl.Whereable;
-    "routers": routers.Whereable;
-    "routers_with_balances": routers_with_balances.Whereable;
-    "schema_migrations": schema_migrations.Whereable;
-    "transfer_count": transfer_count.Whereable;
-    "transfer_volume": transfer_volume.Whereable;
-    "transfers": transfers.Whereable;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Whereable;
+    aggregated_roots: aggregated_roots.Whereable;
+    asset_balances: asset_balances.Whereable;
+    assets: assets.Whereable;
+    checkpoints: checkpoints.Whereable;
+    daily_router_tvl: daily_router_tvl.Whereable;
+    daily_transfer_metrics: daily_transfer_metrics.Whereable;
+    daily_transfer_volume: daily_transfer_volume.Whereable;
+    hourly_transfer_metrics: hourly_transfer_metrics.Whereable;
+    hourly_transfer_volume: hourly_transfer_volume.Whereable;
+    merkle_cache: merkle_cache.Whereable;
+    messages: messages.Whereable;
+    propagated_roots: propagated_roots.Whereable;
+    received_aggregate_roots: received_aggregate_roots.Whereable;
+    root_messages: root_messages.Whereable;
+    router_tvl: router_tvl.Whereable;
+    routers: routers.Whereable;
+    routers_with_balances: routers_with_balances.Whereable;
+    schema_migrations: schema_migrations.Whereable;
+    transfer_count: transfer_count.Whereable;
+    transfer_volume: transfer_volume.Whereable;
+    transfers: transfers.Whereable;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.Whereable;
   }[T];
 
   export type InsertableForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.Insertable;
-    "asset_balances": asset_balances.Insertable;
-    "assets": assets.Insertable;
-    "checkpoints": checkpoints.Insertable;
-    "daily_router_tvl": daily_router_tvl.Insertable;
-    "daily_transfer_metrics": daily_transfer_metrics.Insertable;
-    "daily_transfer_volume": daily_transfer_volume.Insertable;
-    "hourly_transfer_metrics": hourly_transfer_metrics.Insertable;
-    "hourly_transfer_volume": hourly_transfer_volume.Insertable;
-    "merkle_cache": merkle_cache.Insertable;
-    "messages": messages.Insertable;
-    "propagated_roots": propagated_roots.Insertable;
-    "received_aggregate_roots": received_aggregate_roots.Insertable;
-    "root_messages": root_messages.Insertable;
-    "router_tvl": router_tvl.Insertable;
-    "routers": routers.Insertable;
-    "routers_with_balances": routers_with_balances.Insertable;
-    "schema_migrations": schema_migrations.Insertable;
-    "transfer_count": transfer_count.Insertable;
-    "transfer_volume": transfer_volume.Insertable;
-    "transfers": transfers.Insertable;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Insertable;
+    aggregated_roots: aggregated_roots.Insertable;
+    asset_balances: asset_balances.Insertable;
+    assets: assets.Insertable;
+    checkpoints: checkpoints.Insertable;
+    daily_router_tvl: daily_router_tvl.Insertable;
+    daily_transfer_metrics: daily_transfer_metrics.Insertable;
+    daily_transfer_volume: daily_transfer_volume.Insertable;
+    hourly_transfer_metrics: hourly_transfer_metrics.Insertable;
+    hourly_transfer_volume: hourly_transfer_volume.Insertable;
+    merkle_cache: merkle_cache.Insertable;
+    messages: messages.Insertable;
+    propagated_roots: propagated_roots.Insertable;
+    received_aggregate_roots: received_aggregate_roots.Insertable;
+    root_messages: root_messages.Insertable;
+    router_tvl: router_tvl.Insertable;
+    routers: routers.Insertable;
+    routers_with_balances: routers_with_balances.Insertable;
+    schema_migrations: schema_migrations.Insertable;
+    transfer_count: transfer_count.Insertable;
+    transfer_volume: transfer_volume.Insertable;
+    transfers: transfers.Insertable;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.Insertable;
   }[T];
 
   export type UpdatableForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.Updatable;
-    "asset_balances": asset_balances.Updatable;
-    "assets": assets.Updatable;
-    "checkpoints": checkpoints.Updatable;
-    "daily_router_tvl": daily_router_tvl.Updatable;
-    "daily_transfer_metrics": daily_transfer_metrics.Updatable;
-    "daily_transfer_volume": daily_transfer_volume.Updatable;
-    "hourly_transfer_metrics": hourly_transfer_metrics.Updatable;
-    "hourly_transfer_volume": hourly_transfer_volume.Updatable;
-    "merkle_cache": merkle_cache.Updatable;
-    "messages": messages.Updatable;
-    "propagated_roots": propagated_roots.Updatable;
-    "received_aggregate_roots": received_aggregate_roots.Updatable;
-    "root_messages": root_messages.Updatable;
-    "router_tvl": router_tvl.Updatable;
-    "routers": routers.Updatable;
-    "routers_with_balances": routers_with_balances.Updatable;
-    "schema_migrations": schema_migrations.Updatable;
-    "transfer_count": transfer_count.Updatable;
-    "transfer_volume": transfer_volume.Updatable;
-    "transfers": transfers.Updatable;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Updatable;
+    aggregated_roots: aggregated_roots.Updatable;
+    asset_balances: asset_balances.Updatable;
+    assets: assets.Updatable;
+    checkpoints: checkpoints.Updatable;
+    daily_router_tvl: daily_router_tvl.Updatable;
+    daily_transfer_metrics: daily_transfer_metrics.Updatable;
+    daily_transfer_volume: daily_transfer_volume.Updatable;
+    hourly_transfer_metrics: hourly_transfer_metrics.Updatable;
+    hourly_transfer_volume: hourly_transfer_volume.Updatable;
+    merkle_cache: merkle_cache.Updatable;
+    messages: messages.Updatable;
+    propagated_roots: propagated_roots.Updatable;
+    received_aggregate_roots: received_aggregate_roots.Updatable;
+    root_messages: root_messages.Updatable;
+    router_tvl: router_tvl.Updatable;
+    routers: routers.Updatable;
+    routers_with_balances: routers_with_balances.Updatable;
+    schema_migrations: schema_migrations.Updatable;
+    transfer_count: transfer_count.Updatable;
+    transfer_volume: transfer_volume.Updatable;
+    transfers: transfers.Updatable;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.Updatable;
   }[T];
 
   export type UniqueIndexForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.UniqueIndex;
-    "asset_balances": asset_balances.UniqueIndex;
-    "assets": assets.UniqueIndex;
-    "checkpoints": checkpoints.UniqueIndex;
-    "daily_router_tvl": daily_router_tvl.UniqueIndex;
-    "daily_transfer_metrics": daily_transfer_metrics.UniqueIndex;
-    "daily_transfer_volume": daily_transfer_volume.UniqueIndex;
-    "hourly_transfer_metrics": hourly_transfer_metrics.UniqueIndex;
-    "hourly_transfer_volume": hourly_transfer_volume.UniqueIndex;
-    "merkle_cache": merkle_cache.UniqueIndex;
-    "messages": messages.UniqueIndex;
-    "propagated_roots": propagated_roots.UniqueIndex;
-    "received_aggregate_roots": received_aggregate_roots.UniqueIndex;
-    "root_messages": root_messages.UniqueIndex;
-    "router_tvl": router_tvl.UniqueIndex;
-    "routers": routers.UniqueIndex;
-    "routers_with_balances": routers_with_balances.UniqueIndex;
-    "schema_migrations": schema_migrations.UniqueIndex;
-    "transfer_count": transfer_count.UniqueIndex;
-    "transfer_volume": transfer_volume.UniqueIndex;
-    "transfers": transfers.UniqueIndex;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.UniqueIndex;
+    aggregated_roots: aggregated_roots.UniqueIndex;
+    asset_balances: asset_balances.UniqueIndex;
+    assets: assets.UniqueIndex;
+    checkpoints: checkpoints.UniqueIndex;
+    daily_router_tvl: daily_router_tvl.UniqueIndex;
+    daily_transfer_metrics: daily_transfer_metrics.UniqueIndex;
+    daily_transfer_volume: daily_transfer_volume.UniqueIndex;
+    hourly_transfer_metrics: hourly_transfer_metrics.UniqueIndex;
+    hourly_transfer_volume: hourly_transfer_volume.UniqueIndex;
+    merkle_cache: merkle_cache.UniqueIndex;
+    messages: messages.UniqueIndex;
+    propagated_roots: propagated_roots.UniqueIndex;
+    received_aggregate_roots: received_aggregate_roots.UniqueIndex;
+    root_messages: root_messages.UniqueIndex;
+    router_tvl: router_tvl.UniqueIndex;
+    routers: routers.UniqueIndex;
+    routers_with_balances: routers_with_balances.UniqueIndex;
+    schema_migrations: schema_migrations.UniqueIndex;
+    transfer_count: transfer_count.UniqueIndex;
+    transfer_volume: transfer_volume.UniqueIndex;
+    transfers: transfers.UniqueIndex;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.UniqueIndex;
   }[T];
 
   export type ColumnForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.Column;
-    "asset_balances": asset_balances.Column;
-    "assets": assets.Column;
-    "checkpoints": checkpoints.Column;
-    "daily_router_tvl": daily_router_tvl.Column;
-    "daily_transfer_metrics": daily_transfer_metrics.Column;
-    "daily_transfer_volume": daily_transfer_volume.Column;
-    "hourly_transfer_metrics": hourly_transfer_metrics.Column;
-    "hourly_transfer_volume": hourly_transfer_volume.Column;
-    "merkle_cache": merkle_cache.Column;
-    "messages": messages.Column;
-    "propagated_roots": propagated_roots.Column;
-    "received_aggregate_roots": received_aggregate_roots.Column;
-    "root_messages": root_messages.Column;
-    "router_tvl": router_tvl.Column;
-    "routers": routers.Column;
-    "routers_with_balances": routers_with_balances.Column;
-    "schema_migrations": schema_migrations.Column;
-    "transfer_count": transfer_count.Column;
-    "transfer_volume": transfer_volume.Column;
-    "transfers": transfers.Column;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Column;
+    aggregated_roots: aggregated_roots.Column;
+    asset_balances: asset_balances.Column;
+    assets: assets.Column;
+    checkpoints: checkpoints.Column;
+    daily_router_tvl: daily_router_tvl.Column;
+    daily_transfer_metrics: daily_transfer_metrics.Column;
+    daily_transfer_volume: daily_transfer_volume.Column;
+    hourly_transfer_metrics: hourly_transfer_metrics.Column;
+    hourly_transfer_volume: hourly_transfer_volume.Column;
+    merkle_cache: merkle_cache.Column;
+    messages: messages.Column;
+    propagated_roots: propagated_roots.Column;
+    received_aggregate_roots: received_aggregate_roots.Column;
+    root_messages: root_messages.Column;
+    router_tvl: router_tvl.Column;
+    routers: routers.Column;
+    routers_with_balances: routers_with_balances.Column;
+    schema_migrations: schema_migrations.Column;
+    transfer_count: transfer_count.Column;
+    transfer_volume: transfer_volume.Column;
+    transfers: transfers.Column;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.Column;
   }[T];
 
   export type SQLForTable<T extends Table> = {
-    "aggregated_roots": aggregated_roots.SQL;
-    "asset_balances": asset_balances.SQL;
-    "assets": assets.SQL;
-    "checkpoints": checkpoints.SQL;
-    "daily_router_tvl": daily_router_tvl.SQL;
-    "daily_transfer_metrics": daily_transfer_metrics.SQL;
-    "daily_transfer_volume": daily_transfer_volume.SQL;
-    "hourly_transfer_metrics": hourly_transfer_metrics.SQL;
-    "hourly_transfer_volume": hourly_transfer_volume.SQL;
-    "merkle_cache": merkle_cache.SQL;
-    "messages": messages.SQL;
-    "propagated_roots": propagated_roots.SQL;
-    "received_aggregate_roots": received_aggregate_roots.SQL;
-    "root_messages": root_messages.SQL;
-    "router_tvl": router_tvl.SQL;
-    "routers": routers.SQL;
-    "routers_with_balances": routers_with_balances.SQL;
-    "schema_migrations": schema_migrations.SQL;
-    "transfer_count": transfer_count.SQL;
-    "transfer_volume": transfer_volume.SQL;
-    "transfers": transfers.SQL;
-    "transfers_with_ttr_ttv": transfers_with_ttr_ttv.SQL;
+    aggregated_roots: aggregated_roots.SQL;
+    asset_balances: asset_balances.SQL;
+    assets: assets.SQL;
+    checkpoints: checkpoints.SQL;
+    daily_router_tvl: daily_router_tvl.SQL;
+    daily_transfer_metrics: daily_transfer_metrics.SQL;
+    daily_transfer_volume: daily_transfer_volume.SQL;
+    hourly_transfer_metrics: hourly_transfer_metrics.SQL;
+    hourly_transfer_volume: hourly_transfer_volume.SQL;
+    merkle_cache: merkle_cache.SQL;
+    messages: messages.SQL;
+    propagated_roots: propagated_roots.SQL;
+    received_aggregate_roots: received_aggregate_roots.SQL;
+    root_messages: root_messages.SQL;
+    router_tvl: router_tvl.SQL;
+    routers: routers.SQL;
+    routers_with_balances: routers_with_balances.SQL;
+    schema_migrations: schema_migrations.SQL;
+    transfer_count: transfer_count.SQL;
+    transfer_volume: transfer_volume.SQL;
+    transfers: transfers.SQL;
+    transfers_with_ttr_ttv: transfers_with_ttr_ttv.SQL;
   }[T];
-
 }

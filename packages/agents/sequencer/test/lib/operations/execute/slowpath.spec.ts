@@ -30,6 +30,7 @@ describe("Operations:Execute:SlowPath", () => {
   let getBackupDataStub: SinonStub;
   let upsertTaskStub: SinonStub;
   let pruneExecutorDataStub: SinonStub;
+  let canSubmitToRelayerStub: SinonStub;
   beforeEach(() => {
     const { executors, transfers } = ctxMock.adapters.cache;
 
@@ -45,11 +46,14 @@ describe("Operations:Execute:SlowPath", () => {
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
     publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
+    canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
+
     getGelatoRelayerAddressStub = stub();
     getHelpersStub.returns({
       relayer: {
         getGelatoRelayerAddress: getGelatoRelayerAddressStub,
       },
+      relayerfee: { canSubmitToRelayer: canSubmitToRelayerStub },
     });
 
     sendExecuteSlowToRelayerStub = stub();

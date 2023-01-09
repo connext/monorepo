@@ -268,157 +268,22 @@ describe("SdkBase", () => {
   });
 
   describe("estimateRelayerFee", () => {
-    let getGelatoEstimatedFeeStub: SinonStub;
-    let getConversionRateStub: SinonStub;
-    let getDecimalsForAssetStub: SinonStub;
-    let getHardcodedGasLimitsStub: SinonStub;
+    let calculateRelayerFeeStub: SinonStub;
     beforeEach(() => {
-      getGelatoEstimatedFeeStub = stub(SharedFns, "getGelatoEstimatedFee");
-      getConversionRateStub = stub(SharedFns, "getConversionRate");
-      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
-      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+      calculateRelayerFeeStub = stub(SharedFns, "calculateRelayerFee");
     });
     afterEach(() => {
       restore();
       reset();
     });
     it("should return 0 if origin/destination native asset price is 0", async () => {
-      getConversionRateStub.resolves(0);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
+      calculateRelayerFeeStub.resolves(BigNumber.from(100));
       const relayerFee = await nxtpSdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-      expect(relayerFee.toString()).to.be.eq("0");
-    });
-    it("should add callData gasAmount", async () => {
-      getConversionRateStub.resolves(1);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
-      const callDataGasAmount = 10000;
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-        callDataGasAmount,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 30000, false]);
-      expect(res.toString()).to.be.eq("60000");
-    });
-    it("should properly handle the difference in decimals", async () => {
-      getConversionRateStub.onFirstCall().resolves(1);
-      getConversionRateStub.onSecondCall().resolves(1);
-      getDecimalsForAssetStub.onFirstCall().resolves(6);
-      getDecimalsForAssetStub.onSecondCall().resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      getGelatoEstimatedFeeStub.resolves(utils.parseUnits("5", 16));
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      expect(res.toString()).to.be.eq(utils.parseUnits("6", 4).toString());
-    });
-
-    it("should work with different prices", async () => {
-      const mockToken1Price = 1;
-      const mockToken2Price = 2;
-      getConversionRateStub.onFirstCall().resolves(mockToken1Price);
-      getConversionRateStub.onSecondCall().resolves(mockToken2Price);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      const mockPrice = BigNumber.from("50000");
-      getGelatoEstimatedFeeStub.resolves(mockPrice);
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      const impactedMockPrice1 = Math.floor(mockToken1Price * 1000);
-      const impactedMockPrice2 = Math.floor(mockToken2Price * 1000);
-
-      const expectedPrice = mockPrice
-        .add(mockPrice.mul(SharedFns.relayerBufferPercentage).div(100))
-        .mul(impactedMockPrice2)
-        .div(impactedMockPrice1);
-      expect(res.toString()).to.be.eq(expectedPrice.toString());
-    });
-
-    it("should work with float-point prices", async () => {
-      const mockToken1Price = 1.50035869;
-      const mockToken2Price = 3.0001568;
-      getConversionRateStub.onFirstCall().resolves(mockToken1Price);
-      getConversionRateStub.onSecondCall().resolves(mockToken2Price);
-      getDecimalsForAssetStub.resolves(18);
-      getHardcodedGasLimitsStub.resolves({
-        xcall: "10000",
-        xcallL1: "10000",
-        execute: "20000",
-        executeL1: "20000",
-        gasPriceFactor: "10000",
-      });
-      const mockPrice = BigNumber.from("50000");
-      getGelatoEstimatedFeeStub.resolves(mockPrice);
-
-      const res = await nxtpSdkBase.estimateRelayerFee({
-        originDomain: mock.domain.A,
-        destinationDomain: mock.domain.B,
-      });
-      expect(getConversionRateStub.callCount).to.be.eq(2);
-      expect(getHardcodedGasLimitsStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.callCount).to.be.eq(1);
-      expect(getGelatoEstimatedFeeStub.getCall(0).args).to.be.deep.eq([chainId, constants.AddressZero, 20000, false]);
-
-      const impactedMockPrice1 = Math.floor(mockToken1Price * 1000);
-      const impactedMockPrice2 = Math.floor(mockToken2Price * 1000);
-      const expectedPrice = mockPrice
-        .add(mockPrice.mul(SharedFns.relayerBufferPercentage).div(100))
-        .mul(impactedMockPrice2)
-        .div(impactedMockPrice1);
-      expect(res.toString()).to.be.eq(expectedPrice.toString());
+      expect(calculateRelayerFeeStub.callCount).to.be.eq(1);
+      expect(relayerFee.toString()).to.be.eq("100");
     });
   });
 });
