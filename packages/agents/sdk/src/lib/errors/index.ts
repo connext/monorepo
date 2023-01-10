@@ -7,7 +7,7 @@ export class SignerAddressMissing extends NxtpError {
 }
 
 export class ContractAddressMissing extends NxtpError {
-  constructor(context: any = {}) {
+  constructor(domainId: string, which: string, context: any = {}) {
     super("Contract Address Missing", context, ContractAddressMissing.name);
   }
 }

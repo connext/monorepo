@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  getCanonicalHash,
+  formatUrl,
+  getChainIdFromDomain,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
@@ -7,7 +14,7 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { NxtpSdkConfig, domainsToChainNames } from "./config";
+import { NxtpSdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 /**
  * @classdesc Base class to facilitate on-chain interactions with Connext.
@@ -29,12 +36,20 @@ export class NxtpSdkShared {
     return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
   });
 
+  getDeploymentAddress = memoize(
+    async (domainId: string, deploymentName: keyof ChainDeployments): Promise<string> => {
+      const address = this.config.chains[domainId]?.deployments?.[deploymentName];
+      if (!address) {
+        throw new ContractAddressMissing(domainId, deploymentName);
+      }
+      return address;
+    },
+    { promise: true },
+  );
+
   getConnext = memoize(
     async (domainId: string): Promise<Connext> => {
-      const connextAddress = this.config.chains[domainId]?.deployments?.connext;
-      if (!connextAddress) {
-        throw new ContractAddressMissing();
-      }
+      const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
       const provider = this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
@@ -46,6 +61,17 @@ export class NxtpSdkShared {
     async (domainId: string, tokenAddress: string): Promise<IERC20> => {
       const provider = this.getProvider(domainId);
       return IERC20__factory.connect(tokenAddress, provider);
+    },
+    { promise: true },
+  );
+
+  getChainId = memoize(
+    async (domainId: string): Promise<number> => {
+      let chainId = this.config.chains[domainId].chainId;
+      if (!chainId) {
+        chainId = await getChainIdFromDomain(domainId, this.chainData);
+      }
+      return chainId;
     },
     { promise: true },
   );
