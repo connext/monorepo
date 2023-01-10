@@ -8,7 +8,7 @@ import { Pauser } from "../../src/pause";
 import { VerifierContext } from "../../src/types";
 
 describe("Watcher Adapter: Pauser", () => {
-  const domain = "1337";
+  const domain = "133712";
   const connextAddress = mkAddress("0x987654321");
 
   let readTxResult = "0x0000000000000000000000000000000000000000000000000000000000000000"; // false
