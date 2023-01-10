@@ -28,7 +28,7 @@ export type CachedTaskData = {
  */
 export class TasksCache extends Cache {
   private readonly prefix = "tasks";
-  private readonly defaultExpiryLen = 3600 * 3;
+  private readonly defaultExpireTime = 3600 * 3;
 
   /// MARK - Task Data
   /**
@@ -186,12 +186,12 @@ export class TasksCache extends Cache {
   /**
    * Prunes all records which have been expired within a given length
    *
-   * @param expiryLen - The length of expire time
+   * @param _expireTime - The expire time
    */
-  public async pruneTasks(expiryLen?: number): Promise<void> {
-    const _expiryLen = expiryLen ?? this.defaultExpiryLen;
+  public async pruneTasks(_expireTime?: number): Promise<{ deleted: number; expireTime: number }> {
+    const expireTime = _expireTime ?? this.defaultExpireTime;
     const curTimeStamp = getNtpTimeSeconds();
-
+    let deleted = 0;
     const tasks = await this.data.hgetall(`${this.prefix}:timestamp`);
     for (const taskId of Object.keys(tasks)) {
       const taskStatus = await this.getStatus(taskId);
@@ -204,12 +204,15 @@ export class TasksCache extends Cache {
       // This case shouldn't be happening ideally but there could be some worst cases we couldn't guess right now
       if (lastUpdated === 0) continue;
 
-      const shouldBeDeleted = curTimeStamp - lastUpdated > _expiryLen && completedStatuses.includes(taskStatus);
+      const shouldBeDeleted = curTimeStamp - lastUpdated > expireTime && completedStatuses.includes(taskStatus);
       if (shouldBeDeleted) {
         for (const tb of ["data", "status", "hash", "timestamp", "error"]) {
           await this.data.hdel(`${this.prefix}:${tb}`, taskId);
         }
+        deleted++;
       }
     }
+
+    return { deleted, expireTime };
   }
 }

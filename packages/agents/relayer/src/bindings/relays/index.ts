@@ -125,5 +125,6 @@ export const pollCache = async () => {
   }
 
   // Clear the old data from the task cache to avoid memory leak
-  await cache.tasks.pruneTasks();
+  const { deleted, expireTime } = await cache.tasks.pruneTasks();
+  logger.info("Clearing expired records from the task cache", requestContext, methodContext, { deleted, expireTime });
 };

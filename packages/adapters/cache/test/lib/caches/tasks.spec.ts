@@ -261,13 +261,15 @@ describe("TasksCache", () => {
 
       await delay(2_000);
 
-      await tasksCache.pruneTasks(1);
+      const { deleted, expireTime } = await tasksCache.pruneTasks(1);
 
       for (const taskId of taskIds) {
         const res = await tasksCache.getTask(taskId);
         console.log({ taskId, res });
         expect(res).to.be.undefined;
       }
+      expect(deleted).to.be.eq(30);
+      expect(expireTime).to.be.eq(1);
     });
   });
 });
