@@ -13,33 +13,57 @@ interface Wrapper {
  * @notice A utility contract for unwrapping native tokens at the destination.
  */
 contract Unwrapper is IXReceiver {
-  Wrapper wrapper;
+  // ============ Events ============
+
+  /**
+   * @notice An event that we emit in the event that the unwrapping attempt (namely, `withdraw`
+   * call) fails.
+   * @param recipient - The target recipient address.
+   * @param reason - The reason why the failure occurred; we will emit this in an event.
+   */
+  event UnwrappingFailed(address recipient, bytes reason);
+
+  // ============ Properties ============
+
+  /**
+   * @notice The wrapper contract that this contract will always use for unwrapping native token.
+   */
+  Wrapper public immutable WRAPPER;
+
+  // ============ Constructor ============
 
   constructor(address _wrapper) {
-    wrapper = Wrapper(_wrapper);
+    WRAPPER = Wrapper(_wrapper);
   }
+
+  // ================ Getters ================
 
   /**
    * @notice Read method to get the target wrapper contract. Make sure this is the wrapper
    * you're looking for!
    */
   function getTargetWrapperContract() external view returns (address) {
-    return address(wrapper);
+    return address(WRAPPER);
   }
+
+  // ============ Public Functions ============
 
   /**
    * @notice xReceive implementation for receiving cross-chain calls from Connext.
    * @dev We ignore `originSender` argument: this could be a contract or EOA, but our recipient
    * should be specified in our `callData`!
+   *
+   * @param amount - The amount to transfer.
+   * @param asset - The wrapper contract address. If this does NOT match the wrapper contract address
+   * stored in this contract, this call WILL revert!
    * @param callData - Should be a tuple of just (address). The address is the intended
    * recipient of the unwrapped native tokens.
-   *
    */
   function xReceive(
     bytes32,
     uint256 amount,
     address asset,
-    address, // originSender
+    address,
     uint32,
     bytes memory callData
   ) external returns (bytes memory) {
@@ -48,14 +72,20 @@ contract Unwrapper is IXReceiver {
     // Sanity check: recipient is non-zero.
     require(recipient != address(0), "unwrap: !recipient");
 
-    Wrapper _wrapper = wrapper;
-
     // Sanity check: asset we've received matches our target wrapper.
-    require(asset == address(_wrapper), "unwrap: !asset");
+    require(asset == address(WRAPPER), "unwrap: !asset");
 
     // We've received wrapped native tokens; withdraw native tokens from the wrapper contract.
-    _wrapper.withdraw(amount);
-    // Transfer to the intended recipient.
-    _wrapper.transfer(recipient, amount);
+    try WRAPPER.withdraw(amount) {
+      // Send the native token to the intended recipient.
+      bool sent = payable(recipient).send(amount);
+      require(sent, "unwrap: !sent");
+    } catch (bytes memory reason) {
+      // Handle transferring wrapped funds to the intended recipient in the event that the
+      // unwrapping attempt (`withdraw`) fails.
+      // Always make sure funds are delivered to intended recipient on failing external calls!
+      emit UnwrappingFailed(recipient, reason);
+      WRAPPER.transfer(recipient, amount);
+    }
   }
 }
