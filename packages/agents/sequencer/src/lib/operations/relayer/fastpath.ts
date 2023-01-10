@@ -49,8 +49,8 @@ export const sendExecuteFastToRelayer = async (
     from: destinationRelayerProxyAddress,
   });
 
-  const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
-    chainId: destinationChainId,
+  const gas = await chainreader.getGasEstimateWithRevertCode({
+    domain,
     to: destinationConnextAddress,
     data: executeEncodedData,
     from: destinationRelayerProxyAddress,
