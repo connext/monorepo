@@ -80,7 +80,7 @@ export class TasksCache extends Cache {
    * @param status - The status to set.
    * @returns 1 if added, 0 if updated.
    */
-  private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+  public async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
     await this.setTimestamp(taskId);
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());
   }
@@ -192,8 +192,8 @@ export class TasksCache extends Cache {
     const _expiryLen = expiryLen ?? this.defaultExpiryLen;
     const curTimeStamp = getNtpTimeSeconds();
 
-    const taskIds = this.data.hgetall(`${this.prefix}:timestamp`);
-    for (const taskId in taskIds) {
+    const tasks = await this.data.hgetall(`${this.prefix}:timestamp`);
+    for (const taskId of Object.keys(tasks)) {
       const taskStatus = await this.getStatus(taskId);
       const completedStatuses = [
         RelayerTaskStatus.ExecSuccess,
@@ -201,7 +201,6 @@ export class TasksCache extends Cache {
         RelayerTaskStatus.Cancelled,
       ];
       const lastUpdated = await this.getTimestamp(taskId);
-
       // This case shouldn't be happening ideally but there could be some worst cases we couldn't guess right now
       if (lastUpdated === 0) continue;
 
