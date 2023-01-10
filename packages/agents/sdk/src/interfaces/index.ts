@@ -1,4 +1,6 @@
 import { BigNumber } from "ethers";
+import { Type, Static } from "@sinclair/typebox";
+import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
 export type Pool = {
   domainId: string;
@@ -29,3 +31,20 @@ export type AssetData = {
   key: string;
   id: string;
 };
+
+export const NxtpSdkXCallArgsSchema = Type.Object({
+  destination: Type.String(),
+  to: TAddress,
+  asset: TAddress,
+  delegate: Type.Optional(TAddress),
+  amount: TIntegerString,
+  slippage: TIntegerString,
+  callData: Type.Optional(Type.String()),
+  origin: Type.String(),
+  relayerFee: Type.Optional(Type.String()),
+  receiveLocal: Type.Optional(Type.Boolean()),
+  wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
+  unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
+});
+
+export type NxtpSdkXCallArgs = Static<typeof NxtpSdkXCallArgsSchema>;
