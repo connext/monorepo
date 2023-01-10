@@ -529,7 +529,7 @@ export const getLatestMessageRoot = async (
   const root = await db.sql<
     rootPropagatedSQL,
     rootPropagatedSelectable[]
-  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index <= (select leaf_count from propagated_roots where ${{
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index < (select leaf_count from propagated_roots where ${{
     aggregate_root,
   }})) and ${{
     spoke_domain,

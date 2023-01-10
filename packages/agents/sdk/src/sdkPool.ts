@@ -166,13 +166,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
     ]);
 
-    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
-
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
-      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
+      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      const totalAmount = [amountX, amountY].reduce(
+        (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
+        BigNumber.from("0"),
+      );
       return this.calculatePriceImpact(totalAmount, lpTokenAmount, virtualPrice);
     }
 
@@ -197,13 +199,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
       this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
     ]);
 
-    let totalAmount = BigNumber.from(amountX).add(BigNumber.from(amountY));
-
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
-      totalAmount = totalAmount.mul(BigNumber.from(10).pow(18 - decimals));
+      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
+      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      const totalAmount = [amountX, amountY].reduce(
+        (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
+        BigNumber.from("0"),
+      );
       return this.calculatePriceImpact(lpTokenAmount, totalAmount, virtualPrice, false);
     }
 
@@ -223,22 +227,32 @@ export class NxtpSdkPool extends NxtpSdkShared {
     tokenX: string,
     tokenY: string,
   ): Promise<BigNumber> {
-    const [connextContract, [canonicalDomain, canonicalId], tokenIndexFrom, tokenIndexTo] = await Promise.all([
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenX),
-      this.getPoolTokenIndex(domainId, tokenX, tokenX),
-      this.getPoolTokenIndex(domainId, tokenX, tokenY),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const amountXNoSlippage = BigNumber.from(1000);
+
+    const [tokenIndexFrom, tokenIndexTo] = await Promise.all([
+      connextContract.getSwapTokenIndex(key, tokenX),
+      connextContract.getSwapTokenIndex(key, tokenY),
+    ]);
+
+    const [tokenXContract, tokenYContract] = await Promise.all([
+      this.getERC20(domainId, tokenX),
+      this.getERC20(domainId, tokenY),
+    ]);
+
+    const [tokenXDecimals, tokenYDecimals] = await Promise.all([tokenXContract.decimals(), tokenYContract.decimals()]);
 
     const amountY = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amountX);
-    const amountYNoSlippage = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amountXNoSlippage);
 
-    const rate = BigNumber.from(amountY).mul(BigNumber.from(10).pow(18)).div(amountX);
-    const marketRate = BigNumber.from(amountYNoSlippage).mul(BigNumber.from(10).pow(18)).div(amountXNoSlippage);
-
-    return this.calculatePriceImpact(rate, marketRate);
+    return this.calculatePriceImpact(
+      BigNumber.from(amountX).mul(BigNumber.from(10).pow(18 - tokenXDecimals)),
+      amountY.mul(BigNumber.from(10).pow(18 - tokenYDecimals)),
+      BigNumber.from(10).pow(18),
+      false,
+    );
   }
 
   /**
