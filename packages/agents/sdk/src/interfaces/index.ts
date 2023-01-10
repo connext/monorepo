@@ -4,7 +4,8 @@ export type Pool = {
   domainId: string;
   name: string;
   symbol: string; // in the form of <TKN>-next<TKN>
-  assets: Map<AssetType, PoolAsset>;
+  local: PoolAsset;
+  adopted: PoolAsset;
   lpTokenAddress: string;
   canonicalHash: string; // hash of the domain and canonicalId, AKA "key"
   address?: string; // address of the pool contract, no address if internal pool
@@ -18,11 +19,6 @@ export type PoolAsset = {
   index: number;
   balance: BigNumber;
 };
-
-export enum AssetType {
-  LOCAL,
-  ADOPTED,
-}
 
 export type AssetData = {
   local: string;

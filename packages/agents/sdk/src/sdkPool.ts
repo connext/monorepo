@@ -6,7 +6,7 @@ import memoize from "memoizee";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { Pool, PoolAsset, AssetData, AssetType } from "./interfaces";
+import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { NxtpSdkShared } from "./sdkShared";
 
@@ -169,8 +169,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
-      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      let decimals = [pool.local.decimals, pool.adopted.decimals];
+      decimals = pool.local.index == 0 ? decimals : decimals.reverse();
       const totalAmount = [amountX, amountY].reduce(
         (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
         BigNumber.from("0"),
@@ -202,8 +202,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
     // Normalize to 18 decimals
     const pool = await this.getPool(domainId, tokenAddress);
     if (pool) {
-      let decimals = [pool.assets.get(AssetType.LOCAL)!.decimals, pool.assets.get(AssetType.ADOPTED)!.decimals];
-      decimals = pool.assets.get(AssetType.LOCAL)!.index == 0 ? decimals : decimals.reverse();
+      let decimals = [pool.local.decimals, pool.adopted.decimals];
+      decimals = pool.local.index == 0 ? decimals : decimals.reverse();
       const totalAmount = [amountX, amountY].reduce(
         (sum, amount, index) => sum.add(BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - decimals[index]))),
         BigNumber.from("0"),
@@ -296,8 +296,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
       originAmountReceived = await this.calculateSwap(
         originDomain,
         _originTokenAddress,
-        originPool.assets.get(AssetType.ADOPTED)!.index,
-        originPool.assets.get(AssetType.LOCAL)!.index,
+        originPool.adopted.index,
+        originPool.local.index,
         amount,
       );
     }
@@ -323,8 +323,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
       destinationAmountReceived = await this.calculateSwap(
         destinationDomain,
         destinationAssetData.local,
-        destinationPool.assets.get(AssetType.LOCAL)!.index,
-        destinationPool.assets.get(AssetType.ADOPTED)!.index,
+        destinationPool.local.index,
+        destinationPool.adopted.index,
         destinationAmount,
       );
     }
@@ -660,15 +660,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
         balance: adoptedBalance,
       };
 
-      const assets = new Map<AssetType, PoolAsset>();
-      assets.set(AssetType.LOCAL, localAsset);
-      assets.set(AssetType.ADOPTED, adoptedAsset);
-
       const pool: Pool = {
         domainId: domainId,
         name: `${localSymbol}-Pool`,
-        symbol: `${localSymbol}-next${localSymbol}`,
-        assets: assets,
+        symbol: `${localSymbol}-${localSymbol}`,
+        local: localAsset,
+        adopted: adoptedAsset,
         lpTokenAddress: lpTokenAddress,
         canonicalHash: key,
       };
@@ -700,16 +697,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
           const pool = await this.getPool(domainId, data.local);
           if (pool) {
             const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-            const adoptedTokenUserBalance = await this.getTokenUserBalance(
-              domainId,
-              pool.assets.get(AssetType.ADOPTED)!.address,
-              userAddress,
-            );
-            const localTokenUserBalance = await this.getTokenUserBalance(
-              domainId,
-              pool.assets.get(AssetType.LOCAL)!.address,
-              userAddress,
-            );
+            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.adopted.address, userAddress);
+            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
             result.push({
               info: pool,
               lpTokenBalance: lpTokenUserBalance,
@@ -771,7 +760,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
       const swapStorage = await connextContract.getSwapStorage(key);
       const basisPoints = swapStorage.swapFee;
       const FEE_DENOMINATOR = 1e10;
-      const decimals = pool.assets.get(AssetType.LOCAL)!.decimals;
+      const decimals = pool.local.decimals;
 
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
@@ -781,8 +770,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
         totalVolume = totalVolume.add(tokensSold);
       }
 
-      const reserve0 = pool.assets.get(AssetType.LOCAL)!.balance;
-      const reserve1 = pool.assets.get(AssetType.ADOPTED)!.balance;
+      const reserve0 = pool.local.balance;
+      const reserve1 = pool.adopted.balance;
       const totalLiquidity = reserve0.add(reserve1);
       const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
       const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
