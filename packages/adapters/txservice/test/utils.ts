@@ -9,7 +9,9 @@ type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
 
 export const TEST_SENDER_CHAIN_ID = 1337;
+export const TEST_SENDER_DOMAIN = 133712;
 export const TEST_RECEIVER_CHAIN_ID = 1338;
+export const TEST_RECEIVER_DOMAIN = 133812;
 export const DEFAULT_GAS_LIMIT = BigNumber.from("21004");
 export const TEST_ERROR = new Error("test");
 export const MOCK_REQUEST_CONTEXT: RequestContext = {
@@ -18,13 +20,13 @@ export const MOCK_REQUEST_CONTEXT: RequestContext = {
 };
 
 export const TEST_READ_TX: ReadTransaction = {
-  chainId: TEST_SENDER_CHAIN_ID,
+  domain: TEST_SENDER_DOMAIN,
   to: AddressZero,
   data: "0x",
 };
 
 export const TEST_TX: WriteTransaction = {
-  chainId: TEST_SENDER_CHAIN_ID,
+  domain: TEST_SENDER_DOMAIN,
   to: AddressZero,
   from: AddressZero,
   data: "0x",

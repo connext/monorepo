@@ -12,7 +12,7 @@ export const addSequencer = async (
     const { domain, sequencer, Connext } = info;
     const relayerApprovedData = ConnextInterface.encodeFunctionData("approvedSequencers", [sequencer]);
     const encoded = await txService.readTx({
-      chainId: +domain,
+      domain: +domain,
       data: relayerApprovedData,
       to: Connext,
     });
@@ -22,7 +22,7 @@ export const addSequencer = async (
       const approveRelayerData = ConnextInterface.encodeFunctionData("addSequencer", [sequencer]);
       await txService.sendTx(
         {
-          chainId: +domain,
+          domain: +domain,
           to: Connext,
           data: approveRelayerData,
           value: 0,

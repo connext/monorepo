@@ -543,7 +543,7 @@ describe("TESTNET:E2E", () => {
             destinationAsset.address,
           ]);
           const result = await chainreader.readTx({
-            chainId: domainInfo.DESTINATION.chain,
+            domain: domainInfo.DESTINATION.chain,
             to: destinationConnextAddress,
             data: encoded,
           });
@@ -670,7 +670,7 @@ describe("TESTNET:E2E", () => {
                 destinationAsset.address,
               ]);
               const result = await chainreader.readTx({
-                chainId: domainInfo.DESTINATION.chain,
+                domain: domainInfo.DESTINATION.chain,
                 to: destinationConnextAddress,
                 data: encoded,
               });
@@ -704,7 +704,7 @@ describe("TESTNET:E2E", () => {
       {
         const encoded = connext.encodeFunctionData("approvedRelayers", [relayerAddress]);
         const result = await chainreader.readTx({
-          chainId: domainInfo.DESTINATION.chain,
+          domain: domainInfo.DESTINATION.chain,
           to: destinationConnextAddress,
           data: encoded,
         });
