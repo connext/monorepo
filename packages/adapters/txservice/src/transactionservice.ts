@@ -177,6 +177,21 @@ export class TransactionService extends ChainReader {
 
   /// HELPERS
   /**
+   * Helper to wrap getting signer address for specified chain ID.
+   * @returns The signer address for that chain.
+   * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
+   * that ID.
+   */
+  public getAddress(): Promise<string> {
+    // Ensure that a signer, provider, etc are present to execute on this chainId.
+    const [chain, provider] = [...this.providers.entries()][0];
+    if (!chain) {
+      throw new ProviderNotConfigured(chain.toString());
+    }
+    return provider.getAddress();
+  }
+
+  /**
    * Helper to wrap getting provider for specified chain ID.
    * @param chainId The ID of the chain for which we want a provider.
    * @returns The ChainRpcProvider for that chain.
