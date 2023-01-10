@@ -123,4 +123,7 @@ export const pollCache = async () => {
       }
     }
   }
+
+  // Clear the old data from the task cache to avoid memory leak
+  await cache.tasks.pruneTasks();
 };

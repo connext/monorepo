@@ -202,6 +202,9 @@ export class TasksCache extends Cache {
       ];
       const lastUpdated = await this.getTimestamp(taskId);
 
+      // This case shouldn't be happening ideally but there could be some worst cases we couldn't guess right now
+      if (lastUpdated === 0) continue;
+
       const shouldBeDeleted = curTimeStamp - lastUpdated > _expiryLen && completedStatuses.includes(taskStatus);
       if (shouldBeDeleted) {
         for (const tb of ["data", "status", "hash", "timestamp", "error"]) {
