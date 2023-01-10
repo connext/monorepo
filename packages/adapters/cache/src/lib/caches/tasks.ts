@@ -1,4 +1,4 @@
-import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -16,6 +16,9 @@ export type CachedTaskData = {
  *
  * Task Status:
  *   key: status:$taskId | value: RelayerApiTaskStatus;
+ *
+ * Task Timestamp:
+ *   key: timestamp:$taskId | value: number;
  *
  * Task Errors:
  *   key: error:$taskId | value: JSON.stringify(NxtpError);
@@ -155,4 +158,22 @@ export class TasksCache extends Cache {
     }
     return filtered;
   }
+
+  /// MARK - Task Timestamp
+  /**
+   * Update the timestamp of the task to avoid a memory leak by deleteing expired tasks periodically
+   * @param taskId - Task Id
+   * @returns 1 if added, 0 if updated.
+   */
+  public async setUpdatedAt(taskId: string): Promise<number> {
+    const curTime = getNtpTimeSeconds();
+    return await this.data.hset(`${this.prefix}:timestamp`, taskId, curTime);
+  }
+
+  /**
+   * Returns the latest update time of the task
+   * @param taskId - The task id you wanna get the latest timestamp for
+   * @returns The latest timestamp of the task in seconds
+   */
+  public async getUpdatedAt(taskId: string): Promise<number> {}
 }
