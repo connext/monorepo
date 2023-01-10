@@ -1,7 +1,7 @@
 import { ConnextAbi } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
-import { providers } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 
 import { Pauser } from "../../src/pause";
@@ -22,6 +22,8 @@ describe("Watcher Adapter: Pauser", () => {
   beforeEach(() => {
     txservice = createStubInstance(TransactionService, {
       readTx: Promise.resolve(readTxResult),
+      getGasPrice: Promise.resolve(BigNumber.from(3)),
+      getAddress: Promise.resolve(mkAddress("0x2")),
     });
     const logger = createStubInstance(Logger);
     context = {
