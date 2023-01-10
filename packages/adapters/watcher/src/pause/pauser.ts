@@ -32,18 +32,26 @@ export class Pauser extends Verifier {
         const encoded = await txservice.readTx({
           chainId: +domain,
           to: connext.address,
-          data: connextInterface.encodeFunctionData("paused", []),
+          data: connextInterface.encodeFunctionData("paused"),
         });
-        const paused = ConnextInterface.decodeFunctionResult("paused", encoded)[0];
+        const [paused] = ConnextInterface.decodeFunctionResult("paused", encoded);
 
         // 2. If not paused, call pause tx
         if (!paused) {
           const pauseCalldata = connextInterface.encodeFunctionData("pause");
 
+          const from = await txservice.getAddress();
+
           try {
             // TODO: send at 1.5x estimate
             const receipt = await txservice.sendTx(
-              { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId: +domain },
+              {
+                to: connext.address,
+                data: pauseCalldata,
+                value: constants.Zero,
+                chainId: +domain,
+                from,
+              },
               requestContext,
             );
             result.push({
