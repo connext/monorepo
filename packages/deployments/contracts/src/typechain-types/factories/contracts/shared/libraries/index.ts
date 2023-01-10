@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as multisendSol from "./Multisend.sol";
+export * as unwrapperSol from "./Unwrapper.sol";
 export { TypedMemView__factory } from "./TypedMemView__factory";

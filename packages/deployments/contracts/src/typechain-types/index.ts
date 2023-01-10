@@ -274,6 +274,10 @@ export type { MultiSend } from "./contracts/shared/libraries/Multisend.sol/Multi
 export { MultiSend__factory } from "./factories/contracts/shared/libraries/Multisend.sol/MultiSend__factory";
 export type { TypedMemView } from "./contracts/shared/libraries/TypedMemView";
 export { TypedMemView__factory } from "./factories/contracts/shared/libraries/TypedMemView__factory";
+export type { Unwrapper } from "./contracts/shared/libraries/Unwrapper.sol/Unwrapper";
+export { Unwrapper__factory } from "./factories/contracts/shared/libraries/Unwrapper.sol/Unwrapper__factory";
+export type { Wrapper } from "./contracts/shared/libraries/Unwrapper.sol/Wrapper";
+export { Wrapper__factory } from "./factories/contracts/shared/libraries/Unwrapper.sol/Wrapper__factory";
 export type { ProposedOwnable } from "./contracts/shared/ProposedOwnable";
 export { ProposedOwnable__factory } from "./factories/contracts/shared/ProposedOwnable__factory";
 export type { ProposedOwnableUpgradeable } from "./contracts/shared/ProposedOwnableUpgradeable";

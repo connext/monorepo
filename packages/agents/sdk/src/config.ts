@@ -17,6 +17,7 @@ export type AssetDescription = Static<typeof TAssetDescription>;
 export const TChainDeployments = Type.Object({
   connext: TAddress,
   multisend: Type.Optional(TAddress),
+  unwrapper: Type.Optional(TAddress),
   stableSwap: Type.Optional(TAddress),
 });
 
