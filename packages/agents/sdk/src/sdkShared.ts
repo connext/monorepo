@@ -113,6 +113,24 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  async getSuppported(): Promise<Map<string, string[]>> {
+    const data: AssetData[] = await this.getAssetsData();
+
+    /// domain -> assets
+    let supported: Map<string, string[]> = new Map();
+    await Promise.all(
+      data.map((asset) => {
+        if (supported.get(asset.domain)) {
+          supported.get(asset.domain)!.push(asset.adopted);
+        } else {
+          supported.set(asset.domain, [asset.adopted]);
+        }
+      }),
+    );
+
+    return supported;
+  }
+
   async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
