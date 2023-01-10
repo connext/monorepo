@@ -136,13 +136,15 @@ export class NxtpSdkBase extends NxtpSdkShared {
       }
 
       // Retrieve destination unwrapper xReceive utility contract (will throw if it has not been configured).
+      const unwrapperContractAddress = await this.getDeploymentAddress(destination, "unwrapper");
+
       // Set the `callData` to the unwrap method. Specify `to`: the preserved original recipient.
       // NOTE: Super important, this is how we preserve the original recipient here. We CANNOT rely on
       // `originSender` to be the recipient on destination, as the `originSender` could be a contract (e.g.
       // Multisend, in the case of wrapping ETH on origin).
-      callData = this.contracts.unwrapper.encodeFunctionData("unwrap", [amount, to]);
+      callData = utils.defaultAbiCoder.encode(["address"], [to]);
       // Now we can overwrite the `to` address to be the target unwrapper contract.
-      to = await this.getDeploymentAddress(destination, "unwrapper");
+      to = unwrapperContractAddress;
     }
 
     // Take the finalized xcall arguments and encode calldata.
