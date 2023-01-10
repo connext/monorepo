@@ -18,7 +18,7 @@ export type CachedTaskData = {
  *   key: status:$taskId | value: RelayerApiTaskStatus;
  *
  * Task Timestamp:
- *   key: timestamp:$taskId | value: number;
+ *   key: timestamp:$taskId | value: string;
  *
  * Task Errors:
  *   key: error:$taskId | value: JSON.stringify(NxtpError);
@@ -28,6 +28,7 @@ export type CachedTaskData = {
  */
 export class TasksCache extends Cache {
   private readonly prefix = "tasks";
+  private readonly defaultExpiryLen = 3600 * 3;
 
   /// MARK - Task Data
   /**
@@ -80,6 +81,7 @@ export class TasksCache extends Cache {
    * @returns 1 if added, 0 if updated.
    */
   private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+    await this.setTimestamp(taskId);
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());
   }
 
@@ -165,15 +167,47 @@ export class TasksCache extends Cache {
    * @param taskId - Task Id
    * @returns 1 if added, 0 if updated.
    */
-  public async setUpdatedAt(taskId: string): Promise<number> {
+  public async setTimestamp(taskId: string): Promise<number> {
     const curTime = getNtpTimeSeconds();
-    return await this.data.hset(`${this.prefix}:timestamp`, taskId, curTime);
+    return await this.data.hset(`${this.prefix}:timestamp`, taskId, curTime.toString());
   }
 
   /**
    * Returns the latest update time of the task
+   *
    * @param taskId - The task id you wanna get the latest timestamp for
    * @returns The latest timestamp of the task in seconds
    */
-  public async getUpdatedAt(taskId: string): Promise<number> {}
+  public async getTimestamp(taskId: string): Promise<number> {
+    const res = await this.data.hget(`${this.prefix}:timestamp`, taskId);
+    return res ? Number(res) : 0;
+  }
+
+  /**
+   * Prunes all records which have been expired within a given length
+   *
+   * @param expiryLen - The length of expire time
+   */
+  public async pruneTasks(expiryLen?: number): Promise<void> {
+    const _expiryLen = expiryLen ?? this.defaultExpiryLen;
+    const curTimeStamp = getNtpTimeSeconds();
+
+    const taskIds = this.data.hgetall(`${this.prefix}:timestamp`);
+    for (const taskId in taskIds) {
+      const taskStatus = await this.getStatus(taskId);
+      const completedStatuses = [
+        RelayerTaskStatus.ExecSuccess,
+        RelayerTaskStatus.ExecReverted,
+        RelayerTaskStatus.Cancelled,
+      ];
+      const lastUpdated = await this.getTimestamp(taskId);
+
+      const shouldBeDeleted = curTimeStamp - lastUpdated > _expiryLen && completedStatuses.includes(taskStatus);
+      if (shouldBeDeleted) {
+        for (const tb of ["data", "status", "hash", "timestamp", "error"]) {
+          await this.data.hdel(`${this.prefix}:${tb}`, taskId);
+        }
+      }
+    }
+  }
 }
