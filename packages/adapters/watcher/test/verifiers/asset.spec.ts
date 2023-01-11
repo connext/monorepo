@@ -9,7 +9,7 @@ import { AssetVerifier } from "../../src/verifiers";
 import { AssetInfo, VerifierContext } from "../../src/types";
 
 describe("Watcher Adapter: AssetVerifier", () => {
-  const canonicalDomain = "1337";
+  const canonicalDomain = "133712";
   const connextAddress = mkAddress("0x987654321");
 
   let readTxResult = "test 123";
