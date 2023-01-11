@@ -778,7 +778,9 @@ export type optimism_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['optimism_Bytes']>;
   asset?: Maybe<optimism_Asset>;
+  transacting?: Maybe<Scalars['optimism_Bytes']>;
   message?: Maybe<optimism_OriginMessage>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['optimism_Bytes']>;
   transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -932,6 +934,12 @@ export type optimism_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<optimism_Asset_filter>;
+  transacting?: InputMaybe<Scalars['optimism_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -953,6 +961,14 @@ export type optimism_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<optimism_OriginMessage_filter>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
@@ -1027,7 +1043,9 @@ export type optimism_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
+  | 'relayerFee'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1075,6 +1093,8 @@ export type Query = {
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
   optimism_relayers: Array<optimism_Relayer>;
+  optimism_transferRelayerFee?: Maybe<optimism_TransferRelayerFee>;
+  optimism_transferRelayerFees: Array<optimism_TransferRelayerFee>;
   optimism_sequencer?: Maybe<optimism_Sequencer>;
   optimism_sequencers: Array<optimism_Sequencer>;
   optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
@@ -1187,6 +1207,24 @@ export type Queryoptimism_relayersArgs = {
   orderBy?: InputMaybe<optimism_Relayer_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Relayer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_TransferRelayerFee_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1984,6 +2022,8 @@ export type Subscription = {
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
   optimism_relayers: Array<optimism_Relayer>;
+  optimism_transferRelayerFee?: Maybe<optimism_TransferRelayerFee>;
+  optimism_transferRelayerFees: Array<optimism_TransferRelayerFee>;
   optimism_sequencer?: Maybe<optimism_Sequencer>;
   optimism_sequencers: Array<optimism_Sequencer>;
   optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
@@ -2096,6 +2136,24 @@ export type Subscriptionoptimism_relayersArgs = {
   orderBy?: InputMaybe<optimism_Relayer_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Relayer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_TransferRelayerFee_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2303,6 +2361,44 @@ export type Subscriptionoptimism__metaArgs = {
   block?: InputMaybe<optimism_Block_height>;
 };
 
+export type optimism_TransferRelayerFee = {
+  id: Scalars['ID'];
+  transferId: Scalars['optimism_Bytes'];
+  fee?: Maybe<Scalars['BigInt']>;
+};
+
+export type optimism_TransferRelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
+};
+
+export type optimism_TransferRelayerFee_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'fee';
+
 export type optimism_TransferStatus =
   | 'XCalled'
   | 'Executed'
@@ -2362,6 +2458,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_relayer: InContextSdkMethod<Query['optimism_relayer'], Queryoptimism_relayerArgs, MeshContext>,
   /** null **/
   optimism_relayers: InContextSdkMethod<Query['optimism_relayers'], Queryoptimism_relayersArgs, MeshContext>,
+  /** null **/
+  optimism_transferRelayerFee: InContextSdkMethod<Query['optimism_transferRelayerFee'], Queryoptimism_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  optimism_transferRelayerFees: InContextSdkMethod<Query['optimism_transferRelayerFees'], Queryoptimism_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   optimism_sequencer: InContextSdkMethod<Query['optimism_sequencer'], Queryoptimism_sequencerArgs, MeshContext>,
   /** null **/
@@ -2435,6 +2535,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_relayer: InContextSdkMethod<Subscription['optimism_relayer'], Subscriptionoptimism_relayerArgs, MeshContext>,
   /** null **/
   optimism_relayers: InContextSdkMethod<Subscription['optimism_relayers'], Subscriptionoptimism_relayersArgs, MeshContext>,
+  /** null **/
+  optimism_transferRelayerFee: InContextSdkMethod<Subscription['optimism_transferRelayerFee'], Subscriptionoptimism_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  optimism_transferRelayerFees: InContextSdkMethod<Subscription['optimism_transferRelayerFees'], Subscriptionoptimism_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   optimism_sequencer: InContextSdkMethod<Subscription['optimism_sequencer'], Subscriptionoptimism_sequencerArgs, MeshContext>,
   /** null **/

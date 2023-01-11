@@ -320,12 +320,14 @@ type staginggoerli_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: staginggoerli_Bytes
   reconciledCaller: staginggoerli_Bytes
   reconciledTransactionHash: staginggoerli_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: staginggoerli_Bytes
 }
 
 input staginggoerli_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input staginggoerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: staginggoerli_Bytes
+  executedTxOrigin_not: staginggoerli_Bytes
+  executedTxOrigin_in: [staginggoerli_Bytes!]
+  executedTxOrigin_not_in: [staginggoerli_Bytes!]
+  executedTxOrigin_contains: staginggoerli_Bytes
+  executedTxOrigin_not_contains: staginggoerli_Bytes
   reconciledCaller: staginggoerli_Bytes
   reconciledCaller_not: staginggoerli_Bytes
   reconciledCaller_in: [staginggoerli_Bytes!]
@@ -577,6 +585,12 @@ input staginggoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: staginggoerli_Bytes
+  reconciledTxOrigin_not: staginggoerli_Bytes
+  reconciledTxOrigin_in: [staginggoerli_Bytes!]
+  reconciledTxOrigin_not_in: [staginggoerli_Bytes!]
+  reconciledTxOrigin_contains: staginggoerli_Bytes
+  reconciledTxOrigin_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum staginggoerli_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -757,6 +773,7 @@ type staginggoerli_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: staginggoerli_Bytes
   asset: staginggoerli_Asset
+  transacting: staginggoerli_Bytes
   message: staginggoerli_OriginMessage
   relayerFee: BigInt
   caller: staginggoerli_Bytes
@@ -765,6 +782,7 @@ type staginggoerli_OriginTransfer {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: staginggoerli_Bytes
 }
 
 input staginggoerli_OriginTransfer_filter {
@@ -911,6 +929,12 @@ input staginggoerli_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: staginggoerli_Asset_filter
+  transacting: staginggoerli_Bytes
+  transacting_not: staginggoerli_Bytes
+  transacting_in: [staginggoerli_Bytes!]
+  transacting_not_in: [staginggoerli_Bytes!]
+  transacting_contains: staginggoerli_Bytes
+  transacting_not_contains: staginggoerli_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -984,6 +1008,12 @@ input staginggoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: staginggoerli_Bytes
+  txOrigin_not: staginggoerli_Bytes
+  txOrigin_in: [staginggoerli_Bytes!]
+  txOrigin_not_in: [staginggoerli_Bytes!]
+  txOrigin_contains: staginggoerli_Bytes
+  txOrigin_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
 }
@@ -1008,6 +1038,7 @@ enum staginggoerli_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  transacting
   message
   relayerFee
   caller
@@ -1016,6 +1047,7 @@ enum staginggoerli_OriginTransfer_orderBy {
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type staginggoerli_PooledToken {

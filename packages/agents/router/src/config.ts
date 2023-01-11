@@ -33,7 +33,7 @@ const SEQUENCER_URLS: Record<string, any> = {
   },
   mainnet: {
     staging: "",
-    production: "https://sequencer.mainnet.connext.ninja/",
+    production: "https://sequencer.mainnet.connext.ninja",
   },
 };
 
