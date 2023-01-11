@@ -319,12 +319,14 @@ export type local1337_DestinationTransfer = {
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedTxOrigin?: Maybe<Scalars['local1337_Bytes']>;
   reconciledCaller?: Maybe<Scalars['local1337_Bytes']>;
   reconciledTransactionHash?: Maybe<Scalars['local1337_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledTxOrigin?: Maybe<Scalars['local1337_Bytes']>;
 };
 
 
@@ -541,6 +543,12 @@ export type local1337_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTxOrigin?: InputMaybe<Scalars['local1337_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['local1337_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['local1337_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['local1337_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
@@ -585,6 +593,12 @@ export type local1337_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTxOrigin?: InputMaybe<Scalars['local1337_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['local1337_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<local1337_BlockChangedFilter>;
 };
@@ -617,12 +631,14 @@ export type local1337_DestinationTransfer_orderBy =
   | 'executedGasPrice'
   | 'executedGasLimit'
   | 'executedBlockNumber'
+  | 'executedTxOrigin'
   | 'reconciledCaller'
   | 'reconciledTransactionHash'
   | 'reconciledTimestamp'
   | 'reconciledGasPrice'
   | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
+  | 'reconciledBlockNumber'
+  | 'reconciledTxOrigin';
 
 /** Defines the order direction, either ascending or descending */
 export type local1337_OrderDirection =
@@ -762,6 +778,7 @@ export type local1337_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['local1337_Bytes']>;
   asset?: Maybe<local1337_Asset>;
+  transacting?: Maybe<Scalars['local1337_Bytes']>;
   message?: Maybe<local1337_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['local1337_Bytes']>;
@@ -770,6 +787,7 @@ export type local1337_OriginTransfer = {
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  txOrigin?: Maybe<Scalars['local1337_Bytes']>;
 };
 
 export type local1337_OriginTransfer_filter = {
@@ -916,6 +934,12 @@ export type local1337_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<local1337_Asset_filter>;
+  transacting?: InputMaybe<Scalars['local1337_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['local1337_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -989,6 +1013,12 @@ export type local1337_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  txOrigin?: InputMaybe<Scalars['local1337_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['local1337_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['local1337_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['local1337_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['local1337_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<local1337_BlockChangedFilter>;
 };
@@ -1013,6 +1043,7 @@ export type local1337_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
   | 'relayerFee'
   | 'caller'
@@ -1020,7 +1051,8 @@ export type local1337_OriginTransfer_orderBy =
   | 'timestamp'
   | 'gasPrice'
   | 'gasLimit'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'txOrigin';
 
 export type local1337_PooledToken = {
   id: Scalars['ID'];

@@ -778,7 +778,9 @@ export type polygon_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['polygon_Bytes']>;
   asset?: Maybe<polygon_Asset>;
+  transacting?: Maybe<Scalars['polygon_Bytes']>;
   message?: Maybe<polygon_OriginMessage>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['polygon_Bytes']>;
   transactionHash?: Maybe<Scalars['polygon_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -932,6 +934,12 @@ export type polygon_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<polygon_Asset_filter>;
+  transacting?: InputMaybe<Scalars['polygon_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -953,6 +961,14 @@ export type polygon_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<polygon_OriginMessage_filter>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_not?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
@@ -1027,7 +1043,9 @@ export type polygon_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
+  | 'relayerFee'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1075,6 +1093,8 @@ export type Query = {
   polygon_settings: Array<polygon_Setting>;
   polygon_relayer?: Maybe<polygon_Relayer>;
   polygon_relayers: Array<polygon_Relayer>;
+  polygon_transferRelayerFee?: Maybe<polygon_TransferRelayerFee>;
+  polygon_transferRelayerFees: Array<polygon_TransferRelayerFee>;
   polygon_sequencer?: Maybe<polygon_Sequencer>;
   polygon_sequencers: Array<polygon_Sequencer>;
   polygon_originTransfer?: Maybe<polygon_OriginTransfer>;
@@ -1187,6 +1207,24 @@ export type Querypolygon_relayersArgs = {
   orderBy?: InputMaybe<polygon_Relayer_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_Relayer_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_TransferRelayerFee_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1984,6 +2022,8 @@ export type Subscription = {
   polygon_settings: Array<polygon_Setting>;
   polygon_relayer?: Maybe<polygon_Relayer>;
   polygon_relayers: Array<polygon_Relayer>;
+  polygon_transferRelayerFee?: Maybe<polygon_TransferRelayerFee>;
+  polygon_transferRelayerFees: Array<polygon_TransferRelayerFee>;
   polygon_sequencer?: Maybe<polygon_Sequencer>;
   polygon_sequencers: Array<polygon_Sequencer>;
   polygon_originTransfer?: Maybe<polygon_OriginTransfer>;
@@ -2096,6 +2136,24 @@ export type Subscriptionpolygon_relayersArgs = {
   orderBy?: InputMaybe<polygon_Relayer_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_Relayer_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_TransferRelayerFee_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2303,6 +2361,44 @@ export type Subscriptionpolygon__metaArgs = {
   block?: InputMaybe<polygon_Block_height>;
 };
 
+export type polygon_TransferRelayerFee = {
+  id: Scalars['ID'];
+  transferId: Scalars['polygon_Bytes'];
+  fee?: Maybe<Scalars['BigInt']>;
+};
+
+export type polygon_TransferRelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['polygon_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+};
+
+export type polygon_TransferRelayerFee_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'fee';
+
 export type polygon_TransferStatus =
   | 'XCalled'
   | 'Executed'
@@ -2362,6 +2458,10 @@ export type _SubgraphErrorPolicy_ =
   polygon_relayer: InContextSdkMethod<Query['polygon_relayer'], Querypolygon_relayerArgs, MeshContext>,
   /** null **/
   polygon_relayers: InContextSdkMethod<Query['polygon_relayers'], Querypolygon_relayersArgs, MeshContext>,
+  /** null **/
+  polygon_transferRelayerFee: InContextSdkMethod<Query['polygon_transferRelayerFee'], Querypolygon_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  polygon_transferRelayerFees: InContextSdkMethod<Query['polygon_transferRelayerFees'], Querypolygon_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   polygon_sequencer: InContextSdkMethod<Query['polygon_sequencer'], Querypolygon_sequencerArgs, MeshContext>,
   /** null **/
@@ -2435,6 +2535,10 @@ export type _SubgraphErrorPolicy_ =
   polygon_relayer: InContextSdkMethod<Subscription['polygon_relayer'], Subscriptionpolygon_relayerArgs, MeshContext>,
   /** null **/
   polygon_relayers: InContextSdkMethod<Subscription['polygon_relayers'], Subscriptionpolygon_relayersArgs, MeshContext>,
+  /** null **/
+  polygon_transferRelayerFee: InContextSdkMethod<Subscription['polygon_transferRelayerFee'], Subscriptionpolygon_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  polygon_transferRelayerFees: InContextSdkMethod<Subscription['polygon_transferRelayerFees'], Subscriptionpolygon_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   polygon_sequencer: InContextSdkMethod<Subscription['polygon_sequencer'], Subscriptionpolygon_sequencerArgs, MeshContext>,
   /** null **/
