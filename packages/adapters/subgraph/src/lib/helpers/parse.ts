@@ -57,8 +57,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   }
 
   // get the decimals
-  // FIXME: https://github.com/connext/nxtp/issues/2862
-  const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
+  const transactingAsset = entity.transacting ?? entity.asset?.adoptedAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
   return {
@@ -89,6 +88,8 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       // Event Data
       messageHash: entity.messageHash,
 
+      relayerFee: entity.relayerFee,
+
       // Assets
       // FIXME: https://github.com/connext/nxtp/issues/2862
       assets: {
@@ -117,6 +118,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
         gasPrice: entity.gasPrice,
         gasLimit: entity.gasLimit,
         blockNumber: BigNumber.from(entity.blockNumber ?? "0").toNumber(),
+        txOrigin: entity.txOrigin,
       },
     },
 
@@ -209,6 +211,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasPrice: entity.executedGasPrice,
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
+            txOrigin: entity.executedTxOrigin,
           }
         : undefined,
 
@@ -222,6 +225,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasPrice: entity.reconciledGasPrice,
             gasLimit: entity.reconciledGasLimit,
             blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
+            txOrigin: entity.reconciledTxOrigin,
           }
         : undefined,
     },

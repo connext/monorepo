@@ -1,12 +1,13 @@
-import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash } from "@connext/nxtp-utils";
+import { constants, providers, BigNumber, utils } from "ethers";
+import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog } from "./lib/helpers";
+import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
+import { AssetData } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { NxtpSdkConfig } from "./config";
+import { NxtpSdkConfig, domainsToChainNames } from "./config";
 
 /**
  * @classdesc Base class to facilitate on-chain interactions with Connext.
@@ -49,6 +50,18 @@ export class NxtpSdkShared {
     { promise: true },
   );
 
+  static domainToChainName(domainId: string) {
+    return domainsToChainNames[domainId];
+  }
+
+  static async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
+    const baseUrl = "https://coins.llama.fi";
+    const uri = formatUrl(baseUrl, "block");
+    const chainName = this.domainToChainName(domainId);
+    const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+    return res.height;
+  }
+
   async approveIfNeeded(
     domainId: string,
     assetId: string,
@@ -90,6 +103,40 @@ export class NxtpSdkShared {
       }
     }
     return undefined;
+  }
+
+  async getAssetsData(): Promise<AssetData[]> {
+    const uri = formatUrl(this.config.cartographerUrl!, "assets");
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return assetData.domain == domainId && assetData.key == key;
+    });
+
+    if (asset) {
+      return asset;
+    }
+
+    return;
+  }
+
+  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
+    });
+
+    if (asset) {
+      return utils.getAddress(asset.local) == tokenAddress ? true : false;
+    }
+
+    return;
   }
 
   async changeSignerAddress(signerAddress: string) {

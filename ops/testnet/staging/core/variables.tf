@@ -55,6 +55,18 @@ variable "full_image_name_sequencer_subscriber" {
   default     = "ghcr.io/connext/sequencer-subscriber:sha-b5bb49a"
 }
 
+variable "full_image_name_relayer" {
+  type        = string
+  description = "relayer image name"
+  default     = "ghcr.io/connext/relayer:sha-b5bb49a"
+}
+
+variable "full_image_name_watcher" {
+  type        = string
+  description = "watcher image name"
+  default     = "ghcr.io/connext/watcher:sha-b5bb49a"
+}
+
 variable "lighthouse_image_tag" {
   type        = string
   description = "lighthouse image tag"
@@ -141,11 +153,6 @@ variable "postgres_user" {
   default = "connext"
 }
 
-variable "full_image_name_relayer" {
-  type        = string
-  description = "relayer image name"
-  default     = "ghcr.io/connext/relayer:sha-b5bb49a"
-}
 variable "relayer_web3_signer_private_key" {
   type = string
 }
@@ -155,11 +162,6 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
-variable "full_image_name_watcher" {
-  type        = string
-  description = "watcher image name"
-  default     = "ghcr.io/connext/watcher:sha-b5bb49a"
-}
 variable "watcher_web3_signer_private_key" {
   type = string
 }
@@ -180,14 +182,11 @@ variable "telegram_chat_id" {
   type = string
 }
 
-variable "keybase_user" {
+variable "betteruptime_api_key" {
   type = string
 }
 
-variable "keybase_key" {
+variable "betteruptime_requester_email" {
   type = string
-}
-
-variable "keybase_channel_name" {
-  type = string
+  default = "layne@connext.network"
 }

@@ -4,21 +4,21 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,
     STAGE             = var.stage,
     DD_LOGS_ENABLED   = true,
-    DD_ENV            = "${var.environment}:${var.stage}",
+    DD_ENV            = "${var.environment}-${var.stage}",
     DD_API_KEY        = var.dd_api_key,
     DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
   }
@@ -27,28 +27,28 @@ locals {
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   sequencer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   relayer_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_relayer_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   relayer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   watcher_env_vars = [
     { name = "WATCHER_CONFIG", value = local.local_watcher_config },
@@ -62,7 +62,7 @@ locals {
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}:${var.stage}" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
 }
 
@@ -363,7 +363,7 @@ locals {
     hubDomain : "1735353714"
     chains = {
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "BigBroERC20"
@@ -372,7 +372,7 @@ locals {
         ]
       }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "BigBroERC20"
@@ -386,11 +386,7 @@ locals {
     discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
     telegramApiKey = "${var.telegram_api_key}"
     telegramChatId = "${var.telegram_chat_id}"
-    keybaseUser    = "${var.keybase_user}"
-    keybaseKey     = "${var.keybase_key}"
-    keybaseChannel = {
-      name   = "${var.keybase_channel_name}"
-      public = true
-    }
+    betterUptimeApiKey = "${var.betteruptime_api_key}"
+    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }

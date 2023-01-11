@@ -116,7 +116,9 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       } catch (error: unknown) {
         logger.error(`Failed to store fastpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
-        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
+        return response
+          .code(500)
+          .send({ message: type ?? "Failed to store fastpath data", error: jsonifyError(error as Error) });
       }
     },
   );
@@ -166,7 +168,9 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       } catch (error: unknown) {
         logger.error(`Failed to store slowpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
-        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
+        return response
+          .code(500)
+          .send({ message: type ?? "Failed to store slowpath data", error: jsonifyError(error as Error) });
       }
     },
   );

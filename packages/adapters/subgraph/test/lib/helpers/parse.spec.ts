@@ -82,12 +82,14 @@ describe("Helpers:parse", () => {
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
+            txOrigin: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 11111111,
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 5000,
           },
+          relayerFee: "1",
         },
         destination: undefined,
       });
@@ -128,12 +130,14 @@ describe("Helpers:parse", () => {
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
+            txOrigin: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
           },
+          relayerFee: "1",
         },
         destination: undefined,
       });
@@ -182,12 +186,14 @@ describe("Helpers:parse", () => {
           },
           xcall: {
             caller: "0x2000000000000000000000000000000000000000",
+            txOrigin: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
           },
+          relayerFee: "1",
         },
         destination: undefined,
       });
@@ -258,6 +264,7 @@ describe("Helpers:parse", () => {
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",
             caller: "0x1400000000000000000000000000000000000000",
+            txOrigin: "0x1400000000000000000000000000000000000000",
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 1000000,
             gasPrice: "10000000000",
@@ -266,6 +273,7 @@ describe("Helpers:parse", () => {
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
+            txOrigin: "0x1500000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 1000000,
             gasPrice: "10000000000",
@@ -317,6 +325,7 @@ describe("Helpers:parse", () => {
           execute: {
             originSender: "0x1300000000000000000000000000000000000000",
             caller: "0x1400000000000000000000000000000000000000",
+            txOrigin: "0x1400000000000000000000000000000000000000",
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
             gasPrice: "10000000000",
@@ -325,6 +334,7 @@ describe("Helpers:parse", () => {
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
+            txOrigin: "0x1500000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
             gasPrice: "10000000000",

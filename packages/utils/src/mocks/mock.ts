@@ -173,6 +173,7 @@ export const mock = {
         nonce?: number;
         user?: string;
         routers?: string[];
+        relayerFee?: string;
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -194,6 +195,7 @@ export const mock = {
       const user: string = overrides.user ?? mkAddress("0xfaded");
       const routers = overrides.routers ?? [mock.address.router];
       const messageHash: string = overrides.messageHash ?? getRandomBytes32();
+      const relayerFee: string = overrides.relayerFee ?? "0";
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = !!status;
@@ -224,6 +226,8 @@ export const mock = {
 
               messageHash,
 
+              relayerFee,
+
               // Assets
               assets: {
                 transacting: {
@@ -245,6 +249,7 @@ export const mock = {
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
                 blockNumber: 7654321,
+                txOrigin: user,
               },
             }
           : undefined,
@@ -284,6 +289,7 @@ export const mock = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
+                      txOrigin: user,
                     }
                   : undefined,
 
@@ -296,6 +302,7 @@ export const mock = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "100000",
                       blockNumber: 5651390,
+                      txOrigin: user,
                     }
                   : undefined,
             }

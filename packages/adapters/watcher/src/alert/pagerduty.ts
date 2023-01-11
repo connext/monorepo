@@ -3,7 +3,7 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import { pagerDutyTrigger } from "../mockable";
 import { Report } from "../types";
 
-export const alertViaPagerDuty = async (report: Report, routingKey?: string) => {
+export const alertViaPagerDuty = async (report: Report, routingKey: string) => {
   const {
     timestamp,
     event,
@@ -17,7 +17,7 @@ export const alertViaPagerDuty = async (report: Report, routingKey?: string) => 
     rpcs,
   } = report;
 
-  if (!routingKey || routingKey.length != 32) {
+  if (routingKey.length != 32) {
     logger.error(
       "Failed to alert via pager duty",
       requestContext,

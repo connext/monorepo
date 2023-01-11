@@ -319,12 +319,14 @@ export type goerli_DestinationTransfer = {
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedTxOrigin?: Maybe<Scalars['goerli_Bytes']>;
   reconciledCaller?: Maybe<Scalars['goerli_Bytes']>;
   reconciledTransactionHash?: Maybe<Scalars['goerli_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledTxOrigin?: Maybe<Scalars['goerli_Bytes']>;
 };
 
 
@@ -541,6 +543,12 @@ export type goerli_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTxOrigin?: InputMaybe<Scalars['goerli_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['goerli_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['goerli_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
@@ -585,6 +593,12 @@ export type goerli_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTxOrigin?: InputMaybe<Scalars['goerli_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
 };
@@ -617,12 +631,14 @@ export type goerli_DestinationTransfer_orderBy =
   | 'executedGasPrice'
   | 'executedGasLimit'
   | 'executedBlockNumber'
+  | 'executedTxOrigin'
   | 'reconciledCaller'
   | 'reconciledTransactionHash'
   | 'reconciledTimestamp'
   | 'reconciledGasPrice'
   | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
+  | 'reconciledBlockNumber'
+  | 'reconciledTxOrigin';
 
 /** Defines the order direction, either ascending or descending */
 export type goerli_OrderDirection =
@@ -762,13 +778,16 @@ export type goerli_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['goerli_Bytes']>;
   asset?: Maybe<goerli_Asset>;
+  transacting?: Maybe<Scalars['goerli_Bytes']>;
   message?: Maybe<goerli_OriginMessage>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['goerli_Bytes']>;
   transactionHash?: Maybe<Scalars['goerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  txOrigin?: Maybe<Scalars['goerli_Bytes']>;
 };
 
 export type goerli_OriginTransfer_filter = {
@@ -915,6 +934,12 @@ export type goerli_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<goerli_Asset_filter>;
+  transacting?: InputMaybe<Scalars['goerli_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -936,6 +961,14 @@ export type goerli_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<goerli_OriginMessage_filter>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['goerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['goerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
@@ -980,6 +1013,12 @@ export type goerli_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  txOrigin?: InputMaybe<Scalars['goerli_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
 };
@@ -1004,13 +1043,16 @@ export type goerli_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
+  | 'relayerFee'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
   | 'gasPrice'
   | 'gasLimit'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'txOrigin';
 
 export type goerli_PooledToken = {
   id: Scalars['ID'];
@@ -1051,6 +1093,8 @@ export type Query = {
   goerli_settings: Array<goerli_Setting>;
   goerli_relayer?: Maybe<goerli_Relayer>;
   goerli_relayers: Array<goerli_Relayer>;
+  goerli_transferRelayerFee?: Maybe<goerli_TransferRelayerFee>;
+  goerli_transferRelayerFees: Array<goerli_TransferRelayerFee>;
   goerli_sequencer?: Maybe<goerli_Sequencer>;
   goerli_sequencers: Array<goerli_Sequencer>;
   goerli_originTransfer?: Maybe<goerli_OriginTransfer>;
@@ -1163,6 +1207,24 @@ export type Querygoerli_relayersArgs = {
   orderBy?: InputMaybe<goerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<goerli_OrderDirection>;
   where?: InputMaybe<goerli_Relayer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querygoerli_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<goerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querygoerli_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<goerli_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_TransferRelayerFee_filter>;
   block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1960,6 +2022,8 @@ export type Subscription = {
   goerli_settings: Array<goerli_Setting>;
   goerli_relayer?: Maybe<goerli_Relayer>;
   goerli_relayers: Array<goerli_Relayer>;
+  goerli_transferRelayerFee?: Maybe<goerli_TransferRelayerFee>;
+  goerli_transferRelayerFees: Array<goerli_TransferRelayerFee>;
   goerli_sequencer?: Maybe<goerli_Sequencer>;
   goerli_sequencers: Array<goerli_Sequencer>;
   goerli_originTransfer?: Maybe<goerli_OriginTransfer>;
@@ -2072,6 +2136,24 @@ export type Subscriptiongoerli_relayersArgs = {
   orderBy?: InputMaybe<goerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<goerli_OrderDirection>;
   where?: InputMaybe<goerli_Relayer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptiongoerli_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<goerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptiongoerli_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<goerli_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_TransferRelayerFee_filter>;
   block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2279,6 +2361,44 @@ export type Subscriptiongoerli__metaArgs = {
   block?: InputMaybe<goerli_Block_height>;
 };
 
+export type goerli_TransferRelayerFee = {
+  id: Scalars['ID'];
+  transferId: Scalars['goerli_Bytes'];
+  fee?: Maybe<Scalars['BigInt']>;
+};
+
+export type goerli_TransferRelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['goerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+};
+
+export type goerli_TransferRelayerFee_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'fee';
+
 export type goerli_TransferStatus =
   | 'XCalled'
   | 'Executed'
@@ -2338,6 +2458,10 @@ export type _SubgraphErrorPolicy_ =
   goerli_relayer: InContextSdkMethod<Query['goerli_relayer'], Querygoerli_relayerArgs, MeshContext>,
   /** null **/
   goerli_relayers: InContextSdkMethod<Query['goerli_relayers'], Querygoerli_relayersArgs, MeshContext>,
+  /** null **/
+  goerli_transferRelayerFee: InContextSdkMethod<Query['goerli_transferRelayerFee'], Querygoerli_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  goerli_transferRelayerFees: InContextSdkMethod<Query['goerli_transferRelayerFees'], Querygoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   goerli_sequencer: InContextSdkMethod<Query['goerli_sequencer'], Querygoerli_sequencerArgs, MeshContext>,
   /** null **/
@@ -2411,6 +2535,10 @@ export type _SubgraphErrorPolicy_ =
   goerli_relayer: InContextSdkMethod<Subscription['goerli_relayer'], Subscriptiongoerli_relayerArgs, MeshContext>,
   /** null **/
   goerli_relayers: InContextSdkMethod<Subscription['goerli_relayers'], Subscriptiongoerli_relayersArgs, MeshContext>,
+  /** null **/
+  goerli_transferRelayerFee: InContextSdkMethod<Subscription['goerli_transferRelayerFee'], Subscriptiongoerli_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  goerli_transferRelayerFees: InContextSdkMethod<Subscription['goerli_transferRelayerFees'], Subscriptiongoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   goerli_sequencer: InContextSdkMethod<Subscription['goerli_sequencer'], Subscriptiongoerli_sequencerArgs, MeshContext>,
   /** null **/

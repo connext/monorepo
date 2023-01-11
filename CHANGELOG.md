@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.13
+
+- [sdk] updates for pools, price impact calculation
+
+## Amarok 0.2.1-rc.12
+
+- [sdk] updates for pools and relayer estimates
+
 ## Amarok 0.2.1-rc.3
 
 - [contracts] Multisend mainnet deployments

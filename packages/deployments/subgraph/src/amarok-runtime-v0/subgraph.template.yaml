@@ -63,6 +63,8 @@ dataSources:
           handler: handleRouterOwnerAccepted
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
+        - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
+          handler: handleRelayerFeesIncreased
       file: ./src/amarok-runtime-v0/mapping/index.ts
   # SPOKE CONNECTOR events
   - kind: ethereum/contract

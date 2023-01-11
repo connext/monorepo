@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "service" {
           apiKey     = var.dd_api_key,
           dd_service = var.container_family,
           dd_source  = "fargate-app",
-          dd_tags    = "domain:${var.domain},env:${var.environment},stage:${var.stage},service:${var.container_family}",
+          dd_tags    = "env:${var.environment}-${var.stage},domain:${var.domain},environment:${var.environment},stage:${var.stage},service:${var.container_family}",
           TLS        = "on",
           provider   = "ecs"
         }

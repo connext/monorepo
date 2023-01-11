@@ -320,12 +320,14 @@ type polygon_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: polygon_Bytes
   reconciledCaller: polygon_Bytes
   reconciledTransactionHash: polygon_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: polygon_Bytes
 }
 
 input polygon_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input polygon_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: polygon_Bytes
+  executedTxOrigin_not: polygon_Bytes
+  executedTxOrigin_in: [polygon_Bytes!]
+  executedTxOrigin_not_in: [polygon_Bytes!]
+  executedTxOrigin_contains: polygon_Bytes
+  executedTxOrigin_not_contains: polygon_Bytes
   reconciledCaller: polygon_Bytes
   reconciledCaller_not: polygon_Bytes
   reconciledCaller_in: [polygon_Bytes!]
@@ -577,6 +585,12 @@ input polygon_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: polygon_Bytes
+  reconciledTxOrigin_not: polygon_Bytes
+  reconciledTxOrigin_in: [polygon_Bytes!]
+  reconciledTxOrigin_not_in: [polygon_Bytes!]
+  reconciledTxOrigin_contains: polygon_Bytes
+  reconciledTxOrigin_not_contains: polygon_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum polygon_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -757,13 +773,16 @@ type polygon_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: polygon_Bytes
   asset: polygon_Asset
+  transacting: polygon_Bytes
   message: polygon_OriginMessage
+  relayerFee: BigInt
   caller: polygon_Bytes
   transactionHash: polygon_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: polygon_Bytes
 }
 
 input polygon_OriginTransfer_filter {
@@ -910,6 +929,12 @@ input polygon_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: polygon_Asset_filter
+  transacting: polygon_Bytes
+  transacting_not: polygon_Bytes
+  transacting_in: [polygon_Bytes!]
+  transacting_not_in: [polygon_Bytes!]
+  transacting_contains: polygon_Bytes
+  transacting_not_contains: polygon_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -931,6 +956,14 @@ input polygon_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: polygon_OriginMessage_filter
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
   caller: polygon_Bytes
   caller_not: polygon_Bytes
   caller_in: [polygon_Bytes!]
@@ -975,6 +1008,12 @@ input polygon_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: polygon_Bytes
+  txOrigin_not: polygon_Bytes
+  txOrigin_in: [polygon_Bytes!]
+  txOrigin_not_in: [polygon_Bytes!]
+  txOrigin_contains: polygon_Bytes
+  txOrigin_not_contains: polygon_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
 }
@@ -999,13 +1038,16 @@ enum polygon_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  transacting
   message
+  relayerFee
   caller
   transactionHash
   timestamp
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type polygon_PooledToken {
@@ -1168,6 +1210,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Relayer!]!
+  polygon_transferRelayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_TransferRelayerFee
+  polygon_transferRelayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_TransferRelayerFee_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_TransferRelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_TransferRelayerFee!]!
   polygon_sequencer(
     id: ID!
     """
@@ -2158,6 +2226,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Relayer!]!
+  polygon_transferRelayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_TransferRelayerFee
+  polygon_transferRelayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_TransferRelayerFee_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_TransferRelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_TransferRelayerFee!]!
   polygon_sequencer(
     id: ID!
     """
@@ -2446,6 +2540,45 @@ type Subscription {
   ): [polygon_StableSwapLiquidity!]!
   """Access to subgraph metadata"""
   polygon__meta(block: polygon_Block_height): polygon__Meta_
+}
+
+type polygon_TransferRelayerFee {
+  id: ID!
+  transferId: polygon_Bytes!
+  fee: BigInt
+}
+
+input polygon_TransferRelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transferId: polygon_Bytes
+  transferId_not: polygon_Bytes
+  transferId_in: [polygon_Bytes!]
+  transferId_not_in: [polygon_Bytes!]
+  transferId_contains: polygon_Bytes
+  transferId_not_contains: polygon_Bytes
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_TransferRelayerFee_orderBy {
+  id
+  transferId
+  fee
 }
 
 enum polygon_TransferStatus {

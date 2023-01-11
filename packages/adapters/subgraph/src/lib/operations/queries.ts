@@ -70,11 +70,15 @@ export const ORIGIN_TRANSFER_ENTITY = `
       asset {
         ${ASSET_ENTITY}
       }
+      transacting
 
       # Message
       message { 
         ${ORIGIN_MESSAGE_ENTITY}
       }
+
+      # relayerFee
+      relayerFee
 
       # XCalled Transaction
       caller
@@ -83,6 +87,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       gasPrice
       gasLimit
       blockNumber
+      txOrigin
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
@@ -108,6 +113,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       slippage
       originSender
       bridgedAmt
+      amount
       normalizedIn
       canonicalId
 
@@ -123,6 +129,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+      executedTxOrigin
 
       # Reconciled Transaction
       reconciledCaller
@@ -131,6 +138,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledGasPrice
       reconciledGasLimit
       reconciledBlockNumber
+      reconciledTxOrigin
 `;
 
 export const BLOCK_NUMBER_ENTITY = `
@@ -318,9 +326,15 @@ export const getAssetsByLocalsQuery = (prefix: string, locals: string[]): string
 
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
-    ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-          ${ASSET_ENTITY}
-        }`;
+    ${prefix}_assets(
+      where: { 
+        canonicalId: "${canonicalId}" 
+      }, 
+      orderBy: blockNumber, 
+      orderDirection: desc
+    ) {
+      ${ASSET_ENTITY}
+    }`;
 
   return gql`
     query GetAssetByCanonicalId {
@@ -667,6 +681,8 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
       where: { 
         blockNumber_gt: ${param.offset} 
       }
+      orderBy: blockNumber
+      orderDirection: asc
     ) {
       ${ROOT_MESSAGE_SENT_ENTITY}
     }`;
@@ -744,6 +760,8 @@ export const getReceivedAggregatedRootsByDomainQuery = (
       where: { 
         blockNumber_gt: ${param.offset} 
       }
+      orderBy: blockNumber
+      orderDirection: asc
     ) {
       ${RECEIVED_AGGREGATED_ROOT_ENTITY}
     }`;

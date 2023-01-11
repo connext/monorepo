@@ -693,7 +693,7 @@ describe("Database client", () => {
       m.receivedRoot = rootMessage.root;
       roots.push(m);
       const propRoot = mock.entity.propagatedRoot();
-      propRoot.count = _i;
+      propRoot.count = _i + 1;
       propRoots.push(propRoot);
     }
 
@@ -706,7 +706,6 @@ describe("Database client", () => {
       propRoots[batchSize - 1].aggregate,
       pool,
     );
-    // TODO: numeric vs integer type conversion
     dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
     expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
   });
