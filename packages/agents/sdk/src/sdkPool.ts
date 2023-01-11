@@ -48,7 +48,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Utils ------------------- //
 
   /**
-   * Returns the default deadline. Set to 1 hour from current time.
+   * Set to 1 hour from current time.
+   *
+   * @returns The default deadline, in unix time.
    */
   getDefaultDeadline(): number {
     const now = new Date();
@@ -56,12 +58,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the amount of tokens received on a swap.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param tokenIndexFrom The index of the token to sell.
-   * @param tokenIndexTo The index of the token to buy.
-   * @param amount The number of tokens to sell, in the "From" token's native precision.
+   * Calculates the amount of tokens received on a swap.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param tokenIndexFrom - The index of the token to sell.
+   * @param tokenIndexTo - The index of the token to buy.
+   * @param amount - The number of tokens to sell, in the "From" token's native precision.
    * @returns Minimum amount received, in the "To" token's native precision.
    */
   async calculateSwap(
@@ -82,11 +85,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the minimum LP token amount from deposits or withdrawals.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param amounts The amounts of the tokens to deposit/withdraw.
-   * @param isDeposit Whether this is a deposit or withdrawal.
+   * Calculates the minimum LP token amount from deposits or withdrawals.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amounts - The amounts of the tokens to deposit/withdraw.
+   * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
+   * @returns Minimum LP tokens received.
    */
   async calculateTokenAmount(
     domainId: string,
@@ -105,10 +110,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the minimum LP token amount from deposits or withdrawals.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param amount The amount of the LP token to burn on withdrawal.
+   * Calculates the amounts of each underlying token returned.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the LP token to burn on withdrawal.
+   * @returns The amounts of each underlying token returned.
    */
   async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -122,11 +129,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the price impact depending on whether liquidity is being deposited or withdrawn.
-   * @param tokenInputAmount The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits, dx for swaps).
-   * @param tokenOutputAmount The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits, dy for swaps).
-   * @param virtualPrice The current virtual price of the pool.
-   * @param isDeposit Whether this is a deposit or withdrawal.
+   * Calculates the price impact depending on whether liquidity is being deposited or withdrawn.
+   *
+   * @param tokenInputAmount - The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits, dx for swaps).
+   * @param tokenOutputAmount - The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits, dy for swaps).
+   * @param virtualPrice - The current virtual price of the pool.
+   * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
+   * @returns The price impact.
    */
   calculatePriceImpact(
     tokenInputAmount: BigNumber, // assumed to be 18d precision
@@ -149,11 +158,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the price impact of adding liquidity to a pool.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param amountX The amount of asset X.
-   * @param amountY The amount of asset Y.
+   * Calculates the price impact of adding liquidity to a pool.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amountX - The amount of asset X.
+   * @param amountY - The amount of asset Y.
+   * @returns The price impact for adding liquidity.
    */
   async calculateAddLiquidityPriceImpact(
     domainId: string,
@@ -183,10 +194,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   /**
    * Returns the price impact of removing liquidity from a pool.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param amountX The amount of asset X.
-   * @param amountY The amount of asset Y.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amountX - The amount of asset X.
+   * @param amountY - The amount of asset Y.
+   * @returns The price impact for removing liquidity.
    */
   async calculateRemoveLiquidityPriceImpact(
     domainId: string,
@@ -215,11 +228,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the price impact of a swap.
-   * @param domainId The domain id of the pool.
-   * @param amountX The amount of tokens to swap.
-   * @param tokenX The address of the token to swap from.
-   * @param tokenY The address of the token to swap to.
+   * Calculates the price impact of a swap.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param amountX - The amount of tokens to swap.
+   * @param tokenX - The address of the token to swap from.
+   * @param tokenY - The address of the token to swap to.
+   * @returns The price impact for swapping.
    */
   async calculateSwapPriceImpact(
     domainId: string,
@@ -257,11 +272,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   /**
    * Calculates the estimated amount received on the destination domain for a bridge transaction.
-   * @param originDomain The domain id of the origin chain.
-   * @param destinationDomain The domain id of the destination chain.
-   * @param originTokenAddress The address of the token to be bridged from origin.
-   * @param amount The amount of the origin token to bridge, in the origin token's native precision.
-   * @param receiveLocal Whether the desired destination token is the local asset ("nextAsset").
+   *
+   * @param originDomain - The domain id of the origin chain.
+   * @param destinationDomain - The domain id of the destination chain.
+   * @param originTokenAddress - The address of the token to be bridged from origin.
+   * @param amount - The amount of the origin token to bridge, in the origin token's native precision.
+   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
    * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
@@ -343,7 +359,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   /**
    * Fetches the current price of a token.
+   *
    * @param tokenSymbol The symbol for the token.
+   * @returns The price of the token.
    */
   async getTokenPrice(tokenSymbol: string) {
     const price = await this.priceFeed.getPriceByTokenSymbol(tokenSymbol);
@@ -390,9 +408,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
   }
 
   /**
-   * Returns the balances of the tokens in a pool.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
+   * Reads the balance of a token in a pool.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param poolTokenAddress - The address of the token in the pool to get the balance for.
+   * @returns The balance of the specified token in the pool.
    */
   async getPoolTokenBalance(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<BigNumber> {
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -453,12 +474,14 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Pool Operations ------------------- //
 
   /**
-   * Returns the transaction request for adding liquidity to a pool.
+   * Prepares the transaction request for adding liquidity to a pool.
+   *
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    * @param amounts The amounts of the tokens to swap.
    * @param minToMint The minimum acceptable amount of LP tokens to mint.
    * @param deadline The deadline for the swap.
+   * @returns providers.TransactionRequest object.
    */
   async addLiquidity(
     domainId: string,
@@ -489,11 +512,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   /**
    * Returns the transaction request for removing liquidity from a pool.
-   * @param domainId The domain id of the pool.
-   * @param tokenAddress The address of local or adopted token.
-   * @param amount The amount of the token to swap.
-   * @param minAmounts The minimum acceptable amounts of each token to burn.
-   * @param deadline The deadline for the swap.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the token to swap.
+   * @param minAmounts - (optional) The minimum acceptable amounts of each token to burn.
+   * @param deadline - (optional) The deadline for the swap.
    */
   async removeLiquidity(
     domainId: string,
@@ -524,13 +548,14 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
   /**
    * Returns the transaction request for performing a swap in a pool.
+   *
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
    * @param from The address of the token to sell.
    * @param to The address of the token to buy.
    * @param amount The amount of the selling token to swap.
-   * @param minDy The minimum amount of the buying token to receive.
-   * @param deadline The deadline for the swap.
+   * @param minDy - (optional) The minimum amount of the buying token to receive.
+   * @param deadline - (optional) The deadline for the swap.
    */
   async swap(
     domainId: string,
@@ -581,9 +606,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
   // ------------------- Pool Data ------------------- //
 
   /**
-   * Returns the StableSwap Pool details for a given asset.
+   * Retrieves the StableSwap Pool details for a given asset.
+   *
    * @param domainId The domain id of the pool.
    * @param tokenAddress The address of local or adopted token.
+   * @returns Pool object that the given token is an underlying asset of.
    */
   getPool = memoize(
     async (domainId: string, tokenAddress: string): Promise<Pool | undefined> => {
@@ -676,9 +703,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
   );
 
   /**
-   * Returns the Pools that a user has LP tokens for.
+   * Retrieves the Pools that a user has LP tokens for.
+   *
    * @param domainId The domain id of the pool.
    * @param userAddress The address of the user to get the pools for.
+   * @returns Array of Pool objects.
    */
   async getUserPools(
     domainId: string,
