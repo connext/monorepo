@@ -48,9 +48,6 @@ dataSources:
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,indexed uint32,indexed address,address[],uint256,address)
           handler: handleReconciled
-          # StableSwapAdded: bytes32 canonicalId, bytes32 domain, address swapPool, address caller
-        - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
-          handler: handleStableSwapAdded
         - event: RouterAdded(indexed address,address)
           handler: handleRouterAdded
         - event: RouterRemoved(indexed address,address)
@@ -65,6 +62,31 @@ dataSources:
           handler: handleMaxRoutersPerTransferUpdated
         - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
           handler: handleRelayerFeesIncreased
+        # StableSwapFacet
+        - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
+          handler: handleStableSwapAdded
+        - event: SwapInitialized(indexed bytes32,(uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
+          handler: handleInternalSwapInitialized
+        - event: SwapRemoved(indexed bytes32,address)
+          handler: handleInternalSwapRemoved
+        - event: SwapDisabled(indexed bytes32,address)
+          handler: handleInternalSwapDisabled
+        - event: AdminFeesSet(indexed bytes32,uint256,address)
+          handler: handleAdminFeeSet
+        - event: SwapFeesSet(indexed bytes32,uint256,address)
+          handler: handleSwapFeeSet
+        - event: RampAStarted(indexed bytes32,uint256,uint256,address)
+          handler: handleInternalRampA
+        - event: RampAStopped(indexed bytes32,address)
+          handler: handleStopInternalRampA
+        - event: AddLiquidity(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleInternalAddLiquidity
+        - event: RemoveLiquidity(indexed bytes32,indexed address,uint256[],uint256)
+          handler: handleInternalRemoveLiquidity
+        - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleInternalRemoveLiquidityImbalance
+        - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
+          handler: handleInternalTokenSwap
       file: ./src/amarok-runtime-staging/mapping/index.ts
   # SPOKE CONNECTOR events
   - kind: ethereum/contract
@@ -137,10 +159,8 @@ templates:
         - name: StableSwap
           file: ./src/amarok-runtime-staging/abis/StableSwap.json
       eventHandlers:
-        - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
-          handler: handleAddLiquidity
-        - event: Initialized(uint8)
-          handler: handleInitialized
+        - event: SwapInitialized((uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
+          handler: handleSwapInitialized
         - event: NewAdminFee(uint256)
           handler: handleNewAdminFee
         - event: NewSwapFee(uint256)
@@ -149,18 +169,18 @@ templates:
           handler: handleNewWithdrawFee
         - event: Paused(address)
           handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
         - event: RampA(uint256,uint256,uint256,uint256)
           handler: handleRampA
+        - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAddLiquidity
         - event: RemoveLiquidity(indexed address,uint256[],uint256)
           handler: handleRemoveLiquidity
         - event: RemoveLiquidityImbalance(indexed address,uint256[],uint256[],uint256,uint256)
           handler: handleRemoveLiquidityImbalance
         - event: StopRampA(uint256,uint256)
           handler: handleStopRampA
-        - event: SwapInitialized((uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
-          handler: handleSwapInitialized
         - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
           handler: handleTokenSwap
-        - event: Unpaused(address)
-          handler: handleUnpaused
       file: ./src/amarok-runtime-staging/mapping/index.ts
