@@ -51,3 +51,9 @@ export class PoolDoesNotExist extends NxtpError {
     );
   }
 }
+
+export class SlippageInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super("Invalid slippage value. Must be between 0-10000 (inclusive)", context, SlippageInvalid.name);
+  }
+}
