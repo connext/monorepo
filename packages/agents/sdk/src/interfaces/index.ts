@@ -1,4 +1,6 @@
 import { BigNumber } from "ethers";
+import { Type, Static } from "@sinclair/typebox";
+import { TAddress, TIntegerString, XCallArgsSchema } from "@connext/nxtp-utils";
 
 export type Pool = {
   domainId: string;
@@ -29,3 +31,33 @@ export type AssetData = {
   key: string;
   id: string;
 };
+
+export const SdkXCallParamsSchema = Type.Intersect([
+  XCallArgsSchema,
+  Type.Object({
+    origin: TIntegerString,
+    relayerFee: TIntegerString,
+    receiveLocal: Type.Boolean(),
+  }),
+]);
+
+export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
+
+export const SdkBumpTransferParamsSchema = Type.Object({
+  domainId: TIntegerString,
+  transferId: Type.String(),
+  relayerFee: TIntegerString,
+});
+
+export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
+
+export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
+  originDomain: TIntegerString,
+  destinationDomain: TIntegerString,
+  originNativeToken: Type.Optional(TAddress),
+  destinationNativeToken: Type.Optional(TAddress),
+  callDataGasAmount: Type.Optional(Type.Integer()),
+  isHighPriority: Type.Optional(Type.Boolean()),
+});
+
+export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
