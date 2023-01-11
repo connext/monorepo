@@ -126,6 +126,15 @@ export const getEnvConfig = (
           }
           return undefined;
         })(),
+      unwrapper:
+        chainConfig.deployments?.unwrapper ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.unwrapper(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
+        })(),
     };
 
     nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;

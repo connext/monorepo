@@ -8,7 +8,11 @@ export class SignerAddressMissing extends NxtpError {
 
 export class ContractAddressMissing extends NxtpError {
   constructor(domainId: string, which: string, context: any = {}) {
-    super(`Contract address missing for ${domainId}: ${which}`, context, ContractAddressMissing.name);
+    super(
+      `Contract address missing for ${domainId}: ${which}`,
+      { ...context, domainId, which },
+      ContractAddressMissing.name,
+    );
   }
 }
 

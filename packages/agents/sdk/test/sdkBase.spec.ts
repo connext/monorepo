@@ -15,9 +15,9 @@ const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
+const mockConnextAddress = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockMultisendAddress = mockConfig.chains[mock.domain.A].deployments!.multisend;
-const mockUnwrapperAddress = mockConfig.chains[mock.domain.A].deployments!.unwrapper!;
+const mockUnwrapperAddress = mockConfig.chains[mock.domain.B].deployments!.unwrapper!;
 const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
@@ -77,14 +77,14 @@ describe("SdkBase", () => {
     ]);
 
     const mockXCallRequest: providers.TransactionRequest = {
-      to: mockConnextAddresss,
+      to: mockConnextAddress,
       data: standardXCallData,
       from: mock.config().signerAddress,
       value: relayerFee,
       chainId,
     };
     const mockXCallIntoLocalRequest: providers.TransactionRequest = {
-      to: mockConnextAddresss,
+      to: mockConnextAddress,
       data: standardXCallIntoLocalData,
       from: mock.config().signerAddress,
       value: relayerFee,
@@ -111,10 +111,10 @@ describe("SdkBase", () => {
         },
         {
           to: asset,
-          data: weth.encodeFunctionData("approve", [mockConnextAddresss, amount]),
+          data: weth.encodeFunctionData("approve", [mockConnextAddress, amount]),
         },
         {
-          to: mockConnextAddresss,
+          to: mockConnextAddress,
           data: standardXCallData,
           value: relayerFee,
         },
@@ -204,7 +204,7 @@ describe("SdkBase", () => {
       ]);
 
       const expectedTxRequest: providers.TransactionRequest = {
-        to: mockMultisendAddress,
+        to: mockConnextAddress,
         data: xcallData,
         from: mock.config().signerAddress,
         value: relayerFee,
@@ -299,7 +299,7 @@ describe("SdkBase", () => {
       ]);
 
       const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
+        to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
         value: BigNumber.from("50000"),
@@ -348,7 +348,7 @@ describe("SdkBase", () => {
       const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
+        to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
         value: BigNumber.from(mockBumpTransferParams.relayerFee),
