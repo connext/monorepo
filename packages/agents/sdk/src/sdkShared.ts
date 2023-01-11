@@ -155,10 +155,10 @@ export class NxtpSdkShared {
   /**
    * Returns the hash of the canonical id + domain.
    * @param domainId The canonical domain id of the token.
-   * @param tokenAddress The address of the canonical token.
+   * @param canonicalId The canonical id of the token.
    */
-  calculateCanonicalKey(domainId: string, tokenId: string): string {
-    return getCanonicalHash(domainId, tokenId);
+  calculateCanonicalKey(domainId: string, canonicalId: string): string {
+    return getCanonicalHash(domainId, canonicalId);
   }
 
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
