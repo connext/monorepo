@@ -41,6 +41,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     normalized_in: transfer.xparams?.normalizedIn,
     nonce: transfer.xparams?.nonce,
     canonical_id: transfer.xparams?.canonicalId,
+    relayer_fee: transfer.origin?.relayerFee,
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 
     origin_chain: transfer.origin?.chain,
@@ -528,7 +529,7 @@ export const getLatestMessageRoot = async (
   const root = await db.sql<
     rootPropagatedSQL,
     rootPropagatedSelectable[]
-  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index <= (select leaf_count from propagated_roots where ${{
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index < (select leaf_count from propagated_roots where ${{
     aggregate_root,
   }})) and ${{
     spoke_domain,

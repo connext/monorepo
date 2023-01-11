@@ -39,6 +39,12 @@ type Relayer @entity {
   relayer: Bytes
 }
 
+type TransferRelayerFee @entity {
+  id: ID!
+  transferId: Bytes!
+  fee: BigInt
+}
+
 type Sequencer @entity {
   id: ID!
   isActive: Boolean!
@@ -82,6 +88,9 @@ type OriginTransfer @entity {
 
   # Message
   message: OriginMessage
+
+  # Relayer Fee paid by user
+  relayerFee: BigInt
 
   # XCalled Transaction
   caller: Bytes

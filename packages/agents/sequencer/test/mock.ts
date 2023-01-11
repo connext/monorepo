@@ -86,6 +86,7 @@ export const mock = {
         url: "http://example.com",
       },
     ],
+    relayerFeeTolerance: 20,
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {

@@ -142,6 +142,7 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
+    relayerFeeTolerance = 60
     environment = var.stage
     messageQueue = {
       connection = {

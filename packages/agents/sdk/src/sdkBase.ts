@@ -10,15 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import {
-  getChainData,
-  getChainIdFromDomain,
-  getConversionRate,
-  relayerBufferPercentage,
-  getGelatoEstimatedFee,
-  getHardcodedGasLimits,
-  getDecimalsForAsset,
-} from "./lib/helpers";
+import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
@@ -203,93 +195,9 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.estimateRelayerFee.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const {
-      originDomain,
-      destinationDomain,
-      callDataGasAmount,
-      originNativeToken: _originNativeToken,
-      destinationNativeToken: _destinationNativeToken,
-      isHighPriority: _isHighPriority,
-    } = params;
+    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(params, this.chainData, this.logger);
 
-    const originNativeToken = _originNativeToken ?? constants.AddressZero;
-    const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
-    const isHighPriority = _isHighPriority ?? false;
-
-    const originChainId = await getChainIdFromDomain(originDomain, this.chainData);
-    const destinationChainId = await getChainIdFromDomain(destinationDomain, this.chainData);
-
-    // fetch executeGasAmount from chainData
-    const {
-      execute: executeGasAmount,
-      executeL1: executeL1GasAmount,
-      gasPriceFactor,
-    } = await getHardcodedGasLimits(originChainId, this.chainData);
-    this.logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
-      execute: executeGasAmount,
-      executeL1: executeL1GasAmount,
-      gasPriceFactor,
-    });
-
-    const totalGasAmount = callDataGasAmount
-      ? Number(executeGasAmount) + Number(callDataGasAmount)
-      : Number(executeGasAmount);
-    const estimatedRelayerFee = await getGelatoEstimatedFee(
-      destinationChainId,
-      destinationNativeToken,
-      Number(totalGasAmount),
-      isHighPriority,
-    );
-
-    this.logger.info("Gas Price estimates", requestContext, methodContext, {
-      originNativeToken,
-      originChainId,
-      destinationNativeToken,
-      destinationChainId,
-      executeGasAmount,
-      callDataGasAmount,
-    });
-
-    // add relayerFee bump to estimatedRelayerFee
-    const bumpedFee = estimatedRelayerFee.add(
-      estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage)).div(100),
-    );
-
-    // TODO: Convert the estimatedRelayerFee to the originNativeToken
-    const [originTokenPrice, destinationTokenPrice, originTokenDecimals, destinationTokenDecimals] = await Promise.all([
-      getConversionRate(originChainId, undefined, this.logger),
-      getConversionRate(destinationChainId, undefined, this.logger),
-      getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData),
-      getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, this.chainData),
-    ]);
-
-    if (originTokenPrice == 0 || destinationTokenPrice == 0) {
-      return BigNumber.from(0);
-    }
-
-    // converstion rate is float-point number. we multiply by 1000 to be more precise
-    const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);
-    const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
-
-    const relayerFeeInOrginNativeAsset =
-      originTokenDecimals >= destinationTokenDecimals
-        ? bumpedFee
-            .mul(impactedDestinationTokenPrice)
-            .div(impactedOriginTokenPrice)
-            .mul(BigNumber.from(10).pow(originTokenDecimals - destinationTokenDecimals))
-        : bumpedFee
-            .mul(impactedDestinationTokenPrice)
-            .div(impactedOriginTokenPrice)
-            .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
-
-    this.logger.info("Method end", requestContext, methodContext, {
-      bumpedFee,
-      originTokenPrice,
-      destinationTokenPrice,
-      relayerFeeInOrginNativeAsset,
-    });
-
-    return relayerFeeInOrginNativeAsset;
+    return relayerFeeInOriginNativeAsset;
   }
 
   /**
