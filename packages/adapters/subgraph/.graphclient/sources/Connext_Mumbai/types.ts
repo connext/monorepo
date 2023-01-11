@@ -778,7 +778,9 @@ export type mumbai_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
   asset?: Maybe<mumbai_Asset>;
+  transacting?: Maybe<Scalars['mumbai_Bytes']>;
   message?: Maybe<mumbai_OriginMessage>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['mumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -932,6 +934,12 @@ export type mumbai_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mumbai_Asset_filter>;
+  transacting?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -953,6 +961,14 @@ export type mumbai_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<mumbai_OriginMessage_filter>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mumbai_Bytes']>;
   caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
@@ -1027,7 +1043,9 @@ export type mumbai_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
+  | 'relayerFee'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1075,6 +1093,8 @@ export type Query = {
   mumbai_settings: Array<mumbai_Setting>;
   mumbai_relayer?: Maybe<mumbai_Relayer>;
   mumbai_relayers: Array<mumbai_Relayer>;
+  mumbai_transferRelayerFee?: Maybe<mumbai_TransferRelayerFee>;
+  mumbai_transferRelayerFees: Array<mumbai_TransferRelayerFee>;
   mumbai_sequencer?: Maybe<mumbai_Sequencer>;
   mumbai_sequencers: Array<mumbai_Sequencer>;
   mumbai_originTransfer?: Maybe<mumbai_OriginTransfer>;
@@ -1187,6 +1207,24 @@ export type Querymumbai_relayersArgs = {
   orderBy?: InputMaybe<mumbai_Relayer_orderBy>;
   orderDirection?: InputMaybe<mumbai_OrderDirection>;
   where?: InputMaybe<mumbai_Relayer_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_TransferRelayerFee_filter>;
   block?: InputMaybe<mumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1984,6 +2022,8 @@ export type Subscription = {
   mumbai_settings: Array<mumbai_Setting>;
   mumbai_relayer?: Maybe<mumbai_Relayer>;
   mumbai_relayers: Array<mumbai_Relayer>;
+  mumbai_transferRelayerFee?: Maybe<mumbai_TransferRelayerFee>;
+  mumbai_transferRelayerFees: Array<mumbai_TransferRelayerFee>;
   mumbai_sequencer?: Maybe<mumbai_Sequencer>;
   mumbai_sequencers: Array<mumbai_Sequencer>;
   mumbai_originTransfer?: Maybe<mumbai_OriginTransfer>;
@@ -2096,6 +2136,24 @@ export type Subscriptionmumbai_relayersArgs = {
   orderBy?: InputMaybe<mumbai_Relayer_orderBy>;
   orderDirection?: InputMaybe<mumbai_OrderDirection>;
   where?: InputMaybe<mumbai_Relayer_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_TransferRelayerFee_filter>;
   block?: InputMaybe<mumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2303,6 +2361,44 @@ export type Subscriptionmumbai__metaArgs = {
   block?: InputMaybe<mumbai_Block_height>;
 };
 
+export type mumbai_TransferRelayerFee = {
+  id: Scalars['ID'];
+  transferId: Scalars['mumbai_Bytes'];
+  fee?: Maybe<Scalars['BigInt']>;
+};
+
+export type mumbai_TransferRelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+};
+
+export type mumbai_TransferRelayerFee_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'fee';
+
 export type mumbai_TransferStatus =
   | 'XCalled'
   | 'Executed'
@@ -2362,6 +2458,10 @@ export type _SubgraphErrorPolicy_ =
   mumbai_relayer: InContextSdkMethod<Query['mumbai_relayer'], Querymumbai_relayerArgs, MeshContext>,
   /** null **/
   mumbai_relayers: InContextSdkMethod<Query['mumbai_relayers'], Querymumbai_relayersArgs, MeshContext>,
+  /** null **/
+  mumbai_transferRelayerFee: InContextSdkMethod<Query['mumbai_transferRelayerFee'], Querymumbai_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  mumbai_transferRelayerFees: InContextSdkMethod<Query['mumbai_transferRelayerFees'], Querymumbai_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   mumbai_sequencer: InContextSdkMethod<Query['mumbai_sequencer'], Querymumbai_sequencerArgs, MeshContext>,
   /** null **/
@@ -2435,6 +2535,10 @@ export type _SubgraphErrorPolicy_ =
   mumbai_relayer: InContextSdkMethod<Subscription['mumbai_relayer'], Subscriptionmumbai_relayerArgs, MeshContext>,
   /** null **/
   mumbai_relayers: InContextSdkMethod<Subscription['mumbai_relayers'], Subscriptionmumbai_relayersArgs, MeshContext>,
+  /** null **/
+  mumbai_transferRelayerFee: InContextSdkMethod<Subscription['mumbai_transferRelayerFee'], Subscriptionmumbai_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  mumbai_transferRelayerFees: InContextSdkMethod<Subscription['mumbai_transferRelayerFees'], Subscriptionmumbai_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   mumbai_sequencer: InContextSdkMethod<Subscription['mumbai_sequencer'], Subscriptionmumbai_sequencerArgs, MeshContext>,
   /** null **/

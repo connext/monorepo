@@ -778,7 +778,9 @@ export type arbitrumgoerli_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   asset?: Maybe<arbitrumgoerli_Asset>;
+  transacting?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   message?: Maybe<arbitrumgoerli_OriginMessage>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -932,6 +934,12 @@ export type arbitrumgoerli_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<arbitrumgoerli_Asset_filter>;
+  transacting?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transacting_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transacting_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
+  transacting_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
+  transacting_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transacting_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -953,6 +961,14 @@ export type arbitrumgoerli_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<arbitrumgoerli_OriginMessage_filter>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
@@ -1027,7 +1043,9 @@ export type arbitrumgoerli_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transacting'
   | 'message'
+  | 'relayerFee'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1075,6 +1093,8 @@ export type Query = {
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
   arbitrumgoerli_relayers: Array<arbitrumgoerli_Relayer>;
+  arbitrumgoerli_transferRelayerFee?: Maybe<arbitrumgoerli_TransferRelayerFee>;
+  arbitrumgoerli_transferRelayerFees: Array<arbitrumgoerli_TransferRelayerFee>;
   arbitrumgoerli_sequencer?: Maybe<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_sequencers: Array<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_originTransfer?: Maybe<arbitrumgoerli_OriginTransfer>;
@@ -1187,6 +1207,24 @@ export type Queryarbitrumgoerli_relayersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Relayer_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1984,6 +2022,8 @@ export type Subscription = {
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
   arbitrumgoerli_relayers: Array<arbitrumgoerli_Relayer>;
+  arbitrumgoerli_transferRelayerFee?: Maybe<arbitrumgoerli_TransferRelayerFee>;
+  arbitrumgoerli_transferRelayerFees: Array<arbitrumgoerli_TransferRelayerFee>;
   arbitrumgoerli_sequencer?: Maybe<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_sequencers: Array<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_originTransfer?: Maybe<arbitrumgoerli_OriginTransfer>;
@@ -2096,6 +2136,24 @@ export type Subscriptionarbitrumgoerli_relayersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Relayer_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_transferRelayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_transferRelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_TransferRelayerFee_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2303,6 +2361,44 @@ export type Subscriptionarbitrumgoerli__metaArgs = {
   block?: InputMaybe<arbitrumgoerli_Block_height>;
 };
 
+export type arbitrumgoerli_TransferRelayerFee = {
+  id: Scalars['ID'];
+  transferId: Scalars['arbitrumgoerli_Bytes'];
+  fee?: Maybe<Scalars['BigInt']>;
+};
+
+export type arbitrumgoerli_TransferRelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
+};
+
+export type arbitrumgoerli_TransferRelayerFee_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'fee';
+
 export type arbitrumgoerli_TransferStatus =
   | 'XCalled'
   | 'Executed'
@@ -2362,6 +2458,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_relayer: InContextSdkMethod<Query['arbitrumgoerli_relayer'], Queryarbitrumgoerli_relayerArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_relayers: InContextSdkMethod<Query['arbitrumgoerli_relayers'], Queryarbitrumgoerli_relayersArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_transferRelayerFee: InContextSdkMethod<Query['arbitrumgoerli_transferRelayerFee'], Queryarbitrumgoerli_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_transferRelayerFees: InContextSdkMethod<Query['arbitrumgoerli_transferRelayerFees'], Queryarbitrumgoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_sequencer: InContextSdkMethod<Query['arbitrumgoerli_sequencer'], Queryarbitrumgoerli_sequencerArgs, MeshContext>,
   /** null **/
@@ -2435,6 +2535,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_relayer: InContextSdkMethod<Subscription['arbitrumgoerli_relayer'], Subscriptionarbitrumgoerli_relayerArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_relayers: InContextSdkMethod<Subscription['arbitrumgoerli_relayers'], Subscriptionarbitrumgoerli_relayersArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_transferRelayerFee: InContextSdkMethod<Subscription['arbitrumgoerli_transferRelayerFee'], Subscriptionarbitrumgoerli_transferRelayerFeeArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_transferRelayerFees: InContextSdkMethod<Subscription['arbitrumgoerli_transferRelayerFees'], Subscriptionarbitrumgoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_sequencer: InContextSdkMethod<Subscription['arbitrumgoerli_sequencer'], Subscriptionarbitrumgoerli_sequencerArgs, MeshContext>,
   /** null **/
