@@ -90,15 +90,21 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const connextContractAddress = await this.getDeploymentAddress(origin, "connext");
 
     /// MARK - Validate arguments.
+    // If address(0) provided for asset, must be a 0-value transfer.
     if (asset === constants.AddressZero && _amount !== "0") {
       // TODO: Custom error.
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
+    }
+    // Valid (non-zero) recipient must be provided.
+    if (to === constants.AddressZero) {
+      // TODO: Custom error.
+      throw new Error("Valid recipient `to` address must be provided; received address(0) as recipient.");
     }
 
     // Sanitize arguments. Substitute default values as needed.
     const amount = BigNumber.from(_amount);
     let callData = args.callData ?? "0x";
-    const delegate = args.delegate ?? to; // Default to using the user's signer address as the delegate.
+    const delegate = args.delegate ?? to; // Default to using the recipient address as the delegate.
     const relayerFee = BigNumber.from(_relayerFee ?? "0");
     // TODO: Calculate estimate for relayer fee and include it in the call params.
     // TODO: Should additionally make sure the asset is set to address(0) if the amount is 0.
