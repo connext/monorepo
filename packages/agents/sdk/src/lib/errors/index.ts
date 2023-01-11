@@ -42,18 +42,8 @@ export class ParseConnextLogFailed extends NxtpError {
   }
 }
 
-export class PoolDoesNotExist extends NxtpError {
-  constructor(domainId: string, tokenAddress: string, context: any = {}) {
-    super(
-      `Pool doesn't exist for the token: ${tokenAddress} on the domain: ${domainId}.`,
-      context,
-      PoolDoesNotExist.name,
-    );
-  }
-}
-
 export class SlippageInvalid extends NxtpError {
   constructor(slippage: string, context: any = {}) {
-    super(`Invalid slippage value: ${slippage}. Must be between 0-10000 (inclusive)`, context, SlippageInvalid.name);
+    super("Invalid slippage value. Must be between 0-10000 (inclusive)", { slippage, context }, SlippageInvalid.name);
   }
 }
