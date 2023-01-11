@@ -320,12 +320,14 @@ type local1337_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: local1337_Bytes
   reconciledCaller: local1337_Bytes
   reconciledTransactionHash: local1337_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: local1337_Bytes
 }
 
 input local1337_DestinationTransfer_filter {
@@ -533,6 +535,12 @@ input local1337_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: local1337_Bytes
+  executedTxOrigin_not: local1337_Bytes
+  executedTxOrigin_in: [local1337_Bytes!]
+  executedTxOrigin_not_in: [local1337_Bytes!]
+  executedTxOrigin_contains: local1337_Bytes
+  executedTxOrigin_not_contains: local1337_Bytes
   reconciledCaller: local1337_Bytes
   reconciledCaller_not: local1337_Bytes
   reconciledCaller_in: [local1337_Bytes!]
@@ -577,6 +585,12 @@ input local1337_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: local1337_Bytes
+  reconciledTxOrigin_not: local1337_Bytes
+  reconciledTxOrigin_in: [local1337_Bytes!]
+  reconciledTxOrigin_not_in: [local1337_Bytes!]
+  reconciledTxOrigin_contains: local1337_Bytes
+  reconciledTxOrigin_not_contains: local1337_Bytes
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
 }
@@ -609,12 +623,14 @@ enum local1337_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -757,6 +773,7 @@ type local1337_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: local1337_Bytes
   asset: local1337_Asset
+  transacting: local1337_Bytes
   message: local1337_OriginMessage
   relayerFee: BigInt
   caller: local1337_Bytes
@@ -765,6 +782,7 @@ type local1337_OriginTransfer {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: local1337_Bytes
 }
 
 input local1337_OriginTransfer_filter {
@@ -911,6 +929,12 @@ input local1337_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: local1337_Asset_filter
+  transacting: local1337_Bytes
+  transacting_not: local1337_Bytes
+  transacting_in: [local1337_Bytes!]
+  transacting_not_in: [local1337_Bytes!]
+  transacting_contains: local1337_Bytes
+  transacting_not_contains: local1337_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -984,6 +1008,12 @@ input local1337_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: local1337_Bytes
+  txOrigin_not: local1337_Bytes
+  txOrigin_in: [local1337_Bytes!]
+  txOrigin_not_in: [local1337_Bytes!]
+  txOrigin_contains: local1337_Bytes
+  txOrigin_not_contains: local1337_Bytes
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
 }
@@ -1008,6 +1038,7 @@ enum local1337_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  transacting
   message
   relayerFee
   caller
@@ -1016,6 +1047,7 @@ enum local1337_OriginTransfer_orderBy {
   gasPrice
   gasLimit
   blockNumber
+  txOrigin
 }
 
 type local1337_PooledToken {
