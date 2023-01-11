@@ -13,7 +13,9 @@ interface Wrapper {
 }
 
 /**
- * @notice A utility contract for unwrapping native tokens at the destination.
+ * @notice A utility contract for unwrapping native tokens at the destination. Various fallbacks
+ * for any failures that might occur during the process of receiving tokens and unwrapping them
+ * are accounted for.
  */
 contract Unwrapper is Orphanage, IXReceiver {
   // ============ Events ============
@@ -80,6 +82,8 @@ contract Unwrapper is Orphanage, IXReceiver {
    * @dev We mostly ignore `originSender` argument: this could be a contract or EOA, but our
    * recipient should be specified in our `callData`! We only fallback to using `originSender` IFF
    * recipient argument is missing.
+   * @dev If unwrapping (i.e. `withdraw`) fails, will emit UnwrappingFailed event! We will attempt
+   * to transfer the wrapped tokens to the
    *
    * @param amount - The amount to transfer. Should NOT be 0, or this call will revert.
    * @param asset - This *should be* the wrapper contract address, an ERC20 token approved by the
@@ -89,7 +93,9 @@ contract Unwrapper is Orphanage, IXReceiver {
    * @param originSender - Not used except in the edge case where the `callData` is missing a valid
    * intended recipient address.
    * @param callData - Should be a tuple of just `(address)`. The address is the intended
-   * recipient of the unwrapped native tokens.
+   * recipient of the unwrapped native tokens. Whether it's ether or wether (i.e. whether it's
+   * wrapped native tokens or native tokens) depends on whether we succeeded in the unwrapping
+   * process.
    */
   function xReceive(
     bytes32,
@@ -125,8 +131,6 @@ contract Unwrapper is Orphanage, IXReceiver {
       }
       return bytes("");
     }
-    //Whether it's ether or wether (i.e. whether it's wrapped native tokens or
-    //  * native tokens, this depends on where we failed in the unwrapping process).
 
     // We've received wrapped native tokens; withdraw native tokens from the wrapper contract.
     try WRAPPER.withdraw(amount) {
