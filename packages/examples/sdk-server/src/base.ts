@@ -1,18 +1,17 @@
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
+import { NxtpSdkBase, SdkXCallParamsSchema, SdkXCallParams } from "@connext/nxtp-sdk";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.post<{ Body: SdkServerApiXCall }>(
+  s.post<{ Body: SdkXCallParams }>(
     "/xcall",
     {
       schema: {
-        body: SdkServerApiXCallSchema,
+        body: SdkXCallParamsSchema,
       },
     },
     async (request, reply) => {
@@ -21,11 +20,11 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
   );
 
-  s.post<{ Body: SdkServerApiXCall }>(
+  s.post<{ Body: SdkXCallParams }>(
     "/wrapEthAndXCall",
     {
       schema: {
-        body: SdkServerApiXCallSchema,
+        body: SdkXCallParamsSchema,
       },
     },
     async (request, reply) => {
