@@ -10,7 +10,7 @@ import {
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { SignerAddressMissing, ChainDataUndefined, CannotUnwrapOnDestination } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
 import { NxtpSdkXCallArgs } from "./interfaces";
@@ -110,19 +110,14 @@ export class NxtpSdkBase extends NxtpSdkShared {
       // TODO: Implement an xReceive Multisend call to have the option to combine the unwrapping AND the user's
       // original callData!
       if (callData !== "0x") {
-        // TODO: Custom error.
-        throw new Error(
-          "XCall request to unwrap on destination requires `callData` argument to be empty!" +
-            ` callData specified: ${callData}`,
-        );
+        throw new CannotUnwrapOnDestination("`callData` argument must be empty!" + ` callData specified: ${callData}`);
       }
       // NOTE: We don't need to check on-chain to ensure destination Unwrapper supports unwrapping the
       // target native token; if it didn't, it wouldn't be deployed and therefore wouldn't be configured.
 
       // Sanity check: `receiveLocal` must be false.
       if (receiveLocal) {
-        // TODO: Custom error.
-        throw new Error("Cannot unwrap native token on destination if `receiveLocal` is set to true.");
+        throw new CannotUnwrapOnDestination("`receiveLocal` is set to true.");
       }
 
       // Retrieve destination unwrapper xReceive utility contract (will throw if it has not been configured).
