@@ -374,7 +374,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    */
   async wrapEthAndXCall(params: SdkXCallParams): Promise<providers.TransactionRequest> {
     const txs: MultisendTransaction[] = [];
-    const { asset, amount: _amount, origin } = params;
+    const { asset, amount: _amount, origin, slippage } = params;
     const amount = BigNumber.from(_amount);
 
     const signerAddress = this.config.signerAddress;
@@ -383,6 +383,13 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
 
     // TODO: Check that asset address is correct WETH contract
+    // Input validation
+    if (asset == constants.AddressZero && _amount != "0") {
+      throw new Error("Transacting asset specified was address zero; native assets are not supported!");
+    }
+    if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
+      throw new SlippageInvalid(slippage, context);
+    }
 
     let chainId = this.config.chains[origin].chainId;
     if (!chainId) {
