@@ -27,6 +27,7 @@ import {
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
+ *
  */
 export class NxtpSdkBase extends NxtpSdkShared {
   private static _instance: NxtpSdkBase;
@@ -41,8 +42,8 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param _config - NxtpSdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
-   * @param _config.logLevel - (optional) One of "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent".
-   * @param _config.network - (optional) One of "testnet" | "mainnet".
+   * @param _config.logLevel - (optional) "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent".
+   * @param _config.network - (optional) "testnet" | "mainnet".
    * @returns providers.TransactionRequest object.
    *
    * @example:
