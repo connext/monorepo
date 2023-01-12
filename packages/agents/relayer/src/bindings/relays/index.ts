@@ -1,4 +1,4 @@
-import { BigNumber, providers } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 import { createLoggingContext, jsonifyError, RelayerTaskStatus } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
@@ -22,8 +22,7 @@ export const bindRelays = async (_pollInterval?: number) => {
 
 export const pollCache = async () => {
   const {
-    config,
-    adapters: { cache, wallet },
+    adapters: { cache, wallet, txservice },
     logger,
     chainToDomainMap,
   } = getContext();
@@ -60,8 +59,6 @@ export const pollCache = async () => {
     // Set up context for this chain: get domain, provider, and connect a signer.
     const chain = Number(chainIdKey);
     const domain = chainToDomainMap.get(chain)!;
-    const provider = new providers.JsonRpcProvider(config.chains[domain].providers[0]);
-    const signer = wallet.connect(provider);
 
     for (const task of tasksByChain[chain]) {
       // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
@@ -79,33 +76,19 @@ export const pollCache = async () => {
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
         const transaction = {
-          chainId: chain,
+          domain,
           to,
           data,
           from: await wallet.getAddress(),
+          value: constants.Zero,
         };
         // Estimate gas limit.
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
-        const gasLimit = await signer.estimateGas(transaction);
-
         // Execute the calldata.
-        // TODO: Debugging, remove and use txservice.
-        const tx = await signer.sendTransaction({
-          ...transaction,
-          gasLimit: gasLimit.gt(MIN_GAS_LIMIT) ? gasLimit : MIN_GAS_LIMIT,
-        });
+        const receipt = await txservice.sendTx(transaction, requestContext);
 
-        // Wait for confirmation.
-        const { confirmations } = config.chains[domain];
-        logger.debug("Sent transaction to network. Awaiting confirmations...", requestContext, methodContext, {
-          chain,
-          taskId,
-          hash: tx.hash,
-          confirmations,
-        });
-        const receipt = await tx.wait(confirmations);
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
