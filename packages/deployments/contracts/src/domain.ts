@@ -30,8 +30,8 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
   // local
-  [1337, 1337],
-  [1338, 1338],
+  [1337, 133712],
+  [1338, 133812],
 ]);
 
 /**

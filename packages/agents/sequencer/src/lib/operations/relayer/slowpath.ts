@@ -27,23 +27,6 @@ export const sendExecuteSlowToRelayer = async (
   const destinationChainId = await getChainIdFromDomain(transfer.xparams.destinationDomain, chainData);
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
-  /// Temp: Using relayer proxy
-  const domain = +transfer.xparams.destinationDomain;
-  const relayerAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
-
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
-    destinationChainId,
-    to: destinationConnextAddress,
-    data: executeEncodedData,
-    from: relayerAddress,
-  });
-
-  logger.info("Sending tx to relayer", requestContext, methodContext, {
-    relayer: relayerAddress,
-    connext: destinationConnextAddress,
-    domain,
-  });
-
   return await sendWithRelayerWithBackup(
     destinationChainId,
     transfer.xparams.destinationDomain,
