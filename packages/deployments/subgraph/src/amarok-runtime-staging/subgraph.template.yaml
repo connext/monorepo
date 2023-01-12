@@ -65,7 +65,7 @@ dataSources:
         # StableSwapFacet
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
           handler: handleStableSwapAdded
-        - event: SwapInitialized(indexed bytes32,(uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
+        - event: SwapInitialized(indexed bytes32,(bytes32,uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[],bool,uint256),address)
           handler: handleInternalSwapInitialized
         - event: SwapRemoved(indexed bytes32,address)
           handler: handleInternalSwapRemoved

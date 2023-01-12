@@ -2354,6 +2354,7 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-cli": 0.35.0
     "@graphprotocol/graph-ts": 0.28.1
+    "@protofire/subgraph-toolkit": 0.1.2
     "@types/js-yaml": 4.0.5
     "@types/mustache": 4.2.1
     "@types/yaml": 1.9.7
@@ -6275,6 +6276,27 @@ __metadata:
   version: 1.1.0
   resolution: "@protobufjs/utf8@npm:1.1.0"
   checksum: f9bf3163d13aaa3b6f5e6fbf37a116e094ea021c0e1f2a7ccd0e12a29e2ce08dafba4e8b36e13f8ed7397e1591610ce880ed1289af4d66cf4ace8a36a9557278
+  languageName: node
+  linkType: hard
+
+"@protofire/subgraph-prettier-config@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@protofire/subgraph-prettier-config@npm:0.1.1"
+  peerDependencies:
+    "@graphprotocol/graph-ts": ">=0.12.0"
+    prettier: ">=1.17.0"
+  checksum: 543ff9390db52f7dc0443de0d227bd70228ccbbf07832e34325aa4e08c45080567819eb739ee2761a2aef2ad6623738e259a8573b78f4691d90926a48685c66b
+  languageName: node
+  linkType: hard
+
+"@protofire/subgraph-toolkit@npm:0.1.2":
+  version: 0.1.2
+  resolution: "@protofire/subgraph-toolkit@npm:0.1.2"
+  dependencies:
+    "@protofire/subgraph-prettier-config": ^0.1.1
+  peerDependencies:
+    "@graphprotocol/graph-ts": ">=0.20.0"
+  checksum: 68a2155ef5d2f88a5cdd4e546f8249243ae65ccc5b6332c50ac5d484d179b194d196b3eed1cdff7265454a30b6a9015f231f34529b25950ebffc1cb9b5bfd3c0
   languageName: node
   linkType: hard
 
@@ -15641,7 +15663,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
+  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
   languageName: node
   linkType: hard
 
