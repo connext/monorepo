@@ -118,11 +118,13 @@ export const executeSlowPathData = async (
 
   const transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new MissingTransfer({ transferId });
   }
 
   const executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new MissingExecutorData({ transfer });
   }
 
@@ -137,6 +139,7 @@ export const executeSlowPathData = async (
 
   const { canSubmit, needed } = await canSubmitToRelayer(transfer);
   if (!canSubmit) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new NotEnoughRelayerFee({ transferId, relayerFee: transfer.origin?.relayerFee, needed });
   }
 
