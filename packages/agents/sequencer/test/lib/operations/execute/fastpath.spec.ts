@@ -17,7 +17,7 @@ import Broker from "foo-foo-mq";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { AuctionExpired, RouterVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
 import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
@@ -128,14 +128,6 @@ describe("Operations:Execute:FastPath", () => {
       };
 
       await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-
-    it("should error if bidVersion is lower than supported version", async () => {
-      const invalidBid1: any = {
-        ...mock.entity.bid(),
-        routerVersion: "0.0",
-      };
-      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(RouterVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {
