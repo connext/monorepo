@@ -12,7 +12,8 @@ import { NxtpSdkShared } from "./sdkShared";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
- * @dev This class will either interact with internal StableSwapFacet pools or external StableSwap pools
+ *
+ * @remarks This class will either interact with internal StableSwapFacet pools or external StableSwap pools
  *      depending on which type of pool is being used for each asset.
  *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
