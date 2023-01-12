@@ -11,7 +11,6 @@ import {
 import { getContext } from "../../../sequencer";
 import {
   ParamsInvalid,
-  ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
@@ -41,15 +40,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
-      executorData,
-    });
-  }
-
-  // check if executor version is compatible with hosted sequencer
-  const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
-  if (checkVersion) {
-    throw new ExecutorVersionInvalid({
-      supportedVersion: config.supportedVersion,
       executorData,
     });
   }
