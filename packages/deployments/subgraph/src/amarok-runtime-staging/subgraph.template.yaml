@@ -85,6 +85,8 @@ dataSources:
           handler: handleInternalRemoveLiquidity
         - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
           handler: handleInternalRemoveLiquidityImbalance
+        - event: RemoveLiquidityOne(indexed bytes32,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleInternalRemoveLiquidityOne
         - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
           handler: handleInternalTokenSwap
       file: ./src/amarok-runtime-staging/mapping/index.ts
@@ -165,22 +167,20 @@ templates:
           handler: handleNewAdminFee
         - event: NewSwapFee(uint256)
           handler: handleNewSwapFee
-        - event: NewWithdrawFee(uint256)
-          handler: handleNewWithdrawFee
         - event: Paused(address)
           handler: handlePaused
         - event: Unpaused(address)
           handler: handleUnpaused
         - event: RampA(uint256,uint256,uint256,uint256)
           handler: handleRampA
+        - event: StopRampA(uint256,uint256)
+          handler: handleStopRampA
         - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
           handler: handleAddLiquidity
         - event: RemoveLiquidity(indexed address,uint256[],uint256)
           handler: handleRemoveLiquidity
         - event: RemoveLiquidityImbalance(indexed address,uint256[],uint256[],uint256,uint256)
           handler: handleRemoveLiquidityImbalance
-        - event: StopRampA(uint256,uint256)
-          handler: handleStopRampA
         - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
           handler: handleTokenSwap
       file: ./src/amarok-runtime-staging/mapping/index.ts
