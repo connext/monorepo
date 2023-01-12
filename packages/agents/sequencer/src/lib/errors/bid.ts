@@ -6,11 +6,6 @@ export class ParamsInvalid extends NxtpError {
   }
 }
 
-export class RouterVersionInvalid extends NxtpError {
-  constructor(context: any = {}) {
-    super(`Router version is not supported by the sequencer`, context, RouterVersionInvalid.name);
-  }
-}
 export class AuctionExpired extends NxtpError {
   constructor(status: ExecStatus, context: any = {}) {
     super("This auction has already expired.", { status, ...context }, AuctionExpired.name);
