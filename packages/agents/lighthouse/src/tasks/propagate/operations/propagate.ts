@@ -84,13 +84,25 @@ export const propagate = async () => {
     from: relayerProxyHubAddress,
     totalFee: _totalFee.toString(),
   });
-  const gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
-    chainId: hubChainId,
-    to: rootManagerAddress,
-    data: encodedData,
-    from: relayerProxyHubAddress,
-    value: _totalFee,
-  });
+  let gas;
+  try {
+    gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
+      chainId: hubChainId,
+      to: rootManagerAddress,
+      data: encodedData,
+      from: relayerProxyHubAddress,
+      value: _totalFee,
+    });
+  } catch (e: unknown) {
+    logger.error("Error at Gelato Get Gas Estimate", requestContext, methodContext, e as NxtpError, {
+      chainId: hubChainId,
+      to: rootManagerAddress,
+      data: encodedData,
+      from: relayerProxyHubAddress,
+      value: _totalFee,
+    });
+    return;
+  }
 
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
   logger.info("Got gas estimate", requestContext, methodContext, { gasLimit: gasLimit.toString() });
@@ -99,7 +111,7 @@ export const propagate = async () => {
   try {
     fee = await getEstimatedFee(hubChainId, NATIVE_TOKEN, gasLimit, true);
   } catch (e: unknown) {
-    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+    logger.warn("Error at getEstimatedFee", requestContext, methodContext, {
       error: e as NxtpError,
       rootManagerAddress: rootManagerAddress,
       relayerProxyAddress: relayerProxyHubAddress,
@@ -124,15 +136,24 @@ export const propagate = async () => {
     fee,
   ]);
 
-  const { taskId } = await sendWithRelayerWithBackup(
-    hubChainId,
-    config.hubDomain,
-    relayerProxyHubAddress,
-    encodedDataForRelayer,
-    relayers,
-    chainreader,
-    logger,
-    requestContext,
-  );
-  logger.info("Propagate tx sent", requestContext, methodContext, { taskId });
+  try {
+    const { taskId } = await sendWithRelayerWithBackup(
+      hubChainId,
+      config.hubDomain,
+      relayerProxyHubAddress,
+      encodedDataForRelayer,
+      relayers,
+      chainreader,
+      logger,
+      requestContext,
+    );
+    logger.info("Propagate tx sent", requestContext, methodContext, { taskId });
+  } catch (e: unknown) {
+    logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
+      hubChainId,
+      hubDomain: config.hubDomain,
+      relayerProxyHubAddress,
+      encodedDataForRelayer,
+    });
+  }
 };
