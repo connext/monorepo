@@ -1,4 +1,4 @@
-import { Signer, providers } from "ethers";
+import { BigNumber, Signer, providers } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
@@ -79,12 +79,11 @@ export class TransactionService extends ChainReader {
    * Will emit events throughout its lifecycle.
    *
    * @param tx - Tx to send
-   * @param tx.chainId - Chain to send transaction on
+   * @param tx.domain - Domain identifier of chain to send transaction on
    * @param tx.to - Address to send tx to
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
-   * @param domain - (optional) Domain to use for accessing providers index
    *
    * @returns TransactionReceipt once the tx is mined if the transaction was successful.
    *
@@ -95,13 +94,13 @@ export class TransactionService extends ChainReader {
   public async sendTx(
     tx: WriteTransaction,
     context: RequestContext,
-    domain?: number,
+    gasPrice?: BigNumber,
   ): Promise<providers.TransactionReceipt> {
     const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    return await this.getProvider(domain ?? tx.chainId).send(tx, context);
+    return await this.getProvider(tx.domain).send(tx, context, gasPrice);
   }
 
   /// LISTENER METHODS
@@ -177,18 +176,33 @@ export class TransactionService extends ChainReader {
 
   /// HELPERS
   /**
-   * Helper to wrap getting provider for specified chain ID.
-   * @param chainId The ID of the chain for which we want a provider.
+   * Helper to wrap getting signer address for specified domain.
+   * @returns The signer address for that chain.
+   * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
+   * that ID.
+   */
+  public getAddress(): Promise<string> {
+    // Ensure that a signer, provider, etc are present to execute on this domain.
+    const [chain, provider] = [...this.providers.entries()][0];
+    if (!chain) {
+      throw new ProviderNotConfigured(chain.toString());
+    }
+    return provider.getAddress();
+  }
+
+  /**
+   * Helper to wrap getting provider for specified domain.
+   * @param domain The domain of the chain for which we want a provider.
    * @returns The ChainRpcProvider for that chain.
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  public getProvider(chainId: number): TransactionDispatch {
-    // Ensure that a signer, provider, etc are present to execute on this chainId.
-    if (!this.providers.has(chainId)) {
-      throw new ProviderNotConfigured(chainId.toString());
+  public getProvider(domain: number): TransactionDispatch {
+    // Ensure that a signer, provider, etc are present to execute on this domain.
+    if (!this.providers.has(domain)) {
+      throw new ProviderNotConfigured(domain.toString());
     }
-    return this.providers.get(chainId)! as TransactionDispatch;
+    return this.providers.get(domain)! as TransactionDispatch;
   }
 
   // TODO: Use a generic type in ChainReader.setupProviders for this method such that we don't have to overload it here.
@@ -199,10 +213,12 @@ export class TransactionService extends ChainReader {
    */
   protected setupProviders(context: RequestContext, signer: string | Signer) {
     const { methodContext } = createLoggingContext(this.setupProviders.name, context);
-    // For each chain ID / provider, map out all the utils needed for each chain.
-    Object.keys(this.config).forEach((chainId) => {
+    // For each domain / provider, map out all the utils needed for each chain.
+    Object.keys(this.config).forEach((_domain) => {
+      // Convert to number
+      const domain = +_domain;
       // Get this chain's config.
-      const chain: ChainConfig = this.config[chainId];
+      const chain: ChainConfig = this.config[domain];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
         const error = new ConfigurationError(
@@ -214,17 +230,16 @@ export class TransactionService extends ChainReader {
             },
           ],
           {
-            chainId,
+            domain,
           },
         );
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
-          chainId,
+          domain,
           providers,
         });
         throw error;
       }
-      const chainIdNumber = parseInt(chainId);
-      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, signer, {
+      const provider = new TransactionDispatch(this.logger, domain, chain, signer, {
         onSubmit: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
         onMined: (transaction: OnchainTransaction) =>
@@ -237,7 +252,7 @@ export class TransactionService extends ChainReader {
             receipt: transaction.receipt,
           }),
       });
-      this.providers.set(chainIdNumber, provider);
+      this.providers.set(domain, provider);
     });
   }
 }

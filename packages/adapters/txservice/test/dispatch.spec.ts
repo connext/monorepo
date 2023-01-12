@@ -22,7 +22,7 @@ import {
   MockOnchainTransactionState,
   MOCK_REQUEST_CONTEXT,
   TEST_FULL_TX,
-  TEST_SENDER_CHAIN_ID,
+  TEST_SENDER_DOMAIN,
   TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
@@ -109,7 +109,7 @@ describe("TransactionDispatch", () => {
     Sinon.stub(RpcProviderAggregator.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
-    txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
+    txDispatch = new TransactionDispatch(logger, TEST_SENDER_DOMAIN, chainConfig, signer, dispatchCallbacks, false);
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();

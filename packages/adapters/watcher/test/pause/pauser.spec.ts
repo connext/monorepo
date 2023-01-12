@@ -1,14 +1,14 @@
 import { ConnextAbi } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
-import { providers } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 
 import { Pauser } from "../../src/pause";
 import { VerifierContext } from "../../src/types";
 
 describe("Watcher Adapter: Pauser", () => {
-  const domain = "1337";
+  const domain = "133712";
   const connextAddress = mkAddress("0x987654321");
 
   let readTxResult = "0x0000000000000000000000000000000000000000000000000000000000000000"; // false
@@ -22,6 +22,8 @@ describe("Watcher Adapter: Pauser", () => {
   beforeEach(() => {
     txservice = createStubInstance(TransactionService, {
       readTx: Promise.resolve(readTxResult),
+      getGasPrice: Promise.resolve(BigNumber.from(3)),
+      getAddress: Promise.resolve(mkAddress("0x2")),
     });
     const logger = createStubInstance(Logger);
     context = {
