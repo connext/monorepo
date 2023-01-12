@@ -10,6 +10,7 @@ import {
   RelayRequestOptions,
   NATIVE_TOKEN,
   RelayerRequest,
+  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
@@ -21,7 +22,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { axiosGet, axiosPost } from "../mockable";
+import { axiosPost } from "../mockable";
 
 import { gelatoRelay, url } from ".";
 
@@ -207,13 +208,8 @@ export const gelatoV0Send = async (
   return response.data;
 };
 
-export const getRelayerAddress = async (chainId: number): Promise<string> => {
-  try {
-    const res = await axiosGet(`${url}/relays/${chainId}/address`);
-    return res.data.address;
-  } catch (error: unknown) {
-    throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
-  }
+export const getRelayerAddress = async (_chainId: number): Promise<string> => {
+  return Promise.resolve(GELATO_RELAYER_ADDRESS);
 };
 
 export const send = async (
@@ -270,11 +266,9 @@ export const send = async (
   // Future intented way to call
   //const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
 
-  const response = await gelatoSDKSend(
-    { chainId, data: destinationAddress, target: destinationAddress },
-    gelatoApiKey,
-    { gasLimit: GAS_LIMIT_FOR_RELAYER },
-  );
+  const response = await gelatoSDKSend({ chainId, data: encodedData, target: destinationAddress }, gelatoApiKey, {
+    gasLimit: GAS_LIMIT_FOR_RELAYER,
+  });
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
