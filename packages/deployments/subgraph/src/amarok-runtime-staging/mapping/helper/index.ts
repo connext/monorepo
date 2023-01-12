@@ -6,7 +6,6 @@ import {
   AssetBalance,
   Router,
   StableSwap,
-  StableSwapLiquidity,
   PooledToken,
   SwapHourlyVolume,
   SwapDailyVolume,
@@ -154,6 +153,9 @@ export function getOrCreateStableSwapLiquidity(provider: Address): StableSwapLiq
   if (stableSwapLiquidity == null) {
     stableSwapLiquidity = new StableSwapLiquidity(stableSwapLiquidityId);
     stableSwapLiquidity.provider = provider;
+    stableSwapLiquidity.stableSwap = new Bytes(32).toHex();
+    stableSwapLiquidity.tokenAmounts = [];
+    stableSwapLiquidity.fees = [];
     stableSwapLiquidity.save();
   }
 
@@ -187,7 +189,7 @@ export function getSwapHourlyTradeVolume(stableSwap: StableSwap, timestamp: BigI
     volume.volume = decimal.ZERO;
   }
 
-  return volume!;
+  return volume;
 }
 
 export function getSwapDailyTradeVolume(stableSwap: StableSwap, timestamp: BigInt): SwapDailyVolume {
@@ -204,7 +206,7 @@ export function getSwapDailyTradeVolume(stableSwap: StableSwap, timestamp: BigIn
     volume.volume = decimal.ZERO;
   }
 
-  return volume!;
+  return volume;
 }
 
 export function getSwapWeeklyTradeVolume(stableSwap: StableSwap, timestamp: BigInt): SwapWeeklyVolume {
@@ -221,5 +223,5 @@ export function getSwapWeeklyTradeVolume(stableSwap: StableSwap, timestamp: BigI
     volume.volume = decimal.ZERO;
   }
 
-  return volume!;
+  return volume;
 }

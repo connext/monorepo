@@ -247,12 +247,40 @@ type PooledToken @entity {
   asset: Bytes!
 }
 
-type StableSwapLiquidity @entity {
-  id: ID!
-  provider: Bytes!
+interface StableSwapEvent @entity {
   stableSwap: StableSwap!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  provider: Bytes!
   tokenAmounts: [BigInt!]!
   fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  provider: Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
 }
 
 type StableSwapExchange @entity {

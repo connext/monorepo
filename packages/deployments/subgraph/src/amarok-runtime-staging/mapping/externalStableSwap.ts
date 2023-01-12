@@ -14,7 +14,7 @@ import {
   TokenSwap,
 } from "../../../generated/templates/StableSwap/StableSwap";
 
-import { getOrCreatePooledToken, getOrCreateStableSwap, getOrCreateStableSwapLiquidity } from "./helper";
+import { getOrCreatePooledToken, getOrCreateStableSwap } from "./helper";
 
 export function handleSwapInitialized(event: SwapInitialized): void {
   let stableSwap = getOrCreateStableSwap(event.address);
@@ -44,59 +44,11 @@ export function handleSwapInitialized(event: SwapInitialized): void {
   stableSwap.save();
 }
 
-export function handleAddLiquidity(event: AddLiquidity): void {
-  let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
+export function handleAddLiquidity(event: AddLiquidity): void {}
 
-  stableSwapLiquidity.provider = event.params.provider;
+export function handleRemoveLiquidity(event: RemoveLiquidity): void {}
 
-  let stableSwap = getOrCreateStableSwap(event.address);
-  stableSwapLiquidity.stableSwap = stableSwap.id;
-
-  const num = event.params.tokenAmounts.length;
-  for (let i = 0; i < num; i++) {
-    stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].plus(event.params.tokenAmounts[i]);
-    stableSwapLiquidity.fees[i] = stableSwapLiquidity.fees[i].plus(event.params.fees[i]);
-  }
-  stableSwap.invariant = event.params.invariant;
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-
-  stableSwap.save();
-  stableSwapLiquidity.save();
-}
-
-export function handleRemoveLiquidity(event: RemoveLiquidity): void {
-  let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
-
-  let stableSwap = getOrCreateStableSwap(event.address);
-  stableSwapLiquidity.stableSwap = stableSwap.id;
-
-  const num = event.params.tokenAmounts.length;
-  for (let i = 0; i < num; i++) {
-    stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
-  }
-
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-
-  stableSwap.save();
-  stableSwapLiquidity.save();
-}
-
-export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
-  let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
-
-  let stableSwap = getOrCreateStableSwap(event.address);
-  stableSwapLiquidity.stableSwap = stableSwap.id;
-
-  const num = event.params.tokenAmounts.length;
-  for (let i = 0; i < num; i++) {
-    stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
-  }
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-  stableSwap.invariant = event.params.invariant;
-
-  stableSwap.save();
-  stableSwapLiquidity.save();
-}
+export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {}
 
 export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {}
 
