@@ -58,8 +58,8 @@ export const sendExecuteSlowToSequencer = async (
   });
 
   try {
-    const gas = await chainreader.getGasEstimateWithRevertCode({
-      domain: +args.params.destinationDomain,
+    const gas = await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
+      chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
       from: relayerAddress,

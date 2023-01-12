@@ -85,7 +85,6 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
-  transacting: Bytes
 
   # Message
   message: OriginMessage
@@ -100,7 +99,6 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
-  txOrigin: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -141,7 +139,6 @@ type DestinationTransfer @entity {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  executedTxOrigin: Bytes
 
   # Reconciled Transaction
   reconciledCaller: Bytes
@@ -150,7 +147,6 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
-  reconciledTxOrigin: Bytes
 }
 
 type OriginMessage @entity {

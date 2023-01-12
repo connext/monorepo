@@ -15,7 +15,7 @@ export const setupRouter = async (
     // 1. Check to ensure router needs to be updated
     let readData = ConnextInterface.encodeFunctionData("getRouterApproval", [routerAddress]);
     let encodedRes = await txService.readTx({
-      domain: +domain.domain,
+      chainId: +domain.domain,
       data: readData,
       to: domain.Connext,
     });
@@ -24,7 +24,7 @@ export const setupRouter = async (
     // 2. Check to ensure router is configured correctly
     readData = ConnextInterface.encodeFunctionData("getRouterOwner", [routerAddress]);
     encodedRes = await txService.readTx({
-      domain: +domain.domain,
+      chainId: +domain.domain,
       data: readData,
       to: domain.Connext,
     });
@@ -32,7 +32,7 @@ export const setupRouter = async (
 
     readData = ConnextInterface.encodeFunctionData("getRouterRecipient", [routerAddress]);
     encodedRes = await txService.readTx({
-      domain: +domain.domain,
+      chainId: +domain.domain,
       data: readData,
       to: domain.Connext,
     });
@@ -40,13 +40,13 @@ export const setupRouter = async (
 
     if (!approved) {
       // Must approve router
-      await txService.sendTx({ to: domain.Connext, data: addData, value: 0, domain: +domain.domain }, requestContext);
+      await txService.sendTx({ to: domain.Connext, data: addData, value: 0, chainId: +domain.domain }, requestContext);
     }
 
     if (owner === constants.AddressZero && recipient === constants.AddressZero) {
       // Must initialize router
       await txService.sendTx(
-        { to: domain.Connext, data: configData, value: 0, domain: +domain.domain },
+        { to: domain.Connext, data: configData, value: 0, chainId: +domain.domain },
         requestContext,
       );
     } else if (owner !== routerAddress || recipient !== routerAddress) {

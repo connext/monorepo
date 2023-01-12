@@ -70,7 +70,6 @@ export const ORIGIN_TRANSFER_ENTITY = `
       asset {
         ${ASSET_ENTITY}
       }
-      transacting
 
       # Message
       message { 

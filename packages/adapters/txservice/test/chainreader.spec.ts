@@ -21,9 +21,9 @@ import {
   TEST_READ_TX,
   TEST_TX_RECEIPT,
   makeChaiReadable,
-  TEST_SENDER_DOMAIN,
+  TEST_RECEIVER_CHAIN_ID,
 } from "./utils";
-import { parseUnits } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -103,7 +103,7 @@ describe("ChainReader", () => {
     signer.connect.resolves(true);
 
     const chains = {
-      [TEST_SENDER_DOMAIN.toString()]: {
+      [TEST_SENDER_CHAIN_ID.toString()]: {
         providers: [{ url: "https://-------------" }],
         confirmations: 1,
         gasStations: [],
@@ -111,10 +111,10 @@ describe("ChainReader", () => {
     };
 
     chainReader = new ChainReader(logger, { chains }, signer);
-    Sinon.stub(chainReader as any, "getProvider").callsFake((domain: number) => {
-      // NOTE: We check to make sure we are only getting the one domain we expect
+    Sinon.stub(chainReader as any, "getProvider").callsFake((chainId: number) => {
+      // NOTE: We check to make sure we are only getting the one chainId we expect
       // to get in these unit tests.
-      expect(domain).to.be.eq(TEST_SENDER_DOMAIN);
+      expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
       return provider;
     });
     context.id = getRandomBytes32();
@@ -151,7 +151,7 @@ describe("ChainReader", () => {
       const testAddress = getRandomAddress();
       provider.getBalance.resolves(testBalance);
 
-      const balance = await chainReader.getBalance(TEST_SENDER_DOMAIN, testAddress);
+      const balance = await chainReader.getBalance(TEST_SENDER_CHAIN_ID, testAddress);
 
       expect(balance.eq(testBalance)).to.be.true;
       expect(provider.getBalance.callCount).to.equal(1);
@@ -161,7 +161,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getBalance.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getBalance(TEST_SENDER_DOMAIN, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+      await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
     });
   });
 
@@ -170,7 +170,7 @@ describe("ChainReader", () => {
       const testGasPrice = utils.parseUnits("5", "gwei");
       provider.getGasPrice.resolves(testGasPrice);
 
-      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_DOMAIN, requestContextMock);
+      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock);
 
       expect(gasPrice.eq(testGasPrice)).to.be.true;
       expect(provider.getGasPrice.callCount).to.equal(1);
@@ -179,7 +179,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getGasPrice.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getGasPrice(TEST_SENDER_DOMAIN, requestContextMock)).to.be.rejectedWith("fail");
+      await expect(chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock)).to.be.rejectedWith("fail");
     });
   });
 
@@ -189,7 +189,7 @@ describe("ChainReader", () => {
       const assetId = mkAddress("0xaaa");
       provider.getDecimalsForAsset.resolves(decimals);
 
-      const retrieved = await chainReader.getDecimalsForAsset(TEST_SENDER_DOMAIN, assetId);
+      const retrieved = await chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, assetId);
 
       expect(retrieved).to.be.eq(decimals);
       expect(provider.getDecimalsForAsset.callCount).to.equal(1);
@@ -199,7 +199,9 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getDecimalsForAsset.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getDecimalsForAsset(TEST_SENDER_DOMAIN, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+      await expect(chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith(
+        "fail",
+      );
     });
   });
 
@@ -208,7 +210,7 @@ describe("ChainReader", () => {
       const mockBlock = { transactions: [getRandomBytes32()] } as providers.Block;
       provider.getBlock.resolves(mockBlock);
 
-      const block = await chainReader.getBlock(TEST_SENDER_DOMAIN, "block");
+      const block = await chainReader.getBlock(TEST_SENDER_CHAIN_ID, "block");
 
       expect(block).to.be.eq(mockBlock);
       expect(provider.getBlock.callCount).to.equal(1);
@@ -217,7 +219,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getBlock.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getBlock(TEST_SENDER_DOMAIN, "block")).to.be.rejectedWith("fail");
+      await expect(chainReader.getBlock(TEST_SENDER_CHAIN_ID, "block")).to.be.rejectedWith("fail");
     });
   });
 
@@ -226,7 +228,7 @@ describe("ChainReader", () => {
       const time = Math.floor(Date.now() / 1000);
       provider.getBlockTime.resolves(time);
 
-      const blockTime = await chainReader.getBlockTime(TEST_SENDER_DOMAIN);
+      const blockTime = await chainReader.getBlockTime(TEST_SENDER_CHAIN_ID);
 
       expect(blockTime).to.be.eq(time);
       expect(provider.getBlockTime.callCount).to.equal(1);
@@ -235,7 +237,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getBlockTime.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getBlockTime(TEST_SENDER_DOMAIN)).to.be.rejectedWith("fail");
+      await expect(chainReader.getBlockTime(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
   });
 
@@ -244,7 +246,7 @@ describe("ChainReader", () => {
       const testBlockNumber = 42;
       provider.getBlockNumber.resolves(testBlockNumber);
 
-      const blockNumber = await chainReader.getBlockNumber(TEST_SENDER_DOMAIN);
+      const blockNumber = await chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID);
 
       expect(blockNumber).to.be.eq(testBlockNumber);
       expect(provider.getBlockNumber.callCount).to.equal(1);
@@ -253,7 +255,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getBlockNumber.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getBlockNumber(TEST_SENDER_DOMAIN)).to.be.rejectedWith("fail");
+      await expect(chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
   });
 
@@ -261,7 +263,7 @@ describe("ChainReader", () => {
     it("happy", async () => {
       provider.getTransactionReceipt.resolves(TEST_TX_RECEIPT);
 
-      const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_DOMAIN, TEST_TX_RECEIPT.transactionHash);
+      const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash);
 
       expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
       expect(provider.getTransactionReceipt.callCount).to.be.eq(1);
@@ -271,7 +273,7 @@ describe("ChainReader", () => {
       provider.getTransactionReceipt.rejects(new RpcError("fail"));
 
       await expect(
-        chainReader.getTransactionReceipt(TEST_SENDER_DOMAIN, TEST_TX_RECEIPT.transactionHash),
+        chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash),
       ).to.be.rejectedWith("fail");
     });
   });
@@ -281,7 +283,7 @@ describe("ChainReader", () => {
       const code = "0x12345789";
       provider.getCode.resolves(code);
 
-      const result = await chainReader.getCode(TEST_SENDER_DOMAIN, mkAddress("0xa1"));
+      const result = await chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"));
 
       expect(result).to.be.eq(code);
       expect(provider.getCode.callCount).to.equal(1);
@@ -290,7 +292,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getCode.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getCode(TEST_SENDER_DOMAIN, mkAddress("0xa1"))).to.be.rejectedWith("fail");
+      await expect(chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith("fail");
     });
   });
 
@@ -299,7 +301,7 @@ describe("ChainReader", () => {
       const mockGasEstimation = parseUnits("1", 9);
       provider.getGasEstimate.resolves(mockGasEstimation);
 
-      const gasEstimation = await chainReader.getGasEstimate(TEST_SENDER_DOMAIN, null);
+      const gasEstimation = await chainReader.getGasEstimate(TEST_SENDER_CHAIN_ID, null);
 
       expect(gasEstimation).to.be.eq(mockGasEstimation);
       expect(provider.getGasEstimate.callCount).to.equal(1);
@@ -308,7 +310,7 @@ describe("ChainReader", () => {
     it("should throw if provider fails", async () => {
       provider.getGasEstimate.rejects(new RpcError("fail"));
 
-      await expect(chainReader.getGasEstimate(TEST_SENDER_DOMAIN, null)).to.be.rejectedWith("fail");
+      await expect(chainReader.getGasEstimate(TEST_SENDER_CHAIN_ID, null)).to.be.rejectedWith("fail");
     });
   });
 
@@ -338,13 +340,13 @@ describe("ChainReader", () => {
       interfaceStub.encodeFunctionData.returns(data);
       readTxStub.resolves(tokenPrice);
 
-      const result = await chainReader.getTokenPrice(TEST_SENDER_DOMAIN, assetId);
+      const result = await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId);
 
       expect(result.toString()).to.be.eq(tokenPrice);
       expect(getDeployedPriceOracleContractStub.getCall(0).args).to.deep.eq([TEST_SENDER_CHAIN_ID]);
       expect(interfaceStub.encodeFunctionData.getCall(0).args).to.deep.eq(["getTokenPrice", [assetId]]);
       expect(readTxStub.getCall(0).args[0]).to.deep.eq({
-        domain: TEST_SENDER_DOMAIN,
+        chainId: TEST_SENDER_CHAIN_ID,
         to: priceOracleContractFakeAddr,
         data,
       });
@@ -352,7 +354,7 @@ describe("ChainReader", () => {
 
     it("should throw ChainNotSupported if chain not supported for token pricing", async () => {
       getDeployedPriceOracleContractStub.returns(undefined);
-      await expect(chainReader.getTokenPrice(TEST_SENDER_DOMAIN, mkAddress("0xa1"))).to.be.rejectedWith(
+      await expect(chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
         ChainNotSupported,
       );
     });
@@ -362,14 +364,16 @@ describe("ChainReader", () => {
       const assetId = mkAddress("0xc3");
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const tokenPrice = BigNumber.from("5812471953821");
-      const cachedPriceKey = TEST_SENDER_DOMAIN.toString().concat("-").concat(assetId);
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
       cachedPriceMap.set(cachedPriceKey, {
         timestamp: currentTimestamp - 30,
         price: tokenPrice,
       });
 
       getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
-      expect((await chainReader.getTokenPrice(TEST_SENDER_DOMAIN, assetId)).toString()).to.be.eq(tokenPrice.toString());
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
+        tokenPrice.toString(),
+      );
     });
 
     it("should return real price if updated timestamp more than 1 min", async () => {
@@ -377,14 +381,14 @@ describe("ChainReader", () => {
       const assetId = mkAddress("0xc3");
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const tokenPrice = BigNumber.from("5812471953821");
-      const cachedPriceKey = TEST_SENDER_DOMAIN.toString().concat("-").concat(assetId).concat("latest");
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId).concat("latest");
 
       cachedPriceMap.set(cachedPriceKey, {
         timestamp: currentTimestamp - 61,
         price: tokenPrice,
       });
       getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
-      expect((await chainReader.getTokenPrice(TEST_SENDER_DOMAIN, assetId)).toString()).to.be.eq(
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
         "581247195382112121212",
       );
     });
@@ -415,13 +419,13 @@ describe("ChainReader", () => {
       interfaceStub.encodeFunctionData.returns(data);
       readTxStub.resolves(tokenPrice);
 
-      const result = await chainReader.getTokenPriceFromOnChain(TEST_SENDER_DOMAIN, assetId);
+      const result = await chainReader.getTokenPriceFromOnChain(TEST_SENDER_CHAIN_ID, assetId);
 
       expect(result.toString()).to.be.eq(tokenPrice);
       expect(getDeployedPriceOracleContractStub.getCall(0).args).to.deep.eq([TEST_SENDER_CHAIN_ID]);
       expect(interfaceStub.encodeFunctionData.getCall(0).args).to.deep.eq(["getTokenPrice", [assetId]]);
       expect(readTxStub.getCall(0).args[0]).to.deep.eq({
-        domain: TEST_SENDER_DOMAIN,
+        chainId: TEST_SENDER_CHAIN_ID,
         to: priceOracleContractFakeAddr,
         data,
       });
@@ -429,7 +433,7 @@ describe("ChainReader", () => {
 
     it("should throw ChainNotSupported if chain not supported for token pricing", async () => {
       getDeployedPriceOracleContractStub.returns(undefined);
-      await expect(chainReader.getTokenPriceFromOnChain(TEST_SENDER_DOMAIN, mkAddress("0xa1"))).to.be.rejectedWith(
+      await expect(chainReader.getTokenPriceFromOnChain(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
         ChainNotSupported,
       );
     });
@@ -445,14 +449,14 @@ describe("ChainReader", () => {
     it("errors if cannot get provider", async () => {
       // Replacing this method with the original fn not working.
       (chainReader as any).getProvider.restore();
-      await expect(chainReader.readTx({ ...TEST_TX, domain: 9999 })).to.be.rejectedWith(ProviderNotConfigured);
+      await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(ProviderNotConfigured);
     });
   });
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
       (chainReader as any).config = {
-        [TEST_SENDER_DOMAIN.toString()]: {
+        [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],
           confirmations: 1,

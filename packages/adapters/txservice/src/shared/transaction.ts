@@ -1,6 +1,5 @@
 import { RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers, utils } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
 
 import { Gas, WriteTransaction } from "./types";
 
@@ -129,11 +128,8 @@ export class OnchainTransaction {
    * Retrieves all params needed to format a full transaction, including current gas price set, nonce, etc.
    */
   public get params(): providers.TransactionRequest {
-    // convert domain to chainid here for evm chains
-    const { domain, ...rest } = this.minTx;
     return {
-      ...rest,
-      chainId: domainToChainId(domain),
+      ...this.minTx,
       nonce: this.nonce,
       type: this.type,
       gasLimit: this.gas.limit,

@@ -3,7 +3,7 @@ import { reset, restore, SinonStub, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 
 import { RpcError, SyncProvider, TransactionReverted } from "../../src/shared";
-import { TEST_ERROR, TEST_SENDER_DOMAIN } from "../utils";
+import { TEST_ERROR, TEST_SENDER_CHAIN_ID } from "../utils";
 
 describe("SyncProvider", () => {
   const testStallTimeout = 100;
@@ -14,7 +14,7 @@ describe("SyncProvider", () => {
       {
         url: "http://------------------",
       },
-      TEST_SENDER_DOMAIN,
+      TEST_SENDER_CHAIN_ID,
       testStallTimeout,
       process.env.LOG_LEVEL === "debug",
     );

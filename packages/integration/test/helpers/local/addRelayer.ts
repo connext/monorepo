@@ -12,7 +12,7 @@ export const addRelayer = async (
     logger.info("addRelayer ", requestContext, methodContext, { domain });
     const relayerApprovedData = ConnextInterface.encodeFunctionData("approvedRelayers", [domain.relayer]);
     const encoded = await txService.readTx({
-      domain: +domain.domain,
+      chainId: +domain.domain,
       data: relayerApprovedData,
       to: domain.Connext,
     });
@@ -23,7 +23,7 @@ export const addRelayer = async (
       const approveRelayerData = ConnextInterface.encodeFunctionData("addRelayer", [domain.relayer]);
       await txService.sendTx(
         {
-          domain: +domain.domain,
+          chainId: +domain.domain,
           to: domain.Connext,
           data: approveRelayerData,
           value: 0,
