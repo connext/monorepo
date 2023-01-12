@@ -63,20 +63,3 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
 });
 
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
-
-export const NxtpSdkXCallArgsSchema = Type.Object({
-  destination: Type.String(),
-  to: TAddress,
-  asset: TAddress,
-  delegate: Type.Optional(TAddress),
-  amount: TIntegerString,
-  slippage: TIntegerString,
-  callData: Type.Optional(Type.String()),
-  origin: Type.String(),
-  relayerFee: Type.Optional(Type.String()),
-  receiveLocal: Type.Optional(Type.Boolean()),
-  wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
-  unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
-});
-
-export type NxtpSdkXCallArgs = Static<typeof NxtpSdkXCallArgsSchema>;
