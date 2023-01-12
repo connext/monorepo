@@ -118,7 +118,7 @@ contract Unwrapper is Orphanage, IXReceiver {
       // We use the `originSender` as a fallback parent.
       // NOTE: We specify `asset` as the token address here instead of `WRAPPER`; see the next
       // sanity check below to understand why (asset may not match WRAPPER address!).
-      orphan(amount, originSender, asset, "unwrap: !recipient");
+      orphan(asset, amount, originSender, "unwrap: !recipient");
       return bytes("");
     }
 
@@ -127,7 +127,7 @@ contract Unwrapper is Orphanage, IXReceiver {
       // If the delivered asset does not match our target wrapper, we can try sending it, but worst case
       // will want to orphan those assets here.
       try IERC20(asset).transfer(recipient, amount) {} catch (bytes memory reason) {
-        orphan(amount, recipient, asset, reason);
+        orphan(asset, amount, recipient, reason);
       }
       return bytes("");
     }
@@ -140,7 +140,7 @@ contract Unwrapper is Orphanage, IXReceiver {
       // self-destruct. We need to use a safe sending method here we can wrap in try/catch.
       bool sent = payable(msg.sender).send(amount);
       if (!sent) {
-        orphan(amount, recipient, address(0), "unwrap: !sent");
+        orphan(address(0), amount, recipient, "unwrap: !sent");
       }
     } catch (bytes memory reason) {
       // Handle transferring wrapped funds to the intended recipient in the event that the
@@ -148,7 +148,7 @@ contract Unwrapper is Orphanage, IXReceiver {
       // Always make sure funds are delivered to intended recipient on failing external calls!
       emit UnwrappingFailed(recipient, reason);
       try WRAPPER.transfer(recipient, amount) {} catch (bytes memory otherReason) {
-        orphan(amount, recipient, address(WRAPPER), otherReason);
+        orphan(address(WRAPPER), amount, recipient, otherReason);
       }
     }
   }
