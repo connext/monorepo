@@ -390,7 +390,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
 
           // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
           const gas: Gas = {
-            limit: gasLimit,
+            limit: BigNumber.from(minTx.gasLimit) ?? gasLimit,
             price: gasPrice,
           };
           if (this.chainId === 42161) {

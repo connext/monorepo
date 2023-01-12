@@ -10,6 +10,7 @@ export type ReadTransaction = {
 export type WriteTransaction = {
   from?: string;
   value: BigNumberish;
+  gasLimit?: BigNumberish;
 } & ReadTransaction;
 
 /// Events
