@@ -1,0 +1,9 @@
+[
+  "event OrphanedNativeTokens(uint256 indexed,address indexed,bytes)",
+  "event OrphanedTokens(address indexed,uint256 indexed,address indexed,bytes)",
+  "event SavedOrphans(address indexed,uint256 indexed,address indexed)",
+  "function checkOrphans(address) view returns (uint256)",
+  "function orphanedNativeTokens(address) view returns (uint256)",
+  "function orphanedTokens(address,address) view returns (uint256)",
+  "function saveOrphans(address)"
+]

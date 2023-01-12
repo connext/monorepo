@@ -9,6 +9,7 @@ import {
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
   RootManager as TRootManager,
+  Unwrapper as TUnwrapper,
 } from "@connext/nxtp-contracts";
 import RootManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
@@ -17,6 +18,7 @@ import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
 import RelayerProxyArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
 import RelayerProxyHubArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
+import UnwrapperArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Unwrapper.sol/Unwrapper.json";
 import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
 import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
@@ -113,6 +115,12 @@ export const getDeployedMultisendContract = (chainId: number): { address: string
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedUnwrapperContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts["Unwrapper"] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
@@ -200,6 +208,7 @@ export type RootManagerPropagateWrapperGetter = (
 ) => { address: string; abi: any } | undefined;
 
 export type MultisendContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export type UnwrapperContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
@@ -209,6 +218,7 @@ export type ConnextContractDeployments = {
   spokeConnector: SpokeConnectorDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
+  unwrapper: UnwrapperContractDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -219,6 +229,7 @@ export const contractDeployments: ConnextContractDeployments = {
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
+  unwrapper: getDeployedUnwrapperContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -249,6 +260,8 @@ export const getSpokeConnectorInterface = () =>
 
 export const getRootManagerInterface = () => new utils.Interface(RootManagerArtifact.abi) as TRootManager["interface"];
 
+export const getUnwrapperInterface = () => new utils.Interface(UnwrapperArtifact.abi) as TUnwrapper["interface"];
+
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
   connext: TConnext["interface"];
@@ -258,6 +271,7 @@ export type ConnextContractInterfaces = {
   rootManager: TRootManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
+  unwrapper: TUnwrapper["interface"];
 };
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({
@@ -269,6 +283,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   rootManager: getRootManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),
+  unwrapper: getUnwrapperInterface(),
 });
 
 export type AmbContractABIs = {

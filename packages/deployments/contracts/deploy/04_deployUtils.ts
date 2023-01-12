@@ -4,6 +4,24 @@ import { Wallet } from "ethers";
 
 import { SKIP_SETUP } from "../src/constants";
 
+// Helper for deploying a utility contract below and handling proper logs, etc.
+const deployContract = async (params: { hre: HardhatRuntimeEnvironment; deployer: Wallet; contractName: string }) => {
+  const { hre, deployer, contractName } = params;
+  let deployment = await hre.deployments.getOrNull(contractName);
+  if (!deployment) {
+    console.log(`Deploying ${contractName} contract...`);
+    deployment = await hre.deployments.deploy(contractName, {
+      from: deployer.address,
+      log: true,
+      skipIfAlreadyDeployed: true,
+      contract: contractName,
+    });
+    console.log(`Deployed ${contractName} contract to: ${deployment.address}`);
+  } else {
+    console.log(`${contractName} contract already deployed at: ${deployment.address}`);
+  }
+};
+
 /**
  * Hardhat task defining the contract deployments for nxtp
  *
@@ -22,29 +40,22 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   if (SKIP_SETUP.includes(chainId)) {
-    throw new Error(`Should be skipped on mainnet chain`);
+    throw new Error(`Should have skipped setup for this chain (${chainId})`);
   }
 
-  {
-    // NOTE: Multisend will be shared between staging and production environments; we do not
-    // deploy 1 for each.
-    // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
-    // making xcalls transferring WETH tokens.
-    const multisendContractName = "MultiSend";
-    let deployment = await hre.deployments.getOrNull(multisendContractName);
-    if (!deployment) {
-      console.log("Deploying Multisend contract...");
-      deployment = await hre.deployments.deploy(multisendContractName, {
-        from: deployer.address,
-        log: true,
-        skipIfAlreadyDeployed: true,
-        contract: multisendContractName,
-      });
-      console.log(`Deployed Multisend contract to ${deployment.address}!`);
-    } else {
-      console.log(`Multisend contract already deployed at ${deployment.address}`);
-    }
-  }
+  /// MARK - MultiSend
+  // NOTE: MultiSend will be shared between staging and production environments; we do not
+  // deploy 1 for each.
+  // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
+  // making xcalls transferring WETH tokens.
+  deployContract({ hre, deployer, contractName: "MultiSend" });
+
+  /// MARK - Unwrapper
+  // NOTE: Unwrapper can be shared between staging and production environments; we do not
+  // deploy 1 for each.
+  // Unwrapper utility contract is used by the SDK to conveniently unwrap WETH => ETH on the
+  // transfer's destination chain after an xcall transferring WETH tokens.
+  deployContract({ hre, deployer, contractName: "Unwrapper" });
 };
 
 export default func;

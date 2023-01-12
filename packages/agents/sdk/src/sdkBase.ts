@@ -13,7 +13,13 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 export type logger = Logger;
 
 import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined, ParamsInvalid, SlippageInvalid } from "./lib/errors";
+import {
+  SignerAddressMissing,
+  ChainDataUndefined,
+  CannotUnwrapOnDestination,
+  ParamsInvalid,
+  SlippageInvalid,
+} from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
 import {
@@ -94,13 +100,23 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param params.origin - The origin domain ID.
    * @param params.destination - The destination domain ID.
    * @param params.to - Address receiving funds or the target contract.
-   * @param params.asset - (optional) Address of the token contract. Use zero address only for non-value xcalls.
+   * @param args.asset - (optional) The target asset to send with the xcall. Can be set to `address(0)` if this is a 0-value
+   * transfer. If `wrapNativeOnOrigin` is true, this should be the target wrapper contract (e.g. WETH) address.
    * @param params.delegate - (optional) Address allowed to cancel an xcall on destination.
-   * @param params.amount - (optional) Amount of tokens to transfer.
+   * @param params.amount - (optional) The amount of tokens (in specified asset) to send with the xcall. If `wrapNativeOnOrigin`
+   * is true, this will be used as the amount of native token to deposit into the wrapper contract and withdraw
+   * as wrapped native token for sending (e.g. deposit ETH to the WETH contract in exchange for the WETH ERC20).
    * @param params.slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
    * @param params.callData - (optional) Calldata to execute (can be empty: "0x").
    * @param params.relayerFee - (optional) Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
    * @param params.receiveLocal - (optional) Whether to receive the local asset ("nextAsset").
+   * @param params.wrapNativeOnOrigin - (optional) Whether we should wrap the native token before sending the xcall. This will
+   * use the Multisend utility contract to deposit ETH, approve Connext as a spender, and call xcall.
+   * @param params.unwrapNativeOnDestination - (optional) Whether we should unwrap the wrapped native token when the transfer
+   * reaches its destination. By default, if sending a wrapped native token, the wrapped token is what gets
+   * delivered at the destination. Setting this to `true` means we should overwrite `callData` to target the
+   * Unwrapper utility contract, which will unwrap the wrapped native token and deliver it to the target
+   * recipient (the `to` address).
    * @returns providers.TransactionRequest object.
    *
    * @example
@@ -127,14 +143,9 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
     const {
       origin,
       destination,
-      to,
       callData: _callData,
       asset: _asset,
       delegate: _delegate,
@@ -142,23 +153,34 @@ export class NxtpSdkBase extends NxtpSdkShared {
       slippage: _slippage,
       relayerFee: _relayerFee,
       receiveLocal: _receiveLocal,
+      wrapNativeOnOrigin: _wrapNativeOnOrigin,
+      unwrapNativeOnDestination: _unwrapNativeOnDestination,
     } = params;
+    let { to } = params;
 
     // Set default values if not provided
-    const callData = _callData ?? "0x";
+    let callData = _callData ?? "0x";
     const asset = _asset ?? constants.AddressZero;
     const delegate = _delegate ?? to;
     const amount = _amount ?? "0";
+    const amountBN = BigNumber.from(amount);
     const slippage = _slippage ?? "10000";
     const relayerFee = _relayerFee ?? "0";
+    const relayerFeeBN = BigNumber.from(relayerFee);
     const receiveLocal = _receiveLocal ?? false;
+    const wrapNativeOnOrigin = _wrapNativeOnOrigin ?? false;
+    const unwrapNativeOnDestination = _unwrapNativeOnDestination ?? false;
 
-    // Input validation
+    /// Input validation
     if (asset == constants.AddressZero && amount != "0") {
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
     }
     if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
       throw new SlippageInvalid(slippage, context);
+    }
+    if (to === constants.AddressZero) {
+      // TODO: Custom error.
+      throw new Error("Valid recipient `to` address must be provided; received address(0) as recipient.");
     }
 
     const validateInput = ajv.compile(SdkXCallParamsSchema);
@@ -171,47 +193,115 @@ export class NxtpSdkBase extends NxtpSdkShared {
       });
     }
 
-    const ConnextContractAddress = (await this.getConnext(origin)).address;
+    // Ensure signer is provided.
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+    // Get the origin chain ID.
+    const chainId = await this.getChainId(origin);
+    // Get Connext address for origin.
+    const connextContractAddress = await this.getDeploymentAddress(origin, "connext");
 
-    let chainId = this.config.chains[origin].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(origin, this.chainData);
+    if (unwrapNativeOnDestination) {
+      // Sanity check: We'll need to overwrite the callData with an unwrapping call. If a `callData` argument
+      // is also specified, we throw to ensure the user's callData isn't being overwritten unexpectedly.
+      // TODO: Implement an xReceive Multisend call to have the option to combine the unwrapping AND the user's
+      // original callData!
+      if (callData !== "0x") {
+        throw new CannotUnwrapOnDestination("`callData` argument must be empty!" + ` callData specified: ${callData}`);
+      }
+      // NOTE: We don't need to check on-chain to ensure destination Unwrapper supports unwrapping the
+      // target native token; if it didn't, it wouldn't be deployed and therefore wouldn't be configured.
+
+      // Sanity check: `receiveLocal` must be false.
+      if (receiveLocal) {
+        throw new CannotUnwrapOnDestination("`receiveLocal` is set to true.");
+      }
+
+      // Retrieve destination unwrapper xReceive utility contract (will throw if it has not been configured).
+      const unwrapperContractAddress = await this.getDeploymentAddress(destination, "unwrapper");
+
+      // Set the `callData` to the unwrap method. Specify `to`: the preserved original recipient.
+      // NOTE: Super important, this is how we preserve the original recipient here. We CANNOT rely on
+      // `originSender` to be the recipient on destination, as the `originSender` could be a contract (e.g.
+      // Multisend, in the case of wrapping ETH on origin).
+      callData = utils.defaultAbiCoder.encode(["address"], [to]);
+      // Now we can overwrite the `to` address to be the target unwrapper contract.
+      to = unwrapperContractAddress;
     }
 
-    // Add callback and relayer fee together to get the total ETH value that should be sent
-    const value = BigNumber.from(relayerFee);
-    let data: string;
+    // Take the finalized xcall arguments and encode calldata.
+    // NOTE: Using a tuple here to satisfy compiler for `encodeFunctionData` call below.
+    const formattedArguments: [string, string, string, string, BigNumber, string, string] = [
+      destination,
+      to,
+      asset,
+      delegate,
+      amountBN,
+      slippage,
+      callData,
+    ];
+    const xcallData = receiveLocal
+      ? this.contracts.connext.encodeFunctionData("xcallIntoLocal", formattedArguments)
+      : this.contracts.connext.encodeFunctionData("xcall", formattedArguments);
 
-    // Check if receiveLocal is desired
-    if (receiveLocal ?? false) {
-      data = this.contracts.connext.encodeFunctionData("xcallIntoLocal", [
-        destination,
-        to,
-        asset,
-        delegate,
-        amount,
-        slippage,
-        callData,
-      ]);
+    let txRequest: providers.TransactionRequest;
+    if (wrapNativeOnOrigin) {
+      /**
+       * Wrapping native on origin:
+       * Produce a singular transaction that will first wrap the native token and then send an XCall with the
+       * wrapped native token (e.g. wrap ETH, xcall WETH). This single transaction relies on the Multisend
+       * utility contract (deployed by Connext).
+       */
+      // Get multisend utility contract (will throw if it has not been configured).
+      const multisendContractAddress = await this.getDeploymentAddress(origin, "multisend");
+      // ERC20Wrapper interface for deposit/withdraw.
+      const weth = new utils.Interface(WETHAbi);
+
+      const txs: MultisendTransaction[] = [];
+
+      // 1. WETH.deposit(amount)
+      txs.push({
+        to: asset,
+        data: weth.encodeFunctionData("deposit"),
+        value: amountBN,
+      });
+
+      // 2. WETH.approve(connext)
+      txs.push({
+        to: asset,
+        data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
+      });
+
+      // 3. xcall(args)
+      txs.push({
+        to: connextContractAddress,
+        data: xcallData,
+        value: relayerFeeBN,
+      });
+
+      // 5. Format Multisend call in an ethers TransactionRequest object.
+      txRequest = {
+        to: multisendContractAddress,
+        value: amountBN.add(relayerFeeBN), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+        data: encodeMultisendCall(txs),
+        from: signerAddress,
+        chainId,
+      };
     } else {
-      data = this.contracts.connext.encodeFunctionData("xcall", [
-        destination,
-        to,
-        asset,
-        delegate,
-        amount,
-        slippage,
-        callData,
-      ]);
-    }
+      // Add callback and relayer fee together to get the total ETH value that should be sent.
+      const value = BigNumber.from(relayerFeeBN ?? "0");
 
-    const txRequest: providers.TransactionRequest = {
-      to: ConnextContractAddress,
-      value,
-      data,
-      from: signerAddress,
-      chainId,
-    };
+      // Format the ethers TransactionRequest object.
+      txRequest = {
+        to: connextContractAddress,
+        value,
+        data: xcallData,
+        from: signerAddress,
+        chainId,
+      };
+    }
 
     this.logger.info("XCall transaction formatted.", requestContext, methodContext, {
       args: { ...params, callData, delegate },
@@ -335,124 +425,5 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(params, this.chainData, this.logger);
 
     return relayerFeeInOriginNativeAsset;
-  }
-
-  /**
-   * Prepares a Multisend transaction request containing a call to wrap ETH and to xcall with the received WETH.
-   *
-   * @param params - SdkXCallParams object.
-   * @param params.origin - The origin domain ID.
-   * @param params.destination - The destination domain ID.
-   * @param params.to - Address receiving funds or the target contract.
-   * @param params.asset - (optional) Address of the token contract. Use zero address only for non-value xcalls.
-   * @param params.delegate - (optional) Address allowed to cancel an xcall on destination.
-   * @param params.amount - (optional) Amount of tokens to transfer.
-   * @param params.slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
-   * @param params.callData - (optional) Calldata to execute (can be empty: "0x").
-   * @param params.relayerFee - (optional) Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
-   * @param params.receiveLocal - (optional) Whether to receive the local asset ("nextAsset").
-   * @returns providers.TransactionRequest object.
-   *
-   * @example
-   * ```ts
-   * // call NxtpSdkBase.create(), instantiate a signer
-   *
-   * const params = {
-   *   origin: "6648936"
-   *   destination: "1869640809"
-   *   to: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
-   *   asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-   *   delegate: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
-   *   amount: "1000000"
-   *   slippage: "300"
-   *   callData: "0x",
-   *   relayerFee: "10000000000000"
-   * };
-   *
-   * const txRequest = nxtpSdkBase.wrapEthAndXCall(params);
-   * signer.sendTransaction(txRequest);
-   * ```
-   */
-  async wrapEthAndXCall(params: SdkXCallParams): Promise<providers.TransactionRequest> {
-    const txs: MultisendTransaction[] = [];
-    const { asset, amount: _amount, origin, slippage } = params;
-    const amount = BigNumber.from(_amount);
-
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
-    // TODO: Check that asset address is correct WETH contract
-    // Input validation
-    if (asset == constants.AddressZero && _amount != "0") {
-      throw new Error("Transacting asset specified was address zero; native assets are not supported!");
-    }
-    if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
-      throw new SlippageInvalid(slippage, context);
-    }
-
-    let chainId = this.config.chains[origin].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(origin, this.chainData);
-    }
-
-    const connextContractAddress = (await this.getConnext(origin)).address;
-    const multisendContractAddress = this.config.chains[origin].deployments?.multisend;
-    const weth = new utils.Interface(WETHAbi);
-
-    if (!multisendContractAddress) {
-      throw new Error(`Multisend contract deployment not found for chain ${chainId}! Unable to perform multicall.`);
-    }
-
-    // 1. WETH.deposit(amount)
-    txs.push({
-      to: asset,
-      data: weth.encodeFunctionData("deposit"),
-      value: amount,
-    });
-
-    // 2. WETH.approve(connext)
-    txs.push({
-      to: asset,
-      data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
-    });
-
-    // 3. xcall(args)
-    const xcallRequest = await this.xcall(params);
-
-    // Sanity check: the `to` recipient of xcall matches what we used as connext contract address
-    // for token approval.
-    if (!xcallRequest.to || connextContractAddress !== xcallRequest.to) {
-      throw new Error(
-        "Formatted XCall recipient address did not match expected Connext address!" +
-          `Got: ${xcallRequest.to}; Expected: ${connextContractAddress}`,
-      );
-    }
-
-    const relayerFee = BigNumber.from(params.relayerFee ?? "0");
-    // Sanity check: value is correct.
-    if (!xcallRequest.value || !BigNumber.from(xcallRequest.value).eq(relayerFee)) {
-      throw new Error(
-        "Formatted XCall msg.value did not match expected value (params.relayerFee)." +
-          `Got: ${xcallRequest.value?.toString()}; Expected: ${params.relayerFee}`,
-      );
-    }
-
-    txs.push({
-      to: connextContractAddress,
-      data: xcallRequest.data!.toString(),
-      value: relayerFee,
-    });
-
-    // 5. Format Multisend call in an ethers TransactionRequest object.
-    const txRequest: providers.TransactionRequest = {
-      to: multisendContractAddress,
-      value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
-      data: encodeMultisendCall(txs),
-      from: signerAddress,
-      chainId,
-    };
-    return txRequest;
   }
 }

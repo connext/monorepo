@@ -20,19 +20,6 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
   );
 
-  s.post<{ Body: SdkXCallParams }>(
-    "/wrapEthAndXCall",
-    {
-      schema: {
-        body: SdkXCallParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const txReq = await sdkBaseInstance.wrapEthAndXCall(request.body);
-      reply.status(200).send(txReq);
-    },
-  );
-
   s.post(
     "/approveIfNeeded",
     {
