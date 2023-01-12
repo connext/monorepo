@@ -12,15 +12,12 @@ export const addLiquidity = async (
   for (const domain of domains) {
     logger.info("addLiquidity", requestContext, methodContext, { domain });
     const allowanceData = getErc20Interface().encodeFunctionData("allowance", [domain.router, domain.Connext]);
-    const encoded = await txService.readTx({ chainId: +domain.domain, data: allowanceData, to: domain.asset });
+    const encoded = await txService.readTx({ domain: +domain.domain, data: allowanceData, to: domain.asset });
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
 
     if (BigNumber.from(allowance.toString()).lt(domain.amount)) {
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.Connext, domain.amount]);
-      await txService.sendTx(
-        { chainId: +domain.domain, to: domain.asset, data: approveData, value: 0 },
-        requestContext,
-      );
+      await txService.sendTx({ domain: +domain.domain, to: domain.asset, data: approveData, value: 0 }, requestContext);
     }
 
     const addLiquidityData = ConnextInterface.encodeFunctionData("addRouterLiquidityFor", [
@@ -31,7 +28,7 @@ export const addLiquidity = async (
 
     await txService.sendTx(
       {
-        chainId: +domain.domain,
+        domain: +domain.domain,
         to: domain.Connext,
         data: addLiquidityData,
         value: 0,

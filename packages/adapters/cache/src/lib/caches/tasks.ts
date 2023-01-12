@@ -1,4 +1,4 @@
-import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -17,6 +17,9 @@ export type CachedTaskData = {
  * Task Status:
  *   key: status:$taskId | value: RelayerApiTaskStatus;
  *
+ * Task Timestamp:
+ *   key: timestamp:$taskId | value: string;
+ *
  * Task Errors:
  *   key: error:$taskId | value: JSON.stringify(NxtpError);
  *
@@ -25,6 +28,7 @@ export type CachedTaskData = {
  */
 export class TasksCache extends Cache {
   private readonly prefix = "tasks";
+  private readonly defaultExpireTime = 3600 * 3;
 
   /// MARK - Task Data
   /**
@@ -76,7 +80,8 @@ export class TasksCache extends Cache {
    * @param status - The status to set.
    * @returns 1 if added, 0 if updated.
    */
-  private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+  public async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+    await this.setTimestamp(taskId);
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());
   }
 
@@ -154,5 +159,60 @@ export class TasksCache extends Cache {
       }
     }
     return filtered;
+  }
+
+  /// MARK - Task Timestamp
+  /**
+   * Update the timestamp of the task to avoid a memory leak by deleteing expired tasks periodically
+   * @param taskId - Task Id
+   * @returns 1 if added, 0 if updated.
+   */
+  public async setTimestamp(taskId: string): Promise<number> {
+    const curTime = getNtpTimeSeconds();
+    return await this.data.hset(`${this.prefix}:timestamp`, taskId, curTime.toString());
+  }
+
+  /**
+   * Returns the latest update time of the task
+   *
+   * @param taskId - The task id you wanna get the latest timestamp for
+   * @returns The latest timestamp of the task in seconds
+   */
+  public async getTimestamp(taskId: string): Promise<number> {
+    const res = await this.data.hget(`${this.prefix}:timestamp`, taskId);
+    return res ? Number(res) : 0;
+  }
+
+  /**
+   * Prunes all records which have been expired within a given length
+   *
+   * @param _expireTime - The expire time
+   */
+  public async pruneTasks(_expireTime?: number): Promise<{ deleted: number; expireTime: number }> {
+    const expireTime = _expireTime ?? this.defaultExpireTime;
+    const curTimeStamp = getNtpTimeSeconds();
+    let deleted = 0;
+    const tasks = await this.data.hgetall(`${this.prefix}:timestamp`);
+    for (const taskId of Object.keys(tasks)) {
+      const taskStatus = await this.getStatus(taskId);
+      const completedStatuses = [
+        RelayerTaskStatus.ExecSuccess,
+        RelayerTaskStatus.ExecReverted,
+        RelayerTaskStatus.Cancelled,
+      ];
+      const lastUpdated = await this.getTimestamp(taskId);
+      // This case shouldn't be happening ideally but there could be some worst cases we couldn't guess right now
+      if (lastUpdated === 0) continue;
+
+      const shouldBeDeleted = curTimeStamp - lastUpdated > expireTime && completedStatuses.includes(taskStatus);
+      if (shouldBeDeleted) {
+        for (const tb of ["data", "status", "hash", "timestamp", "error"]) {
+          await this.data.hdel(`${this.prefix}:${tb}`, taskId);
+        }
+        deleted++;
+      }
+    }
+
+    return { deleted, expireTime };
   }
 }

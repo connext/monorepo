@@ -13,7 +13,7 @@ import {
   OnchainTransaction,
 } from "../src/shared";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
-import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./utils";
+import { makeChaiReadable, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, TEST_SENDER_DOMAIN } from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -30,7 +30,7 @@ let context: RequestContext = {
 let dispatchCallbacks: DispatchCallbacks;
 let transaction: OnchainTransaction;
 const chains = {
-  [TEST_SENDER_CHAIN_ID.toString()]: {
+  [TEST_SENDER_DOMAIN.toString()]: {
     ...DEFAULT_CHAIN_CONFIG,
     providers: [{ url: "https://-------------" }],
     confirmations: 1,
@@ -62,12 +62,12 @@ describe("TransactionService", () => {
 
     // NOTE: Chain service SHOULD instantiate a provider for this chain and SHOULD pass VALID callbacks
     // that link to event emitters (see: DispatchCallbacks type).
-    dispatchCallbacks = (chainService as any).providers.get(TEST_SENDER_CHAIN_ID).callbacks;
+    dispatchCallbacks = (chainService as any).providers.get(TEST_SENDER_DOMAIN).callbacks;
 
     Sinon.stub(chainService as any, "getProvider").callsFake((chainId: number) => {
       // NOTE: We check to make sure we are only getting the one chainId we expect
       // to get in these unit tests.
-      expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
+      expect(chainId).to.be.eq(TEST_SENDER_DOMAIN);
       return dispatch;
     });
 
@@ -248,16 +248,16 @@ describe("TransactionService", () => {
     it("errors if cannot get provider", async () => {
       // Replacing this method with the original fn not working.
       (chainService as any).getProvider.restore();
-      await expect(chainService.sendTx({ ...TEST_TX, chainId: 9999 }, context)).to.be.rejectedWith(
+      await expect(chainService.sendTx({ ...TEST_TX, domain: 9999 }, context)).to.be.rejectedWith(
         ProviderNotConfigured,
       );
     });
   });
 
   describe("#setupProviders", () => {
-    it("throws if not a single provider config is provided for a chainId", async () => {
+    it("throws if not a single provider config is provided for a domain", async () => {
       (chainService as any).config = {
-        [TEST_SENDER_CHAIN_ID.toString()]: {
+        [TEST_SENDER_DOMAIN.toString()]: {
           // Providers list here should never be empty.
           providers: [],
           confirmations: 1,

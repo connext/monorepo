@@ -8,6 +8,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
+import { domainToChainId } from "@connext/nxtp-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -69,7 +70,7 @@ export class RpcProviderAggregator {
    *
    * @param logger - Logger used for logging.
    * @param signer - Signer instance or private key used for signing transactions.
-   * @param chainId - The ID of the chain for which this class's providers will be servicing.
+   * @param domain - The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig - Configuration for this specified chain, including the providers we'll
    * be using for it.
    * @param config - The shared TransactionServiceConfig with general configuration.
@@ -79,7 +80,7 @@ export class RpcProviderAggregator {
    */
   constructor(
     protected readonly logger: Logger,
-    public readonly chainId: number,
+    public readonly domain: number,
     protected readonly config: ChainConfig,
     signer?: string | Signer,
   ) {
@@ -106,7 +107,7 @@ export class RpcProviderAggregator {
             user: config.user,
             password: config.password,
           },
-          this.chainId,
+          this.domain,
           config.stallTimeout,
           this.config.debug_logRpcCalls,
         ),
@@ -128,7 +129,7 @@ export class RpcProviderAggregator {
           },
         ],
         {
-          chainId,
+          domain,
         },
       );
     }
@@ -278,12 +279,18 @@ export class RpcProviderAggregator {
    * to read from chain.
    */
   public async readContract(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
+    // get formatted transaction
+    const { domain, ...toCall } = tx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
-          return await this.signer.connect(provider).call(tx, blockTag);
+          return await this.signer.connect(provider).call(formatted, blockTag);
         } else {
-          return await provider.call(tx, blockTag);
+          return await provider.call(formatted, blockTag);
         }
       } catch (error: unknown) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
@@ -374,7 +381,7 @@ export class RpcProviderAggregator {
     const hardcoded = this.config.hardcodedGasPrice;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         hardcoded,
       });
       return BigNumber.from(hardcoded);
@@ -436,7 +443,7 @@ export class RpcProviderAggregator {
       const curbedPrice = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
       if (gasPrice.gt(curbedPrice)) {
         this.logger.debug("Hit the gas price curbed maximum.", requestContext, methodContext, {
-          chainId: this.chainId,
+          domain: this.domain,
           gasPrice: utils.formatUnits(gasPrice, "gwei"),
           curbedPrice: utils.formatUnits(curbedPrice, "gwei"),
           gasPriceMaxIncreaseScalar,
@@ -454,11 +461,11 @@ export class RpcProviderAggregator {
     const max = BigNumber.from(gasPriceMaximum);
     // TODO: Could use a more sustainable method of separating out gas price abs min for certain
     // chains (such as arbitrum here) in particular:
-    if (gasPrice.lt(min) && this.chainId !== 42161) {
+    if (gasPrice.lt(min) && this.domain !== 1634886255) {
       gasPrice = min;
     } else if (gasPrice.gte(max)) {
       this.logger.warn("Hit the gas price absolute maximum.", requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         gasPrice: utils.formatUnits(gasPrice, "gwei"),
         absoluteMax: utils.formatUnits(max, "gwei"),
       });
@@ -604,7 +611,7 @@ export class RpcProviderAggregator {
   /**
    * Checks estimate for gas limit for given transaction on given chain.
    *
-   * @param chainId - chain on which the transaction is intended to be executed.
+   * @param domain - chain on which the transaction is intended to be executed.
    * @param tx - transaction to check gas limit for.
    *
    * @returns BigNumber representing the estimated gas limit in gas units.
@@ -807,7 +814,7 @@ export class RpcProviderAggregator {
     } catch (error: unknown) {
       // If we can't get the block period, we'll just use a default value.
       this.logger.warn("Could not get block period time, using default.", undefined, undefined, {
-        chainId: this.chainId,
+        domain: this.domain,
         error,
         default: DEFAULT_BLOCK_PERIOD,
       });
