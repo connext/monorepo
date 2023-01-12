@@ -49,12 +49,10 @@ export const axiosGet = async <T = any, R = AxiosResponse<T>, D = any>(url: stri
       errorObj.status = (error as AxiosError<T, D>).response!.status;
       errorObj.headers = (error as AxiosError<T, D>).response!.headers;
     } else if ((error as AxiosError<T, D>).request) {
-      errorObj.request = (error as AxiosError<T, D>).request;
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      errorObj.message = (error as AxiosError<T, D>).message;
+      errorObj.request = JSON.stringify((error as AxiosError<T, D>).request);
     }
-    errorObj.config = (error as AxiosError<T, D>).config;
+    errorObj.message = (error as AxiosError<T, D>).message;
+    errorObj.config = JSON.stringify((error as AxiosError<T, D>).config);
     throw new AxiosQueryError(url, "get", undefined, errorObj);
   }
 };
