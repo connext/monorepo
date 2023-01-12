@@ -20,9 +20,9 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 abstract contract Orphanage {
   // ============ Events ============
 
-  event OrphanedTokens(address indexed parent, address indexed token, uint256 indexed amount, bytes reason);
-  event OrphanedNativeToken(address indexed parent, uint256 indexed amount, bytes reason);
-  event SavedOrphans(address indexed parent, address indexed token, uint256 indexed amount);
+  event OrphanedTokens(address indexed token, uint256 indexed amount, address indexed parent, bytes reason);
+  event OrphanedNativeTokens(uint256 indexed amount, address indexed parent, bytes reason);
+  event SavedOrphans(address indexed token, uint256 indexed amount, address indexed parent);
 
   // ============ Properties ============
 
@@ -38,7 +38,7 @@ abstract contract Orphanage {
    * mapping secures who they belong to, so that owner can rescue their funds at a later time.
    * @dev owner => amount
    */
-  mapping(address => uint256) public orphanedNativeToken;
+  mapping(address => uint256) public orphanedNativeTokens;
 
   // ================ Getters ================
 
@@ -48,7 +48,7 @@ abstract contract Orphanage {
    * check the native token orphanage.
    */
   function checkOrphans(address token) public view returns (uint256) {
-    return token == address(0) ? orphanedNativeToken[msg.sender] : orphanedTokens[msg.sender][token];
+    return token == address(0) ? orphanedNativeTokens[msg.sender] : orphanedTokens[msg.sender][token];
   }
 
   // ============ Public Functions ============
@@ -64,7 +64,7 @@ abstract contract Orphanage {
 
     if (token == address(0)) {
       // 0 out the caller's account.
-      orphanedNativeToken[msg.sender] = 0;
+      orphanedNativeTokens[msg.sender] = 0;
       // Send the poor orphaned ETH to a loving home.
       bool sent = payable(msg.sender).send(orphans);
       require(sent, "orphanage: !sent");
@@ -75,7 +75,8 @@ abstract contract Orphanage {
       IERC20(token).transfer(msg.sender, orphans);
     }
 
-    emit SavedOrphans(msg.sender, token, orphans);
+    // Hooray!
+    emit SavedOrphans(token, orphans, msg.sender);
   }
 
   // ======== Private Functions =========
@@ -87,17 +88,17 @@ abstract contract Orphanage {
    * specified tokens were ACTUALLY received and that a summing error does not occur is the
    * responsibility of the implementing contract!
    *
+   * @param token - The ERC20 token that's being orphaned. Set to address(0) if it's a native token.
    * @param amount - Number of orphans we're taking in.
    * @param parent - The "parent" that's abandoned the orphans (and is thus permissioned to later
    * come rescue them).
-   * @param token - The ERC20 token that's being orphaned. Set to address(0) if it's a native token.
    * @param reason - The informational reason indicating what failed, should usually be an error
    * message. Used for emitting an event.
    */
   function orphan(
+    address token,
     uint256 amount,
     address parent,
-    address token,
     bytes memory reason
   ) internal {
     // Sanity check: reasonable amount.
@@ -106,11 +107,11 @@ abstract contract Orphanage {
     require(parent != address(0), "orphanage: !parent");
 
     if (token == address(0)) {
-      orphanedNativeToken[parent] += amount;
-      emit OrphanedTokens(parent, token, amount, reason);
+      orphanedNativeTokens[parent] += amount;
+      emit OrphanedNativeTokens(amount, parent, reason);
     } else {
       orphanedTokens[parent][token] += amount;
-      emit OrphanedNativeToken(parent, amount, reason);
+      emit OrphanedTokens(token, amount, parent, reason);
     }
   }
 }
