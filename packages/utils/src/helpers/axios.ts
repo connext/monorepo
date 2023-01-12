@@ -1,6 +1,6 @@
-import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { NxtpError } from "../types";
+import { jsonifyError, NxtpError } from "../types";
 
 export class AxiosQueryError extends NxtpError {
   constructor(url: string, method: "get" | "post", data: any, errorObj: any) {
@@ -17,7 +17,11 @@ export const axiosPost = async <T = any, R = AxiosResponse<T>, D = any>(
     const response = await axios.post<T, R, D>(url, data, config);
     return response;
   } catch (error: unknown) {
-    throw new AxiosQueryError(url, "post", data, (error as AxiosError).toJSON());
+    // eslint-disable-next-line import/no-named-as-default-member
+    if (axios.isAxiosError(error)) {
+      throw new AxiosQueryError(url, "post", data, { error: error.toJSON(), status: error.response?.status });
+    }
+    throw new AxiosQueryError(url, "post", data, jsonifyError(error as NxtpError));
   }
 };
 
@@ -27,6 +31,10 @@ export const axiosGet = async <T = any, R = AxiosResponse<T>, D = any>(url: stri
     const response = await axios.get<T, R, D>(url, data as any);
     return response;
   } catch (error: unknown) {
-    throw new AxiosQueryError(url, "get", undefined, (error as AxiosError).toJSON());
+    // eslint-disable-next-line import/no-named-as-default-member
+    if (axios.isAxiosError(error)) {
+      throw new AxiosQueryError(url, "post", data, { error: error.toJSON(), status: error.response?.status });
+    }
+    throw new AxiosQueryError(url, "post", data, jsonifyError(error as NxtpError));
   }
 };
