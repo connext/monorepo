@@ -10,7 +10,7 @@ export const setupAsset = async (
   logger: Logger,
 ) => {
   const { requestContext, methodContext } = createLoggingContext(setupAsset.name);
-  const canonicalId = utils.hexlify(canonizeId(canonical.tokenAddress));
+  const canonicalId = utils.hexlify(canonizeId(canonical.tokenAddress) as Uint8Array);
   const payload = utils.defaultAbiCoder.encode(
     ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
     [{ canonicalId, canonicalDomain: canonical.domain }],
@@ -19,7 +19,7 @@ export const setupAsset = async (
   for (const domain of domains) {
     logger.info("setupAsset", requestContext, methodContext, { domain });
     const readData = ConnextInterface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]);
-    const encoded = await txService.readTx({ domain: +domain.domain, data: readData, to: domain.Connext });
+    const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.Connext });
     const [adopted] = ConnextInterface.decodeFunctionResult("canonicalToAdopted(bytes32)", encoded);
 
     if (adopted !== domain.adopted) {
@@ -33,7 +33,7 @@ export const setupAsset = async (
       ]);
 
       await txService.sendTx(
-        { to: domain.Connext, data, value: constants.Zero, domain: +domain.domain },
+        { to: domain.Connext, data, value: constants.Zero, chainId: +domain.domain },
         requestContext,
       );
     }

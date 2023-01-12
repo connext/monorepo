@@ -16,8 +16,8 @@ export class Pauser extends Verifier {
     const { requestContext, methodContext } = createLoggingContext(this.pause.name);
     const { logger, txservice } = this.context;
 
-    // helper function so we can send off all pausing simultaneously
-    const pauseDomain = async (domain: string) => {
+    const result: PauseResponse[] = [];
+    for (const domain of domains) {
       try {
         logger.info(`Trying to pause for domain ${domain}. reason: ${reason}`, requestContext, methodContext, {
           domain,
@@ -30,68 +30,59 @@ export class Pauser extends Verifier {
 
         // 1. First check if paused already
         const encoded = await txservice.readTx({
-          domain: +domain,
+          chainId: +domain,
           to: connext.address,
-          data: connextInterface.encodeFunctionData("paused"),
+          data: connextInterface.encodeFunctionData("paused", []),
         });
-        const [paused] = ConnextInterface.decodeFunctionResult("paused", encoded);
+        const paused = ConnextInterface.decodeFunctionResult("paused", encoded)[0];
 
         // 2. If not paused, call pause tx
         if (!paused) {
-          const pauseCalldata = connextInterface.encodeFunctionData("pause");
-          const from = await txservice.getAddress();
-          const tx = {
-            to: connext.address,
-            data: pauseCalldata,
-            value: constants.Zero,
-            domain: +domain,
-            from,
-          };
+          const pauseCalldata = connextInterface.encodeFunctionData("pause", []);
 
           try {
-            // Get gasPrice
-            const price = await txservice.getGasPrice(tx.domain, requestContext);
-            // send at 2x price
-            const receipt = await txservice.sendTx(tx, requestContext, price.mul(2));
-            return {
+            const receipt = await txservice.sendTx(
+              { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId: +domain },
+              requestContext,
+            );
+            result.push({
               domain,
               paused: true,
               error: null,
               relevantTransaction: receipt.transactionHash,
-            };
+            });
           } catch (error: unknown) {
             logger.warn("Pause Tx: Transaction Failed", requestContext, methodContext, jsonifyError(error as Error));
-            return {
+            result.push({
               domain,
               paused: false,
               error: error,
               relevantTransaction: "",
-              calldata: pauseCalldata,
-            };
+            });
           }
         } else {
-          return {
+          result.push({
             domain,
             paused: false,
             error: new Error("Already Paused"),
             relevantTransaction: "",
-          };
+          });
         }
       } catch (error: unknown) {
-        logger.warn(`Pause Tx: Iteration failed!`, requestContext, methodContext, {
-          domain,
-          error: jsonifyError(error as Error),
-        });
-        return {
+        logger.warn(
+          `Pause Tx: Iteration for domain ${domain} failed!`,
+          requestContext,
+          methodContext,
+          jsonifyError(error as Error),
+        );
+        result.push({
           domain,
           paused: false,
           error: error,
           relevantTransaction: "",
-        };
+        });
       }
-    };
-
-    const result = await Promise.all(domains.map((d) => pauseDomain(d)));
+    }
     return result;
   }
 }

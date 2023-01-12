@@ -308,8 +308,8 @@ export const processMessages = async (
       from: relayerAddress,
     });
 
-    const gas = await chainreader.getGasEstimateWithRevertCode({
-      domain: +domain,
+    const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
+      chainId: chainId,
       to: destinationSpokeConnector,
       data: proveAndProcessEncodedData,
       from: relayerAddress,

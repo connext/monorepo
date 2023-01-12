@@ -23,7 +23,6 @@ import {
   TEST_TX_RESPONSE,
   DEFAULT_GAS_LIMIT,
   TEST_TX,
-  TEST_SENDER_DOMAIN,
 } from "./utils";
 
 const logger = new Logger({
@@ -55,7 +54,7 @@ describe("RpcProviderAggregator", () => {
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
     signer.connect.returns(signer);
 
-    const domain = TEST_SENDER_DOMAIN;
+    const chainId = TEST_SENDER_CHAIN_ID;
     const config: ChainConfig = {
       ...DEFAULT_CHAIN_CONFIG,
       providers: [
@@ -68,7 +67,7 @@ describe("RpcProviderAggregator", () => {
     };
 
     syncProvidersStub = Sinon.stub(RpcProviderAggregator.prototype as any, "syncProviders").resolves();
-    chainProvider = new RpcProviderAggregator(logger, domain, config, signer);
+    chainProvider = new RpcProviderAggregator(logger, chainId, config, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);
@@ -281,8 +280,7 @@ describe("RpcProviderAggregator", () => {
       const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(1);
-      const { domain, ...expected } = TEST_READ_TX;
-      expect(signer.call.getCall(0).args[0]).to.deep.equal({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
+      expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result).to.be.eq(fakeData);
     });
 
@@ -303,8 +301,7 @@ describe("RpcProviderAggregator", () => {
 
       expect(signer.call.callCount).to.equal(0);
       expect(coreSyncProvider.call.callCount).to.equal(1);
-      const { domain, ...expected } = TEST_READ_TX
-      expect(coreSyncProvider.call.getCall(0).args[0]).to.deep.equal({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
+      expect(coreSyncProvider.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result).to.be.eq(fakeData);
     });
   });

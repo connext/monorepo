@@ -145,7 +145,7 @@ const sendXCall = async (
     receipt = await res.wait(1);
   } else {
     receipt = await userTxService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), domain: PARAMETERS.A.DOMAIN },
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: PARAMETERS.A.CHAIN },
       requestContext,
     );
   }
@@ -400,7 +400,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
     const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
     const receipt = await deployerTxService.sendTx(
       {
-        domain: +PARAMETERS.A.DOMAIN,
+        chainId: 1337,
         to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
         data: encoded,
         value: BigNumber.from("0"),
@@ -415,7 +415,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
 
     const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
     const res = await deployerTxService.readTx({
-      domain: PARAMETERS.A.CHAIN,
+      chainId: PARAMETERS.A.CHAIN,
       data: balanceOfData,
       to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     });
@@ -426,14 +426,14 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.A.DEPLOYMENTS.TestERC20, "1", true);
   if (tx) {
     await userTxService.sendTx(
-      { domain: PARAMETERS.A.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      { chainId: PARAMETERS.A.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
       requestContext,
     );
   }
   tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.B.DEPLOYMENTS.TestERC20, "1", true);
   if (tx) {
     await userTxService.sendTx(
-      { domain: PARAMETERS.B.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      { chainId: PARAMETERS.B.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
       requestContext,
     );
   }

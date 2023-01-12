@@ -60,13 +60,13 @@ export const getAllowance = async (
     owner,
     spender,
     asset,
-    domain: { domain },
+    domain: { chain },
   } = input;
   const erc20 = new utils.Interface(ERC20Abi);
 
   const encoded = erc20.encodeFunctionData("allowance", [owner, spender]);
   const result = await chainreader.readTx({
-    domain: +domain,
+    chainId: chain,
     to: asset,
     data: encoded,
   });
@@ -86,7 +86,7 @@ export const getAssetApproval = async (
     canonicalId: _canonicalId,
     canonicalDomain,
     domain: {
-      domain,
+      chain,
       config: {
         deployments: { connext: contract },
       },
@@ -106,7 +106,7 @@ export const getAssetApproval = async (
 
   const encoded = connext.encodeFunctionData("approvedAssets(bytes32)", [key]);
   const result = await chainreader.readTx({
-    domain: +domain,
+    chainId: chain,
     to: contract,
     data: encoded,
   });
@@ -127,7 +127,7 @@ export const convertToCanonicalAsset = async (
   const {
     adopted,
     domain: {
-      domain,
+      chain,
       config: {
         deployments: { connext: contract },
       },
@@ -137,7 +137,7 @@ export const convertToCanonicalAsset = async (
 
   const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
   const result = await chainreader.readTx({
-    domain: +domain,
+    chainId: chain,
     to: contract,
     data: encoded,
   });
@@ -166,7 +166,7 @@ export const checkOnchainLocalAsset = async (
   const {
     adopted,
     domain: {
-      domain,
+      chain,
       config: {
         deployments: { connext: contract },
       },
@@ -181,7 +181,7 @@ export const checkOnchainLocalAsset = async (
   {
     const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
     const result = await chainreader.readTx({
-      domain: +domain,
+      chainId: chain,
       to: contract,
       data: encoded,
     });
@@ -205,7 +205,7 @@ export const checkOnchainLocalAsset = async (
 
     const encoded = connext.encodeFunctionData("canonicalToAdopted(bytes32)", [canonicalKey]);
     const result = await chainreader.readTx({
-      domain: +domain,
+      chainId: chain,
       to: contract,
       data: encoded,
     });
@@ -215,7 +215,7 @@ export const checkOnchainLocalAsset = async (
   {
     const encoded = connext.encodeFunctionData("getTokenId", [adopted]);
     const result = await chainreader.readTx({
-      domain: +domain,
+      chainId: chain,
       to: contract,
       data: encoded,
     });
@@ -335,7 +335,7 @@ export const getRouterApproval = async (
   } = context;
   const {
     domain: {
-      domain,
+      chain,
       config: {
         deployments: { connext: contract },
       },
@@ -348,7 +348,7 @@ export const getRouterApproval = async (
   const connext = getConnextInterface();
   const encoded = connext.encodeFunctionData("getRouterApproval", [router.address]);
   const result = await chainreader.readTx({
-    domain: +domain,
+    chainId: chain,
     to: contract,
     data: encoded,
   });
