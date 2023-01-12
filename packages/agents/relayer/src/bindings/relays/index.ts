@@ -1,4 +1,4 @@
-import { BigNumber, constants, providers } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { createLoggingContext, jsonifyError, RelayerTaskStatus } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
