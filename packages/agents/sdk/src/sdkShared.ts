@@ -10,7 +10,8 @@ import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, domainsToChainNames } from "./config";
 
 /**
- * @classdesc Base class to facilitate on-chain interactions with Connext.
+ * @classdesc SDK class encapsulating shared logic to be inherited.
+ *
  */
 export class NxtpSdkShared {
   readonly config: NxtpSdkConfig;
@@ -25,10 +26,22 @@ export class NxtpSdkShared {
     this.contracts = getContractInterfaces();
   }
 
+  /**
+   * Returns the provider specified in the SDK configuration for a specific domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns providers.StaticJsonRpcProvider object.
+   */
   getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
     return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
   });
 
+  /**
+   * Returns the Connext diamond contract for the specified domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns Connext Contract object.
+   */
   getConnext = memoize(
     async (domainId: string): Promise<Connext> => {
       const connextAddress = this.config.chains[domainId]?.deployments?.connext;
@@ -42,6 +55,12 @@ export class NxtpSdkShared {
     { promise: true },
   );
 
+  /**
+   * Returns the ERC20 contract for the specified domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns ERC20 Contract object.
+   */
   getERC20 = memoize(
     async (domainId: string, tokenAddress: string): Promise<IERC20> => {
       const provider = this.getProvider(domainId);
@@ -50,6 +69,12 @@ export class NxtpSdkShared {
     { promise: true },
   );
 
+  /**
+   * Returns the chain name for a specified domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns The chain name.
+   */
   static domainToChainName(domainId: string) {
     return domainsToChainNames[domainId];
   }
@@ -62,6 +87,15 @@ export class NxtpSdkShared {
     return res.height;
   }
 
+  /**
+   * Returns the transaction request for an allowance approval.
+   *
+   * @param domainId - The domain ID.
+   * @param assetId - The address of the token.
+   * @param amount - The amount of the token.
+   * @param infiniteApprove - (optional) Whether to approve an infinite amount.
+   * @returns providers.TransactionRequest object.
+   */
   async approveIfNeeded(
     domainId: string,
     assetId: string,
@@ -105,6 +139,11 @@ export class NxtpSdkShared {
     return undefined;
   }
 
+  /**
+   * Fetches the list of registered assets.
+   *
+   * @returns Array of objects containing assets registered to the network.
+   */
   async getAssetsData(): Promise<AssetData[]> {
     const uri = formatUrl(this.config.cartographerUrl!, "assets");
     // Validate uri
@@ -113,6 +152,13 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  /**
+   * Retrieve the asset data for a specific domain and key.
+   *
+   * @param domainId - The domain ID.
+   * @param key - The canonical hash of the canonical token.
+   * @returns The object containing asset data.
+   */
   async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
@@ -126,6 +172,12 @@ export class NxtpSdkShared {
     return;
   }
 
+  /**
+   * Returns whether the specified token is a Connext-issued (local) token.
+   *
+   * @param tokenAddress - The address of the token.
+   * @returns Boolean or undefined if the specified token is not registered.
+   */
   async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
     const assetsData = await this.getAssetsData();
     const asset = assetsData.find((assetData) => {
@@ -139,10 +191,21 @@ export class NxtpSdkShared {
     return;
   }
 
+  /**
+   * Switches the signer address in the SDK config.
+   *
+   * @param signerAddress - The new signer address.
+   */
   async changeSignerAddress(signerAddress: string) {
     this.config.signerAddress = signerAddress;
   }
 
+  /**
+   * Parses a providers.TransactionReceipt for the logs.
+   *
+   * @param transactionReceipt - providers.TransactionReceipt object.
+   * @returns Array of providers.Log objects.
+   */
   parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
     const parsedlogs: any = [];
     transactionReceipt.logs.forEach((log) => {
@@ -153,9 +216,13 @@ export class NxtpSdkShared {
   }
 
   /**
-   * Returns the hash of the canonical id + domain.
-   * @param domainId The canonical domain id of the token.
-   * @param canonicalId The canonical id of the token.
+   * Returns the hash of the canonical ID + canonical domain.
+   *
+   * @remarks
+   * This key is used as the unique identifier for a canonical token, across all domains.
+   *
+   * @param domainId The canonical domain ID of the token.
+   * @param canonicalId The canonical ID of the token.
    */
   calculateCanonicalKey(domainId: string, canonicalId: string): string {
     return getCanonicalHash(domainId, canonicalId);
