@@ -1,38 +1,48 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
-import { StableSwapAdded } from "../../../generated/Connext/Connext";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { decimal, address } from "@protofire/subgraph-toolkit";
+
 import {
   AddLiquidity,
-  SwapInitialized,
-  RampA,
-  StopRampA,
-  RemoveLiquidityOne,
+  AdminFeesSet,
+  RampAStarted,
+  RampAStopped,
   RemoveLiquidity,
   RemoveLiquidityImbalance,
-  Paused,
-  Unpaused,
-  NewWithdrawFee,
-  NewSwapFee,
-  NewAdminFee,
+  RemoveLiquidityOne,
+  StableSwapAdded,
+  SwapDisabled,
+  SwapFeesSet,
+  SwapInitialized,
+  SwapRemoved,
   TokenSwap,
-} from "../../../generated/templates/StableSwap/StableSwap";
-
-import { StableSwap, StableSwapLiquidity, PooledToken } from "../../../generated/schema";
-// import { Asset, AssetBalance, Router} from "../../../generated/schema";
+} from "../../../generated/Connext/Connext";
+import { StableSwapExchange } from "../../../generated/schema";
+import {
+  getOrCreatePooledToken,
+  getOrCreateStableSwap,
+  getOrCreateStableSwapLiquidity,
+  getStableSwapCurrentA,
+  getSwapDailyTradeVolume,
+  getSwapHourlyTradeVolume,
+  getSwapWeeklyTradeVolume,
+} from "./helper";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
-  let stableSwap = getOrCreateStableSwap(event.params.swapPool);
+  if (!address.isZeroAddress(event.params.swapPool)) {
+    let stableSwap = getOrCreateStableSwap(event.params.swapPool);
 
-  stableSwap.key = event.params.key;
-  stableSwap.canonicalId = event.params.canonicalId;
-  stableSwap.domain = event.params.domain;
-  stableSwap.swapPool = event.params.swapPool;
+    stableSwap.key = event.params.key;
+    stableSwap.canonicalId = event.params.canonicalId;
+    stableSwap.domain = event.params.domain;
+    stableSwap.swapPool = event.params.swapPool;
 
-  stableSwap.save();
+    stableSwap.save();
+  }
 }
 
-export function handleSwapInitialized(event: SwapInitialized): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
+export function handleInternalSwapInitialized(event: SwapInitialized): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
 
   stableSwap.lpToken = event.params.swap.lpToken;
   stableSwap.initialA = event.params.swap.initialA;
@@ -59,139 +69,156 @@ export function handleSwapInitialized(event: SwapInitialized): void {
   stableSwap.save();
 }
 
-export function handleAddLiquidity(event: AddLiquidity): void {
+export function handleInternalSwapRemoved(event: SwapRemoved): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  stableSwap.canonicalId = new Bytes(32);
+  stableSwap.domain = new BigInt(0);
+  stableSwap.swapPool = new Address(0);
+  stableSwap.pooledTokens = [];
+  stableSwap.balances = [];
+  stableSwap.isActive = false;
+  stableSwap.save();
+}
+
+export function handleInternalSwapDisabled(event: SwapDisabled): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  stableSwap.isActive = false;
+  stableSwap.save();
+}
+
+export function handleAdminFeeSet(event: AdminFeesSet): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  stableSwap.adminFee = event.params.newAdminFee;
+  stableSwap.save();
+}
+
+export function handleSwapFeeSet(event: SwapFeesSet): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  stableSwap.swapFee = event.params.newSwapFee;
+  stableSwap.save();
+}
+
+export function handleInternalRampA(event: RampAStarted): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  stableSwap.initialA = getStableSwapCurrentA(event.params.key, event.block.timestamp);
+  stableSwap.initialATime = event.block.timestamp;
+  stableSwap.futureA = event.params.futureA;
+  stableSwap.futureATime = event.params.futureTime;
+
+  stableSwap.save();
+}
+
+export function handleStopInternalRampA(event: RampAStopped): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+
+  let currentA = getStableSwapCurrentA(event.params.key, event.block.timestamp);
+  stableSwap.initialA = currentA;
+  stableSwap.initialATime = event.block.timestamp;
+  stableSwap.futureA = currentA;
+  stableSwap.futureATime = event.block.timestamp;
+
+  stableSwap.save();
+}
+
+export function handleInternalAddLiquidity(event: AddLiquidity): void {
   let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
+  let stableSwap = getOrCreateStableSwap(event.params.key);
 
-  stableSwapLiquidity.provider = event.params.provider;
-
-  let stableSwap = getOrCreateStableSwap(event.address);
   stableSwapLiquidity.stableSwap = stableSwap.id;
 
   const num = event.params.tokenAmounts.length;
   for (let i = 0; i < num; i++) {
     stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].plus(event.params.tokenAmounts[i]);
     stableSwapLiquidity.fees[i] = stableSwapLiquidity.fees[i].plus(event.params.fees[i]);
-
-    stableSwap.balances[i] = stableSwap.balances[i].plus(event.params.tokenAmounts[i]);
   }
-  stableSwapLiquidity.invariant = event.params.invariant;
-  stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
+  stableSwap.invariant = event.params.invariant;
+  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
 
   stableSwapLiquidity.save();
+  stableSwap.save();
 }
 
-export function handleRampA(event: RampA): void {}
-
-export function handleRemoveLiquidity(event: RemoveLiquidity): void {
+export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
   let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
-
-  let stableSwap = getOrCreateStableSwap(event.address);
+  let stableSwap = getOrCreateStableSwap(event.params.key);
 
   const num = event.params.tokenAmounts.length;
   for (let i = 0; i < num; i++) {
     stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
-
-    stableSwap.balances[i] = stableSwap.balances[i].minus(event.params.tokenAmounts[i]);
   }
 
-  stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
+  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
 
   stableSwapLiquidity.save();
+  stableSwap.save();
 }
 
-export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
+export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
   let stableSwapLiquidity = getOrCreateStableSwapLiquidity(event.params.provider);
-
-  let stableSwap = getOrCreateStableSwap(event.address);
+  let stableSwap = getOrCreateStableSwap(event.params.key);
 
   const num = event.params.tokenAmounts.length;
   for (let i = 0; i < num; i++) {
     stableSwapLiquidity.tokenAmounts[i] = stableSwapLiquidity.tokenAmounts[i].minus(event.params.tokenAmounts[i]);
-
-    stableSwap.balances[i] = stableSwap.balances[i].minus(event.params.tokenAmounts[i]);
   }
-  stableSwapLiquidity.lpTokenSupply = event.params.lpTokenSupply;
-  stableSwapLiquidity.invariant = event.params.invariant;
+  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
+  stableSwap.invariant = event.params.invariant;
 
   stableSwapLiquidity.save();
-}
-
-export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {}
-
-export function handleStopRampA(event: StopRampA): void {}
-
-export function handleTokenSwap(event: TokenSwap): void {}
-
-export function handleNewAdminFee(event: NewAdminFee): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
-
-  stableSwap.adminFee = event.params.newAdminFee;
   stableSwap.save();
 }
 
-export function handleNewSwapFee(event: NewSwapFee): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
+export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
 
-  stableSwap.swapFee = event.params.newSwapFee;
+  stableSwap.lpTokenSupply = event.params.lpTokenSupply.minus(event.params.lpTokenAmount);
+
   stableSwap.save();
 }
 
-export function handleNewWithdrawFee(event: NewWithdrawFee): void {}
+export function handleInternalTokenSwap(event: TokenSwap): void {
+  let stableSwap = getOrCreateStableSwap(event.params.key);
+  let exchangeId = event.params.key.toHexString().concat(event.transaction.hash.toHexString());
+  let exchange = new StableSwapExchange(exchangeId);
 
-export function handlePaused(event: Paused): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
+  exchange.stableSwap = stableSwap.id;
+  exchange.buyer = event.params.buyer;
+  exchange.soldId = event.params.soldId;
+  exchange.tokensSold = event.params.tokensSold;
+  exchange.boughtId = event.params.boughtId;
+  exchange.tokensBought = event.params.tokensBought;
+  exchange.block = event.block.number;
+  exchange.timestamp = event.block.timestamp;
+  exchange.transaction = event.transaction.hash;
+  exchange.save();
 
-  stableSwap.isActive = false;
-  stableSwap.save();
-}
+  // save trade volume
+  let tokens = stableSwap.pooledTokens;
+  let tokenPrecisionMultipliers = stableSwap.tokenPrecisionMultipliers!;
+  if (event.params.soldId.toI32() < tokens.length && event.params.boughtId.toI32() < tokens.length) {
+    let sellVolume = event.params.tokensSold.divDecimal(
+      BigInt.fromI32(10).pow(18).div(tokenPrecisionMultipliers[event.params.soldId.toI32()]).toBigDecimal(),
+    );
+    let buyVolume = event.params.tokensBought.divDecimal(
+      BigInt.fromI32(10).pow(18).div(tokenPrecisionMultipliers[event.params.boughtId.toI32()]).toBigDecimal(),
+    );
+    let volume = sellVolume.plus(buyVolume).div(decimal.TWO);
 
-export function handleUnpaused(event: Unpaused): void {
-  let stableSwap = getOrCreateStableSwap(event.address);
+    let hourlyVolume = getSwapHourlyTradeVolume(stableSwap, event.block.timestamp);
+    hourlyVolume.volume = hourlyVolume.volume.plus(volume);
+    hourlyVolume.save();
 
-  stableSwap.isActive = true;
-  stableSwap.save();
-}
+    let dailyVolume = getSwapDailyTradeVolume(stableSwap, event.block.timestamp);
+    dailyVolume.volume = dailyVolume.volume.plus(volume);
+    dailyVolume.save();
 
-export function getOrCreateStableSwap(_stableSwap: Address): StableSwap {
-  let stableSwapId = _stableSwap.toHex();
-  let stableSwap = StableSwap.load(stableSwapId);
-
-  if (stableSwap == null) {
-    stableSwap = new StableSwap(stableSwapId);
-    stableSwap.key = new Bytes(32);
-    stableSwap.canonicalId = new Bytes(32);
-    stableSwap.domain = new BigInt(0);
-    stableSwap.swapPool = _stableSwap;
-    stableSwap.pooledTokens = [];
-    stableSwap.balances = [];
-
-    stableSwap.save();
+    let weeklyVolume = getSwapWeeklyTradeVolume(stableSwap, event.block.timestamp);
+    weeklyVolume.volume = weeklyVolume.volume.plus(volume);
+    weeklyVolume.save();
   }
-
-  return stableSwap;
-}
-
-export function getOrCreateStableSwapLiquidity(provider: Address): StableSwapLiquidity {
-  let stableSwapLiquidityId = provider.toHex();
-  let stableSwapLiquidity = StableSwapLiquidity.load(stableSwapLiquidityId);
-
-  if (stableSwapLiquidity == null) {
-    stableSwapLiquidity = new StableSwapLiquidity(stableSwapLiquidityId);
-    stableSwapLiquidity.save();
-  }
-
-  return stableSwapLiquidity;
-}
-
-export function getOrCreatePooledToken(asset: Address): PooledToken {
-  let pooledTokenId = asset.toHex();
-  let pooledToken = PooledToken.load(pooledTokenId);
-
-  if (pooledToken == null) {
-    pooledToken = new PooledToken(pooledTokenId);
-    pooledToken.asset = asset;
-    pooledToken.save();
-  }
-
-  return pooledToken;
 }

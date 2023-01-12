@@ -237,6 +237,9 @@ type StableSwap @entity {
   tokenPrecisionMultipliers: [BigInt!]
   balances: [BigInt!]!
   adminFees: [BigInt!]
+
+  invariant: BigInt
+  lpTokenSupply: BigInt
 }
 
 type PooledToken @entity {
@@ -250,6 +253,45 @@ type StableSwapLiquidity @entity {
   stableSwap: StableSwap!
   tokenAmounts: [BigInt!]!
   fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
+}
+
+type StableSwapExchange @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  buyer: Bytes!
+  boughtId: BigInt!
+  tokensBought: BigInt!
+  soldId: BigInt!
+  tokensSold: BigInt!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+interface SwapTradeVolume @entity {
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapDailyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapHourlyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapWeeklyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
 }
