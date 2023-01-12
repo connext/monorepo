@@ -138,7 +138,7 @@ contract Unwrapper is Orphanage, IXReceiver {
       // If we fail to send, we will orphan the tokens here for later rescue.
       // TODO: This will revert in the 1 edge case where we send to a contract that calls
       // self-destruct. We need to use a safe sending method here we can wrap in try/catch.
-      bool sent = payable(msg.sender).send(amount);
+      bool sent = payable(recipient).send(amount);
       if (!sent) {
         orphan(address(0), amount, recipient, "unwrap: !sent");
       }
