@@ -173,14 +173,15 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     /// Input validation
     if (asset == constants.AddressZero && amount != "0") {
-      throw new Error("Transacting asset specified was address zero; native assets are not supported!");
+      throw new ParamsInvalid({
+        paramsError: "Transacting asset specified was address zero; native assets are not supported!",
+      });
     }
     if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
       throw new SlippageInvalid(slippage, context);
     }
     if (to === constants.AddressZero) {
-      // TODO: Custom error.
-      throw new Error("Valid recipient `to` address must be provided; received address(0) as recipient.");
+      throw new ParamsInvalid("Valid recipient `to` address must be provided; received address(0) as recipient.");
     }
 
     const validateInput = ajv.compile(SdkXCallParamsSchema);
@@ -349,7 +350,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
-      throw new Error("Must increase relayerFee by > 0");
+      throw new ParamsInvalid({ paramsError: "Must increase relayerFee by > 0", relayerFee: relayerFee });
     }
 
     const validateInput = ajv.compile(SdkBumpTransferParamsSchema);
