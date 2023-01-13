@@ -24,8 +24,8 @@ export class NxtpSdkRouter extends NxtpSdkShared {
    * @param _config - NxtpSdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
-   * @param _config.logLevel - (optional) "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent".
-   * @param _config.network - (optional) "testnet" | "mainnet".
+   * @param _config.logLevel - (optional) Logging severity level.
+   * @param _config.network - (optional) Blockchain environment to interact with.
    * @returns providers.TransactionRequest object.
    *
    * @example:
@@ -34,13 +34,13 @@ export class NxtpSdkRouter extends NxtpSdkShared {
    *
    * const config = {
    *   "chains": {
-   *     "6648936": {
+   *     "6648936": { // the domain ID for Ethereum Mainnet
    *       "providers": ["https://rpc.ankr.com/eth"]
    *     },
-   *     "1869640809": {
+   *     "1869640809": { // the domain ID for Optimism
    *       "providers": ["https://mainnet.optimism.io"]
    *     },
-   *     "1886350457": {
+   *     "1886350457": { // the domain ID for Polygon
    *       "providers": ["https://polygon-rpc.com"]
    *     },
    *   },
