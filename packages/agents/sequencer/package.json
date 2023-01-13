@@ -36,6 +36,7 @@
     "@connext/nxtp-adapters-relayer": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
+    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@gelatonetwork/relay-sdk": "^2.1.0",
