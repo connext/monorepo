@@ -97,7 +97,7 @@ const CoreChainConfigSchema = Type.Object({
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
   confirmationTimeout: Type.Integer(),
-  // Number of confirmations needed for each chain, specified by chain Id.
+  // Number of confirmations needed for each chain, specified by domain.
   confirmations: Type.Integer(),
 
   /// RPC PROVIDERS
@@ -141,14 +141,14 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     ...userDefaultChainConfig,
   };
   // For each chain, validate the config and merge it with the main config.
-  const config: { [chainId: string]: ChainConfig } = {};
-  Object.entries(_config as Record<string, any>).forEach(([chainId, _chainConfig]) => {
+  const config: { [domain: string]: ChainConfig } = {};
+  Object.entries(_config as Record<string, any>).forEach(([domain, _chainConfig]) => {
     const chainConfig = {
       ...defaultChainConfig,
       ..._chainConfig,
     };
-    // Ignore non-number chainIds.
-    if (isNaN(parseInt(chainId))) {
+    // Ignore non-number domains.
+    if (isNaN(parseInt(domain))) {
       return;
     }
 
@@ -183,7 +183,7 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     });
 
     // Merge the default values with the specified chain config.
-    config[chainId] = {
+    config[domain] = {
       ...sanitizedCoreConfig,
       providers: providers.map((provider) =>
         typeof provider === "string"
