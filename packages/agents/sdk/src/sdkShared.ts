@@ -116,7 +116,7 @@ export class NxtpSdkShared {
   async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
 
-    let supported: Map<string, ConnextSupport> = new Map();
+    const supported: Map<string, ConnextSupport> = new Map();
     await Promise.all(
       data.map((asset) => {
         if (supported.get(asset.domain)) {
