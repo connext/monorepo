@@ -382,7 +382,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // still possible to revert due to a state change below.
           const attemptedNonces: number[] = [];
           const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
-            this.estimateGas(minTx),
+            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.estimateGas(minTx),
             minTx.gasPrice ? Promise.resolve(BigNumber.from(minTx.gasPrice)) : this.getGasPrice(requestContext),
             this.determineNonce(attemptedNonces),
           ]);
