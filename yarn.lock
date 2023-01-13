@@ -2249,7 +2249,6 @@ __metadata:
     "@types/mocha": 10.0.0
     "@types/semver": ^7
     "@types/sinon": 10.0.13
-    compare-versions: 5.0.1
     concurrently: 7.5.0
     dd-trace: 3.9.2
     dotenv: 16.0.3
@@ -11271,13 +11270,6 @@ __metadata:
   version: 1.0.1
   resolution: "commondir@npm:1.0.1"
   checksum: 59715f2fc456a73f68826285718503340b9f0dd89bfffc42749906c5cf3d4277ef11ef1cca0350d0e79204f00f1f6d83851ececc9095dc88512a697ac0b9bdcb
-  languageName: node
-  linkType: hard
-
-"compare-versions@npm:5.0.1":
-  version: 5.0.1
-  resolution: "compare-versions@npm:5.0.1"
-  checksum: 302a4e46224b47b9280cf894c6c87d8df912671fa391dcdbf0e63438d9b0a69fe20dd747fb439e8d54c43af016ff4eaaf0a4c9d8e7ca358bcd12dadf4ad2935e
   languageName: node
   linkType: hard
 
