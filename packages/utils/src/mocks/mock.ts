@@ -145,10 +145,7 @@ export const mock = {
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       executorVersion: "0.0.1",
-      relayerFee: {
-        amount: "0",
-        asset: constants.AddressZero,
-      },
+      routerAddress: mock.address.router,
       encodedData: "0xabcde",
       ...overrides,
     }),
