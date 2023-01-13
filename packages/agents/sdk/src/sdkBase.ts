@@ -171,7 +171,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const wrapNativeOnOrigin = _wrapNativeOnOrigin ?? false;
     const unwrapNativeOnDestination = _unwrapNativeOnDestination ?? false;
 
-    /// Input validation
+    // Input validation
     if (asset == constants.AddressZero && amount != "0") {
       throw new ParamsInvalid({
         paramsError: "Transacting asset specified was address zero; native assets are not supported!",
