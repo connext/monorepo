@@ -84,6 +84,14 @@ describe("SdkShared", () => {
     });
   });
 
+  describe.only("#getSupported", () => {
+    it("happy: should work", async () => {
+      const connext = await nxtpSdkShared.getSupported();
+      console.log(connext);
+      expect(connext).to.not.be.undefined;
+    });
+  });
+
   describe("#approveIfNeeded", () => {
     const mockParams = {
       connext: mock.contracts.deployments().connext(Number(mock.chain.A)),
