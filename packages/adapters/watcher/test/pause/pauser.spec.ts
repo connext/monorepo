@@ -1,7 +1,7 @@
 import { ConnextAbi } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
-import { providers } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 
 import { Pauser } from "../../src/pause";
@@ -39,7 +39,9 @@ describe("Watcher Adapter: Pauser", () => {
   });
 
   describe("#pause", () => {
-    beforeEach(() => {});
+    beforeEach(() => {
+      txservice.getGasPrice.resolves(BigNumber.from(1000))
+    });
 
     it("should return empty array when domains empty", async () => {
       let result = await pauser.pause("for test", []);
