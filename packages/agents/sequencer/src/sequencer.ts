@@ -8,6 +8,7 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -15,6 +16,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { getDatabase } from "@connext/nxtp-adapters-database";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -27,6 +29,7 @@ import { getOperations } from "./lib/operations";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
+const slippageErrorMsg = "execution reverted: dy < minDy";
 
 /// MARK - Make Agents
 /**
@@ -131,10 +134,19 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       await updateTask(transferId, messageType);
     }
   } catch (error: any) {
-    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
+    const errorObj = jsonifyError(error as Error);
+    context.logger.error("Error executing:", requestContext, methodContext, errorObj);
+
+    if (errorObj.message && errorObj.message == slippageErrorMsg) {
+      const transfer = await context.adapters.cache.transfers.getTransfer(transferId);
+      if (transfer && transfer.origin) {
+        transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
+        await context.adapters.database.saveTransfers([transfer]);
+      }
+    }
+
     process.exit(1);
   }
-
   process.exit(0);
 };
 
@@ -211,6 +223,7 @@ export const setupContext = async (_configOverride?: SequencerConfig) => {
     });
   }
   context.adapters.mqClient = await setupMQ(requestContext);
+  context.adapters.database = await getDatabase(context.config.database.url, context.logger);
 };
 
 export const setupCache = async (
