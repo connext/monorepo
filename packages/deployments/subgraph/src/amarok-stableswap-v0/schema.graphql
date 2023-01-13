@@ -6,6 +6,11 @@ type SystemInfo @entity {
   swapCount: BigInt!
 }
 
+type PooledToken @entity {
+  id: ID!
+  asset: Bytes!
+}
+
 type StableSwap @entity {
   id: ID!
 
@@ -37,7 +42,6 @@ type StableSwap @entity {
   lpTokenSupply: BigInt
 
   events: [StableSwapEvent!] @derivedFrom(field: "stableSwap")
-
   exchanges: [StableSwapExchange!] @derivedFrom(field: "stableSwap")
 
   # cumulative hourly trade volume
@@ -50,12 +54,8 @@ type StableSwap @entity {
   weeklyVolumes: [SwapWeeklyVolume!] @derivedFrom(field: "stableSwap")
 }
 
-type PooledToken @entity {
-  id: ID!
-  asset: Bytes!
-}
-
 interface StableSwapEvent @entity {
+  id: ID!
   stableSwap: StableSwap!
 
   block: BigInt!
