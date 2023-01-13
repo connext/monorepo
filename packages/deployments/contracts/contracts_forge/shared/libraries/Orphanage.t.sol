@@ -12,11 +12,8 @@ contract OrphanageTest is Orphanage, ForgeHelper {
   // ============ Storage ============
   address constant MOCK_ERC20 = address(777777);
 
-  // ============ Test set up ============
-  function setUp() public {}
-
   // ============ Utils ============
-  function setUpMockErc20() public {
+  function utils_setUpMockErc20() public {
     vm.mockCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector), abi.encode(true));
   }
 
@@ -74,7 +71,7 @@ contract OrphanageTest is Orphanage, ForgeHelper {
   }
 
   function test_Orphanage__saveOrphans_erc20Works() public {
-    setUpMockErc20();
+    utils_setUpMockErc20();
 
     address parent = address(123);
     uint256 amount = 10 ether;

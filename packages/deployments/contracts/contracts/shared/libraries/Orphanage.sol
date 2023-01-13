@@ -51,6 +51,16 @@ abstract contract Orphanage {
     return token == address(0) ? orphanedNativeTokens[msg.sender] : orphanedTokens[msg.sender][token];
   }
 
+  /**
+   * @notice Check whether you abandoned any orphaned ETH or ERC20 here.
+   * @param token - Address of the ERC20 token whose orphanage we want to check; if address(0), we will
+   * check the native token orphanage.
+   * @param parent - Address of the neglecting parent.
+   */
+  function checkOrphansFor(address token, address parent) public view returns (uint256) {
+    return token == address(0) ? orphanedNativeTokens[parent] : orphanedTokens[parent][token];
+  }
+
   // ============ Public Functions ============
 
   /**

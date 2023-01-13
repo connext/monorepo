@@ -6,7 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IXReceiver} from "../../core/connext/interfaces/IXReceiver.sol";
 import {Orphanage} from "./Orphanage.sol";
 
-interface Wrapper {
+interface IWrapper {
   function withdraw(uint256 wad) external;
 
   function transfer(address dst, uint256 wad) external returns (bool);
@@ -38,7 +38,7 @@ contract Unwrapper is Orphanage, IXReceiver {
   /**
    * @notice The wrapper contract that this contract will always use for unwrapping native token.
    */
-  Wrapper public immutable WRAPPER;
+  IWrapper public immutable WRAPPER;
 
   // ============= Modifiers ==============
 
@@ -53,7 +53,7 @@ contract Unwrapper is Orphanage, IXReceiver {
   // ============ Constructor ============
 
   constructor(address connext, address wrapper) {
-    WRAPPER = Wrapper(wrapper);
+    WRAPPER = IWrapper(wrapper);
     CONNEXT = connext;
   }
 
@@ -126,7 +126,11 @@ contract Unwrapper is Orphanage, IXReceiver {
     if (asset != address(WRAPPER)) {
       // If the delivered asset does not match our target wrapper, we can try sending it, but worst case
       // will want to orphan those assets here.
-      try IERC20(asset).transfer(recipient, amount) {} catch (bytes memory reason) {
+      try IERC20(asset).transfer(recipient, amount) returns (bool success) {
+        if (!success) {
+          orphan(asset, amount, recipient, "unwrap: !wrapper,!success");
+        }
+      } catch (bytes memory reason) {
         orphan(asset, amount, recipient, reason);
       }
       return bytes("");
@@ -147,7 +151,11 @@ contract Unwrapper is Orphanage, IXReceiver {
       // unwrapping attempt (`withdraw`) fails.
       // Always make sure funds are delivered to intended recipient on failing external calls!
       emit UnwrappingFailed(recipient, reason);
-      try WRAPPER.transfer(recipient, amount) {} catch (bytes memory otherReason) {
+      try WRAPPER.transfer(recipient, amount) returns (bool success) {
+        if (!success) {
+          orphan(asset, amount, recipient, "unwrap: !withdraw,!success");
+        }
+      } catch (bytes memory otherReason) {
         orphan(address(WRAPPER), amount, recipient, otherReason);
       }
     }
