@@ -84,10 +84,10 @@ describe("SdkShared", () => {
     });
   });
 
-  describe.only("#getSupported", () => {
+  describe("#getSupported", () => {
     it("happy: should work", async () => {
+      (nxtpSdkShared as any).config.cartographerUrl = config.cartographerUrl;
       const connext = await nxtpSdkShared.getSupported();
-      console.log(connext);
       expect(connext).to.not.be.undefined;
     });
   });
