@@ -81,7 +81,7 @@ export const pollCache = async () => {
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
         const transaction = {
-          chainId: chain,
+          domain,
           to,
           data,
           from: await wallet.getAddress(),
