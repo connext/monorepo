@@ -383,14 +383,14 @@ export class TransactionDispatch extends RpcProviderAggregator {
           const attemptedNonces: number[] = [];
           const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
             this.estimateGas(minTx),
-            this.getGasPrice(requestContext),
+            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.getGasPrice(requestContext),
             this.determineNonce(attemptedNonces),
           ]);
           let { nonce, backfill, transactionCount } = nonceInfo;
 
           // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
           const gas: Gas = {
-            limit: BigNumber.from(minTx.gasLimit) ?? gasLimit,
+            limit: gasLimit,
             price: gasPrice,
           };
           if (this.chainId === 42161) {
