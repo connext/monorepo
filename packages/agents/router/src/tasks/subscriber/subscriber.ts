@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
-import { compare } from "compare-versions";
+import { major, minor, satisfies } from "semver";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import fetch, { Headers, Request, Response } from "node-fetch";
@@ -99,7 +99,9 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
 
       const supportedBidVersion: string = res.data.supportedVersion;
       // check if bid router version is compatible with hosted sequencer
-      const checkVersion = compare(version, supportedBidVersion, "<");
+      const majorVersion = major(supportedBidVersion);
+      const minorVersion = minor(supportedBidVersion);
+      const checkVersion = satisfies(version, `${majorVersion}.${minorVersion}.x || >=${supportedBidVersion}`);
       if (checkVersion) {
         context.logger.error(
           "Invalid Bid Version, please update router! Exiting :(",
