@@ -31,7 +31,6 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.2",
-    "compare-versions": "5.0.1",
     "dd-trace": "3.9.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
@@ -39,11 +38,13 @@
     "foo-foo-mq": "7.1.0",
     "graphql": "16.6.0",
     "node-fetch": "2.6.7",
-    "prom-client": "14.1.0"
+    "prom-client": "14.1.0",
+    "semver": "^7.3.8"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.13.8",
     "@types/mocha": "10.0.0",
+    "@types/semver": "^7",
     "@types/sinon": "10.0.13",
     "concurrently": "7.5.0",
     "eslint": "8.26.0",
