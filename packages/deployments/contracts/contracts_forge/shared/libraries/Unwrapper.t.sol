@@ -108,20 +108,17 @@ contract UnwrapperTest is ForgeHelper {
     utils_assertOrphans(asset, amount, originSender);
   }
 
-  function test_Unwrapper__xReceive_orphansIfRecipientIsZero() public {
-    address asset = MOCK_WRAPPER;
+  function test_Unwrapper__xReceive_transfersIfNonWrapperAsset() public {
+    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
 
-    // NOTE: Expecting recipient to be originSender in this case!
-    utils_expectOrphans(asset, amount, originSender, "unwrap: !recipient");
+    utils_expectOrphans(asset, amount, recipient, "unwrap: !recipient");
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataNoRecipient);
 
-    utils_assertOrphans(asset, amount, originSender);
+    utils_assertOrphans(asset, amount, recipient);
   }
-
-  function test_Unwrapper__xReceive_transfersIfNonWrapperAsset() public {}
 
   function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferFails() public {}
 
