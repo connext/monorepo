@@ -201,10 +201,11 @@ export const send = async (
 ): Promise<string> => {
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
 
-  const isSupportedByGelato = await isChainSupportedByGelato(chainId);
-  if (!isSupportedByGelato) {
-    throw new Error("Chain not supported by gelato.");
-  }
+  // remove this check for now since its failing in some cases
+  // const isSupportedByGelato = await isChainSupportedByGelato(chainId);
+  // if (!isSupportedByGelato) {
+  //   throw new Error("Chain not supported by gelato.");
+  // }
 
   // Validate the call will succeed on chain.
   const relayerAddress = await getRelayerAddress(chainId);
