@@ -168,7 +168,18 @@ export class NxtpSdkShared {
   /**
    * Fetches the list of registered assets.
    *
-   * @returns Array of objects containing assets registered to the network.
+   * @returns Array of objects containing assets registered to the network, in the form of:
+   * ```ts
+   * {
+   *   "local": "0x2983bf5c334743aa6657ad70a55041d720d225db",
+   *   "adopted": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+   *   "canonical_id": "0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+   *   "canonical_domain": "6648936",
+   *   "domain": "1634886255",
+   *   "key": "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a",
+   *   "id": "0x2983bf5c334743aa6657ad70a55041d720d225db"
+   * },
+   * ```
    */
   async getAssetsData(): Promise<AssetData[]> {
     const uri = formatUrl(this.config.cartographerUrl!, "assets");
