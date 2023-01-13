@@ -1,11 +1,11 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import { Connext, Connext__factory, domainToChainId, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData } from "./interfaces";
+import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, domainsToChainNames } from "./config";
 
@@ -113,22 +113,29 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
-  async getSuppported(): Promise<Map<string, string[]>> {
+  async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
 
-    /// domain -> assets
-    let supported: Map<string, string[]> = new Map();
+    let supported: Map<string, ConnextSupport> = new Map();
     await Promise.all(
       data.map((asset) => {
         if (supported.get(asset.domain)) {
-          supported.get(asset.domain)!.push(asset.adopted);
+          const support = supported.get(asset.domain)!;
+          support.assets.push(asset.adopted);
         } else {
-          supported.set(asset.domain, [asset.adopted]);
+          const support: ConnextSupport = {
+            name: domainsToChainNames[asset.domain],
+            chainId: domainToChainId(Number(asset.domain)),
+            domainId: asset.domain,
+            assets: [asset.adopted],
+          };
+          supported.set(asset.domain, support);
         }
       }),
     );
 
-    return supported;
+    const res = Array.from(supported.values());
+    return res;
   }
 
   async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
