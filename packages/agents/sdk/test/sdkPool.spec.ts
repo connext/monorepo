@@ -306,7 +306,7 @@ describe("NxtpSdkPool", () => {
     it("happy: should work", async () => {
       const mockConnext = {
         calculateSwap: function () {
-          return BigNumber.from(100);
+          return "100";
         },
       };
 
@@ -315,15 +315,15 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.calculateSwap(mockPool.domainId, mockPool.local.address, 0, 1, 100);
 
-      expect(res).to.be.equal(BigNumber.from(100));
+      expect(res.toString()).to.equal("100");
     });
   });
 
   describe("#calculateTokenAmount", () => {
     it("happy: should work", async () => {
       const mockConnext = {
-        calculateTokenAmount: function () {
-          return BigNumber.from(100);
+        calculateSwapTokenAmount: function () {
+          return "100";
         },
       };
 
@@ -332,7 +332,7 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.calculateTokenAmount(mockPool.domainId, mockPool.local.address, ["10", "10"]);
 
-      expect(res).to.be.equal(BigNumber.from(100));
+      expect(res.toString()).to.equal("100");
     });
   });
 
@@ -340,7 +340,7 @@ describe("NxtpSdkPool", () => {
     it("happy: should work", async () => {
       const mockConnext = {
         calculateRemoveSwapLiquidity: function () {
-          return [BigNumber.from(100), BigNumber.from(100)];
+          return ["100", "100"];
         },
       };
 
@@ -349,7 +349,7 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
 
-      expect(res).to.be.equal([BigNumber.from(100), BigNumber.from(100)]);
+      expect(res).to.deep.equal(["100", "100"]);
     });
   });
 
