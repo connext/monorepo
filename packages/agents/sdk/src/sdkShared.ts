@@ -190,11 +190,20 @@ export class NxtpSdkShared {
   }
 
   /**
-   * Retrieve the asset data for a specific domain and key.
+   * Fetches the list of supported networks and assets.
    *
-   * @param domainId - The domain ID.
-   * @param key - The canonical hash of the canonical token.
-   * @returns The object containing asset data.
+   * @returns Array of objects containing networks and assets supported by the protocol, in the form of:
+   * ```ts
+   * {
+   *   "name": "arbitrum",
+   *   "chainId": 42161,
+   *   "domainId": "1634886255",
+   *   "assets": [
+   *     "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+   *     "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+   *   ]
+   * },
+   * ```
    */
   async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
