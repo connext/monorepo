@@ -67,3 +67,5 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
 });
 
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
+
+export type ConnextSupport = { name: string; chainId: number; domainId: string; assets: string[] };

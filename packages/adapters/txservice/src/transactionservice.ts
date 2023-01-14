@@ -1,4 +1,4 @@
-import { BigNumber, Signer, providers } from "ethers";
+import { Signer, providers } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
@@ -91,16 +91,12 @@ export class TransactionService extends ChainReader {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(
-    tx: WriteTransaction,
-    context: RequestContext,
-    gasPrice?: BigNumber,
-  ): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
     const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    return await this.getProvider(tx.domain).send(tx, context, gasPrice);
+    return await this.getProvider(tx.domain).send(tx, context);
   }
 
   /// LISTENER METHODS

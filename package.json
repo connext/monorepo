@@ -35,7 +35,7 @@
     "packages/examples/bridge-reference"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint",
+    "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration run lint",
     "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
@@ -51,6 +51,6 @@
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@3.3.1",
   "stableVersion": "0.1.25"
 }

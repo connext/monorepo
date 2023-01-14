@@ -85,7 +85,6 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
-  transacting: Bytes
 
   # Message
   message: OriginMessage
@@ -100,7 +99,6 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
-  txOrigin: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -141,7 +139,6 @@ type DestinationTransfer @entity {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  executedTxOrigin: Bytes
 
   # Reconciled Transaction
   reconciledCaller: Bytes
@@ -150,7 +147,6 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
-  reconciledTxOrigin: Bytes
 }
 
 type OriginMessage @entity {
@@ -208,48 +204,4 @@ type RootMessageSent @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
-}
-
-### STABLE SWAP
-type StableSwap @entity {
-  id: ID!
-
-  isActive: Boolean
-
-  # StableSwapAdded
-  key: Bytes
-  canonicalId: Bytes
-  domain: BigInt
-  swapPool: Bytes
-
-  # SwapInitialized
-  lpToken: Bytes
-
-  initialA: BigInt
-  futureA: BigInt
-
-  initialATime: BigInt
-  futureATime: BigInt
-
-  swapFee: BigInt
-  adminFee: BigInt
-  pooledTokens: [PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
-  balances: [BigInt!]!
-  adminFees: [BigInt!]
-}
-
-type PooledToken @entity {
-  id: ID!
-  asset: Bytes!
-}
-
-type StableSwapLiquidity @entity {
-  id: ID!
-  provider: Bytes!
-  stableSwap: StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
 }

@@ -319,3 +319,7 @@ Content-Type: application/json
 ##############
 ### GET getAssetsData
 GET {{baseUrl}}/getAssetsData
+
+##############
+### GET getSupported
+GET {{baseUrl}}/getSupported

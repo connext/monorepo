@@ -22,8 +22,6 @@ describe("Watcher Adapter: Pauser", () => {
   beforeEach(() => {
     txservice = createStubInstance(TransactionService, {
       readTx: Promise.resolve(readTxResult),
-      getGasPrice: Promise.resolve(BigNumber.from(3)),
-      getAddress: Promise.resolve(mkAddress("0x2")),
     });
     const logger = createStubInstance(Logger);
     context = {
@@ -41,7 +39,9 @@ describe("Watcher Adapter: Pauser", () => {
   });
 
   describe("#pause", () => {
-    beforeEach(() => {});
+    beforeEach(() => {
+      txservice.getGasPrice.resolves(BigNumber.from(1000))
+    });
 
     it("should return empty array when domains empty", async () => {
       let result = await pauser.pause("for test", []);

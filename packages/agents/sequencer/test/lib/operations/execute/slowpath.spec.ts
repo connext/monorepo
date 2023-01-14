@@ -2,8 +2,6 @@ import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } f
 import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../../src/lib/entities";
 import {
-  ExecutorVersionInvalid,
-  GasEstimationFailed,
   MissingXCall,
   ParamsInvalid,
   ExecuteSlowCompleted,
@@ -77,11 +75,6 @@ describe("Operations:Execute:SlowPath", () => {
       } as ExecutorData;
 
       await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-    it("should throw if executor version isn't supported by the sequencer", async () => {
-      ctxMock.config.supportedVersion = "0.0.2";
-      const mockExecutorData = mock.entity.executorData({ executorVersion: "0.0.1" });
-      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecutorVersionInvalid);
     });
 
     it("should throw if transfer doesn't exist in the cache", async () => {

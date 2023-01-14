@@ -1,4 +1,4 @@
-import { BigNumber, Signer, constants, providers, utils } from "ethers";
+import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
@@ -351,11 +351,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
    *
    * @returns A list of receipts or errors that occurred for each.
    */
-  public async send(
-    minTx: WriteTransaction,
-    context: RequestContext,
-    gasPrice?: BigNumber,
-  ): Promise<providers.TransactionReceipt> {
+  public async send(minTx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.send.name;
     const { requestContext, methodContext } = createLoggingContext(method, context);
     const txsId = getUuid();
@@ -385,18 +381,17 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
           // still possible to revert due to a state change below.
           const attemptedNonces: number[] = [];
-          const [gasLimit, _gasPrice, nonceInfo] = await Promise.all([
-            this.estimateGas(minTx),
-            this.getGasPrice(requestContext),
+          const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
+            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.estimateGas(minTx),
+            minTx.gasPrice ? Promise.resolve(BigNumber.from(minTx.gasPrice)) : this.getGasPrice(requestContext),
             this.determineNonce(attemptedNonces),
           ]);
           let { nonce, backfill, transactionCount } = nonceInfo;
 
           // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
-          const override = (gasPrice ?? constants.Zero);
           const gas: Gas = {
             limit: gasLimit,
-            price: override.gt(_gasPrice) ? override : _gasPrice,
+            price: gasPrice,
           };
           if (this.domain === 1634886255) {
             gas.limit = BigNumber.from(10_000_000);

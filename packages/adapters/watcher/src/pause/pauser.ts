@@ -39,20 +39,22 @@ export class Pauser extends Verifier {
         // 2. If not paused, call pause tx
         if (!paused) {
           const pauseCalldata = connextInterface.encodeFunctionData("pause");
-          const from = await txservice.getAddress();
-          const tx = {
-            to: connext.address,
-            data: pauseCalldata,
-            value: constants.Zero,
-            domain: +domain,
-            from,
-          };
+
+          // Get gas price
+          const price = await txservice.getGasPrice(+domain, requestContext);
 
           try {
-            // Get gasPrice
-            const price = await txservice.getGasPrice(tx.domain, requestContext);
-            // send at 2x price
-            const receipt = await txservice.sendTx(tx, requestContext, price.mul(2));
+            const receipt = await txservice.sendTx(
+              {
+                to: connext.address,
+                data: pauseCalldata,
+                value: constants.Zero,
+                domain: +domain,
+                from: await txservice.getAddress(),
+                gasPrice: price.mul(2),
+              },
+              requestContext,
+            );
             return {
               domain,
               paused: true,
@@ -66,7 +68,6 @@ export class Pauser extends Verifier {
               paused: false,
               error: error,
               relevantTransaction: "",
-              calldata: pauseCalldata,
             };
           }
         } else {

@@ -1,4 +1,3 @@
-import { compare } from "compare-versions";
 import {
   ExecutorData,
   RequestContext,
@@ -11,7 +10,6 @@ import {
 import { getContext } from "../../../sequencer";
 import {
   ParamsInvalid,
-  ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
@@ -32,7 +30,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
-  const { transferId, executorVersion, origin } = executorData;
+  const { transferId, origin } = executorData;
 
   // Validate Input schema
   const validateInput = ajv.compile(ExecutorDataSchema);
@@ -41,15 +39,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
-      executorData,
-    });
-  }
-
-  // check if executor version is compatible with hosted sequencer
-  const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
-  if (checkVersion) {
-    throw new ExecutorVersionInvalid({
-      supportedVersion: config.supportedVersion,
       executorData,
     });
   }
@@ -129,11 +118,13 @@ export const executeSlowPathData = async (
 
   const transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new MissingTransfer({ transferId });
   }
 
   const executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new MissingExecutorData({ transfer });
   }
 
@@ -148,6 +139,7 @@ export const executeSlowPathData = async (
 
   const { canSubmit, needed } = await canSubmitToRelayer(transfer);
   if (!canSubmit) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.None);
     throw new NotEnoughRelayerFee({ transferId, relayerFee: transfer.origin?.relayerFee, needed });
   }
 
