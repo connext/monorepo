@@ -9,7 +9,7 @@ import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/erro
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import { NxtpSdkXCallArgs } from "../src/interfaces";
+import { SdkXCallParams } from "../src/interfaces";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -92,7 +92,7 @@ describe("SdkBase", () => {
     };
 
     const origin = mock.entity.callParams().originDomain;
-    const sdkXCallArgs: NxtpSdkXCallArgs = {
+    const sdkXCallArgs: SdkXCallParams = {
       ...mock.entity.xcallArgs(),
       origin,
       relayerFee: relayerFee.toString(),
@@ -152,7 +152,7 @@ describe("SdkBase", () => {
 
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
-        data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(asset, amount)),
+        data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(asset!, amount)),
         from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
@@ -169,7 +169,7 @@ describe("SdkBase", () => {
     it("happy: wrapNativeOnOrigin && receiveLocal works", async () => {
       const { asset, amount: _amount } = sdkXCallArgs;
       const amount = BigNumber.from(_amount);
-      const txs = wrapNativeOnOriginMultisendTxs(asset, amount);
+      const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
       txs[2].data = standardXCallIntoLocalData;
 
       const expectedTxRequest: providers.TransactionRequest = {
@@ -221,7 +221,7 @@ describe("SdkBase", () => {
     it("happy: handle both wrapNativeOnOrigin && unwrapNativeOnDestination", async () => {
       const { asset, amount: _amount } = sdkXCallArgs;
       const amount = BigNumber.from(_amount);
-      const txs = wrapNativeOnOriginMultisendTxs(asset, amount);
+      const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
 
       // Format the xcall for the unwrapNativeOnDestination case.
       const xcallData = getConnextInterface().encodeFunctionData("xcall", [
