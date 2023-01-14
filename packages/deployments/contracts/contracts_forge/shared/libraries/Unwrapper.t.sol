@@ -38,12 +38,16 @@ contract UnwrapperTest is ForgeHelper {
     vm.mockCall(MOCK_WRAPPER, abi.encodeWithSelector(IWrapper.withdraw.selector), abi.encode());
     vm.mockCall(MOCK_WRAPPER, abi.encodeWithSelector(IWrapper.transfer.selector), abi.encode(true));
 
-    vm.mockCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector), abi.encode(true));
+    utils_setUpMockErc20(true); // Default transferSuccess = true.
 
     unwrapper = new Unwrapper(MOCK_CONNEXT, MOCK_WRAPPER);
   }
 
   // ============ Utils ============
+  function utils_setUpMockErc20(bool transferSuccess) internal {
+    vm.mockCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector), abi.encode(transferSuccess));
+  }
+
   function utils_expectOrphans(
     address asset,
     uint256 amount,
@@ -112,17 +116,42 @@ contract UnwrapperTest is ForgeHelper {
     address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
 
-    utils_expectOrphans(asset, amount, recipient, "unwrap: !recipient");
+    // Should transfer the non-wrapper ERC20 to the intended recipient!
+    vm.expectCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector, recipient, amount));
 
     vm.prank(MOCK_CONNEXT);
-    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataNoRecipient);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
+
+  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferFails() public {
+    utils_setUpMockErc20(false);
+    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
+    uint256 amount = 10 ether;
+
+    utils_expectOrphans(asset, amount, recipient, "unwrap: !wrapper,!success");
+
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
 
     utils_assertOrphans(asset, amount, recipient);
   }
 
-  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferFails() public {}
+  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferReverts() public {
+    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
+    uint256 amount = 10 ether;
 
-  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferReverts() public {}
+    // Clear mocked calls. Basically, we're going to simulate an ERC20 asset address given that has no
+    // actual contract code at that address (we call `ERC20.transfer` but it will revert).
+    vm.clearMockedCalls();
+
+    // TODO: Use RevertingERC20
+    // utils_expectOrphans(asset, amount, recipient, "EvmError: Revert");
+
+    // vm.prank(MOCK_CONNEXT);
+    // unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+
+    // utils_assertOrphans(asset, amount, recipient);
+  }
 
   function test_Unwrapper__xReceive_orphansIfETHNotSent() public {}
 

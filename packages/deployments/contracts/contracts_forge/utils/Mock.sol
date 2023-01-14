@@ -315,3 +315,17 @@ contract MockHubConnector is HubConnector {
     }
   }
 }
+
+contract UnpayableContract {
+  // This contract left intentionally blank; we just need a contract that
+  // definitely isn't payable (and will stay that way!).
+}
+
+// An ERC20 contract that reverts when `transfer` is called.
+contract RevertingERC20 {
+  bytes constant REVERT_MESSAGE = "test transfer error";
+
+  function transfer(address account, uint256 amount) public returns (bool) {
+    revert(REVERT_MESSAGE);
+  }
+}
