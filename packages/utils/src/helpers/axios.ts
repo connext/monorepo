@@ -33,8 +33,8 @@ export const axiosGet = async <T = any, R = AxiosResponse<T>, D = any>(url: stri
   } catch (error: unknown) {
     // eslint-disable-next-line import/no-named-as-default-member
     if (axios.isAxiosError(error)) {
-      throw new AxiosQueryError(url, "post", data, { error: error.toJSON(), status: error.response?.status });
+      throw new AxiosQueryError(url, "get", data, { error: error.toJSON(), status: error.response?.status });
     }
-    throw new AxiosQueryError(url, "post", data, jsonifyError(error as NxtpError));
+    throw new AxiosQueryError(url, "get", data, jsonifyError(error as NxtpError));
   }
 };

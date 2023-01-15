@@ -86,8 +86,8 @@ export const propagate = async () => {
   });
   let gas;
   try {
-    gas = await chainreader.getGasEstimateWithRevertCode(+config.hubDomain, {
-      chainId: hubChainId,
+    gas = await chainreader.getGasEstimateWithRevertCode({
+      domain: +config.hubDomain,
       to: rootManagerAddress,
       data: encodedData,
       from: relayerProxyHubAddress,
@@ -95,7 +95,7 @@ export const propagate = async () => {
     });
   } catch (e: unknown) {
     logger.error("Error at Gelato Get Gas Estimate", requestContext, methodContext, e as NxtpError, {
-      chainId: hubChainId,
+      domain: +config.hubDomain,
       to: rootManagerAddress,
       data: encodedData,
       from: relayerProxyHubAddress,
