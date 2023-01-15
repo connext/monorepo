@@ -364,6 +364,7 @@ locals {
       propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
     }
     hubDomain = "6648936"
+    proverBatchSize = 1
   })
 
   local_relayer_config = jsonencode({

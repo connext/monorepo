@@ -217,8 +217,8 @@ export const send = async (
     from: relayerAddress,
   });
 
-  const gas = await chainReader.getGasEstimateWithRevertCode(Number(domain), {
-    chainId,
+  const gas = await chainReader.getGasEstimateWithRevertCode({
+    domain: +domain,
     to: destinationAddress,
     data: encodedData,
     from: relayerAddress,

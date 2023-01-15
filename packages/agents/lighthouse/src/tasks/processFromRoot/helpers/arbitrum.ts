@@ -119,7 +119,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // verify confirm data to ensure the node is correct
   const iface = RollupUserLogic__factory.createInterface();
   const nodeData = await chainreader.readTx({
-    chainId: +hubDomainId, // TODO which to use?
+    domain: +hubDomainId, // TODO which to use?
     data: iface.encodeFunctionData("getNode", [event.nodeNum as BigNumberish]),
     to: arbNetwork.ethBridge.rollup,
   });

@@ -84,6 +84,14 @@ describe("SdkShared", () => {
     });
   });
 
+  describe("#getSupported", () => {
+    it("happy: should work", async () => {
+      (nxtpSdkShared as any).config.cartographerUrl = config.cartographerUrl;
+      const connext = await nxtpSdkShared.getSupported();
+      expect(connext).to.not.be.undefined;
+    });
+  });
+
   describe("#approveIfNeeded", () => {
     const mockParams = {
       connext: mock.contracts.deployments().connext(Number(mock.chain.A)),

@@ -29,3 +29,5 @@ export type AssetData = {
   key: string;
   id: string;
 };
+
+export type ConnextSupport = { name: string; chainId: number; domainId: string; assets: string[] };
