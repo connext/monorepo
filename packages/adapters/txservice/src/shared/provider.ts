@@ -1,5 +1,6 @@
 import { delay, parseHostname } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
+import { domainToChainId } from "@connext/nxtp-contracts";
 
 import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
 
@@ -52,11 +53,13 @@ export class SyncProvider extends StaticJsonRpcProvider {
 
   constructor(
     _connectionInfo: utils.ConnectionInfo | string,
-    public readonly chainId: number,
+    public readonly domain: number,
     private readonly stallTimeout = 10_000,
     private readonly debugLogging = false,
   ) {
-    super(_connectionInfo, chainId);
+    // NOTE: super (StaticJsonRpc) uses the hard-coded chainId when instantiated for all future
+    // .getNetwork() requests, so it is important to use the chainId here, not the domain
+    super(_connectionInfo, domainToChainId(domain));
     this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
     this.name = parseHostname(this.connectionInfo.url)
       ? parseHostname(this.connectionInfo.url)!.split(".").slice(0, -1).join(".")
@@ -91,7 +94,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
     if (!ready) {
       throw new RpcError(RpcError.reasons.OutOfSync, {
         provider: this.name,
-        chainId: this.chainId,
+        domain: this.domain,
         lastSyncedBlockNumber: this.syncedBlockNumber,
         synced: this.synced,
         lag: this.lag,
@@ -129,7 +132,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
                       new StallTimeout({
                         attempt: i,
                         provider: this.name,
-                        chainId: this.chainId,
+                        domain: this.domain,
                         stallTimeout: this.stallTimeout,
                         errors,
                       }),
@@ -159,7 +162,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
 
     throw new RpcError(RpcError.reasons.FailedToSend, {
       provider: this.name,
-      chainId: this.chainId,
+      domain: this.domain,
       errors,
     });
   }
