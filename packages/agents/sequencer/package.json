@@ -33,10 +33,10 @@
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "dependencies": {
     "@connext/nxtp-adapters-cache": "workspace:*",
+    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-relayer": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@gelatonetwork/relay-sdk": "^2.1.0",
