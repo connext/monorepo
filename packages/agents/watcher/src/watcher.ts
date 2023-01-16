@@ -81,12 +81,16 @@ export const makeWatcher = async () => {
     );
 
     // Get asset info from subgraph.
-    const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(
-      context.config.hubDomain,
-      context.config.chains[context.config.hubDomain].assets.map((a) => a.address),
-    );
+    const query = context.config.chains[context.config.hubDomain].assets.map((a) => a.address.toLowerCase());
+    const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(context.config.hubDomain, query);
     if (assetInfo.length == 0) {
       context.logger.warn("No assets found in subgraph", requestContext, methodContext);
+    }
+    if (query.length !== assetInfo.length) {
+      context.logger.warn("Not all configured assets found in subgraph", requestContext, methodContext, {
+        configured: query,
+        found: assetInfo,
+      });
     }
     context.logger.info("Got asset info from subgraph", requestContext, methodContext, { assetInfo });
 
