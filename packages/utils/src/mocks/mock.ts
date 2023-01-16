@@ -20,6 +20,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  XTransferErrorStatus,
 } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
@@ -167,6 +168,7 @@ export const mock = {
         destinationChain?: string;
         amount?: string;
         status?: XTransferStatus;
+        errorStatus?: XTransferErrorStatus;
         asset?: string;
         transferId?: string;
         messageHash?: string;
@@ -189,6 +191,7 @@ export const mock = {
       const destinationChain: string = overrides.destinationChain ?? mock.chain.B;
       const amount = overrides.amount ?? "1000";
       const status: XTransferStatus | undefined = overrides.status;
+      const errorStatus: XTransferErrorStatus | undefined = overrides.errorStatus;
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
@@ -227,6 +230,8 @@ export const mock = {
               messageHash,
 
               relayerFee,
+
+              errorStatus,
 
               // Assets
               assets: {
