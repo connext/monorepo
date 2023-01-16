@@ -39,7 +39,7 @@ export class WatcherAdapter {
 
   public async pause(_requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
     // TODO: Check to make sure domains are subset of what was provided in VerifierContext in constructor...?
-    return await this.pauser.pause(reason, domains);
+    return await this.pauser.pause(_requestContext, reason, domains);
   }
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {

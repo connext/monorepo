@@ -1,5 +1,5 @@
 import { domainToChainId, ConnextInterface } from "@connext/nxtp-contracts";
-import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { PauseResponse, Verifier } from "../types";
@@ -12,8 +12,8 @@ export class Pauser extends Verifier {
    * @returns boolean[] array mapped to domains[] indicating whether the pausing for each
    * domain was successful.
    */
-  public async pause(reason: string, domains: string[]): Promise<PauseResponse[]> {
-    const { requestContext, methodContext } = createLoggingContext(this.pause.name);
+  public async pause(requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
+    const { methodContext } = createLoggingContext(this.pause.name);
     const { logger, txservice } = this.context;
 
     // helper function so we can send off all pausing simultaneously
@@ -21,6 +21,7 @@ export class Pauser extends Verifier {
       try {
         logger.info(`Trying to pause for domain ${domain}. reason: ${reason}`, requestContext, methodContext, {
           domain,
+          reason,
         });
 
         const chainId = domainToChainId(+domain);
