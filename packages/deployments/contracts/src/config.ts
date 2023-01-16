@@ -78,7 +78,7 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://opt-mainnet.g.alchemy.com/v2/8BWDXI7MUClvQt07W0LBi_9_i6tbeaQc",
+    url: "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },

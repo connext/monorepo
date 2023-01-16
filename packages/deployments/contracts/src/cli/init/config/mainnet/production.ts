@@ -153,7 +153,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
-      allowlist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
+      allowlist: [
+        "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c",
+        "0x97b9dcB1AA34fE5F12b728D9166ae353d1e7f5C4", // P2P router
+      ],
     },
     sequencers: {
       allowlist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
