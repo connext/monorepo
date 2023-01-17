@@ -9,6 +9,7 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
@@ -118,7 +119,7 @@ export const executeFastPathData = async (
   const {
     config,
     logger,
-    adapters: { cache, subgraph },
+    adapters: { cache, subgraph, database },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
@@ -214,6 +215,8 @@ export const executeFastPathData = async (
       needed,
     });
 
+    transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+    await database.saveTransfers([transfer]);
     return { taskId };
   }
 

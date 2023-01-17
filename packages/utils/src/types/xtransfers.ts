@@ -12,6 +12,12 @@ export const XTransferStatus = {
 } as const;
 export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
 
+export const XTransferErrorStatus = {
+  LowSlippage: "LowSplippage",
+  InsufficientRelayerFee: "InsufficientRelayerFee",
+} as const;
+export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
+
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
   transactionHash: Type.String(),
@@ -27,6 +33,9 @@ export const XTransferOriginSchema = Type.Object({
 
   // Event Data
   messageHash: Type.String(),
+
+  // Failure reason
+  errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
 
   // Assets
   assets: Type.Object({
