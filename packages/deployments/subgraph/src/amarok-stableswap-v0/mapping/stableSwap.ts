@@ -264,7 +264,7 @@ export function handleInternalTokenSwap(event: TokenSwap): void {
 
   // save trade volume
   let tokens = stableSwap.pooledTokens;
-  let tokenPrecisionMultipliers = stableSwap.tokenPrecisionMultipliers!;
+  let tokenPrecisionMultipliers = stableSwap.tokenPrecisionMultipliers;
   if (event.params.soldId.toI32() < tokens.length && event.params.boughtId.toI32() < tokens.length) {
     let sellVolume = event.params.tokensSold.divDecimal(
       BigInt.fromI32(10).pow(18).div(tokenPrecisionMultipliers[event.params.soldId.toI32()]).toBigDecimal(),

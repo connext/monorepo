@@ -84,9 +84,9 @@ export function getVirtualPriceEx(invariant: BigInt, lpTokenSupply: BigInt): Big
 
 export function getVirtualPrice(stableSwapKey: Bytes): BigInt {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
-  const lpTokenSupply = stableSwap.lpTokenSupply!;
+  const lpTokenSupply = stableSwap.lpTokenSupply;
 
-  return getVirtualPriceEx(stableSwap.invariant!, lpTokenSupply);
+  return getVirtualPriceEx(stableSwap.invariant, lpTokenSupply);
 }
 
 export function getOrCreatePooledToken(asset: Address): PooledToken {
@@ -191,7 +191,7 @@ export function calculateWithdrawOneToken(
   tokenIndex: BigInt,
   timestamp: BigInt,
 ): BigInt {
-  const res = _calculateWithdrawOneToken(stableSwap, tokenAmount, tokenIndex, stableSwap.lpTokenSupply!, timestamp);
+  const res = _calculateWithdrawOneToken(stableSwap, tokenAmount, tokenIndex, stableSwap.lpTokenSupply, timestamp);
 
   return res[0];
 }
@@ -427,7 +427,7 @@ export function swap(
     _xpp(stableSwap.balances, stableSwap.tokenPrecisionMultipliers),
     _getAPrecise(stableSwap, timestamp),
   );
-  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply!);
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
   // log.warning("Swap Saved!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}, {}, {}", [

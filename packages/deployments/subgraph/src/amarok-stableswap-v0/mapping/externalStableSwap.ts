@@ -175,7 +175,7 @@ export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
 
 export function handleTokenSwap(event: TokenSwap): void {
   let stableSwap = getOrCreateStableSwap(event.address);
-  let exchangeId = event.params.key.toHexString().concat(event.transaction.hash.toHexString());
+  let exchangeId = event.address.toHexString().concat(event.transaction.hash.toHexString());
   let exchange = new StableSwapExchange(exchangeId);
 
   exchange.stableSwap = stableSwap.id;
@@ -191,7 +191,7 @@ export function handleTokenSwap(event: TokenSwap): void {
 
   // save trade volume
   let tokens = stableSwap.pooledTokens;
-  let tokenPrecisionMultipliers = stableSwap.tokenPrecisionMultipliers!;
+  let tokenPrecisionMultipliers = stableSwap.tokenPrecisionMultipliers;
   if (event.params.soldId.toI32() < tokens.length && event.params.boughtId.toI32() < tokens.length) {
     let sellVolume = event.params.tokensSold.divDecimal(
       BigInt.fromI32(10).pow(18).div(tokenPrecisionMultipliers[event.params.soldId.toI32()]).toBigDecimal(),
