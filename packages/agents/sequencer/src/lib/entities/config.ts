@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress } from "@connext/nxtp-utils";
+import { TAddress, TDatabaseConfig } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -118,6 +118,7 @@ export const SequencerConfigSchema = Type.Object({
       apiKey: Type.String(),
     }),
   ),
+  database: TDatabaseConfig,
   relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
 });
 
