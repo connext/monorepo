@@ -2185,6 +2185,7 @@ __metadata:
     "@connext/nxtp-sequencer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@harbor-xyz/harbor": ^0.4.4
     "@types/chai": 4.3.3
     "@types/chai-as-promised": 7.1.5
     "@types/chai-subset": 1.3.3
@@ -2197,6 +2198,7 @@ __metadata:
     chai-subset: 1.6.0
     eslint: 8.26.0
     ethers: 5.7.2
+    git-last-commit: ^1.0.1
     mocha: 10.1.0
     nyc: 15.1.0
     p-queue: 6.6.2
@@ -5387,6 +5389,26 @@ __metadata:
     "@repeaterjs/repeater": ^3.0.4
     tslib: ^2.3.1
   checksum: fc194c3e7f8ed00447c53ead4b2ac72948a53052866464e531b09880b2a017bd303e5171134848a5bed8c11a841b9817685bf6b445b4c0e622305a090d0a014e
+  languageName: node
+  linkType: hard
+
+"@harbor-xyz/harbor-cli@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@harbor-xyz/harbor-cli@npm:0.4.4"
+  dependencies:
+    mkdirp: ^1.0.4
+  checksum: b474fb5067e125a30e7e5645709c3a7f931e33aa5524d5f7d43df8e41fd2f7d4704ed7931e01677ca515d89af5d5c12b24b568b1d03add3055d6e7c5c4b95cea
+  languageName: node
+  linkType: hard
+
+"@harbor-xyz/harbor@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@harbor-xyz/harbor@npm:0.4.4"
+  dependencies:
+    "@harbor-xyz/harbor-cli": ^0.4.4
+    isomorphic-unfetch: ^3.1.0
+    project-bin-path: ^2.0.0
+  checksum: fa9f3d9066e3b029373b8bc7b9390f7fe2e078ec8f838d3779697ee0db969b083d28dc2c66312d5fbf73fa8412b2e0e1a005ab582b1d8fb7da56ec80adfe5a93
   languageName: node
   linkType: hard
 
@@ -15407,6 +15429,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"git-last-commit@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "git-last-commit@npm:1.0.1"
+  checksum: 44049215f0838c0d17edd25b44e08793d270ea96d95e56767ae9564eda2f41cf4a63b4bc418d62c2f3a8f6a483d6e12229c316daa4276dc0fef8ad663145af6c
+  languageName: node
+  linkType: hard
+
 "glob-parent@npm:^5.1.2, glob-parent@npm:~5.1.0, glob-parent@npm:~5.1.2":
   version: 5.1.2
   resolution: "glob-parent@npm:5.1.2"
@@ -15641,7 +15670,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
+  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
   languageName: node
   linkType: hard
 
@@ -17729,6 +17758,16 @@ __metadata:
     node-fetch: ^2.6.1
     whatwg-fetch: ^3.4.1
   checksum: e5ab79a56ce5af6ddd21265f59312ad9a4bc5a72cebc98b54797b42cb30441d5c5f8d17c5cd84a99e18101c8af6f90c081ecb8d12fd79e332be1778d58486d75
+  languageName: node
+  linkType: hard
+
+"isomorphic-unfetch@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "isomorphic-unfetch@npm:3.1.0"
+  dependencies:
+    node-fetch: ^2.6.1
+    unfetch: ^4.2.0
+  checksum: 82b92fe4ec2823a81ab0fc0d11bd94d710e6f9a940d56b3cba31896d4345ec9ffc7949f4ff31ebcae84f6b95f7ebf3474c4c7452b834eb4078ea3f2c37e459c5
   languageName: node
   linkType: hard
 
@@ -22538,6 +22577,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"project-bin-path@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "project-bin-path@npm:2.0.0"
+  dependencies:
+    find-up: ^2.1.0
+  checksum: 44662bff23b7389db9480d50540f9621c6bda7ce184cdc81837414c05f51bf6feb511e747a3c7bfed56b9f0f25cf3868ab3e800aa660fd692803152105f17cfa
+  languageName: node
+  linkType: hard
+
 "prom-client@npm:14.1.0":
   version: 14.1.0
   resolution: "prom-client@npm:14.1.0"
@@ -26849,6 +26897,13 @@ __metadata:
   dependencies:
     busboy: ^1.6.0
   checksum: 7a076e44d84b25844b4eb657034437b8b9bb91f17d347de474fdea1d4263ce7ae9406db79cd30de5642519277b4893f43073258bcc8fed420b295da3fdd11b26
+  languageName: node
+  linkType: hard
+
+"unfetch@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "unfetch@npm:4.2.0"
+  checksum: 6a4b2557e1d921eaa80c4425ce27a404945ec26491ed06e62598f333996a91a44c7908cb26dc7c2746d735762b13276cf4aa41829b4c8f438dde63add3045d7a
   languageName: node
   linkType: hard
 

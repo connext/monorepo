@@ -10,6 +10,7 @@
     "itest": "yarn tsc && node",
     "setup": "./setup.sh",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
+    "test:harbor": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/harbor.spec.ts'",
     "test:sample": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/sample.spec.ts'",
     "test:local": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
     "test:live": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/testnet.spec.ts'",
@@ -57,6 +58,7 @@
     "ts-node": "10.9.1"
   },
   "devDependencies": {
+    "@harbor-xyz/harbor": "^0.4.4",
     "@types/chai": "4.3.3",
     "@types/chai-as-promised": "7.1.5",
     "@types/chai-subset": "1.3.3",
@@ -67,6 +69,7 @@
     "chai-as-promised": "7.1.1",
     "chai-subset": "1.6.0",
     "eslint": "8.26.0",
+    "git-last-commit": "^1.0.1",
     "mocha": "10.1.0",
     "nyc": "15.1.0",
     "p-queue": "6.6.2",

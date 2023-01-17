@@ -1,4 +1,20 @@
 import { Wallet } from "ethers";
+import Harbor from "@harbor-xyz/harbor";
+import { Testnet } from "@harbor-xyz/harbor/dist/harbor_sdk/types";
+import { getLastCommit } from "git-last-commit";
+
+export default function getTestnetName() {
+  return new Promise((resolve, reject) => {
+    getLastCommit((err, commit) => {
+      if (err) {
+        reject(err);
+      } else {
+        const testnetName = "sha-" + commit.hash.slice(0, 7);
+        resolve(testnetName);
+      }
+    });
+  });
+}
 
 // Used in polling loops.
 export const SUBG_POLL_PARITY = 5_000;
@@ -44,4 +60,34 @@ export const PARAMETERS = {
     RPC: ["http://localhost:8546"],
     DEPLOYMENTS: null, // Must be set at runtime!
   },
+};
+
+export async function getParams() {
+  let testnet: Testnet;
+  const testnetName = await getTestnetName();
+  const params = PARAMETERS;
+  const harbor = new Harbor({
+    userKey: "66t1DdSLuFnoAuVccZEkoN",
+    projectKey: "xkfSjdSLuFnoAuVccX7j22"
+  });
+  await harbor.authenticate();
+  if (typeof testnetName === "string") {
+    testnet = await harbor.testnet(testnetName);
+    const chains = testnet.chains();
+    chains.forEach((chain) => { 
+      if (chain.chain == "ethereum") {
+        params.A.RPC = [chain.endpoint];
+      }
+      if (chain.chain == "polygon") { 
+        params.B.RPC = [chain.endpoint];
+      }
+    });
+    const offChainActors = testnet.offChainActors();
+    offChainActors.forEach((actor) => {
+      if (actor.name == "cartographerApi") {
+        params.AGENTS.CARTOGRAPHER.url = "http://" + actor.endpoint + ":" + actor.ports()[0];
+      }
+    });
+  }
+  return params;
 };

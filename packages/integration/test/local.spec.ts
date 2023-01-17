@@ -25,11 +25,11 @@ import { expect } from "chai";
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
 // Local 1338 deployment imports:
-import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/Connext_DiamondProxy.json";
-import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
+import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/cicdResources/deployments/local_1338/Connext_DiamondProxy.json";
+import TestERC20_1338 from "@connext/nxtp-contracts/cicdResources/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
-import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/Connext_DiamondProxy.json";
-import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
+import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/cicdResources/deployments/local_1337/Connext_DiamondProxy.json";
+import TestERC20_1337 from "@connext/nxtp-contracts/cicdResources/deployments/local_1337/TestERC20.json";
 import { ConnextInterface } from "@connext/nxtp-contracts";
 
 import { pollSomething } from "./helpers/shared";
