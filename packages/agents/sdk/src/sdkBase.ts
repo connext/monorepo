@@ -366,10 +366,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       });
     }
 
-    let chainId = this.config.chains[domainId].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domainId, this.chainData);
-    }
+    const chainId = await this.getChainId(domainId);
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // Construct the TransferInfo for this transferId
@@ -384,7 +381,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
     const transfer = transfers[0];
 
-    const asdf = {
+    const transferInfo = {
       originDomain: transfer.origin_domain,
       destinationDomain: transfer.destination_domain,
       canonicalDomain: transfer.canonical_domain,
@@ -400,7 +397,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       canonicalId: transfer.canonical_id,
     };
 
-    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [asdf, _newSlippage]);
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [transferInfo, _newSlippage]);
 
     const txRequest = {
       to: ConnextContractAddress,
@@ -413,6 +410,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     return txRequest;
   }
+
   /**
    * Increases the relayer fee for a specific transfer on origin; anyone is allowed to bump for any transfer.
    *
@@ -462,10 +460,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       });
     }
 
-    let chainId = this.config.chains[domainId].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domainId, this.chainData);
-    }
+    const chainId = await this.getChainId(domainId);
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value

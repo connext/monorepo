@@ -10,6 +10,7 @@ import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/erro
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
 import { SdkXCallParams } from "../src/interfaces";
+import { NxtpSdkUtils } from "../src/sdkUtils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -46,6 +47,7 @@ describe("SdkBase", () => {
 
       expect(nxtpSdkBase.xcall).to.be.a("function");
       expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
+      expect(nxtpSdkBase.updateSlippage).to.be.a("function");
       expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
     });
   });
@@ -357,6 +359,22 @@ describe("SdkBase", () => {
 
       const res = await nxtpSdkBase.bumpTransfer(mockBumpTransferParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
+    });
+  });
+
+  describe("#updateSlippage", () => {
+    const mockXTransfer = mock.entity.xtransfer();
+
+    const mockUpdateSlippageParams = {
+      domainId: mockXTransfer.xparams.destinationDomain,
+      transferId: mockXTransfer.transferId,
+      slippage: "100",
+    };
+
+    it("should error if signerAddress is undefined", async () => {
+      (nxtpSdkBase as any).config.signerAddress = undefined;
+
+      await expect(nxtpSdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
