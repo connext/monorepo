@@ -24,7 +24,6 @@ import {
 } from "../../../generated/schema";
 import {
   addLiquidity,
-  getD,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -32,7 +31,6 @@ import {
   getSwapHourlyTradeVolume,
   getSwapWeeklyTradeVolume,
   getSystemInfo,
-  getVirtualPriceEx,
   removeLiquidity,
   removeLiquidityImbalance,
   removeLiquidityOneToken,
@@ -215,6 +213,7 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
 
 export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
+
   removeLiquidityOneToken(
     stableSwap.key,
     event.params.lpTokenAmount,
