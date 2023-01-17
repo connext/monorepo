@@ -23,6 +23,8 @@ import {
   StableSwapRemoveLiquidityEvent,
 } from "../../../generated/schema";
 import {
+  addLiquidity,
+  getD,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -30,6 +32,11 @@ import {
   getSwapHourlyTradeVolume,
   getSwapWeeklyTradeVolume,
   getSystemInfo,
+  getVirtualPriceEx,
+  removeLiquidity,
+  removeLiquidityImbalance,
+  removeLiquidityOneToken,
+  swap,
 } from "./helper";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
@@ -84,6 +91,7 @@ export function handleInternalSwapRemoved(event: SwapRemoved): void {
   stableSwap.swapPool = new Address(0);
   stableSwap.pooledTokens = [];
   stableSwap.balances = [];
+  stableSwap.virtualPrice = new BigInt(0);
   stableSwap.isActive = false;
   stableSwap.save();
 }
@@ -135,9 +143,13 @@ export function handleStopInternalRampA(event: RampAStopped): void {
 export function handleInternalAddLiquidity(event: AddLiquidity): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
 
-  stableSwap.invariant = event.params.invariant;
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-  stableSwap.save();
+  addLiquidity(
+    stableSwap.key,
+    event.params.tokenAmounts,
+    event.params.fees,
+    event.params.invariant,
+    event.params.lpTokenSupply,
+  );
 
   let log = new StableSwapAddLiquidityEvent("add_liquidity-" + event.transaction.hash.toHexString());
 
@@ -158,8 +170,7 @@ export function handleInternalAddLiquidity(event: AddLiquidity): void {
 export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
 
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-  stableSwap.save();
+  removeLiquidity(stableSwap.key, event.params.tokenAmounts, event.params.lpTokenSupply, event.block.timestamp);
 
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity-" + event.transaction.hash.toHexString());
 
@@ -178,9 +189,13 @@ export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
 export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
 
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply;
-  stableSwap.invariant = event.params.invariant;
-  stableSwap.save();
+  removeLiquidityImbalance(
+    stableSwap.key,
+    event.params.tokenAmounts,
+    event.params.fees,
+    event.params.invariant,
+    event.params.lpTokenSupply,
+  );
 
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_imbalance-" + event.transaction.hash.toHexString());
 
@@ -200,8 +215,14 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
 
 export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
-  stableSwap.lpTokenSupply = event.params.lpTokenSupply.minus(event.params.lpTokenAmount);
-  stableSwap.save();
+  removeLiquidityOneToken(
+    stableSwap.key,
+    event.params.lpTokenAmount,
+    event.params.lpTokenSupply,
+    event.params.boughtId,
+    event.params.tokensBought,
+    event.block.timestamp,
+  );
 
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_one-" + event.transaction.hash.toHexString());
 
@@ -265,6 +286,15 @@ export function handleInternalTokenSwap(event: TokenSwap): void {
     let weeklyVolume = getSwapWeeklyTradeVolume(stableSwap, event.block.timestamp);
     weeklyVolume.volume = weeklyVolume.volume.plus(volume);
     weeklyVolume.save();
+
+    swap(
+      stableSwap.key,
+      event.params.soldId,
+      event.params.boughtId,
+      event.params.tokensSold,
+      event.params.tokensBought,
+      event.block.timestamp,
+    );
   }
 
   // update system

@@ -84,6 +84,7 @@ export function handleInternalSwapRemoved(event: SwapRemoved): void {
   stableSwap.swapPool = new Address(0);
   stableSwap.pooledTokens = [];
   stableSwap.balances = [];
+  stableSwap.virtualPrice = new BigInt(0);
   stableSwap.isActive = false;
   stableSwap.save();
 }
