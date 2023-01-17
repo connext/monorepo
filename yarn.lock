@@ -2371,6 +2371,7 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@gelatonetwork/relay-sdk": ^2.1.0
     "@sinclair/typebox": 0.25.2
+    "@types/pg": ^8.6.5
     concurrently: 7.5.0
     dd-trace: 3.9.2
     dotenv: 16.0.3

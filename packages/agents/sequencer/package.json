@@ -53,6 +53,7 @@
     "tsc": "2.0.4"
   },
   "devDependencies": {
+    "@types/pg": "^8.6.5",
     "concurrently": "7.5.0",
     "eslint": "8.26.0",
     "mocha": "10.1.0",
