@@ -12,7 +12,7 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
+import { getChainData, calculateRelayerFee } from "./lib/helpers";
 import {
   SignerAddressMissing,
   ChainDataUndefined,
