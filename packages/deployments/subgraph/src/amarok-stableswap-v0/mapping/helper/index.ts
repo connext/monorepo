@@ -428,23 +428,23 @@ export function swap(
     _getAPrecise(stableSwap, timestamp),
   );
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply!);
-
-  log.warning("Swap Saved!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}, {}, {}", [
-    stableSwapKey.toHexString(),
-    tokenIndexFrom.toString(),
-    tokenIndexTo.toString(),
-    dx.toString(),
-    dy.toString(),
-    dyAdminFee.toString(),
-    balances[tokenIndexFrom.toI32()].toString(),
-    balances[tokenIndexTo.toI32()].toString(),
-    stableSwap.balances[tokenIndexFrom.toI32()].toString(),
-    stableSwap.balances[tokenIndexTo.toI32()].toString(),
-    stableSwap.invariant.toString(),
-    stableSwap.virtualPrice.toString(),
-    timestamp.toString(),
-  ]);
   stableSwap.save();
+
+  // log.warning("Swap Saved!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   tokenIndexFrom.toString(),
+  //   tokenIndexTo.toString(),
+  //   dx.toString(),
+  //   dy.toString(),
+  //   dyAdminFee.toString(),
+  //   balances[tokenIndexFrom.toI32()].toString(),
+  //   balances[tokenIndexTo.toI32()].toString(),
+  //   stableSwap.balances[tokenIndexFrom.toI32()].toString(),
+  //   stableSwap.balances[tokenIndexTo.toI32()].toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  //   timestamp.toString(),
+  // ]);
 }
 
 export function addLiquidity(
@@ -473,18 +473,18 @@ export function addLiquidity(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
-  log.warning("Liquidity Added!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}", [
-    stableSwapKey.toHexString(),
-    amounts[0].toString(),
-    amounts[1].toString(),
-    fees[0].toString(),
-    fees[1].toString(),
-    stableSwap.balances[0].toString(),
-    stableSwap.balances[1].toString(),
-    stableSwap.lpTokenSupply.toString(),
-    stableSwap.invariant.toString(),
-    stableSwap.virtualPrice.toString(),
-  ]);
+  // log.warning("Liquidity Added!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   amounts[0].toString(),
+  //   amounts[1].toString(),
+  //   fees[0].toString(),
+  //   fees[1].toString(),
+  //   stableSwap.balances[0].toString(),
+  //   stableSwap.balances[1].toString(),
+  //   stableSwap.lpTokenSupply.toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  // ]);
 }
 
 export function removeLiquidity(
@@ -510,19 +510,19 @@ export function removeLiquidity(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
-  log.warning("Liquidity Removed!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}", [
-    stableSwapKey.toHexString(),
-    amounts[0].toString(),
-    amounts[1].toString(),
-    balances[0].toString(),
-    balances[1].toString(),
-    stableSwap.balances[0].toString(),
-    stableSwap.balances[1].toString(),
-    stableSwap.lpTokenSupply.toString(),
-    stableSwap.invariant.toString(),
-    stableSwap.virtualPrice.toString(),
-    timestamp.toString(),
-  ]);
+  // log.warning("Liquidity Removed!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   amounts[0].toString(),
+  //   amounts[1].toString(),
+  //   balances[0].toString(),
+  //   balances[1].toString(),
+  //   stableSwap.balances[0].toString(),
+  //   stableSwap.balances[1].toString(),
+  //   stableSwap.lpTokenSupply.toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  //   timestamp.toString(),
+  // ]);
 }
 
 export function removeLiquidityImbalance(
