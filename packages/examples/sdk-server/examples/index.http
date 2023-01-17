@@ -14,18 +14,18 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/1869640809
+POST {{baseUrl}}/sendTransaction/1886350457
 Content-Type: application/json
 
 {
-  "to": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
+  "to": "0x11984dc4465481512eb5b777E44061C158CF2259",
   "value": {
     "type": "BigNumber",
-    "hex": "0x174876e800"
+    "hex": "0x9c9a8b9e4914"
   },
   "data": "0x2424401f05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
   "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94",
-  "chainId": 10
+  "chainId": 137
 }
 
 ##############
@@ -259,9 +259,20 @@ POST {{baseUrl}}/bumpTransfer
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "1886350457",
   "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
-  "relayerFee": "100000000000"
+  "relayerFee": "172187581303060"
+}
+
+##############
+### POST updateSlippage 
+POST {{baseUrl}}/updateSlippage
+Content-Type: application/json
+
+{
+  "domainId": "1886350457",
+  "transferId": "0xd39c199488f004039d9ec1705c45ee05bf2a3bb8d5ec21ef45a72e6627752127",
+  "slippage": "1000"
 }
 
 ##############

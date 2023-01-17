@@ -318,10 +318,10 @@ export class NxtpSdkBase extends NxtpSdkShared {
   }
 
   /**
-   * Updates the slippage tolerance for a specific transfer on origin; only the origin sender is allowed to do so.
+   * Updates the slippage tolerance for a specific transfer on destination; only the delegate is allowed to do so.
    *
    * @param params - SdkUpdateSlippageParams object.
-   * @param params.domainId - The origin domain ID of the transfer.
+   * @param params.domainId - The destination domain ID of the transfer.
    * @param params.transferId - The transfer ID.
    * @param params.slippage - The new relayer fee to use for this transfer, in BPS.
    * @returns providers.TransactionRequest object.
@@ -331,7 +331,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * // call NxtpSdkBase.create(), instantiate a signer
    *
    * const params = {
-   *   domainId: "6648936",
+   *   domainId: "1886350457",
    *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
    *   slippage: "1000",
    * };

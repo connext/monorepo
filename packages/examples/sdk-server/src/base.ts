@@ -1,6 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase, SdkXCallParamsSchema, SdkXCallParams, SdkBumpTransferParamsSchema } from "@connext/nxtp-sdk";
+import {
+  NxtpSdkBase,
+  SdkXCallParamsSchema,
+  SdkXCallParams,
+  SdkBumpTransferParamsSchema,
+  SdkUpdateSlippageParamsSchema,
+} from "@connext/nxtp-sdk";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 
@@ -43,6 +49,19 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
     async (request, reply) => {
       const txReq = await sdkBaseInstance.bumpTransfer(request.body);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post(
+    "/updateSlippage",
+    {
+      schema: {
+        body: SdkUpdateSlippageParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.updateSlippage(request.body);
       reply.status(200).send(txReq);
     },
   );
