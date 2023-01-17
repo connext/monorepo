@@ -2382,6 +2382,7 @@ __metadata:
     mocha: 10.1.0
     nodemon: 2.0.20
     nyc: 15.1.0
+    pg: 8.8.0
     pino: 8.7.0
     pino-pretty: 9.1.1
     prom-client: 14.1.0

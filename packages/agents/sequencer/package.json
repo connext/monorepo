@@ -47,6 +47,7 @@
     "fastify": "4.9.2",
     "foo-foo-mq": "7.1.0",
     "interval-promise": "1.4.0",
+    "pg": "8.8.0",
     "pino": "8.7.0",
     "prom-client": "14.1.0",
     "tsc": "2.0.4"
