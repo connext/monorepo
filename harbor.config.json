@@ -28,6 +28,9 @@
                         "chainId": 1337,
                         "accounts": {
                             "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+                        },
+                        "mining": {
+                            "interval": 1000
                         }
                     }
                 ],
@@ -62,6 +65,9 @@
                         "chainId": 1338,
                         "accounts": {
                             "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+                        },
+                        "mining": {
+                            "interval": 1000
                         },
                         "companionNetworks": {
                             "hub": "local_1337"
