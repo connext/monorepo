@@ -17,6 +17,7 @@ export const calculateRelayerFee = async (
     destinationNativeToken?: string;
     callDataGasAmount?: number;
     isHighPriority?: boolean;
+    gasPrice?: BigNumber;
   },
   chainData: Map<string, ChainData>,
   logger?: Logger,
@@ -28,6 +29,7 @@ export const calculateRelayerFee = async (
     originNativeToken: _originNativeToken,
     destinationNativeToken: _destinationNativeToken,
     isHighPriority: _isHighPriority,
+    gasPrice,
   } = params;
 
   const originNativeToken = _originNativeToken ?? constants.AddressZero;
@@ -54,12 +56,16 @@ export const calculateRelayerFee = async (
   const totalGasAmount = callDataGasAmount
     ? Number(executeGasAmount) + Number(callDataGasAmount)
     : Number(executeGasAmount);
-  const estimatedRelayerFee = await getGelatoEstimatedFee(
+  let estimatedRelayerFee = await getGelatoEstimatedFee(
     destinationChainId,
     destinationNativeToken,
     Number(totalGasAmount),
     isHighPriority,
   );
+
+  if (estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && gasPrice)) {
+    estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice!);
+  }
 
   if (logger) {
     logger.info("Gas Price estimates", undefined, undefined, {
