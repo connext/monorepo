@@ -169,6 +169,12 @@ variable "relayer_web3_signer_private_key" {
   type = string
 }
 
+variable "full_image_name_watcher" {
+  type        = string
+  description = "watcher image name"
+  default     = "ghcr.io/connext/watcher:sha-b5bb49a"
+}
+
 variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
@@ -176,4 +182,33 @@ variable "admin_token_relayer" {
 
 variable "graph_api_key" {
   type = string
+}
+
+variable "watcher_web3_signer_private_key" {
+  type = string
+}
+variable "admin_token_watcher" {
+  type    = string
+  default = "blahblah"
+}
+
+variable "discord_webhook_key" {
+  type = string
+}
+
+variable "telegram_api_key" {
+  type = string
+}
+
+variable "telegram_chat_id" {
+  type = string
+}
+
+variable "betteruptime_api_key" {
+  type = string
+}
+
+variable "betteruptime_requester_email" {
+  type = string
+  default = "layne@connext.network"
 }

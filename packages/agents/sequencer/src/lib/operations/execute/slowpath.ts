@@ -5,6 +5,7 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -102,7 +103,7 @@ export const executeSlowPathData = async (
 ): Promise<{ taskId: string | undefined }> => {
   const {
     logger,
-    adapters: { cache },
+    adapters: { cache, database },
   } = getContext();
 
   const {
@@ -140,6 +141,11 @@ export const executeSlowPathData = async (
   const { canSubmit, needed } = await canSubmitToRelayer(transfer);
   if (!canSubmit) {
     await cache.executors.setExecStatus(transferId, ExecStatus.None);
+    if (transfer.origin) {
+      transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+      await database.saveTransfers([transfer]);
+    }
+
     throw new NotEnoughRelayerFee({ transferId, relayerFee: transfer.origin?.relayerFee, needed });
   }
 

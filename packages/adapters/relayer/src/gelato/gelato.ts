@@ -150,7 +150,16 @@ export const gelatoSDKSend = async (
   return response;
 };
 
-const GAS_LIMIT_FOR_RELAYER = "4000000";
+const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
+  switch (chainId) {
+    case 42161: {
+      return "10000000";
+    }
+    default: {
+      return "6000000";
+    }
+  }
+};
 
 export const gelatoV0Send = async (
   chainId: number,
@@ -167,7 +176,7 @@ export const gelatoV0Send = async (
     data,
     token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     relayerFee,
-    gasLimit: GAS_LIMIT_FOR_RELAYER,
+    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
   };
   try {
     logger.info("Sending request to gelato relay", requestContext, methodContext, params);
