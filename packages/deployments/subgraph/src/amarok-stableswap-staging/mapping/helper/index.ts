@@ -1,5 +1,6 @@
-/* eslint-disable */
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-types */
+import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 
 import {
   SystemInfo,
@@ -22,11 +23,11 @@ export function getSystemInfo(): SystemInfo {
     state.swapCount = BigInt.fromI32(0);
   }
 
-  return state as SystemInfo;
+  return state;
 }
 
 export function getOrCreateStableSwap(_stableSwapKey: Bytes): StableSwap {
-  let stableSwapId = _stableSwapKey.toHex();
+  const stableSwapId = _stableSwapKey.toHex();
   let stableSwap = StableSwap.load(stableSwapId);
 
   if (stableSwap == null) {
@@ -41,10 +42,11 @@ export function getOrCreateStableSwap(_stableSwapKey: Bytes): StableSwap {
     stableSwap.tokenPrecisionMultipliers = [];
     stableSwap.lpTokenSupply = BigInt.zero();
     stableSwap.invariant = BigInt.zero();
+    stableSwap.virtualPrice = BigInt.zero();
 
     stableSwap.save();
 
-    let system = getSystemInfo();
+    const system = getSystemInfo();
     system.swapCount = system.swapCount.plus(BigInt.fromI32(1));
     system.save();
   }
@@ -53,14 +55,14 @@ export function getOrCreateStableSwap(_stableSwapKey: Bytes): StableSwap {
 }
 
 export function getStableSwapCurrentA(stableSwapKey: Bytes, timestamp: BigInt): BigInt {
-  let stableSwap = getOrCreateStableSwap(stableSwapKey);
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
 
-  let t1 = stableSwap.futureATime!; // time when ramp is finished
-  let a1 = stableSwap.futureA!; // final A value when ramp is finished
+  const t1 = stableSwap.futureATime!; // time when ramp is finished
+  const a1 = stableSwap.futureA!; // final A value when ramp is finished
 
   if (timestamp.lt(t1)) {
-    let t0 = stableSwap.initialATime!; // time when ramp is started
-    let a0 = stableSwap.initialA!; // initial A value when ramp is started
+    const t0 = stableSwap.initialATime!; // time when ramp is started
+    const a0 = stableSwap.initialA!; // initial A value when ramp is started
     if (a1 > a0) {
       // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0)
       return a0.plus(a1.minus(a0).times(timestamp.minus(t0)).div(t1.minus(t0)));
@@ -73,18 +75,22 @@ export function getStableSwapCurrentA(stableSwapKey: Bytes, timestamp: BigInt): 
   }
 }
 
-export function getVirtualPrice(stableSwapKey: Bytes): BigInt {
-  let stableSwap = getOrCreateStableSwap(stableSwapKey);
-  let lpTokenSupply = stableSwap.lpTokenSupply!;
-
+export function getVirtualPriceEx(invariant: BigInt, lpTokenSupply: BigInt): BigInt {
   if (lpTokenSupply.isZero()) {
     return BigInt.zero();
   }
-  return stableSwap.invariant!.times(BigInt.fromI32(10).pow(18)).div(lpTokenSupply);
+  return invariant.times(BigInt.fromI32(10).pow(18)).div(lpTokenSupply);
+}
+
+export function getVirtualPrice(stableSwapKey: Bytes): BigInt {
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
+  const lpTokenSupply = stableSwap.lpTokenSupply!;
+
+  return getVirtualPriceEx(stableSwap.invariant!, lpTokenSupply);
 }
 
 export function getOrCreatePooledToken(asset: Address): PooledToken {
-  let pooledTokenId = asset.toHex();
+  const pooledTokenId = asset.toHex();
   let pooledToken = PooledToken.load(pooledTokenId);
 
   if (pooledToken == null) {
@@ -97,9 +103,9 @@ export function getOrCreatePooledToken(asset: Address): PooledToken {
 }
 
 export function getSwapHourlyTradeVolume(stableSwap: StableSwap, timestamp: BigInt): SwapHourlyVolume {
-  let interval = BigInt.fromI32(60 * 60);
-  let hour = timestamp.div(interval).times(interval);
-  let id = stableSwap.id + "-hour-" + hour.toString();
+  const interval = BigInt.fromI32(60 * 60);
+  const hour = timestamp.div(interval).times(interval);
+  const id = stableSwap.id + "-hour-" + hour.toString();
 
   let volume = SwapHourlyVolume.load(id);
 
@@ -114,9 +120,9 @@ export function getSwapHourlyTradeVolume(stableSwap: StableSwap, timestamp: BigI
 }
 
 export function getSwapDailyTradeVolume(stableSwap: StableSwap, timestamp: BigInt): SwapDailyVolume {
-  let interval = BigInt.fromI32(60 * 60 * 24);
-  let day = timestamp.div(interval).times(interval);
-  let id = stableSwap.id + "-day-" + day.toString();
+  const interval = BigInt.fromI32(60 * 60 * 24);
+  const day = timestamp.div(interval).times(interval);
+  const id = stableSwap.id + "-day-" + day.toString();
 
   let volume = SwapDailyVolume.load(id);
 
@@ -131,9 +137,9 @@ export function getSwapDailyTradeVolume(stableSwap: StableSwap, timestamp: BigIn
 }
 
 export function getSwapWeeklyTradeVolume(stableSwap: StableSwap, timestamp: BigInt): SwapWeeklyVolume {
-  let interval = BigInt.fromI32(60 * 60 * 24 * 7);
-  let week = timestamp.div(interval).times(interval);
-  let id = stableSwap.id + "-week-" + week.toString();
+  const interval = BigInt.fromI32(60 * 60 * 24 * 7);
+  const week = timestamp.div(interval).times(interval);
+  const id = stableSwap.id + "-week-" + week.toString();
 
   let volume = SwapWeeklyVolume.load(id);
 
@@ -148,8 +154,8 @@ export function getSwapWeeklyTradeVolume(stableSwap: StableSwap, timestamp: BigI
 }
 
 // Stable swap Logic
-function within1(a: BigInt, b: BigInt): Boolean {
-  let difference = a.gt(b) ? a.minus(b) : b.minus(a);
+function within1(a: BigInt, b: BigInt): boolean {
+  const difference = a.gt(b) ? a.minus(b) : b.minus(a);
   return difference.lt(BigInt.fromI32(2)); // instead of <=1
 }
 
@@ -158,8 +164,8 @@ function _getAPrecise(stableSwap: StableSwap, timestamp: BigInt): BigInt {
 }
 
 function _xp(stableSwap: StableSwap): BigInt[] {
-  let numTokens = stableSwap.balances.length;
-  let xp: BigInt[] = [];
+  const numTokens = stableSwap.balances.length;
+  const xp: BigInt[] = [];
   for (let i = 0; i < numTokens; i++) {
     xp.push(stableSwap.balances[i].times(stableSwap.tokenPrecisionMultipliers[i]));
   }
@@ -167,104 +173,92 @@ function _xp(stableSwap: StableSwap): BigInt[] {
 }
 
 function _xpp(balances: BigInt[], precisionMultipliers: BigInt[]): BigInt[] {
-  let numTokens = balances.length;
-  let xp = new Array<BigInt>(numTokens);
+  const numTokens = balances.length;
+  const xp = new Array<BigInt>(numTokens);
   for (let i = 0; i < numTokens; i++) {
     xp[i] = balances[i].times(precisionMultipliers[i]);
   }
   return xp;
 }
 
-function _feePerToken(swapFee: BigInt, numTokens: number): BigInt {
-  return swapFee.times(BigInt.fromI32(numTokens)).div(BigInt.fromI32((numTokens - 1) * 4));
+function _feePerToken(swapFee: BigInt, numTokens: BigInt): BigInt {
+  return swapFee.times(numTokens).div(numTokens.minus(BigInt.fromI32(1)).times(BigInt.fromI32(4)));
 }
 
 export function calculateWithdrawOneToken(
   stableSwap: StableSwap,
   tokenAmount: BigInt,
-  tokenIndex: number,
+  tokenIndex: BigInt,
   timestamp: BigInt,
 ): BigInt {
-  let { dy, dyFee } = _calculateWithdrawOneToken(
-    stableSwap,
-    tokenAmount,
-    tokenIndex,
-    stableSwap.lpTokenSupply!,
-    timestamp,
-  );
-  return dy;
+  const res = _calculateWithdrawOneToken(stableSwap, tokenAmount, tokenIndex, stableSwap.lpTokenSupply!, timestamp);
+
+  return res[0];
 }
 
 function _calculateWithdrawOneToken(
   stableSwap: StableSwap,
   tokenAmount: BigInt,
-  tokenIndex: number,
+  tokenIndex: BigInt,
   totalSupply: BigInt,
   timestamp: BigInt,
-): { dy: BigInt; dyFee: BigInt } {
-  let { dy, newY, currentY } = calculateWithdrawOneTokenDY(stableSwap, tokenIndex, tokenAmount, totalSupply, timestamp);
+): BigInt[] {
+  const res = calculateWithdrawOneTokenDY(stableSwap, tokenIndex, tokenAmount, totalSupply, timestamp);
 
-  // dy_0 (without fees)
-  // dy, dy_0 - dy
+  const dyFee = res[2].minus(res[1]).div(stableSwap.tokenPrecisionMultipliers[tokenIndex.toI32()]).minus(res[0]);
 
-  let dyFee = currentY.minus(newY).div(stableSwap.tokenPrecisionMultipliers[tokenIndex]).minus(dy);
-
-  return { dy, dyFee };
+  return [res[0], dyFee];
 }
 
 export function calculateWithdrawOneTokenDY(
   stableSwap: StableSwap,
-  tokenIndex: number,
+  tokenIndex: BigInt,
   tokenAmount: BigInt,
   totalSupply: BigInt,
   timestamp: BigInt,
-): {
-  dy: BigInt;
-  newY: BigInt;
-  currentY: BigInt;
-} {
+): BigInt[] {
   // Get the current D, then solve the stableswap invariant
   // y_i for D - tokenAmount
-  let xp: BigInt[] = _xp(stableSwap);
+  const xp: BigInt[] = _xp(stableSwap);
 
-  let v_preciseA = _getAPrecise(stableSwap, timestamp);
-  let v_d0 = getD(xp, v_preciseA);
-  let v_d1 = v_d0.minus(tokenAmount.times(v_d0).div(totalSupply));
+  const v_preciseA = _getAPrecise(stableSwap, timestamp);
+  const v_d0 = getD(xp, v_preciseA);
+  const v_d1 = v_d0.minus(tokenAmount.times(v_d0).div(totalSupply));
 
-  let v_newY = getYD(v_preciseA, tokenIndex, xp, v_d1);
+  const v_newY = getYD(v_preciseA, tokenIndex, xp, v_d1);
 
-  let xpReduced = new Array<BigInt>(xp.length);
+  const xpReduced = new Array<BigInt>(xp.length);
 
-  let v_feePerToken = _feePerToken(stableSwap.swapFee!, xp.length);
+  const v_feePerToken = _feePerToken(stableSwap.swapFee!, BigInt.fromI32(xp.length));
   // TODO: Set a length variable (at top) instead of reading xp.length on each loop.
-  let len = xp.length;
+  const len = xp.length;
   for (let i = 0; i < len; i++) {
-    let xpi = xp[i];
+    const xpi = xp[i];
     // if i == tokenIndex, dxExpected = xp[i] * d1 / d0 - newY
     // else dxExpected = xp[i] - (xp[i] * d1 / d0)
     // xpReduced[i] -= dxExpected * fee / FEE_DENOMINATOR
     xpReduced[i] = xpi.minus(
-      (i == tokenIndex ? xpi.times(v_d1).div(v_d0).minus(v_newY) : xpi.minus(xpi.times(v_d1).div(v_d0)))
+      (i == tokenIndex.toI32() ? xpi.times(v_d1).div(v_d0).minus(v_newY) : xpi.minus(xpi.times(v_d1).div(v_d0)))
         .times(v_feePerToken)
         .div(BigInt.fromI32(10).pow(10)),
     );
   }
 
-  let dy = xpReduced[tokenIndex].minus(getYD(v_preciseA, tokenIndex, xpReduced, v_d1));
-  dy = dy.minus(BigInt.fromI32(1)).div(stableSwap.tokenPrecisionMultipliers[tokenIndex]);
+  let dy = xpReduced[tokenIndex.toI32()].minus(getYD(v_preciseA, tokenIndex, xpReduced, v_d1));
+  dy = dy.minus(BigInt.fromI32(1)).div(stableSwap.tokenPrecisionMultipliers[tokenIndex.toI32()]);
 
-  return { dy, newY: v_newY, currentY: xp[tokenIndex] };
+  return [dy, v_newY, xp[tokenIndex.toI32()]];
 }
 
-export function getYD(a: BigInt, tokenIndex: number, xp: BigInt[], d: BigInt): BigInt {
-  let numTokens = xp.length;
+export function getYD(a: BigInt, tokenIndex: BigInt, xp: BigInt[], d: BigInt): BigInt {
+  const numTokens = xp.length;
 
   let c = d;
   let s = BigInt.zero();
-  let nA = a.times(BigInt.fromI32(numTokens));
+  const nA = a.times(BigInt.fromI32(numTokens));
 
   for (let i = 0; i < numTokens; i++) {
-    if (i != tokenIndex) {
+    if (i != tokenIndex.toI32()) {
       s = s.plus(xp[i]);
       c = c.times(d).div(xp[i].times(BigInt.fromI32(numTokens)));
       // If we were to protect the division loss we would have to keep the denominator separate
@@ -272,14 +266,14 @@ export function getYD(a: BigInt, tokenIndex: number, xp: BigInt[], d: BigInt): B
       // c = c * D * D * D * ... overflow!
     }
   }
-  let A_PRECISION = BigInt.fromI32(100);
+  const A_PRECISION = BigInt.fromI32(100);
   c = c
     .times(d)
     .times(A_PRECISION)
     .div(nA.times(BigInt.fromI32(numTokens)));
 
-  let b = s.plus(d.times(A_PRECISION).div(nA));
-  let yPrev;
+  const b = s.plus(d.times(A_PRECISION).div(nA));
+  let yPrev: BigInt;
   let y = d;
   for (let i = 0; i < 256; i++) {
     yPrev = y;
@@ -295,7 +289,7 @@ export function getYD(a: BigInt, tokenIndex: number, xp: BigInt[], d: BigInt): B
 }
 
 export function getD(xp: BigInt[], a: BigInt): BigInt {
-  let numTokens = BigInt.fromI32(xp.length);
+  const numTokens = BigInt.fromI32(xp.length);
   let s = BigInt.zero();
   for (let i = 0; i < numTokens.toI32(); i++) {
     s = s.plus(xp[i]);
@@ -305,10 +299,10 @@ export function getD(xp: BigInt[], a: BigInt): BigInt {
     return BigInt.zero();
   }
 
-  let prevD;
+  let prevD: BigInt;
   let d = s;
-  let nA = a.times(numTokens);
-  let A_PRECISION = BigInt.fromI32(100);
+  const nA = a.times(numTokens);
+  const A_PRECISION = BigInt.fromI32(100);
 
   for (let i = 0; i < 256; i++) {
     let dP = d;
@@ -343,20 +337,20 @@ export function getD(xp: BigInt[], a: BigInt): BigInt {
   return BigInt.zero();
 }
 
-export function getY(preciseA: BigInt, tokenIndexFrom: number, tokenIndexTo: number, x: BigInt, xp: BigInt[]): BigInt {
-  let numTokens = BigInt.fromI32(xp.length);
+export function getY(preciseA: BigInt, tokenIndexFrom: BigInt, tokenIndexTo: BigInt, x: BigInt, xp: BigInt[]): BigInt {
+  const numTokens = BigInt.fromI32(xp.length);
 
-  let d = getD(xp, preciseA);
+  const d = getD(xp, preciseA);
   let c = d;
   let s = BigInt.zero();
-  let nA = numTokens.times(preciseA);
-  let A_PRECISION = BigInt.fromI32(100);
+  const nA = numTokens.times(preciseA);
+  const A_PRECISION = BigInt.fromI32(100);
 
-  let _x;
+  let _x: BigInt;
   for (let i = 0; i < numTokens.toI32(); i++) {
-    if (i == tokenIndexFrom) {
+    if (i == tokenIndexFrom.toI32()) {
       _x = x;
-    } else if (i != tokenIndexTo) {
+    } else if (i != tokenIndexTo.toI32()) {
       _x = xp[i];
     } else {
       continue;
@@ -368,8 +362,8 @@ export function getY(preciseA: BigInt, tokenIndexFrom: number, tokenIndexTo: num
     // c = c * D * D * D * ... overflow!
   }
   c = c.times(d).times(A_PRECISION).div(nA.times(numTokens));
-  let b = s.plus(d.times(A_PRECISION).div(nA));
-  let yPrev;
+  const b = s.plus(d.times(A_PRECISION).div(nA));
+  let yPrev: BigInt;
   let y = d;
 
   // iterative approximation
@@ -388,150 +382,202 @@ export function getY(preciseA: BigInt, tokenIndexFrom: number, tokenIndexTo: num
 
 function _calculateSwap(
   stableSwap: StableSwap,
-  tokenIndexFrom: number,
-  tokenIndexTo: number,
+  tokenIndexFrom: BigInt,
+  tokenIndexTo: BigInt,
   dx: BigInt,
   balances: BigInt[],
   timestamp: BigInt,
-): { dy: BigInt; dyFee: BigInt } {
-  let multipliers = stableSwap.tokenPrecisionMultipliers;
-  let xp = _xpp(balances, multipliers);
+): BigInt[] {
+  const multipliers = stableSwap.tokenPrecisionMultipliers;
+  const xp = _xpp(balances, multipliers);
 
-  let x = dx.times(multipliers[tokenIndexFrom]).plus(xp[tokenIndexFrom]);
-  let y = getY(_getAPrecise(stableSwap, timestamp), tokenIndexFrom, tokenIndexTo, x, xp);
-  let dy = xp[tokenIndexTo].minus(y).minus(BigInt.fromI32(1));
-  let dyFee = dy.times(stableSwap.swapFee!).div(BigInt.fromI32(10).pow(10));
-  dy = dy.minus(dyFee).div(multipliers[tokenIndexTo]);
+  const x = dx.times(multipliers[tokenIndexFrom.toI32()]).plus(xp[tokenIndexFrom.toI32()]);
+  const y = getY(_getAPrecise(stableSwap, timestamp), tokenIndexFrom, tokenIndexTo, x, xp);
+  let dy = xp[tokenIndexTo.toI32()].minus(y).minus(BigInt.fromI32(1));
+  const dyFee = dy.times(stableSwap.swapFee!).div(BigInt.fromI32(10).pow(10));
+  dy = dy.minus(dyFee).div(multipliers[tokenIndexTo.toI32()]);
 
-  return {
-    dy,
-    dyFee,
-  };
+  return [dy, dyFee];
 }
 
-function _calculateSwapInv(
-  stableSwap: StableSwap,
-  tokenIndexFrom: number,
-  tokenIndexTo: number,
+export function swap(
+  stableSwapKey: Bytes,
+  tokenIndexFrom: BigInt,
+  tokenIndexTo: BigInt,
+  dx: BigInt,
   dy: BigInt,
-  balances: BigInt[],
   timestamp: BigInt,
-): { dx: BigInt; dxFee: BigInt } {
-  let multipliers = stableSwap.tokenPrecisionMultipliers;
-  let xp = _xpp(balances, multipliers);
+): void {
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
+  const balances = stableSwap.balances;
 
-  let a = _getAPrecise(stableSwap, timestamp);
-  let d0 = getD(xp, a);
+  const res = _calculateSwap(stableSwap, tokenIndexFrom, tokenIndexTo, dx, balances, timestamp);
 
-  xp[tokenIndexTo] = xp[tokenIndexTo].minus(dy.times(multipliers[tokenIndexTo]));
-  let x = getYD(a, tokenIndexFrom, xp, d0);
-  let dx = x.plus(BigInt.fromI32(1)).minus(xp[tokenIndexFrom]);
-  let dxFee = dx.times(stableSwap.swapFee!).div(BigInt.fromI32(10).pow(10));
-  dx = dx.plus(dxFee).div(multipliers[tokenIndexFrom]);
-  return {
-    dx,
-    dxFee,
-  };
+  const dyAdminFee = res[1]
+    .times(stableSwap.adminFee!)
+    .div(BigInt.fromI32(10).pow(10))
+    .div(stableSwap.tokenPrecisionMultipliers[tokenIndexTo.toI32()]);
+
+  const newBalances = new Array<BigInt>(balances.length);
+  newBalances[tokenIndexFrom.toI32()] = balances[tokenIndexFrom.toI32()].plus(dx);
+  newBalances[tokenIndexTo.toI32()] = balances[tokenIndexTo.toI32()].minus(dy).minus(dyAdminFee);
+
+  stableSwap.balances = newBalances;
+  stableSwap.invariant = getD(
+    _xpp(stableSwap.balances, stableSwap.tokenPrecisionMultipliers),
+    _getAPrecise(stableSwap, timestamp),
+  );
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply!);
+  stableSwap.save();
+
+  // log.warning("Swap Saved!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   tokenIndexFrom.toString(),
+  //   tokenIndexTo.toString(),
+  //   dx.toString(),
+  //   dy.toString(),
+  //   dyAdminFee.toString(),
+  //   balances[tokenIndexFrom.toI32()].toString(),
+  //   balances[tokenIndexTo.toI32()].toString(),
+  //   stableSwap.balances[tokenIndexFrom.toI32()].toString(),
+  //   stableSwap.balances[tokenIndexTo.toI32()].toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  //   timestamp.toString(),
+  // ]);
 }
 
-function _calculateRemoveLiquidity(balances: BigInt[], amount: BigInt, totalSupply: BigInt): BigInt[] {
-  let numBalances = balances.length;
-  let amounts = new Array<BigInt>(numBalances);
+export function addLiquidity(
+  stableSwapKey: Bytes,
+  amounts: BigInt[],
+  fees: BigInt[],
+  invariant: BigInt,
+  lpTokenSupply: BigInt,
+): void {
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
+  const balances = stableSwap.balances;
 
-  for (let i = 0; i < numBalances; i++) {
-    amounts[i] = balances[i].times(amount).div(totalSupply);
-  }
-  return amounts;
-}
+  const newBalances = new Array<BigInt>(balances.length);
+  for (let i = 0; i < balances.length; i++) {
+    newBalances[i] = balances[i].plus(amounts[i]);
 
-function calculateTokenAmount(stableSwap: StableSwap, amounts: BigInt[], deposit: boolean, timestamp: BigInt): BigInt {
-  let balances = stableSwap.balances;
-  let numBalances = balances.length;
-
-  let a = _getAPrecise(stableSwap, timestamp);
-  let multipliers = stableSwap.tokenPrecisionMultipliers;
-
-  let d0 = getD(_xpp(balances, multipliers), a);
-  for (let i = 0; i < numBalances; i++) {
-    if (deposit) {
-      balances[i] = balances[i].plus(amounts[i]);
-    } else {
-      balances[i] = balances[i].minus(amounts[i]);
+    if (!stableSwap.lpTokenSupply.isZero()) {
+      const adminFee = fees[i].times(stableSwap.adminFee!).div(BigInt.fromI32(10).pow(10));
+      newBalances[i] = newBalances[i].minus(adminFee);
     }
   }
 
-  let d1 = getD(_xpp(balances, multipliers), a);
-  let totalSupply = stableSwap.lpTokenSupply!;
+  stableSwap.balances = newBalances;
+  stableSwap.invariant = invariant;
+  stableSwap.lpTokenSupply = lpTokenSupply;
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
+  stableSwap.save();
 
-  if (deposit) {
-    return d1.minus(d0).times(totalSupply).div(d0);
-  } else {
-    return d0.minus(d1).times(totalSupply).div(d0);
-  }
+  // log.warning("Liquidity Added!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   amounts[0].toString(),
+  //   amounts[1].toString(),
+  //   fees[0].toString(),
+  //   fees[1].toString(),
+  //   stableSwap.balances[0].toString(),
+  //   stableSwap.balances[1].toString(),
+  //   stableSwap.lpTokenSupply.toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  // ]);
 }
 
-export function swapInternal(
-  stableSwap: StableSwap,
-  tokenIndexFrom: number,
-  tokenIndexTo: number,
-  dx: BigInt,
-  minDy: BigInt,
+export function removeLiquidity(
+  stableSwapKey: Bytes,
+  amounts: BigInt[],
+  lpTokenSupply: BigInt,
   timestamp: BigInt,
 ): void {
-  let balances = stableSwap.balances!;
-  let { dy, dyFee } = _calculateSwap(stableSwap, tokenIndexFrom, tokenIndexTo, dx, balances, timestamp);
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
+  const balances = stableSwap.balances;
 
-  let dyAdminFee = dyFee
-    .times(stableSwap.adminFee!)
-    .div(BigInt.fromI32(10).pow(10))
-    .div(stableSwap.tokenPrecisionMultipliers[tokenIndexTo]);
-
-  stableSwap.balances[tokenIndexFrom] = balances[tokenIndexFrom].plus(dx);
-  stableSwap.balances[tokenIndexTo] = balances[tokenIndexTo].minus(dy).minus(dyAdminFee);
-
-  if (!dyAdminFee.isZero()) {
-    stableSwap.adminFees[tokenIndexTo] = stableSwap.adminFees[tokenIndexTo].plus(dyAdminFee);
+  const newBalances = new Array<BigInt>(balances.length);
+  for (let i = 0; i < amounts.length; i++) {
+    newBalances[i] = balances[i].minus(amounts[i]);
   }
 
+  stableSwap.balances = newBalances;
+  stableSwap.lpTokenSupply = lpTokenSupply;
   stableSwap.invariant = getD(
     _xpp(stableSwap.balances, stableSwap.tokenPrecisionMultipliers),
     _getAPrecise(stableSwap, timestamp),
   );
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
-  stableSwap.virtualPrice = getVirtualPrice(stableSwap.key);
+  // log.warning("Liquidity Removed!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}", [
+  //   stableSwapKey.toHexString(),
+  //   amounts[0].toString(),
+  //   amounts[1].toString(),
+  //   balances[0].toString(),
+  //   balances[1].toString(),
+  //   stableSwap.balances[0].toString(),
+  //   stableSwap.balances[1].toString(),
+  //   stableSwap.lpTokenSupply.toString(),
+  //   stableSwap.invariant.toString(),
+  //   stableSwap.virtualPrice.toString(),
+  //   timestamp.toString(),
+  // ]);
+}
+
+export function removeLiquidityImbalance(
+  stableSwapKey: Bytes,
+  amounts: BigInt[],
+  fees: BigInt[],
+  invariant: BigInt,
+  lpTokenSupply: BigInt,
+): void {
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
+
+  const newBalances = new Array<BigInt>(stableSwap.balances.length);
+  for (let i = 0; i < amounts.length; i++) {
+    const adminFee = fees[i].times(stableSwap.adminFee!).div(BigInt.fromI32(10).pow(10));
+    newBalances[i] = stableSwap.balances[i].minus(amounts[i]).minus(adminFee);
+  }
+
+  stableSwap.balances = newBalances;
+  stableSwap.lpTokenSupply = lpTokenSupply;
+  stableSwap.invariant = invariant;
+
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 }
 
-export function swapInternalOut(
-  stableSwap: StableSwap,
-  tokenIndexFrom: number,
-  tokenIndexTo: number,
-  dy: BigInt,
-  maxDx: BigInt,
+export function removeLiquidityOneToken(
+  stableSwapKey: Bytes,
+  lpTokenAmount: BigInt,
+  lpTokenSupply: BigInt,
+  boughtId: BigInt,
+  tokensBought: BigInt,
   timestamp: BigInt,
 ): void {
-  let balances = stableSwap.balances;
-  let { dx, dxFee } = _calculateSwapInv(stableSwap, tokenIndexFrom, tokenIndexTo, dy, balances, timestamp);
+  const stableSwap = getOrCreateStableSwap(stableSwapKey);
 
-  let dxAdminFee = dxFee
-    .times(stableSwap.adminFee!)
-    .div(BigInt.fromI32(10).pow(10))
-    .div(stableSwap.tokenPrecisionMultipliers[tokenIndexFrom]);
+  const newBalances = new Array<BigInt>(stableSwap.balances.length);
 
-  stableSwap.balances[tokenIndexFrom] = balances[tokenIndexFrom].plus(dx).minus(dxAdminFee);
-  stableSwap.balances[tokenIndexTo] = balances[tokenIndexTo].minus(dy);
+  const res = _calculateWithdrawOneToken(stableSwap, lpTokenAmount, boughtId, lpTokenSupply, timestamp);
+  const adminFee = res[1].times(stableSwap.adminFee!).div(BigInt.fromI32(10).pow(10));
 
-  if (!dxAdminFee.isZero()) {
-    stableSwap.adminFees[tokenIndexFrom] = stableSwap.adminFees[tokenIndexFrom].plus(dxAdminFee);
+  for (let i = 0; i < newBalances.length; i++) {
+    if (i === boughtId.toI32()) {
+      newBalances[i] = stableSwap.balances[i].minus(tokensBought).minus(adminFee);
+    } else {
+      newBalances[i] = stableSwap.balances[i];
+    }
   }
 
+  stableSwap.balances = newBalances;
+  stableSwap.lpTokenSupply = lpTokenSupply.minus(lpTokenAmount);
   stableSwap.invariant = getD(
     _xpp(stableSwap.balances, stableSwap.tokenPrecisionMultipliers),
     _getAPrecise(stableSwap, timestamp),
   );
-  stableSwap.save();
+  stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
 
-  stableSwap.virtualPrice = getVirtualPrice(stableSwap.key);
   stableSwap.save();
 }
