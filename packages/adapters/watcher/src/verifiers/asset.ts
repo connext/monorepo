@@ -26,7 +26,9 @@ export class AssetVerifier extends Verifier {
       if (totalMinted.gt(totalLocked)) {
         return {
           needsPause: true,
-          reason: `totalMintedAssets (${totalMinted.toString()}) is less than or equal to totalLockedAssets (${totalLocked.toString()})`,
+          reason: `totalMintedAssets (${totalMinted.toString()}) is less than or equal to totalLockedAssets (${totalLocked.toString()}) for ${
+            asset.address
+          }`,
         };
       }
     }

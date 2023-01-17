@@ -758,6 +758,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
+      TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.e2e-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
@@ -815,6 +816,7 @@ jobs:
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
+      watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
 
   terraform-services-backend-prod-testnet:
     if: github.ref == 'refs/heads/prod'
@@ -879,6 +881,7 @@ jobs:
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
+      watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
 
   terraform-services-backend-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -914,7 +917,7 @@ jobs:
           key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
 
-      - name: Decrypt Testnet Secrets
+      - name: Decrypt Mainnet Secrets
         id: decrypt
         run: sops -d ops/env/mainnet/backend/secrets.prod.json > ops/mainnet/prod/backend/tfvars.json
 
@@ -947,6 +950,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
+      TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.watcher-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
