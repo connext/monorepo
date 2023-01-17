@@ -38,9 +38,9 @@ type StableSwap @entity {
   balances: [BigInt!]!
   adminFees: [BigInt!]!
 
-  virtualPrice: BigInt
-  invariant: BigInt
-  lpTokenSupply: BigInt
+  virtualPrice: BigInt!
+  invariant: BigInt!
+  lpTokenSupply: BigInt!
 
   events: [StableSwapEvent!] @derivedFrom(field: "stableSwap")
   exchanges: [StableSwapExchange!] @derivedFrom(field: "stableSwap")
