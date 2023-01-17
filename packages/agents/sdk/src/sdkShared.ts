@@ -1,6 +1,6 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
-import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, domainToChainId, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
@@ -16,6 +16,7 @@ export class NxtpSdkShared {
   readonly config: NxtpSdkConfig;
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
+  public chainReader: ChainReader;
   protected readonly logger: Logger;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
@@ -23,6 +24,7 @@ export class NxtpSdkShared {
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
+    this.chainReader = new ChainReader(logger, config.chains);
   }
 
   getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
