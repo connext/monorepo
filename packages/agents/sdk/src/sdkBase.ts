@@ -3,7 +3,6 @@ import {
   Logger,
   createLoggingContext,
   ChainData,
-  XCallArgs,
   WETHAbi,
   MultisendTransaction,
   encodeMultisendCall,
@@ -14,16 +13,7 @@ import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/h
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
-
-type NxtpSdkXCallArgs = Omit<XCallArgs, "callData" | "delegate"> &
-  Partial<XCallArgs> & {
-    origin: string;
-    relayerFee?: string;
-  } & {
-    receiveLocal?: boolean;
-    wrapNativeOnOrigin?: boolean;
-    unwrapNativeOnDestination?: boolean;
-  };
+import { NxtpSdkXCallArgs } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.

@@ -4,5 +4,5 @@ export { NxtpSdkRouter } from "./sdkRouter";
 export { NxtpSdkPool } from "./sdkPool";
 export { NxtpSdkUtils } from "./sdkUtils";
 export { NxtpSdkConfig, NxtpSdkConfigSchema } from "./config";
-export { Pool, PoolAsset, AssetData } from "./interfaces";
+export * from "./interfaces";
 export { create } from "./sdk";
