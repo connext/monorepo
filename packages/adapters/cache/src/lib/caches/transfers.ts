@@ -91,15 +91,33 @@ export class TransfersCache extends Cache {
   }
 
   /**
+   * Prune transfers by Ids. Sometimes there could be cases we want to clear transfers by its status.
+   * In this case, `pruneTransfers(domain: number)` wouldn't work ideally
+   * because it deletes all the transfers with the lower nonce than the latest one.
+   *
+   * @param transferIds - The transfer Ids to be removed
+   */
+  public async pruneTransferByIds(transferIds: string[]): Promise<void> {
+    for (const transferId of transferIds) {
+      const transfer = await this.getTransfer(transferId);
+      if (transfer) {
+        await this.data.hdel(`${this.prefix}:transfers`, transferId);
+        await this.removePending(transfer.xparams.originDomain, transferId);
+      }
+    }
+  }
+
+  /**
    * Stores a batch of transfers in the cache. All transfer data will be stored (JSON
    * stringified). Transfers are indexed by their transferId. Additionally, adds new pending transfers
    * to the cached array of pending transfer IDs.
    *
    * @param transfers - Transfers to store. All overlapping transfers (with same ID) either
    * within the same batch or existing in the current cache will be collated upon storage.
+   * @param cleanup - Determines the post action after store action
    * @returns XTransfer data
    */
-  public async storeTransfers(transfers: XTransfer[]): Promise<void> {
+  public async storeTransfers(transfers: XTransfer[], cleanup: boolean = true): Promise<void> {
     const { sanitizeNull } = getHelpers();
     const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};
@@ -172,8 +190,10 @@ export class TransfersCache extends Cache {
         await this.data.hset(`${this.prefix}:nonce`, domain, nonce);
         await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
-      //prune old cache by domain
-      await this.pruneTransfers(parseInt(domain));
+      if (cleanup) {
+        //prune old cache by domain
+        await this.pruneTransfers(parseInt(domain));
+      }
     }
   }
 
