@@ -115,6 +115,12 @@ export const getDeployedMultisendContract = (chainId: number): { address: string
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedUnwrapperContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts["Unwrapper"] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
@@ -202,6 +208,7 @@ export type RootManagerPropagateWrapperGetter = (
 ) => { address: string; abi: any } | undefined;
 
 export type MultisendContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export type UnwrapperContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
@@ -211,6 +218,7 @@ export type ConnextContractDeployments = {
   spokeConnector: SpokeConnectorDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
+  unwrapper: UnwrapperContractDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -221,6 +229,7 @@ export const contractDeployments: ConnextContractDeployments = {
   spokeConnector: getDeployedSpokeConnecterContract,
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
+  unwrapper: getDeployedUnwrapperContract,
 };
 
 /// MARK - CONTRACT INTERFACES

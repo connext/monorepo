@@ -67,7 +67,7 @@ export class NxtpSdkShared {
 
   getChainId = memoize(
     async (domainId: string): Promise<number> => {
-      let chainId = this.config.chains[domainId].chainId;
+      let chainId = this.config.chains[domainId]?.chainId;
       if (!chainId) {
         chainId = await getChainIdFromDomain(domainId, this.chainData);
       }
