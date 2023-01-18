@@ -32,6 +32,8 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   // local
   [1337, 133712],
   [1338, 133812],
+  [13337, 133712],
+  [13338, 133812],
 ]);
 
 /**
