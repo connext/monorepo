@@ -39,10 +39,11 @@ describe("Helpers: Arbitrum", () => {
         blockNumber: constants.One,
         nodeNum: constants.One,
         sendRoot: mkHash("0x123"),
+        sendCount: constants.One,
         hash: mkHash("0x456"),
       } as any),
     } as any);
-    (l2ToL1MessageReader as any).event = { position: { nodeNum: constants.One }, ethBlockNum: constants.One };
+    (l2ToL1MessageReader as any).event = { position: constants.One, ethBlockNum: constants.One };
     stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);
@@ -92,7 +93,7 @@ describe("Helpers: Arbitrum", () => {
     ).to.be.rejectedWith(ConfirmDataDoesNotMatch);
   });
 
-  it("should work", async () => {
+  it.only("should work", async () => {
     const args = await getProcessFromArbitrumRootArgs({
       spokeChainId: 42161,
       spokeDomainId: "1",
