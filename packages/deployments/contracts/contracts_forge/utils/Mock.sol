@@ -321,11 +321,16 @@ contract UnpayableContract {
   // definitely isn't payable (and will stay that way!).
 }
 
-// An ERC20 contract that reverts when `transfer` is called.
+// An ERC20 contract that reverts when `transfer` or `withdraw` is called.
 contract RevertingERC20 {
-  bytes constant REVERT_MESSAGE = "test transfer error";
+  string constant REVERT_TRANSFER_MESSAGE = "test transfer error";
+  string constant REVERT_WITHDRAW_MESSAGE = "test withdraw error";
 
   function transfer(address account, uint256 amount) public returns (bool) {
-    revert(REVERT_MESSAGE);
+    revert(REVERT_TRANSFER_MESSAGE);
+  }
+
+  function withdraw(uint256 amount) public {
+    revert(REVERT_WITHDRAW_MESSAGE);
   }
 }
