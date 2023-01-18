@@ -139,7 +139,7 @@ export const executeFastPathData = async (
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
-  const auction = await cache.auctions.getAuction(transferId);
+  let auction = await cache.auctions.getAuction(transferId);
   if (auction) {
     const startTime = Number(auction.timestamp);
     const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
@@ -151,8 +151,10 @@ export const executeFastPathData = async (
         waitTime: config.auctionWaitTime,
       });
       const remainingTime = config.auctionWaitTime - elapsed;
-      // if (remainingTime > 0) setTimeout(() => {}, remainingTime);
-      if (remainingTime > 0) await new Promise((f) => setTimeout(f, remainingTime));
+      if (remainingTime > 0) {
+        await new Promise((f) => setTimeout(f, remainingTime));
+        auction = await cache.auctions.getAuction(transferId);
+      }
     }
   } else {
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
@@ -165,7 +167,7 @@ export const executeFastPathData = async (
   // for the fact that one transfer's auction might affect another. For instance, a router might have
   // 100 tokens to LP, but bid on 2 100-token transfers. We shouldn't send both of those bids.
 
-  const { bids, origin, destination } = auction;
+  const { bids, origin, destination } = auction!;
   logger.info("Started selecting bids", requestContext, methodContext, {
     bids,
     origin,
