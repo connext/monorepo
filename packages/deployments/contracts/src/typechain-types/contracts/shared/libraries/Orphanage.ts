@@ -30,6 +30,7 @@ import type {
 export interface OrphanageInterface extends utils.Interface {
   functions: {
     "checkOrphans(address)": FunctionFragment;
+    "checkOrphansFor(address,address)": FunctionFragment;
     "orphanedNativeTokens(address)": FunctionFragment;
     "orphanedTokens(address,address)": FunctionFragment;
     "saveOrphans(address)": FunctionFragment;
@@ -38,6 +39,7 @@ export interface OrphanageInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "checkOrphans"
+      | "checkOrphansFor"
       | "orphanedNativeTokens"
       | "orphanedTokens"
       | "saveOrphans"
@@ -46,6 +48,10 @@ export interface OrphanageInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "checkOrphans",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "checkOrphansFor",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "orphanedNativeTokens",
@@ -62,6 +68,10 @@ export interface OrphanageInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "checkOrphans",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "checkOrphansFor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -158,6 +168,12 @@ export interface Orphanage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    checkOrphansFor(
+      token: PromiseOrValue<string>,
+      parent: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     orphanedNativeTokens(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -180,6 +196,12 @@ export interface Orphanage extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  checkOrphansFor(
+    token: PromiseOrValue<string>,
+    parent: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   orphanedNativeTokens(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -199,6 +221,12 @@ export interface Orphanage extends BaseContract {
   callStatic: {
     checkOrphans(
       token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    checkOrphansFor(
+      token: PromiseOrValue<string>,
+      parent: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -262,6 +290,12 @@ export interface Orphanage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    checkOrphansFor(
+      token: PromiseOrValue<string>,
+      parent: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     orphanedNativeTokens(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -282,6 +316,12 @@ export interface Orphanage extends BaseContract {
   populateTransaction: {
     checkOrphans(
       token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    checkOrphansFor(
+      token: PromiseOrValue<string>,
+      parent: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

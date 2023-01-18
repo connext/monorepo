@@ -1,16 +1,12 @@
 [
   "constructor(address,address)",
-  "event OrphanedNativeTokens(uint256 indexed,address indexed,bytes)",
-  "event OrphanedTokens(address indexed,uint256 indexed,address indexed,bytes)",
-  "event SavedOrphans(address indexed,uint256 indexed,address indexed)",
+  "event SendUnwrappedFailed(address,bytes)",
+  "event TransferWrappedFailed(address,bytes)",
   "event UnwrappingFailed(address,bytes)",
+  "event WrongAsset(address,address,bytes)",
   "function CONNEXT() view returns (address)",
   "function WRAPPER() view returns (address)",
-  "function checkOrphans(address) view returns (uint256)",
   "function getConnext() view returns (address)",
   "function getTargetWrapperContract() view returns (address)",
-  "function orphanedNativeTokens(address) view returns (uint256)",
-  "function orphanedTokens(address,address) view returns (uint256)",
-  "function saveOrphans(address)",
   "function xReceive(bytes32,uint256,address,address,uint32,bytes) returns (bytes)"
 ]
