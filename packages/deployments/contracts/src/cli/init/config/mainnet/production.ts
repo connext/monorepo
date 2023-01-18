@@ -153,7 +153,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
-      allowlist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
+      allowlist: [
+        "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c",
+        "0x97b9dcB1AA34fE5F12b728D9166ae353d1e7f5C4", // P2P router
+      ],
     },
     sequencers: {
       allowlist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
@@ -162,6 +165,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: [
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
         "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
+        "0x43100a190c3feae37cb1f5d880e8fa8d81be5cb9", // gelato arbitrum
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
         "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007", // gelato mainnet
         "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE", // gelato polygon

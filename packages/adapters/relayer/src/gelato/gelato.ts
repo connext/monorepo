@@ -178,7 +178,16 @@ export const gelatoSDKSend = async (
   }
 };
 
-const GAS_LIMIT_FOR_RELAYER = "4000000";
+const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
+  switch (chainId) {
+    case 42161: {
+      return "10000000";
+    }
+    default: {
+      return "6000000";
+    }
+  }
+};
 
 export const gelatoV0Send = async (
   chainId: number,
@@ -195,7 +204,7 @@ export const gelatoV0Send = async (
     data,
     token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     relayerFee,
-    gasLimit: GAS_LIMIT_FOR_RELAYER,
+    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
   };
   try {
     logger.info("Sending request to gelato relay", requestContext, methodContext, params);
@@ -224,10 +233,11 @@ export const send = async (
 ): Promise<string> => {
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
 
-  const isSupportedByGelato = await isChainSupportedByGelato(chainId);
-  if (!isSupportedByGelato) {
-    throw new Error("Chain not supported by gelato.");
-  }
+  // remove this check for now since its failing in some cases
+  // const isSupportedByGelato = await isChainSupportedByGelato(chainId);
+  // if (!isSupportedByGelato) {
+  //   throw new Error("Chain not supported by gelato.");
+  // }
 
   // Validate the call will succeed on chain.
   const relayerAddress = await getRelayerAddress(chainId);

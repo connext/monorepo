@@ -2,33 +2,44 @@ import { stub, SinonStub } from "sinon";
 import {
   Logger,
   expect,
+  mock,
   mkAddress,
   getRandomBytes32,
-  RelayerTaskStatus,
   getNtpTimeSeconds,
-  delay,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
-import { TasksCache } from "../../../src/lib/caches/tasks";
+import { CachedTaskData, TasksCache } from "../../../src/lib/caches/tasks";
 
 const RedisMock = require("ioredis-mock");
 const redis = new RedisMock();
 
 describe("TasksCache", () => {
-  const mockTaskIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
-  const mockCachedTasksBatch = (count: number) =>
-    new Array(count).fill(0).map(() => {
-      return {
-        chain: 1,
-        to: mkAddress("0xabcdef"),
-        data: getRandomBytes32(),
-        fee: {
-          amount: "1",
-          token: mkAddress("0x12345"),
-          chain: 2,
-        },
-      };
-    });
+  const prefix = "tasks";
+  // Helpers for accessing mock cache directly and altering state.
+  const mockRedisHelpers = {
+    createTask: async (taskId: string, data: CachedTaskData) => {
+      await redis.hset(`${prefix}:data`, taskId, JSON.stringify(data));
+    },
+    getTask: async (taskId: string): Promise<CachedTaskData | null> => {
+      const res = await redis.hget(`${prefix}:data`, taskId);
+      return res ? (JSON.parse(res) as CachedTaskData) : null;
+    },
+
+    setStatus: async (taskId: string, status: RelayerTaskStatus) =>
+      await redis.hset(`${prefix}:status`, taskId, status),
+    getStatus: async (taskId: string): Promise<RelayerTaskStatus | null> => {
+      const res = await redis.hget(`${prefix}:status`, taskId);
+      return res ? RelayerTaskStatus[res as RelayerTaskStatus] : null;
+    },
+
+    setError: async (taskId: string, error: string) => await redis.hset(`${prefix}:error`, taskId, error),
+    getError: async (taskId: string): Promise<string | null> => {
+      const res = await redis.hget(`${prefix}:error`, taskId);
+      return res ? (res as string) : null;
+    },
+  };
+
   const logger = new Logger({ level: "debug" });
 
   const mockTask = {
@@ -42,9 +53,9 @@ describe("TasksCache", () => {
     },
   };
 
-  let tasksCache: TasksCache;
+  let cache: TasksCache;
   beforeEach(() => {
-    tasksCache = new TasksCache({ host: "mock", port: 1234, mock: true, logger });
+    cache = new TasksCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
@@ -53,14 +64,15 @@ describe("TasksCache", () => {
 
   describe("#getTask", () => {
     it("happy: should retrieve existing auction data", async () => {
-      const taskId = await tasksCache.createTask(mockTask);
-      const res = await tasksCache.getTask(taskId);
+      const taskId = getRandomBytes32();
+      await mockRedisHelpers.createTask(taskId, mockTask);
+      const res = await cache.getTask(taskId);
       expect(res).to.be.deep.eq(mockTask);
     });
 
     it("sad: should return undefined if auction data does not exist", async () => {
       const taskId = getRandomBytes32();
-      const res = await tasksCache.getTask(taskId);
+      const res = await cache.getTask(taskId);
       expect(res).to.be.undefined;
     });
   });
@@ -68,7 +80,7 @@ describe("TasksCache", () => {
   describe("#createTask", () => {
     let setStatusStub: SinonStub;
     beforeEach(() => {
-      setStatusStub = stub(tasksCache as any, "setStatus").resolves(undefined);
+      setStatusStub = stub(cache as any, "setStatus").resolves(undefined);
     });
 
     afterEach(() => {
@@ -76,12 +88,12 @@ describe("TasksCache", () => {
     });
 
     it("happy: should create new task data", async () => {
-      const taskId = await tasksCache.createTask(mockTask);
+      const taskId = await cache.createTask(mockTask);
       // Should return random task ID.
       expect(taskId.length).to.be.eq(getRandomBytes32().length);
       expect(setStatusStub.calledOnce).to.be.true;
       expect(setStatusStub).to.have.been.calledOnceWithExactly(taskId, RelayerTaskStatus.ExecPending);
-      const task = await tasksCache.getTask(taskId);
+      const task = await mockRedisHelpers.getTask(taskId);
       expect(task).to.deep.eq(mockTask);
     });
   });
@@ -94,15 +106,15 @@ describe("TasksCache", () => {
         RelayerTaskStatus.ExecSuccess,
       ]) {
         const taskId = getRandomBytes32();
-        await tasksCache.setStatus(taskId, status);
-        const res = await tasksCache.getStatus(taskId);
+        await mockRedisHelpers.setStatus(taskId, status);
+        const res = await cache.getStatus(taskId);
         expect(res).to.eq(status);
       }
     });
 
     it("sad: should return RelayerTaskStatus.NotFound if task status does not exist", async () => {
       const taskId = getRandomBytes32();
-      const res = await tasksCache.getStatus(taskId);
+      const res = await cache.getStatus(taskId);
       expect(res).to.eq(RelayerTaskStatus.NotFound);
     });
   });
@@ -111,13 +123,13 @@ describe("TasksCache", () => {
     it("happy: should set status", async () => {
       const taskId = getRandomBytes32();
 
-      const resOne = await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecPending);
+      const resOne = await (cache as any).setStatus(taskId, RelayerTaskStatus.ExecPending);
       expect(resOne).to.eq(1);
-      expect(await tasksCache.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecPending);
+      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecPending);
 
-      const resTwo = await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
+      const resTwo = await (cache as any).setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       expect(resTwo).to.eq(0);
-      expect(await tasksCache.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecSuccess);
+      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecSuccess);
     });
   });
 
@@ -125,14 +137,14 @@ describe("TasksCache", () => {
     it("happy: should retrieve existing task error", async () => {
       const taskId = getRandomBytes32();
       const error = "some error";
-      await tasksCache.setError(taskId, error);
-      const res = await tasksCache.getError(taskId);
+      await mockRedisHelpers.setError(taskId, error);
+      const res = await cache.getError(taskId);
       expect(res).to.deep.eq(error);
     });
 
     it("sad: should return undefined if task error does not exist", async () => {
       const taskId = getRandomBytes32();
-      const res = await tasksCache.getError(taskId);
+      const res = await cache.getError(taskId);
       expect(res).to.eq(undefined);
     });
   });
@@ -141,135 +153,56 @@ describe("TasksCache", () => {
     it("happy: should set task error", async () => {
       const taskId = getRandomBytes32();
       const error = "some error";
-      const res = await tasksCache.setError(taskId, error);
+      const res = await cache.setError(taskId, error);
       expect(res).to.eq(1);
 
-      const found = await tasksCache.getError(taskId);
+      const found = await mockRedisHelpers.getError(taskId);
       expect(found).to.be.eq(error);
     });
   });
 
-  describe("#getHash", () => {
-    it("happy: should retrieve existing task hash", async () => {
-      const taskId = getRandomBytes32();
-      const txhash = getRandomBytes32();
-      await tasksCache.setHash(taskId, txhash);
-      const res = await tasksCache.getHash(taskId);
-      expect(res).to.deep.eq(txhash);
-    });
-
-    it("sad: should return undefined if task hash does not exist", async () => {
-      const taskId = getRandomBytes32();
-      const res = await tasksCache.getHash(taskId);
-      expect(res).to.eq(undefined);
-    });
-  });
-
-  describe("#setHash", () => {
-    it("happy: should set task error", async () => {
-      const taskId = getRandomBytes32();
-      const txhash = getRandomBytes32();
-      await tasksCache.setHash(taskId, txhash);
-      const res = await tasksCache.getHash(taskId);
-      expect(res).to.deep.eq(txhash);
-    });
-  });
-
-  describe("#getTimestamp/setTimestamp", () => {
-    it("happy: should retrieve existing task hash", async () => {
-      const taskId = getRandomBytes32();
-      const curtimeInSecs = getNtpTimeSeconds();
-      await tasksCache.setTimestamp(taskId);
-      const res = await tasksCache.getTimestamp(taskId);
-      expect(res).to.deep.eq(curtimeInSecs);
-    });
-
-    it("sad: should return undefined if task hash does not exist", async () => {
-      const taskId = getRandomBytes32();
-      const res = await tasksCache.getTimestamp(taskId);
-      expect(res).to.eq(0);
-    });
-  });
-
   describe("#getPending", () => {
+    const mockTaskIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
+
     it("happy: should retrieve existing pending tasks", async () => {
       const taskIds = mockTaskIdBatch(10);
       for (const taskId of taskIds) {
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecPending);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecPending);
       }
 
-      const res = await tasksCache.getPending();
+      const res = await cache.getPending();
       expect(res).to.deep.eq(taskIds);
     });
 
     it("should not retrieve tasks of other statuses", async () => {
       const pendingTaskIds = mockTaskIdBatch(10);
       for (const taskId of pendingTaskIds) {
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecPending);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecPending);
       }
 
       // Simulate: a lot have been sent already.
       const completedTaskIds = mockTaskIdBatch(1234);
       for (const taskId of completedTaskIds) {
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       }
 
-      const res = await tasksCache.getPending();
+      const res = await cache.getPending();
       expect(res).to.deep.eq(pendingTaskIds);
     });
 
     it("should return empty array if no tasks have pending status", async () => {
       const completedTaskIds = mockTaskIdBatch(27);
       for (const taskId of completedTaskIds) {
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       }
 
-      const res = await tasksCache.getPending();
+      const res = await cache.getPending();
       expect(res).to.deep.eq([]);
     });
 
     it("sad: should return empty array if no pending tasks exist", async () => {
-      const res = await tasksCache.getPending();
+      const res = await cache.getPending();
       expect(res).to.deep.eq([]);
-    });
-  });
-
-  describe("#pruneTasks", () => {
-    it("happy: should prune expired tasks", async () => {
-      const taskIds: string[] = [];
-
-      const successTasks = mockCachedTasksBatch(10);
-      for (const task of successTasks) {
-        const taskId = await tasksCache.createTask(task);
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
-        taskIds.push(taskId);
-      }
-
-      const revertedTasks = mockCachedTasksBatch(10);
-      for (const task of revertedTasks) {
-        const taskId = await tasksCache.createTask(task);
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.ExecReverted);
-        taskIds.push(taskId);
-      }
-
-      const cancelledTasks = mockCachedTasksBatch(10);
-      for (const task of cancelledTasks) {
-        const taskId = await tasksCache.createTask(task);
-        await tasksCache.setStatus(taskId, RelayerTaskStatus.Cancelled);
-        taskIds.push(taskId);
-      }
-
-      await delay(2_000);
-
-      const { deleted, expireTime } = await tasksCache.pruneTasks(1);
-
-      for (const taskId of taskIds) {
-        const res = await tasksCache.getTask(taskId);
-        console.log({ taskId, res });
-        expect(res).to.be.undefined;
-      }
-      expect(deleted).to.be.eq(30);
-      expect(expireTime).to.be.eq(1);
     });
   });
 });

@@ -57,7 +57,8 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   }
 
   // get the decimals
-  const transactingAsset = entity.transacting ?? entity.asset?.adoptedAsset ?? constants.AddressZero;
+  // FIXME: https://github.com/connext/nxtp/issues/2862
+  const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
   return {

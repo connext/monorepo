@@ -89,7 +89,7 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 
   - [Cartographer](https://github.com/connext/monorepo/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph and provides an API to query raw and computed data.
   - [Lighthouse](https://github.com/connext/monorepo/tree/main/packages/agents/lighthouse) is an implementation for execution layer.
-  - [Relayer](https://github.com/connext/monorepo/tree/main/packages/agents/relayer) is an implementatino of a relayer in case we can't use Gelato
+  - [Relayer](https://github.com/connext/monorepo/tree/main/packages/agents/relayer) is an implementation of a relayer in case we can't use Gelato
   - [Router](https://github.com/connext/monorepo/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
   - [SDK](https://github.com/connext/monorepo/tree/main/packages/agents/sdk) - is a JS wrapper around the contract calls themselves and can be used by integrations
   - [Sequencer](https://github.com/connext/monorepo/tree/main/packages/agents/sequencer) - is the agent module which is in charge of sourcing bids from routers and puts fast liquidity bids onto the chain itself.
@@ -101,13 +101,13 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 
 - [examples](https://github.com/connext/monorepo/tree/main/packages/examples) - these are not used in production, but contains ways to use the SDK that are illustrative of how to integrate Connext
 - [integration](https://github.com/connext/monorepo/tree/main/packages/integration) - Utilities for integration test
-- [utils](https://github.com/connext/monorepo/tree/main/packages/utils) - Collection of helper functions that are shared thoughout the different packages
+- [utils](https://github.com/connext/monorepo/tree/main/packages/utils) - Collection of helper functions that are shared throughout the different packages
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## First time setup
 
-Use Node verision `18.x`.
+Use Node version `18.x`.
 And Make sure you are on the latest yarn version:
 
 - `yarn set version berry`
@@ -180,7 +180,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what makes the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!

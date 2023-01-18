@@ -54,6 +54,7 @@ import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
 import "./tasks/pause";
 import "./tasks/unpause";
+import "./tasks/bumpTransfer";
 import { hardhatNetworks } from "./src/config";
 
 envConfig();

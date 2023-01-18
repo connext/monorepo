@@ -9,10 +9,10 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
-import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, RouterVersionInvalid } from "../../errors";
+import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -36,15 +36,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
-      bid,
-    });
-  }
-
-  // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<");
-  if (checkVersion) {
-    throw new RouterVersionInvalid({
-      supportedVersion: config.supportedVersion,
       bid,
     });
   }
@@ -128,7 +119,7 @@ export const executeFastPathData = async (
   const {
     config,
     logger,
-    adapters: { cache, subgraph },
+    adapters: { cache, subgraph, database },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
@@ -148,7 +139,7 @@ export const executeFastPathData = async (
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
-  const auction = await cache.auctions.getAuction(transferId);
+  let auction = await cache.auctions.getAuction(transferId);
   if (auction) {
     const startTime = Number(auction.timestamp);
     const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
@@ -160,8 +151,10 @@ export const executeFastPathData = async (
         waitTime: config.auctionWaitTime,
       });
       const remainingTime = config.auctionWaitTime - elapsed;
-      // if (remainingTime > 0) setTimeout(() => {}, remainingTime);
-      if (remainingTime > 0) await new Promise((f) => setTimeout(f, remainingTime));
+      if (remainingTime > 0) {
+        await new Promise((f) => setTimeout(f, remainingTime));
+        auction = await cache.auctions.getAuction(transferId);
+      }
     }
   } else {
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
@@ -174,7 +167,7 @@ export const executeFastPathData = async (
   // for the fact that one transfer's auction might affect another. For instance, a router might have
   // 100 tokens to LP, but bid on 2 100-token transfers. We shouldn't send both of those bids.
 
-  const { bids, origin, destination } = auction;
+  const { bids, origin, destination } = auction!;
   logger.info("Started selecting bids", requestContext, methodContext, {
     bids,
     origin,
@@ -224,6 +217,8 @@ export const executeFastPathData = async (
       needed,
     });
 
+    transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+    await database.saveTransfers([transfer]);
     return { taskId };
   }
 

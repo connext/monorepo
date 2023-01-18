@@ -95,7 +95,7 @@ export const propagate = async () => {
     });
   } catch (e: unknown) {
     logger.error("Error at Gelato Get Gas Estimate", requestContext, methodContext, e as NxtpError, {
-      chainId: hubChainId,
+      domain: +config.hubDomain,
       to: rootManagerAddress,
       data: encodedData,
       from: relayerProxyHubAddress,
