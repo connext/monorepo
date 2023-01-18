@@ -9,6 +9,7 @@ import {
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
   RootManager as TRootManager,
+  MultiSend as TMultisend,
   Unwrapper as TUnwrapper,
 } from "@connext/nxtp-contracts";
 import RootManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
@@ -18,6 +19,7 @@ import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core
 import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
 import RelayerProxyArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
 import RelayerProxyHubArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
+import MultiSendArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
 import UnwrapperArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Unwrapper.sol/Unwrapper.json";
 import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
 import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
@@ -260,6 +262,8 @@ export const getSpokeConnectorInterface = () =>
 
 export const getRootManagerInterface = () => new utils.Interface(RootManagerArtifact.abi) as TRootManager["interface"];
 
+export const getMultisendInterface = () => new utils.Interface(MultiSendArtifact.abi) as TMultisend["interface"];
+
 export const getUnwrapperInterface = () => new utils.Interface(UnwrapperArtifact.abi) as TUnwrapper["interface"];
 
 export type ConnextContractInterfaces = {
@@ -271,6 +275,7 @@ export type ConnextContractInterfaces = {
   rootManager: TRootManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
+  multisend: TMultisend["interface"];
   unwrapper: TUnwrapper["interface"];
 };
 
@@ -283,6 +288,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   rootManager: getRootManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),
+  multisend: getMultisendInterface(),
   unwrapper: getUnwrapperInterface(),
 });
 
