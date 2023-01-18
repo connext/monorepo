@@ -480,9 +480,21 @@ export const mock = {
           abi: "fakeAbi()",
         };
       },
-      hubConnectorts: function (_: number) {
+      hubConnector: function (_: number) {
         return {
           address: mkAddress("0x444444"),
+          abi: "fakeAbi()",
+        };
+      },
+      multisend: function (_: number) {
+        return {
+          address: mkAddress("0x555555"),
+          abi: "fakeAbi()",
+        };
+      },
+      unwrapper: function (_: number) {
+        return {
+          address: mkAddress("0x666666"),
           abi: "fakeAbi()",
         };
       },

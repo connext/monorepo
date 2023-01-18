@@ -125,33 +125,21 @@ export const mock = {
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
       connext.decodeFunctionData.returns([BigNumber.from(1000)]);
 
-      const priceOracle = createStubInstance(utils.Interface);
-      priceOracle.encodeFunctionData.returns(encodedDataMock);
-      priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const stableSwap = createStubInstance(utils.Interface);
-      stableSwap.encodeFunctionData.returns(encodedDataMock);
-      stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const erc20 = createStubInstance(utils.Interface);
-      erc20.encodeFunctionData.returns(encodedDataMock);
-      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const spokeConnector = createStubInstance(utils.Interface);
-      spokeConnector.encodeFunctionData.returns(encodedDataMock);
-      spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const relayerProxy = createStubInstance(utils.Interface);
-      relayerProxy.encodeFunctionData.returns(encodedDataMock);
-      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      const genericStubInterface = createStubInstance(utils.Interface);
+      genericStubInterface.encodeFunctionData.returns(encodedDataMock);
+      genericStubInterface.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
-        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
-        stableSwap: stableSwap as unknown as StableSwapInterface,
-        relayerProxy: relayerProxy as any,
-        spokeConnector: spokeConnector as any,
+        erc20: genericStubInterface as any,
+        priceOracle: genericStubInterface as unknown as ConnextPriceOracleInterface,
+        stableSwap: genericStubInterface as unknown as StableSwapInterface,
+        rootManager: genericStubInterface as any,
+        relayerProxy: genericStubInterface as any,
+        relayerProxyHub: genericStubInterface as any,
+        spokeConnector: genericStubInterface as any,
+        multisend: genericStubInterface as any,
+        unwrapper: genericStubInterface as any,
       };
     },
     relayers: () => [
