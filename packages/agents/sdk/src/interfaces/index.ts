@@ -34,7 +34,7 @@ export type AssetData = {
 
 export type ConnextSupport = { name: string; chainId: number; domainId: string; assets: string[] };
 
-export const NxtpSdkXCallArgsSchema = Type.Object({
+export const SdkXCallArgsSchema = Type.Object({
   destination: Type.String(),
   to: TAddress,
   asset: TAddress,
@@ -49,4 +49,4 @@ export const NxtpSdkXCallArgsSchema = Type.Object({
   unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
 });
 
-export type NxtpSdkXCallArgs = Static<typeof NxtpSdkXCallArgsSchema>;
+export type SdkXCallArgs = Static<typeof SdkXCallArgsSchema>;

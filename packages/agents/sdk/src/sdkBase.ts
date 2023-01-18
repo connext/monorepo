@@ -13,7 +13,7 @@ import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/h
 import { SignerAddressMissing, ChainDataUndefined, CannotUnwrapOnDestination } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
-import { NxtpSdkXCallArgs } from "./interfaces";
+import { SdkXCallArgs } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -62,7 +62,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * as wrapped native token for sending (e.g. deposit ETH to the WETH contract in exchange for the WETH ERC20).
    * @returns providers.TransactionRequest object.
    */
-  async xcall(args: NxtpSdkXCallArgs): Promise<providers.TransactionRequest> {
+  async xcall(args: SdkXCallArgs): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { args });
 
