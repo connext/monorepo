@@ -17,7 +17,7 @@ type StableSwap @entity {
   isActive: Boolean
 
   # StableSwapAdded
-  key: Bytes
+  key: Bytes!
   canonicalId: Bytes
   domain: BigInt
   swapPool: Bytes
@@ -34,12 +34,13 @@ type StableSwap @entity {
   swapFee: BigInt
   adminFee: BigInt
   pooledTokens: [PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
+  tokenPrecisionMultipliers: [BigInt!]!
   balances: [BigInt!]!
-  adminFees: [BigInt!]
+  adminFees: [BigInt!]!
 
-  invariant: BigInt
-  lpTokenSupply: BigInt
+  virtualPrice: BigInt!
+  invariant: BigInt!
+  lpTokenSupply: BigInt!
 
   events: [StableSwapEvent!] @derivedFrom(field: "stableSwap")
   exchanges: [StableSwapExchange!] @derivedFrom(field: "stableSwap")
