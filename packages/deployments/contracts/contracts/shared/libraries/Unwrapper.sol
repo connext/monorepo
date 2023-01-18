@@ -5,7 +5,6 @@ pragma solidity 0.8.17;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IXReceiver} from "../../core/connext/interfaces/IXReceiver.sol";
-import {Orphanage} from "./Orphanage.sol";
 
 interface IWrapper {
   function withdraw(uint256 wad) external;
@@ -18,7 +17,7 @@ interface IWrapper {
  * for any failures that might occur during the process of receiving tokens and unwrapping them
  * are accounted for.
  */
-contract Unwrapper is Orphanage, IXReceiver {
+contract Unwrapper is IXReceiver {
   // ============ Libraries ============
 
   // using SafeERC20 for IERC20;
@@ -26,12 +25,33 @@ contract Unwrapper is Orphanage, IXReceiver {
   // ============ Events ============
 
   /**
-   * @notice An event that we emit in the event that the unwrapping attempt (namely, `withdraw`
-   * call) fails.
+   * @notice Emitted if an unwrapping attempt (namely, `withdraw` call) fails.
    * @param recipient - The target recipient address.
    * @param reason - The reason why the failure occurred; we will emit this in an event.
    */
   event UnwrappingFailed(address recipient, bytes reason);
+
+  /**
+   * @notice Emitted if sending the unwrapped asset failed.
+   * @param recipient - The target recipient address.
+   * @param reason - The reason why the failure occurred; we will emit this in an event.
+   */
+  event SendUnwrappedFailed(address recipient, bytes reason);
+
+  /**
+   * @notice Emitted if transferring the wrapped asset failed.
+   * @param recipient - The target recipient address.
+   * @param reason - The reason why the failure occurred; we will emit this in an event.
+   */
+  event TransferWrappedFailed(address recipient, bytes reason);
+
+  /**
+   * @notice Emitted if the wrong wrapper asset is sent.
+   * @param recipient - The target recipient address.
+   * @param asset - The asset sent.
+   * @param reason - The reason why the failure occurred; we will emit this in an event.
+   */
+  event WrongAsset(address recipient, address asset, bytes reason);
 
   // ============ Properties ============
 
@@ -93,8 +113,7 @@ contract Unwrapper is Orphanage, IXReceiver {
    * @param amount - The amount to transfer. Should NOT be 0, or this call will revert.
    * @param asset - This *should be* the wrapper contract address, an ERC20 token approved by the
    * Connext bridge. IFF this does NOT match the WRAPPER contract address stored in this contract,
-   * we'll try to `IERC20.transfer` the assets to the intended recipient. If even that fails, we'll
-   * orphan the received tokens here for later pickup.
+   * we'll try to `IERC20.transfer` the assets to the intended recipient.
    * @param originSender - Not used except in the edge case where the `callData` is missing a valid
    * intended recipient address.
    * @param callData - Should be a tuple of just `(address)`. The address is the intended
@@ -114,29 +133,18 @@ contract Unwrapper is Orphanage, IXReceiver {
     require(amount != 0, "unwrap: !amount");
 
     // Get the target recipient, which should be in the callData.
-    // TODO: What if decode results in missing address? i.e. empty callData or poorly formatted callData?
+    /// @dev If recipient is the zero address, funds will be burned!
     address recipient = abi.decode(callData, (address));
-
-    // Sanity check: recipient is non-zero.
-    if (recipient == address(0)) {
-      // If no recipient is specified, we fallback to orphaning the wrapped ether token here.
-      // We use the `originSender` as a fallback parent.
-      // NOTE: We specify `asset` as the token address here instead of `WRAPPER`; see the next
-      // sanity check below to understand why (asset may not match WRAPPER address!).
-      orphan(asset, amount, originSender, "unwrap: !recipient");
-      return bytes("");
-    }
 
     // Sanity check: asset we've received matches our target wrapper.
     if (asset != address(WRAPPER)) {
-      // If the delivered asset does not match our target wrapper, we can try sending it, but worst case
-      // will want to orphan those assets here.
+      // If the delivered asset does not match our target wrapper, we try sending it anyway.
       try IERC20(asset).transfer(recipient, amount) returns (bool success) {
         if (!success) {
-          orphan(asset, amount, recipient, "unwrap: !wrapper,!success");
+          emit WrongAsset(recipient, asset, "wrong asset used for unwrap and fallback transfer failed");
         }
       } catch (bytes memory reason) {
-        orphan(asset, amount, recipient, reason);
+        emit WrongAsset(recipient, asset, reason);
       }
       return bytes("");
     }
@@ -144,12 +152,11 @@ contract Unwrapper is Orphanage, IXReceiver {
     // We've received wrapped native tokens; withdraw native tokens from the wrapper contract.
     try WRAPPER.withdraw(amount) {
       // Try to send the native token to the intended recipient.
-      // If we fail to send, we will orphan the tokens here for later rescue.
       // TODO: This will revert in the 1 edge case where we send to a contract that calls
       // self-destruct. We need to use a safe sending method here we can wrap in try/catch.
       bool sent = payable(recipient).send(amount);
       if (!sent) {
-        orphan(address(0), amount, recipient, "unwrap: !sent");
+        emit SendUnwrappedFailed(recipient, "unwrap succeeded but sending unwrapped asset to recipient failed");
       }
     } catch (bytes memory reason) {
       // Handle transferring wrapped funds to the intended recipient in the event that the
@@ -158,12 +165,13 @@ contract Unwrapper is Orphanage, IXReceiver {
       emit UnwrappingFailed(recipient, reason);
       try WRAPPER.transfer(recipient, amount) returns (bool success) {
         if (!success) {
-          orphan(asset, amount, recipient, "unwrap: !withdraw,!success");
+          emit TransferWrappedFailed(recipient, "fallback transfer of wrapped asset failed");
         }
       } catch (bytes memory otherReason) {
-        orphan(address(WRAPPER), amount, recipient, otherReason);
+        emit TransferWrappedFailed(recipient, otherReason);
       }
     }
+    return bytes("");
   }
 
   receive() external payable {}
