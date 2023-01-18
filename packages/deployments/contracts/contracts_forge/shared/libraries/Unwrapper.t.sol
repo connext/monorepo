@@ -12,8 +12,10 @@ import "../../utils/Mock.sol";
 contract UnwrapperTest is ForgeHelper {
   // ============ Events ============
 
-  event OrphanedTokens(address indexed token, uint256 indexed amount, address indexed parent, bytes reason);
-  event OrphanedNativeTokens(uint256 indexed amount, address indexed parent, bytes reason);
+  event UnwrappingFailed(address recipient, bytes reason);
+  event SendUnwrappedFailed(address recipient, bytes reason);
+  event TransferWrappedFailed(address recipient, bytes reason);
+  event WrongAsset(address recipient, address asset, bytes reason);
 
   // ============ Storage ============
   address constant MOCK_CONNEXT = address(999999);
@@ -41,36 +43,18 @@ contract UnwrapperTest is ForgeHelper {
     utils_setUpMockErc20(true); // Default transferSuccess = true.
 
     unwrapper = new Unwrapper(MOCK_CONNEXT, MOCK_WRAPPER);
+
+    vm.label(MOCK_CONNEXT, "Connext");
+    vm.label(MOCK_WRAPPER, "Wrapper");
+    vm.label(MOCK_ERC20, "ERC20");
+    vm.label(originSender, "originSender");
+    vm.label(recipient, "recipient");
+    vm.label(address(unwrapper), "Unwrapper");
   }
 
   // ============ Utils ============
   function utils_setUpMockErc20(bool transferSuccess) internal {
     vm.mockCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector), abi.encode(transferSuccess));
-  }
-
-  function utils_expectOrphans(
-    address asset,
-    uint256 amount,
-    address parent,
-    bytes memory reason
-  ) internal {
-    if (asset == address(0)) {
-      vm.expectEmit(true, true, true, true);
-      emit OrphanedNativeTokens(amount, parent, reason);
-      assertEq(unwrapper.checkOrphansFor(asset, parent), 0); // Should have 0 currently.
-    } else {
-      vm.expectEmit(true, true, true, true);
-      emit OrphanedTokens(asset, amount, parent, reason);
-      assertEq(unwrapper.checkOrphansFor(asset, parent), 0); // Should have 0 currently.
-    }
-  }
-
-  function utils_assertOrphans(
-    address asset,
-    uint256 amount,
-    address parent
-  ) internal {
-    assertEq(unwrapper.checkOrphansFor(asset, parent), amount);
   }
 
   // ============ Unwrapper.xReceive ============
@@ -80,6 +64,14 @@ contract UnwrapperTest is ForgeHelper {
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
+
+  function test_Unwrapper__xReceive_worksIfRecipientIsZero() public {
+    address asset = MOCK_WRAPPER;
+    uint256 amount = 10 ether;
+
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataNoRecipient);
   }
 
   function test_Unwrapper__xReceive_failsIfNotConnext() public {
@@ -99,19 +91,6 @@ contract UnwrapperTest is ForgeHelper {
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  function test_Unwrapper__xReceive_orphansIfRecipientIsZero() public {
-    address asset = MOCK_WRAPPER;
-    uint256 amount = 10 ether;
-
-    // NOTE: Expecting recipient to be originSender in this case!
-    utils_expectOrphans(asset, amount, originSender, "unwrap: !recipient");
-
-    vm.prank(MOCK_CONNEXT);
-    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataNoRecipient);
-
-    utils_assertOrphans(asset, amount, originSender);
-  }
-
   function test_Unwrapper__xReceive_transfersIfNonWrapperAsset() public {
     address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
@@ -123,41 +102,66 @@ contract UnwrapperTest is ForgeHelper {
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferFails() public {
+  function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferFails() public {
     utils_setUpMockErc20(false);
     address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
 
-    utils_expectOrphans(asset, amount, recipient, "unwrap: !wrapper,!success");
+    vm.expectEmit(true, true, true, true);
+    emit WrongAsset(recipient, asset, "wrong asset used for unwrap and fallback transfer failed");
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
-
-    utils_assertOrphans(asset, amount, recipient);
   }
 
-  function test_Unwrapper__xReceive_orphansIfNonWrapperAssetAndERC20TransferReverts() public {
-    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
+  function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferReverts() public {
+    address asset = address(new RevertingERC20()); // xReceive will be getting a non-wrapper, reverting erc20 asset.
     uint256 amount = 10 ether;
 
-    // Clear mocked calls. Basically, we're going to simulate an ERC20 asset address given that has no
-    // actual contract code at that address (we call `ERC20.transfer` but it will revert).
-    vm.clearMockedCalls();
+    vm.expectEmit(true, true, true, true);
+    emit WrongAsset(recipient, asset, abi.encodeWithSignature("Error(string)", "test transfer error"));
 
-    // TODO: Use RevertingERC20
-    // utils_expectOrphans(asset, amount, recipient, "EvmError: Revert");
-
-    // vm.prank(MOCK_CONNEXT);
-    // unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
-
-    // utils_assertOrphans(asset, amount, recipient);
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  function test_Unwrapper__xReceive_orphansIfETHNotSent() public {}
+  function test_Unwrapper__xReceive_orphansIfWithdrawRevertsAndTransferWETHReverts() public {
+    address asset = address(new RevertingERC20()); // xReceive will be getting an asset that reverts on `withdraw` and `transfer`.
+    unwrapper = new Unwrapper(MOCK_CONNEXT, asset); // set the asset as the target wrapper asset
+    uint256 amount = 10 ether;
 
-  function test_Unwrapper__xReceive_transfersWETHIfWithdrawFails() public {}
+    vm.expectEmit(true, true, true, true);
+    emit UnwrappingFailed(recipient, abi.encodeWithSignature("Error(string)", "test withdraw error"));
+    emit TransferWrappedFailed(recipient, abi.encodeWithSignature("Error(string)", "test transfer error"));
 
-  function test_Unwrapper__xReceive_orphansIfWithdrawFailsAndTransferWETHFails() public {}
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
 
-  function test_Unwrapper__xReceive_orphansIfWithdrawFailsAndTransferWETHReverts() public {}
+  function test_Unwrapper__xReceive_orphansIfWithdrawRevertsAndTransferWETHFails() public {
+    address asset = address(new RevertingERC20()); // xReceive will be getting an asset that reverts on `withdraw` and `transfer`.
+    unwrapper = new Unwrapper(MOCK_CONNEXT, asset); // set the asset as the target wrapper asset
+    uint256 amount = 10 ether;
+
+    // Make the transfer fail, not revert
+    vm.mockCall(asset, abi.encodeWithSelector(IWrapper.transfer.selector), abi.encode(false));
+
+    vm.expectEmit(true, true, true, true);
+    emit UnwrappingFailed(recipient, abi.encodeWithSignature("Error(string)", "test withdraw error"));
+    emit TransferWrappedFailed(recipient, abi.encodeWithSignature("fallback transfer of wrapped asset failed"));
+
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
+
+  function test_Unwrapper__xReceive_emitsEventifWithdrawSucceedsAndSendETHFails() public {
+    address asset = MOCK_WRAPPER;
+    uint256 amount = 10 ether;
+
+    vm.expectEmit(true, true, true, true);
+    emit SendUnwrappedFailed(recipient, "unwrap succeeded but sending unwrapped asset to recipient failed");
+
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
 }
