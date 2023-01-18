@@ -12,6 +12,7 @@ import {
   RollupUserLogic__factory as _RollupUserLogic__factory,
   Outbox__factory as _Outbox__factory,
 } from "@connext/nxtp-contracts";
+import { NodeInterface__factory as _NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
@@ -39,6 +40,8 @@ export const L2TransactionReceipt = _L2TransactionReceipt;
 export const RollupUserLogic__factory = _RollupUserLogic__factory;
 
 export const Outbox__factory = _Outbox__factory;
+
+export const NodeInterface__factory = _NodeInterface__factory;
 
 export const JsonRpcProvider = providers.JsonRpcProvider;
 

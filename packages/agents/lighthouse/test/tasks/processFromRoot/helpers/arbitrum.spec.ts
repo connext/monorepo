@@ -42,6 +42,13 @@ describe("Helpers: Arbitrum", () => {
         sendCount: constants.One,
         hash: mkHash("0x456"),
       } as any),
+      getBlockFromNodeNum: Promise.resolve({
+        blockNumber: constants.One,
+        nodeNum: constants.One,
+        sendRoot: mkHash("0x123"),
+        sendCount: constants.One,
+        hash: mkHash("0x456"),
+      } as any),
     } as any);
     (l2ToL1MessageReader as any).event = { position: constants.One, ethBlockNum: constants.One };
     stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
@@ -55,6 +62,12 @@ describe("Helpers: Arbitrum", () => {
       createInterface: stub().returns({
         encodeFunctionData: stub().returns("0x123"),
         decodeFunctionResult: confirmData,
+      }),
+      connect: stub().returns(undefined),
+    });
+    stub(MockableFns, "NodeInterface__factory").value({
+      connect: stub().returns({
+        constructOutboxProof: Promise.resolve({ proof: ["hello", "world"] }),
       }),
     });
   });
