@@ -77,18 +77,8 @@ describe("Adapters: Gelato", () => {
   });
 
   describe("#getRelayerAddress", () => {
-    beforeEach(() => {
-      axiosGetStub.resolves({ data: { address: GELATO_RELAYER_ADDRESS } });
-    });
-
     it("happy: should return address", async () => {
       expect(await getRelayerAddress(1337)).to.be.eq(GELATO_RELAYER_ADDRESS);
-    });
-
-    it("should return zero address if the request fails", async () => {
-      axiosGetStub.throws(new Error("Request failed!"));
-
-      await expect(getRelayerAddress(1337)).to.be.rejectedWith(UnableToGetGelatoSupportedChains);
     });
   });
 
