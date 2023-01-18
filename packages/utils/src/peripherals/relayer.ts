@@ -63,7 +63,7 @@ export const calculateRelayerFee = async (
     isHighPriority,
   );
 
-  if (estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && gasPrice)) {
+  if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && gasPrice)) {
     estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice!);
   }
 
