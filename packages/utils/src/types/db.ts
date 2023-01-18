@@ -1,7 +1,7 @@
 import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
-import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
+import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
 
 /**
  * This is required to make sure numbers do not lose precision because of Javascript limitations.
@@ -59,6 +59,7 @@ export const transfersCastForUrl =
     "reconcile_block_number",
     "reconcile_tx_origin",
     "relayer_fee",
+    "error_status",
   ].join(",");
 
 /**
@@ -89,6 +90,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
           relayerFee: BigNumber.from(transfer.relayer_fee ?? "0").toString(),
+          errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),
