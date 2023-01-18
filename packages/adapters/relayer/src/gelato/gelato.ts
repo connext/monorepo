@@ -277,7 +277,7 @@ export const send = async (
   //const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
 
   const response = await gelatoSDKSend({ chainId, data: encodedData, target: destinationAddress }, gelatoApiKey, {
-    gasLimit: GAS_LIMIT_FOR_RELAYER,
+    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
   });
 
   if (!response) {
