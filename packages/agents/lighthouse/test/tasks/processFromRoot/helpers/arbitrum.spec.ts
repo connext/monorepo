@@ -1,6 +1,7 @@
 import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
 import { stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
+import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromArbitrumRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
@@ -55,6 +56,9 @@ describe("Helpers: Arbitrum", () => {
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);
     stub(MockableFns, "Outbox__factory").value(mockOutboxFactory);
+    stub(NodeInterface__factory, "connect").callsFake((address: string, signerOrProvider) => {
+      return { constructOutboxProof: stub().resolves({ proof: ["hello", "world"] }) } as any;
+    });
     confirmData = stub().returns([
       { confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34" },
     ]);
@@ -64,11 +68,6 @@ describe("Helpers: Arbitrum", () => {
         decodeFunctionResult: confirmData,
       }),
       connect: stub().returns(undefined),
-    });
-    stub(MockableFns, "NodeInterface__factory").value({
-      connect: stub().returns({
-        constructOutboxProof: Promise.resolve({ proof: ["hello", "world"] }),
-      }),
     });
   });
 
@@ -106,7 +105,7 @@ describe("Helpers: Arbitrum", () => {
     ).to.be.rejectedWith(ConfirmDataDoesNotMatch);
   });
 
-  it.only("should work", async () => {
+  it("should work", async () => {
     const args = await getProcessFromArbitrumRootArgs({
       spokeChainId: 42161,
       spokeDomainId: "1",
