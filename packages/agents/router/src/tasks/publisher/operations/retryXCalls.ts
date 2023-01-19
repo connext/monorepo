@@ -28,14 +28,16 @@ export const retryXCalls = async (): Promise<void> => {
 
   const { requestContext, methodContext } = createLoggingContext("pollCache");
   const allowedDomains = Object.keys(config.chains);
-  logger.info("Retrying xcalls...", requestContext, methodContext, { allowedDomains });
+  logger.info("Retrying xcalls", requestContext, methodContext, { allowedDomains });
 
   for (const domain of allowedDomains) {
     // Random sort transfers
     const unsorted = await cache.transfers.getPending(domain);
 
     const domainPending = shuffle(unsorted);
-    logger.debug(`Get pending transfers on domain: ${domain}`, requestContext, methodContext, { domainPending });
+    logger.debug(`Getting pending transfers from the cache for domain: ${domain}`, requestContext, methodContext, {
+      domainPending,
+    });
 
     // Page through the pending transfers
     const pageSize = 100;

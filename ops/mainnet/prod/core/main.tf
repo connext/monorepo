@@ -376,7 +376,7 @@ module "watcher" {
   ingress_cdir_blocks      = [module.network.vpc_cdir_block]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.watcher_env_vars
 }
 
@@ -406,7 +406,7 @@ module "watcher_web3signer" {
   ingress_cdir_blocks      = [module.network.vpc_cdir_block]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.watcher_web3signer_env_vars
 }
 
