@@ -3,7 +3,7 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
@@ -37,6 +37,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef124"),
         },
       },
       [mock.domain.B]: {
@@ -44,6 +45,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef124"),
         },
       },
     },
@@ -87,6 +89,9 @@ export const mock = {
       },
     ],
     relayerFeeTolerance: 20,
+    database: {
+      url: "http://example.com",
+    },
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -147,6 +152,7 @@ export const mock = {
         instance: mockRelayer(),
         apiKey: "foo",
         url: "http://localhost:8080",
+        type: RelayerType.Connext,
       },
     ],
     mqClient: () => {
