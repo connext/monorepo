@@ -201,7 +201,7 @@ export const mock = {
       const relayerFee: string = overrides.relayerFee ?? "0";
 
       const shouldHaveOriginDefined = true;
-      const shouldHaveDestinationDefined = !!status;
+      const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
       return {
         // Meta
         transferId,
