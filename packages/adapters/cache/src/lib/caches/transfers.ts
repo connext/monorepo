@@ -117,7 +117,7 @@ export class TransfersCache extends Cache {
    * @param cleanup - Determines the post action after store action
    * @returns XTransfer data
    */
-  public async storeTransfers(transfers: XTransfer[], cleanup: boolean = true): Promise<void> {
+  public async storeTransfers(transfers: XTransfer[], cleanup = true): Promise<void> {
     const { sanitizeNull } = getHelpers();
     const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};

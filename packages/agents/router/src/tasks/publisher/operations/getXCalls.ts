@@ -1,12 +1,5 @@
-import {
-  createLoggingContext,
-  jsonifyError,
-  OriginTransfer,
-  SubgraphQueryMetaParams,
-  XTransfer,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 
-import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
 
 // Ought to be configured properly for each network; we consult the chain config below.
@@ -14,7 +7,7 @@ export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const getXCalls = async () => {
   const {
-    adapters: { cache, subgraph, mqClient },
+    adapters: { cache, subgraph },
     logger,
     config,
   } = getContext();
