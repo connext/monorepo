@@ -10,7 +10,7 @@ import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/erro
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import { NxtpSdkXCallArgs } from "../src/interfaces";
+import { SdkXCallArgs } from "../src/interfaces";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -97,7 +97,7 @@ describe("SdkBase", () => {
     };
 
     const origin = mock.entity.callParams().originDomain;
-    const sdkXCallArgs: NxtpSdkXCallArgs = {
+    const sdkXCallArgs: SdkXCallArgs = {
       ...mock.entity.xcallArgs(),
       origin,
       relayerFee: relayerFee.toString(),

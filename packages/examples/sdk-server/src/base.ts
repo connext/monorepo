@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { SdkXCallArgsSchema, SdkXCallArgs, TIntegerString } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, SdkXCallArgs, SdkXCallArgsSchema } from "@connext/nxtp-sdk";
+import { TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 

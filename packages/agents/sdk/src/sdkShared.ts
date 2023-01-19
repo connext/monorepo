@@ -1,12 +1,5 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import {
-  Logger,
-  createLoggingContext,
-  ChainData,
-  getCanonicalHash,
-  formatUrl,
-  getChainIdFromDomain,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
