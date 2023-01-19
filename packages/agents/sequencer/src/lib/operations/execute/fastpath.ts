@@ -397,6 +397,10 @@ export const executeFastPathData = async (
       combinations: combinedBidsForRound,
     });
 
+    // Clean up the caches upon successful transfer through the relayer
+    await cache.transfers.pruneTransfersByIds([transferId]);
+    await cache.auctions.pruneAuctionData(transferId);
+
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId });
 
