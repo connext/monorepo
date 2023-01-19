@@ -56,7 +56,7 @@ describe("contracts", () => {
             name: "test",
             chainId: testChainId1,
             contracts: {
-              ConnextPriceOracle: {
+              Connext: {
                 address: testAddress,
                 abi: ["fakeAbi()"],
               },
@@ -75,7 +75,7 @@ describe("contracts", () => {
             name: "test",
             chainId: testChainId1,
             contracts: {
-              ConnextPriceOracle: {
+              Connext: {
                 address: testAddress,
                 abi: ["fakeAbi()"],
               },
@@ -84,7 +84,7 @@ describe("contracts", () => {
         ],
       };
       contractDeploymentStub.returns(mockContractDeployment);
-      expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.undefined;
+      expect(ContractFns.getDeployedConnextContract(testChainId2)).to.be.undefined;
     });
 
     it("happy case: should return the connext contract", () => {
@@ -134,7 +134,7 @@ describe("contracts", () => {
         ],
       };
       contractDeploymentStub.returns(mockContractDeployment);
-      expect(ContractFns.getDeployedUnwrapperContract(testChainId1)).to.be.undefined;
+      expect(ContractFns.getDeployedUnwrapperContract(testChainId2)).to.be.undefined;
     });
 
     it("happy case: should return the unwrapper contract", () => {
