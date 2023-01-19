@@ -74,26 +74,6 @@ export const getXCalls = async () => {
         });
       } else {
         await cache.transfers.storeTransfers(transfers as XTransfer[], false);
-        // await Promise.all(
-        //   transfers.map(async (transfer) => {
-        //     // new request context with the transfer id
-        //     const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-        //       "pollSubgraph",
-        //       undefined,
-        //       transfer.transferId,
-        //     );
-        //     try {
-        //       await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
-        //         body: transfer as OriginTransfer,
-        //         type: XCALL_MESSAGE_TYPE,
-        //         routingKey: XCALL_QUEUE,
-        //       });
-        //       logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
-        //     } catch (err: unknown) {
-        //       logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));
-        //     }
-        //   }),
-        // );
       }
     } else {
       logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {

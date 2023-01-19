@@ -91,7 +91,7 @@ export class TransfersCache extends Cache {
   }
 
   /**
-   * Prune transfers by Ids. Sometimes there could be cases we want to clear transfers by its status.
+   * Prune transfers by Ids. Sometimes there could be cases we want to clear transfers by its id.
    * In this case, `pruneTransfers(domain: number)` wouldn't work ideally
    * because it deletes all the transfers with the lower nonce than the latest one.
    *
