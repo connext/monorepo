@@ -1,24 +1,33 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 
-import { SKIP_SETUP } from "../src/constants";
+import { getContract } from "../src/cli/helpers";
+import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 
 // Helper for deploying a utility contract below and handling proper logs, etc.
-const deployContract = async (params: { hre: HardhatRuntimeEnvironment; deployer: Wallet; contractName: string }) => {
-  const { hre, deployer, contractName } = params;
-  let deployment = await hre.deployments.getOrNull(contractName);
+const deployContract = async (params: {
+  hre: HardhatRuntimeEnvironment;
+  deployer: Wallet;
+  contractName: string;
+  args: any[];
+}): Promise<DeployResult | undefined> => {
+  const { hre, deployer, contractName, args } = params;
+  const deployment = await hre.deployments.getOrNull(contractName);
   if (!deployment) {
     console.log(`Deploying ${contractName} contract...`);
-    deployment = await hre.deployments.deploy(contractName, {
+    const deployResult = await hre.deployments.deploy(contractName, {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
       contract: contractName,
+      args: args,
     });
-    console.log(`Deployed ${contractName} contract to: ${deployment.address}`);
+    console.log(`Deployed ${contractName} contract to: ${deployResult.address}`);
+    return deployResult;
   } else {
     console.log(`${contractName} contract already deployed at: ${deployment.address}`);
+    return;
   }
 };
 
@@ -43,19 +52,34 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Should have skipped setup for this chain (${chainId})`);
   }
 
+  const network = await hre.ethers.provider.getNetwork();
+  console.log("network: ", network);
+  const chain = network.chainId;
+
   /// MARK - MultiSend
   // NOTE: MultiSend will be shared between staging and production environments; we do not
   // deploy 1 for each.
   // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
   // making xcalls transferring WETH tokens.
-  deployContract({ hre, deployer, contractName: "MultiSend" });
+  await deployContract({ hre, deployer, contractName: "MultiSend", args: [] });
 
   /// MARK - Unwrapper
   // NOTE: Unwrapper can be shared between staging and production environments; we do not
   // deploy 1 for each.
   // Unwrapper utility contract is used by the SDK to conveniently unwrap WETH => ETH on the
   // transfer's destination chain after an xcall transferring WETH tokens.
-  deployContract({ hre, deployer, contractName: "Unwrapper" });
+  const connext = getContract("Connext_DiamondProxy", chain.toString(), false);
+  const wrappedETH = WRAPPED_ETH_MAP.get(chain);
+  if (!wrappedETH) {
+    throw new Error(`Wrapped ETH contract not defined in WRAPPED_ETH_MAP for this domain!`);
+  }
+
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "Unwrapper",
+    args: [connext.address, wrappedETH],
+  });
 };
 
 export default func;
