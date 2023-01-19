@@ -1,10 +1,10 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { Connext, Connext__factory, domainToChainId, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
+import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
 import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, domainsToChainNames } from "./config";
@@ -117,15 +117,16 @@ export class NxtpSdkShared {
     const data: AssetData[] = await this.getAssetsData();
 
     const supported: Map<string, ConnextSupport> = new Map();
+
     await Promise.all(
-      data.map((asset) => {
+      data.map(async (asset) => {
         if (supported.get(asset.domain)) {
           const support = supported.get(asset.domain)!;
           support.assets.push(asset.adopted);
         } else {
           const support: ConnextSupport = {
             name: domainsToChainNames[asset.domain],
-            chainId: domainToChainId(Number(asset.domain)),
+            chainId: await getChainIdFromDomain(asset.domain),
             domainId: asset.domain,
             assets: [asset.adopted],
           };
