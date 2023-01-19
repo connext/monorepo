@@ -110,40 +110,24 @@ input local1337_Asset_filter {
   id_not_in: [ID!]
   key: local1337_Bytes
   key_not: local1337_Bytes
-  key_gt: local1337_Bytes
-  key_lt: local1337_Bytes
-  key_gte: local1337_Bytes
-  key_lte: local1337_Bytes
   key_in: [local1337_Bytes!]
   key_not_in: [local1337_Bytes!]
   key_contains: local1337_Bytes
   key_not_contains: local1337_Bytes
   local: local1337_Bytes
   local_not: local1337_Bytes
-  local_gt: local1337_Bytes
-  local_lt: local1337_Bytes
-  local_gte: local1337_Bytes
-  local_lte: local1337_Bytes
   local_in: [local1337_Bytes!]
   local_not_in: [local1337_Bytes!]
   local_contains: local1337_Bytes
   local_not_contains: local1337_Bytes
   adoptedAsset: local1337_Bytes
   adoptedAsset_not: local1337_Bytes
-  adoptedAsset_gt: local1337_Bytes
-  adoptedAsset_lt: local1337_Bytes
-  adoptedAsset_gte: local1337_Bytes
-  adoptedAsset_lte: local1337_Bytes
   adoptedAsset_in: [local1337_Bytes!]
   adoptedAsset_not_in: [local1337_Bytes!]
   adoptedAsset_contains: local1337_Bytes
   adoptedAsset_not_contains: local1337_Bytes
   canonicalId: local1337_Bytes
   canonicalId_not: local1337_Bytes
-  canonicalId_gt: local1337_Bytes
-  canonicalId_lt: local1337_Bytes
-  canonicalId_gte: local1337_Bytes
-  canonicalId_lte: local1337_Bytes
   canonicalId_in: [local1337_Bytes!]
   canonicalId_not_in: [local1337_Bytes!]
   canonicalId_contains: local1337_Bytes
@@ -252,10 +236,6 @@ input local1337_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: local1337_Bytes
   transferId_not: local1337_Bytes
-  transferId_gt: local1337_Bytes
-  transferId_lt: local1337_Bytes
-  transferId_gte: local1337_Bytes
-  transferId_lte: local1337_Bytes
   transferId_in: [local1337_Bytes!]
   transferId_not_in: [local1337_Bytes!]
   transferId_contains: local1337_Bytes
@@ -270,20 +250,12 @@ input local1337_DestinationTransfer_filter {
   nonce_not_in: [BigInt!]
   to: local1337_Bytes
   to_not: local1337_Bytes
-  to_gt: local1337_Bytes
-  to_lt: local1337_Bytes
-  to_gte: local1337_Bytes
-  to_lte: local1337_Bytes
   to_in: [local1337_Bytes!]
   to_not_in: [local1337_Bytes!]
   to_contains: local1337_Bytes
   to_not_contains: local1337_Bytes
   callData: local1337_Bytes
   callData_not: local1337_Bytes
-  callData_gt: local1337_Bytes
-  callData_lt: local1337_Bytes
-  callData_gte: local1337_Bytes
-  callData_lte: local1337_Bytes
   callData_in: [local1337_Bytes!]
   callData_not_in: [local1337_Bytes!]
   callData_contains: local1337_Bytes
@@ -306,20 +278,12 @@ input local1337_DestinationTransfer_filter {
   destinationDomain_not_in: [BigInt!]
   agent: local1337_Bytes
   agent_not: local1337_Bytes
-  agent_gt: local1337_Bytes
-  agent_lt: local1337_Bytes
-  agent_gte: local1337_Bytes
-  agent_lte: local1337_Bytes
   agent_in: [local1337_Bytes!]
   agent_not_in: [local1337_Bytes!]
   agent_contains: local1337_Bytes
   agent_not_contains: local1337_Bytes
   recovery: local1337_Bytes
   recovery_not: local1337_Bytes
-  recovery_gt: local1337_Bytes
-  recovery_lt: local1337_Bytes
-  recovery_gte: local1337_Bytes
-  recovery_lte: local1337_Bytes
   recovery_in: [local1337_Bytes!]
   recovery_not_in: [local1337_Bytes!]
   recovery_contains: local1337_Bytes
@@ -334,10 +298,6 @@ input local1337_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callback: local1337_Bytes
   callback_not: local1337_Bytes
-  callback_gt: local1337_Bytes
-  callback_lt: local1337_Bytes
-  callback_gte: local1337_Bytes
-  callback_lte: local1337_Bytes
   callback_in: [local1337_Bytes!]
   callback_not_in: [local1337_Bytes!]
   callback_contains: local1337_Bytes
@@ -379,20 +339,12 @@ input local1337_DestinationTransfer_filter {
   routers_: local1337_Router_filter
   originSender: local1337_Bytes
   originSender_not: local1337_Bytes
-  originSender_gt: local1337_Bytes
-  originSender_lt: local1337_Bytes
-  originSender_gte: local1337_Bytes
-  originSender_lte: local1337_Bytes
   originSender_in: [local1337_Bytes!]
   originSender_not_in: [local1337_Bytes!]
   originSender_contains: local1337_Bytes
   originSender_not_contains: local1337_Bytes
   transactingAsset: local1337_Bytes
   transactingAsset_not: local1337_Bytes
-  transactingAsset_gt: local1337_Bytes
-  transactingAsset_lt: local1337_Bytes
-  transactingAsset_gte: local1337_Bytes
-  transactingAsset_lte: local1337_Bytes
   transactingAsset_in: [local1337_Bytes!]
   transactingAsset_not_in: [local1337_Bytes!]
   transactingAsset_contains: local1337_Bytes
@@ -407,10 +359,6 @@ input local1337_DestinationTransfer_filter {
   transactingAmount_not_in: [BigInt!]
   localAsset: local1337_Bytes
   localAsset_not: local1337_Bytes
-  localAsset_gt: local1337_Bytes
-  localAsset_lt: local1337_Bytes
-  localAsset_gte: local1337_Bytes
-  localAsset_lte: local1337_Bytes
   localAsset_in: [local1337_Bytes!]
   localAsset_not_in: [local1337_Bytes!]
   localAsset_contains: local1337_Bytes
@@ -433,20 +381,12 @@ input local1337_DestinationTransfer_filter {
   sponsorVaultRelayerFee_not_in: [BigInt!]
   executedCaller: local1337_Bytes
   executedCaller_not: local1337_Bytes
-  executedCaller_gt: local1337_Bytes
-  executedCaller_lt: local1337_Bytes
-  executedCaller_gte: local1337_Bytes
-  executedCaller_lte: local1337_Bytes
   executedCaller_in: [local1337_Bytes!]
   executedCaller_not_in: [local1337_Bytes!]
   executedCaller_contains: local1337_Bytes
   executedCaller_not_contains: local1337_Bytes
   executedTransactionHash: local1337_Bytes
   executedTransactionHash_not: local1337_Bytes
-  executedTransactionHash_gt: local1337_Bytes
-  executedTransactionHash_lt: local1337_Bytes
-  executedTransactionHash_gte: local1337_Bytes
-  executedTransactionHash_lte: local1337_Bytes
   executedTransactionHash_in: [local1337_Bytes!]
   executedTransactionHash_not_in: [local1337_Bytes!]
   executedTransactionHash_contains: local1337_Bytes
@@ -485,20 +425,12 @@ input local1337_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   reconciledCaller: local1337_Bytes
   reconciledCaller_not: local1337_Bytes
-  reconciledCaller_gt: local1337_Bytes
-  reconciledCaller_lt: local1337_Bytes
-  reconciledCaller_gte: local1337_Bytes
-  reconciledCaller_lte: local1337_Bytes
   reconciledCaller_in: [local1337_Bytes!]
   reconciledCaller_not_in: [local1337_Bytes!]
   reconciledCaller_contains: local1337_Bytes
   reconciledCaller_not_contains: local1337_Bytes
   reconciledTransactionHash: local1337_Bytes
   reconciledTransactionHash_not: local1337_Bytes
-  reconciledTransactionHash_gt: local1337_Bytes
-  reconciledTransactionHash_lt: local1337_Bytes
-  reconciledTransactionHash_gte: local1337_Bytes
-  reconciledTransactionHash_lte: local1337_Bytes
   reconciledTransactionHash_in: [local1337_Bytes!]
   reconciledTransactionHash_not_in: [local1337_Bytes!]
   reconciledTransactionHash_contains: local1337_Bytes
@@ -634,10 +566,6 @@ input local1337_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: local1337_Bytes
   transferId_not: local1337_Bytes
-  transferId_gt: local1337_Bytes
-  transferId_lt: local1337_Bytes
-  transferId_gte: local1337_Bytes
-  transferId_lte: local1337_Bytes
   transferId_in: [local1337_Bytes!]
   transferId_not_in: [local1337_Bytes!]
   transferId_contains: local1337_Bytes
@@ -652,20 +580,12 @@ input local1337_OriginTransfer_filter {
   nonce_not_in: [BigInt!]
   to: local1337_Bytes
   to_not: local1337_Bytes
-  to_gt: local1337_Bytes
-  to_lt: local1337_Bytes
-  to_gte: local1337_Bytes
-  to_lte: local1337_Bytes
   to_in: [local1337_Bytes!]
   to_not_in: [local1337_Bytes!]
   to_contains: local1337_Bytes
   to_not_contains: local1337_Bytes
   callData: local1337_Bytes
   callData_not: local1337_Bytes
-  callData_gt: local1337_Bytes
-  callData_lt: local1337_Bytes
-  callData_gte: local1337_Bytes
-  callData_lte: local1337_Bytes
   callData_in: [local1337_Bytes!]
   callData_not_in: [local1337_Bytes!]
   callData_contains: local1337_Bytes
@@ -688,20 +608,12 @@ input local1337_OriginTransfer_filter {
   destinationDomain_not_in: [BigInt!]
   agent: local1337_Bytes
   agent_not: local1337_Bytes
-  agent_gt: local1337_Bytes
-  agent_lt: local1337_Bytes
-  agent_gte: local1337_Bytes
-  agent_lte: local1337_Bytes
   agent_in: [local1337_Bytes!]
   agent_not_in: [local1337_Bytes!]
   agent_contains: local1337_Bytes
   agent_not_contains: local1337_Bytes
   recovery: local1337_Bytes
   recovery_not: local1337_Bytes
-  recovery_gt: local1337_Bytes
-  recovery_lt: local1337_Bytes
-  recovery_gte: local1337_Bytes
-  recovery_lte: local1337_Bytes
   recovery_in: [local1337_Bytes!]
   recovery_not_in: [local1337_Bytes!]
   recovery_contains: local1337_Bytes
@@ -716,10 +628,6 @@ input local1337_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callback: local1337_Bytes
   callback_not: local1337_Bytes
-  callback_gt: local1337_Bytes
-  callback_lt: local1337_Bytes
-  callback_gte: local1337_Bytes
-  callback_lte: local1337_Bytes
   callback_in: [local1337_Bytes!]
   callback_not_in: [local1337_Bytes!]
   callback_contains: local1337_Bytes
@@ -762,10 +670,6 @@ input local1337_OriginTransfer_filter {
   originMinOut_not_in: [BigInt!]
   transactingAsset: local1337_Bytes
   transactingAsset_not: local1337_Bytes
-  transactingAsset_gt: local1337_Bytes
-  transactingAsset_lt: local1337_Bytes
-  transactingAsset_gte: local1337_Bytes
-  transactingAsset_lte: local1337_Bytes
   transactingAsset_in: [local1337_Bytes!]
   transactingAsset_not_in: [local1337_Bytes!]
   transactingAsset_contains: local1337_Bytes
@@ -780,10 +684,6 @@ input local1337_OriginTransfer_filter {
   transactingAmount_not_in: [BigInt!]
   bridgedAsset: local1337_Bytes
   bridgedAsset_not: local1337_Bytes
-  bridgedAsset_gt: local1337_Bytes
-  bridgedAsset_lt: local1337_Bytes
-  bridgedAsset_gte: local1337_Bytes
-  bridgedAsset_lte: local1337_Bytes
   bridgedAsset_in: [local1337_Bytes!]
   bridgedAsset_not_in: [local1337_Bytes!]
   bridgedAsset_contains: local1337_Bytes
@@ -798,20 +698,12 @@ input local1337_OriginTransfer_filter {
   bridgedAmount_not_in: [BigInt!]
   caller: local1337_Bytes
   caller_not: local1337_Bytes
-  caller_gt: local1337_Bytes
-  caller_lt: local1337_Bytes
-  caller_gte: local1337_Bytes
-  caller_lte: local1337_Bytes
   caller_in: [local1337_Bytes!]
   caller_not_in: [local1337_Bytes!]
   caller_contains: local1337_Bytes
   caller_not_contains: local1337_Bytes
   transactionHash: local1337_Bytes
   transactionHash_not: local1337_Bytes
-  transactionHash_gt: local1337_Bytes
-  transactionHash_lt: local1337_Bytes
-  transactionHash_gte: local1337_Bytes
-  transactionHash_lte: local1337_Bytes
   transactionHash_in: [local1337_Bytes!]
   transactionHash_not_in: [local1337_Bytes!]
   transactionHash_contains: local1337_Bytes
@@ -1143,10 +1035,6 @@ input local1337_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: local1337_Bytes
   relayer_not: local1337_Bytes
-  relayer_gt: local1337_Bytes
-  relayer_lt: local1337_Bytes
-  relayer_gte: local1337_Bytes
-  relayer_lte: local1337_Bytes
   relayer_in: [local1337_Bytes!]
   relayer_not_in: [local1337_Bytes!]
   relayer_contains: local1337_Bytes
@@ -1186,30 +1074,18 @@ input local1337_Router_filter {
   isActive_not_in: [Boolean!]
   owner: local1337_Bytes
   owner_not: local1337_Bytes
-  owner_gt: local1337_Bytes
-  owner_lt: local1337_Bytes
-  owner_gte: local1337_Bytes
-  owner_lte: local1337_Bytes
   owner_in: [local1337_Bytes!]
   owner_not_in: [local1337_Bytes!]
   owner_contains: local1337_Bytes
   owner_not_contains: local1337_Bytes
   recipient: local1337_Bytes
   recipient_not: local1337_Bytes
-  recipient_gt: local1337_Bytes
-  recipient_lt: local1337_Bytes
-  recipient_gte: local1337_Bytes
-  recipient_lte: local1337_Bytes
   recipient_in: [local1337_Bytes!]
   recipient_not_in: [local1337_Bytes!]
   recipient_contains: local1337_Bytes
   recipient_not_contains: local1337_Bytes
   proposedOwner: local1337_Bytes
   proposedOwner_not: local1337_Bytes
-  proposedOwner_gt: local1337_Bytes
-  proposedOwner_lt: local1337_Bytes
-  proposedOwner_gte: local1337_Bytes
-  proposedOwner_lte: local1337_Bytes
   proposedOwner_in: [local1337_Bytes!]
   proposedOwner_not_in: [local1337_Bytes!]
   proposedOwner_contains: local1337_Bytes
@@ -1262,10 +1138,6 @@ input local1337_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: local1337_Bytes
   caller_not: local1337_Bytes
-  caller_gt: local1337_Bytes
-  caller_lt: local1337_Bytes
-  caller_gte: local1337_Bytes
-  caller_lte: local1337_Bytes
   caller_in: [local1337_Bytes!]
   caller_not_in: [local1337_Bytes!]
   caller_contains: local1337_Bytes
@@ -1296,10 +1168,6 @@ input local1337_SponsorVault_filter {
   id_not_in: [ID!]
   sponsorVault: local1337_Bytes
   sponsorVault_not: local1337_Bytes
-  sponsorVault_gt: local1337_Bytes
-  sponsorVault_lt: local1337_Bytes
-  sponsorVault_gte: local1337_Bytes
-  sponsorVault_lte: local1337_Bytes
   sponsorVault_in: [local1337_Bytes!]
   sponsorVault_not_in: [local1337_Bytes!]
   sponsorVault_contains: local1337_Bytes
@@ -1331,10 +1199,6 @@ input local1337_StableSwap_filter {
   id_not_in: [ID!]
   canonicalId: local1337_Bytes
   canonicalId_not: local1337_Bytes
-  canonicalId_gt: local1337_Bytes
-  canonicalId_lt: local1337_Bytes
-  canonicalId_gte: local1337_Bytes
-  canonicalId_lte: local1337_Bytes
   canonicalId_in: [local1337_Bytes!]
   canonicalId_not_in: [local1337_Bytes!]
   canonicalId_contains: local1337_Bytes
@@ -1349,10 +1213,6 @@ input local1337_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: local1337_Bytes
   swapPool_not: local1337_Bytes
-  swapPool_gt: local1337_Bytes
-  swapPool_lt: local1337_Bytes
-  swapPool_gte: local1337_Bytes
-  swapPool_lte: local1337_Bytes
   swapPool_in: [local1337_Bytes!]
   swapPool_not_in: [local1337_Bytes!]
   swapPool_contains: local1337_Bytes

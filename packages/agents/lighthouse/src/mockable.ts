@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
 import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
+import { GelatoRelaySDK } from "@gelatonetwork/relay-sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
 import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
@@ -29,6 +30,7 @@ export const encodeProcessMessageFromRoot = (abi: any[], args: any[], functionNa
 };
 
 export const sendWithRelayerWithBackup = _sendWithRelayerWithBackup;
+export const getEstimatedFee = GelatoRelaySDK.getEstimatedFee;
 
 export const EventFetcher = _EventFetcher;
 

@@ -63,10 +63,7 @@ export const TPollingConfig = Type.Object({
 });
 
 export const NxtpRouterConfigSchema = Type.Object({
-  chains: Type.Record(
-    Type.String(),
-    Type.Intersect([TChainConfig, Type.Object({ startNonce: Type.Optional(Type.Integer({ minimum: 0 })) })]),
-  ),
+  chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),

@@ -7,7 +7,7 @@ import {
   createLoggingContext,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 import { RoundInvalid } from "../errors";
@@ -42,6 +42,37 @@ export const encodeExecuteFromBids = async (
   };
   logger.debug("Encoded execute args", requestContext, methodContext, { args });
   return contracts.connext.encodeFunctionData("execute", [args]);
+};
+
+export const encodeRelayerProxyExecuteFromBids = async (
+  round: number,
+  bids: Bid[],
+  transfer: OriginTransfer,
+  fee: BigNumber,
+  _requestContext: RequestContext,
+): Promise<string> => {
+  const {
+    adapters: { contracts, wallet },
+    logger,
+  } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(encodeExecuteFromBids.name, _requestContext);
+  // Sanity check.
+  if (!transfer.origin) {
+    throw new Error("XTransfer provided did not have XCall present!");
+  }
+
+  // Format arguments from XTransfer.
+  const routers = bids.map((b) => b.router);
+  const args: ExecuteArgs = {
+    params: transfer.xparams,
+    routers,
+    routerSignatures: bids.map((b) => b.signatures[round.toString()]),
+    sequencer: await wallet.getAddress(),
+    sequencerSignature: await signSequencerPermitPayload(transfer.transferId, routers, wallet),
+  };
+  logger.debug("Encoded execute args", requestContext, methodContext, { args });
+  return contracts.relayerProxy.encodeFunctionData("execute", [args, fee]);
 };
 
 /**

@@ -29,10 +29,6 @@ input mumbai_AggregateRoot_filter {
   id_not_in: [ID!]
   root: mumbai_Bytes
   root_not: mumbai_Bytes
-  root_gt: mumbai_Bytes
-  root_lt: mumbai_Bytes
-  root_gte: mumbai_Bytes
-  root_lte: mumbai_Bytes
   root_in: [mumbai_Bytes!]
   root_not_in: [mumbai_Bytes!]
   root_contains: mumbai_Bytes
@@ -163,20 +159,12 @@ input mumbai_Asset_filter {
   id_not_in: [ID!]
   key: mumbai_Bytes
   key_not: mumbai_Bytes
-  key_gt: mumbai_Bytes
-  key_lt: mumbai_Bytes
-  key_gte: mumbai_Bytes
-  key_lte: mumbai_Bytes
   key_in: [mumbai_Bytes!]
   key_not_in: [mumbai_Bytes!]
   key_contains: mumbai_Bytes
   key_not_contains: mumbai_Bytes
   canonicalId: mumbai_Bytes
   canonicalId_not: mumbai_Bytes
-  canonicalId_gt: mumbai_Bytes
-  canonicalId_lt: mumbai_Bytes
-  canonicalId_gte: mumbai_Bytes
-  canonicalId_lte: mumbai_Bytes
   canonicalId_in: [mumbai_Bytes!]
   canonicalId_not_in: [mumbai_Bytes!]
   canonicalId_contains: mumbai_Bytes
@@ -191,20 +179,12 @@ input mumbai_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: mumbai_Bytes
   adoptedAsset_not: mumbai_Bytes
-  adoptedAsset_gt: mumbai_Bytes
-  adoptedAsset_lt: mumbai_Bytes
-  adoptedAsset_gte: mumbai_Bytes
-  adoptedAsset_lte: mumbai_Bytes
   adoptedAsset_in: [mumbai_Bytes!]
   adoptedAsset_not_in: [mumbai_Bytes!]
   adoptedAsset_contains: mumbai_Bytes
   adoptedAsset_not_contains: mumbai_Bytes
   localAsset: mumbai_Bytes
   localAsset_not: mumbai_Bytes
-  localAsset_gt: mumbai_Bytes
-  localAsset_lt: mumbai_Bytes
-  localAsset_gte: mumbai_Bytes
-  localAsset_lte: mumbai_Bytes
   localAsset_in: [mumbai_Bytes!]
   localAsset_not_in: [mumbai_Bytes!]
   localAsset_contains: mumbai_Bytes
@@ -283,30 +263,18 @@ input mumbai_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mumbai_Bytes
   amb_not: mumbai_Bytes
-  amb_gt: mumbai_Bytes
-  amb_lt: mumbai_Bytes
-  amb_gte: mumbai_Bytes
-  amb_lte: mumbai_Bytes
   amb_in: [mumbai_Bytes!]
   amb_not_in: [mumbai_Bytes!]
   amb_contains: mumbai_Bytes
   amb_not_contains: mumbai_Bytes
   rootManager: mumbai_Bytes
   rootManager_not: mumbai_Bytes
-  rootManager_gt: mumbai_Bytes
-  rootManager_lt: mumbai_Bytes
-  rootManager_gte: mumbai_Bytes
-  rootManager_lte: mumbai_Bytes
   rootManager_in: [mumbai_Bytes!]
   rootManager_not_in: [mumbai_Bytes!]
   rootManager_contains: mumbai_Bytes
   rootManager_not_contains: mumbai_Bytes
   mirrorConnector: mumbai_Bytes
   mirrorConnector_not: mumbai_Bytes
-  mirrorConnector_gt: mumbai_Bytes
-  mirrorConnector_lt: mumbai_Bytes
-  mirrorConnector_gte: mumbai_Bytes
-  mirrorConnector_lte: mumbai_Bytes
   mirrorConnector_in: [mumbai_Bytes!]
   mirrorConnector_not_in: [mumbai_Bytes!]
   mirrorConnector_contains: mumbai_Bytes
@@ -381,10 +349,6 @@ input mumbai_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mumbai_Bytes
   transferId_not: mumbai_Bytes
-  transferId_gt: mumbai_Bytes
-  transferId_lt: mumbai_Bytes
-  transferId_gte: mumbai_Bytes
-  transferId_lte: mumbai_Bytes
   transferId_in: [mumbai_Bytes!]
   transferId_not_in: [mumbai_Bytes!]
   transferId_contains: mumbai_Bytes
@@ -434,20 +398,12 @@ input mumbai_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mumbai_Bytes
   to_not: mumbai_Bytes
-  to_gt: mumbai_Bytes
-  to_lt: mumbai_Bytes
-  to_gte: mumbai_Bytes
-  to_lte: mumbai_Bytes
   to_in: [mumbai_Bytes!]
   to_not_in: [mumbai_Bytes!]
   to_contains: mumbai_Bytes
   to_not_contains: mumbai_Bytes
   delegate: mumbai_Bytes
   delegate_not: mumbai_Bytes
-  delegate_gt: mumbai_Bytes
-  delegate_lt: mumbai_Bytes
-  delegate_gte: mumbai_Bytes
-  delegate_lte: mumbai_Bytes
   delegate_in: [mumbai_Bytes!]
   delegate_not_in: [mumbai_Bytes!]
   delegate_contains: mumbai_Bytes
@@ -458,10 +414,6 @@ input mumbai_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mumbai_Bytes
   callData_not: mumbai_Bytes
-  callData_gt: mumbai_Bytes
-  callData_lt: mumbai_Bytes
-  callData_gte: mumbai_Bytes
-  callData_lte: mumbai_Bytes
   callData_in: [mumbai_Bytes!]
   callData_not_in: [mumbai_Bytes!]
   callData_contains: mumbai_Bytes
@@ -476,10 +428,6 @@ input mumbai_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: mumbai_Bytes
   originSender_not: mumbai_Bytes
-  originSender_gt: mumbai_Bytes
-  originSender_lt: mumbai_Bytes
-  originSender_gte: mumbai_Bytes
-  originSender_lte: mumbai_Bytes
   originSender_in: [mumbai_Bytes!]
   originSender_not_in: [mumbai_Bytes!]
   originSender_contains: mumbai_Bytes
@@ -502,10 +450,6 @@ input mumbai_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mumbai_Bytes
   canonicalId_not: mumbai_Bytes
-  canonicalId_gt: mumbai_Bytes
-  canonicalId_lt: mumbai_Bytes
-  canonicalId_gte: mumbai_Bytes
-  canonicalId_lte: mumbai_Bytes
   canonicalId_in: [mumbai_Bytes!]
   canonicalId_not_in: [mumbai_Bytes!]
   canonicalId_contains: mumbai_Bytes
@@ -549,20 +493,12 @@ input mumbai_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: mumbai_Bytes
   executedCaller_not: mumbai_Bytes
-  executedCaller_gt: mumbai_Bytes
-  executedCaller_lt: mumbai_Bytes
-  executedCaller_gte: mumbai_Bytes
-  executedCaller_lte: mumbai_Bytes
   executedCaller_in: [mumbai_Bytes!]
   executedCaller_not_in: [mumbai_Bytes!]
   executedCaller_contains: mumbai_Bytes
   executedCaller_not_contains: mumbai_Bytes
   executedTransactionHash: mumbai_Bytes
   executedTransactionHash_not: mumbai_Bytes
-  executedTransactionHash_gt: mumbai_Bytes
-  executedTransactionHash_lt: mumbai_Bytes
-  executedTransactionHash_gte: mumbai_Bytes
-  executedTransactionHash_lte: mumbai_Bytes
   executedTransactionHash_in: [mumbai_Bytes!]
   executedTransactionHash_not_in: [mumbai_Bytes!]
   executedTransactionHash_contains: mumbai_Bytes
@@ -601,30 +537,18 @@ input mumbai_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: mumbai_Bytes
   executedTxOrigin_not: mumbai_Bytes
-  executedTxOrigin_gt: mumbai_Bytes
-  executedTxOrigin_lt: mumbai_Bytes
-  executedTxOrigin_gte: mumbai_Bytes
-  executedTxOrigin_lte: mumbai_Bytes
   executedTxOrigin_in: [mumbai_Bytes!]
   executedTxOrigin_not_in: [mumbai_Bytes!]
   executedTxOrigin_contains: mumbai_Bytes
   executedTxOrigin_not_contains: mumbai_Bytes
   reconciledCaller: mumbai_Bytes
   reconciledCaller_not: mumbai_Bytes
-  reconciledCaller_gt: mumbai_Bytes
-  reconciledCaller_lt: mumbai_Bytes
-  reconciledCaller_gte: mumbai_Bytes
-  reconciledCaller_lte: mumbai_Bytes
   reconciledCaller_in: [mumbai_Bytes!]
   reconciledCaller_not_in: [mumbai_Bytes!]
   reconciledCaller_contains: mumbai_Bytes
   reconciledCaller_not_contains: mumbai_Bytes
   reconciledTransactionHash: mumbai_Bytes
   reconciledTransactionHash_not: mumbai_Bytes
-  reconciledTransactionHash_gt: mumbai_Bytes
-  reconciledTransactionHash_lt: mumbai_Bytes
-  reconciledTransactionHash_gte: mumbai_Bytes
-  reconciledTransactionHash_lte: mumbai_Bytes
   reconciledTransactionHash_in: [mumbai_Bytes!]
   reconciledTransactionHash_not_in: [mumbai_Bytes!]
   reconciledTransactionHash_contains: mumbai_Bytes
@@ -663,10 +587,6 @@ input mumbai_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: mumbai_Bytes
   reconciledTxOrigin_not: mumbai_Bytes
-  reconciledTxOrigin_gt: mumbai_Bytes
-  reconciledTxOrigin_lt: mumbai_Bytes
-  reconciledTxOrigin_gte: mumbai_Bytes
-  reconciledTxOrigin_lte: mumbai_Bytes
   reconciledTxOrigin_in: [mumbai_Bytes!]
   reconciledTxOrigin_not_in: [mumbai_Bytes!]
   reconciledTxOrigin_contains: mumbai_Bytes
@@ -743,10 +663,6 @@ input mumbai_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: mumbai_Bytes
   transferId_not: mumbai_Bytes
-  transferId_gt: mumbai_Bytes
-  transferId_lt: mumbai_Bytes
-  transferId_gte: mumbai_Bytes
-  transferId_lte: mumbai_Bytes
   transferId_in: [mumbai_Bytes!]
   transferId_not_in: [mumbai_Bytes!]
   transferId_contains: mumbai_Bytes
@@ -761,10 +677,6 @@ input mumbai_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: mumbai_Bytes
   leaf_not: mumbai_Bytes
-  leaf_gt: mumbai_Bytes
-  leaf_lt: mumbai_Bytes
-  leaf_gte: mumbai_Bytes
-  leaf_lte: mumbai_Bytes
   leaf_in: [mumbai_Bytes!]
   leaf_not_in: [mumbai_Bytes!]
   leaf_contains: mumbai_Bytes
@@ -779,30 +691,18 @@ input mumbai_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: mumbai_Bytes
   message_not: mumbai_Bytes
-  message_gt: mumbai_Bytes
-  message_lt: mumbai_Bytes
-  message_gte: mumbai_Bytes
-  message_lte: mumbai_Bytes
   message_in: [mumbai_Bytes!]
   message_not_in: [mumbai_Bytes!]
   message_contains: mumbai_Bytes
   message_not_contains: mumbai_Bytes
   root: mumbai_Bytes
   root_not: mumbai_Bytes
-  root_gt: mumbai_Bytes
-  root_lt: mumbai_Bytes
-  root_gte: mumbai_Bytes
-  root_lte: mumbai_Bytes
   root_in: [mumbai_Bytes!]
   root_not_in: [mumbai_Bytes!]
   root_contains: mumbai_Bytes
   root_not_contains: mumbai_Bytes
   transactionHash: mumbai_Bytes
   transactionHash_not: mumbai_Bytes
-  transactionHash_gt: mumbai_Bytes
-  transactionHash_lt: mumbai_Bytes
-  transactionHash_gte: mumbai_Bytes
-  transactionHash_lte: mumbai_Bytes
   transactionHash_in: [mumbai_Bytes!]
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
@@ -904,10 +804,6 @@ input mumbai_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mumbai_Bytes
   transferId_not: mumbai_Bytes
-  transferId_gt: mumbai_Bytes
-  transferId_lt: mumbai_Bytes
-  transferId_gte: mumbai_Bytes
-  transferId_lte: mumbai_Bytes
   transferId_in: [mumbai_Bytes!]
   transferId_not_in: [mumbai_Bytes!]
   transferId_contains: mumbai_Bytes
@@ -926,10 +822,6 @@ input mumbai_OriginTransfer_filter {
   status_not_in: [mumbai_TransferStatus!]
   messageHash: mumbai_Bytes
   messageHash_not: mumbai_Bytes
-  messageHash_gt: mumbai_Bytes
-  messageHash_lt: mumbai_Bytes
-  messageHash_gte: mumbai_Bytes
-  messageHash_lte: mumbai_Bytes
   messageHash_in: [mumbai_Bytes!]
   messageHash_not_in: [mumbai_Bytes!]
   messageHash_contains: mumbai_Bytes
@@ -960,20 +852,12 @@ input mumbai_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mumbai_Bytes
   to_not: mumbai_Bytes
-  to_gt: mumbai_Bytes
-  to_lt: mumbai_Bytes
-  to_gte: mumbai_Bytes
-  to_lte: mumbai_Bytes
   to_in: [mumbai_Bytes!]
   to_not_in: [mumbai_Bytes!]
   to_contains: mumbai_Bytes
   to_not_contains: mumbai_Bytes
   delegate: mumbai_Bytes
   delegate_not: mumbai_Bytes
-  delegate_gt: mumbai_Bytes
-  delegate_lt: mumbai_Bytes
-  delegate_gte: mumbai_Bytes
-  delegate_lte: mumbai_Bytes
   delegate_in: [mumbai_Bytes!]
   delegate_not_in: [mumbai_Bytes!]
   delegate_contains: mumbai_Bytes
@@ -984,10 +868,6 @@ input mumbai_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mumbai_Bytes
   callData_not: mumbai_Bytes
-  callData_gt: mumbai_Bytes
-  callData_lt: mumbai_Bytes
-  callData_gte: mumbai_Bytes
-  callData_lte: mumbai_Bytes
   callData_in: [mumbai_Bytes!]
   callData_not_in: [mumbai_Bytes!]
   callData_contains: mumbai_Bytes
@@ -1002,10 +882,6 @@ input mumbai_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: mumbai_Bytes
   originSender_not: mumbai_Bytes
-  originSender_gt: mumbai_Bytes
-  originSender_lt: mumbai_Bytes
-  originSender_gte: mumbai_Bytes
-  originSender_lte: mumbai_Bytes
   originSender_in: [mumbai_Bytes!]
   originSender_not_in: [mumbai_Bytes!]
   originSender_contains: mumbai_Bytes
@@ -1028,10 +904,6 @@ input mumbai_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mumbai_Bytes
   canonicalId_not: mumbai_Bytes
-  canonicalId_gt: mumbai_Bytes
-  canonicalId_lt: mumbai_Bytes
-  canonicalId_gte: mumbai_Bytes
-  canonicalId_lte: mumbai_Bytes
   canonicalId_in: [mumbai_Bytes!]
   canonicalId_not_in: [mumbai_Bytes!]
   canonicalId_contains: mumbai_Bytes
@@ -1059,10 +931,6 @@ input mumbai_OriginTransfer_filter {
   asset_: mumbai_Asset_filter
   transacting: mumbai_Bytes
   transacting_not: mumbai_Bytes
-  transacting_gt: mumbai_Bytes
-  transacting_lt: mumbai_Bytes
-  transacting_gte: mumbai_Bytes
-  transacting_lte: mumbai_Bytes
   transacting_in: [mumbai_Bytes!]
   transacting_not_in: [mumbai_Bytes!]
   transacting_contains: mumbai_Bytes
@@ -1098,20 +966,12 @@ input mumbai_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: mumbai_Bytes
   caller_not: mumbai_Bytes
-  caller_gt: mumbai_Bytes
-  caller_lt: mumbai_Bytes
-  caller_gte: mumbai_Bytes
-  caller_lte: mumbai_Bytes
   caller_in: [mumbai_Bytes!]
   caller_not_in: [mumbai_Bytes!]
   caller_contains: mumbai_Bytes
   caller_not_contains: mumbai_Bytes
   transactionHash: mumbai_Bytes
   transactionHash_not: mumbai_Bytes
-  transactionHash_gt: mumbai_Bytes
-  transactionHash_lt: mumbai_Bytes
-  transactionHash_gte: mumbai_Bytes
-  transactionHash_lte: mumbai_Bytes
   transactionHash_in: [mumbai_Bytes!]
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
@@ -1150,10 +1010,6 @@ input mumbai_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: mumbai_Bytes
   txOrigin_not: mumbai_Bytes
-  txOrigin_gt: mumbai_Bytes
-  txOrigin_lt: mumbai_Bytes
-  txOrigin_gte: mumbai_Bytes
-  txOrigin_lte: mumbai_Bytes
   txOrigin_in: [mumbai_Bytes!]
   txOrigin_not_in: [mumbai_Bytes!]
   txOrigin_contains: mumbai_Bytes
@@ -1210,10 +1066,6 @@ input mumbai_PooledToken_filter {
   id_not_in: [ID!]
   asset: mumbai_Bytes
   asset_not: mumbai_Bytes
-  asset_gt: mumbai_Bytes
-  asset_lt: mumbai_Bytes
-  asset_gte: mumbai_Bytes
-  asset_lte: mumbai_Bytes
   asset_in: [mumbai_Bytes!]
   asset_not_in: [mumbai_Bytes!]
   asset_contains: mumbai_Bytes
@@ -1695,10 +1547,6 @@ input mumbai_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: mumbai_Bytes
   relayer_not: mumbai_Bytes
-  relayer_gt: mumbai_Bytes
-  relayer_lt: mumbai_Bytes
-  relayer_gte: mumbai_Bytes
-  relayer_lte: mumbai_Bytes
   relayer_in: [mumbai_Bytes!]
   relayer_not_in: [mumbai_Bytes!]
   relayer_contains: mumbai_Bytes
@@ -1785,10 +1633,6 @@ input mumbai_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: mumbai_Bytes
   root_not: mumbai_Bytes
-  root_gt: mumbai_Bytes
-  root_lt: mumbai_Bytes
-  root_gte: mumbai_Bytes
-  root_lte: mumbai_Bytes
   root_in: [mumbai_Bytes!]
   root_not_in: [mumbai_Bytes!]
   root_contains: mumbai_Bytes
@@ -1803,20 +1647,12 @@ input mumbai_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: mumbai_Bytes
   caller_not: mumbai_Bytes
-  caller_gt: mumbai_Bytes
-  caller_lt: mumbai_Bytes
-  caller_gte: mumbai_Bytes
-  caller_lte: mumbai_Bytes
   caller_in: [mumbai_Bytes!]
   caller_not_in: [mumbai_Bytes!]
   caller_contains: mumbai_Bytes
   caller_not_contains: mumbai_Bytes
   transactionHash: mumbai_Bytes
   transactionHash_not: mumbai_Bytes
-  transactionHash_gt: mumbai_Bytes
-  transactionHash_lt: mumbai_Bytes
-  transactionHash_gte: mumbai_Bytes
-  transactionHash_lte: mumbai_Bytes
   transactionHash_in: [mumbai_Bytes!]
   transactionHash_not_in: [mumbai_Bytes!]
   transactionHash_contains: mumbai_Bytes
@@ -1896,30 +1732,18 @@ input mumbai_Router_filter {
   isActive_not_in: [Boolean!]
   owner: mumbai_Bytes
   owner_not: mumbai_Bytes
-  owner_gt: mumbai_Bytes
-  owner_lt: mumbai_Bytes
-  owner_gte: mumbai_Bytes
-  owner_lte: mumbai_Bytes
   owner_in: [mumbai_Bytes!]
   owner_not_in: [mumbai_Bytes!]
   owner_contains: mumbai_Bytes
   owner_not_contains: mumbai_Bytes
   recipient: mumbai_Bytes
   recipient_not: mumbai_Bytes
-  recipient_gt: mumbai_Bytes
-  recipient_lt: mumbai_Bytes
-  recipient_gte: mumbai_Bytes
-  recipient_lte: mumbai_Bytes
   recipient_in: [mumbai_Bytes!]
   recipient_not_in: [mumbai_Bytes!]
   recipient_contains: mumbai_Bytes
   recipient_not_contains: mumbai_Bytes
   proposedOwner: mumbai_Bytes
   proposedOwner_not: mumbai_Bytes
-  proposedOwner_gt: mumbai_Bytes
-  proposedOwner_lt: mumbai_Bytes
-  proposedOwner_gte: mumbai_Bytes
-  proposedOwner_lte: mumbai_Bytes
   proposedOwner_in: [mumbai_Bytes!]
   proposedOwner_not_in: [mumbai_Bytes!]
   proposedOwner_contains: mumbai_Bytes
@@ -1968,10 +1792,6 @@ input mumbai_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: mumbai_Bytes
   sequencer_not: mumbai_Bytes
-  sequencer_gt: mumbai_Bytes
-  sequencer_lt: mumbai_Bytes
-  sequencer_gte: mumbai_Bytes
-  sequencer_lte: mumbai_Bytes
   sequencer_in: [mumbai_Bytes!]
   sequencer_not_in: [mumbai_Bytes!]
   sequencer_contains: mumbai_Bytes
@@ -2011,10 +1831,6 @@ input mumbai_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: mumbai_Bytes
   caller_not: mumbai_Bytes
-  caller_gt: mumbai_Bytes
-  caller_lt: mumbai_Bytes
-  caller_gte: mumbai_Bytes
-  caller_lte: mumbai_Bytes
   caller_in: [mumbai_Bytes!]
   caller_not_in: [mumbai_Bytes!]
   caller_contains: mumbai_Bytes
@@ -2070,10 +1886,6 @@ input mumbai_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: mumbai_Bytes
   provider_not: mumbai_Bytes
-  provider_gt: mumbai_Bytes
-  provider_lt: mumbai_Bytes
-  provider_gte: mumbai_Bytes
-  provider_lte: mumbai_Bytes
   provider_in: [mumbai_Bytes!]
   provider_not_in: [mumbai_Bytes!]
   provider_contains: mumbai_Bytes
@@ -2156,20 +1968,12 @@ input mumbai_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: mumbai_Bytes
   key_not: mumbai_Bytes
-  key_gt: mumbai_Bytes
-  key_lt: mumbai_Bytes
-  key_gte: mumbai_Bytes
-  key_lte: mumbai_Bytes
   key_in: [mumbai_Bytes!]
   key_not_in: [mumbai_Bytes!]
   key_contains: mumbai_Bytes
   key_not_contains: mumbai_Bytes
   canonicalId: mumbai_Bytes
   canonicalId_not: mumbai_Bytes
-  canonicalId_gt: mumbai_Bytes
-  canonicalId_lt: mumbai_Bytes
-  canonicalId_gte: mumbai_Bytes
-  canonicalId_lte: mumbai_Bytes
   canonicalId_in: [mumbai_Bytes!]
   canonicalId_not_in: [mumbai_Bytes!]
   canonicalId_contains: mumbai_Bytes
@@ -2184,20 +1988,12 @@ input mumbai_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: mumbai_Bytes
   swapPool_not: mumbai_Bytes
-  swapPool_gt: mumbai_Bytes
-  swapPool_lt: mumbai_Bytes
-  swapPool_gte: mumbai_Bytes
-  swapPool_lte: mumbai_Bytes
   swapPool_in: [mumbai_Bytes!]
   swapPool_not_in: [mumbai_Bytes!]
   swapPool_contains: mumbai_Bytes
   swapPool_not_contains: mumbai_Bytes
   lpToken: mumbai_Bytes
   lpToken_not: mumbai_Bytes
-  lpToken_gt: mumbai_Bytes
-  lpToken_lt: mumbai_Bytes
-  lpToken_gte: mumbai_Bytes
-  lpToken_lte: mumbai_Bytes
   lpToken_in: [mumbai_Bytes!]
   lpToken_not_in: [mumbai_Bytes!]
   lpToken_contains: mumbai_Bytes
@@ -2763,10 +2559,6 @@ input mumbai_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: mumbai_Bytes
   transferId_not: mumbai_Bytes
-  transferId_gt: mumbai_Bytes
-  transferId_lt: mumbai_Bytes
-  transferId_gte: mumbai_Bytes
-  transferId_lte: mumbai_Bytes
   transferId_in: [mumbai_Bytes!]
   transferId_not_in: [mumbai_Bytes!]
   transferId_contains: mumbai_Bytes
