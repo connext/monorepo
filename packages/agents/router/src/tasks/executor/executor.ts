@@ -1,5 +1,7 @@
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 import { getConfig } from "../../config";
 
@@ -37,6 +39,12 @@ export const makeExecutor = async () => {
     context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },
     });
+
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+
+    context.routerAddress = await context.adapters.wallet.getAddress();
 
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader" }),

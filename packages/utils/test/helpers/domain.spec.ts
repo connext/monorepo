@@ -18,11 +18,11 @@ describe("Helpers:domain", () => {
     });
     it("happy: should get chainId from domain with the `chainData` argument", async () => {
       const chainId = await getChainIdFromDomain("13337", mock.chainData());
-      expect(chainId).to.be.eq(23337);
+      expect(chainId).to.be.eq(1337);
     });
     it("happy: should get chainId from domain using `getChainData`", async () => {
       const chainId = await getChainIdFromDomain("13337");
-      expect(chainId).to.be.eq(23337);
+      expect(chainId).to.be.eq(1337);
     });
   });
   describe("#getDomainFromChainId", () => {
@@ -30,11 +30,11 @@ describe("Helpers:domain", () => {
       expect(getDomainFromChainId(2000, mock.chainData())).to.be.eventually.throw();
     });
     it("happy: should get domain from chainId with the `chainData` argument", async () => {
-      const domain = await getDomainFromChainId(23337, mock.chainData());
+      const domain = await getDomainFromChainId(1337, mock.chainData());
       expect(domain).to.be.eq("13337");
     });
     it("happy: should get domain from chainId using `getChainData`", async () => {
-      const domain = await getDomainFromChainId(23337);
+      const domain = await getDomainFromChainId(1337);
       expect(domain).to.be.eq("13337");
     });
   });
