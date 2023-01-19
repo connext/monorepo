@@ -1,0 +1,1646 @@
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+"Marks the GraphQL type as indexable entity.  Each type that should be an entity is required to be annotated with this directive."
+directive @entity on OBJECT
+
+"Defined a Subgraph ID for an object type"
+directive @subgraphId(id: String!) on OBJECT
+
+"creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+scalar optimismgoerli_BigDecimal
+
+scalar BigInt
+
+input optimismgoerli_BlockChangedFilter {
+  number_gte: Int!
+}
+
+input optimismgoerli_Block_height {
+  hash: optimismgoerli_Bytes
+  number: Int
+  number_gte: Int
+}
+
+scalar optimismgoerli_Bytes
+
+"""Defines the order direction, either ascending or descending"""
+enum optimismgoerli_OrderDirection {
+  asc
+  desc
+}
+
+type optimismgoerli_PooledToken {
+  id: ID!
+  asset: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_PooledToken_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  asset: optimismgoerli_Bytes
+  asset_not: optimismgoerli_Bytes
+  asset_gt: optimismgoerli_Bytes
+  asset_lt: optimismgoerli_Bytes
+  asset_gte: optimismgoerli_Bytes
+  asset_lte: optimismgoerli_Bytes
+  asset_in: [optimismgoerli_Bytes!]
+  asset_not_in: [optimismgoerli_Bytes!]
+  asset_contains: optimismgoerli_Bytes
+  asset_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_PooledToken_orderBy {
+  id
+  asset
+}
+
+type Query {
+  optimismgoerli_systemInfo(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SystemInfo
+  optimismgoerli_systemInfos(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SystemInfo_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SystemInfo_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SystemInfo!]!
+  optimismgoerli_pooledToken(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_PooledToken
+  optimismgoerli_pooledTokens(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_PooledToken_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_PooledToken_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_PooledToken!]!
+  optimismgoerli_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwap
+  optimismgoerli_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwap_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwap!]!
+  optimismgoerli_stableSwapAddLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapAddLiquidityEvent
+  optimismgoerli_stableSwapAddLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapAddLiquidityEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapAddLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapAddLiquidityEvent!]!
+  optimismgoerli_stableSwapRemoveLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapRemoveLiquidityEvent
+  optimismgoerli_stableSwapRemoveLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapRemoveLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapRemoveLiquidityEvent!]!
+  optimismgoerli_stableSwapExchange(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapExchange
+  optimismgoerli_stableSwapExchanges(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapExchange_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapExchange_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapExchange!]!
+  optimismgoerli_swapDailyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapDailyVolume
+  optimismgoerli_swapDailyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapDailyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapDailyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapDailyVolume!]!
+  optimismgoerli_swapHourlyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapHourlyVolume
+  optimismgoerli_swapHourlyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapHourlyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapHourlyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapHourlyVolume!]!
+  optimismgoerli_swapWeeklyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapWeeklyVolume
+  optimismgoerli_swapWeeklyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapWeeklyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapWeeklyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapWeeklyVolume!]!
+  optimismgoerli_stableSwapEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapEvent
+  optimismgoerli_stableSwapEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapEvent!]!
+  optimismgoerli_swapTradeVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapTradeVolume
+  optimismgoerli_swapTradeVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapTradeVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapTradeVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapTradeVolume!]!
+  """Access to subgraph metadata"""
+  optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
+}
+
+type optimismgoerli_StableSwap {
+  id: ID!
+  isActive: Boolean
+  key: optimismgoerli_Bytes!
+  canonicalId: optimismgoerli_Bytes
+  domain: BigInt
+  swapPool: optimismgoerli_Bytes
+  lpToken: optimismgoerli_Bytes
+  initialA: BigInt
+  futureA: BigInt
+  initialATime: BigInt
+  futureATime: BigInt
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_PooledToken_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_PooledToken_filter): [optimismgoerli_PooledToken!]!
+  tokenPrecisionMultipliers: [BigInt!]!
+  balances: [BigInt!]!
+  adminFees: [BigInt!]!
+  virtualPrice: BigInt!
+  invariant: BigInt!
+  lpTokenSupply: BigInt!
+  events(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_StableSwapEvent_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_StableSwapEvent_filter): [optimismgoerli_StableSwapEvent!]
+  exchanges(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_StableSwapExchange_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_StableSwapExchange_filter): [optimismgoerli_StableSwapExchange!]
+  hourlyVolumes(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_SwapHourlyVolume_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_SwapHourlyVolume_filter): [optimismgoerli_SwapHourlyVolume!]
+  dailyVolumes(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_SwapDailyVolume_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_SwapDailyVolume_filter): [optimismgoerli_SwapDailyVolume!]
+  weeklyVolumes(skip: Int = 0, first: Int = 100, orderBy: optimismgoerli_SwapWeeklyVolume_orderBy, orderDirection: optimismgoerli_OrderDirection, where: optimismgoerli_SwapWeeklyVolume_filter): [optimismgoerli_SwapWeeklyVolume!]
+}
+
+type optimismgoerli_StableSwapAddLiquidityEvent implements optimismgoerli_StableSwapEvent {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  provider: optimismgoerli_Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_StableSwapAddLiquidityEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  provider: optimismgoerli_Bytes
+  provider_not: optimismgoerli_Bytes
+  provider_gt: optimismgoerli_Bytes
+  provider_lt: optimismgoerli_Bytes
+  provider_gte: optimismgoerli_Bytes
+  provider_lte: optimismgoerli_Bytes
+  provider_in: [optimismgoerli_Bytes!]
+  provider_not_in: [optimismgoerli_Bytes!]
+  provider_contains: optimismgoerli_Bytes
+  provider_not_contains: optimismgoerli_Bytes
+  tokenAmounts: [BigInt!]
+  tokenAmounts_not: [BigInt!]
+  tokenAmounts_contains: [BigInt!]
+  tokenAmounts_contains_nocase: [BigInt!]
+  tokenAmounts_not_contains: [BigInt!]
+  tokenAmounts_not_contains_nocase: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: optimismgoerli_Bytes
+  transaction_not: optimismgoerli_Bytes
+  transaction_gt: optimismgoerli_Bytes
+  transaction_lt: optimismgoerli_Bytes
+  transaction_gte: optimismgoerli_Bytes
+  transaction_lte: optimismgoerli_Bytes
+  transaction_in: [optimismgoerli_Bytes!]
+  transaction_not_in: [optimismgoerli_Bytes!]
+  transaction_contains: optimismgoerli_Bytes
+  transaction_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_StableSwapAddLiquidityEvent_orderBy {
+  id
+  stableSwap
+  provider
+  tokenAmounts
+  fees
+  invariant
+  lpTokenSupply
+  block
+  timestamp
+  transaction
+}
+
+interface optimismgoerli_StableSwapEvent {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_StableSwapEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: optimismgoerli_Bytes
+  transaction_not: optimismgoerli_Bytes
+  transaction_gt: optimismgoerli_Bytes
+  transaction_lt: optimismgoerli_Bytes
+  transaction_gte: optimismgoerli_Bytes
+  transaction_lte: optimismgoerli_Bytes
+  transaction_in: [optimismgoerli_Bytes!]
+  transaction_not_in: [optimismgoerli_Bytes!]
+  transaction_contains: optimismgoerli_Bytes
+  transaction_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_StableSwapEvent_orderBy {
+  id
+  stableSwap
+  block
+  timestamp
+  transaction
+}
+
+type optimismgoerli_StableSwapExchange {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  buyer: optimismgoerli_Bytes!
+  boughtId: BigInt!
+  tokensBought: BigInt!
+  soldId: BigInt!
+  tokensSold: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_StableSwapExchange_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  buyer: optimismgoerli_Bytes
+  buyer_not: optimismgoerli_Bytes
+  buyer_gt: optimismgoerli_Bytes
+  buyer_lt: optimismgoerli_Bytes
+  buyer_gte: optimismgoerli_Bytes
+  buyer_lte: optimismgoerli_Bytes
+  buyer_in: [optimismgoerli_Bytes!]
+  buyer_not_in: [optimismgoerli_Bytes!]
+  buyer_contains: optimismgoerli_Bytes
+  buyer_not_contains: optimismgoerli_Bytes
+  boughtId: BigInt
+  boughtId_not: BigInt
+  boughtId_gt: BigInt
+  boughtId_lt: BigInt
+  boughtId_gte: BigInt
+  boughtId_lte: BigInt
+  boughtId_in: [BigInt!]
+  boughtId_not_in: [BigInt!]
+  tokensBought: BigInt
+  tokensBought_not: BigInt
+  tokensBought_gt: BigInt
+  tokensBought_lt: BigInt
+  tokensBought_gte: BigInt
+  tokensBought_lte: BigInt
+  tokensBought_in: [BigInt!]
+  tokensBought_not_in: [BigInt!]
+  soldId: BigInt
+  soldId_not: BigInt
+  soldId_gt: BigInt
+  soldId_lt: BigInt
+  soldId_gte: BigInt
+  soldId_lte: BigInt
+  soldId_in: [BigInt!]
+  soldId_not_in: [BigInt!]
+  tokensSold: BigInt
+  tokensSold_not: BigInt
+  tokensSold_gt: BigInt
+  tokensSold_lt: BigInt
+  tokensSold_gte: BigInt
+  tokensSold_lte: BigInt
+  tokensSold_in: [BigInt!]
+  tokensSold_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: optimismgoerli_Bytes
+  transaction_not: optimismgoerli_Bytes
+  transaction_gt: optimismgoerli_Bytes
+  transaction_lt: optimismgoerli_Bytes
+  transaction_gte: optimismgoerli_Bytes
+  transaction_lte: optimismgoerli_Bytes
+  transaction_in: [optimismgoerli_Bytes!]
+  transaction_not_in: [optimismgoerli_Bytes!]
+  transaction_contains: optimismgoerli_Bytes
+  transaction_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_StableSwapExchange_orderBy {
+  id
+  stableSwap
+  buyer
+  boughtId
+  tokensBought
+  soldId
+  tokensSold
+  block
+  timestamp
+  transaction
+}
+
+type optimismgoerli_StableSwapRemoveLiquidityEvent implements optimismgoerli_StableSwapEvent {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  provider: optimismgoerli_Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_StableSwapRemoveLiquidityEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  provider: optimismgoerli_Bytes
+  provider_not: optimismgoerli_Bytes
+  provider_gt: optimismgoerli_Bytes
+  provider_lt: optimismgoerli_Bytes
+  provider_gte: optimismgoerli_Bytes
+  provider_lte: optimismgoerli_Bytes
+  provider_in: [optimismgoerli_Bytes!]
+  provider_not_in: [optimismgoerli_Bytes!]
+  provider_contains: optimismgoerli_Bytes
+  provider_not_contains: optimismgoerli_Bytes
+  tokenAmounts: [BigInt!]
+  tokenAmounts_not: [BigInt!]
+  tokenAmounts_contains: [BigInt!]
+  tokenAmounts_contains_nocase: [BigInt!]
+  tokenAmounts_not_contains: [BigInt!]
+  tokenAmounts_not_contains_nocase: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: optimismgoerli_Bytes
+  transaction_not: optimismgoerli_Bytes
+  transaction_gt: optimismgoerli_Bytes
+  transaction_lt: optimismgoerli_Bytes
+  transaction_gte: optimismgoerli_Bytes
+  transaction_lte: optimismgoerli_Bytes
+  transaction_in: [optimismgoerli_Bytes!]
+  transaction_not_in: [optimismgoerli_Bytes!]
+  transaction_contains: optimismgoerli_Bytes
+  transaction_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_StableSwapRemoveLiquidityEvent_orderBy {
+  id
+  stableSwap
+  provider
+  tokenAmounts
+  fees
+  invariant
+  lpTokenSupply
+  block
+  timestamp
+  transaction
+}
+
+input optimismgoerli_StableSwap_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  key: optimismgoerli_Bytes
+  key_not: optimismgoerli_Bytes
+  key_gt: optimismgoerli_Bytes
+  key_lt: optimismgoerli_Bytes
+  key_gte: optimismgoerli_Bytes
+  key_lte: optimismgoerli_Bytes
+  key_in: [optimismgoerli_Bytes!]
+  key_not_in: [optimismgoerli_Bytes!]
+  key_contains: optimismgoerli_Bytes
+  key_not_contains: optimismgoerli_Bytes
+  canonicalId: optimismgoerli_Bytes
+  canonicalId_not: optimismgoerli_Bytes
+  canonicalId_gt: optimismgoerli_Bytes
+  canonicalId_lt: optimismgoerli_Bytes
+  canonicalId_gte: optimismgoerli_Bytes
+  canonicalId_lte: optimismgoerli_Bytes
+  canonicalId_in: [optimismgoerli_Bytes!]
+  canonicalId_not_in: [optimismgoerli_Bytes!]
+  canonicalId_contains: optimismgoerli_Bytes
+  canonicalId_not_contains: optimismgoerli_Bytes
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  swapPool: optimismgoerli_Bytes
+  swapPool_not: optimismgoerli_Bytes
+  swapPool_gt: optimismgoerli_Bytes
+  swapPool_lt: optimismgoerli_Bytes
+  swapPool_gte: optimismgoerli_Bytes
+  swapPool_lte: optimismgoerli_Bytes
+  swapPool_in: [optimismgoerli_Bytes!]
+  swapPool_not_in: [optimismgoerli_Bytes!]
+  swapPool_contains: optimismgoerli_Bytes
+  swapPool_not_contains: optimismgoerli_Bytes
+  lpToken: optimismgoerli_Bytes
+  lpToken_not: optimismgoerli_Bytes
+  lpToken_gt: optimismgoerli_Bytes
+  lpToken_lt: optimismgoerli_Bytes
+  lpToken_gte: optimismgoerli_Bytes
+  lpToken_lte: optimismgoerli_Bytes
+  lpToken_in: [optimismgoerli_Bytes!]
+  lpToken_not_in: [optimismgoerli_Bytes!]
+  lpToken_contains: optimismgoerli_Bytes
+  lpToken_not_contains: optimismgoerli_Bytes
+  initialA: BigInt
+  initialA_not: BigInt
+  initialA_gt: BigInt
+  initialA_lt: BigInt
+  initialA_gte: BigInt
+  initialA_lte: BigInt
+  initialA_in: [BigInt!]
+  initialA_not_in: [BigInt!]
+  futureA: BigInt
+  futureA_not: BigInt
+  futureA_gt: BigInt
+  futureA_lt: BigInt
+  futureA_gte: BigInt
+  futureA_lte: BigInt
+  futureA_in: [BigInt!]
+  futureA_not_in: [BigInt!]
+  initialATime: BigInt
+  initialATime_not: BigInt
+  initialATime_gt: BigInt
+  initialATime_lt: BigInt
+  initialATime_gte: BigInt
+  initialATime_lte: BigInt
+  initialATime_in: [BigInt!]
+  initialATime_not_in: [BigInt!]
+  futureATime: BigInt
+  futureATime_not: BigInt
+  futureATime_gt: BigInt
+  futureATime_lt: BigInt
+  futureATime_gte: BigInt
+  futureATime_lte: BigInt
+  futureATime_in: [BigInt!]
+  futureATime_not_in: [BigInt!]
+  swapFee: BigInt
+  swapFee_not: BigInt
+  swapFee_gt: BigInt
+  swapFee_lt: BigInt
+  swapFee_gte: BigInt
+  swapFee_lte: BigInt
+  swapFee_in: [BigInt!]
+  swapFee_not_in: [BigInt!]
+  adminFee: BigInt
+  adminFee_not: BigInt
+  adminFee_gt: BigInt
+  adminFee_lt: BigInt
+  adminFee_gte: BigInt
+  adminFee_lte: BigInt
+  adminFee_in: [BigInt!]
+  adminFee_not_in: [BigInt!]
+  pooledTokens: [String!]
+  pooledTokens_not: [String!]
+  pooledTokens_contains: [String!]
+  pooledTokens_contains_nocase: [String!]
+  pooledTokens_not_contains: [String!]
+  pooledTokens_not_contains_nocase: [String!]
+  pooledTokens_: optimismgoerli_PooledToken_filter
+  tokenPrecisionMultipliers: [BigInt!]
+  tokenPrecisionMultipliers_not: [BigInt!]
+  tokenPrecisionMultipliers_contains: [BigInt!]
+  tokenPrecisionMultipliers_contains_nocase: [BigInt!]
+  tokenPrecisionMultipliers_not_contains: [BigInt!]
+  tokenPrecisionMultipliers_not_contains_nocase: [BigInt!]
+  balances: [BigInt!]
+  balances_not: [BigInt!]
+  balances_contains: [BigInt!]
+  balances_contains_nocase: [BigInt!]
+  balances_not_contains: [BigInt!]
+  balances_not_contains_nocase: [BigInt!]
+  adminFees: [BigInt!]
+  adminFees_not: [BigInt!]
+  adminFees_contains: [BigInt!]
+  adminFees_contains_nocase: [BigInt!]
+  adminFees_not_contains: [BigInt!]
+  adminFees_not_contains_nocase: [BigInt!]
+  virtualPrice: BigInt
+  virtualPrice_not: BigInt
+  virtualPrice_gt: BigInt
+  virtualPrice_lt: BigInt
+  virtualPrice_gte: BigInt
+  virtualPrice_lte: BigInt
+  virtualPrice_in: [BigInt!]
+  virtualPrice_not_in: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
+  events_: optimismgoerli_StableSwapEvent_filter
+  exchanges_: optimismgoerli_StableSwapExchange_filter
+  hourlyVolumes_: optimismgoerli_SwapHourlyVolume_filter
+  dailyVolumes_: optimismgoerli_SwapDailyVolume_filter
+  weeklyVolumes_: optimismgoerli_SwapWeeklyVolume_filter
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_StableSwap_orderBy {
+  id
+  isActive
+  key
+  canonicalId
+  domain
+  swapPool
+  lpToken
+  initialA
+  futureA
+  initialATime
+  futureATime
+  swapFee
+  adminFee
+  pooledTokens
+  tokenPrecisionMultipliers
+  balances
+  adminFees
+  virtualPrice
+  invariant
+  lpTokenSupply
+  events
+  exchanges
+  hourlyVolumes
+  dailyVolumes
+  weeklyVolumes
+}
+
+type Subscription {
+  optimismgoerli_systemInfo(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SystemInfo
+  optimismgoerli_systemInfos(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SystemInfo_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SystemInfo_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SystemInfo!]!
+  optimismgoerli_pooledToken(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_PooledToken
+  optimismgoerli_pooledTokens(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_PooledToken_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_PooledToken_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_PooledToken!]!
+  optimismgoerli_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwap
+  optimismgoerli_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwap_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwap!]!
+  optimismgoerli_stableSwapAddLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapAddLiquidityEvent
+  optimismgoerli_stableSwapAddLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapAddLiquidityEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapAddLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapAddLiquidityEvent!]!
+  optimismgoerli_stableSwapRemoveLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapRemoveLiquidityEvent
+  optimismgoerli_stableSwapRemoveLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapRemoveLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapRemoveLiquidityEvent!]!
+  optimismgoerli_stableSwapExchange(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapExchange
+  optimismgoerli_stableSwapExchanges(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapExchange_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapExchange_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapExchange!]!
+  optimismgoerli_swapDailyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapDailyVolume
+  optimismgoerli_swapDailyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapDailyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapDailyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapDailyVolume!]!
+  optimismgoerli_swapHourlyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapHourlyVolume
+  optimismgoerli_swapHourlyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapHourlyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapHourlyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapHourlyVolume!]!
+  optimismgoerli_swapWeeklyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapWeeklyVolume
+  optimismgoerli_swapWeeklyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapWeeklyVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapWeeklyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapWeeklyVolume!]!
+  optimismgoerli_stableSwapEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_StableSwapEvent
+  optimismgoerli_stableSwapEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_StableSwapEvent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_StableSwapEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_StableSwapEvent!]!
+  optimismgoerli_swapTradeVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SwapTradeVolume
+  optimismgoerli_swapTradeVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SwapTradeVolume_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SwapTradeVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SwapTradeVolume!]!
+  """Access to subgraph metadata"""
+  optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
+}
+
+type optimismgoerli_SwapDailyVolume implements optimismgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: optimismgoerli_BigDecimal!
+}
+
+input optimismgoerli_SwapDailyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: optimismgoerli_BigDecimal
+  volume_not: optimismgoerli_BigDecimal
+  volume_gt: optimismgoerli_BigDecimal
+  volume_lt: optimismgoerli_BigDecimal
+  volume_gte: optimismgoerli_BigDecimal
+  volume_lte: optimismgoerli_BigDecimal
+  volume_in: [optimismgoerli_BigDecimal!]
+  volume_not_in: [optimismgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_SwapDailyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
+}
+
+type optimismgoerli_SwapHourlyVolume implements optimismgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: optimismgoerli_BigDecimal!
+}
+
+input optimismgoerli_SwapHourlyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: optimismgoerli_BigDecimal
+  volume_not: optimismgoerli_BigDecimal
+  volume_gt: optimismgoerli_BigDecimal
+  volume_lt: optimismgoerli_BigDecimal
+  volume_gte: optimismgoerli_BigDecimal
+  volume_lte: optimismgoerli_BigDecimal
+  volume_in: [optimismgoerli_BigDecimal!]
+  volume_not_in: [optimismgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_SwapHourlyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
+}
+
+interface optimismgoerli_SwapTradeVolume {
+  stableSwap: optimismgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: optimismgoerli_BigDecimal!
+}
+
+input optimismgoerli_SwapTradeVolume_filter {
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: optimismgoerli_BigDecimal
+  volume_not: optimismgoerli_BigDecimal
+  volume_gt: optimismgoerli_BigDecimal
+  volume_lt: optimismgoerli_BigDecimal
+  volume_gte: optimismgoerli_BigDecimal
+  volume_lte: optimismgoerli_BigDecimal
+  volume_in: [optimismgoerli_BigDecimal!]
+  volume_not_in: [optimismgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_SwapTradeVolume_orderBy {
+  stableSwap
+  timestamp
+  volume
+}
+
+type optimismgoerli_SwapWeeklyVolume implements optimismgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: optimismgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: optimismgoerli_BigDecimal!
+}
+
+input optimismgoerli_SwapWeeklyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: optimismgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: optimismgoerli_BigDecimal
+  volume_not: optimismgoerli_BigDecimal
+  volume_gt: optimismgoerli_BigDecimal
+  volume_lt: optimismgoerli_BigDecimal
+  volume_gte: optimismgoerli_BigDecimal
+  volume_lte: optimismgoerli_BigDecimal
+  volume_in: [optimismgoerli_BigDecimal!]
+  volume_not_in: [optimismgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_SwapWeeklyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
+}
+
+type optimismgoerli_SystemInfo {
+  id: ID!
+  exchangeCount: BigInt!
+  swapCount: BigInt!
+}
+
+input optimismgoerli_SystemInfo_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  exchangeCount: BigInt
+  exchangeCount_not: BigInt
+  exchangeCount_gt: BigInt
+  exchangeCount_lt: BigInt
+  exchangeCount_gte: BigInt
+  exchangeCount_lte: BigInt
+  exchangeCount_in: [BigInt!]
+  exchangeCount_not_in: [BigInt!]
+  swapCount: BigInt
+  swapCount_not: BigInt
+  swapCount_gt: BigInt
+  swapCount_lt: BigInt
+  swapCount_gte: BigInt
+  swapCount_lte: BigInt
+  swapCount_in: [BigInt!]
+  swapCount_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_SystemInfo_orderBy {
+  id
+  exchangeCount
+  swapCount
+}
+
+type optimismgoerli__Block_ {
+  """The hash of the block"""
+  hash: optimismgoerli_Bytes
+  """The block number"""
+  number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
+}
+
+"""The type for the top-level _meta field"""
+type optimismgoerli__Meta_ {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  
+  """
+  block: optimismgoerli__Block_!
+  """The deployment ID"""
+  deployment: String!
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}
