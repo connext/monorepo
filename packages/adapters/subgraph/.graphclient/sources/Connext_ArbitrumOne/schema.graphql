@@ -29,10 +29,6 @@ input arbitrumone_AggregateRoot_filter {
   id_not_in: [ID!]
   root: arbitrumone_Bytes
   root_not: arbitrumone_Bytes
-  root_gt: arbitrumone_Bytes
-  root_lt: arbitrumone_Bytes
-  root_gte: arbitrumone_Bytes
-  root_lte: arbitrumone_Bytes
   root_in: [arbitrumone_Bytes!]
   root_not_in: [arbitrumone_Bytes!]
   root_contains: arbitrumone_Bytes
@@ -163,20 +159,12 @@ input arbitrumone_Asset_filter {
   id_not_in: [ID!]
   key: arbitrumone_Bytes
   key_not: arbitrumone_Bytes
-  key_gt: arbitrumone_Bytes
-  key_lt: arbitrumone_Bytes
-  key_gte: arbitrumone_Bytes
-  key_lte: arbitrumone_Bytes
   key_in: [arbitrumone_Bytes!]
   key_not_in: [arbitrumone_Bytes!]
   key_contains: arbitrumone_Bytes
   key_not_contains: arbitrumone_Bytes
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
-  canonicalId_gt: arbitrumone_Bytes
-  canonicalId_lt: arbitrumone_Bytes
-  canonicalId_gte: arbitrumone_Bytes
-  canonicalId_lte: arbitrumone_Bytes
   canonicalId_in: [arbitrumone_Bytes!]
   canonicalId_not_in: [arbitrumone_Bytes!]
   canonicalId_contains: arbitrumone_Bytes
@@ -191,20 +179,12 @@ input arbitrumone_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: arbitrumone_Bytes
   adoptedAsset_not: arbitrumone_Bytes
-  adoptedAsset_gt: arbitrumone_Bytes
-  adoptedAsset_lt: arbitrumone_Bytes
-  adoptedAsset_gte: arbitrumone_Bytes
-  adoptedAsset_lte: arbitrumone_Bytes
   adoptedAsset_in: [arbitrumone_Bytes!]
   adoptedAsset_not_in: [arbitrumone_Bytes!]
   adoptedAsset_contains: arbitrumone_Bytes
   adoptedAsset_not_contains: arbitrumone_Bytes
   localAsset: arbitrumone_Bytes
   localAsset_not: arbitrumone_Bytes
-  localAsset_gt: arbitrumone_Bytes
-  localAsset_lt: arbitrumone_Bytes
-  localAsset_gte: arbitrumone_Bytes
-  localAsset_lte: arbitrumone_Bytes
   localAsset_in: [arbitrumone_Bytes!]
   localAsset_not_in: [arbitrumone_Bytes!]
   localAsset_contains: arbitrumone_Bytes
@@ -283,30 +263,18 @@ input arbitrumone_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: arbitrumone_Bytes
   amb_not: arbitrumone_Bytes
-  amb_gt: arbitrumone_Bytes
-  amb_lt: arbitrumone_Bytes
-  amb_gte: arbitrumone_Bytes
-  amb_lte: arbitrumone_Bytes
   amb_in: [arbitrumone_Bytes!]
   amb_not_in: [arbitrumone_Bytes!]
   amb_contains: arbitrumone_Bytes
   amb_not_contains: arbitrumone_Bytes
   rootManager: arbitrumone_Bytes
   rootManager_not: arbitrumone_Bytes
-  rootManager_gt: arbitrumone_Bytes
-  rootManager_lt: arbitrumone_Bytes
-  rootManager_gte: arbitrumone_Bytes
-  rootManager_lte: arbitrumone_Bytes
   rootManager_in: [arbitrumone_Bytes!]
   rootManager_not_in: [arbitrumone_Bytes!]
   rootManager_contains: arbitrumone_Bytes
   rootManager_not_contains: arbitrumone_Bytes
   mirrorConnector: arbitrumone_Bytes
   mirrorConnector_not: arbitrumone_Bytes
-  mirrorConnector_gt: arbitrumone_Bytes
-  mirrorConnector_lt: arbitrumone_Bytes
-  mirrorConnector_gte: arbitrumone_Bytes
-  mirrorConnector_lte: arbitrumone_Bytes
   mirrorConnector_in: [arbitrumone_Bytes!]
   mirrorConnector_not_in: [arbitrumone_Bytes!]
   mirrorConnector_contains: arbitrumone_Bytes
@@ -381,10 +349,6 @@ input arbitrumone_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: arbitrumone_Bytes
   transferId_not: arbitrumone_Bytes
-  transferId_gt: arbitrumone_Bytes
-  transferId_lt: arbitrumone_Bytes
-  transferId_gte: arbitrumone_Bytes
-  transferId_lte: arbitrumone_Bytes
   transferId_in: [arbitrumone_Bytes!]
   transferId_not_in: [arbitrumone_Bytes!]
   transferId_contains: arbitrumone_Bytes
@@ -434,20 +398,12 @@ input arbitrumone_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: arbitrumone_Bytes
   to_not: arbitrumone_Bytes
-  to_gt: arbitrumone_Bytes
-  to_lt: arbitrumone_Bytes
-  to_gte: arbitrumone_Bytes
-  to_lte: arbitrumone_Bytes
   to_in: [arbitrumone_Bytes!]
   to_not_in: [arbitrumone_Bytes!]
   to_contains: arbitrumone_Bytes
   to_not_contains: arbitrumone_Bytes
   delegate: arbitrumone_Bytes
   delegate_not: arbitrumone_Bytes
-  delegate_gt: arbitrumone_Bytes
-  delegate_lt: arbitrumone_Bytes
-  delegate_gte: arbitrumone_Bytes
-  delegate_lte: arbitrumone_Bytes
   delegate_in: [arbitrumone_Bytes!]
   delegate_not_in: [arbitrumone_Bytes!]
   delegate_contains: arbitrumone_Bytes
@@ -458,10 +414,6 @@ input arbitrumone_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: arbitrumone_Bytes
   callData_not: arbitrumone_Bytes
-  callData_gt: arbitrumone_Bytes
-  callData_lt: arbitrumone_Bytes
-  callData_gte: arbitrumone_Bytes
-  callData_lte: arbitrumone_Bytes
   callData_in: [arbitrumone_Bytes!]
   callData_not_in: [arbitrumone_Bytes!]
   callData_contains: arbitrumone_Bytes
@@ -476,10 +428,6 @@ input arbitrumone_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: arbitrumone_Bytes
   originSender_not: arbitrumone_Bytes
-  originSender_gt: arbitrumone_Bytes
-  originSender_lt: arbitrumone_Bytes
-  originSender_gte: arbitrumone_Bytes
-  originSender_lte: arbitrumone_Bytes
   originSender_in: [arbitrumone_Bytes!]
   originSender_not_in: [arbitrumone_Bytes!]
   originSender_contains: arbitrumone_Bytes
@@ -502,10 +450,6 @@ input arbitrumone_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
-  canonicalId_gt: arbitrumone_Bytes
-  canonicalId_lt: arbitrumone_Bytes
-  canonicalId_gte: arbitrumone_Bytes
-  canonicalId_lte: arbitrumone_Bytes
   canonicalId_in: [arbitrumone_Bytes!]
   canonicalId_not_in: [arbitrumone_Bytes!]
   canonicalId_contains: arbitrumone_Bytes
@@ -549,20 +493,12 @@ input arbitrumone_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: arbitrumone_Bytes
   executedCaller_not: arbitrumone_Bytes
-  executedCaller_gt: arbitrumone_Bytes
-  executedCaller_lt: arbitrumone_Bytes
-  executedCaller_gte: arbitrumone_Bytes
-  executedCaller_lte: arbitrumone_Bytes
   executedCaller_in: [arbitrumone_Bytes!]
   executedCaller_not_in: [arbitrumone_Bytes!]
   executedCaller_contains: arbitrumone_Bytes
   executedCaller_not_contains: arbitrumone_Bytes
   executedTransactionHash: arbitrumone_Bytes
   executedTransactionHash_not: arbitrumone_Bytes
-  executedTransactionHash_gt: arbitrumone_Bytes
-  executedTransactionHash_lt: arbitrumone_Bytes
-  executedTransactionHash_gte: arbitrumone_Bytes
-  executedTransactionHash_lte: arbitrumone_Bytes
   executedTransactionHash_in: [arbitrumone_Bytes!]
   executedTransactionHash_not_in: [arbitrumone_Bytes!]
   executedTransactionHash_contains: arbitrumone_Bytes
@@ -601,30 +537,18 @@ input arbitrumone_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: arbitrumone_Bytes
   executedTxOrigin_not: arbitrumone_Bytes
-  executedTxOrigin_gt: arbitrumone_Bytes
-  executedTxOrigin_lt: arbitrumone_Bytes
-  executedTxOrigin_gte: arbitrumone_Bytes
-  executedTxOrigin_lte: arbitrumone_Bytes
   executedTxOrigin_in: [arbitrumone_Bytes!]
   executedTxOrigin_not_in: [arbitrumone_Bytes!]
   executedTxOrigin_contains: arbitrumone_Bytes
   executedTxOrigin_not_contains: arbitrumone_Bytes
   reconciledCaller: arbitrumone_Bytes
   reconciledCaller_not: arbitrumone_Bytes
-  reconciledCaller_gt: arbitrumone_Bytes
-  reconciledCaller_lt: arbitrumone_Bytes
-  reconciledCaller_gte: arbitrumone_Bytes
-  reconciledCaller_lte: arbitrumone_Bytes
   reconciledCaller_in: [arbitrumone_Bytes!]
   reconciledCaller_not_in: [arbitrumone_Bytes!]
   reconciledCaller_contains: arbitrumone_Bytes
   reconciledCaller_not_contains: arbitrumone_Bytes
   reconciledTransactionHash: arbitrumone_Bytes
   reconciledTransactionHash_not: arbitrumone_Bytes
-  reconciledTransactionHash_gt: arbitrumone_Bytes
-  reconciledTransactionHash_lt: arbitrumone_Bytes
-  reconciledTransactionHash_gte: arbitrumone_Bytes
-  reconciledTransactionHash_lte: arbitrumone_Bytes
   reconciledTransactionHash_in: [arbitrumone_Bytes!]
   reconciledTransactionHash_not_in: [arbitrumone_Bytes!]
   reconciledTransactionHash_contains: arbitrumone_Bytes
@@ -663,10 +587,6 @@ input arbitrumone_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: arbitrumone_Bytes
   reconciledTxOrigin_not: arbitrumone_Bytes
-  reconciledTxOrigin_gt: arbitrumone_Bytes
-  reconciledTxOrigin_lt: arbitrumone_Bytes
-  reconciledTxOrigin_gte: arbitrumone_Bytes
-  reconciledTxOrigin_lte: arbitrumone_Bytes
   reconciledTxOrigin_in: [arbitrumone_Bytes!]
   reconciledTxOrigin_not_in: [arbitrumone_Bytes!]
   reconciledTxOrigin_contains: arbitrumone_Bytes
@@ -743,10 +663,6 @@ input arbitrumone_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: arbitrumone_Bytes
   transferId_not: arbitrumone_Bytes
-  transferId_gt: arbitrumone_Bytes
-  transferId_lt: arbitrumone_Bytes
-  transferId_gte: arbitrumone_Bytes
-  transferId_lte: arbitrumone_Bytes
   transferId_in: [arbitrumone_Bytes!]
   transferId_not_in: [arbitrumone_Bytes!]
   transferId_contains: arbitrumone_Bytes
@@ -761,10 +677,6 @@ input arbitrumone_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: arbitrumone_Bytes
   leaf_not: arbitrumone_Bytes
-  leaf_gt: arbitrumone_Bytes
-  leaf_lt: arbitrumone_Bytes
-  leaf_gte: arbitrumone_Bytes
-  leaf_lte: arbitrumone_Bytes
   leaf_in: [arbitrumone_Bytes!]
   leaf_not_in: [arbitrumone_Bytes!]
   leaf_contains: arbitrumone_Bytes
@@ -779,30 +691,18 @@ input arbitrumone_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: arbitrumone_Bytes
   message_not: arbitrumone_Bytes
-  message_gt: arbitrumone_Bytes
-  message_lt: arbitrumone_Bytes
-  message_gte: arbitrumone_Bytes
-  message_lte: arbitrumone_Bytes
   message_in: [arbitrumone_Bytes!]
   message_not_in: [arbitrumone_Bytes!]
   message_contains: arbitrumone_Bytes
   message_not_contains: arbitrumone_Bytes
   root: arbitrumone_Bytes
   root_not: arbitrumone_Bytes
-  root_gt: arbitrumone_Bytes
-  root_lt: arbitrumone_Bytes
-  root_gte: arbitrumone_Bytes
-  root_lte: arbitrumone_Bytes
   root_in: [arbitrumone_Bytes!]
   root_not_in: [arbitrumone_Bytes!]
   root_contains: arbitrumone_Bytes
   root_not_contains: arbitrumone_Bytes
   transactionHash: arbitrumone_Bytes
   transactionHash_not: arbitrumone_Bytes
-  transactionHash_gt: arbitrumone_Bytes
-  transactionHash_lt: arbitrumone_Bytes
-  transactionHash_gte: arbitrumone_Bytes
-  transactionHash_lte: arbitrumone_Bytes
   transactionHash_in: [arbitrumone_Bytes!]
   transactionHash_not_in: [arbitrumone_Bytes!]
   transactionHash_contains: arbitrumone_Bytes
@@ -904,10 +804,6 @@ input arbitrumone_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: arbitrumone_Bytes
   transferId_not: arbitrumone_Bytes
-  transferId_gt: arbitrumone_Bytes
-  transferId_lt: arbitrumone_Bytes
-  transferId_gte: arbitrumone_Bytes
-  transferId_lte: arbitrumone_Bytes
   transferId_in: [arbitrumone_Bytes!]
   transferId_not_in: [arbitrumone_Bytes!]
   transferId_contains: arbitrumone_Bytes
@@ -926,10 +822,6 @@ input arbitrumone_OriginTransfer_filter {
   status_not_in: [arbitrumone_TransferStatus!]
   messageHash: arbitrumone_Bytes
   messageHash_not: arbitrumone_Bytes
-  messageHash_gt: arbitrumone_Bytes
-  messageHash_lt: arbitrumone_Bytes
-  messageHash_gte: arbitrumone_Bytes
-  messageHash_lte: arbitrumone_Bytes
   messageHash_in: [arbitrumone_Bytes!]
   messageHash_not_in: [arbitrumone_Bytes!]
   messageHash_contains: arbitrumone_Bytes
@@ -960,20 +852,12 @@ input arbitrumone_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: arbitrumone_Bytes
   to_not: arbitrumone_Bytes
-  to_gt: arbitrumone_Bytes
-  to_lt: arbitrumone_Bytes
-  to_gte: arbitrumone_Bytes
-  to_lte: arbitrumone_Bytes
   to_in: [arbitrumone_Bytes!]
   to_not_in: [arbitrumone_Bytes!]
   to_contains: arbitrumone_Bytes
   to_not_contains: arbitrumone_Bytes
   delegate: arbitrumone_Bytes
   delegate_not: arbitrumone_Bytes
-  delegate_gt: arbitrumone_Bytes
-  delegate_lt: arbitrumone_Bytes
-  delegate_gte: arbitrumone_Bytes
-  delegate_lte: arbitrumone_Bytes
   delegate_in: [arbitrumone_Bytes!]
   delegate_not_in: [arbitrumone_Bytes!]
   delegate_contains: arbitrumone_Bytes
@@ -984,10 +868,6 @@ input arbitrumone_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: arbitrumone_Bytes
   callData_not: arbitrumone_Bytes
-  callData_gt: arbitrumone_Bytes
-  callData_lt: arbitrumone_Bytes
-  callData_gte: arbitrumone_Bytes
-  callData_lte: arbitrumone_Bytes
   callData_in: [arbitrumone_Bytes!]
   callData_not_in: [arbitrumone_Bytes!]
   callData_contains: arbitrumone_Bytes
@@ -1002,10 +882,6 @@ input arbitrumone_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: arbitrumone_Bytes
   originSender_not: arbitrumone_Bytes
-  originSender_gt: arbitrumone_Bytes
-  originSender_lt: arbitrumone_Bytes
-  originSender_gte: arbitrumone_Bytes
-  originSender_lte: arbitrumone_Bytes
   originSender_in: [arbitrumone_Bytes!]
   originSender_not_in: [arbitrumone_Bytes!]
   originSender_contains: arbitrumone_Bytes
@@ -1028,10 +904,6 @@ input arbitrumone_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
-  canonicalId_gt: arbitrumone_Bytes
-  canonicalId_lt: arbitrumone_Bytes
-  canonicalId_gte: arbitrumone_Bytes
-  canonicalId_lte: arbitrumone_Bytes
   canonicalId_in: [arbitrumone_Bytes!]
   canonicalId_not_in: [arbitrumone_Bytes!]
   canonicalId_contains: arbitrumone_Bytes
@@ -1059,10 +931,6 @@ input arbitrumone_OriginTransfer_filter {
   asset_: arbitrumone_Asset_filter
   transacting: arbitrumone_Bytes
   transacting_not: arbitrumone_Bytes
-  transacting_gt: arbitrumone_Bytes
-  transacting_lt: arbitrumone_Bytes
-  transacting_gte: arbitrumone_Bytes
-  transacting_lte: arbitrumone_Bytes
   transacting_in: [arbitrumone_Bytes!]
   transacting_not_in: [arbitrumone_Bytes!]
   transacting_contains: arbitrumone_Bytes
@@ -1098,20 +966,12 @@ input arbitrumone_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: arbitrumone_Bytes
   caller_not: arbitrumone_Bytes
-  caller_gt: arbitrumone_Bytes
-  caller_lt: arbitrumone_Bytes
-  caller_gte: arbitrumone_Bytes
-  caller_lte: arbitrumone_Bytes
   caller_in: [arbitrumone_Bytes!]
   caller_not_in: [arbitrumone_Bytes!]
   caller_contains: arbitrumone_Bytes
   caller_not_contains: arbitrumone_Bytes
   transactionHash: arbitrumone_Bytes
   transactionHash_not: arbitrumone_Bytes
-  transactionHash_gt: arbitrumone_Bytes
-  transactionHash_lt: arbitrumone_Bytes
-  transactionHash_gte: arbitrumone_Bytes
-  transactionHash_lte: arbitrumone_Bytes
   transactionHash_in: [arbitrumone_Bytes!]
   transactionHash_not_in: [arbitrumone_Bytes!]
   transactionHash_contains: arbitrumone_Bytes
@@ -1150,10 +1010,6 @@ input arbitrumone_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: arbitrumone_Bytes
   txOrigin_not: arbitrumone_Bytes
-  txOrigin_gt: arbitrumone_Bytes
-  txOrigin_lt: arbitrumone_Bytes
-  txOrigin_gte: arbitrumone_Bytes
-  txOrigin_lte: arbitrumone_Bytes
   txOrigin_in: [arbitrumone_Bytes!]
   txOrigin_not_in: [arbitrumone_Bytes!]
   txOrigin_contains: arbitrumone_Bytes
@@ -1210,10 +1066,6 @@ input arbitrumone_PooledToken_filter {
   id_not_in: [ID!]
   asset: arbitrumone_Bytes
   asset_not: arbitrumone_Bytes
-  asset_gt: arbitrumone_Bytes
-  asset_lt: arbitrumone_Bytes
-  asset_gte: arbitrumone_Bytes
-  asset_lte: arbitrumone_Bytes
   asset_in: [arbitrumone_Bytes!]
   asset_not_in: [arbitrumone_Bytes!]
   asset_contains: arbitrumone_Bytes
@@ -1695,10 +1547,6 @@ input arbitrumone_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: arbitrumone_Bytes
   relayer_not: arbitrumone_Bytes
-  relayer_gt: arbitrumone_Bytes
-  relayer_lt: arbitrumone_Bytes
-  relayer_gte: arbitrumone_Bytes
-  relayer_lte: arbitrumone_Bytes
   relayer_in: [arbitrumone_Bytes!]
   relayer_not_in: [arbitrumone_Bytes!]
   relayer_contains: arbitrumone_Bytes
@@ -1785,10 +1633,6 @@ input arbitrumone_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: arbitrumone_Bytes
   root_not: arbitrumone_Bytes
-  root_gt: arbitrumone_Bytes
-  root_lt: arbitrumone_Bytes
-  root_gte: arbitrumone_Bytes
-  root_lte: arbitrumone_Bytes
   root_in: [arbitrumone_Bytes!]
   root_not_in: [arbitrumone_Bytes!]
   root_contains: arbitrumone_Bytes
@@ -1803,20 +1647,12 @@ input arbitrumone_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: arbitrumone_Bytes
   caller_not: arbitrumone_Bytes
-  caller_gt: arbitrumone_Bytes
-  caller_lt: arbitrumone_Bytes
-  caller_gte: arbitrumone_Bytes
-  caller_lte: arbitrumone_Bytes
   caller_in: [arbitrumone_Bytes!]
   caller_not_in: [arbitrumone_Bytes!]
   caller_contains: arbitrumone_Bytes
   caller_not_contains: arbitrumone_Bytes
   transactionHash: arbitrumone_Bytes
   transactionHash_not: arbitrumone_Bytes
-  transactionHash_gt: arbitrumone_Bytes
-  transactionHash_lt: arbitrumone_Bytes
-  transactionHash_gte: arbitrumone_Bytes
-  transactionHash_lte: arbitrumone_Bytes
   transactionHash_in: [arbitrumone_Bytes!]
   transactionHash_not_in: [arbitrumone_Bytes!]
   transactionHash_contains: arbitrumone_Bytes
@@ -1896,30 +1732,18 @@ input arbitrumone_Router_filter {
   isActive_not_in: [Boolean!]
   owner: arbitrumone_Bytes
   owner_not: arbitrumone_Bytes
-  owner_gt: arbitrumone_Bytes
-  owner_lt: arbitrumone_Bytes
-  owner_gte: arbitrumone_Bytes
-  owner_lte: arbitrumone_Bytes
   owner_in: [arbitrumone_Bytes!]
   owner_not_in: [arbitrumone_Bytes!]
   owner_contains: arbitrumone_Bytes
   owner_not_contains: arbitrumone_Bytes
   recipient: arbitrumone_Bytes
   recipient_not: arbitrumone_Bytes
-  recipient_gt: arbitrumone_Bytes
-  recipient_lt: arbitrumone_Bytes
-  recipient_gte: arbitrumone_Bytes
-  recipient_lte: arbitrumone_Bytes
   recipient_in: [arbitrumone_Bytes!]
   recipient_not_in: [arbitrumone_Bytes!]
   recipient_contains: arbitrumone_Bytes
   recipient_not_contains: arbitrumone_Bytes
   proposedOwner: arbitrumone_Bytes
   proposedOwner_not: arbitrumone_Bytes
-  proposedOwner_gt: arbitrumone_Bytes
-  proposedOwner_lt: arbitrumone_Bytes
-  proposedOwner_gte: arbitrumone_Bytes
-  proposedOwner_lte: arbitrumone_Bytes
   proposedOwner_in: [arbitrumone_Bytes!]
   proposedOwner_not_in: [arbitrumone_Bytes!]
   proposedOwner_contains: arbitrumone_Bytes
@@ -1968,10 +1792,6 @@ input arbitrumone_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: arbitrumone_Bytes
   sequencer_not: arbitrumone_Bytes
-  sequencer_gt: arbitrumone_Bytes
-  sequencer_lt: arbitrumone_Bytes
-  sequencer_gte: arbitrumone_Bytes
-  sequencer_lte: arbitrumone_Bytes
   sequencer_in: [arbitrumone_Bytes!]
   sequencer_not_in: [arbitrumone_Bytes!]
   sequencer_contains: arbitrumone_Bytes
@@ -2011,10 +1831,6 @@ input arbitrumone_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: arbitrumone_Bytes
   caller_not: arbitrumone_Bytes
-  caller_gt: arbitrumone_Bytes
-  caller_lt: arbitrumone_Bytes
-  caller_gte: arbitrumone_Bytes
-  caller_lte: arbitrumone_Bytes
   caller_in: [arbitrumone_Bytes!]
   caller_not_in: [arbitrumone_Bytes!]
   caller_contains: arbitrumone_Bytes
@@ -2070,10 +1886,6 @@ input arbitrumone_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: arbitrumone_Bytes
   provider_not: arbitrumone_Bytes
-  provider_gt: arbitrumone_Bytes
-  provider_lt: arbitrumone_Bytes
-  provider_gte: arbitrumone_Bytes
-  provider_lte: arbitrumone_Bytes
   provider_in: [arbitrumone_Bytes!]
   provider_not_in: [arbitrumone_Bytes!]
   provider_contains: arbitrumone_Bytes
@@ -2156,20 +1968,12 @@ input arbitrumone_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: arbitrumone_Bytes
   key_not: arbitrumone_Bytes
-  key_gt: arbitrumone_Bytes
-  key_lt: arbitrumone_Bytes
-  key_gte: arbitrumone_Bytes
-  key_lte: arbitrumone_Bytes
   key_in: [arbitrumone_Bytes!]
   key_not_in: [arbitrumone_Bytes!]
   key_contains: arbitrumone_Bytes
   key_not_contains: arbitrumone_Bytes
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
-  canonicalId_gt: arbitrumone_Bytes
-  canonicalId_lt: arbitrumone_Bytes
-  canonicalId_gte: arbitrumone_Bytes
-  canonicalId_lte: arbitrumone_Bytes
   canonicalId_in: [arbitrumone_Bytes!]
   canonicalId_not_in: [arbitrumone_Bytes!]
   canonicalId_contains: arbitrumone_Bytes
@@ -2184,20 +1988,12 @@ input arbitrumone_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: arbitrumone_Bytes
   swapPool_not: arbitrumone_Bytes
-  swapPool_gt: arbitrumone_Bytes
-  swapPool_lt: arbitrumone_Bytes
-  swapPool_gte: arbitrumone_Bytes
-  swapPool_lte: arbitrumone_Bytes
   swapPool_in: [arbitrumone_Bytes!]
   swapPool_not_in: [arbitrumone_Bytes!]
   swapPool_contains: arbitrumone_Bytes
   swapPool_not_contains: arbitrumone_Bytes
   lpToken: arbitrumone_Bytes
   lpToken_not: arbitrumone_Bytes
-  lpToken_gt: arbitrumone_Bytes
-  lpToken_lt: arbitrumone_Bytes
-  lpToken_gte: arbitrumone_Bytes
-  lpToken_lte: arbitrumone_Bytes
   lpToken_in: [arbitrumone_Bytes!]
   lpToken_not_in: [arbitrumone_Bytes!]
   lpToken_contains: arbitrumone_Bytes
@@ -2763,10 +2559,6 @@ input arbitrumone_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: arbitrumone_Bytes
   transferId_not: arbitrumone_Bytes
-  transferId_gt: arbitrumone_Bytes
-  transferId_lt: arbitrumone_Bytes
-  transferId_gte: arbitrumone_Bytes
-  transferId_lte: arbitrumone_Bytes
   transferId_in: [arbitrumone_Bytes!]
   transferId_not_in: [arbitrumone_Bytes!]
   transferId_contains: arbitrumone_Bytes

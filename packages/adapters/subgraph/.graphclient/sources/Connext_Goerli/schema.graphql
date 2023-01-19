@@ -29,10 +29,6 @@ input goerli_AggregateRoot_filter {
   id_not_in: [ID!]
   root: goerli_Bytes
   root_not: goerli_Bytes
-  root_gt: goerli_Bytes
-  root_lt: goerli_Bytes
-  root_gte: goerli_Bytes
-  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
@@ -163,20 +159,12 @@ input goerli_Asset_filter {
   id_not_in: [ID!]
   key: goerli_Bytes
   key_not: goerli_Bytes
-  key_gt: goerli_Bytes
-  key_lt: goerli_Bytes
-  key_gte: goerli_Bytes
-  key_lte: goerli_Bytes
   key_in: [goerli_Bytes!]
   key_not_in: [goerli_Bytes!]
   key_contains: goerli_Bytes
   key_not_contains: goerli_Bytes
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
-  canonicalId_gt: goerli_Bytes
-  canonicalId_lt: goerli_Bytes
-  canonicalId_gte: goerli_Bytes
-  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -191,20 +179,12 @@ input goerli_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: goerli_Bytes
   adoptedAsset_not: goerli_Bytes
-  adoptedAsset_gt: goerli_Bytes
-  adoptedAsset_lt: goerli_Bytes
-  adoptedAsset_gte: goerli_Bytes
-  adoptedAsset_lte: goerli_Bytes
   adoptedAsset_in: [goerli_Bytes!]
   adoptedAsset_not_in: [goerli_Bytes!]
   adoptedAsset_contains: goerli_Bytes
   adoptedAsset_not_contains: goerli_Bytes
   localAsset: goerli_Bytes
   localAsset_not: goerli_Bytes
-  localAsset_gt: goerli_Bytes
-  localAsset_lt: goerli_Bytes
-  localAsset_gte: goerli_Bytes
-  localAsset_lte: goerli_Bytes
   localAsset_in: [goerli_Bytes!]
   localAsset_not_in: [goerli_Bytes!]
   localAsset_contains: goerli_Bytes
@@ -283,30 +263,18 @@ input goerli_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
-  amb_gt: goerli_Bytes
-  amb_lt: goerli_Bytes
-  amb_gte: goerli_Bytes
-  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
-  rootManager_gt: goerli_Bytes
-  rootManager_lt: goerli_Bytes
-  rootManager_gte: goerli_Bytes
-  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
-  mirrorConnector_gt: goerli_Bytes
-  mirrorConnector_lt: goerli_Bytes
-  mirrorConnector_gte: goerli_Bytes
-  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -381,10 +349,6 @@ input goerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
-  transferId_gt: goerli_Bytes
-  transferId_lt: goerli_Bytes
-  transferId_gte: goerli_Bytes
-  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -434,20 +398,12 @@ input goerli_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: goerli_Bytes
   to_not: goerli_Bytes
-  to_gt: goerli_Bytes
-  to_lt: goerli_Bytes
-  to_gte: goerli_Bytes
-  to_lte: goerli_Bytes
   to_in: [goerli_Bytes!]
   to_not_in: [goerli_Bytes!]
   to_contains: goerli_Bytes
   to_not_contains: goerli_Bytes
   delegate: goerli_Bytes
   delegate_not: goerli_Bytes
-  delegate_gt: goerli_Bytes
-  delegate_lt: goerli_Bytes
-  delegate_gte: goerli_Bytes
-  delegate_lte: goerli_Bytes
   delegate_in: [goerli_Bytes!]
   delegate_not_in: [goerli_Bytes!]
   delegate_contains: goerli_Bytes
@@ -458,10 +414,6 @@ input goerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: goerli_Bytes
   callData_not: goerli_Bytes
-  callData_gt: goerli_Bytes
-  callData_lt: goerli_Bytes
-  callData_gte: goerli_Bytes
-  callData_lte: goerli_Bytes
   callData_in: [goerli_Bytes!]
   callData_not_in: [goerli_Bytes!]
   callData_contains: goerli_Bytes
@@ -476,10 +428,6 @@ input goerli_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: goerli_Bytes
   originSender_not: goerli_Bytes
-  originSender_gt: goerli_Bytes
-  originSender_lt: goerli_Bytes
-  originSender_gte: goerli_Bytes
-  originSender_lte: goerli_Bytes
   originSender_in: [goerli_Bytes!]
   originSender_not_in: [goerli_Bytes!]
   originSender_contains: goerli_Bytes
@@ -502,10 +450,6 @@ input goerli_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
-  canonicalId_gt: goerli_Bytes
-  canonicalId_lt: goerli_Bytes
-  canonicalId_gte: goerli_Bytes
-  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -549,20 +493,12 @@ input goerli_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: goerli_Bytes
   executedCaller_not: goerli_Bytes
-  executedCaller_gt: goerli_Bytes
-  executedCaller_lt: goerli_Bytes
-  executedCaller_gte: goerli_Bytes
-  executedCaller_lte: goerli_Bytes
   executedCaller_in: [goerli_Bytes!]
   executedCaller_not_in: [goerli_Bytes!]
   executedCaller_contains: goerli_Bytes
   executedCaller_not_contains: goerli_Bytes
   executedTransactionHash: goerli_Bytes
   executedTransactionHash_not: goerli_Bytes
-  executedTransactionHash_gt: goerli_Bytes
-  executedTransactionHash_lt: goerli_Bytes
-  executedTransactionHash_gte: goerli_Bytes
-  executedTransactionHash_lte: goerli_Bytes
   executedTransactionHash_in: [goerli_Bytes!]
   executedTransactionHash_not_in: [goerli_Bytes!]
   executedTransactionHash_contains: goerli_Bytes
@@ -601,30 +537,18 @@ input goerli_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: goerli_Bytes
   executedTxOrigin_not: goerli_Bytes
-  executedTxOrigin_gt: goerli_Bytes
-  executedTxOrigin_lt: goerli_Bytes
-  executedTxOrigin_gte: goerli_Bytes
-  executedTxOrigin_lte: goerli_Bytes
   executedTxOrigin_in: [goerli_Bytes!]
   executedTxOrigin_not_in: [goerli_Bytes!]
   executedTxOrigin_contains: goerli_Bytes
   executedTxOrigin_not_contains: goerli_Bytes
   reconciledCaller: goerli_Bytes
   reconciledCaller_not: goerli_Bytes
-  reconciledCaller_gt: goerli_Bytes
-  reconciledCaller_lt: goerli_Bytes
-  reconciledCaller_gte: goerli_Bytes
-  reconciledCaller_lte: goerli_Bytes
   reconciledCaller_in: [goerli_Bytes!]
   reconciledCaller_not_in: [goerli_Bytes!]
   reconciledCaller_contains: goerli_Bytes
   reconciledCaller_not_contains: goerli_Bytes
   reconciledTransactionHash: goerli_Bytes
   reconciledTransactionHash_not: goerli_Bytes
-  reconciledTransactionHash_gt: goerli_Bytes
-  reconciledTransactionHash_lt: goerli_Bytes
-  reconciledTransactionHash_gte: goerli_Bytes
-  reconciledTransactionHash_lte: goerli_Bytes
   reconciledTransactionHash_in: [goerli_Bytes!]
   reconciledTransactionHash_not_in: [goerli_Bytes!]
   reconciledTransactionHash_contains: goerli_Bytes
@@ -663,10 +587,6 @@ input goerli_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: goerli_Bytes
   reconciledTxOrigin_not: goerli_Bytes
-  reconciledTxOrigin_gt: goerli_Bytes
-  reconciledTxOrigin_lt: goerli_Bytes
-  reconciledTxOrigin_gte: goerli_Bytes
-  reconciledTxOrigin_lte: goerli_Bytes
   reconciledTxOrigin_in: [goerli_Bytes!]
   reconciledTxOrigin_not_in: [goerli_Bytes!]
   reconciledTxOrigin_contains: goerli_Bytes
@@ -743,10 +663,6 @@ input goerli_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
-  transferId_gt: goerli_Bytes
-  transferId_lt: goerli_Bytes
-  transferId_gte: goerli_Bytes
-  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -761,10 +677,6 @@ input goerli_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: goerli_Bytes
   leaf_not: goerli_Bytes
-  leaf_gt: goerli_Bytes
-  leaf_lt: goerli_Bytes
-  leaf_gte: goerli_Bytes
-  leaf_lte: goerli_Bytes
   leaf_in: [goerli_Bytes!]
   leaf_not_in: [goerli_Bytes!]
   leaf_contains: goerli_Bytes
@@ -779,30 +691,18 @@ input goerli_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: goerli_Bytes
   message_not: goerli_Bytes
-  message_gt: goerli_Bytes
-  message_lt: goerli_Bytes
-  message_gte: goerli_Bytes
-  message_lte: goerli_Bytes
   message_in: [goerli_Bytes!]
   message_not_in: [goerli_Bytes!]
   message_contains: goerli_Bytes
   message_not_contains: goerli_Bytes
   root: goerli_Bytes
   root_not: goerli_Bytes
-  root_gt: goerli_Bytes
-  root_lt: goerli_Bytes
-  root_gte: goerli_Bytes
-  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
   root_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
-  transactionHash_gt: goerli_Bytes
-  transactionHash_lt: goerli_Bytes
-  transactionHash_gte: goerli_Bytes
-  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -904,10 +804,6 @@ input goerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
-  transferId_gt: goerli_Bytes
-  transferId_lt: goerli_Bytes
-  transferId_gte: goerli_Bytes
-  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -926,10 +822,6 @@ input goerli_OriginTransfer_filter {
   status_not_in: [goerli_TransferStatus!]
   messageHash: goerli_Bytes
   messageHash_not: goerli_Bytes
-  messageHash_gt: goerli_Bytes
-  messageHash_lt: goerli_Bytes
-  messageHash_gte: goerli_Bytes
-  messageHash_lte: goerli_Bytes
   messageHash_in: [goerli_Bytes!]
   messageHash_not_in: [goerli_Bytes!]
   messageHash_contains: goerli_Bytes
@@ -960,20 +852,12 @@ input goerli_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: goerli_Bytes
   to_not: goerli_Bytes
-  to_gt: goerli_Bytes
-  to_lt: goerli_Bytes
-  to_gte: goerli_Bytes
-  to_lte: goerli_Bytes
   to_in: [goerli_Bytes!]
   to_not_in: [goerli_Bytes!]
   to_contains: goerli_Bytes
   to_not_contains: goerli_Bytes
   delegate: goerli_Bytes
   delegate_not: goerli_Bytes
-  delegate_gt: goerli_Bytes
-  delegate_lt: goerli_Bytes
-  delegate_gte: goerli_Bytes
-  delegate_lte: goerli_Bytes
   delegate_in: [goerli_Bytes!]
   delegate_not_in: [goerli_Bytes!]
   delegate_contains: goerli_Bytes
@@ -984,10 +868,6 @@ input goerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: goerli_Bytes
   callData_not: goerli_Bytes
-  callData_gt: goerli_Bytes
-  callData_lt: goerli_Bytes
-  callData_gte: goerli_Bytes
-  callData_lte: goerli_Bytes
   callData_in: [goerli_Bytes!]
   callData_not_in: [goerli_Bytes!]
   callData_contains: goerli_Bytes
@@ -1002,10 +882,6 @@ input goerli_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: goerli_Bytes
   originSender_not: goerli_Bytes
-  originSender_gt: goerli_Bytes
-  originSender_lt: goerli_Bytes
-  originSender_gte: goerli_Bytes
-  originSender_lte: goerli_Bytes
   originSender_in: [goerli_Bytes!]
   originSender_not_in: [goerli_Bytes!]
   originSender_contains: goerli_Bytes
@@ -1028,10 +904,6 @@ input goerli_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
-  canonicalId_gt: goerli_Bytes
-  canonicalId_lt: goerli_Bytes
-  canonicalId_gte: goerli_Bytes
-  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -1059,10 +931,6 @@ input goerli_OriginTransfer_filter {
   asset_: goerli_Asset_filter
   transacting: goerli_Bytes
   transacting_not: goerli_Bytes
-  transacting_gt: goerli_Bytes
-  transacting_lt: goerli_Bytes
-  transacting_gte: goerli_Bytes
-  transacting_lte: goerli_Bytes
   transacting_in: [goerli_Bytes!]
   transacting_not_in: [goerli_Bytes!]
   transacting_contains: goerli_Bytes
@@ -1098,20 +966,12 @@ input goerli_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
-  caller_gt: goerli_Bytes
-  caller_lt: goerli_Bytes
-  caller_gte: goerli_Bytes
-  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
-  transactionHash_gt: goerli_Bytes
-  transactionHash_lt: goerli_Bytes
-  transactionHash_gte: goerli_Bytes
-  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -1150,10 +1010,6 @@ input goerli_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: goerli_Bytes
   txOrigin_not: goerli_Bytes
-  txOrigin_gt: goerli_Bytes
-  txOrigin_lt: goerli_Bytes
-  txOrigin_gte: goerli_Bytes
-  txOrigin_lte: goerli_Bytes
   txOrigin_in: [goerli_Bytes!]
   txOrigin_not_in: [goerli_Bytes!]
   txOrigin_contains: goerli_Bytes
@@ -1210,10 +1066,6 @@ input goerli_PooledToken_filter {
   id_not_in: [ID!]
   asset: goerli_Bytes
   asset_not: goerli_Bytes
-  asset_gt: goerli_Bytes
-  asset_lt: goerli_Bytes
-  asset_gte: goerli_Bytes
-  asset_lte: goerli_Bytes
   asset_in: [goerli_Bytes!]
   asset_not_in: [goerli_Bytes!]
   asset_contains: goerli_Bytes
@@ -1695,10 +1547,6 @@ input goerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: goerli_Bytes
   relayer_not: goerli_Bytes
-  relayer_gt: goerli_Bytes
-  relayer_lt: goerli_Bytes
-  relayer_gte: goerli_Bytes
-  relayer_lte: goerli_Bytes
   relayer_in: [goerli_Bytes!]
   relayer_not_in: [goerli_Bytes!]
   relayer_contains: goerli_Bytes
@@ -1785,10 +1633,6 @@ input goerli_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: goerli_Bytes
   root_not: goerli_Bytes
-  root_gt: goerli_Bytes
-  root_lt: goerli_Bytes
-  root_gte: goerli_Bytes
-  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
@@ -1803,20 +1647,12 @@ input goerli_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
-  caller_gt: goerli_Bytes
-  caller_lt: goerli_Bytes
-  caller_gte: goerli_Bytes
-  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
-  transactionHash_gt: goerli_Bytes
-  transactionHash_lt: goerli_Bytes
-  transactionHash_gte: goerli_Bytes
-  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -1896,30 +1732,18 @@ input goerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: goerli_Bytes
   owner_not: goerli_Bytes
-  owner_gt: goerli_Bytes
-  owner_lt: goerli_Bytes
-  owner_gte: goerli_Bytes
-  owner_lte: goerli_Bytes
   owner_in: [goerli_Bytes!]
   owner_not_in: [goerli_Bytes!]
   owner_contains: goerli_Bytes
   owner_not_contains: goerli_Bytes
   recipient: goerli_Bytes
   recipient_not: goerli_Bytes
-  recipient_gt: goerli_Bytes
-  recipient_lt: goerli_Bytes
-  recipient_gte: goerli_Bytes
-  recipient_lte: goerli_Bytes
   recipient_in: [goerli_Bytes!]
   recipient_not_in: [goerli_Bytes!]
   recipient_contains: goerli_Bytes
   recipient_not_contains: goerli_Bytes
   proposedOwner: goerli_Bytes
   proposedOwner_not: goerli_Bytes
-  proposedOwner_gt: goerli_Bytes
-  proposedOwner_lt: goerli_Bytes
-  proposedOwner_gte: goerli_Bytes
-  proposedOwner_lte: goerli_Bytes
   proposedOwner_in: [goerli_Bytes!]
   proposedOwner_not_in: [goerli_Bytes!]
   proposedOwner_contains: goerli_Bytes
@@ -1968,10 +1792,6 @@ input goerli_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: goerli_Bytes
   sequencer_not: goerli_Bytes
-  sequencer_gt: goerli_Bytes
-  sequencer_lt: goerli_Bytes
-  sequencer_gte: goerli_Bytes
-  sequencer_lte: goerli_Bytes
   sequencer_in: [goerli_Bytes!]
   sequencer_not_in: [goerli_Bytes!]
   sequencer_contains: goerli_Bytes
@@ -2011,10 +1831,6 @@ input goerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
-  caller_gt: goerli_Bytes
-  caller_lt: goerli_Bytes
-  caller_gte: goerli_Bytes
-  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
@@ -2070,10 +1886,6 @@ input goerli_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: goerli_Bytes
   provider_not: goerli_Bytes
-  provider_gt: goerli_Bytes
-  provider_lt: goerli_Bytes
-  provider_gte: goerli_Bytes
-  provider_lte: goerli_Bytes
   provider_in: [goerli_Bytes!]
   provider_not_in: [goerli_Bytes!]
   provider_contains: goerli_Bytes
@@ -2156,20 +1968,12 @@ input goerli_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: goerli_Bytes
   key_not: goerli_Bytes
-  key_gt: goerli_Bytes
-  key_lt: goerli_Bytes
-  key_gte: goerli_Bytes
-  key_lte: goerli_Bytes
   key_in: [goerli_Bytes!]
   key_not_in: [goerli_Bytes!]
   key_contains: goerli_Bytes
   key_not_contains: goerli_Bytes
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
-  canonicalId_gt: goerli_Bytes
-  canonicalId_lt: goerli_Bytes
-  canonicalId_gte: goerli_Bytes
-  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -2184,20 +1988,12 @@ input goerli_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: goerli_Bytes
   swapPool_not: goerli_Bytes
-  swapPool_gt: goerli_Bytes
-  swapPool_lt: goerli_Bytes
-  swapPool_gte: goerli_Bytes
-  swapPool_lte: goerli_Bytes
   swapPool_in: [goerli_Bytes!]
   swapPool_not_in: [goerli_Bytes!]
   swapPool_contains: goerli_Bytes
   swapPool_not_contains: goerli_Bytes
   lpToken: goerli_Bytes
   lpToken_not: goerli_Bytes
-  lpToken_gt: goerli_Bytes
-  lpToken_lt: goerli_Bytes
-  lpToken_gte: goerli_Bytes
-  lpToken_lte: goerli_Bytes
   lpToken_in: [goerli_Bytes!]
   lpToken_not_in: [goerli_Bytes!]
   lpToken_contains: goerli_Bytes
@@ -2763,10 +2559,6 @@ input goerli_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
-  transferId_gt: goerli_Bytes
-  transferId_lt: goerli_Bytes
-  transferId_gte: goerli_Bytes
-  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes

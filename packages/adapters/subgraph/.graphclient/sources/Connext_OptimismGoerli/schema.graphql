@@ -29,10 +29,6 @@ input optimismgoerli_AggregateRoot_filter {
   id_not_in: [ID!]
   root: optimismgoerli_Bytes
   root_not: optimismgoerli_Bytes
-  root_gt: optimismgoerli_Bytes
-  root_lt: optimismgoerli_Bytes
-  root_gte: optimismgoerli_Bytes
-  root_lte: optimismgoerli_Bytes
   root_in: [optimismgoerli_Bytes!]
   root_not_in: [optimismgoerli_Bytes!]
   root_contains: optimismgoerli_Bytes
@@ -163,20 +159,12 @@ input optimismgoerli_Asset_filter {
   id_not_in: [ID!]
   key: optimismgoerli_Bytes
   key_not: optimismgoerli_Bytes
-  key_gt: optimismgoerli_Bytes
-  key_lt: optimismgoerli_Bytes
-  key_gte: optimismgoerli_Bytes
-  key_lte: optimismgoerli_Bytes
   key_in: [optimismgoerli_Bytes!]
   key_not_in: [optimismgoerli_Bytes!]
   key_contains: optimismgoerli_Bytes
   key_not_contains: optimismgoerli_Bytes
   canonicalId: optimismgoerli_Bytes
   canonicalId_not: optimismgoerli_Bytes
-  canonicalId_gt: optimismgoerli_Bytes
-  canonicalId_lt: optimismgoerli_Bytes
-  canonicalId_gte: optimismgoerli_Bytes
-  canonicalId_lte: optimismgoerli_Bytes
   canonicalId_in: [optimismgoerli_Bytes!]
   canonicalId_not_in: [optimismgoerli_Bytes!]
   canonicalId_contains: optimismgoerli_Bytes
@@ -191,20 +179,12 @@ input optimismgoerli_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: optimismgoerli_Bytes
   adoptedAsset_not: optimismgoerli_Bytes
-  adoptedAsset_gt: optimismgoerli_Bytes
-  adoptedAsset_lt: optimismgoerli_Bytes
-  adoptedAsset_gte: optimismgoerli_Bytes
-  adoptedAsset_lte: optimismgoerli_Bytes
   adoptedAsset_in: [optimismgoerli_Bytes!]
   adoptedAsset_not_in: [optimismgoerli_Bytes!]
   adoptedAsset_contains: optimismgoerli_Bytes
   adoptedAsset_not_contains: optimismgoerli_Bytes
   localAsset: optimismgoerli_Bytes
   localAsset_not: optimismgoerli_Bytes
-  localAsset_gt: optimismgoerli_Bytes
-  localAsset_lt: optimismgoerli_Bytes
-  localAsset_gte: optimismgoerli_Bytes
-  localAsset_lte: optimismgoerli_Bytes
   localAsset_in: [optimismgoerli_Bytes!]
   localAsset_not_in: [optimismgoerli_Bytes!]
   localAsset_contains: optimismgoerli_Bytes
@@ -283,30 +263,18 @@ input optimismgoerli_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: optimismgoerli_Bytes
   amb_not: optimismgoerli_Bytes
-  amb_gt: optimismgoerli_Bytes
-  amb_lt: optimismgoerli_Bytes
-  amb_gte: optimismgoerli_Bytes
-  amb_lte: optimismgoerli_Bytes
   amb_in: [optimismgoerli_Bytes!]
   amb_not_in: [optimismgoerli_Bytes!]
   amb_contains: optimismgoerli_Bytes
   amb_not_contains: optimismgoerli_Bytes
   rootManager: optimismgoerli_Bytes
   rootManager_not: optimismgoerli_Bytes
-  rootManager_gt: optimismgoerli_Bytes
-  rootManager_lt: optimismgoerli_Bytes
-  rootManager_gte: optimismgoerli_Bytes
-  rootManager_lte: optimismgoerli_Bytes
   rootManager_in: [optimismgoerli_Bytes!]
   rootManager_not_in: [optimismgoerli_Bytes!]
   rootManager_contains: optimismgoerli_Bytes
   rootManager_not_contains: optimismgoerli_Bytes
   mirrorConnector: optimismgoerli_Bytes
   mirrorConnector_not: optimismgoerli_Bytes
-  mirrorConnector_gt: optimismgoerli_Bytes
-  mirrorConnector_lt: optimismgoerli_Bytes
-  mirrorConnector_gte: optimismgoerli_Bytes
-  mirrorConnector_lte: optimismgoerli_Bytes
   mirrorConnector_in: [optimismgoerli_Bytes!]
   mirrorConnector_not_in: [optimismgoerli_Bytes!]
   mirrorConnector_contains: optimismgoerli_Bytes
@@ -381,10 +349,6 @@ input optimismgoerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: optimismgoerli_Bytes
   transferId_not: optimismgoerli_Bytes
-  transferId_gt: optimismgoerli_Bytes
-  transferId_lt: optimismgoerli_Bytes
-  transferId_gte: optimismgoerli_Bytes
-  transferId_lte: optimismgoerli_Bytes
   transferId_in: [optimismgoerli_Bytes!]
   transferId_not_in: [optimismgoerli_Bytes!]
   transferId_contains: optimismgoerli_Bytes
@@ -434,20 +398,12 @@ input optimismgoerli_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: optimismgoerli_Bytes
   to_not: optimismgoerli_Bytes
-  to_gt: optimismgoerli_Bytes
-  to_lt: optimismgoerli_Bytes
-  to_gte: optimismgoerli_Bytes
-  to_lte: optimismgoerli_Bytes
   to_in: [optimismgoerli_Bytes!]
   to_not_in: [optimismgoerli_Bytes!]
   to_contains: optimismgoerli_Bytes
   to_not_contains: optimismgoerli_Bytes
   delegate: optimismgoerli_Bytes
   delegate_not: optimismgoerli_Bytes
-  delegate_gt: optimismgoerli_Bytes
-  delegate_lt: optimismgoerli_Bytes
-  delegate_gte: optimismgoerli_Bytes
-  delegate_lte: optimismgoerli_Bytes
   delegate_in: [optimismgoerli_Bytes!]
   delegate_not_in: [optimismgoerli_Bytes!]
   delegate_contains: optimismgoerli_Bytes
@@ -458,10 +414,6 @@ input optimismgoerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: optimismgoerli_Bytes
   callData_not: optimismgoerli_Bytes
-  callData_gt: optimismgoerli_Bytes
-  callData_lt: optimismgoerli_Bytes
-  callData_gte: optimismgoerli_Bytes
-  callData_lte: optimismgoerli_Bytes
   callData_in: [optimismgoerli_Bytes!]
   callData_not_in: [optimismgoerli_Bytes!]
   callData_contains: optimismgoerli_Bytes
@@ -476,10 +428,6 @@ input optimismgoerli_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: optimismgoerli_Bytes
   originSender_not: optimismgoerli_Bytes
-  originSender_gt: optimismgoerli_Bytes
-  originSender_lt: optimismgoerli_Bytes
-  originSender_gte: optimismgoerli_Bytes
-  originSender_lte: optimismgoerli_Bytes
   originSender_in: [optimismgoerli_Bytes!]
   originSender_not_in: [optimismgoerli_Bytes!]
   originSender_contains: optimismgoerli_Bytes
@@ -502,10 +450,6 @@ input optimismgoerli_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: optimismgoerli_Bytes
   canonicalId_not: optimismgoerli_Bytes
-  canonicalId_gt: optimismgoerli_Bytes
-  canonicalId_lt: optimismgoerli_Bytes
-  canonicalId_gte: optimismgoerli_Bytes
-  canonicalId_lte: optimismgoerli_Bytes
   canonicalId_in: [optimismgoerli_Bytes!]
   canonicalId_not_in: [optimismgoerli_Bytes!]
   canonicalId_contains: optimismgoerli_Bytes
@@ -549,20 +493,12 @@ input optimismgoerli_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: optimismgoerli_Bytes
   executedCaller_not: optimismgoerli_Bytes
-  executedCaller_gt: optimismgoerli_Bytes
-  executedCaller_lt: optimismgoerli_Bytes
-  executedCaller_gte: optimismgoerli_Bytes
-  executedCaller_lte: optimismgoerli_Bytes
   executedCaller_in: [optimismgoerli_Bytes!]
   executedCaller_not_in: [optimismgoerli_Bytes!]
   executedCaller_contains: optimismgoerli_Bytes
   executedCaller_not_contains: optimismgoerli_Bytes
   executedTransactionHash: optimismgoerli_Bytes
   executedTransactionHash_not: optimismgoerli_Bytes
-  executedTransactionHash_gt: optimismgoerli_Bytes
-  executedTransactionHash_lt: optimismgoerli_Bytes
-  executedTransactionHash_gte: optimismgoerli_Bytes
-  executedTransactionHash_lte: optimismgoerli_Bytes
   executedTransactionHash_in: [optimismgoerli_Bytes!]
   executedTransactionHash_not_in: [optimismgoerli_Bytes!]
   executedTransactionHash_contains: optimismgoerli_Bytes
@@ -601,30 +537,18 @@ input optimismgoerli_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: optimismgoerli_Bytes
   executedTxOrigin_not: optimismgoerli_Bytes
-  executedTxOrigin_gt: optimismgoerli_Bytes
-  executedTxOrigin_lt: optimismgoerli_Bytes
-  executedTxOrigin_gte: optimismgoerli_Bytes
-  executedTxOrigin_lte: optimismgoerli_Bytes
   executedTxOrigin_in: [optimismgoerli_Bytes!]
   executedTxOrigin_not_in: [optimismgoerli_Bytes!]
   executedTxOrigin_contains: optimismgoerli_Bytes
   executedTxOrigin_not_contains: optimismgoerli_Bytes
   reconciledCaller: optimismgoerli_Bytes
   reconciledCaller_not: optimismgoerli_Bytes
-  reconciledCaller_gt: optimismgoerli_Bytes
-  reconciledCaller_lt: optimismgoerli_Bytes
-  reconciledCaller_gte: optimismgoerli_Bytes
-  reconciledCaller_lte: optimismgoerli_Bytes
   reconciledCaller_in: [optimismgoerli_Bytes!]
   reconciledCaller_not_in: [optimismgoerli_Bytes!]
   reconciledCaller_contains: optimismgoerli_Bytes
   reconciledCaller_not_contains: optimismgoerli_Bytes
   reconciledTransactionHash: optimismgoerli_Bytes
   reconciledTransactionHash_not: optimismgoerli_Bytes
-  reconciledTransactionHash_gt: optimismgoerli_Bytes
-  reconciledTransactionHash_lt: optimismgoerli_Bytes
-  reconciledTransactionHash_gte: optimismgoerli_Bytes
-  reconciledTransactionHash_lte: optimismgoerli_Bytes
   reconciledTransactionHash_in: [optimismgoerli_Bytes!]
   reconciledTransactionHash_not_in: [optimismgoerli_Bytes!]
   reconciledTransactionHash_contains: optimismgoerli_Bytes
@@ -663,10 +587,6 @@ input optimismgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: optimismgoerli_Bytes
   reconciledTxOrigin_not: optimismgoerli_Bytes
-  reconciledTxOrigin_gt: optimismgoerli_Bytes
-  reconciledTxOrigin_lt: optimismgoerli_Bytes
-  reconciledTxOrigin_gte: optimismgoerli_Bytes
-  reconciledTxOrigin_lte: optimismgoerli_Bytes
   reconciledTxOrigin_in: [optimismgoerli_Bytes!]
   reconciledTxOrigin_not_in: [optimismgoerli_Bytes!]
   reconciledTxOrigin_contains: optimismgoerli_Bytes
@@ -743,10 +663,6 @@ input optimismgoerli_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: optimismgoerli_Bytes
   transferId_not: optimismgoerli_Bytes
-  transferId_gt: optimismgoerli_Bytes
-  transferId_lt: optimismgoerli_Bytes
-  transferId_gte: optimismgoerli_Bytes
-  transferId_lte: optimismgoerli_Bytes
   transferId_in: [optimismgoerli_Bytes!]
   transferId_not_in: [optimismgoerli_Bytes!]
   transferId_contains: optimismgoerli_Bytes
@@ -761,10 +677,6 @@ input optimismgoerli_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: optimismgoerli_Bytes
   leaf_not: optimismgoerli_Bytes
-  leaf_gt: optimismgoerli_Bytes
-  leaf_lt: optimismgoerli_Bytes
-  leaf_gte: optimismgoerli_Bytes
-  leaf_lte: optimismgoerli_Bytes
   leaf_in: [optimismgoerli_Bytes!]
   leaf_not_in: [optimismgoerli_Bytes!]
   leaf_contains: optimismgoerli_Bytes
@@ -779,30 +691,18 @@ input optimismgoerli_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: optimismgoerli_Bytes
   message_not: optimismgoerli_Bytes
-  message_gt: optimismgoerli_Bytes
-  message_lt: optimismgoerli_Bytes
-  message_gte: optimismgoerli_Bytes
-  message_lte: optimismgoerli_Bytes
   message_in: [optimismgoerli_Bytes!]
   message_not_in: [optimismgoerli_Bytes!]
   message_contains: optimismgoerli_Bytes
   message_not_contains: optimismgoerli_Bytes
   root: optimismgoerli_Bytes
   root_not: optimismgoerli_Bytes
-  root_gt: optimismgoerli_Bytes
-  root_lt: optimismgoerli_Bytes
-  root_gte: optimismgoerli_Bytes
-  root_lte: optimismgoerli_Bytes
   root_in: [optimismgoerli_Bytes!]
   root_not_in: [optimismgoerli_Bytes!]
   root_contains: optimismgoerli_Bytes
   root_not_contains: optimismgoerli_Bytes
   transactionHash: optimismgoerli_Bytes
   transactionHash_not: optimismgoerli_Bytes
-  transactionHash_gt: optimismgoerli_Bytes
-  transactionHash_lt: optimismgoerli_Bytes
-  transactionHash_gte: optimismgoerli_Bytes
-  transactionHash_lte: optimismgoerli_Bytes
   transactionHash_in: [optimismgoerli_Bytes!]
   transactionHash_not_in: [optimismgoerli_Bytes!]
   transactionHash_contains: optimismgoerli_Bytes
@@ -904,10 +804,6 @@ input optimismgoerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: optimismgoerli_Bytes
   transferId_not: optimismgoerli_Bytes
-  transferId_gt: optimismgoerli_Bytes
-  transferId_lt: optimismgoerli_Bytes
-  transferId_gte: optimismgoerli_Bytes
-  transferId_lte: optimismgoerli_Bytes
   transferId_in: [optimismgoerli_Bytes!]
   transferId_not_in: [optimismgoerli_Bytes!]
   transferId_contains: optimismgoerli_Bytes
@@ -926,10 +822,6 @@ input optimismgoerli_OriginTransfer_filter {
   status_not_in: [optimismgoerli_TransferStatus!]
   messageHash: optimismgoerli_Bytes
   messageHash_not: optimismgoerli_Bytes
-  messageHash_gt: optimismgoerli_Bytes
-  messageHash_lt: optimismgoerli_Bytes
-  messageHash_gte: optimismgoerli_Bytes
-  messageHash_lte: optimismgoerli_Bytes
   messageHash_in: [optimismgoerli_Bytes!]
   messageHash_not_in: [optimismgoerli_Bytes!]
   messageHash_contains: optimismgoerli_Bytes
@@ -960,20 +852,12 @@ input optimismgoerli_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: optimismgoerli_Bytes
   to_not: optimismgoerli_Bytes
-  to_gt: optimismgoerli_Bytes
-  to_lt: optimismgoerli_Bytes
-  to_gte: optimismgoerli_Bytes
-  to_lte: optimismgoerli_Bytes
   to_in: [optimismgoerli_Bytes!]
   to_not_in: [optimismgoerli_Bytes!]
   to_contains: optimismgoerli_Bytes
   to_not_contains: optimismgoerli_Bytes
   delegate: optimismgoerli_Bytes
   delegate_not: optimismgoerli_Bytes
-  delegate_gt: optimismgoerli_Bytes
-  delegate_lt: optimismgoerli_Bytes
-  delegate_gte: optimismgoerli_Bytes
-  delegate_lte: optimismgoerli_Bytes
   delegate_in: [optimismgoerli_Bytes!]
   delegate_not_in: [optimismgoerli_Bytes!]
   delegate_contains: optimismgoerli_Bytes
@@ -984,10 +868,6 @@ input optimismgoerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: optimismgoerli_Bytes
   callData_not: optimismgoerli_Bytes
-  callData_gt: optimismgoerli_Bytes
-  callData_lt: optimismgoerli_Bytes
-  callData_gte: optimismgoerli_Bytes
-  callData_lte: optimismgoerli_Bytes
   callData_in: [optimismgoerli_Bytes!]
   callData_not_in: [optimismgoerli_Bytes!]
   callData_contains: optimismgoerli_Bytes
@@ -1002,10 +882,6 @@ input optimismgoerli_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: optimismgoerli_Bytes
   originSender_not: optimismgoerli_Bytes
-  originSender_gt: optimismgoerli_Bytes
-  originSender_lt: optimismgoerli_Bytes
-  originSender_gte: optimismgoerli_Bytes
-  originSender_lte: optimismgoerli_Bytes
   originSender_in: [optimismgoerli_Bytes!]
   originSender_not_in: [optimismgoerli_Bytes!]
   originSender_contains: optimismgoerli_Bytes
@@ -1028,10 +904,6 @@ input optimismgoerli_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: optimismgoerli_Bytes
   canonicalId_not: optimismgoerli_Bytes
-  canonicalId_gt: optimismgoerli_Bytes
-  canonicalId_lt: optimismgoerli_Bytes
-  canonicalId_gte: optimismgoerli_Bytes
-  canonicalId_lte: optimismgoerli_Bytes
   canonicalId_in: [optimismgoerli_Bytes!]
   canonicalId_not_in: [optimismgoerli_Bytes!]
   canonicalId_contains: optimismgoerli_Bytes
@@ -1059,10 +931,6 @@ input optimismgoerli_OriginTransfer_filter {
   asset_: optimismgoerli_Asset_filter
   transacting: optimismgoerli_Bytes
   transacting_not: optimismgoerli_Bytes
-  transacting_gt: optimismgoerli_Bytes
-  transacting_lt: optimismgoerli_Bytes
-  transacting_gte: optimismgoerli_Bytes
-  transacting_lte: optimismgoerli_Bytes
   transacting_in: [optimismgoerli_Bytes!]
   transacting_not_in: [optimismgoerli_Bytes!]
   transacting_contains: optimismgoerli_Bytes
@@ -1098,20 +966,12 @@ input optimismgoerli_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: optimismgoerli_Bytes
   caller_not: optimismgoerli_Bytes
-  caller_gt: optimismgoerli_Bytes
-  caller_lt: optimismgoerli_Bytes
-  caller_gte: optimismgoerli_Bytes
-  caller_lte: optimismgoerli_Bytes
   caller_in: [optimismgoerli_Bytes!]
   caller_not_in: [optimismgoerli_Bytes!]
   caller_contains: optimismgoerli_Bytes
   caller_not_contains: optimismgoerli_Bytes
   transactionHash: optimismgoerli_Bytes
   transactionHash_not: optimismgoerli_Bytes
-  transactionHash_gt: optimismgoerli_Bytes
-  transactionHash_lt: optimismgoerli_Bytes
-  transactionHash_gte: optimismgoerli_Bytes
-  transactionHash_lte: optimismgoerli_Bytes
   transactionHash_in: [optimismgoerli_Bytes!]
   transactionHash_not_in: [optimismgoerli_Bytes!]
   transactionHash_contains: optimismgoerli_Bytes
@@ -1150,10 +1010,6 @@ input optimismgoerli_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: optimismgoerli_Bytes
   txOrigin_not: optimismgoerli_Bytes
-  txOrigin_gt: optimismgoerli_Bytes
-  txOrigin_lt: optimismgoerli_Bytes
-  txOrigin_gte: optimismgoerli_Bytes
-  txOrigin_lte: optimismgoerli_Bytes
   txOrigin_in: [optimismgoerli_Bytes!]
   txOrigin_not_in: [optimismgoerli_Bytes!]
   txOrigin_contains: optimismgoerli_Bytes
@@ -1210,10 +1066,6 @@ input optimismgoerli_PooledToken_filter {
   id_not_in: [ID!]
   asset: optimismgoerli_Bytes
   asset_not: optimismgoerli_Bytes
-  asset_gt: optimismgoerli_Bytes
-  asset_lt: optimismgoerli_Bytes
-  asset_gte: optimismgoerli_Bytes
-  asset_lte: optimismgoerli_Bytes
   asset_in: [optimismgoerli_Bytes!]
   asset_not_in: [optimismgoerli_Bytes!]
   asset_contains: optimismgoerli_Bytes
@@ -1695,10 +1547,6 @@ input optimismgoerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: optimismgoerli_Bytes
   relayer_not: optimismgoerli_Bytes
-  relayer_gt: optimismgoerli_Bytes
-  relayer_lt: optimismgoerli_Bytes
-  relayer_gte: optimismgoerli_Bytes
-  relayer_lte: optimismgoerli_Bytes
   relayer_in: [optimismgoerli_Bytes!]
   relayer_not_in: [optimismgoerli_Bytes!]
   relayer_contains: optimismgoerli_Bytes
@@ -1785,10 +1633,6 @@ input optimismgoerli_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: optimismgoerli_Bytes
   root_not: optimismgoerli_Bytes
-  root_gt: optimismgoerli_Bytes
-  root_lt: optimismgoerli_Bytes
-  root_gte: optimismgoerli_Bytes
-  root_lte: optimismgoerli_Bytes
   root_in: [optimismgoerli_Bytes!]
   root_not_in: [optimismgoerli_Bytes!]
   root_contains: optimismgoerli_Bytes
@@ -1803,20 +1647,12 @@ input optimismgoerli_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: optimismgoerli_Bytes
   caller_not: optimismgoerli_Bytes
-  caller_gt: optimismgoerli_Bytes
-  caller_lt: optimismgoerli_Bytes
-  caller_gte: optimismgoerli_Bytes
-  caller_lte: optimismgoerli_Bytes
   caller_in: [optimismgoerli_Bytes!]
   caller_not_in: [optimismgoerli_Bytes!]
   caller_contains: optimismgoerli_Bytes
   caller_not_contains: optimismgoerli_Bytes
   transactionHash: optimismgoerli_Bytes
   transactionHash_not: optimismgoerli_Bytes
-  transactionHash_gt: optimismgoerli_Bytes
-  transactionHash_lt: optimismgoerli_Bytes
-  transactionHash_gte: optimismgoerli_Bytes
-  transactionHash_lte: optimismgoerli_Bytes
   transactionHash_in: [optimismgoerli_Bytes!]
   transactionHash_not_in: [optimismgoerli_Bytes!]
   transactionHash_contains: optimismgoerli_Bytes
@@ -1896,30 +1732,18 @@ input optimismgoerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: optimismgoerli_Bytes
   owner_not: optimismgoerli_Bytes
-  owner_gt: optimismgoerli_Bytes
-  owner_lt: optimismgoerli_Bytes
-  owner_gte: optimismgoerli_Bytes
-  owner_lte: optimismgoerli_Bytes
   owner_in: [optimismgoerli_Bytes!]
   owner_not_in: [optimismgoerli_Bytes!]
   owner_contains: optimismgoerli_Bytes
   owner_not_contains: optimismgoerli_Bytes
   recipient: optimismgoerli_Bytes
   recipient_not: optimismgoerli_Bytes
-  recipient_gt: optimismgoerli_Bytes
-  recipient_lt: optimismgoerli_Bytes
-  recipient_gte: optimismgoerli_Bytes
-  recipient_lte: optimismgoerli_Bytes
   recipient_in: [optimismgoerli_Bytes!]
   recipient_not_in: [optimismgoerli_Bytes!]
   recipient_contains: optimismgoerli_Bytes
   recipient_not_contains: optimismgoerli_Bytes
   proposedOwner: optimismgoerli_Bytes
   proposedOwner_not: optimismgoerli_Bytes
-  proposedOwner_gt: optimismgoerli_Bytes
-  proposedOwner_lt: optimismgoerli_Bytes
-  proposedOwner_gte: optimismgoerli_Bytes
-  proposedOwner_lte: optimismgoerli_Bytes
   proposedOwner_in: [optimismgoerli_Bytes!]
   proposedOwner_not_in: [optimismgoerli_Bytes!]
   proposedOwner_contains: optimismgoerli_Bytes
@@ -1968,10 +1792,6 @@ input optimismgoerli_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: optimismgoerli_Bytes
   sequencer_not: optimismgoerli_Bytes
-  sequencer_gt: optimismgoerli_Bytes
-  sequencer_lt: optimismgoerli_Bytes
-  sequencer_gte: optimismgoerli_Bytes
-  sequencer_lte: optimismgoerli_Bytes
   sequencer_in: [optimismgoerli_Bytes!]
   sequencer_not_in: [optimismgoerli_Bytes!]
   sequencer_contains: optimismgoerli_Bytes
@@ -2011,10 +1831,6 @@ input optimismgoerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: optimismgoerli_Bytes
   caller_not: optimismgoerli_Bytes
-  caller_gt: optimismgoerli_Bytes
-  caller_lt: optimismgoerli_Bytes
-  caller_gte: optimismgoerli_Bytes
-  caller_lte: optimismgoerli_Bytes
   caller_in: [optimismgoerli_Bytes!]
   caller_not_in: [optimismgoerli_Bytes!]
   caller_contains: optimismgoerli_Bytes
@@ -2070,10 +1886,6 @@ input optimismgoerli_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: optimismgoerli_Bytes
   provider_not: optimismgoerli_Bytes
-  provider_gt: optimismgoerli_Bytes
-  provider_lt: optimismgoerli_Bytes
-  provider_gte: optimismgoerli_Bytes
-  provider_lte: optimismgoerli_Bytes
   provider_in: [optimismgoerli_Bytes!]
   provider_not_in: [optimismgoerli_Bytes!]
   provider_contains: optimismgoerli_Bytes
@@ -2156,20 +1968,12 @@ input optimismgoerli_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: optimismgoerli_Bytes
   key_not: optimismgoerli_Bytes
-  key_gt: optimismgoerli_Bytes
-  key_lt: optimismgoerli_Bytes
-  key_gte: optimismgoerli_Bytes
-  key_lte: optimismgoerli_Bytes
   key_in: [optimismgoerli_Bytes!]
   key_not_in: [optimismgoerli_Bytes!]
   key_contains: optimismgoerli_Bytes
   key_not_contains: optimismgoerli_Bytes
   canonicalId: optimismgoerli_Bytes
   canonicalId_not: optimismgoerli_Bytes
-  canonicalId_gt: optimismgoerli_Bytes
-  canonicalId_lt: optimismgoerli_Bytes
-  canonicalId_gte: optimismgoerli_Bytes
-  canonicalId_lte: optimismgoerli_Bytes
   canonicalId_in: [optimismgoerli_Bytes!]
   canonicalId_not_in: [optimismgoerli_Bytes!]
   canonicalId_contains: optimismgoerli_Bytes
@@ -2184,20 +1988,12 @@ input optimismgoerli_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: optimismgoerli_Bytes
   swapPool_not: optimismgoerli_Bytes
-  swapPool_gt: optimismgoerli_Bytes
-  swapPool_lt: optimismgoerli_Bytes
-  swapPool_gte: optimismgoerli_Bytes
-  swapPool_lte: optimismgoerli_Bytes
   swapPool_in: [optimismgoerli_Bytes!]
   swapPool_not_in: [optimismgoerli_Bytes!]
   swapPool_contains: optimismgoerli_Bytes
   swapPool_not_contains: optimismgoerli_Bytes
   lpToken: optimismgoerli_Bytes
   lpToken_not: optimismgoerli_Bytes
-  lpToken_gt: optimismgoerli_Bytes
-  lpToken_lt: optimismgoerli_Bytes
-  lpToken_gte: optimismgoerli_Bytes
-  lpToken_lte: optimismgoerli_Bytes
   lpToken_in: [optimismgoerli_Bytes!]
   lpToken_not_in: [optimismgoerli_Bytes!]
   lpToken_contains: optimismgoerli_Bytes
@@ -2763,10 +2559,6 @@ input optimismgoerli_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: optimismgoerli_Bytes
   transferId_not: optimismgoerli_Bytes
-  transferId_gt: optimismgoerli_Bytes
-  transferId_lt: optimismgoerli_Bytes
-  transferId_gte: optimismgoerli_Bytes
-  transferId_lte: optimismgoerli_Bytes
   transferId_in: [optimismgoerli_Bytes!]
   transferId_not_in: [optimismgoerli_Bytes!]
   transferId_contains: optimismgoerli_Bytes

@@ -9,10 +9,9 @@ import {
   RelayResponse,
   RelayRequestOptions,
   NATIVE_TOKEN,
-  RelayerRequest,
-  GELATO_RELAYER_ADDRESS,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
+import { BigNumber } from "ethers";
 
 import {
   RelayerSendFailed,
@@ -22,41 +21,36 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { axiosPost } from "../mockable";
+import { gelatoRelayWithSyncFee, axiosGet, axiosPost, getEstimatedFee } from "../mockable";
 
-import { gelatoRelay, url } from ".";
+import { url } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
 
 export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
+  let result = [];
   try {
-    const result = await gelatoRelay.isNetworkSupported(chainId);
-    return result;
+    const res = await axiosGet(`${url}/relays/`);
+    result = res.data.relays;
   } catch (error: unknown) {
     throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
   }
+
+  return result.includes(chainId.toString());
 };
 
 export const getGelatoRelayChains = async (): Promise<string[]> => {
+  let result = [];
   try {
-    const result = await gelatoRelay.getSupportedNetworks();
-    return result;
+    const res = await axiosGet(`${url}/relays/`);
+    result = res.data.relays;
   } catch (error: unknown) {
     throw new UnableToGetGelatoSupportedChains(0, { err: jsonifyError(error as Error) });
   }
-};
 
-enum TaskState {
-  CheckPending = "CheckPending",
-  ExecPending = "ExecPending",
-  ExecSuccess = "ExecSuccess",
-  ExecReverted = "ExecReverted",
-  WaitingForConfirmation = "WaitingForConfirmation",
-  Blacklisted = "Blacklisted",
-  Cancelled = "Cancelled",
-  NotFound = "NotFound",
-}
+  return result;
+};
 
 /**
  * Gets the task status for a given taskId from gelato api
@@ -65,36 +59,10 @@ enum TaskState {
  */
 export const getTaskStatus = async (taskId: string): Promise<RelayerTaskStatus> => {
   try {
-    const result = await gelatoRelay.getTaskStatus(taskId);
-    switch (result?.taskState) {
-      case TaskState.CheckPending: {
-        return RelayerTaskStatus.CheckPending;
-      }
-      case TaskState.ExecPending: {
-        return RelayerTaskStatus.ExecPending;
-      }
-      case TaskState.ExecSuccess: {
-        return RelayerTaskStatus.ExecSuccess;
-      }
-      case TaskState.ExecReverted: {
-        return RelayerTaskStatus.ExecReverted;
-      }
-      case TaskState.WaitingForConfirmation: {
-        return RelayerTaskStatus.WaitingForConfirmation;
-      }
-      case TaskState.Blacklisted: {
-        return RelayerTaskStatus.Blacklisted;
-      }
-      case TaskState.Cancelled: {
-        return RelayerTaskStatus.Cancelled;
-      }
-      case TaskState.NotFound: {
-        return RelayerTaskStatus.NotFound;
-      }
-      default: {
-        return RelayerTaskStatus.NotFound;
-      }
-    }
+    // const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    const apiEndpoint = `${url}/tasks/${taskId}`; // old endpoint
+    const res = await axiosGet(apiEndpoint);
+    return res.data.task?.taskState ?? RelayerTaskStatus.NotFound;
   } catch (error: unknown) {
     throw new UnableToGetTaskStatus(taskId, { err: jsonifyError(error as Error) });
   }
@@ -152,23 +120,26 @@ export const waitForTaskCompletion = async (
  * @param taskId - The task Id we want to get the status for
  * @returns - transactionHash
  */
-export const getTransactionHash = async (taskId: string): Promise<string | undefined> => {
+export const getTransactionHash = async (taskId: string): Promise<string> => {
+  let result;
   try {
-    const res = await gelatoRelay.getTaskStatus(taskId);
-    return res?.transactionHash;
+    const apiEndpoint = `${url}/tasks/status/${taskId}`;
+    const res = await axiosGet(apiEndpoint);
+    result = res.data.data[0]?.transactionHash;
   } catch (error: unknown) {
     throw new UnableToGetTransactionHash(taskId, { err: jsonifyError(error as Error) });
   }
+
+  return result;
 };
 
 export const gelatoSDKSend = async (
-  request: RelayerRequest,
-  sponsorApiKey: string,
+  request: RelayerSyncFeeRequest,
   options: RelayRequestOptions = {},
 ): Promise<RelayResponse> => {
+  let response;
   try {
-    const response = await gelatoRelay.sponsoredCall(request, sponsorApiKey, options);
-    return response;
+    response = await gelatoRelayWithSyncFee(request, options);
   } catch (error: unknown) {
     throw new RelayerSendFailed({
       error: jsonifyError(error as Error),
@@ -176,6 +147,7 @@ export const gelatoSDKSend = async (
       request,
     });
   }
+  return response;
 };
 
 const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
@@ -217,8 +189,13 @@ export const gelatoV0Send = async (
   return response.data;
 };
 
-export const getRelayerAddress = async (_chainId: number): Promise<string> => {
-  return Promise.resolve(GELATO_RELAYER_ADDRESS);
+export const getRelayerAddress = async (chainId: number): Promise<string> => {
+  try {
+    const res = await axiosGet(`${url}/relays/${chainId}/address`);
+    return res.data.address;
+  } catch (error: unknown) {
+    throw new UnableToGetGelatoSupportedChains(chainId, { err: jsonifyError(error as Error) });
+  }
 };
 
 export const send = async (
@@ -263,6 +240,21 @@ export const send = async (
     gas: gas.toString(),
   });
 
+  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+  let fee = BigNumber.from(0);
+  try {
+    fee = await getEstimatedFee(chainId, NATIVE_TOKEN as string, gasLimit, true);
+  } catch (e: unknown) {
+    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+      error: e as NxtpError,
+      destinationAddress: destinationAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+    });
+
+    fee = gasLimit.mul(await chainReader.getGasPrice(+domain, requestContext));
+  }
+
   const request: RelayerSyncFeeRequest = {
     chainId: chainId,
     target: destinationAddress,
@@ -276,9 +268,7 @@ export const send = async (
   // Future intented way to call
   //const response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: GAS_LIMIT_FOR_RELAYER });
 
-  const response = await gelatoSDKSend({ chainId, data: encodedData, target: destinationAddress }, gelatoApiKey, {
-    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
-  });
+  const response = await gelatoV0Send(chainId, destinationAddress, encodedData, fee.toString(), logger, requestContext);
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });

@@ -38,10 +38,6 @@ input mainnet_AggregatedMessageRoot_filter {
   index_not_in: [BigInt!]
   receivedRoot: mainnet_Bytes
   receivedRoot_not: mainnet_Bytes
-  receivedRoot_gt: mainnet_Bytes
-  receivedRoot_lt: mainnet_Bytes
-  receivedRoot_gte: mainnet_Bytes
-  receivedRoot_lte: mainnet_Bytes
   receivedRoot_in: [mainnet_Bytes!]
   receivedRoot_not_in: [mainnet_Bytes!]
   receivedRoot_contains: mainnet_Bytes
@@ -101,30 +97,18 @@ input mainnet_ArbitrumConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -192,30 +176,18 @@ input mainnet_BnbConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -271,30 +243,18 @@ input mainnet_GnosisConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -348,30 +308,18 @@ input mainnet_OptimismConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -431,30 +379,18 @@ input mainnet_PolygonConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -763,10 +699,6 @@ input mainnet_RootAggregated_filter {
   domain_not_in: [BigInt!]
   receivedRoot: mainnet_Bytes
   receivedRoot_not: mainnet_Bytes
-  receivedRoot_gt: mainnet_Bytes
-  receivedRoot_lt: mainnet_Bytes
-  receivedRoot_gte: mainnet_Bytes
-  receivedRoot_lte: mainnet_Bytes
   receivedRoot_in: [mainnet_Bytes!]
   receivedRoot_not_in: [mainnet_Bytes!]
   receivedRoot_contains: mainnet_Bytes
@@ -867,30 +799,18 @@ input mainnet_RootMessageProcessed_filter {
   hubDomain_not_in: [BigInt!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
-  root_gt: mainnet_Bytes
-  root_lt: mainnet_Bytes
-  root_gte: mainnet_Bytes
-  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
   root_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
-  caller_gt: mainnet_Bytes
-  caller_lt: mainnet_Bytes
-  caller_gte: mainnet_Bytes
-  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
-  transactionHash_gt: mainnet_Bytes
-  transactionHash_lt: mainnet_Bytes
-  transactionHash_gte: mainnet_Bytes
-  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -962,20 +882,12 @@ input mainnet_RootPropagated_filter {
   id_not_in: [ID!]
   aggregate: mainnet_Bytes
   aggregate_not: mainnet_Bytes
-  aggregate_gt: mainnet_Bytes
-  aggregate_lt: mainnet_Bytes
-  aggregate_gte: mainnet_Bytes
-  aggregate_lte: mainnet_Bytes
   aggregate_in: [mainnet_Bytes!]
   aggregate_not_in: [mainnet_Bytes!]
   aggregate_contains: mainnet_Bytes
   aggregate_not_contains: mainnet_Bytes
   domainsHash: mainnet_Bytes
   domainsHash_not: mainnet_Bytes
-  domainsHash_gt: mainnet_Bytes
-  domainsHash_lt: mainnet_Bytes
-  domainsHash_gte: mainnet_Bytes
-  domainsHash_lte: mainnet_Bytes
   domainsHash_in: [mainnet_Bytes!]
   domainsHash_not_in: [mainnet_Bytes!]
   domainsHash_contains: mainnet_Bytes
