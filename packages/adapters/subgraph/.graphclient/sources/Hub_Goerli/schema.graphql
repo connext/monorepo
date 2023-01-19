@@ -38,6 +38,10 @@ input goerli_AggregatedMessageRoot_filter {
   index_not_in: [BigInt!]
   receivedRoot: goerli_Bytes
   receivedRoot_not: goerli_Bytes
+  receivedRoot_gt: goerli_Bytes
+  receivedRoot_lt: goerli_Bytes
+  receivedRoot_gte: goerli_Bytes
+  receivedRoot_lte: goerli_Bytes
   receivedRoot_in: [goerli_Bytes!]
   receivedRoot_not_in: [goerli_Bytes!]
   receivedRoot_contains: goerli_Bytes
@@ -97,18 +101,30 @@ input goerli_ArbitrumConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -176,18 +192,30 @@ input goerli_BnbConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -243,18 +271,30 @@ input goerli_GnosisConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -308,18 +348,30 @@ input goerli_OptimismConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -379,18 +431,30 @@ input goerli_PolygonConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
@@ -699,6 +763,10 @@ input goerli_RootAggregated_filter {
   domain_not_in: [BigInt!]
   receivedRoot: goerli_Bytes
   receivedRoot_not: goerli_Bytes
+  receivedRoot_gt: goerli_Bytes
+  receivedRoot_lt: goerli_Bytes
+  receivedRoot_gte: goerli_Bytes
+  receivedRoot_lte: goerli_Bytes
   receivedRoot_in: [goerli_Bytes!]
   receivedRoot_not_in: [goerli_Bytes!]
   receivedRoot_contains: goerli_Bytes
@@ -799,18 +867,30 @@ input goerli_RootMessageProcessed_filter {
   hubDomain_not_in: [BigInt!]
   root: goerli_Bytes
   root_not: goerli_Bytes
+  root_gt: goerli_Bytes
+  root_lt: goerli_Bytes
+  root_gte: goerli_Bytes
+  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
   root_not_contains: goerli_Bytes
   caller: goerli_Bytes
   caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -882,12 +962,20 @@ input goerli_RootPropagated_filter {
   id_not_in: [ID!]
   aggregate: goerli_Bytes
   aggregate_not: goerli_Bytes
+  aggregate_gt: goerli_Bytes
+  aggregate_lt: goerli_Bytes
+  aggregate_gte: goerli_Bytes
+  aggregate_lte: goerli_Bytes
   aggregate_in: [goerli_Bytes!]
   aggregate_not_in: [goerli_Bytes!]
   aggregate_contains: goerli_Bytes
   aggregate_not_contains: goerli_Bytes
   domainsHash: goerli_Bytes
   domainsHash_not: goerli_Bytes
+  domainsHash_gt: goerli_Bytes
+  domainsHash_lt: goerli_Bytes
+  domainsHash_gte: goerli_Bytes
+  domainsHash_lte: goerli_Bytes
   domainsHash_in: [goerli_Bytes!]
   domainsHash_not_in: [goerli_Bytes!]
   domainsHash_contains: goerli_Bytes
