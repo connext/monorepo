@@ -27,6 +27,7 @@ import {
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
   getMockOnchainTransaction,
+  TEST_SENDER_CHAIN_ID,
 } from "./utils";
 
 const logger = new Logger({
@@ -503,7 +504,8 @@ describe("TransactionDispatch", () => {
       // should have called getGas
       expect(getGasPriceStub.callCount).to.eq(1);
       expect(estimateGasStub.callCount).to.eq(1);
-      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq(TEST_TX);
+      const { domain, ...expected } = TEST_TX;
+      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq({ ...expected, chainId: TEST_SENDER_CHAIN_ID});
 
       // should have called submit (just once)
       expect(submitStub.callCount).to.eq(1);

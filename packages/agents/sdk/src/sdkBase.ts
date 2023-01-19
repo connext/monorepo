@@ -6,8 +6,9 @@ import {
   WETHAbi,
   MultisendTransaction,
   encodeMultisendCall,
+  NxtpError,
 } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 
 import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined, CannotUnwrapOnDestination } from "./lib/errors";
@@ -20,9 +21,11 @@ import { SdkXCallArgs } from "./interfaces";
  */
 export class NxtpSdkBase extends NxtpSdkShared {
   private static _instance: NxtpSdkBase;
+  private chainreader: ChainReader;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
+    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
   static async create(
@@ -277,7 +280,21 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.estimateRelayerFee.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(params, this.chainData, this.logger);
+    let gasPrice;
+    try {
+      gasPrice = await this.chainreader.getGasPrice(Number(params.destinationDomain), requestContext);
+    } catch (e: unknown) {
+      this.logger.warn("Error getting GasPrice", requestContext, methodContext, {
+        error: e as NxtpError,
+        domain: params.destinationDomain,
+      });
+    }
+
+    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
+      { ...params, gasPrice },
+      this.chainData,
+      this.logger,
+    );
 
     return relayerFeeInOriginNativeAsset;
   }

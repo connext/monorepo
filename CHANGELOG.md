@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.14
+
+- [all] updates
+
 ## Amarok 0.2.1-rc.13
 
 - [sdk] updates for pools, price impact calculation

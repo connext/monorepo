@@ -611,15 +611,20 @@ export class RpcProviderAggregator {
   /**
    * Checks estimate for gas limit for given transaction on given chain.
    *
-   * @param domain - chain on which the transaction is intended to be executed.
    * @param tx - transaction to check gas limit for.
    *
    * @returns BigNumber representing the estimated gas limit in gas units.
    * @throws Error if the transaction is invalid, or would be reverted onchain.
    */
   public async getGasEstimate(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
+    // get formatted transaction
+    const { domain, ...toCall } = tx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
-      return await provider.estimateGas(tx);
+      return await provider.estimateGas(formatted);
     });
   }
 

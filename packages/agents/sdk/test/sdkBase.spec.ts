@@ -1,7 +1,8 @@
-import { reset, restore, stub, SinonStub } from "sinon";
+import { reset, restore, stub, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
 import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
-import { getConnextInterface } from "@connext/nxtp-txservice";
-import { providers, BigNumber, utils } from "ethers";
+import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
+import { constants, providers, BigNumber, utils } from "ethers";
+
 import { mock } from "./mock";
 import { NxtpSdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
@@ -24,13 +25,17 @@ describe("SdkBase", () => {
   let nxtpSdkBase: NxtpSdkBase;
   let config: ConfigFns.NxtpSdkConfig;
 
+  let chainreader: SinonStubbedInstance<ChainReader>;
+
   beforeEach(async () => {
+    chainreader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
+    (nxtpSdkBase as any).chainreader = chainreader;
   });
 
   afterEach(() => {

@@ -37,8 +37,8 @@ export const mock = {
     B: "13338",
   },
   chain: {
-    A: "23337",
-    B: "23338",
+    A: "1337",
+    B: "1338",
   },
   asset: {
     A: {
@@ -146,10 +146,7 @@ export const mock = {
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       executorVersion: "0.0.1",
-      relayerFee: {
-        amount: "0",
-        asset: constants.AddressZero,
-      },
+      routerAddress: mock.address.router,
       encodedData: "0xabcde",
       ...overrides,
     }),
@@ -201,7 +198,7 @@ export const mock = {
       const relayerFee: string = overrides.relayerFee ?? "0";
 
       const shouldHaveOriginDefined = true;
-      const shouldHaveDestinationDefined = !!status;
+      const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
       return {
         // Meta
         transferId,
