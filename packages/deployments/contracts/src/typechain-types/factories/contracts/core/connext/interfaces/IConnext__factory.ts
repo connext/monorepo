@@ -3325,7 +3325,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class IConnext__factory {
   static readonly abi = _abi;
