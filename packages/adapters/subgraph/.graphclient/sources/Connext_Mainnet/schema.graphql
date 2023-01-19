@@ -29,10 +29,6 @@ input mainnet_AggregateRoot_filter {
   id_not_in: [ID!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
-  root_gt: mainnet_Bytes
-  root_lt: mainnet_Bytes
-  root_gte: mainnet_Bytes
-  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
@@ -163,20 +159,12 @@ input mainnet_Asset_filter {
   id_not_in: [ID!]
   key: mainnet_Bytes
   key_not: mainnet_Bytes
-  key_gt: mainnet_Bytes
-  key_lt: mainnet_Bytes
-  key_gte: mainnet_Bytes
-  key_lte: mainnet_Bytes
   key_in: [mainnet_Bytes!]
   key_not_in: [mainnet_Bytes!]
   key_contains: mainnet_Bytes
   key_not_contains: mainnet_Bytes
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
-  canonicalId_gt: mainnet_Bytes
-  canonicalId_lt: mainnet_Bytes
-  canonicalId_gte: mainnet_Bytes
-  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -191,20 +179,12 @@ input mainnet_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: mainnet_Bytes
   adoptedAsset_not: mainnet_Bytes
-  adoptedAsset_gt: mainnet_Bytes
-  adoptedAsset_lt: mainnet_Bytes
-  adoptedAsset_gte: mainnet_Bytes
-  adoptedAsset_lte: mainnet_Bytes
   adoptedAsset_in: [mainnet_Bytes!]
   adoptedAsset_not_in: [mainnet_Bytes!]
   adoptedAsset_contains: mainnet_Bytes
   adoptedAsset_not_contains: mainnet_Bytes
   localAsset: mainnet_Bytes
   localAsset_not: mainnet_Bytes
-  localAsset_gt: mainnet_Bytes
-  localAsset_lt: mainnet_Bytes
-  localAsset_gte: mainnet_Bytes
-  localAsset_lte: mainnet_Bytes
   localAsset_in: [mainnet_Bytes!]
   localAsset_not_in: [mainnet_Bytes!]
   localAsset_contains: mainnet_Bytes
@@ -283,30 +263,18 @@ input mainnet_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
-  amb_gt: mainnet_Bytes
-  amb_lt: mainnet_Bytes
-  amb_gte: mainnet_Bytes
-  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
-  rootManager_gt: mainnet_Bytes
-  rootManager_lt: mainnet_Bytes
-  rootManager_gte: mainnet_Bytes
-  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
-  mirrorConnector_gt: mainnet_Bytes
-  mirrorConnector_lt: mainnet_Bytes
-  mirrorConnector_gte: mainnet_Bytes
-  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
@@ -381,10 +349,6 @@ input mainnet_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
-  transferId_gt: mainnet_Bytes
-  transferId_lt: mainnet_Bytes
-  transferId_gte: mainnet_Bytes
-  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -434,20 +398,12 @@ input mainnet_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mainnet_Bytes
   to_not: mainnet_Bytes
-  to_gt: mainnet_Bytes
-  to_lt: mainnet_Bytes
-  to_gte: mainnet_Bytes
-  to_lte: mainnet_Bytes
   to_in: [mainnet_Bytes!]
   to_not_in: [mainnet_Bytes!]
   to_contains: mainnet_Bytes
   to_not_contains: mainnet_Bytes
   delegate: mainnet_Bytes
   delegate_not: mainnet_Bytes
-  delegate_gt: mainnet_Bytes
-  delegate_lt: mainnet_Bytes
-  delegate_gte: mainnet_Bytes
-  delegate_lte: mainnet_Bytes
   delegate_in: [mainnet_Bytes!]
   delegate_not_in: [mainnet_Bytes!]
   delegate_contains: mainnet_Bytes
@@ -458,10 +414,6 @@ input mainnet_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mainnet_Bytes
   callData_not: mainnet_Bytes
-  callData_gt: mainnet_Bytes
-  callData_lt: mainnet_Bytes
-  callData_gte: mainnet_Bytes
-  callData_lte: mainnet_Bytes
   callData_in: [mainnet_Bytes!]
   callData_not_in: [mainnet_Bytes!]
   callData_contains: mainnet_Bytes
@@ -476,10 +428,6 @@ input mainnet_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: mainnet_Bytes
   originSender_not: mainnet_Bytes
-  originSender_gt: mainnet_Bytes
-  originSender_lt: mainnet_Bytes
-  originSender_gte: mainnet_Bytes
-  originSender_lte: mainnet_Bytes
   originSender_in: [mainnet_Bytes!]
   originSender_not_in: [mainnet_Bytes!]
   originSender_contains: mainnet_Bytes
@@ -502,10 +450,6 @@ input mainnet_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
-  canonicalId_gt: mainnet_Bytes
-  canonicalId_lt: mainnet_Bytes
-  canonicalId_gte: mainnet_Bytes
-  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -549,20 +493,12 @@ input mainnet_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: mainnet_Bytes
   executedCaller_not: mainnet_Bytes
-  executedCaller_gt: mainnet_Bytes
-  executedCaller_lt: mainnet_Bytes
-  executedCaller_gte: mainnet_Bytes
-  executedCaller_lte: mainnet_Bytes
   executedCaller_in: [mainnet_Bytes!]
   executedCaller_not_in: [mainnet_Bytes!]
   executedCaller_contains: mainnet_Bytes
   executedCaller_not_contains: mainnet_Bytes
   executedTransactionHash: mainnet_Bytes
   executedTransactionHash_not: mainnet_Bytes
-  executedTransactionHash_gt: mainnet_Bytes
-  executedTransactionHash_lt: mainnet_Bytes
-  executedTransactionHash_gte: mainnet_Bytes
-  executedTransactionHash_lte: mainnet_Bytes
   executedTransactionHash_in: [mainnet_Bytes!]
   executedTransactionHash_not_in: [mainnet_Bytes!]
   executedTransactionHash_contains: mainnet_Bytes
@@ -601,30 +537,18 @@ input mainnet_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: mainnet_Bytes
   executedTxOrigin_not: mainnet_Bytes
-  executedTxOrigin_gt: mainnet_Bytes
-  executedTxOrigin_lt: mainnet_Bytes
-  executedTxOrigin_gte: mainnet_Bytes
-  executedTxOrigin_lte: mainnet_Bytes
   executedTxOrigin_in: [mainnet_Bytes!]
   executedTxOrigin_not_in: [mainnet_Bytes!]
   executedTxOrigin_contains: mainnet_Bytes
   executedTxOrigin_not_contains: mainnet_Bytes
   reconciledCaller: mainnet_Bytes
   reconciledCaller_not: mainnet_Bytes
-  reconciledCaller_gt: mainnet_Bytes
-  reconciledCaller_lt: mainnet_Bytes
-  reconciledCaller_gte: mainnet_Bytes
-  reconciledCaller_lte: mainnet_Bytes
   reconciledCaller_in: [mainnet_Bytes!]
   reconciledCaller_not_in: [mainnet_Bytes!]
   reconciledCaller_contains: mainnet_Bytes
   reconciledCaller_not_contains: mainnet_Bytes
   reconciledTransactionHash: mainnet_Bytes
   reconciledTransactionHash_not: mainnet_Bytes
-  reconciledTransactionHash_gt: mainnet_Bytes
-  reconciledTransactionHash_lt: mainnet_Bytes
-  reconciledTransactionHash_gte: mainnet_Bytes
-  reconciledTransactionHash_lte: mainnet_Bytes
   reconciledTransactionHash_in: [mainnet_Bytes!]
   reconciledTransactionHash_not_in: [mainnet_Bytes!]
   reconciledTransactionHash_contains: mainnet_Bytes
@@ -663,10 +587,6 @@ input mainnet_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: mainnet_Bytes
   reconciledTxOrigin_not: mainnet_Bytes
-  reconciledTxOrigin_gt: mainnet_Bytes
-  reconciledTxOrigin_lt: mainnet_Bytes
-  reconciledTxOrigin_gte: mainnet_Bytes
-  reconciledTxOrigin_lte: mainnet_Bytes
   reconciledTxOrigin_in: [mainnet_Bytes!]
   reconciledTxOrigin_not_in: [mainnet_Bytes!]
   reconciledTxOrigin_contains: mainnet_Bytes
@@ -743,10 +663,6 @@ input mainnet_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
-  transferId_gt: mainnet_Bytes
-  transferId_lt: mainnet_Bytes
-  transferId_gte: mainnet_Bytes
-  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -761,10 +677,6 @@ input mainnet_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: mainnet_Bytes
   leaf_not: mainnet_Bytes
-  leaf_gt: mainnet_Bytes
-  leaf_lt: mainnet_Bytes
-  leaf_gte: mainnet_Bytes
-  leaf_lte: mainnet_Bytes
   leaf_in: [mainnet_Bytes!]
   leaf_not_in: [mainnet_Bytes!]
   leaf_contains: mainnet_Bytes
@@ -779,30 +691,18 @@ input mainnet_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: mainnet_Bytes
   message_not: mainnet_Bytes
-  message_gt: mainnet_Bytes
-  message_lt: mainnet_Bytes
-  message_gte: mainnet_Bytes
-  message_lte: mainnet_Bytes
   message_in: [mainnet_Bytes!]
   message_not_in: [mainnet_Bytes!]
   message_contains: mainnet_Bytes
   message_not_contains: mainnet_Bytes
   root: mainnet_Bytes
   root_not: mainnet_Bytes
-  root_gt: mainnet_Bytes
-  root_lt: mainnet_Bytes
-  root_gte: mainnet_Bytes
-  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
   root_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
-  transactionHash_gt: mainnet_Bytes
-  transactionHash_lt: mainnet_Bytes
-  transactionHash_gte: mainnet_Bytes
-  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -904,10 +804,6 @@ input mainnet_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
-  transferId_gt: mainnet_Bytes
-  transferId_lt: mainnet_Bytes
-  transferId_gte: mainnet_Bytes
-  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -926,10 +822,6 @@ input mainnet_OriginTransfer_filter {
   status_not_in: [mainnet_TransferStatus!]
   messageHash: mainnet_Bytes
   messageHash_not: mainnet_Bytes
-  messageHash_gt: mainnet_Bytes
-  messageHash_lt: mainnet_Bytes
-  messageHash_gte: mainnet_Bytes
-  messageHash_lte: mainnet_Bytes
   messageHash_in: [mainnet_Bytes!]
   messageHash_not_in: [mainnet_Bytes!]
   messageHash_contains: mainnet_Bytes
@@ -960,20 +852,12 @@ input mainnet_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mainnet_Bytes
   to_not: mainnet_Bytes
-  to_gt: mainnet_Bytes
-  to_lt: mainnet_Bytes
-  to_gte: mainnet_Bytes
-  to_lte: mainnet_Bytes
   to_in: [mainnet_Bytes!]
   to_not_in: [mainnet_Bytes!]
   to_contains: mainnet_Bytes
   to_not_contains: mainnet_Bytes
   delegate: mainnet_Bytes
   delegate_not: mainnet_Bytes
-  delegate_gt: mainnet_Bytes
-  delegate_lt: mainnet_Bytes
-  delegate_gte: mainnet_Bytes
-  delegate_lte: mainnet_Bytes
   delegate_in: [mainnet_Bytes!]
   delegate_not_in: [mainnet_Bytes!]
   delegate_contains: mainnet_Bytes
@@ -984,10 +868,6 @@ input mainnet_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mainnet_Bytes
   callData_not: mainnet_Bytes
-  callData_gt: mainnet_Bytes
-  callData_lt: mainnet_Bytes
-  callData_gte: mainnet_Bytes
-  callData_lte: mainnet_Bytes
   callData_in: [mainnet_Bytes!]
   callData_not_in: [mainnet_Bytes!]
   callData_contains: mainnet_Bytes
@@ -1002,10 +882,6 @@ input mainnet_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: mainnet_Bytes
   originSender_not: mainnet_Bytes
-  originSender_gt: mainnet_Bytes
-  originSender_lt: mainnet_Bytes
-  originSender_gte: mainnet_Bytes
-  originSender_lte: mainnet_Bytes
   originSender_in: [mainnet_Bytes!]
   originSender_not_in: [mainnet_Bytes!]
   originSender_contains: mainnet_Bytes
@@ -1028,10 +904,6 @@ input mainnet_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
-  canonicalId_gt: mainnet_Bytes
-  canonicalId_lt: mainnet_Bytes
-  canonicalId_gte: mainnet_Bytes
-  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -1059,10 +931,6 @@ input mainnet_OriginTransfer_filter {
   asset_: mainnet_Asset_filter
   transacting: mainnet_Bytes
   transacting_not: mainnet_Bytes
-  transacting_gt: mainnet_Bytes
-  transacting_lt: mainnet_Bytes
-  transacting_gte: mainnet_Bytes
-  transacting_lte: mainnet_Bytes
   transacting_in: [mainnet_Bytes!]
   transacting_not_in: [mainnet_Bytes!]
   transacting_contains: mainnet_Bytes
@@ -1098,20 +966,12 @@ input mainnet_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
-  caller_gt: mainnet_Bytes
-  caller_lt: mainnet_Bytes
-  caller_gte: mainnet_Bytes
-  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
-  transactionHash_gt: mainnet_Bytes
-  transactionHash_lt: mainnet_Bytes
-  transactionHash_gte: mainnet_Bytes
-  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -1150,10 +1010,6 @@ input mainnet_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: mainnet_Bytes
   txOrigin_not: mainnet_Bytes
-  txOrigin_gt: mainnet_Bytes
-  txOrigin_lt: mainnet_Bytes
-  txOrigin_gte: mainnet_Bytes
-  txOrigin_lte: mainnet_Bytes
   txOrigin_in: [mainnet_Bytes!]
   txOrigin_not_in: [mainnet_Bytes!]
   txOrigin_contains: mainnet_Bytes
@@ -1210,10 +1066,6 @@ input mainnet_PooledToken_filter {
   id_not_in: [ID!]
   asset: mainnet_Bytes
   asset_not: mainnet_Bytes
-  asset_gt: mainnet_Bytes
-  asset_lt: mainnet_Bytes
-  asset_gte: mainnet_Bytes
-  asset_lte: mainnet_Bytes
   asset_in: [mainnet_Bytes!]
   asset_not_in: [mainnet_Bytes!]
   asset_contains: mainnet_Bytes
@@ -1695,10 +1547,6 @@ input mainnet_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: mainnet_Bytes
   relayer_not: mainnet_Bytes
-  relayer_gt: mainnet_Bytes
-  relayer_lt: mainnet_Bytes
-  relayer_gte: mainnet_Bytes
-  relayer_lte: mainnet_Bytes
   relayer_in: [mainnet_Bytes!]
   relayer_not_in: [mainnet_Bytes!]
   relayer_contains: mainnet_Bytes
@@ -1785,10 +1633,6 @@ input mainnet_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
-  root_gt: mainnet_Bytes
-  root_lt: mainnet_Bytes
-  root_gte: mainnet_Bytes
-  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
@@ -1803,20 +1647,12 @@ input mainnet_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
-  caller_gt: mainnet_Bytes
-  caller_lt: mainnet_Bytes
-  caller_gte: mainnet_Bytes
-  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
-  transactionHash_gt: mainnet_Bytes
-  transactionHash_lt: mainnet_Bytes
-  transactionHash_gte: mainnet_Bytes
-  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -1896,30 +1732,18 @@ input mainnet_Router_filter {
   isActive_not_in: [Boolean!]
   owner: mainnet_Bytes
   owner_not: mainnet_Bytes
-  owner_gt: mainnet_Bytes
-  owner_lt: mainnet_Bytes
-  owner_gte: mainnet_Bytes
-  owner_lte: mainnet_Bytes
   owner_in: [mainnet_Bytes!]
   owner_not_in: [mainnet_Bytes!]
   owner_contains: mainnet_Bytes
   owner_not_contains: mainnet_Bytes
   recipient: mainnet_Bytes
   recipient_not: mainnet_Bytes
-  recipient_gt: mainnet_Bytes
-  recipient_lt: mainnet_Bytes
-  recipient_gte: mainnet_Bytes
-  recipient_lte: mainnet_Bytes
   recipient_in: [mainnet_Bytes!]
   recipient_not_in: [mainnet_Bytes!]
   recipient_contains: mainnet_Bytes
   recipient_not_contains: mainnet_Bytes
   proposedOwner: mainnet_Bytes
   proposedOwner_not: mainnet_Bytes
-  proposedOwner_gt: mainnet_Bytes
-  proposedOwner_lt: mainnet_Bytes
-  proposedOwner_gte: mainnet_Bytes
-  proposedOwner_lte: mainnet_Bytes
   proposedOwner_in: [mainnet_Bytes!]
   proposedOwner_not_in: [mainnet_Bytes!]
   proposedOwner_contains: mainnet_Bytes
@@ -1968,10 +1792,6 @@ input mainnet_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: mainnet_Bytes
   sequencer_not: mainnet_Bytes
-  sequencer_gt: mainnet_Bytes
-  sequencer_lt: mainnet_Bytes
-  sequencer_gte: mainnet_Bytes
-  sequencer_lte: mainnet_Bytes
   sequencer_in: [mainnet_Bytes!]
   sequencer_not_in: [mainnet_Bytes!]
   sequencer_contains: mainnet_Bytes
@@ -2011,10 +1831,6 @@ input mainnet_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
-  caller_gt: mainnet_Bytes
-  caller_lt: mainnet_Bytes
-  caller_gte: mainnet_Bytes
-  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
@@ -2070,10 +1886,6 @@ input mainnet_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: mainnet_Bytes
   provider_not: mainnet_Bytes
-  provider_gt: mainnet_Bytes
-  provider_lt: mainnet_Bytes
-  provider_gte: mainnet_Bytes
-  provider_lte: mainnet_Bytes
   provider_in: [mainnet_Bytes!]
   provider_not_in: [mainnet_Bytes!]
   provider_contains: mainnet_Bytes
@@ -2156,20 +1968,12 @@ input mainnet_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: mainnet_Bytes
   key_not: mainnet_Bytes
-  key_gt: mainnet_Bytes
-  key_lt: mainnet_Bytes
-  key_gte: mainnet_Bytes
-  key_lte: mainnet_Bytes
   key_in: [mainnet_Bytes!]
   key_not_in: [mainnet_Bytes!]
   key_contains: mainnet_Bytes
   key_not_contains: mainnet_Bytes
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
-  canonicalId_gt: mainnet_Bytes
-  canonicalId_lt: mainnet_Bytes
-  canonicalId_gte: mainnet_Bytes
-  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -2184,20 +1988,12 @@ input mainnet_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: mainnet_Bytes
   swapPool_not: mainnet_Bytes
-  swapPool_gt: mainnet_Bytes
-  swapPool_lt: mainnet_Bytes
-  swapPool_gte: mainnet_Bytes
-  swapPool_lte: mainnet_Bytes
   swapPool_in: [mainnet_Bytes!]
   swapPool_not_in: [mainnet_Bytes!]
   swapPool_contains: mainnet_Bytes
   swapPool_not_contains: mainnet_Bytes
   lpToken: mainnet_Bytes
   lpToken_not: mainnet_Bytes
-  lpToken_gt: mainnet_Bytes
-  lpToken_lt: mainnet_Bytes
-  lpToken_gte: mainnet_Bytes
-  lpToken_lte: mainnet_Bytes
   lpToken_in: [mainnet_Bytes!]
   lpToken_not_in: [mainnet_Bytes!]
   lpToken_contains: mainnet_Bytes
@@ -2763,10 +2559,6 @@ input mainnet_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
-  transferId_gt: mainnet_Bytes
-  transferId_lt: mainnet_Bytes
-  transferId_gte: mainnet_Bytes
-  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes

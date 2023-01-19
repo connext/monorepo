@@ -29,10 +29,6 @@ input arbitrumgoerli_AggregateRoot_filter {
   id_not_in: [ID!]
   root: arbitrumgoerli_Bytes
   root_not: arbitrumgoerli_Bytes
-  root_gt: arbitrumgoerli_Bytes
-  root_lt: arbitrumgoerli_Bytes
-  root_gte: arbitrumgoerli_Bytes
-  root_lte: arbitrumgoerli_Bytes
   root_in: [arbitrumgoerli_Bytes!]
   root_not_in: [arbitrumgoerli_Bytes!]
   root_contains: arbitrumgoerli_Bytes
@@ -163,20 +159,12 @@ input arbitrumgoerli_Asset_filter {
   id_not_in: [ID!]
   key: arbitrumgoerli_Bytes
   key_not: arbitrumgoerli_Bytes
-  key_gt: arbitrumgoerli_Bytes
-  key_lt: arbitrumgoerli_Bytes
-  key_gte: arbitrumgoerli_Bytes
-  key_lte: arbitrumgoerli_Bytes
   key_in: [arbitrumgoerli_Bytes!]
   key_not_in: [arbitrumgoerli_Bytes!]
   key_contains: arbitrumgoerli_Bytes
   key_not_contains: arbitrumgoerli_Bytes
   canonicalId: arbitrumgoerli_Bytes
   canonicalId_not: arbitrumgoerli_Bytes
-  canonicalId_gt: arbitrumgoerli_Bytes
-  canonicalId_lt: arbitrumgoerli_Bytes
-  canonicalId_gte: arbitrumgoerli_Bytes
-  canonicalId_lte: arbitrumgoerli_Bytes
   canonicalId_in: [arbitrumgoerli_Bytes!]
   canonicalId_not_in: [arbitrumgoerli_Bytes!]
   canonicalId_contains: arbitrumgoerli_Bytes
@@ -191,20 +179,12 @@ input arbitrumgoerli_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: arbitrumgoerli_Bytes
   adoptedAsset_not: arbitrumgoerli_Bytes
-  adoptedAsset_gt: arbitrumgoerli_Bytes
-  adoptedAsset_lt: arbitrumgoerli_Bytes
-  adoptedAsset_gte: arbitrumgoerli_Bytes
-  adoptedAsset_lte: arbitrumgoerli_Bytes
   adoptedAsset_in: [arbitrumgoerli_Bytes!]
   adoptedAsset_not_in: [arbitrumgoerli_Bytes!]
   adoptedAsset_contains: arbitrumgoerli_Bytes
   adoptedAsset_not_contains: arbitrumgoerli_Bytes
   localAsset: arbitrumgoerli_Bytes
   localAsset_not: arbitrumgoerli_Bytes
-  localAsset_gt: arbitrumgoerli_Bytes
-  localAsset_lt: arbitrumgoerli_Bytes
-  localAsset_gte: arbitrumgoerli_Bytes
-  localAsset_lte: arbitrumgoerli_Bytes
   localAsset_in: [arbitrumgoerli_Bytes!]
   localAsset_not_in: [arbitrumgoerli_Bytes!]
   localAsset_contains: arbitrumgoerli_Bytes
@@ -283,30 +263,18 @@ input arbitrumgoerli_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: arbitrumgoerli_Bytes
   amb_not: arbitrumgoerli_Bytes
-  amb_gt: arbitrumgoerli_Bytes
-  amb_lt: arbitrumgoerli_Bytes
-  amb_gte: arbitrumgoerli_Bytes
-  amb_lte: arbitrumgoerli_Bytes
   amb_in: [arbitrumgoerli_Bytes!]
   amb_not_in: [arbitrumgoerli_Bytes!]
   amb_contains: arbitrumgoerli_Bytes
   amb_not_contains: arbitrumgoerli_Bytes
   rootManager: arbitrumgoerli_Bytes
   rootManager_not: arbitrumgoerli_Bytes
-  rootManager_gt: arbitrumgoerli_Bytes
-  rootManager_lt: arbitrumgoerli_Bytes
-  rootManager_gte: arbitrumgoerli_Bytes
-  rootManager_lte: arbitrumgoerli_Bytes
   rootManager_in: [arbitrumgoerli_Bytes!]
   rootManager_not_in: [arbitrumgoerli_Bytes!]
   rootManager_contains: arbitrumgoerli_Bytes
   rootManager_not_contains: arbitrumgoerli_Bytes
   mirrorConnector: arbitrumgoerli_Bytes
   mirrorConnector_not: arbitrumgoerli_Bytes
-  mirrorConnector_gt: arbitrumgoerli_Bytes
-  mirrorConnector_lt: arbitrumgoerli_Bytes
-  mirrorConnector_gte: arbitrumgoerli_Bytes
-  mirrorConnector_lte: arbitrumgoerli_Bytes
   mirrorConnector_in: [arbitrumgoerli_Bytes!]
   mirrorConnector_not_in: [arbitrumgoerli_Bytes!]
   mirrorConnector_contains: arbitrumgoerli_Bytes
@@ -381,10 +349,6 @@ input arbitrumgoerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: arbitrumgoerli_Bytes
   transferId_not: arbitrumgoerli_Bytes
-  transferId_gt: arbitrumgoerli_Bytes
-  transferId_lt: arbitrumgoerli_Bytes
-  transferId_gte: arbitrumgoerli_Bytes
-  transferId_lte: arbitrumgoerli_Bytes
   transferId_in: [arbitrumgoerli_Bytes!]
   transferId_not_in: [arbitrumgoerli_Bytes!]
   transferId_contains: arbitrumgoerli_Bytes
@@ -434,20 +398,12 @@ input arbitrumgoerli_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: arbitrumgoerli_Bytes
   to_not: arbitrumgoerli_Bytes
-  to_gt: arbitrumgoerli_Bytes
-  to_lt: arbitrumgoerli_Bytes
-  to_gte: arbitrumgoerli_Bytes
-  to_lte: arbitrumgoerli_Bytes
   to_in: [arbitrumgoerli_Bytes!]
   to_not_in: [arbitrumgoerli_Bytes!]
   to_contains: arbitrumgoerli_Bytes
   to_not_contains: arbitrumgoerli_Bytes
   delegate: arbitrumgoerli_Bytes
   delegate_not: arbitrumgoerli_Bytes
-  delegate_gt: arbitrumgoerli_Bytes
-  delegate_lt: arbitrumgoerli_Bytes
-  delegate_gte: arbitrumgoerli_Bytes
-  delegate_lte: arbitrumgoerli_Bytes
   delegate_in: [arbitrumgoerli_Bytes!]
   delegate_not_in: [arbitrumgoerli_Bytes!]
   delegate_contains: arbitrumgoerli_Bytes
@@ -458,10 +414,6 @@ input arbitrumgoerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: arbitrumgoerli_Bytes
   callData_not: arbitrumgoerli_Bytes
-  callData_gt: arbitrumgoerli_Bytes
-  callData_lt: arbitrumgoerli_Bytes
-  callData_gte: arbitrumgoerli_Bytes
-  callData_lte: arbitrumgoerli_Bytes
   callData_in: [arbitrumgoerli_Bytes!]
   callData_not_in: [arbitrumgoerli_Bytes!]
   callData_contains: arbitrumgoerli_Bytes
@@ -476,10 +428,6 @@ input arbitrumgoerli_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: arbitrumgoerli_Bytes
   originSender_not: arbitrumgoerli_Bytes
-  originSender_gt: arbitrumgoerli_Bytes
-  originSender_lt: arbitrumgoerli_Bytes
-  originSender_gte: arbitrumgoerli_Bytes
-  originSender_lte: arbitrumgoerli_Bytes
   originSender_in: [arbitrumgoerli_Bytes!]
   originSender_not_in: [arbitrumgoerli_Bytes!]
   originSender_contains: arbitrumgoerli_Bytes
@@ -502,10 +450,6 @@ input arbitrumgoerli_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: arbitrumgoerli_Bytes
   canonicalId_not: arbitrumgoerli_Bytes
-  canonicalId_gt: arbitrumgoerli_Bytes
-  canonicalId_lt: arbitrumgoerli_Bytes
-  canonicalId_gte: arbitrumgoerli_Bytes
-  canonicalId_lte: arbitrumgoerli_Bytes
   canonicalId_in: [arbitrumgoerli_Bytes!]
   canonicalId_not_in: [arbitrumgoerli_Bytes!]
   canonicalId_contains: arbitrumgoerli_Bytes
@@ -549,20 +493,12 @@ input arbitrumgoerli_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: arbitrumgoerli_Bytes
   executedCaller_not: arbitrumgoerli_Bytes
-  executedCaller_gt: arbitrumgoerli_Bytes
-  executedCaller_lt: arbitrumgoerli_Bytes
-  executedCaller_gte: arbitrumgoerli_Bytes
-  executedCaller_lte: arbitrumgoerli_Bytes
   executedCaller_in: [arbitrumgoerli_Bytes!]
   executedCaller_not_in: [arbitrumgoerli_Bytes!]
   executedCaller_contains: arbitrumgoerli_Bytes
   executedCaller_not_contains: arbitrumgoerli_Bytes
   executedTransactionHash: arbitrumgoerli_Bytes
   executedTransactionHash_not: arbitrumgoerli_Bytes
-  executedTransactionHash_gt: arbitrumgoerli_Bytes
-  executedTransactionHash_lt: arbitrumgoerli_Bytes
-  executedTransactionHash_gte: arbitrumgoerli_Bytes
-  executedTransactionHash_lte: arbitrumgoerli_Bytes
   executedTransactionHash_in: [arbitrumgoerli_Bytes!]
   executedTransactionHash_not_in: [arbitrumgoerli_Bytes!]
   executedTransactionHash_contains: arbitrumgoerli_Bytes
@@ -601,30 +537,18 @@ input arbitrumgoerli_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: arbitrumgoerli_Bytes
   executedTxOrigin_not: arbitrumgoerli_Bytes
-  executedTxOrigin_gt: arbitrumgoerli_Bytes
-  executedTxOrigin_lt: arbitrumgoerli_Bytes
-  executedTxOrigin_gte: arbitrumgoerli_Bytes
-  executedTxOrigin_lte: arbitrumgoerli_Bytes
   executedTxOrigin_in: [arbitrumgoerli_Bytes!]
   executedTxOrigin_not_in: [arbitrumgoerli_Bytes!]
   executedTxOrigin_contains: arbitrumgoerli_Bytes
   executedTxOrigin_not_contains: arbitrumgoerli_Bytes
   reconciledCaller: arbitrumgoerli_Bytes
   reconciledCaller_not: arbitrumgoerli_Bytes
-  reconciledCaller_gt: arbitrumgoerli_Bytes
-  reconciledCaller_lt: arbitrumgoerli_Bytes
-  reconciledCaller_gte: arbitrumgoerli_Bytes
-  reconciledCaller_lte: arbitrumgoerli_Bytes
   reconciledCaller_in: [arbitrumgoerli_Bytes!]
   reconciledCaller_not_in: [arbitrumgoerli_Bytes!]
   reconciledCaller_contains: arbitrumgoerli_Bytes
   reconciledCaller_not_contains: arbitrumgoerli_Bytes
   reconciledTransactionHash: arbitrumgoerli_Bytes
   reconciledTransactionHash_not: arbitrumgoerli_Bytes
-  reconciledTransactionHash_gt: arbitrumgoerli_Bytes
-  reconciledTransactionHash_lt: arbitrumgoerli_Bytes
-  reconciledTransactionHash_gte: arbitrumgoerli_Bytes
-  reconciledTransactionHash_lte: arbitrumgoerli_Bytes
   reconciledTransactionHash_in: [arbitrumgoerli_Bytes!]
   reconciledTransactionHash_not_in: [arbitrumgoerli_Bytes!]
   reconciledTransactionHash_contains: arbitrumgoerli_Bytes
@@ -663,10 +587,6 @@ input arbitrumgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: arbitrumgoerli_Bytes
   reconciledTxOrigin_not: arbitrumgoerli_Bytes
-  reconciledTxOrigin_gt: arbitrumgoerli_Bytes
-  reconciledTxOrigin_lt: arbitrumgoerli_Bytes
-  reconciledTxOrigin_gte: arbitrumgoerli_Bytes
-  reconciledTxOrigin_lte: arbitrumgoerli_Bytes
   reconciledTxOrigin_in: [arbitrumgoerli_Bytes!]
   reconciledTxOrigin_not_in: [arbitrumgoerli_Bytes!]
   reconciledTxOrigin_contains: arbitrumgoerli_Bytes
@@ -743,10 +663,6 @@ input arbitrumgoerli_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: arbitrumgoerli_Bytes
   transferId_not: arbitrumgoerli_Bytes
-  transferId_gt: arbitrumgoerli_Bytes
-  transferId_lt: arbitrumgoerli_Bytes
-  transferId_gte: arbitrumgoerli_Bytes
-  transferId_lte: arbitrumgoerli_Bytes
   transferId_in: [arbitrumgoerli_Bytes!]
   transferId_not_in: [arbitrumgoerli_Bytes!]
   transferId_contains: arbitrumgoerli_Bytes
@@ -761,10 +677,6 @@ input arbitrumgoerli_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: arbitrumgoerli_Bytes
   leaf_not: arbitrumgoerli_Bytes
-  leaf_gt: arbitrumgoerli_Bytes
-  leaf_lt: arbitrumgoerli_Bytes
-  leaf_gte: arbitrumgoerli_Bytes
-  leaf_lte: arbitrumgoerli_Bytes
   leaf_in: [arbitrumgoerli_Bytes!]
   leaf_not_in: [arbitrumgoerli_Bytes!]
   leaf_contains: arbitrumgoerli_Bytes
@@ -779,30 +691,18 @@ input arbitrumgoerli_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: arbitrumgoerli_Bytes
   message_not: arbitrumgoerli_Bytes
-  message_gt: arbitrumgoerli_Bytes
-  message_lt: arbitrumgoerli_Bytes
-  message_gte: arbitrumgoerli_Bytes
-  message_lte: arbitrumgoerli_Bytes
   message_in: [arbitrumgoerli_Bytes!]
   message_not_in: [arbitrumgoerli_Bytes!]
   message_contains: arbitrumgoerli_Bytes
   message_not_contains: arbitrumgoerli_Bytes
   root: arbitrumgoerli_Bytes
   root_not: arbitrumgoerli_Bytes
-  root_gt: arbitrumgoerli_Bytes
-  root_lt: arbitrumgoerli_Bytes
-  root_gte: arbitrumgoerli_Bytes
-  root_lte: arbitrumgoerli_Bytes
   root_in: [arbitrumgoerli_Bytes!]
   root_not_in: [arbitrumgoerli_Bytes!]
   root_contains: arbitrumgoerli_Bytes
   root_not_contains: arbitrumgoerli_Bytes
   transactionHash: arbitrumgoerli_Bytes
   transactionHash_not: arbitrumgoerli_Bytes
-  transactionHash_gt: arbitrumgoerli_Bytes
-  transactionHash_lt: arbitrumgoerli_Bytes
-  transactionHash_gte: arbitrumgoerli_Bytes
-  transactionHash_lte: arbitrumgoerli_Bytes
   transactionHash_in: [arbitrumgoerli_Bytes!]
   transactionHash_not_in: [arbitrumgoerli_Bytes!]
   transactionHash_contains: arbitrumgoerli_Bytes
@@ -904,10 +804,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: arbitrumgoerli_Bytes
   transferId_not: arbitrumgoerli_Bytes
-  transferId_gt: arbitrumgoerli_Bytes
-  transferId_lt: arbitrumgoerli_Bytes
-  transferId_gte: arbitrumgoerli_Bytes
-  transferId_lte: arbitrumgoerli_Bytes
   transferId_in: [arbitrumgoerli_Bytes!]
   transferId_not_in: [arbitrumgoerli_Bytes!]
   transferId_contains: arbitrumgoerli_Bytes
@@ -926,10 +822,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   status_not_in: [arbitrumgoerli_TransferStatus!]
   messageHash: arbitrumgoerli_Bytes
   messageHash_not: arbitrumgoerli_Bytes
-  messageHash_gt: arbitrumgoerli_Bytes
-  messageHash_lt: arbitrumgoerli_Bytes
-  messageHash_gte: arbitrumgoerli_Bytes
-  messageHash_lte: arbitrumgoerli_Bytes
   messageHash_in: [arbitrumgoerli_Bytes!]
   messageHash_not_in: [arbitrumgoerli_Bytes!]
   messageHash_contains: arbitrumgoerli_Bytes
@@ -960,20 +852,12 @@ input arbitrumgoerli_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: arbitrumgoerli_Bytes
   to_not: arbitrumgoerli_Bytes
-  to_gt: arbitrumgoerli_Bytes
-  to_lt: arbitrumgoerli_Bytes
-  to_gte: arbitrumgoerli_Bytes
-  to_lte: arbitrumgoerli_Bytes
   to_in: [arbitrumgoerli_Bytes!]
   to_not_in: [arbitrumgoerli_Bytes!]
   to_contains: arbitrumgoerli_Bytes
   to_not_contains: arbitrumgoerli_Bytes
   delegate: arbitrumgoerli_Bytes
   delegate_not: arbitrumgoerli_Bytes
-  delegate_gt: arbitrumgoerli_Bytes
-  delegate_lt: arbitrumgoerli_Bytes
-  delegate_gte: arbitrumgoerli_Bytes
-  delegate_lte: arbitrumgoerli_Bytes
   delegate_in: [arbitrumgoerli_Bytes!]
   delegate_not_in: [arbitrumgoerli_Bytes!]
   delegate_contains: arbitrumgoerli_Bytes
@@ -984,10 +868,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: arbitrumgoerli_Bytes
   callData_not: arbitrumgoerli_Bytes
-  callData_gt: arbitrumgoerli_Bytes
-  callData_lt: arbitrumgoerli_Bytes
-  callData_gte: arbitrumgoerli_Bytes
-  callData_lte: arbitrumgoerli_Bytes
   callData_in: [arbitrumgoerli_Bytes!]
   callData_not_in: [arbitrumgoerli_Bytes!]
   callData_contains: arbitrumgoerli_Bytes
@@ -1002,10 +882,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: arbitrumgoerli_Bytes
   originSender_not: arbitrumgoerli_Bytes
-  originSender_gt: arbitrumgoerli_Bytes
-  originSender_lt: arbitrumgoerli_Bytes
-  originSender_gte: arbitrumgoerli_Bytes
-  originSender_lte: arbitrumgoerli_Bytes
   originSender_in: [arbitrumgoerli_Bytes!]
   originSender_not_in: [arbitrumgoerli_Bytes!]
   originSender_contains: arbitrumgoerli_Bytes
@@ -1028,10 +904,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: arbitrumgoerli_Bytes
   canonicalId_not: arbitrumgoerli_Bytes
-  canonicalId_gt: arbitrumgoerli_Bytes
-  canonicalId_lt: arbitrumgoerli_Bytes
-  canonicalId_gte: arbitrumgoerli_Bytes
-  canonicalId_lte: arbitrumgoerli_Bytes
   canonicalId_in: [arbitrumgoerli_Bytes!]
   canonicalId_not_in: [arbitrumgoerli_Bytes!]
   canonicalId_contains: arbitrumgoerli_Bytes
@@ -1059,10 +931,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   asset_: arbitrumgoerli_Asset_filter
   transacting: arbitrumgoerli_Bytes
   transacting_not: arbitrumgoerli_Bytes
-  transacting_gt: arbitrumgoerli_Bytes
-  transacting_lt: arbitrumgoerli_Bytes
-  transacting_gte: arbitrumgoerli_Bytes
-  transacting_lte: arbitrumgoerli_Bytes
   transacting_in: [arbitrumgoerli_Bytes!]
   transacting_not_in: [arbitrumgoerli_Bytes!]
   transacting_contains: arbitrumgoerli_Bytes
@@ -1098,20 +966,12 @@ input arbitrumgoerli_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: arbitrumgoerli_Bytes
   caller_not: arbitrumgoerli_Bytes
-  caller_gt: arbitrumgoerli_Bytes
-  caller_lt: arbitrumgoerli_Bytes
-  caller_gte: arbitrumgoerli_Bytes
-  caller_lte: arbitrumgoerli_Bytes
   caller_in: [arbitrumgoerli_Bytes!]
   caller_not_in: [arbitrumgoerli_Bytes!]
   caller_contains: arbitrumgoerli_Bytes
   caller_not_contains: arbitrumgoerli_Bytes
   transactionHash: arbitrumgoerli_Bytes
   transactionHash_not: arbitrumgoerli_Bytes
-  transactionHash_gt: arbitrumgoerli_Bytes
-  transactionHash_lt: arbitrumgoerli_Bytes
-  transactionHash_gte: arbitrumgoerli_Bytes
-  transactionHash_lte: arbitrumgoerli_Bytes
   transactionHash_in: [arbitrumgoerli_Bytes!]
   transactionHash_not_in: [arbitrumgoerli_Bytes!]
   transactionHash_contains: arbitrumgoerli_Bytes
@@ -1150,10 +1010,6 @@ input arbitrumgoerli_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: arbitrumgoerli_Bytes
   txOrigin_not: arbitrumgoerli_Bytes
-  txOrigin_gt: arbitrumgoerli_Bytes
-  txOrigin_lt: arbitrumgoerli_Bytes
-  txOrigin_gte: arbitrumgoerli_Bytes
-  txOrigin_lte: arbitrumgoerli_Bytes
   txOrigin_in: [arbitrumgoerli_Bytes!]
   txOrigin_not_in: [arbitrumgoerli_Bytes!]
   txOrigin_contains: arbitrumgoerli_Bytes
@@ -1210,10 +1066,6 @@ input arbitrumgoerli_PooledToken_filter {
   id_not_in: [ID!]
   asset: arbitrumgoerli_Bytes
   asset_not: arbitrumgoerli_Bytes
-  asset_gt: arbitrumgoerli_Bytes
-  asset_lt: arbitrumgoerli_Bytes
-  asset_gte: arbitrumgoerli_Bytes
-  asset_lte: arbitrumgoerli_Bytes
   asset_in: [arbitrumgoerli_Bytes!]
   asset_not_in: [arbitrumgoerli_Bytes!]
   asset_contains: arbitrumgoerli_Bytes
@@ -1695,10 +1547,6 @@ input arbitrumgoerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: arbitrumgoerli_Bytes
   relayer_not: arbitrumgoerli_Bytes
-  relayer_gt: arbitrumgoerli_Bytes
-  relayer_lt: arbitrumgoerli_Bytes
-  relayer_gte: arbitrumgoerli_Bytes
-  relayer_lte: arbitrumgoerli_Bytes
   relayer_in: [arbitrumgoerli_Bytes!]
   relayer_not_in: [arbitrumgoerli_Bytes!]
   relayer_contains: arbitrumgoerli_Bytes
@@ -1785,10 +1633,6 @@ input arbitrumgoerli_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: arbitrumgoerli_Bytes
   root_not: arbitrumgoerli_Bytes
-  root_gt: arbitrumgoerli_Bytes
-  root_lt: arbitrumgoerli_Bytes
-  root_gte: arbitrumgoerli_Bytes
-  root_lte: arbitrumgoerli_Bytes
   root_in: [arbitrumgoerli_Bytes!]
   root_not_in: [arbitrumgoerli_Bytes!]
   root_contains: arbitrumgoerli_Bytes
@@ -1803,20 +1647,12 @@ input arbitrumgoerli_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: arbitrumgoerli_Bytes
   caller_not: arbitrumgoerli_Bytes
-  caller_gt: arbitrumgoerli_Bytes
-  caller_lt: arbitrumgoerli_Bytes
-  caller_gte: arbitrumgoerli_Bytes
-  caller_lte: arbitrumgoerli_Bytes
   caller_in: [arbitrumgoerli_Bytes!]
   caller_not_in: [arbitrumgoerli_Bytes!]
   caller_contains: arbitrumgoerli_Bytes
   caller_not_contains: arbitrumgoerli_Bytes
   transactionHash: arbitrumgoerli_Bytes
   transactionHash_not: arbitrumgoerli_Bytes
-  transactionHash_gt: arbitrumgoerli_Bytes
-  transactionHash_lt: arbitrumgoerli_Bytes
-  transactionHash_gte: arbitrumgoerli_Bytes
-  transactionHash_lte: arbitrumgoerli_Bytes
   transactionHash_in: [arbitrumgoerli_Bytes!]
   transactionHash_not_in: [arbitrumgoerli_Bytes!]
   transactionHash_contains: arbitrumgoerli_Bytes
@@ -1896,30 +1732,18 @@ input arbitrumgoerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: arbitrumgoerli_Bytes
   owner_not: arbitrumgoerli_Bytes
-  owner_gt: arbitrumgoerli_Bytes
-  owner_lt: arbitrumgoerli_Bytes
-  owner_gte: arbitrumgoerli_Bytes
-  owner_lte: arbitrumgoerli_Bytes
   owner_in: [arbitrumgoerli_Bytes!]
   owner_not_in: [arbitrumgoerli_Bytes!]
   owner_contains: arbitrumgoerli_Bytes
   owner_not_contains: arbitrumgoerli_Bytes
   recipient: arbitrumgoerli_Bytes
   recipient_not: arbitrumgoerli_Bytes
-  recipient_gt: arbitrumgoerli_Bytes
-  recipient_lt: arbitrumgoerli_Bytes
-  recipient_gte: arbitrumgoerli_Bytes
-  recipient_lte: arbitrumgoerli_Bytes
   recipient_in: [arbitrumgoerli_Bytes!]
   recipient_not_in: [arbitrumgoerli_Bytes!]
   recipient_contains: arbitrumgoerli_Bytes
   recipient_not_contains: arbitrumgoerli_Bytes
   proposedOwner: arbitrumgoerli_Bytes
   proposedOwner_not: arbitrumgoerli_Bytes
-  proposedOwner_gt: arbitrumgoerli_Bytes
-  proposedOwner_lt: arbitrumgoerli_Bytes
-  proposedOwner_gte: arbitrumgoerli_Bytes
-  proposedOwner_lte: arbitrumgoerli_Bytes
   proposedOwner_in: [arbitrumgoerli_Bytes!]
   proposedOwner_not_in: [arbitrumgoerli_Bytes!]
   proposedOwner_contains: arbitrumgoerli_Bytes
@@ -1968,10 +1792,6 @@ input arbitrumgoerli_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: arbitrumgoerli_Bytes
   sequencer_not: arbitrumgoerli_Bytes
-  sequencer_gt: arbitrumgoerli_Bytes
-  sequencer_lt: arbitrumgoerli_Bytes
-  sequencer_gte: arbitrumgoerli_Bytes
-  sequencer_lte: arbitrumgoerli_Bytes
   sequencer_in: [arbitrumgoerli_Bytes!]
   sequencer_not_in: [arbitrumgoerli_Bytes!]
   sequencer_contains: arbitrumgoerli_Bytes
@@ -2011,10 +1831,6 @@ input arbitrumgoerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: arbitrumgoerli_Bytes
   caller_not: arbitrumgoerli_Bytes
-  caller_gt: arbitrumgoerli_Bytes
-  caller_lt: arbitrumgoerli_Bytes
-  caller_gte: arbitrumgoerli_Bytes
-  caller_lte: arbitrumgoerli_Bytes
   caller_in: [arbitrumgoerli_Bytes!]
   caller_not_in: [arbitrumgoerli_Bytes!]
   caller_contains: arbitrumgoerli_Bytes
@@ -2070,10 +1886,6 @@ input arbitrumgoerli_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: arbitrumgoerli_Bytes
   provider_not: arbitrumgoerli_Bytes
-  provider_gt: arbitrumgoerli_Bytes
-  provider_lt: arbitrumgoerli_Bytes
-  provider_gte: arbitrumgoerli_Bytes
-  provider_lte: arbitrumgoerli_Bytes
   provider_in: [arbitrumgoerli_Bytes!]
   provider_not_in: [arbitrumgoerli_Bytes!]
   provider_contains: arbitrumgoerli_Bytes
@@ -2156,20 +1968,12 @@ input arbitrumgoerli_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: arbitrumgoerli_Bytes
   key_not: arbitrumgoerli_Bytes
-  key_gt: arbitrumgoerli_Bytes
-  key_lt: arbitrumgoerli_Bytes
-  key_gte: arbitrumgoerli_Bytes
-  key_lte: arbitrumgoerli_Bytes
   key_in: [arbitrumgoerli_Bytes!]
   key_not_in: [arbitrumgoerli_Bytes!]
   key_contains: arbitrumgoerli_Bytes
   key_not_contains: arbitrumgoerli_Bytes
   canonicalId: arbitrumgoerli_Bytes
   canonicalId_not: arbitrumgoerli_Bytes
-  canonicalId_gt: arbitrumgoerli_Bytes
-  canonicalId_lt: arbitrumgoerli_Bytes
-  canonicalId_gte: arbitrumgoerli_Bytes
-  canonicalId_lte: arbitrumgoerli_Bytes
   canonicalId_in: [arbitrumgoerli_Bytes!]
   canonicalId_not_in: [arbitrumgoerli_Bytes!]
   canonicalId_contains: arbitrumgoerli_Bytes
@@ -2184,20 +1988,12 @@ input arbitrumgoerli_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: arbitrumgoerli_Bytes
   swapPool_not: arbitrumgoerli_Bytes
-  swapPool_gt: arbitrumgoerli_Bytes
-  swapPool_lt: arbitrumgoerli_Bytes
-  swapPool_gte: arbitrumgoerli_Bytes
-  swapPool_lte: arbitrumgoerli_Bytes
   swapPool_in: [arbitrumgoerli_Bytes!]
   swapPool_not_in: [arbitrumgoerli_Bytes!]
   swapPool_contains: arbitrumgoerli_Bytes
   swapPool_not_contains: arbitrumgoerli_Bytes
   lpToken: arbitrumgoerli_Bytes
   lpToken_not: arbitrumgoerli_Bytes
-  lpToken_gt: arbitrumgoerli_Bytes
-  lpToken_lt: arbitrumgoerli_Bytes
-  lpToken_gte: arbitrumgoerli_Bytes
-  lpToken_lte: arbitrumgoerli_Bytes
   lpToken_in: [arbitrumgoerli_Bytes!]
   lpToken_not_in: [arbitrumgoerli_Bytes!]
   lpToken_contains: arbitrumgoerli_Bytes
@@ -2763,10 +2559,6 @@ input arbitrumgoerli_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: arbitrumgoerli_Bytes
   transferId_not: arbitrumgoerli_Bytes
-  transferId_gt: arbitrumgoerli_Bytes
-  transferId_lt: arbitrumgoerli_Bytes
-  transferId_gte: arbitrumgoerli_Bytes
-  transferId_lte: arbitrumgoerli_Bytes
   transferId_in: [arbitrumgoerli_Bytes!]
   transferId_not_in: [arbitrumgoerli_Bytes!]
   transferId_contains: arbitrumgoerli_Bytes

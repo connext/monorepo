@@ -1,7 +1,7 @@
-import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, NATIVE_TOKEN, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
+import { getEstimatedFee, sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
 import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
 import { getContext } from "../propagate";
@@ -107,9 +107,22 @@ export const propagate = async () => {
   const gasLimit = gas.add(200_000); // Add extra overhead for gelato
   logger.info("Got gas estimate", requestContext, methodContext, { gasLimit: gasLimit.toString() });
 
-  const fee = BigNumber.from(0);
+  let fee = BigNumber.from(0);
+  try {
+    fee = await getEstimatedFee(hubChainId, NATIVE_TOKEN, gasLimit, true);
+  } catch (e: unknown) {
+    logger.warn("Error at getEstimatedFee", requestContext, methodContext, {
+      error: e as NxtpError,
+      rootManagerAddress: rootManagerAddress,
+      relayerProxyAddress: relayerProxyHubAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+    });
+
+    fee = gasLimit.mul(await chainreader.getGasPrice(+config.hubDomain, requestContext));
+  }
   logger.info("Got params for sending", requestContext, methodContext, {
-    fee,
+    fee: fee.toString(),
     gasLimit: gasLimit.toString(),
     _connectors,
     _fees,
