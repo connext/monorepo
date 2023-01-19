@@ -341,4 +341,36 @@ describe("TransfersCache", () => {
       expect(isNew).to.be.false;
     });
   });
+
+  describe("#pruneTransfersByIds", () => {
+    it("happy: should work", async () => {
+      const domain = "133712";
+      const xtransfers = new Array(10).fill(0).map(() =>
+        mock.entity.xtransfer({
+          originDomain: domain.toString(),
+          transferId: getRandomBytes32(),
+          nonce: Math.floor(Math.random() * 10000),
+          status: "XCalled",
+        }),
+      );
+      const transferIds = xtransfers.map((i) => i.transferId);
+      const transferIdsToRemove = [transferIds[0], transferIds[3], transferIds[7]];
+
+      //stores the transfers under non clenaup mode
+      await transfersCache.storeTransfers(xtransfers, false);
+
+      expect(await transfersCache.getPending(domain)).to.be.deep.eq(transferIds);
+
+      // prune transfers by transferIdsToRemove
+      await transfersCache.pruneTransfersByIds(transferIdsToRemove);
+      expect(await transfersCache.getPending(domain)).to.be.deep.eq(
+        transferIds.filter((i) => !transferIdsToRemove.includes(i)),
+      );
+
+      for (const transferId of transferIdsToRemove) {
+        const transfer = await transfersCache.getTransfer(transferId);
+        expect(transfer).to.be.undefined;
+      }
+    });
+  });
 });
