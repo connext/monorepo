@@ -19,6 +19,7 @@ export const mock = {
       [mock.domain.A]: {
         assets: [mock.asset.A],
         confirmations: 1,
+        chainId: Number(mock.chain.A),
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
@@ -30,6 +31,7 @@ export const mock = {
       [mock.domain.B]: {
         assets: [mock.asset.A],
         confirmations: 1,
+        chainId: Number(mock.chain.B),
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
