@@ -26,6 +26,8 @@ describe("Operations:ExecuteSlow", () => {
     sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
     });
+
+    stub(MockableFns, "getEstimatedFee").resolves(BigNumber.from("1"));
   });
 
   describe("#sendExecuteSlowToRelayer", () => {

@@ -110,40 +110,24 @@ input testoptimismgoerli_Asset_filter {
   id_not_in: [ID!]
   key: testoptimismgoerli_Bytes
   key_not: testoptimismgoerli_Bytes
-  key_gt: testoptimismgoerli_Bytes
-  key_lt: testoptimismgoerli_Bytes
-  key_gte: testoptimismgoerli_Bytes
-  key_lte: testoptimismgoerli_Bytes
   key_in: [testoptimismgoerli_Bytes!]
   key_not_in: [testoptimismgoerli_Bytes!]
   key_contains: testoptimismgoerli_Bytes
   key_not_contains: testoptimismgoerli_Bytes
   local: testoptimismgoerli_Bytes
   local_not: testoptimismgoerli_Bytes
-  local_gt: testoptimismgoerli_Bytes
-  local_lt: testoptimismgoerli_Bytes
-  local_gte: testoptimismgoerli_Bytes
-  local_lte: testoptimismgoerli_Bytes
   local_in: [testoptimismgoerli_Bytes!]
   local_not_in: [testoptimismgoerli_Bytes!]
   local_contains: testoptimismgoerli_Bytes
   local_not_contains: testoptimismgoerli_Bytes
   adoptedAsset: testoptimismgoerli_Bytes
   adoptedAsset_not: testoptimismgoerli_Bytes
-  adoptedAsset_gt: testoptimismgoerli_Bytes
-  adoptedAsset_lt: testoptimismgoerli_Bytes
-  adoptedAsset_gte: testoptimismgoerli_Bytes
-  adoptedAsset_lte: testoptimismgoerli_Bytes
   adoptedAsset_in: [testoptimismgoerli_Bytes!]
   adoptedAsset_not_in: [testoptimismgoerli_Bytes!]
   adoptedAsset_contains: testoptimismgoerli_Bytes
   adoptedAsset_not_contains: testoptimismgoerli_Bytes
   canonicalId: testoptimismgoerli_Bytes
   canonicalId_not: testoptimismgoerli_Bytes
-  canonicalId_gt: testoptimismgoerli_Bytes
-  canonicalId_lt: testoptimismgoerli_Bytes
-  canonicalId_gte: testoptimismgoerli_Bytes
-  canonicalId_lte: testoptimismgoerli_Bytes
   canonicalId_in: [testoptimismgoerli_Bytes!]
   canonicalId_not_in: [testoptimismgoerli_Bytes!]
   canonicalId_contains: testoptimismgoerli_Bytes
@@ -252,10 +236,6 @@ input testoptimismgoerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: testoptimismgoerli_Bytes
   transferId_not: testoptimismgoerli_Bytes
-  transferId_gt: testoptimismgoerli_Bytes
-  transferId_lt: testoptimismgoerli_Bytes
-  transferId_gte: testoptimismgoerli_Bytes
-  transferId_lte: testoptimismgoerli_Bytes
   transferId_in: [testoptimismgoerli_Bytes!]
   transferId_not_in: [testoptimismgoerli_Bytes!]
   transferId_contains: testoptimismgoerli_Bytes
@@ -270,20 +250,12 @@ input testoptimismgoerli_DestinationTransfer_filter {
   nonce_not_in: [BigInt!]
   to: testoptimismgoerli_Bytes
   to_not: testoptimismgoerli_Bytes
-  to_gt: testoptimismgoerli_Bytes
-  to_lt: testoptimismgoerli_Bytes
-  to_gte: testoptimismgoerli_Bytes
-  to_lte: testoptimismgoerli_Bytes
   to_in: [testoptimismgoerli_Bytes!]
   to_not_in: [testoptimismgoerli_Bytes!]
   to_contains: testoptimismgoerli_Bytes
   to_not_contains: testoptimismgoerli_Bytes
   callData: testoptimismgoerli_Bytes
   callData_not: testoptimismgoerli_Bytes
-  callData_gt: testoptimismgoerli_Bytes
-  callData_lt: testoptimismgoerli_Bytes
-  callData_gte: testoptimismgoerli_Bytes
-  callData_lte: testoptimismgoerli_Bytes
   callData_in: [testoptimismgoerli_Bytes!]
   callData_not_in: [testoptimismgoerli_Bytes!]
   callData_contains: testoptimismgoerli_Bytes
@@ -306,20 +278,12 @@ input testoptimismgoerli_DestinationTransfer_filter {
   destinationDomain_not_in: [BigInt!]
   agent: testoptimismgoerli_Bytes
   agent_not: testoptimismgoerli_Bytes
-  agent_gt: testoptimismgoerli_Bytes
-  agent_lt: testoptimismgoerli_Bytes
-  agent_gte: testoptimismgoerli_Bytes
-  agent_lte: testoptimismgoerli_Bytes
   agent_in: [testoptimismgoerli_Bytes!]
   agent_not_in: [testoptimismgoerli_Bytes!]
   agent_contains: testoptimismgoerli_Bytes
   agent_not_contains: testoptimismgoerli_Bytes
   recovery: testoptimismgoerli_Bytes
   recovery_not: testoptimismgoerli_Bytes
-  recovery_gt: testoptimismgoerli_Bytes
-  recovery_lt: testoptimismgoerli_Bytes
-  recovery_gte: testoptimismgoerli_Bytes
-  recovery_lte: testoptimismgoerli_Bytes
   recovery_in: [testoptimismgoerli_Bytes!]
   recovery_not_in: [testoptimismgoerli_Bytes!]
   recovery_contains: testoptimismgoerli_Bytes
@@ -334,10 +298,6 @@ input testoptimismgoerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callback: testoptimismgoerli_Bytes
   callback_not: testoptimismgoerli_Bytes
-  callback_gt: testoptimismgoerli_Bytes
-  callback_lt: testoptimismgoerli_Bytes
-  callback_gte: testoptimismgoerli_Bytes
-  callback_lte: testoptimismgoerli_Bytes
   callback_in: [testoptimismgoerli_Bytes!]
   callback_not_in: [testoptimismgoerli_Bytes!]
   callback_contains: testoptimismgoerli_Bytes
@@ -379,20 +339,12 @@ input testoptimismgoerli_DestinationTransfer_filter {
   routers_: testoptimismgoerli_Router_filter
   originSender: testoptimismgoerli_Bytes
   originSender_not: testoptimismgoerli_Bytes
-  originSender_gt: testoptimismgoerli_Bytes
-  originSender_lt: testoptimismgoerli_Bytes
-  originSender_gte: testoptimismgoerli_Bytes
-  originSender_lte: testoptimismgoerli_Bytes
   originSender_in: [testoptimismgoerli_Bytes!]
   originSender_not_in: [testoptimismgoerli_Bytes!]
   originSender_contains: testoptimismgoerli_Bytes
   originSender_not_contains: testoptimismgoerli_Bytes
   transactingAsset: testoptimismgoerli_Bytes
   transactingAsset_not: testoptimismgoerli_Bytes
-  transactingAsset_gt: testoptimismgoerli_Bytes
-  transactingAsset_lt: testoptimismgoerli_Bytes
-  transactingAsset_gte: testoptimismgoerli_Bytes
-  transactingAsset_lte: testoptimismgoerli_Bytes
   transactingAsset_in: [testoptimismgoerli_Bytes!]
   transactingAsset_not_in: [testoptimismgoerli_Bytes!]
   transactingAsset_contains: testoptimismgoerli_Bytes
@@ -407,10 +359,6 @@ input testoptimismgoerli_DestinationTransfer_filter {
   transactingAmount_not_in: [BigInt!]
   localAsset: testoptimismgoerli_Bytes
   localAsset_not: testoptimismgoerli_Bytes
-  localAsset_gt: testoptimismgoerli_Bytes
-  localAsset_lt: testoptimismgoerli_Bytes
-  localAsset_gte: testoptimismgoerli_Bytes
-  localAsset_lte: testoptimismgoerli_Bytes
   localAsset_in: [testoptimismgoerli_Bytes!]
   localAsset_not_in: [testoptimismgoerli_Bytes!]
   localAsset_contains: testoptimismgoerli_Bytes
@@ -433,20 +381,12 @@ input testoptimismgoerli_DestinationTransfer_filter {
   sponsorVaultRelayerFee_not_in: [BigInt!]
   executedCaller: testoptimismgoerli_Bytes
   executedCaller_not: testoptimismgoerli_Bytes
-  executedCaller_gt: testoptimismgoerli_Bytes
-  executedCaller_lt: testoptimismgoerli_Bytes
-  executedCaller_gte: testoptimismgoerli_Bytes
-  executedCaller_lte: testoptimismgoerli_Bytes
   executedCaller_in: [testoptimismgoerli_Bytes!]
   executedCaller_not_in: [testoptimismgoerli_Bytes!]
   executedCaller_contains: testoptimismgoerli_Bytes
   executedCaller_not_contains: testoptimismgoerli_Bytes
   executedTransactionHash: testoptimismgoerli_Bytes
   executedTransactionHash_not: testoptimismgoerli_Bytes
-  executedTransactionHash_gt: testoptimismgoerli_Bytes
-  executedTransactionHash_lt: testoptimismgoerli_Bytes
-  executedTransactionHash_gte: testoptimismgoerli_Bytes
-  executedTransactionHash_lte: testoptimismgoerli_Bytes
   executedTransactionHash_in: [testoptimismgoerli_Bytes!]
   executedTransactionHash_not_in: [testoptimismgoerli_Bytes!]
   executedTransactionHash_contains: testoptimismgoerli_Bytes
@@ -485,20 +425,12 @@ input testoptimismgoerli_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   reconciledCaller: testoptimismgoerli_Bytes
   reconciledCaller_not: testoptimismgoerli_Bytes
-  reconciledCaller_gt: testoptimismgoerli_Bytes
-  reconciledCaller_lt: testoptimismgoerli_Bytes
-  reconciledCaller_gte: testoptimismgoerli_Bytes
-  reconciledCaller_lte: testoptimismgoerli_Bytes
   reconciledCaller_in: [testoptimismgoerli_Bytes!]
   reconciledCaller_not_in: [testoptimismgoerli_Bytes!]
   reconciledCaller_contains: testoptimismgoerli_Bytes
   reconciledCaller_not_contains: testoptimismgoerli_Bytes
   reconciledTransactionHash: testoptimismgoerli_Bytes
   reconciledTransactionHash_not: testoptimismgoerli_Bytes
-  reconciledTransactionHash_gt: testoptimismgoerli_Bytes
-  reconciledTransactionHash_lt: testoptimismgoerli_Bytes
-  reconciledTransactionHash_gte: testoptimismgoerli_Bytes
-  reconciledTransactionHash_lte: testoptimismgoerli_Bytes
   reconciledTransactionHash_in: [testoptimismgoerli_Bytes!]
   reconciledTransactionHash_not_in: [testoptimismgoerli_Bytes!]
   reconciledTransactionHash_contains: testoptimismgoerli_Bytes
@@ -634,10 +566,6 @@ input testoptimismgoerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: testoptimismgoerli_Bytes
   transferId_not: testoptimismgoerli_Bytes
-  transferId_gt: testoptimismgoerli_Bytes
-  transferId_lt: testoptimismgoerli_Bytes
-  transferId_gte: testoptimismgoerli_Bytes
-  transferId_lte: testoptimismgoerli_Bytes
   transferId_in: [testoptimismgoerli_Bytes!]
   transferId_not_in: [testoptimismgoerli_Bytes!]
   transferId_contains: testoptimismgoerli_Bytes
@@ -652,20 +580,12 @@ input testoptimismgoerli_OriginTransfer_filter {
   nonce_not_in: [BigInt!]
   to: testoptimismgoerli_Bytes
   to_not: testoptimismgoerli_Bytes
-  to_gt: testoptimismgoerli_Bytes
-  to_lt: testoptimismgoerli_Bytes
-  to_gte: testoptimismgoerli_Bytes
-  to_lte: testoptimismgoerli_Bytes
   to_in: [testoptimismgoerli_Bytes!]
   to_not_in: [testoptimismgoerli_Bytes!]
   to_contains: testoptimismgoerli_Bytes
   to_not_contains: testoptimismgoerli_Bytes
   callData: testoptimismgoerli_Bytes
   callData_not: testoptimismgoerli_Bytes
-  callData_gt: testoptimismgoerli_Bytes
-  callData_lt: testoptimismgoerli_Bytes
-  callData_gte: testoptimismgoerli_Bytes
-  callData_lte: testoptimismgoerli_Bytes
   callData_in: [testoptimismgoerli_Bytes!]
   callData_not_in: [testoptimismgoerli_Bytes!]
   callData_contains: testoptimismgoerli_Bytes
@@ -688,20 +608,12 @@ input testoptimismgoerli_OriginTransfer_filter {
   destinationDomain_not_in: [BigInt!]
   agent: testoptimismgoerli_Bytes
   agent_not: testoptimismgoerli_Bytes
-  agent_gt: testoptimismgoerli_Bytes
-  agent_lt: testoptimismgoerli_Bytes
-  agent_gte: testoptimismgoerli_Bytes
-  agent_lte: testoptimismgoerli_Bytes
   agent_in: [testoptimismgoerli_Bytes!]
   agent_not_in: [testoptimismgoerli_Bytes!]
   agent_contains: testoptimismgoerli_Bytes
   agent_not_contains: testoptimismgoerli_Bytes
   recovery: testoptimismgoerli_Bytes
   recovery_not: testoptimismgoerli_Bytes
-  recovery_gt: testoptimismgoerli_Bytes
-  recovery_lt: testoptimismgoerli_Bytes
-  recovery_gte: testoptimismgoerli_Bytes
-  recovery_lte: testoptimismgoerli_Bytes
   recovery_in: [testoptimismgoerli_Bytes!]
   recovery_not_in: [testoptimismgoerli_Bytes!]
   recovery_contains: testoptimismgoerli_Bytes
@@ -716,10 +628,6 @@ input testoptimismgoerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callback: testoptimismgoerli_Bytes
   callback_not: testoptimismgoerli_Bytes
-  callback_gt: testoptimismgoerli_Bytes
-  callback_lt: testoptimismgoerli_Bytes
-  callback_gte: testoptimismgoerli_Bytes
-  callback_lte: testoptimismgoerli_Bytes
   callback_in: [testoptimismgoerli_Bytes!]
   callback_not_in: [testoptimismgoerli_Bytes!]
   callback_contains: testoptimismgoerli_Bytes
@@ -762,10 +670,6 @@ input testoptimismgoerli_OriginTransfer_filter {
   originMinOut_not_in: [BigInt!]
   transactingAsset: testoptimismgoerli_Bytes
   transactingAsset_not: testoptimismgoerli_Bytes
-  transactingAsset_gt: testoptimismgoerli_Bytes
-  transactingAsset_lt: testoptimismgoerli_Bytes
-  transactingAsset_gte: testoptimismgoerli_Bytes
-  transactingAsset_lte: testoptimismgoerli_Bytes
   transactingAsset_in: [testoptimismgoerli_Bytes!]
   transactingAsset_not_in: [testoptimismgoerli_Bytes!]
   transactingAsset_contains: testoptimismgoerli_Bytes
@@ -780,10 +684,6 @@ input testoptimismgoerli_OriginTransfer_filter {
   transactingAmount_not_in: [BigInt!]
   bridgedAsset: testoptimismgoerli_Bytes
   bridgedAsset_not: testoptimismgoerli_Bytes
-  bridgedAsset_gt: testoptimismgoerli_Bytes
-  bridgedAsset_lt: testoptimismgoerli_Bytes
-  bridgedAsset_gte: testoptimismgoerli_Bytes
-  bridgedAsset_lte: testoptimismgoerli_Bytes
   bridgedAsset_in: [testoptimismgoerli_Bytes!]
   bridgedAsset_not_in: [testoptimismgoerli_Bytes!]
   bridgedAsset_contains: testoptimismgoerli_Bytes
@@ -798,20 +698,12 @@ input testoptimismgoerli_OriginTransfer_filter {
   bridgedAmount_not_in: [BigInt!]
   caller: testoptimismgoerli_Bytes
   caller_not: testoptimismgoerli_Bytes
-  caller_gt: testoptimismgoerli_Bytes
-  caller_lt: testoptimismgoerli_Bytes
-  caller_gte: testoptimismgoerli_Bytes
-  caller_lte: testoptimismgoerli_Bytes
   caller_in: [testoptimismgoerli_Bytes!]
   caller_not_in: [testoptimismgoerli_Bytes!]
   caller_contains: testoptimismgoerli_Bytes
   caller_not_contains: testoptimismgoerli_Bytes
   transactionHash: testoptimismgoerli_Bytes
   transactionHash_not: testoptimismgoerli_Bytes
-  transactionHash_gt: testoptimismgoerli_Bytes
-  transactionHash_lt: testoptimismgoerli_Bytes
-  transactionHash_gte: testoptimismgoerli_Bytes
-  transactionHash_lte: testoptimismgoerli_Bytes
   transactionHash_in: [testoptimismgoerli_Bytes!]
   transactionHash_not_in: [testoptimismgoerli_Bytes!]
   transactionHash_contains: testoptimismgoerli_Bytes
@@ -1143,10 +1035,6 @@ input testoptimismgoerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: testoptimismgoerli_Bytes
   relayer_not: testoptimismgoerli_Bytes
-  relayer_gt: testoptimismgoerli_Bytes
-  relayer_lt: testoptimismgoerli_Bytes
-  relayer_gte: testoptimismgoerli_Bytes
-  relayer_lte: testoptimismgoerli_Bytes
   relayer_in: [testoptimismgoerli_Bytes!]
   relayer_not_in: [testoptimismgoerli_Bytes!]
   relayer_contains: testoptimismgoerli_Bytes
@@ -1186,30 +1074,18 @@ input testoptimismgoerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: testoptimismgoerli_Bytes
   owner_not: testoptimismgoerli_Bytes
-  owner_gt: testoptimismgoerli_Bytes
-  owner_lt: testoptimismgoerli_Bytes
-  owner_gte: testoptimismgoerli_Bytes
-  owner_lte: testoptimismgoerli_Bytes
   owner_in: [testoptimismgoerli_Bytes!]
   owner_not_in: [testoptimismgoerli_Bytes!]
   owner_contains: testoptimismgoerli_Bytes
   owner_not_contains: testoptimismgoerli_Bytes
   recipient: testoptimismgoerli_Bytes
   recipient_not: testoptimismgoerli_Bytes
-  recipient_gt: testoptimismgoerli_Bytes
-  recipient_lt: testoptimismgoerli_Bytes
-  recipient_gte: testoptimismgoerli_Bytes
-  recipient_lte: testoptimismgoerli_Bytes
   recipient_in: [testoptimismgoerli_Bytes!]
   recipient_not_in: [testoptimismgoerli_Bytes!]
   recipient_contains: testoptimismgoerli_Bytes
   recipient_not_contains: testoptimismgoerli_Bytes
   proposedOwner: testoptimismgoerli_Bytes
   proposedOwner_not: testoptimismgoerli_Bytes
-  proposedOwner_gt: testoptimismgoerli_Bytes
-  proposedOwner_lt: testoptimismgoerli_Bytes
-  proposedOwner_gte: testoptimismgoerli_Bytes
-  proposedOwner_lte: testoptimismgoerli_Bytes
   proposedOwner_in: [testoptimismgoerli_Bytes!]
   proposedOwner_not_in: [testoptimismgoerli_Bytes!]
   proposedOwner_contains: testoptimismgoerli_Bytes
@@ -1262,10 +1138,6 @@ input testoptimismgoerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: testoptimismgoerli_Bytes
   caller_not: testoptimismgoerli_Bytes
-  caller_gt: testoptimismgoerli_Bytes
-  caller_lt: testoptimismgoerli_Bytes
-  caller_gte: testoptimismgoerli_Bytes
-  caller_lte: testoptimismgoerli_Bytes
   caller_in: [testoptimismgoerli_Bytes!]
   caller_not_in: [testoptimismgoerli_Bytes!]
   caller_contains: testoptimismgoerli_Bytes
@@ -1296,10 +1168,6 @@ input testoptimismgoerli_SponsorVault_filter {
   id_not_in: [ID!]
   sponsorVault: testoptimismgoerli_Bytes
   sponsorVault_not: testoptimismgoerli_Bytes
-  sponsorVault_gt: testoptimismgoerli_Bytes
-  sponsorVault_lt: testoptimismgoerli_Bytes
-  sponsorVault_gte: testoptimismgoerli_Bytes
-  sponsorVault_lte: testoptimismgoerli_Bytes
   sponsorVault_in: [testoptimismgoerli_Bytes!]
   sponsorVault_not_in: [testoptimismgoerli_Bytes!]
   sponsorVault_contains: testoptimismgoerli_Bytes
@@ -1331,10 +1199,6 @@ input testoptimismgoerli_StableSwap_filter {
   id_not_in: [ID!]
   canonicalId: testoptimismgoerli_Bytes
   canonicalId_not: testoptimismgoerli_Bytes
-  canonicalId_gt: testoptimismgoerli_Bytes
-  canonicalId_lt: testoptimismgoerli_Bytes
-  canonicalId_gte: testoptimismgoerli_Bytes
-  canonicalId_lte: testoptimismgoerli_Bytes
   canonicalId_in: [testoptimismgoerli_Bytes!]
   canonicalId_not_in: [testoptimismgoerli_Bytes!]
   canonicalId_contains: testoptimismgoerli_Bytes
@@ -1349,10 +1213,6 @@ input testoptimismgoerli_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: testoptimismgoerli_Bytes
   swapPool_not: testoptimismgoerli_Bytes
-  swapPool_gt: testoptimismgoerli_Bytes
-  swapPool_lt: testoptimismgoerli_Bytes
-  swapPool_gte: testoptimismgoerli_Bytes
-  swapPool_lte: testoptimismgoerli_Bytes
   swapPool_in: [testoptimismgoerli_Bytes!]
   swapPool_not_in: [testoptimismgoerli_Bytes!]
   swapPool_contains: testoptimismgoerli_Bytes

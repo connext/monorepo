@@ -6,10 +6,12 @@ import {
   SparseMerkleTree,
   RootMessage,
   ReceivedAggregateRoot,
+  NATIVE_TOKEN,
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import {
   NoDestinationDomainForProof,
@@ -22,7 +24,7 @@ import {
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
 } from "../../../errors";
-import { sendWithRelayerWithBackup } from "../../../mockable";
+import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
@@ -299,11 +301,42 @@ export const processMessages = async (
     const domain = +destinationDomain;
     const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
 
+    logger.info("Getting gas estimate", requestContext, methodContext, {
+      chainId,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
+    const gas = await chainreader.getGasEstimateWithRevertCode({
+      domain: +domain,
+      to: destinationSpokeConnector,
+      data: proveAndProcessEncodedData,
+      from: relayerAddress,
+    });
+
     logger.info("Sending tx to relayer", requestContext, methodContext, {
       relayer: relayerAddress,
-      spokeConnector: destinationSpokeConnector,
+      connext: destinationSpokeConnector,
       domain,
+      gas: gas.toString(),
     });
+
+    const gasLimit = gas.add(200_000); // Add extra overhead for gelato
+    const destinationRelayerProxyAddress = config.chains[destinationDomain]?.deployments.relayerProxy;
+    let fee = BigNumber.from(0);
+    try {
+      fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
+    } catch (error: unknown) {
+      logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
+        error: jsonifyError(error as NxtpError),
+        relayerProxyAddress: destinationRelayerProxyAddress,
+        gasLimit: gasLimit.toString(),
+        relayerFee: fee.toString(),
+      });
+
+      fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
+    }
 
     const {
       _proofs: proofs,
@@ -313,17 +346,25 @@ export const processMessages = async (
     } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+    const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
       proofs,
       aggregateRoot,
       aggregatePath,
       aggregateIndex,
+      fee,
     ]);
+
+    logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
+      relayerProxyAddress: destinationRelayerProxyAddress,
+      gasLimit: gasLimit.toString(),
+      relayerFee: fee.toString(),
+      relayerProxyEncodedData: encodedData,
+    });
 
     const { taskId } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
-      destinationSpokeConnector,
+      destinationRelayerProxyAddress,
       encodedData,
       relayers,
       chainreader,

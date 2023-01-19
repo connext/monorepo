@@ -5246,7 +5246,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as const;
+];
 
 export class Connext__factory {
   static readonly abi = _abi;
