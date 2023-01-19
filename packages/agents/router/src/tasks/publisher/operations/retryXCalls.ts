@@ -52,7 +52,7 @@ export const retryXCalls = async (): Promise<void> => {
           transferIds: transferIdsToRemove,
         });
 
-        await cache.transfers.pruneTransferByIds(transferIdsToRemove);
+        await cache.transfers.pruneTransfersByIds(transferIdsToRemove);
       }
 
       const transfersToPublish = originTransfers.filter(

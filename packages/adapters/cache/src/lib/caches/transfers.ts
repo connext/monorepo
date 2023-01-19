@@ -97,7 +97,7 @@ export class TransfersCache extends Cache {
    *
    * @param transferIds - The transfer Ids to be removed
    */
-  public async pruneTransferByIds(transferIds: string[]): Promise<void> {
+  public async pruneTransfersByIds(transferIds: string[]): Promise<void> {
     for (const transferId of transferIds) {
       const transfer = await this.getTransfer(transferId);
       if (transfer) {
