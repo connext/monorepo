@@ -42,17 +42,17 @@
     "js-yaml": "4.1.0",
     "mustache": "4.2.0",
     "ts-node": "10.9.1",
-    "yaml": "2.1.3"
+    "yaml": "2.2.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.35.0",
-    "@graphprotocol/graph-ts": "0.28.1",
+    "@graphprotocol/graph-cli": "0.37.1",
+    "@graphprotocol/graph-ts": "0.29.0",
     "@protofire/subgraph-toolkit": "0.1.2",
     "@types/js-yaml": "4.0.5",
-    "@types/mustache": "4.2.1",
+    "@types/mustache": "4.2.2",
     "@types/yaml": "1.9.7",
-    "eslint": "8.26.0",
-    "sinon": "14.0.1"
+    "eslint": "8.30.0",
+    "sinon": "15.0.1"
   },
   "stableVersion": "0.1.25"
 }
