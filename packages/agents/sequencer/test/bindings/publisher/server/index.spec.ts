@@ -90,10 +90,7 @@ describe("Bindings:Server", () => {
         transferId: mkBytes32(),
         origin: "13337",
         executorVersion: "0.0.1",
-        relayerFee: {
-          amount: "0",
-          asset: mkAddress(),
-        },
+        routerAddress: mkAddress(),
         encodedData: "0xabcde",
       };
 
@@ -112,11 +109,8 @@ describe("Bindings:Server", () => {
         transferId: mkBytes32(),
         origin: "13337",
         executorVersion: "0.0.1",
-        relayerFee: {
-          amount: "0",
-          asset: mkAddress(),
-        },
         encodedData: "0xabcde",
+        routerAddress: mkAddress(),
       };
 
       const response = await fastifyApp.inject({

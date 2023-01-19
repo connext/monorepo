@@ -6,7 +6,6 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Database } from "@connext/nxtp-adapters-database";
-
 import Broker from "foo-foo-mq";
 
 import { SequencerConfig } from ".";

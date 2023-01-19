@@ -10,6 +10,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
+import { domainToChainId } from "@connext/nxtp-contracts";
 
 import {
   BadNonce,
@@ -360,6 +361,13 @@ export class TransactionDispatch extends RpcProviderAggregator {
       txsId,
     });
 
+    // get formatted transaction
+    const { domain, ...toCall } = minTx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
+
     const result = await this.queue.add(
       async (): Promise<{ value: OnchainTransaction | NxtpError; success: boolean }> => {
         try {
@@ -382,7 +390,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // still possible to revert due to a state change below.
           const attemptedNonces: number[] = [];
           const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
-            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.estimateGas(minTx),
+            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.estimateGas(formatted),
             minTx.gasPrice ? Promise.resolve(BigNumber.from(minTx.gasPrice)) : this.getGasPrice(requestContext),
             this.determineNonce(attemptedNonces),
           ]);

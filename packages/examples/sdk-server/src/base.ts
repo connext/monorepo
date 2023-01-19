@@ -1,9 +1,17 @@
 import { FastifyInstance } from "fastify";
+import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
+import { SdkServerApiXCallSchema, SdkServerApiXCall, TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
+
+const EstimateRelayerFeeSchema = Type.Object({
+  origin: TIntegerString,
+  destination: TIntegerString,
+});
+
+export type EstimateRelayerFee = Static<typeof EstimateRelayerFeeSchema>;
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
@@ -17,6 +25,20 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
     async (request, reply) => {
       const txReq = await sdkBaseInstance.xcall(request.body);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post<{ Body: EstimateRelayerFee }>(
+    "/estimateRelayerFee",
+    {
+      schema: {
+        body: EstimateRelayerFeeSchema,
+      },
+    },
+    async (request, reply) => {
+      const { origin, destination } = request.body;
+      const txReq = await sdkBaseInstance.estimateRelayerFee({ originDomain: origin, destinationDomain: destination });
       reply.status(200).send(txReq);
     },
   );
