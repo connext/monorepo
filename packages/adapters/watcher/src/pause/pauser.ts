@@ -78,7 +78,7 @@ export class Pauser extends Verifier {
               relevantTransaction: receipt.transactionHash,
             };
           } catch (error: unknown) {
-            logger.warn("Pause Tx: Transaction Failed", requestContext, methodContext, jsonifyError(error as Error));
+            logger.error("Pause Tx: Transaction Failed", requestContext, methodContext, jsonifyError(error as Error));
             return {
               domain,
               paused: false,
