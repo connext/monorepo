@@ -21,7 +21,7 @@
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function sweep(uint256,address,address)",
-  "function unwrapAndSweep(uint256,address)",
+  "function sweep(address,address,uint256)",
+  "function unwrapAndSweep(address,uint256)",
   "function xReceive(bytes32,uint256,address,address,uint32,bytes) returns (bytes)"
 ]

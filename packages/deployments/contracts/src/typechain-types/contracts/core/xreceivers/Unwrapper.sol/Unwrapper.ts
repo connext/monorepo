@@ -39,8 +39,8 @@ export interface UnwrapperInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sweep(uint256,address,address)": FunctionFragment;
-    "unwrapAndSweep(uint256,address)": FunctionFragment;
+    "sweep(address,address,uint256)": FunctionFragment;
+    "unwrapAndSweep(address,uint256)": FunctionFragment;
     "xReceive(bytes32,uint256,address,address,uint32,bytes)": FunctionFragment;
   };
 
@@ -86,14 +86,14 @@ export interface UnwrapperInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "sweep",
     values: [
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "unwrapAndSweep",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "xReceive",
@@ -250,15 +250,15 @@ export interface Unwrapper extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     sweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     unwrapAndSweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -266,7 +266,7 @@ export interface Unwrapper extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-      originSender: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -301,15 +301,15 @@ export interface Unwrapper extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   sweep(
-    amount: PromiseOrValue<BigNumberish>,
     recipient: PromiseOrValue<string>,
     asset: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   unwrapAndSweep(
-    amount: PromiseOrValue<BigNumberish>,
     recipient: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -317,7 +317,7 @@ export interface Unwrapper extends BaseContract {
     arg0: PromiseOrValue<BytesLike>,
     amount: PromiseOrValue<BigNumberish>,
     asset: PromiseOrValue<string>,
-    originSender: PromiseOrValue<string>,
+    arg3: PromiseOrValue<string>,
     arg4: PromiseOrValue<BigNumberish>,
     callData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -348,15 +348,15 @@ export interface Unwrapper extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     sweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     unwrapAndSweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -364,7 +364,7 @@ export interface Unwrapper extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-      originSender: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -435,15 +435,15 @@ export interface Unwrapper extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     sweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     unwrapAndSweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -451,7 +451,7 @@ export interface Unwrapper extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-      originSender: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -487,15 +487,15 @@ export interface Unwrapper extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     unwrapAndSweep(
-      amount: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -503,7 +503,7 @@ export interface Unwrapper extends BaseContract {
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-      originSender: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
