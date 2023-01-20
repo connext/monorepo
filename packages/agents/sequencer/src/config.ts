@@ -104,6 +104,13 @@ export const getEnvConfig = (
       : configFile.relayerFeeTolerance
       ? configFile.relayerFeeTolerance
       : DEFAULT_RELAYER_FEE_TOLERANCE,
+    excludeListFromRelayerFee: process.env.EXCLUDE_LIST_FROM_RELAYER_FEE
+      ? JSON.parse(process.env.EXCLUDE_LIST_FROM_RELAYER_FEE)
+      : configJson.excludeListFromFee
+      ? configJson.excludeListFromFee
+      : configFile.excludeListFromFee
+      ? configFile.excludeListFromFee
+      : [],
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

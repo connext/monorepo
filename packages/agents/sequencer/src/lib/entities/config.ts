@@ -120,6 +120,7 @@ export const SequencerConfigSchema = Type.Object({
   ),
   database: TDatabaseConfig,
   relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
+  excludeListFromRelayerFee: Type.Array(Type.String()),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
