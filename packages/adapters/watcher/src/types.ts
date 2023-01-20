@@ -49,6 +49,7 @@ export type AssetInfo = {
   canonicalId: string;
   canonicalDomain: string;
   address: string; // TODO: Remove this arg and parse out the address from canonical ID?
+  symbol: string; // Used for easy logging
 };
 
 /// MARK - Alerts
