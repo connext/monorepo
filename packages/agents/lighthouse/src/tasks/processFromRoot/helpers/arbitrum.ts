@@ -98,7 +98,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await (msg as any).getBlockFromNodeLog(spokeProvider, log);
+    const block = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, log);
     const sendCount = BigNumber.from(block.sendCount);
     if (sendCount.gt(msg.event.position)) {
       foundLog = log;
