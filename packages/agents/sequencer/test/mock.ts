@@ -12,6 +12,7 @@ import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
 
+export const mockExcludeAddress = mkAddress("0xmockExcludeAddr");
 export const mock = {
   ..._mock,
   context: (): AppContext => {
@@ -87,6 +88,7 @@ export const mock = {
       },
     ],
     relayerFeeTolerance: 20,
+    excludeListFromRelayerFee: [mockExcludeAddress],
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
