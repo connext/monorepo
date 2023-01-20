@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {Unwrapper, IWrapper} from "../../../contracts/core/xreceivers/Unwrapper.sol";
+import {ProposedOwnable} from "../../../contracts/shared/ProposedOwnable.sol";
 
 import "../../utils/ForgeHelper.sol";
 import "../../utils/Mock.sol";
@@ -108,21 +109,21 @@ contract UnwrapperTest is ForgeHelper {
   }
 
   // ============ Unwrapper.xReceive ============
-  function test_Unwrapper__xReceive_works(address _recipient, uint256 amount) public {
+  function test_Unwrapper__xReceive_works(uint256 amount) public {
     if (amount == 0) {
       return; // Skip 0 amount case.
     }
 
     address asset = MOCK_WRAPPER;
-    bytes memory callData = abi.encode(_recipient);
+    bytes memory callData = abi.encode(recipient);
 
-    utils_expectRecipientToReceive(_recipient, asset, amount);
-    utils_recordInitialBalances(_recipient);
+    utils_expectRecipientToReceive(recipient, asset, amount);
+    utils_recordInitialBalances(recipient);
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callData);
 
-    utils_assertSentEthToRecipient(_recipient, amount);
+    utils_assertSentEthToRecipient(recipient, amount);
   }
 
   function test_Unwrapper__xReceive_worksIfRecipientIsZero() public {
@@ -205,5 +206,27 @@ contract UnwrapperTest is ForgeHelper {
     unwrapper.sweep(recipient, asset, amount);
 
     utils_assertSentEthToRecipient(recipient, amount);
+  }
+
+  function test_Unwrapper__sweep_failsIfNotOwner() public {
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
+    unwrapper.sweep(recipient, address(0), 10 ether);
+  }
+
+  // ============ Unwrapper.unwrapAndSweep ============
+  function test_Unwrapper__unwrapAndSweep_works(uint256 amount) public {
+    address asset = address(0);
+    utils_expectRecipientToReceive(recipient, asset, amount);
+    utils_recordInitialBalances(recipient);
+
+    vm.prank(OWNER);
+    unwrapper.unwrapAndSweep(recipient, amount);
+
+    utils_assertSentEthToRecipient(recipient, amount);
+  }
+
+  function test_Unwrapper__unwrapAndSweep_failsIfNotOwner() public {
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
+    unwrapper.unwrapAndSweep(recipient, 10 ether);
   }
 }
