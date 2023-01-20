@@ -787,7 +787,7 @@ export class SubgraphReader {
    */
   public async getReceivedAggregatedRootsByDomain(
     params: { domain: string; offset: number; limit: number }[],
-  ): Promise<StableSwapPool[]> {
+  ): Promise<ReceivedAggregateRoot[]> {
     const { parser, execute } = getHelpers();
 
     const receivedRootQuery = getReceivedAggregatedRootsByDomainQuery(params);
