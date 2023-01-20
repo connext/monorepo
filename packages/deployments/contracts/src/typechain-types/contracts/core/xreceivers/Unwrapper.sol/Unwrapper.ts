@@ -31,8 +31,16 @@ export interface UnwrapperInterface extends utils.Interface {
   functions: {
     "CONNEXT()": FunctionFragment;
     "WRAPPER()": FunctionFragment;
-    "getConnext()": FunctionFragment;
-    "getTargetWrapperContract()": FunctionFragment;
+    "acceptProposedOwner()": FunctionFragment;
+    "delay()": FunctionFragment;
+    "owner()": FunctionFragment;
+    "proposeNewOwner(address)": FunctionFragment;
+    "proposed()": FunctionFragment;
+    "proposedTimestamp()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "renounced()": FunctionFragment;
+    "sweep(uint256,address,address)": FunctionFragment;
+    "unwrapAndSweep(uint256,address)": FunctionFragment;
     "xReceive(bytes32,uint256,address,address,uint32,bytes)": FunctionFragment;
   };
 
@@ -40,20 +48,52 @@ export interface UnwrapperInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "CONNEXT"
       | "WRAPPER"
-      | "getConnext"
-      | "getTargetWrapperContract"
+      | "acceptProposedOwner"
+      | "delay"
+      | "owner"
+      | "proposeNewOwner"
+      | "proposed"
+      | "proposedTimestamp"
+      | "renounceOwnership"
+      | "renounced"
+      | "sweep"
+      | "unwrapAndSweep"
       | "xReceive"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "CONNEXT", values?: undefined): string;
   encodeFunctionData(functionFragment: "WRAPPER", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getConnext",
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getTargetWrapperContract",
+    functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "sweep",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unwrapAndSweep",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "xReceive",
@@ -69,69 +109,87 @@ export interface UnwrapperInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "CONNEXT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "WRAPPER", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getTargetWrapperContract",
+    functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sweep", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "unwrapAndSweep",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xReceive", data: BytesLike): Result;
 
   events: {
-    "SendUnwrappedFailed(address,bytes)": EventFragment;
-    "TransferWrappedFailed(address,bytes)": EventFragment;
-    "UnwrappingFailed(address,bytes)": EventFragment;
-    "WrongAsset(address,address,bytes)": EventFragment;
+    "FundsDelivered(address,address,uint256)": EventFragment;
+    "OwnershipProposed(address)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+    "WrongAsset(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "SendUnwrappedFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransferWrappedFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UnwrappingFailed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FundsDelivered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WrongAsset"): EventFragment;
 }
 
-export interface SendUnwrappedFailedEventObject {
+export interface FundsDeliveredEventObject {
   recipient: string;
-  reason: string;
+  asset: string;
+  amount: BigNumber;
 }
-export type SendUnwrappedFailedEvent = TypedEvent<
-  [string, string],
-  SendUnwrappedFailedEventObject
+export type FundsDeliveredEvent = TypedEvent<
+  [string, string, BigNumber],
+  FundsDeliveredEventObject
 >;
 
-export type SendUnwrappedFailedEventFilter =
-  TypedEventFilter<SendUnwrappedFailedEvent>;
+export type FundsDeliveredEventFilter = TypedEventFilter<FundsDeliveredEvent>;
 
-export interface TransferWrappedFailedEventObject {
-  recipient: string;
-  reason: string;
+export interface OwnershipProposedEventObject {
+  proposedOwner: string;
 }
-export type TransferWrappedFailedEvent = TypedEvent<
-  [string, string],
-  TransferWrappedFailedEventObject
+export type OwnershipProposedEvent = TypedEvent<
+  [string],
+  OwnershipProposedEventObject
 >;
 
-export type TransferWrappedFailedEventFilter =
-  TypedEventFilter<TransferWrappedFailedEvent>;
+export type OwnershipProposedEventFilter =
+  TypedEventFilter<OwnershipProposedEvent>;
 
-export interface UnwrappingFailedEventObject {
-  recipient: string;
-  reason: string;
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
 }
-export type UnwrappingFailedEvent = TypedEvent<
+export type OwnershipTransferredEvent = TypedEvent<
   [string, string],
-  UnwrappingFailedEventObject
+  OwnershipTransferredEventObject
 >;
 
-export type UnwrappingFailedEventFilter =
-  TypedEventFilter<UnwrappingFailedEvent>;
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface WrongAssetEventObject {
   recipient: string;
   asset: string;
-  reason: string;
 }
 export type WrongAssetEvent = TypedEvent<
-  [string, string, string],
+  [string, string],
   WrongAssetEventObject
 >;
 
@@ -168,9 +226,41 @@ export interface Unwrapper extends BaseContract {
 
     WRAPPER(overrides?: CallOverrides): Promise<[string]>;
 
-    getConnext(overrides?: CallOverrides): Promise<[string]>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    getTargetWrapperContract(overrides?: CallOverrides): Promise<[string]>;
+    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    sweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    unwrapAndSweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
@@ -187,9 +277,41 @@ export interface Unwrapper extends BaseContract {
 
   WRAPPER(overrides?: CallOverrides): Promise<string>;
 
-  getConnext(overrides?: CallOverrides): Promise<string>;
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  getTargetWrapperContract(overrides?: CallOverrides): Promise<string>;
+  delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  proposeNewOwner(
+    newlyProposed: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  renounced(overrides?: CallOverrides): Promise<boolean>;
+
+  sweep(
+    amount: PromiseOrValue<BigNumberish>,
+    recipient: PromiseOrValue<string>,
+    asset: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  unwrapAndSweep(
+    amount: PromiseOrValue<BigNumberish>,
+    recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   xReceive(
     arg0: PromiseOrValue<BytesLike>,
@@ -206,9 +328,37 @@ export interface Unwrapper extends BaseContract {
 
     WRAPPER(overrides?: CallOverrides): Promise<string>;
 
-    getConnext(overrides?: CallOverrides): Promise<string>;
+    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    getTargetWrapperContract(overrides?: CallOverrides): Promise<string>;
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    renounced(overrides?: CallOverrides): Promise<boolean>;
+
+    sweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    unwrapAndSweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
@@ -222,43 +372,38 @@ export interface Unwrapper extends BaseContract {
   };
 
   filters: {
-    "SendUnwrappedFailed(address,bytes)"(
-      recipient?: null,
-      reason?: null
-    ): SendUnwrappedFailedEventFilter;
-    SendUnwrappedFailed(
-      recipient?: null,
-      reason?: null
-    ): SendUnwrappedFailedEventFilter;
-
-    "TransferWrappedFailed(address,bytes)"(
-      recipient?: null,
-      reason?: null
-    ): TransferWrappedFailedEventFilter;
-    TransferWrappedFailed(
-      recipient?: null,
-      reason?: null
-    ): TransferWrappedFailedEventFilter;
-
-    "UnwrappingFailed(address,bytes)"(
-      recipient?: null,
-      reason?: null
-    ): UnwrappingFailedEventFilter;
-    UnwrappingFailed(
-      recipient?: null,
-      reason?: null
-    ): UnwrappingFailedEventFilter;
-
-    "WrongAsset(address,address,bytes)"(
+    "FundsDelivered(address,address,uint256)"(
       recipient?: null,
       asset?: null,
-      reason?: null
-    ): WrongAssetEventFilter;
-    WrongAsset(
+      amount?: null
+    ): FundsDeliveredEventFilter;
+    FundsDelivered(
       recipient?: null,
       asset?: null,
-      reason?: null
+      amount?: null
+    ): FundsDeliveredEventFilter;
+
+    "OwnershipProposed(address)"(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+    OwnershipProposed(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+
+    "WrongAsset(address,address)"(
+      recipient?: null,
+      asset?: null
     ): WrongAssetEventFilter;
+    WrongAsset(recipient?: null, asset?: null): WrongAssetEventFilter;
   };
 
   estimateGas: {
@@ -266,9 +411,41 @@ export interface Unwrapper extends BaseContract {
 
     WRAPPER(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getConnext(overrides?: CallOverrides): Promise<BigNumber>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    getTargetWrapperContract(overrides?: CallOverrides): Promise<BigNumber>;
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    renounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    unwrapAndSweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
@@ -286,10 +463,40 @@ export interface Unwrapper extends BaseContract {
 
     WRAPPER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getConnext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    getTargetWrapperContract(
-      overrides?: CallOverrides
+    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    unwrapAndSweep(
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     xReceive(
