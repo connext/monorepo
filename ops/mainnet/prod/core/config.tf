@@ -343,7 +343,7 @@ locals {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
-        providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.public.blastapi.io", "https://1rpc.io/op", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
