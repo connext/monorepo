@@ -160,23 +160,30 @@ contract UnwrapperTest is ForgeHelper {
     address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
 
-    // Should transfer the non-wrapper ERC20 to the intended recipient!
+    vm.expectEmit(true, true, true, true);
+    emit WrongAsset(recipient, asset);
+
+    vm.clearMockedCalls();
+    // Even though the transfer returns `false`, indicating it failed, we should still procceed
+    // as if it did not. Assets will always be sweepable at a later point.
+    utils_setUpMockErc20(false);
+
     utils_expectRecipientToReceive(recipient, asset, amount);
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  // function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferReverts() public {
-  //   address asset = address(new RevertingERC20()); // xReceive will be getting a non-wrapper, reverting erc20 asset.
-  //   uint256 amount = 10 ether;
+  function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferFails() public {
+    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
+    uint256 amount = 10 ether;
 
-  //   vm.expectEmit(true, true, true, true);
-  //   emit WrongAsset(recipient, asset);
+    vm.expectEmit(true, true, true, true);
+    emit WrongAsset(recipient, asset);
 
-  //   vm.prank(MOCK_CONNEXT);
-  //   unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
-  // }
+    vm.prank(MOCK_CONNEXT);
+    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
 
   // ============ Unwrapper.sweep ============
   function test_Unwrapper__sweep_shouldSendERC20ToRecipient(uint256 amount) public {
