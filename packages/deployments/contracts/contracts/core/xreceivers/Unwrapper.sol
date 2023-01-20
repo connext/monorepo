@@ -5,7 +5,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {IXReceiver} from "../../core/connext/interfaces/IXReceiver.sol";
+import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
+import {IXReceiver} from "../connext/interfaces/IXReceiver.sol";
 
 interface IWrapper {
   function withdraw(uint256 wad) external;
@@ -14,11 +15,27 @@ interface IWrapper {
 }
 
 /**
- * @notice A utility contract for unwrapping native tokens at the destination. Various fallbacks
- * for any failures that might occur during the process of receiving tokens and unwrapping them
- * are accounted for.
+ * @notice A utility contract for unwrapping native tokens at the destination.
+ *
+ * @dev The `xreceive` function of contract may fail in the following ways:
+ * - unwrapping fails
+ * - the wrong asset is delivered, and transferring that fails
+ * - sending the native asset fails
+ * - the caller is not connext
+ * - the amount is zero
+ *
+ * In the event of these failures, funds for the crosschain transfer will be sent
+ * to this contract and will be held here. To rescue them, the owner of this contract
+ * can call `sweep` or `unwrapAndSweep` to transfer assets from this contract to a
+ * specified address.
+ *
+ * It is unlikely failures of these types will occur, so ownership of this contract
+ * should be renounced after a suitable trial period on mainnet.
+ *
+ * @dev Ownership of this contract is governed using the same ProposedOwnable setup
+ * that is prevalent throughout the system.
  */
-contract Unwrapper is IXReceiver {
+contract Unwrapper is ProposedOwnable, IXReceiver {
   // ============ Libraries ============
 
   using SafeERC20 for IERC20;
@@ -36,8 +53,9 @@ contract Unwrapper is IXReceiver {
    * @notice Emitted when funds are sent from this contract
    * @param recipient - The target recipient address.
    * @param asset - The asset sent.
+   * @param amount - The amount of the asset sent
    */
-  event FundsDelivered(address recipient, address asset);
+  event FundsDelivered(address recipient, address asset, uint256 amount);
 
   // ============ Properties ============
 
@@ -63,9 +81,66 @@ contract Unwrapper is IXReceiver {
 
   // ============ Constructor ============
 
-  constructor(address connext, address wrapper) {
+  /**
+   * @dev The initial owner is set to the `msg.sender` of the contract.
+   */
+  constructor(address connext, address wrapper) ProposedOwnable() {
+    _setOwner(msg.sender);
     WRAPPER = IWrapper(wrapper);
     CONNEXT = connext;
+  }
+
+  // ============ Admin Functions ============
+
+  /**
+   * @notice Sweeps the provided token from this address to a designated recipient.
+   * @dev Only the owner of this contract can call this function.
+   *
+   * @dev Funds will end up on this contract IFF the external call on the Connext contract
+   * fails and the transfer is reconciled. The `xreceive` function can fail in the following
+   * cases:
+   * - unwrapping fails
+   * - transferring the asset fails
+   * - `connext` is not the caller (should not sweep in this case)
+   * - amount is zero (should not sweep in this case).
+   *
+   * It is left to the admin to determine the proper amounts to sweep.
+   *
+   * @param amount Amount of asset to sweep from contract
+   * @param recipient The address to send the funds to
+   * @param asset The asset to send from the contract to recipient
+   */
+  function sweep(
+    uint256 amount,
+    address recipient,
+    address asset
+  ) public onlyOwner {
+    _sweep(amount, recipient, asset);
+  }
+
+  /**
+   * @notice Unwraps and sweeps the provided token from this address to a designated recipient.
+   * @dev Only the owner of this contract can call this function.
+   *
+   * @dev Funds will end up on this contract IFF the external call on the Connext contract
+   * fails and the transfer is reconciled. The `xreceive` function can fail in the following
+   * cases:
+   * - unwrapping fails
+   * - transferring the asset fails
+   * - `connext` is not the caller (should not sweep in this case)
+   * - amount is zero (should not sweep in this case).
+   *
+   * It is left to the admin to determine the proper amounts to sweep.
+   *
+   * @param amount Amount of asset to sweep from contract
+   * @param recipient The address to send the funds to
+   */
+  function unwrapAndSweep(uint256 amount, address recipient) public onlyOwner {
+    // Withdraw from wrapper
+    WRAPPER.withdraw(amount);
+
+    // Send funds to recipient
+    _sweep(amount, recipient, address(0));
   }
 
   // ============ Public Functions ============
@@ -108,22 +183,42 @@ contract Unwrapper is IXReceiver {
     if (asset != address(WRAPPER)) {
       emit WrongAsset(recipient, asset);
       // If the delivered asset does not match our target wrapper, we try sending it anyway.
-      IERC20(asset).transfer(recipient, amount);
-      emit FundsDelivered(recipient, asset);
+      _sweep(amount, recipient, asset);
+      return bytes("");
     }
 
     // We've received wrapped native tokens; withdraw native tokens from the wrapper contract.
     WRAPPER.withdraw(amount);
 
     // Send to recipient
-    Address.sendValue(payable(recipient), amount);
-
-    // Emit event
-    emit FundsDelivered(recipient, address(0));
+    _sweep(amount, recipient, address(0));
   }
 
   /**
    * @notice Fallback function so this contract can receive the funds from WETH
    */
   receive() external payable {}
+
+  // ============ Internal Functions ============
+
+  /**
+   * @notice Sweeps the provided token from this address to a designated recipient.
+   * @dev Emits the `FundsDelivered` event
+   *
+   * @param amount Amount of asset to sweep from contract
+   * @param recipient The address to send the funds to
+   * @param asset The asset (or address(0) for native) to send from the contract to recipient
+   */
+  function _sweep(
+    uint256 amount,
+    address recipient,
+    address asset
+  ) internal {
+    if (asset == address(0)) {
+      Address.sendValue(payable(recipient), amount);
+    } else {
+      IERC20(asset).transfer(recipient, amount);
+    }
+    emit FundsDelivered(recipient, asset, amount);
+  }
 }
