@@ -49,8 +49,4 @@ export const SdkXCallArgsSchema = Type.Object({
   unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
 });
 
-<<<<<<< HEAD
-export type NxtpSdkXCallArgs = Static<typeof NxtpSdkXCallArgsSchema>;
-=======
 export type SdkXCallArgs = Static<typeof SdkXCallArgsSchema>;
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed

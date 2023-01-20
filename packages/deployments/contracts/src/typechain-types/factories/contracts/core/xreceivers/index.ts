@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as unwrapperSol from "./Unwrapper.sol";
-export { Orphanage__factory } from "./Orphanage__factory";

@@ -3,4 +3,5 @@
 /* eslint-disable */
 export * as multisendSol from "./Multisend.sol";
 export * as unwrapperSol from "./Unwrapper.sol";
+export { Orphanage__factory } from "./Orphanage__factory";
 export { TypedMemView__factory } from "./TypedMemView__factory";

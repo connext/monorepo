@@ -29,43 +29,55 @@ import type {
 
 export interface UnwrapperInterface extends utils.Interface {
   functions: {
-<<<<<<< HEAD
-    "WRAPPER()": FunctionFragment;
-=======
     "CONNEXT()": FunctionFragment;
     "WRAPPER()": FunctionFragment;
+    "checkOrphans(address)": FunctionFragment;
     "getConnext()": FunctionFragment;
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     "getTargetWrapperContract()": FunctionFragment;
+    "orphanedNativeTokens(address)": FunctionFragment;
+    "orphanedTokens(address,address)": FunctionFragment;
+    "saveOrphans(address)": FunctionFragment;
     "xReceive(bytes32,uint256,address,address,uint32,bytes)": FunctionFragment;
   };
 
   getFunction(
-<<<<<<< HEAD
-    nameOrSignatureOrTopic: "WRAPPER" | "getTargetWrapperContract" | "xReceive"
-  ): FunctionFragment;
-
-  encodeFunctionData(functionFragment: "WRAPPER", values?: undefined): string;
-  encodeFunctionData(
-=======
     nameOrSignatureOrTopic:
       | "CONNEXT"
       | "WRAPPER"
+      | "checkOrphans"
       | "getConnext"
       | "getTargetWrapperContract"
+      | "orphanedNativeTokens"
+      | "orphanedTokens"
+      | "saveOrphans"
       | "xReceive"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "CONNEXT", values?: undefined): string;
   encodeFunctionData(functionFragment: "WRAPPER", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "checkOrphans",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getConnext",
     values?: undefined
   ): string;
   encodeFunctionData(
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     functionFragment: "getTargetWrapperContract",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "orphanedNativeTokens",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "orphanedTokens",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "saveOrphans",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "xReceive",
@@ -79,63 +91,81 @@ export interface UnwrapperInterface extends utils.Interface {
     ]
   ): string;
 
-<<<<<<< HEAD
-  decodeFunctionResult(functionFragment: "WRAPPER", data: BytesLike): Result;
-=======
   decodeFunctionResult(functionFragment: "CONNEXT", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "WRAPPER", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "checkOrphans",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
   decodeFunctionResult(
     functionFragment: "getTargetWrapperContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "orphanedNativeTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "orphanedTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "saveOrphans",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xReceive", data: BytesLike): Result;
 
   events: {
-<<<<<<< HEAD
+    "OrphanedNativeTokens(uint256,address,bytes)": EventFragment;
+    "OrphanedTokens(address,uint256,address,bytes)": EventFragment;
+    "SavedOrphans(address,uint256,address)": EventFragment;
     "UnwrappingFailed(address,bytes)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OrphanedNativeTokens"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OrphanedTokens"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SavedOrphans"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UnwrappingFailed"): EventFragment;
 }
-=======
-    "SendUnwrappedFailed(address,bytes)": EventFragment;
-    "TransferWrappedFailed(address,bytes)": EventFragment;
-    "UnwrappingFailed(address,bytes)": EventFragment;
-    "WrongAsset(address,address,bytes)": EventFragment;
-  };
 
-  getEvent(nameOrSignatureOrTopic: "SendUnwrappedFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransferWrappedFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UnwrappingFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "WrongAsset"): EventFragment;
-}
-
-export interface SendUnwrappedFailedEventObject {
-  recipient: string;
+export interface OrphanedNativeTokensEventObject {
+  amount: BigNumber;
+  parent: string;
   reason: string;
 }
-export type SendUnwrappedFailedEvent = TypedEvent<
-  [string, string],
-  SendUnwrappedFailedEventObject
+export type OrphanedNativeTokensEvent = TypedEvent<
+  [BigNumber, string, string],
+  OrphanedNativeTokensEventObject
 >;
 
-export type SendUnwrappedFailedEventFilter =
-  TypedEventFilter<SendUnwrappedFailedEvent>;
+export type OrphanedNativeTokensEventFilter =
+  TypedEventFilter<OrphanedNativeTokensEvent>;
 
-export interface TransferWrappedFailedEventObject {
-  recipient: string;
+export interface OrphanedTokensEventObject {
+  token: string;
+  amount: BigNumber;
+  parent: string;
   reason: string;
 }
-export type TransferWrappedFailedEvent = TypedEvent<
-  [string, string],
-  TransferWrappedFailedEventObject
+export type OrphanedTokensEvent = TypedEvent<
+  [string, BigNumber, string, string],
+  OrphanedTokensEventObject
 >;
 
-export type TransferWrappedFailedEventFilter =
-  TypedEventFilter<TransferWrappedFailedEvent>;
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
+export type OrphanedTokensEventFilter = TypedEventFilter<OrphanedTokensEvent>;
+
+export interface SavedOrphansEventObject {
+  token: string;
+  amount: BigNumber;
+  parent: string;
+}
+export type SavedOrphansEvent = TypedEvent<
+  [string, BigNumber, string],
+  SavedOrphansEventObject
+>;
+
+export type SavedOrphansEventFilter = TypedEventFilter<SavedOrphansEvent>;
 
 export interface UnwrappingFailedEventObject {
   recipient: string;
@@ -149,21 +179,6 @@ export type UnwrappingFailedEvent = TypedEvent<
 export type UnwrappingFailedEventFilter =
   TypedEventFilter<UnwrappingFailedEvent>;
 
-<<<<<<< HEAD
-=======
-export interface WrongAssetEventObject {
-  recipient: string;
-  asset: string;
-  reason: string;
-}
-export type WrongAssetEvent = TypedEvent<
-  [string, string, string],
-  WrongAssetEventObject
->;
-
-export type WrongAssetEventFilter = TypedEventFilter<WrongAssetEvent>;
-
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
 export interface Unwrapper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -191,84 +206,120 @@ export interface Unwrapper extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-<<<<<<< HEAD
-    WRAPPER(overrides?: CallOverrides): Promise<[string]>;
-
-=======
     CONNEXT(overrides?: CallOverrides): Promise<[string]>;
 
     WRAPPER(overrides?: CallOverrides): Promise<[string]>;
 
+    checkOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getConnext(overrides?: CallOverrides): Promise<[string]>;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     getTargetWrapperContract(overrides?: CallOverrides): Promise<[string]>;
+
+    orphanedNativeTokens(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    orphanedTokens(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    saveOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-<<<<<<< HEAD
-      arg3: PromiseOrValue<string>,
-=======
       originSender: PromiseOrValue<string>,
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-<<<<<<< HEAD
-  WRAPPER(overrides?: CallOverrides): Promise<string>;
-
-=======
   CONNEXT(overrides?: CallOverrides): Promise<string>;
 
   WRAPPER(overrides?: CallOverrides): Promise<string>;
 
+  checkOrphans(
+    token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getConnext(overrides?: CallOverrides): Promise<string>;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
   getTargetWrapperContract(overrides?: CallOverrides): Promise<string>;
+
+  orphanedNativeTokens(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  orphanedTokens(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  saveOrphans(
+    token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   xReceive(
     arg0: PromiseOrValue<BytesLike>,
     amount: PromiseOrValue<BigNumberish>,
     asset: PromiseOrValue<string>,
-<<<<<<< HEAD
-    arg3: PromiseOrValue<string>,
-=======
     originSender: PromiseOrValue<string>,
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     arg4: PromiseOrValue<BigNumberish>,
     callData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-<<<<<<< HEAD
-    WRAPPER(overrides?: CallOverrides): Promise<string>;
-
-=======
     CONNEXT(overrides?: CallOverrides): Promise<string>;
 
     WRAPPER(overrides?: CallOverrides): Promise<string>;
 
+    checkOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getConnext(overrides?: CallOverrides): Promise<string>;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     getTargetWrapperContract(overrides?: CallOverrides): Promise<string>;
+
+    orphanedNativeTokens(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    orphanedTokens(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    saveOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-<<<<<<< HEAD
-      arg3: PromiseOrValue<string>,
-=======
       originSender: PromiseOrValue<string>,
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -276,27 +327,41 @@ export interface Unwrapper extends BaseContract {
   };
 
   filters: {
-<<<<<<< HEAD
-=======
-    "SendUnwrappedFailed(address,bytes)"(
-      recipient?: null,
+    "OrphanedNativeTokens(uint256,address,bytes)"(
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null,
       reason?: null
-    ): SendUnwrappedFailedEventFilter;
-    SendUnwrappedFailed(
-      recipient?: null,
+    ): OrphanedNativeTokensEventFilter;
+    OrphanedNativeTokens(
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null,
       reason?: null
-    ): SendUnwrappedFailedEventFilter;
+    ): OrphanedNativeTokensEventFilter;
 
-    "TransferWrappedFailed(address,bytes)"(
-      recipient?: null,
+    "OrphanedTokens(address,uint256,address,bytes)"(
+      token?: PromiseOrValue<string> | null,
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null,
       reason?: null
-    ): TransferWrappedFailedEventFilter;
-    TransferWrappedFailed(
-      recipient?: null,
+    ): OrphanedTokensEventFilter;
+    OrphanedTokens(
+      token?: PromiseOrValue<string> | null,
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null,
       reason?: null
-    ): TransferWrappedFailedEventFilter;
+    ): OrphanedTokensEventFilter;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
+    "SavedOrphans(address,uint256,address)"(
+      token?: PromiseOrValue<string> | null,
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null
+    ): SavedOrphansEventFilter;
+    SavedOrphans(
+      token?: PromiseOrValue<string> | null,
+      amount?: PromiseOrValue<BigNumberish> | null,
+      parent?: PromiseOrValue<string> | null
+    ): SavedOrphansEventFilter;
+
     "UnwrappingFailed(address,bytes)"(
       recipient?: null,
       reason?: null
@@ -305,24 +370,6 @@ export interface Unwrapper extends BaseContract {
       recipient?: null,
       reason?: null
     ): UnwrappingFailedEventFilter;
-<<<<<<< HEAD
-  };
-
-  estimateGas: {
-    WRAPPER(overrides?: CallOverrides): Promise<BigNumber>;
-
-=======
-
-    "WrongAsset(address,address,bytes)"(
-      recipient?: null,
-      asset?: null,
-      reason?: null
-    ): WrongAssetEventFilter;
-    WrongAsset(
-      recipient?: null,
-      asset?: null,
-      reason?: null
-    ): WrongAssetEventFilter;
   };
 
   estimateGas: {
@@ -330,20 +377,36 @@ export interface Unwrapper extends BaseContract {
 
     WRAPPER(overrides?: CallOverrides): Promise<BigNumber>;
 
+    checkOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getConnext(overrides?: CallOverrides): Promise<BigNumber>;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     getTargetWrapperContract(overrides?: CallOverrides): Promise<BigNumber>;
+
+    orphanedNativeTokens(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    orphanedTokens(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    saveOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-<<<<<<< HEAD
-      arg3: PromiseOrValue<string>,
-=======
       originSender: PromiseOrValue<string>,
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -351,30 +414,42 @@ export interface Unwrapper extends BaseContract {
   };
 
   populateTransaction: {
-<<<<<<< HEAD
-    WRAPPER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-=======
     CONNEXT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     WRAPPER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    checkOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getConnext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
     getTargetWrapperContract(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    orphanedNativeTokens(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    orphanedTokens(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    saveOrphans(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     xReceive(
       arg0: PromiseOrValue<BytesLike>,
       amount: PromiseOrValue<BigNumberish>,
       asset: PromiseOrValue<string>,
-<<<<<<< HEAD
-      arg3: PromiseOrValue<string>,
-=======
       originSender: PromiseOrValue<string>,
->>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
       arg4: PromiseOrValue<BigNumberish>,
       callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

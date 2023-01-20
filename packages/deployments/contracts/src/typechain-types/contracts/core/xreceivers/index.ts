@@ -3,4 +3,3 @@
 /* eslint-disable */
 import type * as unwrapperSol from "./Unwrapper.sol";
 export type { unwrapperSol };
-export type { Orphanage } from "./Orphanage";
