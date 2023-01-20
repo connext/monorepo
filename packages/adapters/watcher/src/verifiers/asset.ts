@@ -1,5 +1,5 @@
 import { domainToChainId } from "@connext/nxtp-contracts";
-import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
+import { getCanonicalHash, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, constants } from "ethers";
 
 import { ConnextInterface, getErc20Interface } from "../mockable";
@@ -67,6 +67,11 @@ export class AssetVerifier extends Verifier {
         data: canonicalToRepresentationCalldata,
       });
 
+      const representation = ConnextInterface.decodeFunctionResult(
+        "canonicalToRepresentation(bytes32)",
+        representationRes,
+      )[0];
+
       this.context.logger.debug("Queried for representation asset", undefined, undefined, {
         domain,
         chainId,
@@ -75,12 +80,9 @@ export class AssetVerifier extends Verifier {
         assetKey,
         data: canonicalToRepresentationCalldata,
         result: representationRes,
+        representation,
       });
 
-      const representation = ConnextInterface.decodeFunctionResult(
-        "canonicalToRepresentation(bytes32)",
-        representationRes,
-      )[0];
       if (representation === constants.AddressZero) {
         // If this is address(0), then there is no mintable token for this asset on this domain
         continue;
@@ -97,15 +99,40 @@ export class AssetVerifier extends Verifier {
       try {
         totalSupply = erc20.decodeFunctionResult("totalSupply", totalSupplyRes)[0];
       } catch (e: any) {
+        this.context.logger.error("Failed to decode totalSupply", undefined, undefined, jsonifyError(e as Error), {
+          domain,
+          chainId,
+          connext: connext.address,
+          asset,
+          assetKey,
+          data: totalSupplyCalldata,
+          result: totalSupplyRes,
+        });
         throw new Error(
           "Failed to convert totalSupply response to BigNumber. " +
             `token: ${representation}, Received: ${totalSupplyRes}; Error: ${e.toString()}`,
         );
       }
+      this.context.logger.debug("Queried for supply of representation", undefined, undefined, {
+        domain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: totalSupplyCalldata,
+        result: totalSupplyRes,
+        totalSupply: totalSupply.toString(),
+      });
 
       // 3. Add to total.
       totalMintedAmount = totalMintedAmount.add(totalSupply);
     }
+
+    this.context.logger.debug("Calculated minted", undefined, undefined, {
+      domains: this.context.domains,
+      asset,
+      minted: totalMintedAmount.toString(),
+    });
 
     return totalMintedAmount;
   }
@@ -129,18 +156,29 @@ export class AssetVerifier extends Verifier {
       to: connext.address,
       data: getCustodiedAmountCalldata,
     });
-    this.context.logger.debug("Queried for custodied amount", undefined, undefined, {
-      domain: +asset.canonicalDomain,
-      chainId,
-      connext: connext.address,
-      asset,
-      assetKey,
-      data: getCustodiedAmountCalldata,
-      result: amountRes,
-    });
     try {
-      return ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
+      const ret = ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
+      this.context.logger.debug("Queried for custodied amount", undefined, undefined, {
+        domain: +asset.canonicalDomain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: getCustodiedAmountCalldata,
+        result: amountRes,
+        custodied: ret.toString(),
+      });
+      return ret;
     } catch (e: any) {
+      this.context.logger.error("Failed to decode custodiedAmount", undefined, undefined, jsonifyError(e as Error), {
+        domain: +asset.canonicalDomain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: getCustodiedAmountCalldata,
+        result: amountRes,
+      });
       throw new Error(
         "Failed to convert getCustodiedAmount response to BigNumber. " +
           `Received: ${amountRes}; Error: ${e.toString()}`,
