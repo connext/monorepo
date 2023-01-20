@@ -23,6 +23,7 @@ interface IWrapper {
  * - sending the native asset fails
  * - the caller is not connext
  * - the amount is zero
+ * - balance of the contract != amount
  *
  * In the event of these failures, funds for the crosschain transfer will be sent
  * to this contract and will be held here. To rescue them, the owner of this contract
