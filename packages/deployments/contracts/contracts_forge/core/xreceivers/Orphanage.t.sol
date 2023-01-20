@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {Orphanage} from "../../../contracts/shared/libraries/Orphanage.sol";
+import {Orphanage} from "../../../contracts/core/xreceivers/Orphanage.sol";
 
 import "../../utils/ForgeHelper.sol";
 import "../../utils/Mock.sol";

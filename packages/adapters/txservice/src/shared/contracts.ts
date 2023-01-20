@@ -20,7 +20,7 @@ import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/
 import RelayerProxyArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
 import RelayerProxyHubArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
 import MultiSendArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
-import UnwrapperArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Unwrapper.sol/Unwrapper.json";
+import UnwrapperArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
 import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
 import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
