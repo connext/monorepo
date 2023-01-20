@@ -824,7 +824,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class IStableSwap__factory {
   static readonly abi = _abi;

@@ -29,6 +29,10 @@ input stagingarbitrumgoerli_AggregateRoot_filter {
   id_not_in: [ID!]
   root: stagingarbitrumgoerli_Bytes
   root_not: stagingarbitrumgoerli_Bytes
+  root_gt: stagingarbitrumgoerli_Bytes
+  root_lt: stagingarbitrumgoerli_Bytes
+  root_gte: stagingarbitrumgoerli_Bytes
+  root_lte: stagingarbitrumgoerli_Bytes
   root_in: [stagingarbitrumgoerli_Bytes!]
   root_not_in: [stagingarbitrumgoerli_Bytes!]
   root_contains: stagingarbitrumgoerli_Bytes
@@ -159,12 +163,20 @@ input stagingarbitrumgoerli_Asset_filter {
   id_not_in: [ID!]
   key: stagingarbitrumgoerli_Bytes
   key_not: stagingarbitrumgoerli_Bytes
+  key_gt: stagingarbitrumgoerli_Bytes
+  key_lt: stagingarbitrumgoerli_Bytes
+  key_gte: stagingarbitrumgoerli_Bytes
+  key_lte: stagingarbitrumgoerli_Bytes
   key_in: [stagingarbitrumgoerli_Bytes!]
   key_not_in: [stagingarbitrumgoerli_Bytes!]
   key_contains: stagingarbitrumgoerli_Bytes
   key_not_contains: stagingarbitrumgoerli_Bytes
   canonicalId: stagingarbitrumgoerli_Bytes
   canonicalId_not: stagingarbitrumgoerli_Bytes
+  canonicalId_gt: stagingarbitrumgoerli_Bytes
+  canonicalId_lt: stagingarbitrumgoerli_Bytes
+  canonicalId_gte: stagingarbitrumgoerli_Bytes
+  canonicalId_lte: stagingarbitrumgoerli_Bytes
   canonicalId_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_not_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_contains: stagingarbitrumgoerli_Bytes
@@ -179,12 +191,20 @@ input stagingarbitrumgoerli_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: stagingarbitrumgoerli_Bytes
   adoptedAsset_not: stagingarbitrumgoerli_Bytes
+  adoptedAsset_gt: stagingarbitrumgoerli_Bytes
+  adoptedAsset_lt: stagingarbitrumgoerli_Bytes
+  adoptedAsset_gte: stagingarbitrumgoerli_Bytes
+  adoptedAsset_lte: stagingarbitrumgoerli_Bytes
   adoptedAsset_in: [stagingarbitrumgoerli_Bytes!]
   adoptedAsset_not_in: [stagingarbitrumgoerli_Bytes!]
   adoptedAsset_contains: stagingarbitrumgoerli_Bytes
   adoptedAsset_not_contains: stagingarbitrumgoerli_Bytes
   localAsset: stagingarbitrumgoerli_Bytes
   localAsset_not: stagingarbitrumgoerli_Bytes
+  localAsset_gt: stagingarbitrumgoerli_Bytes
+  localAsset_lt: stagingarbitrumgoerli_Bytes
+  localAsset_gte: stagingarbitrumgoerli_Bytes
+  localAsset_lte: stagingarbitrumgoerli_Bytes
   localAsset_in: [stagingarbitrumgoerli_Bytes!]
   localAsset_not_in: [stagingarbitrumgoerli_Bytes!]
   localAsset_contains: stagingarbitrumgoerli_Bytes
@@ -263,18 +283,30 @@ input stagingarbitrumgoerli_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: stagingarbitrumgoerli_Bytes
   amb_not: stagingarbitrumgoerli_Bytes
+  amb_gt: stagingarbitrumgoerli_Bytes
+  amb_lt: stagingarbitrumgoerli_Bytes
+  amb_gte: stagingarbitrumgoerli_Bytes
+  amb_lte: stagingarbitrumgoerli_Bytes
   amb_in: [stagingarbitrumgoerli_Bytes!]
   amb_not_in: [stagingarbitrumgoerli_Bytes!]
   amb_contains: stagingarbitrumgoerli_Bytes
   amb_not_contains: stagingarbitrumgoerli_Bytes
   rootManager: stagingarbitrumgoerli_Bytes
   rootManager_not: stagingarbitrumgoerli_Bytes
+  rootManager_gt: stagingarbitrumgoerli_Bytes
+  rootManager_lt: stagingarbitrumgoerli_Bytes
+  rootManager_gte: stagingarbitrumgoerli_Bytes
+  rootManager_lte: stagingarbitrumgoerli_Bytes
   rootManager_in: [stagingarbitrumgoerli_Bytes!]
   rootManager_not_in: [stagingarbitrumgoerli_Bytes!]
   rootManager_contains: stagingarbitrumgoerli_Bytes
   rootManager_not_contains: stagingarbitrumgoerli_Bytes
   mirrorConnector: stagingarbitrumgoerli_Bytes
   mirrorConnector_not: stagingarbitrumgoerli_Bytes
+  mirrorConnector_gt: stagingarbitrumgoerli_Bytes
+  mirrorConnector_lt: stagingarbitrumgoerli_Bytes
+  mirrorConnector_gte: stagingarbitrumgoerli_Bytes
+  mirrorConnector_lte: stagingarbitrumgoerli_Bytes
   mirrorConnector_in: [stagingarbitrumgoerli_Bytes!]
   mirrorConnector_not_in: [stagingarbitrumgoerli_Bytes!]
   mirrorConnector_contains: stagingarbitrumgoerli_Bytes
@@ -349,6 +381,10 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: stagingarbitrumgoerli_Bytes
   transferId_not: stagingarbitrumgoerli_Bytes
+  transferId_gt: stagingarbitrumgoerli_Bytes
+  transferId_lt: stagingarbitrumgoerli_Bytes
+  transferId_gte: stagingarbitrumgoerli_Bytes
+  transferId_lte: stagingarbitrumgoerli_Bytes
   transferId_in: [stagingarbitrumgoerli_Bytes!]
   transferId_not_in: [stagingarbitrumgoerli_Bytes!]
   transferId_contains: stagingarbitrumgoerli_Bytes
@@ -398,12 +434,20 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: stagingarbitrumgoerli_Bytes
   to_not: stagingarbitrumgoerli_Bytes
+  to_gt: stagingarbitrumgoerli_Bytes
+  to_lt: stagingarbitrumgoerli_Bytes
+  to_gte: stagingarbitrumgoerli_Bytes
+  to_lte: stagingarbitrumgoerli_Bytes
   to_in: [stagingarbitrumgoerli_Bytes!]
   to_not_in: [stagingarbitrumgoerli_Bytes!]
   to_contains: stagingarbitrumgoerli_Bytes
   to_not_contains: stagingarbitrumgoerli_Bytes
   delegate: stagingarbitrumgoerli_Bytes
   delegate_not: stagingarbitrumgoerli_Bytes
+  delegate_gt: stagingarbitrumgoerli_Bytes
+  delegate_lt: stagingarbitrumgoerli_Bytes
+  delegate_gte: stagingarbitrumgoerli_Bytes
+  delegate_lte: stagingarbitrumgoerli_Bytes
   delegate_in: [stagingarbitrumgoerli_Bytes!]
   delegate_not_in: [stagingarbitrumgoerli_Bytes!]
   delegate_contains: stagingarbitrumgoerli_Bytes
@@ -414,6 +458,10 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: stagingarbitrumgoerli_Bytes
   callData_not: stagingarbitrumgoerli_Bytes
+  callData_gt: stagingarbitrumgoerli_Bytes
+  callData_lt: stagingarbitrumgoerli_Bytes
+  callData_gte: stagingarbitrumgoerli_Bytes
+  callData_lte: stagingarbitrumgoerli_Bytes
   callData_in: [stagingarbitrumgoerli_Bytes!]
   callData_not_in: [stagingarbitrumgoerli_Bytes!]
   callData_contains: stagingarbitrumgoerli_Bytes
@@ -428,6 +476,10 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: stagingarbitrumgoerli_Bytes
   originSender_not: stagingarbitrumgoerli_Bytes
+  originSender_gt: stagingarbitrumgoerli_Bytes
+  originSender_lt: stagingarbitrumgoerli_Bytes
+  originSender_gte: stagingarbitrumgoerli_Bytes
+  originSender_lte: stagingarbitrumgoerli_Bytes
   originSender_in: [stagingarbitrumgoerli_Bytes!]
   originSender_not_in: [stagingarbitrumgoerli_Bytes!]
   originSender_contains: stagingarbitrumgoerli_Bytes
@@ -450,6 +502,10 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: stagingarbitrumgoerli_Bytes
   canonicalId_not: stagingarbitrumgoerli_Bytes
+  canonicalId_gt: stagingarbitrumgoerli_Bytes
+  canonicalId_lt: stagingarbitrumgoerli_Bytes
+  canonicalId_gte: stagingarbitrumgoerli_Bytes
+  canonicalId_lte: stagingarbitrumgoerli_Bytes
   canonicalId_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_not_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_contains: stagingarbitrumgoerli_Bytes
@@ -493,12 +549,20 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: stagingarbitrumgoerli_Bytes
   executedCaller_not: stagingarbitrumgoerli_Bytes
+  executedCaller_gt: stagingarbitrumgoerli_Bytes
+  executedCaller_lt: stagingarbitrumgoerli_Bytes
+  executedCaller_gte: stagingarbitrumgoerli_Bytes
+  executedCaller_lte: stagingarbitrumgoerli_Bytes
   executedCaller_in: [stagingarbitrumgoerli_Bytes!]
   executedCaller_not_in: [stagingarbitrumgoerli_Bytes!]
   executedCaller_contains: stagingarbitrumgoerli_Bytes
   executedCaller_not_contains: stagingarbitrumgoerli_Bytes
   executedTransactionHash: stagingarbitrumgoerli_Bytes
   executedTransactionHash_not: stagingarbitrumgoerli_Bytes
+  executedTransactionHash_gt: stagingarbitrumgoerli_Bytes
+  executedTransactionHash_lt: stagingarbitrumgoerli_Bytes
+  executedTransactionHash_gte: stagingarbitrumgoerli_Bytes
+  executedTransactionHash_lte: stagingarbitrumgoerli_Bytes
   executedTransactionHash_in: [stagingarbitrumgoerli_Bytes!]
   executedTransactionHash_not_in: [stagingarbitrumgoerli_Bytes!]
   executedTransactionHash_contains: stagingarbitrumgoerli_Bytes
@@ -537,18 +601,30 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: stagingarbitrumgoerli_Bytes
   executedTxOrigin_not: stagingarbitrumgoerli_Bytes
+  executedTxOrigin_gt: stagingarbitrumgoerli_Bytes
+  executedTxOrigin_lt: stagingarbitrumgoerli_Bytes
+  executedTxOrigin_gte: stagingarbitrumgoerli_Bytes
+  executedTxOrigin_lte: stagingarbitrumgoerli_Bytes
   executedTxOrigin_in: [stagingarbitrumgoerli_Bytes!]
   executedTxOrigin_not_in: [stagingarbitrumgoerli_Bytes!]
   executedTxOrigin_contains: stagingarbitrumgoerli_Bytes
   executedTxOrigin_not_contains: stagingarbitrumgoerli_Bytes
   reconciledCaller: stagingarbitrumgoerli_Bytes
   reconciledCaller_not: stagingarbitrumgoerli_Bytes
+  reconciledCaller_gt: stagingarbitrumgoerli_Bytes
+  reconciledCaller_lt: stagingarbitrumgoerli_Bytes
+  reconciledCaller_gte: stagingarbitrumgoerli_Bytes
+  reconciledCaller_lte: stagingarbitrumgoerli_Bytes
   reconciledCaller_in: [stagingarbitrumgoerli_Bytes!]
   reconciledCaller_not_in: [stagingarbitrumgoerli_Bytes!]
   reconciledCaller_contains: stagingarbitrumgoerli_Bytes
   reconciledCaller_not_contains: stagingarbitrumgoerli_Bytes
   reconciledTransactionHash: stagingarbitrumgoerli_Bytes
   reconciledTransactionHash_not: stagingarbitrumgoerli_Bytes
+  reconciledTransactionHash_gt: stagingarbitrumgoerli_Bytes
+  reconciledTransactionHash_lt: stagingarbitrumgoerli_Bytes
+  reconciledTransactionHash_gte: stagingarbitrumgoerli_Bytes
+  reconciledTransactionHash_lte: stagingarbitrumgoerli_Bytes
   reconciledTransactionHash_in: [stagingarbitrumgoerli_Bytes!]
   reconciledTransactionHash_not_in: [stagingarbitrumgoerli_Bytes!]
   reconciledTransactionHash_contains: stagingarbitrumgoerli_Bytes
@@ -587,6 +663,10 @@ input stagingarbitrumgoerli_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: stagingarbitrumgoerli_Bytes
   reconciledTxOrigin_not: stagingarbitrumgoerli_Bytes
+  reconciledTxOrigin_gt: stagingarbitrumgoerli_Bytes
+  reconciledTxOrigin_lt: stagingarbitrumgoerli_Bytes
+  reconciledTxOrigin_gte: stagingarbitrumgoerli_Bytes
+  reconciledTxOrigin_lte: stagingarbitrumgoerli_Bytes
   reconciledTxOrigin_in: [stagingarbitrumgoerli_Bytes!]
   reconciledTxOrigin_not_in: [stagingarbitrumgoerli_Bytes!]
   reconciledTxOrigin_contains: stagingarbitrumgoerli_Bytes
@@ -663,6 +743,10 @@ input stagingarbitrumgoerli_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: stagingarbitrumgoerli_Bytes
   transferId_not: stagingarbitrumgoerli_Bytes
+  transferId_gt: stagingarbitrumgoerli_Bytes
+  transferId_lt: stagingarbitrumgoerli_Bytes
+  transferId_gte: stagingarbitrumgoerli_Bytes
+  transferId_lte: stagingarbitrumgoerli_Bytes
   transferId_in: [stagingarbitrumgoerli_Bytes!]
   transferId_not_in: [stagingarbitrumgoerli_Bytes!]
   transferId_contains: stagingarbitrumgoerli_Bytes
@@ -677,6 +761,10 @@ input stagingarbitrumgoerli_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: stagingarbitrumgoerli_Bytes
   leaf_not: stagingarbitrumgoerli_Bytes
+  leaf_gt: stagingarbitrumgoerli_Bytes
+  leaf_lt: stagingarbitrumgoerli_Bytes
+  leaf_gte: stagingarbitrumgoerli_Bytes
+  leaf_lte: stagingarbitrumgoerli_Bytes
   leaf_in: [stagingarbitrumgoerli_Bytes!]
   leaf_not_in: [stagingarbitrumgoerli_Bytes!]
   leaf_contains: stagingarbitrumgoerli_Bytes
@@ -691,18 +779,30 @@ input stagingarbitrumgoerli_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: stagingarbitrumgoerli_Bytes
   message_not: stagingarbitrumgoerli_Bytes
+  message_gt: stagingarbitrumgoerli_Bytes
+  message_lt: stagingarbitrumgoerli_Bytes
+  message_gte: stagingarbitrumgoerli_Bytes
+  message_lte: stagingarbitrumgoerli_Bytes
   message_in: [stagingarbitrumgoerli_Bytes!]
   message_not_in: [stagingarbitrumgoerli_Bytes!]
   message_contains: stagingarbitrumgoerli_Bytes
   message_not_contains: stagingarbitrumgoerli_Bytes
   root: stagingarbitrumgoerli_Bytes
   root_not: stagingarbitrumgoerli_Bytes
+  root_gt: stagingarbitrumgoerli_Bytes
+  root_lt: stagingarbitrumgoerli_Bytes
+  root_gte: stagingarbitrumgoerli_Bytes
+  root_lte: stagingarbitrumgoerli_Bytes
   root_in: [stagingarbitrumgoerli_Bytes!]
   root_not_in: [stagingarbitrumgoerli_Bytes!]
   root_contains: stagingarbitrumgoerli_Bytes
   root_not_contains: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
   transactionHash_not: stagingarbitrumgoerli_Bytes
+  transactionHash_gt: stagingarbitrumgoerli_Bytes
+  transactionHash_lt: stagingarbitrumgoerli_Bytes
+  transactionHash_gte: stagingarbitrumgoerli_Bytes
+  transactionHash_lte: stagingarbitrumgoerli_Bytes
   transactionHash_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_not_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_contains: stagingarbitrumgoerli_Bytes
@@ -804,6 +904,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: stagingarbitrumgoerli_Bytes
   transferId_not: stagingarbitrumgoerli_Bytes
+  transferId_gt: stagingarbitrumgoerli_Bytes
+  transferId_lt: stagingarbitrumgoerli_Bytes
+  transferId_gte: stagingarbitrumgoerli_Bytes
+  transferId_lte: stagingarbitrumgoerli_Bytes
   transferId_in: [stagingarbitrumgoerli_Bytes!]
   transferId_not_in: [stagingarbitrumgoerli_Bytes!]
   transferId_contains: stagingarbitrumgoerli_Bytes
@@ -822,6 +926,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   status_not_in: [stagingarbitrumgoerli_TransferStatus!]
   messageHash: stagingarbitrumgoerli_Bytes
   messageHash_not: stagingarbitrumgoerli_Bytes
+  messageHash_gt: stagingarbitrumgoerli_Bytes
+  messageHash_lt: stagingarbitrumgoerli_Bytes
+  messageHash_gte: stagingarbitrumgoerli_Bytes
+  messageHash_lte: stagingarbitrumgoerli_Bytes
   messageHash_in: [stagingarbitrumgoerli_Bytes!]
   messageHash_not_in: [stagingarbitrumgoerli_Bytes!]
   messageHash_contains: stagingarbitrumgoerli_Bytes
@@ -852,12 +960,20 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: stagingarbitrumgoerli_Bytes
   to_not: stagingarbitrumgoerli_Bytes
+  to_gt: stagingarbitrumgoerli_Bytes
+  to_lt: stagingarbitrumgoerli_Bytes
+  to_gte: stagingarbitrumgoerli_Bytes
+  to_lte: stagingarbitrumgoerli_Bytes
   to_in: [stagingarbitrumgoerli_Bytes!]
   to_not_in: [stagingarbitrumgoerli_Bytes!]
   to_contains: stagingarbitrumgoerli_Bytes
   to_not_contains: stagingarbitrumgoerli_Bytes
   delegate: stagingarbitrumgoerli_Bytes
   delegate_not: stagingarbitrumgoerli_Bytes
+  delegate_gt: stagingarbitrumgoerli_Bytes
+  delegate_lt: stagingarbitrumgoerli_Bytes
+  delegate_gte: stagingarbitrumgoerli_Bytes
+  delegate_lte: stagingarbitrumgoerli_Bytes
   delegate_in: [stagingarbitrumgoerli_Bytes!]
   delegate_not_in: [stagingarbitrumgoerli_Bytes!]
   delegate_contains: stagingarbitrumgoerli_Bytes
@@ -868,6 +984,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: stagingarbitrumgoerli_Bytes
   callData_not: stagingarbitrumgoerli_Bytes
+  callData_gt: stagingarbitrumgoerli_Bytes
+  callData_lt: stagingarbitrumgoerli_Bytes
+  callData_gte: stagingarbitrumgoerli_Bytes
+  callData_lte: stagingarbitrumgoerli_Bytes
   callData_in: [stagingarbitrumgoerli_Bytes!]
   callData_not_in: [stagingarbitrumgoerli_Bytes!]
   callData_contains: stagingarbitrumgoerli_Bytes
@@ -882,6 +1002,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: stagingarbitrumgoerli_Bytes
   originSender_not: stagingarbitrumgoerli_Bytes
+  originSender_gt: stagingarbitrumgoerli_Bytes
+  originSender_lt: stagingarbitrumgoerli_Bytes
+  originSender_gte: stagingarbitrumgoerli_Bytes
+  originSender_lte: stagingarbitrumgoerli_Bytes
   originSender_in: [stagingarbitrumgoerli_Bytes!]
   originSender_not_in: [stagingarbitrumgoerli_Bytes!]
   originSender_contains: stagingarbitrumgoerli_Bytes
@@ -904,6 +1028,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: stagingarbitrumgoerli_Bytes
   canonicalId_not: stagingarbitrumgoerli_Bytes
+  canonicalId_gt: stagingarbitrumgoerli_Bytes
+  canonicalId_lt: stagingarbitrumgoerli_Bytes
+  canonicalId_gte: stagingarbitrumgoerli_Bytes
+  canonicalId_lte: stagingarbitrumgoerli_Bytes
   canonicalId_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_not_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_contains: stagingarbitrumgoerli_Bytes
@@ -931,6 +1059,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   asset_: stagingarbitrumgoerli_Asset_filter
   transacting: stagingarbitrumgoerli_Bytes
   transacting_not: stagingarbitrumgoerli_Bytes
+  transacting_gt: stagingarbitrumgoerli_Bytes
+  transacting_lt: stagingarbitrumgoerli_Bytes
+  transacting_gte: stagingarbitrumgoerli_Bytes
+  transacting_lte: stagingarbitrumgoerli_Bytes
   transacting_in: [stagingarbitrumgoerli_Bytes!]
   transacting_not_in: [stagingarbitrumgoerli_Bytes!]
   transacting_contains: stagingarbitrumgoerli_Bytes
@@ -966,12 +1098,20 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: stagingarbitrumgoerli_Bytes
   caller_not: stagingarbitrumgoerli_Bytes
+  caller_gt: stagingarbitrumgoerli_Bytes
+  caller_lt: stagingarbitrumgoerli_Bytes
+  caller_gte: stagingarbitrumgoerli_Bytes
+  caller_lte: stagingarbitrumgoerli_Bytes
   caller_in: [stagingarbitrumgoerli_Bytes!]
   caller_not_in: [stagingarbitrumgoerli_Bytes!]
   caller_contains: stagingarbitrumgoerli_Bytes
   caller_not_contains: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
   transactionHash_not: stagingarbitrumgoerli_Bytes
+  transactionHash_gt: stagingarbitrumgoerli_Bytes
+  transactionHash_lt: stagingarbitrumgoerli_Bytes
+  transactionHash_gte: stagingarbitrumgoerli_Bytes
+  transactionHash_lte: stagingarbitrumgoerli_Bytes
   transactionHash_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_not_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_contains: stagingarbitrumgoerli_Bytes
@@ -1010,6 +1150,10 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: stagingarbitrumgoerli_Bytes
   txOrigin_not: stagingarbitrumgoerli_Bytes
+  txOrigin_gt: stagingarbitrumgoerli_Bytes
+  txOrigin_lt: stagingarbitrumgoerli_Bytes
+  txOrigin_gte: stagingarbitrumgoerli_Bytes
+  txOrigin_lte: stagingarbitrumgoerli_Bytes
   txOrigin_in: [stagingarbitrumgoerli_Bytes!]
   txOrigin_not_in: [stagingarbitrumgoerli_Bytes!]
   txOrigin_contains: stagingarbitrumgoerli_Bytes
@@ -1066,6 +1210,10 @@ input stagingarbitrumgoerli_PooledToken_filter {
   id_not_in: [ID!]
   asset: stagingarbitrumgoerli_Bytes
   asset_not: stagingarbitrumgoerli_Bytes
+  asset_gt: stagingarbitrumgoerli_Bytes
+  asset_lt: stagingarbitrumgoerli_Bytes
+  asset_gte: stagingarbitrumgoerli_Bytes
+  asset_lte: stagingarbitrumgoerli_Bytes
   asset_in: [stagingarbitrumgoerli_Bytes!]
   asset_not_in: [stagingarbitrumgoerli_Bytes!]
   asset_contains: stagingarbitrumgoerli_Bytes
@@ -1496,7 +1644,7 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingarbitrumgoerli_PooledToken!]!
-  stagingarbitrumgoerli_stableSwapLiquidity(
+  stagingarbitrumgoerli_stableSwapAddLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1506,13 +1654,13 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): stagingarbitrumgoerli_StableSwapLiquidity
-  stagingarbitrumgoerli_stableSwapLiquidities(
+  ): stagingarbitrumgoerli_StableSwapAddLiquidityEvent
+  stagingarbitrumgoerli_stableSwapAddLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: stagingarbitrumgoerli_StableSwapLiquidity_orderBy
+    orderBy: stagingarbitrumgoerli_StableSwapAddLiquidityEvent_orderBy
     orderDirection: stagingarbitrumgoerli_OrderDirection
-    where: stagingarbitrumgoerli_StableSwapLiquidity_filter
+    where: stagingarbitrumgoerli_StableSwapAddLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1521,7 +1669,189 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [stagingarbitrumgoerli_StableSwapLiquidity!]!
+  ): [stagingarbitrumgoerli_StableSwapAddLiquidityEvent!]!
+  stagingarbitrumgoerli_stableSwapRemoveLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent
+  stagingarbitrumgoerli_stableSwapRemoveLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent!]!
+  stagingarbitrumgoerli_stableSwapExchange(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapExchange
+  stagingarbitrumgoerli_stableSwapExchanges(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapExchange_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapExchange_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapExchange!]!
+  stagingarbitrumgoerli_swapDailyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapDailyVolume
+  stagingarbitrumgoerli_swapDailyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapDailyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapDailyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapDailyVolume!]!
+  stagingarbitrumgoerli_swapHourlyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapHourlyVolume
+  stagingarbitrumgoerli_swapHourlyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapHourlyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapHourlyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapHourlyVolume!]!
+  stagingarbitrumgoerli_swapWeeklyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapWeeklyVolume
+  stagingarbitrumgoerli_swapWeeklyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapWeeklyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapWeeklyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapWeeklyVolume!]!
+  stagingarbitrumgoerli_stableSwapEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapEvent
+  stagingarbitrumgoerli_stableSwapEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapEvent_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapEvent!]!
+  stagingarbitrumgoerli_swapTradeVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapTradeVolume
+  stagingarbitrumgoerli_swapTradeVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapTradeVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapTradeVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapTradeVolume!]!
   """Access to subgraph metadata"""
   stagingarbitrumgoerli__meta(block: stagingarbitrumgoerli_Block_height): stagingarbitrumgoerli__Meta_
 }
@@ -1547,6 +1877,10 @@ input stagingarbitrumgoerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: stagingarbitrumgoerli_Bytes
   relayer_not: stagingarbitrumgoerli_Bytes
+  relayer_gt: stagingarbitrumgoerli_Bytes
+  relayer_lt: stagingarbitrumgoerli_Bytes
+  relayer_gte: stagingarbitrumgoerli_Bytes
+  relayer_lte: stagingarbitrumgoerli_Bytes
   relayer_in: [stagingarbitrumgoerli_Bytes!]
   relayer_not_in: [stagingarbitrumgoerli_Bytes!]
   relayer_contains: stagingarbitrumgoerli_Bytes
@@ -1633,6 +1967,10 @@ input stagingarbitrumgoerli_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: stagingarbitrumgoerli_Bytes
   root_not: stagingarbitrumgoerli_Bytes
+  root_gt: stagingarbitrumgoerli_Bytes
+  root_lt: stagingarbitrumgoerli_Bytes
+  root_gte: stagingarbitrumgoerli_Bytes
+  root_lte: stagingarbitrumgoerli_Bytes
   root_in: [stagingarbitrumgoerli_Bytes!]
   root_not_in: [stagingarbitrumgoerli_Bytes!]
   root_contains: stagingarbitrumgoerli_Bytes
@@ -1647,12 +1985,20 @@ input stagingarbitrumgoerli_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: stagingarbitrumgoerli_Bytes
   caller_not: stagingarbitrumgoerli_Bytes
+  caller_gt: stagingarbitrumgoerli_Bytes
+  caller_lt: stagingarbitrumgoerli_Bytes
+  caller_gte: stagingarbitrumgoerli_Bytes
+  caller_lte: stagingarbitrumgoerli_Bytes
   caller_in: [stagingarbitrumgoerli_Bytes!]
   caller_not_in: [stagingarbitrumgoerli_Bytes!]
   caller_contains: stagingarbitrumgoerli_Bytes
   caller_not_contains: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
   transactionHash_not: stagingarbitrumgoerli_Bytes
+  transactionHash_gt: stagingarbitrumgoerli_Bytes
+  transactionHash_lt: stagingarbitrumgoerli_Bytes
+  transactionHash_gte: stagingarbitrumgoerli_Bytes
+  transactionHash_lte: stagingarbitrumgoerli_Bytes
   transactionHash_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_not_in: [stagingarbitrumgoerli_Bytes!]
   transactionHash_contains: stagingarbitrumgoerli_Bytes
@@ -1732,18 +2078,30 @@ input stagingarbitrumgoerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: stagingarbitrumgoerli_Bytes
   owner_not: stagingarbitrumgoerli_Bytes
+  owner_gt: stagingarbitrumgoerli_Bytes
+  owner_lt: stagingarbitrumgoerli_Bytes
+  owner_gte: stagingarbitrumgoerli_Bytes
+  owner_lte: stagingarbitrumgoerli_Bytes
   owner_in: [stagingarbitrumgoerli_Bytes!]
   owner_not_in: [stagingarbitrumgoerli_Bytes!]
   owner_contains: stagingarbitrumgoerli_Bytes
   owner_not_contains: stagingarbitrumgoerli_Bytes
   recipient: stagingarbitrumgoerli_Bytes
   recipient_not: stagingarbitrumgoerli_Bytes
+  recipient_gt: stagingarbitrumgoerli_Bytes
+  recipient_lt: stagingarbitrumgoerli_Bytes
+  recipient_gte: stagingarbitrumgoerli_Bytes
+  recipient_lte: stagingarbitrumgoerli_Bytes
   recipient_in: [stagingarbitrumgoerli_Bytes!]
   recipient_not_in: [stagingarbitrumgoerli_Bytes!]
   recipient_contains: stagingarbitrumgoerli_Bytes
   recipient_not_contains: stagingarbitrumgoerli_Bytes
   proposedOwner: stagingarbitrumgoerli_Bytes
   proposedOwner_not: stagingarbitrumgoerli_Bytes
+  proposedOwner_gt: stagingarbitrumgoerli_Bytes
+  proposedOwner_lt: stagingarbitrumgoerli_Bytes
+  proposedOwner_gte: stagingarbitrumgoerli_Bytes
+  proposedOwner_lte: stagingarbitrumgoerli_Bytes
   proposedOwner_in: [stagingarbitrumgoerli_Bytes!]
   proposedOwner_not_in: [stagingarbitrumgoerli_Bytes!]
   proposedOwner_contains: stagingarbitrumgoerli_Bytes
@@ -1792,6 +2150,10 @@ input stagingarbitrumgoerli_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: stagingarbitrumgoerli_Bytes
   sequencer_not: stagingarbitrumgoerli_Bytes
+  sequencer_gt: stagingarbitrumgoerli_Bytes
+  sequencer_lt: stagingarbitrumgoerli_Bytes
+  sequencer_gte: stagingarbitrumgoerli_Bytes
+  sequencer_lte: stagingarbitrumgoerli_Bytes
   sequencer_in: [stagingarbitrumgoerli_Bytes!]
   sequencer_not_in: [stagingarbitrumgoerli_Bytes!]
   sequencer_contains: stagingarbitrumgoerli_Bytes
@@ -1831,6 +2193,10 @@ input stagingarbitrumgoerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: stagingarbitrumgoerli_Bytes
   caller_not: stagingarbitrumgoerli_Bytes
+  caller_gt: stagingarbitrumgoerli_Bytes
+  caller_lt: stagingarbitrumgoerli_Bytes
+  caller_gte: stagingarbitrumgoerli_Bytes
+  caller_lte: stagingarbitrumgoerli_Bytes
   caller_in: [stagingarbitrumgoerli_Bytes!]
   caller_not_in: [stagingarbitrumgoerli_Bytes!]
   caller_contains: stagingarbitrumgoerli_Bytes
@@ -1863,19 +2229,24 @@ type stagingarbitrumgoerli_StableSwap {
   tokenPrecisionMultipliers: [BigInt!]
   balances: [BigInt!]!
   adminFees: [BigInt!]
-}
-
-type stagingarbitrumgoerli_StableSwapLiquidity {
-  id: ID!
-  provider: stagingarbitrumgoerli_Bytes!
-  stableSwap: stagingarbitrumgoerli_StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt
 }
 
-input stagingarbitrumgoerli_StableSwapLiquidity_filter {
+type stagingarbitrumgoerli_StableSwapAddLiquidityEvent implements stagingarbitrumgoerli_StableSwapEvent {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  provider: stagingarbitrumgoerli_Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: stagingarbitrumgoerli_Bytes!
+}
+
+input stagingarbitrumgoerli_StableSwapAddLiquidityEvent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1884,12 +2255,6 @@ input stagingarbitrumgoerli_StableSwapLiquidity_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  provider: stagingarbitrumgoerli_Bytes
-  provider_not: stagingarbitrumgoerli_Bytes
-  provider_in: [stagingarbitrumgoerli_Bytes!]
-  provider_not_in: [stagingarbitrumgoerli_Bytes!]
-  provider_contains: stagingarbitrumgoerli_Bytes
-  provider_not_contains: stagingarbitrumgoerli_Bytes
   stableSwap: String
   stableSwap_not: String
   stableSwap_gt: String
@@ -1911,6 +2276,16 @@ input stagingarbitrumgoerli_StableSwapLiquidity_filter {
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
   stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  provider: stagingarbitrumgoerli_Bytes
+  provider_not: stagingarbitrumgoerli_Bytes
+  provider_gt: stagingarbitrumgoerli_Bytes
+  provider_lt: stagingarbitrumgoerli_Bytes
+  provider_gte: stagingarbitrumgoerli_Bytes
+  provider_lte: stagingarbitrumgoerli_Bytes
+  provider_in: [stagingarbitrumgoerli_Bytes!]
+  provider_not_in: [stagingarbitrumgoerli_Bytes!]
+  provider_contains: stagingarbitrumgoerli_Bytes
+  provider_not_contains: stagingarbitrumgoerli_Bytes
   tokenAmounts: [BigInt!]
   tokenAmounts_not: [BigInt!]
   tokenAmounts_contains: [BigInt!]
@@ -1939,18 +2314,365 @@ input stagingarbitrumgoerli_StableSwapLiquidity_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: stagingarbitrumgoerli_Bytes
+  transaction_not: stagingarbitrumgoerli_Bytes
+  transaction_gt: stagingarbitrumgoerli_Bytes
+  transaction_lt: stagingarbitrumgoerli_Bytes
+  transaction_gte: stagingarbitrumgoerli_Bytes
+  transaction_lte: stagingarbitrumgoerli_Bytes
+  transaction_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_not_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_contains: stagingarbitrumgoerli_Bytes
+  transaction_not_contains: stagingarbitrumgoerli_Bytes
   """Filter for the block changed event."""
   _change_block: stagingarbitrumgoerli_BlockChangedFilter
 }
 
-enum stagingarbitrumgoerli_StableSwapLiquidity_orderBy {
+enum stagingarbitrumgoerli_StableSwapAddLiquidityEvent_orderBy {
   id
-  provider
   stableSwap
+  provider
   tokenAmounts
   fees
   invariant
   lpTokenSupply
+  block
+  timestamp
+  transaction
+}
+
+interface stagingarbitrumgoerli_StableSwapEvent {
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: stagingarbitrumgoerli_Bytes!
+}
+
+input stagingarbitrumgoerli_StableSwapEvent_filter {
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: stagingarbitrumgoerli_Bytes
+  transaction_not: stagingarbitrumgoerli_Bytes
+  transaction_gt: stagingarbitrumgoerli_Bytes
+  transaction_lt: stagingarbitrumgoerli_Bytes
+  transaction_gte: stagingarbitrumgoerli_Bytes
+  transaction_lte: stagingarbitrumgoerli_Bytes
+  transaction_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_not_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_contains: stagingarbitrumgoerli_Bytes
+  transaction_not_contains: stagingarbitrumgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_StableSwapEvent_orderBy {
+  stableSwap
+  block
+  timestamp
+  transaction
+}
+
+type stagingarbitrumgoerli_StableSwapExchange {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  buyer: stagingarbitrumgoerli_Bytes!
+  boughtId: BigInt!
+  tokensBought: BigInt!
+  soldId: BigInt!
+  tokensSold: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: stagingarbitrumgoerli_Bytes!
+}
+
+input stagingarbitrumgoerli_StableSwapExchange_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  buyer: stagingarbitrumgoerli_Bytes
+  buyer_not: stagingarbitrumgoerli_Bytes
+  buyer_gt: stagingarbitrumgoerli_Bytes
+  buyer_lt: stagingarbitrumgoerli_Bytes
+  buyer_gte: stagingarbitrumgoerli_Bytes
+  buyer_lte: stagingarbitrumgoerli_Bytes
+  buyer_in: [stagingarbitrumgoerli_Bytes!]
+  buyer_not_in: [stagingarbitrumgoerli_Bytes!]
+  buyer_contains: stagingarbitrumgoerli_Bytes
+  buyer_not_contains: stagingarbitrumgoerli_Bytes
+  boughtId: BigInt
+  boughtId_not: BigInt
+  boughtId_gt: BigInt
+  boughtId_lt: BigInt
+  boughtId_gte: BigInt
+  boughtId_lte: BigInt
+  boughtId_in: [BigInt!]
+  boughtId_not_in: [BigInt!]
+  tokensBought: BigInt
+  tokensBought_not: BigInt
+  tokensBought_gt: BigInt
+  tokensBought_lt: BigInt
+  tokensBought_gte: BigInt
+  tokensBought_lte: BigInt
+  tokensBought_in: [BigInt!]
+  tokensBought_not_in: [BigInt!]
+  soldId: BigInt
+  soldId_not: BigInt
+  soldId_gt: BigInt
+  soldId_lt: BigInt
+  soldId_gte: BigInt
+  soldId_lte: BigInt
+  soldId_in: [BigInt!]
+  soldId_not_in: [BigInt!]
+  tokensSold: BigInt
+  tokensSold_not: BigInt
+  tokensSold_gt: BigInt
+  tokensSold_lt: BigInt
+  tokensSold_gte: BigInt
+  tokensSold_lte: BigInt
+  tokensSold_in: [BigInt!]
+  tokensSold_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: stagingarbitrumgoerli_Bytes
+  transaction_not: stagingarbitrumgoerli_Bytes
+  transaction_gt: stagingarbitrumgoerli_Bytes
+  transaction_lt: stagingarbitrumgoerli_Bytes
+  transaction_gte: stagingarbitrumgoerli_Bytes
+  transaction_lte: stagingarbitrumgoerli_Bytes
+  transaction_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_not_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_contains: stagingarbitrumgoerli_Bytes
+  transaction_not_contains: stagingarbitrumgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_StableSwapExchange_orderBy {
+  id
+  stableSwap
+  buyer
+  boughtId
+  tokensBought
+  soldId
+  tokensSold
+  block
+  timestamp
+  transaction
+}
+
+type stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent implements stagingarbitrumgoerli_StableSwapEvent {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  provider: stagingarbitrumgoerli_Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: stagingarbitrumgoerli_Bytes!
+}
+
+input stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  provider: stagingarbitrumgoerli_Bytes
+  provider_not: stagingarbitrumgoerli_Bytes
+  provider_gt: stagingarbitrumgoerli_Bytes
+  provider_lt: stagingarbitrumgoerli_Bytes
+  provider_gte: stagingarbitrumgoerli_Bytes
+  provider_lte: stagingarbitrumgoerli_Bytes
+  provider_in: [stagingarbitrumgoerli_Bytes!]
+  provider_not_in: [stagingarbitrumgoerli_Bytes!]
+  provider_contains: stagingarbitrumgoerli_Bytes
+  provider_not_contains: stagingarbitrumgoerli_Bytes
+  tokenAmounts: [BigInt!]
+  tokenAmounts_not: [BigInt!]
+  tokenAmounts_contains: [BigInt!]
+  tokenAmounts_contains_nocase: [BigInt!]
+  tokenAmounts_not_contains: [BigInt!]
+  tokenAmounts_not_contains_nocase: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
+  block: BigInt
+  block_not: BigInt
+  block_gt: BigInt
+  block_lt: BigInt
+  block_gte: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  block_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transaction: stagingarbitrumgoerli_Bytes
+  transaction_not: stagingarbitrumgoerli_Bytes
+  transaction_gt: stagingarbitrumgoerli_Bytes
+  transaction_lt: stagingarbitrumgoerli_Bytes
+  transaction_gte: stagingarbitrumgoerli_Bytes
+  transaction_lte: stagingarbitrumgoerli_Bytes
+  transaction_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_not_in: [stagingarbitrumgoerli_Bytes!]
+  transaction_contains: stagingarbitrumgoerli_Bytes
+  transaction_not_contains: stagingarbitrumgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_orderBy {
+  id
+  stableSwap
+  provider
+  tokenAmounts
+  fees
+  invariant
+  lpTokenSupply
+  block
+  timestamp
+  transaction
 }
 
 input stagingarbitrumgoerli_StableSwap_filter {
@@ -1968,12 +2690,20 @@ input stagingarbitrumgoerli_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: stagingarbitrumgoerli_Bytes
   key_not: stagingarbitrumgoerli_Bytes
+  key_gt: stagingarbitrumgoerli_Bytes
+  key_lt: stagingarbitrumgoerli_Bytes
+  key_gte: stagingarbitrumgoerli_Bytes
+  key_lte: stagingarbitrumgoerli_Bytes
   key_in: [stagingarbitrumgoerli_Bytes!]
   key_not_in: [stagingarbitrumgoerli_Bytes!]
   key_contains: stagingarbitrumgoerli_Bytes
   key_not_contains: stagingarbitrumgoerli_Bytes
   canonicalId: stagingarbitrumgoerli_Bytes
   canonicalId_not: stagingarbitrumgoerli_Bytes
+  canonicalId_gt: stagingarbitrumgoerli_Bytes
+  canonicalId_lt: stagingarbitrumgoerli_Bytes
+  canonicalId_gte: stagingarbitrumgoerli_Bytes
+  canonicalId_lte: stagingarbitrumgoerli_Bytes
   canonicalId_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_not_in: [stagingarbitrumgoerli_Bytes!]
   canonicalId_contains: stagingarbitrumgoerli_Bytes
@@ -1988,12 +2718,20 @@ input stagingarbitrumgoerli_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: stagingarbitrumgoerli_Bytes
   swapPool_not: stagingarbitrumgoerli_Bytes
+  swapPool_gt: stagingarbitrumgoerli_Bytes
+  swapPool_lt: stagingarbitrumgoerli_Bytes
+  swapPool_gte: stagingarbitrumgoerli_Bytes
+  swapPool_lte: stagingarbitrumgoerli_Bytes
   swapPool_in: [stagingarbitrumgoerli_Bytes!]
   swapPool_not_in: [stagingarbitrumgoerli_Bytes!]
   swapPool_contains: stagingarbitrumgoerli_Bytes
   swapPool_not_contains: stagingarbitrumgoerli_Bytes
   lpToken: stagingarbitrumgoerli_Bytes
   lpToken_not: stagingarbitrumgoerli_Bytes
+  lpToken_gt: stagingarbitrumgoerli_Bytes
+  lpToken_lt: stagingarbitrumgoerli_Bytes
+  lpToken_gte: stagingarbitrumgoerli_Bytes
+  lpToken_lte: stagingarbitrumgoerli_Bytes
   lpToken_in: [stagingarbitrumgoerli_Bytes!]
   lpToken_not_in: [stagingarbitrumgoerli_Bytes!]
   lpToken_contains: stagingarbitrumgoerli_Bytes
@@ -2071,6 +2809,22 @@ input stagingarbitrumgoerli_StableSwap_filter {
   adminFees_contains_nocase: [BigInt!]
   adminFees_not_contains: [BigInt!]
   adminFees_not_contains_nocase: [BigInt!]
+  invariant: BigInt
+  invariant_not: BigInt
+  invariant_gt: BigInt
+  invariant_lt: BigInt
+  invariant_gte: BigInt
+  invariant_lte: BigInt
+  invariant_in: [BigInt!]
+  invariant_not_in: [BigInt!]
+  lpTokenSupply: BigInt
+  lpTokenSupply_not: BigInt
+  lpTokenSupply_gt: BigInt
+  lpTokenSupply_lt: BigInt
+  lpTokenSupply_gte: BigInt
+  lpTokenSupply_lte: BigInt
+  lpTokenSupply_in: [BigInt!]
+  lpTokenSupply_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingarbitrumgoerli_BlockChangedFilter
 }
@@ -2093,6 +2847,8 @@ enum stagingarbitrumgoerli_StableSwap_orderBy {
   tokenPrecisionMultipliers
   balances
   adminFees
+  invariant
+  lpTokenSupply
 }
 
 type Subscription {
@@ -2512,7 +3268,7 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingarbitrumgoerli_PooledToken!]!
-  stagingarbitrumgoerli_stableSwapLiquidity(
+  stagingarbitrumgoerli_stableSwapAddLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -2522,13 +3278,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): stagingarbitrumgoerli_StableSwapLiquidity
-  stagingarbitrumgoerli_stableSwapLiquidities(
+  ): stagingarbitrumgoerli_StableSwapAddLiquidityEvent
+  stagingarbitrumgoerli_stableSwapAddLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: stagingarbitrumgoerli_StableSwapLiquidity_orderBy
+    orderBy: stagingarbitrumgoerli_StableSwapAddLiquidityEvent_orderBy
     orderDirection: stagingarbitrumgoerli_OrderDirection
-    where: stagingarbitrumgoerli_StableSwapLiquidity_filter
+    where: stagingarbitrumgoerli_StableSwapAddLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -2537,9 +3293,437 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [stagingarbitrumgoerli_StableSwapLiquidity!]!
+  ): [stagingarbitrumgoerli_StableSwapAddLiquidityEvent!]!
+  stagingarbitrumgoerli_stableSwapRemoveLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent
+  stagingarbitrumgoerli_stableSwapRemoveLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapRemoveLiquidityEvent!]!
+  stagingarbitrumgoerli_stableSwapExchange(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapExchange
+  stagingarbitrumgoerli_stableSwapExchanges(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapExchange_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapExchange_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapExchange!]!
+  stagingarbitrumgoerli_swapDailyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapDailyVolume
+  stagingarbitrumgoerli_swapDailyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapDailyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapDailyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapDailyVolume!]!
+  stagingarbitrumgoerli_swapHourlyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapHourlyVolume
+  stagingarbitrumgoerli_swapHourlyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapHourlyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapHourlyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapHourlyVolume!]!
+  stagingarbitrumgoerli_swapWeeklyVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapWeeklyVolume
+  stagingarbitrumgoerli_swapWeeklyVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapWeeklyVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapWeeklyVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapWeeklyVolume!]!
+  stagingarbitrumgoerli_stableSwapEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_StableSwapEvent
+  stagingarbitrumgoerli_stableSwapEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_StableSwapEvent_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_StableSwapEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_StableSwapEvent!]!
+  stagingarbitrumgoerli_swapTradeVolume(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SwapTradeVolume
+  stagingarbitrumgoerli_swapTradeVolumes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SwapTradeVolume_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SwapTradeVolume_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SwapTradeVolume!]!
   """Access to subgraph metadata"""
   stagingarbitrumgoerli__meta(block: stagingarbitrumgoerli_Block_height): stagingarbitrumgoerli__Meta_
+}
+
+type stagingarbitrumgoerli_SwapDailyVolume implements stagingarbitrumgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: stagingarbitrumgoerli_BigDecimal!
+}
+
+input stagingarbitrumgoerli_SwapDailyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: stagingarbitrumgoerli_BigDecimal
+  volume_not: stagingarbitrumgoerli_BigDecimal
+  volume_gt: stagingarbitrumgoerli_BigDecimal
+  volume_lt: stagingarbitrumgoerli_BigDecimal
+  volume_gte: stagingarbitrumgoerli_BigDecimal
+  volume_lte: stagingarbitrumgoerli_BigDecimal
+  volume_in: [stagingarbitrumgoerli_BigDecimal!]
+  volume_not_in: [stagingarbitrumgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_SwapDailyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
+}
+
+type stagingarbitrumgoerli_SwapHourlyVolume implements stagingarbitrumgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: stagingarbitrumgoerli_BigDecimal!
+}
+
+input stagingarbitrumgoerli_SwapHourlyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: stagingarbitrumgoerli_BigDecimal
+  volume_not: stagingarbitrumgoerli_BigDecimal
+  volume_gt: stagingarbitrumgoerli_BigDecimal
+  volume_lt: stagingarbitrumgoerli_BigDecimal
+  volume_gte: stagingarbitrumgoerli_BigDecimal
+  volume_lte: stagingarbitrumgoerli_BigDecimal
+  volume_in: [stagingarbitrumgoerli_BigDecimal!]
+  volume_not_in: [stagingarbitrumgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_SwapHourlyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
+}
+
+interface stagingarbitrumgoerli_SwapTradeVolume {
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: stagingarbitrumgoerli_BigDecimal!
+}
+
+input stagingarbitrumgoerli_SwapTradeVolume_filter {
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: stagingarbitrumgoerli_BigDecimal
+  volume_not: stagingarbitrumgoerli_BigDecimal
+  volume_gt: stagingarbitrumgoerli_BigDecimal
+  volume_lt: stagingarbitrumgoerli_BigDecimal
+  volume_gte: stagingarbitrumgoerli_BigDecimal
+  volume_lte: stagingarbitrumgoerli_BigDecimal
+  volume_in: [stagingarbitrumgoerli_BigDecimal!]
+  volume_not_in: [stagingarbitrumgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_SwapTradeVolume_orderBy {
+  stableSwap
+  timestamp
+  volume
+}
+
+type stagingarbitrumgoerli_SwapWeeklyVolume implements stagingarbitrumgoerli_SwapTradeVolume {
+  id: ID!
+  stableSwap: stagingarbitrumgoerli_StableSwap!
+  timestamp: BigInt!
+  volume: stagingarbitrumgoerli_BigDecimal!
+}
+
+input stagingarbitrumgoerli_SwapWeeklyVolume_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  stableSwap: String
+  stableSwap_not: String
+  stableSwap_gt: String
+  stableSwap_lt: String
+  stableSwap_gte: String
+  stableSwap_lte: String
+  stableSwap_in: [String!]
+  stableSwap_not_in: [String!]
+  stableSwap_contains: String
+  stableSwap_contains_nocase: String
+  stableSwap_not_contains: String
+  stableSwap_not_contains_nocase: String
+  stableSwap_starts_with: String
+  stableSwap_starts_with_nocase: String
+  stableSwap_not_starts_with: String
+  stableSwap_not_starts_with_nocase: String
+  stableSwap_ends_with: String
+  stableSwap_ends_with_nocase: String
+  stableSwap_not_ends_with: String
+  stableSwap_not_ends_with_nocase: String
+  stableSwap_: stagingarbitrumgoerli_StableSwap_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  volume: stagingarbitrumgoerli_BigDecimal
+  volume_not: stagingarbitrumgoerli_BigDecimal
+  volume_gt: stagingarbitrumgoerli_BigDecimal
+  volume_lt: stagingarbitrumgoerli_BigDecimal
+  volume_gte: stagingarbitrumgoerli_BigDecimal
+  volume_lte: stagingarbitrumgoerli_BigDecimal
+  volume_in: [stagingarbitrumgoerli_BigDecimal!]
+  volume_not_in: [stagingarbitrumgoerli_BigDecimal!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+}
+
+enum stagingarbitrumgoerli_SwapWeeklyVolume_orderBy {
+  id
+  stableSwap
+  timestamp
+  volume
 }
 
 type stagingarbitrumgoerli_TransferRelayerFee {
@@ -2559,6 +3743,10 @@ input stagingarbitrumgoerli_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: stagingarbitrumgoerli_Bytes
   transferId_not: stagingarbitrumgoerli_Bytes
+  transferId_gt: stagingarbitrumgoerli_Bytes
+  transferId_lt: stagingarbitrumgoerli_Bytes
+  transferId_gte: stagingarbitrumgoerli_Bytes
+  transferId_lte: stagingarbitrumgoerli_Bytes
   transferId_in: [stagingarbitrumgoerli_Bytes!]
   transferId_not_in: [stagingarbitrumgoerli_Bytes!]
   transferId_contains: stagingarbitrumgoerli_Bytes
