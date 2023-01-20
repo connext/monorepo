@@ -9,6 +9,8 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -426,5 +428,107 @@ export const receivedAggregateRoot = (entity: any): ReceivedAggregateRoot => {
     root: entity.root,
     domain: entity.domain,
     blockNumber: entity.blockNumber,
+  };
+};
+
+export const stableSwapPool = (entity: any): StableSwapPool => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `StableSwapPool` entity parser: StableSwapPool, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "isActive",
+    "lpToken",
+    "balances",
+    "pooledTokens",
+    "tokenPrecisionMultipliers",
+    "swapFee",
+    "adminFee",
+    "virtualPrice",
+    "invariant",
+    "lpTokenSupply",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `StableSwapPool` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    isActive: entity.isActive,
+    lpToken: entity.lpToken,
+    initialA: BigNumber.from(entity.initialA ?? "0").toNumber(),
+    futureA: BigNumber.from(entity.futureA ?? "0").toNumber(),
+    initialATime: BigNumber.from(entity.initialATime ?? "0").toNumber(),
+    futureATime: BigNumber.from(entity.futureATime ?? "0").toNumber(),
+    swapFee: entity.swapFee,
+    admin_fee: entity.adminFee,
+    poolTokens: entity.poolTokens.map((token: any) => token.asset),
+    tokenPrecisionMultipliers: entity.tokenPrecisionMultipliers,
+    poolTokenDecimals: entity.tokenPrecisionMultipliers.map((m: string) =>
+      Math.log10(BigNumber.from("10").pow(18).div(BigNumber.from(m))),
+    ),
+    balances: entity.balances,
+    virtualPrice: entity.virtualPrice,
+    invariant: entity.invariant,
+    lpTokenSupply: entity.lpTokenSupply,
+  };
+};
+
+export const stableSwapExchange = (entity: any): StableSwapExchange => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapExchange` entity parser: stableSwapExchange, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "poolId",
+    "buyer",
+    "boughtId",
+    "soldId",
+    "tokensSold",
+    "tokensBought",
+    "blockNumber",
+    "transactionHash",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const boughtId = BigNumber.from(entity.boughtId).toNumber();
+  const soldId = BigNumber.from(entity.boughtId).toNumber();
+  const tokensSold = BigNumber.from(entity.tokensSold).div(
+    BigNumber.from(10).pow(18).div(BigNumber.from(entity.stableSwap.tokenPrecisionMultipliers[soldId])),
+  );
+  const tokensBought = BigNumber.from(entity.tokensBought).div(
+    BigNumber.from(10).pow(18).div(BigNumber.from(entity.stableSwap.tokenPrecisionMultipliers[boughtId])),
+  );
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    poolId: entity.stableSwap.key,
+    buyer: entity.buyer,
+    boughtId,
+    soldId,
+    tokensSold,
+    tokensBought,
+    blockNumber: BigNumber.from(entity.blockNumber).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transactionHash,
   };
 };

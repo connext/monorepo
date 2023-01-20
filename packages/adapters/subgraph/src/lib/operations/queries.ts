@@ -203,6 +203,45 @@ export const ROOT_MANAGER_META_ENTITY = `
       domains
 `;
 
+export const STABLESWAP_POOL_ENTITY = `
+      id
+      isActive
+      lpToken
+      initialA
+      futureA
+      initialATime
+      futureATime
+      swapFee
+      adminFee
+      pooledTokens {
+        asset
+      }
+      tokenPrecisionMultipliers
+      balances
+      virtualPrice
+      invariant
+      lpTokenSupply
+`;
+
+export const STABLESWAP_EXCHANGE_ENTITY = `
+      id
+      stableSwap {
+        key
+        tokenPrecisionMultipliers
+        pooledTokens {
+          asset
+        }
+      }
+      buyer
+      boughtId
+      soldId
+      tokensBought
+      tokensSold
+      block
+      timestamp
+      transaction
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -827,5 +866,64 @@ export const getRootManagerMetaQuery = (domain: string) => {
         ${ROOT_MANAGER_META_ENTITY}
       }
     }
+  `;
+};
+
+export const getStableSwapPoolsQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+  const queryString = `
+  ${prefix}_stableSwaps ( 
+    first: 1000
+  ) {
+    ${STABLESWAP_POOL_ENTITY}
+  }`;
+
+  return gql`
+    query GetStableSwapPools {
+      ${queryString}
+    }
+  `;
+};
+
+const swapExchangeQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `${prefix}_stableSwapExchanges(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_EXCHANGE_ENTITY}}`;
+};
+
+export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += swapExchangeQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSwapExchanges { 
+        ${combinedQuery}
+      }
   `;
 };
