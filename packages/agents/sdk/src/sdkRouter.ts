@@ -99,4 +99,42 @@ export class NxtpSdkRouter extends NxtpSdkShared {
 
     return txRequest;
   }
+
+  async removeRouterLiquidityFor(params: {
+    domainId: string;
+    amount: string;
+    tokenAddress: string;
+    recipient: string;
+    router: string;
+  }): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeRouterLiquidityFor.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const { domainId, amount, tokenAddress, recipient, router } = params;
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, tokenAddress),
+    ]);
+
+    const txRequest = await connextContract.populateTransaction.removeRouterLiquidityFor(
+      { domain: canonicalDomain, id: canonicalId },
+      amount,
+      recipient,
+      router,
+    );
+
+    this.logger.info(
+      `${this.removeRouterLiquidityFor.name} transaction created`,
+      requestContext,
+      methodContext,
+      txRequest,
+    );
+
+    return txRequest;
+  }
 }
