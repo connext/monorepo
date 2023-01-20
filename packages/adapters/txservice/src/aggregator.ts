@@ -115,7 +115,7 @@ export class RpcProviderAggregator {
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      this.fallbackProvider = new FallbackProvider(hydratedConfigs, 1);
+      this.fallbackProvider = new FallbackProvider(hydratedConfigs, config.quorum);
       this.providers = hydratedConfigs.map((p) => p.provider);
     } else {
       // Not enough valid providers were found in configuration.

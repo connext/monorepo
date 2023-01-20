@@ -57,6 +57,11 @@ export const ProviderConfigSchema = Type.Object({
    * Lower values will result in more network traffic, but may reduce the response time of requests.
    */
   stallTimeout: Type.Optional(Type.Number()),
+
+  /**
+   * This is the quorum used for the exposed fallback provider
+   */
+  quorum: Type.Optional(Type.Number()),
 });
 
 export type ProviderConfig = Static<typeof ProviderConfigSchema>;
@@ -107,6 +112,8 @@ const CoreChainConfigSchema = Type.Object({
   // How often (ms) we will check all RPC providers to measure how in-sync they are with the blockchain.
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
+  // quorum used for the fallback provider
+  quorum: Type.Integer(),
 
   /// DEBUGGING / DEVELOPMENT
   // WARNING: Please do not alter these configuration values; they should be used for development and/or debugging
@@ -216,6 +223,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
+  quorum: 1,
 };
 
 export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {

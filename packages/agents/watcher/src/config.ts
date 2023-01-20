@@ -7,6 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
+  quorum: Type.Integer(),
 });
 
 export const WatcherConfigSchema = Type.Intersect([
@@ -51,15 +52,28 @@ export const getEnvConfig = (): WatcherConfig => {
     process.exit(1);
   }
   // return configFile;
+  const parsedChains: object = process.env.WATCHER_CHAIN_CONFIG
+    ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
+    : configJson.chains
+    ? configJson.chains
+    : configFile.chains;
+
+  const chains: any = {};
+  Object.entries(parsedChains).map(([key, values]) => {
+    const { quorum, providers, ...rest } = values;
+    const total = providers.length;
+    chains[key] = {
+      providers,
+      // should always *at least* be 2 for providers
+      quorum: quorum ?? total <= 3 ? total : total - 2,
+      ...rest,
+    };
+  });
 
   const config: WatcherConfig = {
     mnemonic: process.env.WATCHER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.WATCHER_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    chains: process.env.WATCHER_CHAIN_CONFIG
-      ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
-      : configJson.chains
-      ? configJson.chains
-      : configFile.chains,
+    chains: parsedChains as any,
     logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     environment: process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain,
