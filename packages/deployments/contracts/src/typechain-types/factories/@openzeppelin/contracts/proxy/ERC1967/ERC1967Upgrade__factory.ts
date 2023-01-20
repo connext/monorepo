@@ -55,7 +55,7 @@ const _abi = [
     name: "Upgraded",
     type: "event",
   },
-];
+] as const;
 
 export class ERC1967Upgrade__factory {
   static readonly abi = _abi;

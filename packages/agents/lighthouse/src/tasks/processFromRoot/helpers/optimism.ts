@@ -17,8 +17,8 @@ export const getProcessFromOptimismRootArgs = async ({
   _requestContext,
 }: GetProcessArgsParams): Promise<[string, string, string, BigNumber, CrossChainMessageProof]> => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("getProcessFromOptimismRootArgs", _requestContext);
-  logger.info("getProcessFromOptimismRootArgs method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext(getProcessFromOptimismRootArgs.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext);
   // When processing from root on optimism, you need the following information:
   //   address _target, -> connector
   //   address _sender, -> mirror connector

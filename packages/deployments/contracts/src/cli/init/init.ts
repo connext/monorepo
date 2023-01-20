@@ -400,6 +400,15 @@ export const initProtocol = async (protocol: ProtocolStack) => {
               write: { method: "addRelayer", args: [relayer] },
               chainData,
             });
+
+            // also add relayers to the base connext contract
+            await updateIfNeeded({
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedRelayers", args: [relayer] },
+              write: { method: "addRelayer", args: [relayer] },
+              chainData,
+            });
           }
         }
         // Additionally, approve relayers as callers for connectors and root manager.

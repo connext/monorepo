@@ -243,3 +243,13 @@ export const removeRouterLiquiditySchema = Type.Object({
     recipient: Type.String(),
   }),
 });
+
+export const removeRouterLiquidityForSchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    recipient: Type.String(),
+    router: Type.String(),
+  }),
+});

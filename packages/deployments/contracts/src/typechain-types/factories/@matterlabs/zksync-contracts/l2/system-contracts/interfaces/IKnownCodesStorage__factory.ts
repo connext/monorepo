@@ -66,7 +66,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IKnownCodesStorage__factory {
   static readonly abi = _abi;

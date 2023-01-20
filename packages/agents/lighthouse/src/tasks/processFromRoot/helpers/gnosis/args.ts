@@ -21,8 +21,8 @@ export const getProcessFromGnosisRootArgs = async ({
     adapters: { contracts },
   } = getContext();
 
-  const { requestContext, methodContext } = createLoggingContext("getProcessFromGnosisRootArgs", _requestContext);
-  logger.info("getProcessFromOptimismRootArgs method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext(getProcessFromGnosisRootArgs.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext);
 
   const spokeConnector = contracts.spokeConnector(
     spokeChainId ?? 0,

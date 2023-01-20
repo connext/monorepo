@@ -60,7 +60,7 @@ const _abi = [
     name: "BaseConnextFacet__whenNotPaused_paused",
     type: "error",
   },
-];
+] as const;
 
 const _bytecode =
   "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212201da1fe15af0381d36cd01d134849cdb8f45afff432402c6a94d1e49b44cab33c64736f6c63430008110033";
