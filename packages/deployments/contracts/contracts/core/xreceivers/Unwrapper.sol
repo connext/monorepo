@@ -107,16 +107,16 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    *
    * It is left to the admin to determine the proper amounts to sweep.
    *
-   * @param amount Amount of asset to sweep from contract
    * @param recipient The address to send the funds to
    * @param asset The asset to send from the contract to recipient
+   * @param amount Amount of asset to sweep from contract
    */
   function sweep(
-    uint256 amount,
     address recipient,
-    address asset
+    address asset,
+    uint256 amount
   ) public onlyOwner {
-    _sweep(amount, recipient, asset);
+    _sweep(recipient, asset, amount);
   }
 
   /**
@@ -133,15 +133,15 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    *
    * It is left to the admin to determine the proper amounts to sweep.
    *
-   * @param amount Amount of asset to sweep from contract
    * @param recipient The address to send the funds to
+   * @param amount Amount of asset to sweep from contract
    */
-  function unwrapAndSweep(uint256 amount, address recipient) public onlyOwner {
+  function unwrapAndSweep(address recipient, uint256 amount) public onlyOwner {
     // Withdraw from wrapper
     WRAPPER.withdraw(amount);
 
     // Send funds to recipient
-    _sweep(amount, recipient, address(0));
+    _sweep(recipient, address(0), amount);
   }
 
   // ============ Public Functions ============
@@ -158,8 +158,6 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    * @param asset - This *should be* the wrapper contract address, an ERC20 token approved by the
    * Connext bridge. IFF this does NOT match the WRAPPER contract address stored in this contract,
    * we'll try to `IERC20.transfer` the assets to the intended recipient.
-   * @param originSender - Not used except in the edge case where the `callData` is missing a valid
-   * intended recipient address.
    * @param callData - Should be a tuple of just `(address)`. The address is the intended
    * recipient of the unwrapped native tokens. Whether it's ether or wether (i.e. whether it's
    * wrapped native tokens or native tokens) depends on whether we succeeded in the unwrapping
@@ -169,7 +167,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
     bytes32, // transferId
     uint256 amount,
     address asset,
-    address originSender,
+    address,
     uint32, // origin domain
     bytes memory callData
   ) external onlyConnext returns (bytes memory) {
@@ -184,7 +182,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
     if (asset != address(WRAPPER)) {
       emit WrongAsset(recipient, asset);
       // If the delivered asset does not match our target wrapper, we try sending it anyway.
-      _sweep(amount, recipient, asset);
+      _sweep(recipient, asset, amount);
       return bytes("");
     }
 
@@ -192,7 +190,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
     WRAPPER.withdraw(amount);
 
     // Send to recipient
-    _sweep(amount, recipient, address(0));
+    _sweep(recipient, address(0), amount);
   }
 
   /**
@@ -206,14 +204,14 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    * @notice Sweeps the provided token from this address to a designated recipient.
    * @dev Emits the `FundsDelivered` event
    *
-   * @param amount Amount of asset to sweep from contract
    * @param recipient The address to send the funds to
    * @param asset The asset (or address(0) for native) to send from the contract to recipient
+   * @param amount Amount of asset to sweep from contract
    */
   function _sweep(
-    uint256 amount,
     address recipient,
-    address asset
+    address asset,
+    uint256 amount
   ) internal {
     if (asset == address(0)) {
       Address.sendValue(payable(recipient), amount);

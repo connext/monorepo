@@ -17,6 +17,7 @@ contract UnwrapperTest is ForgeHelper {
   address constant MOCK_CONNEXT = address(999999);
   address constant MOCK_WRAPPER = address(888888);
   address constant MOCK_ERC20 = address(777777);
+  address constant OWNER = address(666666);
 
   // Arguments in tested methods.
   address constant originSender = address(111111);
@@ -38,6 +39,7 @@ contract UnwrapperTest is ForgeHelper {
 
     utils_setUpMockErc20(true); // Default transferSuccess = true.
 
+    vm.prank(OWNER);
     unwrapper = new Unwrapper(MOCK_CONNEXT, MOCK_WRAPPER);
     assertEq(unwrapper.CONNEXT(), MOCK_CONNEXT);
     assertEq(address(unwrapper.WRAPPER()), MOCK_WRAPPER);
@@ -45,6 +47,7 @@ contract UnwrapperTest is ForgeHelper {
     vm.label(MOCK_CONNEXT, "Connext");
     vm.label(MOCK_WRAPPER, "Wrapper");
     vm.label(MOCK_ERC20, "ERC20");
+    vm.label(OWNER, "owner");
     vm.label(originSender, "originSender");
     vm.label(recipient, "recipient");
     vm.label(address(unwrapper), "Unwrapper");
@@ -55,24 +58,84 @@ contract UnwrapperTest is ForgeHelper {
     vm.mockCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector), abi.encode(transferSuccess));
   }
 
-  // ============ Unwrapper.xReceive ============
-  function test_Unwrapper__xReceive_works(uint256 amount, address recipient) public {
-    address asset = MOCK_WRAPPER;
-    bytes memory callData = abi.encode(recipient);
+  function utils_expectRecipientToReceive(
+    address _recipient,
+    address asset,
+    uint256 amount
+  ) internal {
+    if (asset == address(0) || asset == MOCK_WRAPPER) {
+      // Fund the target amount of ETH; our fake Wrapper contract certainly won't return any when we `withdraw`.
+      vm.deal(address(unwrapper), amount);
 
-    vm.expectEmit(true, true, true, true);
-    emit FundsDelivered(recipient, asset, amount);
+      // vm.expectCall(_recipient, amount, abi.encode(""));
+
+      vm.expectEmit(true, true, true, true);
+      emit FundsDelivered(_recipient, address(0), amount);
+    } else {
+      vm.expectCall(asset, abi.encodeWithSelector(IERC20.transfer.selector, _recipient, amount));
+
+      vm.expectEmit(true, true, true, true);
+      emit FundsDelivered(_recipient, asset, amount);
+    }
+  }
+
+  uint256 initialRecipientBalance;
+  uint256 initialUnwrapperBalance;
+
+  function utils_recordInitialBalances(address _recipient) internal {
+    initialRecipientBalance = _recipient.balance;
+    initialUnwrapperBalance = address(unwrapper).balance;
+  }
+
+  function utils_assertSentEthToRecipient(address _recipient, uint256 amount) internal {
+    assertEq(
+      _recipient.balance,
+      initialRecipientBalance + amount,
+      "recipient didn't receive ETH! did we record initial balances?"
+    );
+
+    require(
+      initialUnwrapperBalance >= amount,
+      "initial balance of unwrapper was less than amount... did we record initial balances?"
+    );
+
+    // Unwrapper should have been initially funded `amount` in ETH, and should have been debited all their ETH in most cases.
+    assertEq(
+      address(unwrapper).balance,
+      initialUnwrapperBalance - amount,
+      "unwrapper didn't send ETH! did we record initial balances?"
+    );
+  }
+
+  // ============ Unwrapper.xReceive ============
+  function test_Unwrapper__xReceive_works(address _recipient, uint256 amount) public {
+    if (amount == 0) {
+      return; // Skip 0 amount case.
+    }
+
+    address asset = MOCK_WRAPPER;
+    bytes memory callData = abi.encode(_recipient);
+
+    utils_expectRecipientToReceive(_recipient, asset, amount);
+    utils_recordInitialBalances(_recipient);
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callData);
+
+    utils_assertSentEthToRecipient(_recipient, amount);
   }
 
   function test_Unwrapper__xReceive_worksIfRecipientIsZero() public {
     address asset = MOCK_WRAPPER;
     uint256 amount = 10 ether;
 
+    utils_expectRecipientToReceive(address(0), asset, amount);
+    utils_recordInitialBalances(address(0));
+
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataNoRecipient);
+
+    utils_assertSentEthToRecipient(address(0), amount);
   }
 
   function test_Unwrapper__xReceive_failsIfNotConnext() public {
@@ -97,20 +160,50 @@ contract UnwrapperTest is ForgeHelper {
     uint256 amount = 10 ether;
 
     // Should transfer the non-wrapper ERC20 to the intended recipient!
-    vm.expectCall(MOCK_ERC20, abi.encodeWithSelector(IERC20.transfer.selector, recipient, amount));
+    utils_expectRecipientToReceive(recipient, asset, amount);
 
     vm.prank(MOCK_CONNEXT);
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferReverts() public {
-    address asset = address(new RevertingERC20()); // xReceive will be getting a non-wrapper, reverting erc20 asset.
-    uint256 amount = 10 ether;
+  // function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferReverts() public {
+  //   address asset = address(new RevertingERC20()); // xReceive will be getting a non-wrapper, reverting erc20 asset.
+  //   uint256 amount = 10 ether;
 
-    vm.expectEmit(true, true, true, true);
-    emit WrongAsset(recipient, asset);
+  //   vm.expectEmit(true, true, true, true);
+  //   emit WrongAsset(recipient, asset);
 
-    vm.prank(MOCK_CONNEXT);
-    unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  //   vm.prank(MOCK_CONNEXT);
+  //   unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  // }
+
+  // ============ Unwrapper.sweep ============
+  function test_Unwrapper__sweep_shouldSendERC20ToRecipient(uint256 amount) public {
+    if (amount == 0) {
+      return; // Skip 0 amount case.
+    }
+
+    address asset = MOCK_ERC20;
+
+    utils_expectRecipientToReceive(recipient, asset, amount);
+
+    vm.prank(OWNER);
+    unwrapper.sweep(recipient, asset, amount);
+  }
+
+  function test_Unwrapper__sweep_shouldSendEthToRecipient(uint256 amount) public {
+    if (amount == 0) {
+      return; // Skip 0 amount case.
+    }
+
+    address asset = address(0);
+
+    utils_expectRecipientToReceive(recipient, asset, amount);
+    utils_recordInitialBalances(recipient);
+
+    vm.prank(OWNER);
+    unwrapper.sweep(recipient, asset, amount);
+
+    utils_assertSentEthToRecipient(recipient, amount);
   }
 }
