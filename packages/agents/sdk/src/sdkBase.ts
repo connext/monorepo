@@ -212,6 +212,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       { ...params, gasPrice },
       this.chainData,
       this.logger,
+      requestContext,
     );
 
     return relayerFeeInOriginNativeAsset;
