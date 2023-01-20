@@ -49,6 +49,10 @@ export class AssetVerifier extends Verifier {
     // Loop through all domains, adding up the minted amount for the asset on each one.
     let totalMintedAmount = BigNumber.from(0);
     for (const domain of this.context.domains) {
+      if (asset.canonicalDomain === domain) {
+        // Assets are not minted on canonical domains
+        continue;
+      }
       const chainId = domainToChainId(+domain);
       const connext = this.getConnextDeployment(chainId);
 
