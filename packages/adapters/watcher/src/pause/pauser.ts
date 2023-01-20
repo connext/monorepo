@@ -1,5 +1,5 @@
 import { domainToChainId, ConnextInterface } from "@connext/nxtp-contracts";
-import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { PauseResponse, Verifier } from "../types";
@@ -12,15 +12,16 @@ export class Pauser extends Verifier {
    * @returns boolean[] array mapped to domains[] indicating whether the pausing for each
    * domain was successful.
    */
-  public async pause(reason: string, domains: string[]): Promise<PauseResponse[]> {
-    const { requestContext, methodContext } = createLoggingContext(this.pause.name);
+  public async pause(requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
+    const { methodContext } = createLoggingContext(this.pause.name);
     const { logger, txservice } = this.context;
 
-    const result: PauseResponse[] = [];
-    for (const domain of domains) {
+    // helper function so we can send off all pausing simultaneously
+    const pauseDomain = async (domain: string) => {
       try {
         logger.info(`Trying to pause for domain ${domain}. reason: ${reason}`, requestContext, methodContext, {
           domain,
+          reason,
         });
 
         const chainId = domainToChainId(+domain);
@@ -30,59 +31,69 @@ export class Pauser extends Verifier {
 
         // 1. First check if paused already
         const encoded = await txservice.readTx({
-          chainId: +domain,
+          domain: +domain,
           to: connext.address,
-          data: connextInterface.encodeFunctionData("paused", []),
+          data: connextInterface.encodeFunctionData("paused"),
         });
-        const paused = ConnextInterface.decodeFunctionResult("paused", encoded)[0];
+        const [paused] = ConnextInterface.decodeFunctionResult("paused", encoded);
 
         // 2. If not paused, call pause tx
         if (!paused) {
-          const pauseCalldata = connextInterface.encodeFunctionData("pause", []);
+          const pauseCalldata = connextInterface.encodeFunctionData("pause");
+
+          // Get gas price
+          const price = await txservice.getGasPrice(+domain, requestContext);
 
           try {
             const receipt = await txservice.sendTx(
-              { to: connext.address, data: pauseCalldata, value: constants.Zero, chainId: +domain },
+              {
+                to: connext.address,
+                data: pauseCalldata,
+                value: constants.Zero,
+                domain: +domain,
+                from: await txservice.getAddress(),
+                gasPrice: price.mul(2),
+              },
               requestContext,
             );
-            result.push({
+            return {
               domain,
               paused: true,
               error: null,
               relevantTransaction: receipt.transactionHash,
-            });
+            };
           } catch (error: unknown) {
             logger.warn("Pause Tx: Transaction Failed", requestContext, methodContext, jsonifyError(error as Error));
-            result.push({
+            return {
               domain,
               paused: false,
               error: error,
               relevantTransaction: "",
-            });
+            };
           }
         } else {
-          result.push({
+          return {
             domain,
             paused: false,
             error: new Error("Already Paused"),
             relevantTransaction: "",
-          });
+          };
         }
       } catch (error: unknown) {
-        logger.warn(
-          `Pause Tx: Iteration for domain ${domain} failed!`,
-          requestContext,
-          methodContext,
-          jsonifyError(error as Error),
-        );
-        result.push({
+        logger.warn(`Pause Tx: Iteration failed!`, requestContext, methodContext, {
+          domain,
+          error: jsonifyError(error as Error),
+        });
+        return {
           domain,
           paused: false,
           error: error,
           relevantTransaction: "",
-        });
+        };
       }
-    }
+    };
+
+    const result = await Promise.all(domains.map((d) => pauseDomain(d)));
     return result;
   }
 }

@@ -1,18 +1,15 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { BigNumberish, utils } from "ethers";
+import { BigNumber, BigNumberish, utils } from "ethers";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
+import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import { getContext } from "../processFromRoot";
 import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../errors";
-import {
-  EventFetcher,
-  JsonRpcProvider,
-  L2TransactionReceipt,
-  Outbox__factory,
-  RollupUserLogic__factory,
-} from "../../../mockable";
+import { EventFetcher, JsonRpcProvider, L2TransactionReceipt, RollupUserLogic__factory } from "../../../mockable";
 
 import { GetProcessArgsParams } from ".";
+
+const NODE_INTERFACE_ADDRESS = "0x00000000000000000000000000000000000000C8";
 
 export const getProcessFromArbitrumRootArgs = async ({
   spokeChainId,
@@ -28,7 +25,7 @@ export const getProcessFromArbitrumRootArgs = async ({
     adapters: { chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("getProcessFromArbitrumRootArgs", _requestContext);
-  logger.info("getProcessFromArbitrumRootArgs method start", requestContext, methodContext);
+  logger.info("getProcessFromArbitrumRootArgs method start", requestContext, methodContext, { sendHash });
   // // // Things that are needed:
   // // uint64 _nodeNum, x
   // // bytes32 _sendRoot, x
@@ -48,8 +45,6 @@ export const getProcessFromArbitrumRootArgs = async ({
   // get the proof
   const hubJsonProvider = new JsonRpcProvider(hubProvider);
   const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubJsonProvider);
-  const proof = await msg.getOutboxProof(spokeJsonProvider);
-  logger.info("Got proof", requestContext, methodContext, { proof });
   // get the index
   const index = msg.event.position;
   logger.info("Got index", requestContext, methodContext, { index: index.toString() });
@@ -70,17 +65,20 @@ export const getProcessFromArbitrumRootArgs = async ({
   // get posted into an outbox (where the messages are proven against once the
   // fraud period elapses). because the node is not directly user facing, there are
   // not many utility methods for accessing it. you can get the node num in two ways:
-  // 1. (not used) Find the `NodeCreated` event where the currentInboxSize > the l2->l1 message
+  // 1. Find the `NodeCreated` event where the currentInboxSize > the l2->l1 message
   //    sequence number. Sample of finding this event can be seen here:
   //    https://github.com/OffchainLabs/arbitrum-sdk/blob/0151a79ed37a65033991bb107d6e1072bfc052c0/src/lib/message/L2ToL1Message.ts#L397-L455
   //    NOTE: this was the original method tried, but failed to find the correct node
   //    created event (it was failing when verifying the sendRoot in the connector)
-  // 2. Calculate the send root and the item hash using the `Outbox.sol` interface, then
+  // 2. (not used) Calculate the send root and the item hash using the `Outbox.sol` interface, then
   //    find the event emitted after the `ethBlockNum` of the message containing a matching
   //    sendRoot. Find the nodeNum from this event, and submit to chain (seen below)
   const arbNetwork = l2Networks[spokeChainId];
   const fetcher = new EventFetcher(hubJsonProvider);
-  logger.info("Fetching events", requestContext, methodContext, { arbNetworkRollup: arbNetwork.ethBridge.rollup });
+  logger.info("Fetching events", requestContext, methodContext, {
+    arbNetworkRollup: arbNetwork.ethBridge.rollup,
+    fromBlock: msg.event.ethBlockNum,
+  });
   const logs = await fetcher.getEvents(
     arbNetwork.ethBridge.rollup,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -91,46 +89,60 @@ export const getProcessFromArbitrumRootArgs = async ({
       toBlock: "latest",
     },
   );
-  const outbox = Outbox__factory.connect(arbNetwork.ethBridge.outbox, hubJsonProvider);
-  const expectedSendRoot = await outbox.calculateMerkleRoot(
-    proof,
-    index,
-    await outbox.calculateItemHash(
-      l2Message.l2Sender,
-      l2Message.to,
-      l2Message.l2Block,
-      l2Message.l1Block,
-      l2Message.l2Timestamp,
-      l2Message.value,
-      l2Message.callData,
-    ),
-  );
-  const blocksForLog = await Promise.all(
-    logs.map(async (l) => {
-      const ret = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, l);
-      return {
-        ...ret,
-        nodeNum: l.event.nodeNum,
-      };
-    }),
-  );
-  const event = blocksForLog.filter((l) => l.sendRoot == expectedSendRoot).sort((a, b) => a.number - b.number)[0];
-  logger.info("Got event", requestContext, methodContext, { event });
+
+  // use binary search to find the first node with sendCount > this.event.position
+  // default to the last node since we already checked above
+  let foundLog = logs[logs.length - 1];
+  let left = 0;
+  let right = logs.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const log = logs[mid];
+    const block = await (msg as any).getBlockFromNodeLog(spokeProvider, log);
+    const sendCount = BigNumber.from(block.sendCount);
+    if (sendCount.gt(msg.event.position)) {
+      foundLog = log;
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
+  }
+
+  const earliestNodeWithExit = foundLog.event.nodeNum;
+  const rollup = RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, spokeJsonProvider);
+  const foundBlock = await (msg as any).getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
+  logger.info("Got node and block", requestContext, methodContext, {
+    node: earliestNodeWithExit.toString(),
+    block: foundBlock,
+  });
+
   // verify confirm data to ensure the node is correct
   const iface = RollupUserLogic__factory.createInterface();
   const nodeData = await chainreader.readTx({
-    chainId: +hubDomainId, // TODO which to use?
-    data: iface.encodeFunctionData("getNode", [event.nodeNum as BigNumberish]),
+    domain: +hubDomainId,
+    data: iface.encodeFunctionData("getNode", [earliestNodeWithExit as BigNumberish]),
     to: arbNetwork.ethBridge.rollup,
   });
   const [node] = iface.decodeFunctionResult("getNode", nodeData);
   const confirmData = node.confirmData.toLowerCase() as string;
   const encoded = utils
-    .keccak256(utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [event.hash, event.sendRoot]))
+    .keccak256(utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [foundBlock.hash, foundBlock.sendRoot]))
     .toLowerCase();
   if (confirmData !== encoded) {
     throw new ConfirmDataDoesNotMatch(confirmData, encoded, { requestContext, methodContext });
   }
+
+  // get the proof
+  const params = await NodeInterface__factory.connect(NODE_INTERFACE_ADDRESS, spokeJsonProvider).constructOutboxProof(
+    foundBlock.sendCount.toNumber() as number,
+    msg.event.position.toNumber(),
+  );
+  logger.debug("Generated proof", requestContext, methodContext, {
+    proof: params.proof,
+    sendCount: foundBlock.sendCount.toNumber(),
+    position: msg.event.position.toNumber(),
+  });
+
   // generate the args to submit
-  return [event.nodeNum, event.sendRoot, event.hash, proof, index, l2Message];
+  return [earliestNodeWithExit, foundBlock.sendRoot, foundBlock.hash, params.proof, index, l2Message];
 };

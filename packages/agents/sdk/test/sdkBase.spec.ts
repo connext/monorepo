@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { reset, restore, stub, SinonStub } from "sinon";
 import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, BigNumber, utils } from "ethers";
+=======
+import { reset, restore, stub, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
+import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
+import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
+import { constants, providers, BigNumber, utils } from "ethers";
+
+>>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
 import { mock } from "./mock";
 import { NxtpSdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
@@ -9,7 +17,11 @@ import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/erro
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
+<<<<<<< HEAD
 import { NxtpSdkXCallArgs } from "../src/interfaces";
+=======
+import { SdkXCallArgs } from "../src/interfaces";
+>>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -24,13 +36,17 @@ describe("SdkBase", () => {
   let nxtpSdkBase: NxtpSdkBase;
   let config: ConfigFns.NxtpSdkConfig;
 
+  let chainreader: SinonStubbedInstance<ChainReader>;
+
   beforeEach(async () => {
+    chainreader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
+    (nxtpSdkBase as any).chainreader = chainreader;
   });
 
   afterEach(() => {
@@ -92,7 +108,11 @@ describe("SdkBase", () => {
     };
 
     const origin = mock.entity.callParams().originDomain;
+<<<<<<< HEAD
     const sdkXCallArgs: NxtpSdkXCallArgs = {
+=======
+    const sdkXCallArgs: SdkXCallArgs = {
+>>>>>>> f8de81cd57836c940701b03c71f17994a26916ed
       ...mock.entity.xcallArgs(),
       origin,
       relayerFee: relayerFee.toString(),

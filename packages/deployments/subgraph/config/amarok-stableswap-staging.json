@@ -1,0 +1,46 @@
+[
+  {
+    "subgraphName": "connext/stableswap-staging-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xC0a8BC9E98BD1bEeEC0a1b127BDb3e9a5fb7EC6C",
+        "startBlock": 8162909
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-staging-opt-goerli",
+    "network": "optimism-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xEE725087E0a39010E7341642ec4DeE76b61acA21",
+        "startBlock": 3565510
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-staging-mumbai",
+    "network": "mumbai",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x88F527c8Cb7282e93796c1559949570Da6cd671D",
+        "startBlock": 29883621
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-staging-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xfE802eB0B5Cd853Fd0fa98587bae475f79F58Ec2",
+        "startBlock": 3161618
+      }
+    ]
+  }
+]

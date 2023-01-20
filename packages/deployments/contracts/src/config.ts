@@ -52,24 +52,33 @@ export const hardhatNetworks = {
   ropsten: {
     accounts: { mnemonic },
     chainId: 3,
-    url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
+    url:
+      urlOverride ||
+      process.env.ROPSTEN_ETH_PROVIDER_URL ||
+      "https://ropsten.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
   },
   rinkeby: {
     accounts: { mnemonic },
     chainId: 4,
-    url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
+    url:
+      urlOverride ||
+      process.env.RINKEBY_ETH_PROVIDER_URL ||
+      "https://rinkeby.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     gasPrice: utils.parseUnits("20", "gwei").toNumber(),
   },
   goerli: {
     accounts: { mnemonic },
     chainId: 5,
-    url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
+    url:
+      urlOverride ||
+      process.env.GOERLI_ETH_PROVIDER_URL ||
+      "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://opt-mainnet.g.alchemy.com/v2/8BWDXI7MUClvQt07W0LBi_9_i6tbeaQc",
+    url: "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -83,7 +92,10 @@ export const hardhatNetworks = {
   kovan: {
     accounts: { mnemonic },
     chainId: 42,
-    url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
+    url:
+      urlOverride ||
+      process.env.KOVAN_ETH_PROVIDER_URL ||
+      "https://kovan.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
   },
   "optimism-kovan": {
     accounts: { mnemonic },

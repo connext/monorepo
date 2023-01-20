@@ -1,0 +1,12 @@
+[
+  "constructor(address,address)",
+  "event SendUnwrappedFailed(address,bytes)",
+  "event TransferWrappedFailed(address,bytes)",
+  "event UnwrappingFailed(address,bytes)",
+  "event WrongAsset(address,address,bytes)",
+  "function CONNEXT() view returns (address)",
+  "function WRAPPER() view returns (address)",
+  "function getConnext() view returns (address)",
+  "function getTargetWrapperContract() view returns (address)",
+  "function xReceive(bytes32,uint256,address,address,uint32,bytes) returns (bytes)"
+]

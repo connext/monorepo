@@ -103,5 +103,8 @@
     "host": "localhost",
     "port": 6379
   },
-  "relayers": []
+  "relayers": [],
+  "database": {
+    "url": "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable"
+  }
 }

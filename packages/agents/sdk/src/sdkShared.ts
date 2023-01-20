@@ -11,8 +11,8 @@ import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData } from "./interfaces";
+import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
+import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
@@ -137,6 +137,32 @@ export class NxtpSdkShared {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
+  }
+
+  async getSupported(): Promise<ConnextSupport[]> {
+    const data: AssetData[] = await this.getAssetsData();
+
+    const supported: Map<string, ConnextSupport> = new Map();
+
+    await Promise.all(
+      data.map(async (asset) => {
+        if (supported.get(asset.domain)) {
+          const support = supported.get(asset.domain)!;
+          support.assets.push(asset.adopted);
+        } else {
+          const support: ConnextSupport = {
+            name: domainsToChainNames[asset.domain],
+            chainId: await getChainIdFromDomain(asset.domain),
+            domainId: asset.domain,
+            assets: [asset.adopted],
+          };
+          supported.set(asset.domain, support);
+        }
+      }),
+    );
+
+    const res = Array.from(supported.values());
+    return res;
   }
 
   async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {

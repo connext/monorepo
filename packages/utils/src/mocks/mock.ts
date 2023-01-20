@@ -20,6 +20,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  XTransferErrorStatus,
 } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
@@ -36,8 +37,8 @@ export const mock = {
     B: "13338",
   },
   chain: {
-    A: "23337",
-    B: "23338",
+    A: "1337",
+    B: "1338",
   },
   asset: {
     A: {
@@ -145,10 +146,7 @@ export const mock = {
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       executorVersion: "0.0.1",
-      relayerFee: {
-        amount: "0",
-        asset: constants.AddressZero,
-      },
+      routerAddress: mock.address.router,
       encodedData: "0xabcde",
       ...overrides,
     }),
@@ -167,6 +165,7 @@ export const mock = {
         destinationChain?: string;
         amount?: string;
         status?: XTransferStatus;
+        errorStatus?: XTransferErrorStatus;
         asset?: string;
         transferId?: string;
         messageHash?: string;
@@ -189,6 +188,7 @@ export const mock = {
       const destinationChain: string = overrides.destinationChain ?? mock.chain.B;
       const amount = overrides.amount ?? "1000";
       const status: XTransferStatus | undefined = overrides.status;
+      const errorStatus: XTransferErrorStatus | undefined = overrides.errorStatus;
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
@@ -198,7 +198,7 @@ export const mock = {
       const relayerFee: string = overrides.relayerFee ?? "0";
 
       const shouldHaveOriginDefined = true;
-      const shouldHaveDestinationDefined = !!status;
+      const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
       return {
         // Meta
         transferId,
@@ -227,6 +227,8 @@ export const mock = {
               messageHash,
 
               relayerFee,
+
+              errorStatus,
 
               // Assets
               assets: {
@@ -475,9 +477,21 @@ export const mock = {
           abi: "fakeAbi()",
         };
       },
-      hubConnectorts: function (_: number) {
+      hubConnector: function (_: number) {
         return {
           address: mkAddress("0x444444"),
+          abi: "fakeAbi()",
+        };
+      },
+      multisend: function (_: number) {
+        return {
+          address: mkAddress("0x555555"),
+          abi: "fakeAbi()",
+        };
+      },
+      unwrapper: function (_: number) {
+        return {
+          address: mkAddress("0x666666"),
           abi: "fakeAbi()",
         };
       },
