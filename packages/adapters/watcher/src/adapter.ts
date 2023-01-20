@@ -1,4 +1,4 @@
-import { jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
@@ -43,8 +43,8 @@ export class WatcherAdapter {
   }
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
-    const { requestContext, methodContext, logger, ...res } = report;
-
+    const { requestContext, logger, ...res } = report;
+    const { methodContext } = createLoggingContext(this.alert.name);
     const {
       discordHookUrl,
       pagerDutyRoutingKey,

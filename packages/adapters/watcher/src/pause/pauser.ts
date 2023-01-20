@@ -1,5 +1,5 @@
 import { domainToChainId, ConnextInterface } from "@connext/nxtp-contracts";
-import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { createMethodContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { PauseResponse, Verifier } from "../types";
@@ -13,7 +13,7 @@ export class Pauser extends Verifier {
    * domain was successful.
    */
   public async pause(requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
-    const { methodContext } = createLoggingContext(this.pause.name);
+    const methodContext = createMethodContext(this.pause.name);
     const { logger, txservice } = this.context;
 
     // helper function so we can send off all pausing simultaneously
@@ -45,6 +45,21 @@ export class Pauser extends Verifier {
           const price = await txservice.getGasPrice(+domain, requestContext);
 
           try {
+            const tx = {
+              to: connext.address,
+              data: pauseCalldata,
+              value: constants.Zero,
+              domain: +domain,
+              from: await txservice.getAddress(),
+              gasPrice: price.mul(2),
+            };
+            logger.debug("Sending pause tx", requestContext, methodContext, {
+              chain: chainId,
+              ...tx,
+              value: tx.value.toString(),
+              gasPrice: tx.gasPrice.toString(),
+              price: price.toString(),
+            });
             const receipt = await txservice.sendTx(
               {
                 to: connext.address,
@@ -72,6 +87,12 @@ export class Pauser extends Verifier {
             };
           }
         } else {
+          this.context.logger.debug("Already paused", requestContext, methodContext, {
+            domain,
+            chainId,
+            connext: connext.address,
+            paused,
+          });
           return {
             domain,
             paused: false,

@@ -67,7 +67,6 @@ export type Report = {
   errors: any[];
   logger: Logger;
   requestContext: RequestContext;
-  methodContext: MethodContext;
   domains: string[];
   relevantTransactions: (ethers.providers.TransactionResponse | string)[];
   rpcs: string[];
