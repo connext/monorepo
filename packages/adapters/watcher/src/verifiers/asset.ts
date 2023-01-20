@@ -125,6 +125,15 @@ export class AssetVerifier extends Verifier {
       to: connext.address,
       data: getCustodiedAmountCalldata,
     });
+    this.context.logger.debug("Queried for custodied amount", undefined, undefined, {
+      domain: +asset.canonicalDomain,
+      chainId,
+      connext: connext.address,
+      asset,
+      assetKey,
+      data: getCustodiedAmountCalldata,
+      result: amountRes,
+    });
     try {
       return ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
     } catch (e: any) {
