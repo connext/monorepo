@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, TIntegerString, XCallArgsSchema } from "@connext/nxtp-utils";
+import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
 export type Pool = {
   domainId: string;
@@ -34,16 +34,20 @@ export type AssetData = {
 
 export type ConnextSupport = { name: string; chainId: number; domainId: string; assets: string[] };
 
-export const SdkXCallParamsSchema = Type.Intersect([
-  XCallArgsSchema,
-  Type.Object({
-    origin: TIntegerString,
-    relayerFee: TIntegerString,
-    receiveLocal: Type.Boolean(),
-    wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
-    unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
-  }),
-]);
+export const SdkXCallParamsSchema = Type.Object({
+  origin: TIntegerString,
+  destination: TIntegerString,
+  to: TAddress,
+  asset: Type.Optional(TAddress),
+  delegate: Type.Optional(TAddress),
+  amount: Type.Optional(TIntegerString),
+  slippage: Type.Optional(TIntegerString),
+  callData: Type.Optional(Type.String()),
+  relayerFee: Type.Optional(TIntegerString),
+  receiveLocal: Type.Optional(Type.Boolean()),
+  wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
+  unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
+});
 
 export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
 
