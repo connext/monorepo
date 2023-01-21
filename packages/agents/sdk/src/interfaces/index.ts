@@ -69,3 +69,11 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
 });
 
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
+
+export const SdkUpdateSlippageParamsSchema = Type.Object({
+  domainId: TIntegerString,
+  transferId: Type.String(),
+  slippage: TIntegerString,
+});
+
+export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
