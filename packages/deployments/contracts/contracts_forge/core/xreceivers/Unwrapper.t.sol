@@ -64,6 +64,10 @@ contract UnwrapperTest is ForgeHelper {
     address asset,
     uint256 amount
   ) internal {
+    if (asset == MOCK_WRAPPER) {
+      // Assert there was an unwrap call
+      vm.expectCall(MOCK_WRAPPER, abi.encodeWithSelector(IWrapper.withdraw.selector, amount));
+    }
     if (asset == address(0) || asset == MOCK_WRAPPER) {
       // Fund the target amount of ETH; our fake Wrapper contract certainly won't return any when we `withdraw`.
       vm.deal(address(unwrapper), amount);
@@ -204,7 +208,7 @@ contract UnwrapperTest is ForgeHelper {
     utils_assertSentEthToRecipient(recipient, amount);
   }
 
-  function test_Unwrapper__unwrapAndSweep_failsIfNoAmount() public {
+  function test_Unwrapper__sweep_failsIfNoAmount() public {
     address asset = address(0);
 
     vm.prank(OWNER);
