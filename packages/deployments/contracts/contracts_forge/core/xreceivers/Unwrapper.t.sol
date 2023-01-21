@@ -171,14 +171,12 @@ contract UnwrapperTest is ForgeHelper {
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
-  function test_Unwrapper__xReceive_emitsEventIfNonWrapperAssetAndERC20TransferFails() public {
-    address asset = MOCK_ERC20; // xReceive will be getting a random non-wrapper erc20 asset.
+  function test_Unwrapper__xReceive_failsIfNonWrapperAssetAndTransferFails() public {
+    address asset = address(new RevertingERC20()); // xReceive will be getting a random non-wrapper erc20 asset.
     uint256 amount = 10 ether;
 
-    vm.expectEmit(true, true, true, true);
-    emit WrongAsset(recipient, asset);
-
     vm.prank(MOCK_CONNEXT);
+    vm.expectRevert("test transfer error");
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
   }
 
