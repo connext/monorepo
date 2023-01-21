@@ -302,6 +302,57 @@ describe("NxtpSdkPool", () => {
     });
   });
 
+  describe("#calculateSwap", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateSwap: function () {
+          return BigNumber.from(100);
+        },
+      };
+
+      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await nxtpPool.calculateSwap(mockPool.domainId, mockPool.local.address, 0, 1, 100);
+
+      expect(res).to.be.equal(BigNumber.from(100));
+    });
+  });
+
+  describe("#calculateTokenAmount", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateTokenAmount: function () {
+          return BigNumber.from(100);
+        },
+      };
+
+      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await nxtpPool.calculateTokenAmount(mockPool.domainId, mockPool.local.address, ["10", "10"]);
+
+      expect(res).to.be.equal(BigNumber.from(100));
+    });
+  });
+
+  describe("#calculateRemoveSwapLiquidity", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateRemoveSwapLiquidity: function () {
+          return [BigNumber.from(100), BigNumber.from(100)];
+        },
+      };
+
+      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await nxtpPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
+
+      expect(res).to.be.equal([BigNumber.from(100), BigNumber.from(100)]);
+    });
+  });
+
   describe("#calculatePriceImpact", () => {
     const mockParams = {
       totalReservesIn: BigNumber.from("100"),
