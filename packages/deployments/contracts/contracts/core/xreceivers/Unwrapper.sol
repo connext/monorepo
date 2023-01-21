@@ -116,6 +116,10 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
     address asset,
     uint256 amount
   ) public onlyOwner {
+    // Sanity check: amount is non-zero (otherwise, what are we unwrapping?).
+    require(amount != 0, "sweep: !amount");
+
+    // Send funds to recipient
     _sweep(recipient, asset, amount);
   }
 
@@ -137,6 +141,9 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    * @param amount Amount of asset to sweep from contract
    */
   function unwrapAndSweep(address recipient, uint256 amount) public onlyOwner {
+    // Sanity check: amount is non-zero (otherwise, what are we unwrapping?).
+    require(amount != 0, "unwrapAndSweep: !amount");
+
     // Withdraw from wrapper
     WRAPPER.withdraw(amount);
 
@@ -167,7 +174,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
     bytes32, // transferId
     uint256 amount,
     address asset,
-    address,
+    address, // originSender
     uint32, // origin domain
     bytes memory callData
   ) external onlyConnext returns (bytes memory) {

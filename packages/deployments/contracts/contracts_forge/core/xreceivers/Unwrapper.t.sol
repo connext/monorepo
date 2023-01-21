@@ -191,9 +191,7 @@ contract UnwrapperTest is ForgeHelper {
   }
 
   function test_Unwrapper__sweep_shouldSendEthToRecipient(uint256 amount) public {
-    if (amount == 0) {
-      return; // Skip 0 amount case.
-    }
+    vm.assume(amount > 0);
 
     address asset = address(0);
 
@@ -206,6 +204,14 @@ contract UnwrapperTest is ForgeHelper {
     utils_assertSentEthToRecipient(recipient, amount);
   }
 
+  function test_Unwrapper__unwrapAndSweep_failsIfNoAmount() public {
+    address asset = address(0);
+
+    vm.prank(OWNER);
+    vm.expectRevert("sweep: !amount");
+    unwrapper.sweep(recipient, asset, 0);
+  }
+
   function test_Unwrapper__sweep_failsIfNotOwner() public {
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     unwrapper.sweep(recipient, address(0), 10 ether);
@@ -213,6 +219,7 @@ contract UnwrapperTest is ForgeHelper {
 
   // ============ Unwrapper.unwrapAndSweep ============
   function test_Unwrapper__unwrapAndSweep_works(uint256 amount) public {
+    vm.assume(amount > 0);
     address asset = address(0);
     utils_expectRecipientToReceive(recipient, asset, amount);
     utils_recordInitialBalances(recipient);
@@ -221,6 +228,12 @@ contract UnwrapperTest is ForgeHelper {
     unwrapper.unwrapAndSweep(recipient, amount);
 
     utils_assertSentEthToRecipient(recipient, amount);
+  }
+
+  function test_Unwrapper__unwrapAndSweep_failsIfNoAmount() public {
+    vm.prank(OWNER);
+    vm.expectRevert("unwrapAndSweep: !amount");
+    unwrapper.unwrapAndSweep(recipient, 0);
   }
 
   function test_Unwrapper__unwrapAndSweep_failsIfNotOwner() public {
