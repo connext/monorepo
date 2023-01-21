@@ -76,12 +76,8 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
       expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
       expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
       expect(nxtpPool.calculateAmountReceived).to.be.a("function");
       expect(nxtpPool.getTokenPrice).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
       expect(nxtpPool.getDefaultDeadline).to.be.a("function");
 
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
@@ -419,6 +415,14 @@ describe("NxtpSdkPool", () => {
       const price = await nxtpPool.getTokenPrice("OP");
       expect(price).gt(0);
       expect(price).lt(20);
+    });
+  });
+
+  describe("#calculateYield", () => {
+    it("happy: should return the correct apr, apy", async () => {
+      const yieldData = await nxtpPool.calculateYield(1, 10000, 1);
+      expect(yieldData.apr).closeTo(0.0365, 0.001);
+      expect(yieldData.apy).closeTo(0.03706870443, 0.001);
     });
   });
 
