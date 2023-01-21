@@ -236,11 +236,11 @@ export const TransferButton = ({
         if (!xcall?.transfer_id && xcall?.transactionHash) {
           let transfer;
           try {
-            const response = await sdk.nxtpSdkUtils.getTransferByTransactionHash(xcall.transactionHash);
+            const response = await sdk.nxtpSdkUtils.getTransfers({ transactionHash: xcall.transactionHash });
             transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
           } catch (error: unknown) {}
           try {
-            const response = await sdk.nxtpSdkUtils.getTransfersByUser({ userAddress: address });
+            const response = await sdk.nxtpSdkUtils.getTransfers({ userAddress: address });
             transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
           } catch (error: unknown) {}
           if (
@@ -256,7 +256,7 @@ export const TransferButton = ({
             });
           }
         } else if (xcall.transfer_id) {
-          const response = await sdk.nxtpSdkUtils.getTransferById(xcall.transfer_id);
+          const response = await sdk.nxtpSdkUtils.getTransfers({ transferId: xcall.transfer_id });
 
           const transfer = response?.find((t: any) => t?.transfer_id === xcall.transfer_id);
 
