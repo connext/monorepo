@@ -185,9 +185,7 @@ contract UnwrapperTest is ForgeHelper {
 
   // ============ Unwrapper.sweep ============
   function test_Unwrapper__sweep_shouldSendERC20ToRecipient(uint256 amount) public {
-    if (amount == 0) {
-      return; // Skip 0 amount case.
-    }
+    vm.assume(amount > 0);
 
     address asset = MOCK_ERC20;
 
