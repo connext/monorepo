@@ -200,15 +200,15 @@ export class NxtpSdkShared {
   /**
    * Returns the hash of the canonical id + domain.
    * @param domainId The canonical domain id of the token.
-   * @param tokenAddress The address of the canonical token.
+   * @param canonicalId The canonical id of the token.
    */
   calculateCanonicalKey(domainId: string, tokenId: string): string {
     return getCanonicalHash(domainId, tokenId);
   }
 
-  async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
+  async getCanonicalTokenId(domainId: string, canonicalId: string): Promise<[string, string]> {
     const connextContract = await this.getConnext(domainId);
-    const tokenId = await connextContract.getTokenId(tokenAddress);
+    const tokenId = await connextContract.getTokenId(canonicalId);
 
     return [tokenId.domain.toString(), tokenId.id];
   }
