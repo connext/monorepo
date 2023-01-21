@@ -172,9 +172,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
     }
     if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
-      throw new SlippageInvalid({
-        slippage: slippage,
-      });
+      throw new SlippageInvalid(slippage, context);
     }
 
     const validateInput = ajv.compile(SdkXCallParamsSchema);
