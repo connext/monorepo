@@ -7,14 +7,30 @@ import {
   MultisendTransaction,
   encodeMultisendCall,
   NxtpError,
+  ajv,
 } from "@connext/nxtp-utils";
 import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 
+export type logger = Logger;
+
 import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined, CannotUnwrapOnDestination } from "./lib/errors";
+import {
+  SignerAddressMissing,
+  ChainDataUndefined,
+  CannotUnwrapOnDestination,
+  ParamsInvalid,
+  SlippageInvalid,
+} from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 import { NxtpSdkShared } from "./sdkShared";
-import { SdkXCallArgs } from "./interfaces";
+import {
+  SdkXCallParamsSchema,
+  SdkXCallParams,
+  SdkBumpTransferParamsSchema,
+  SdkBumpTransferParams,
+  SdkEstimateRelayerFeeParamsSchema,
+  SdkEstimateRelayerFeeParams,
+} from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -28,6 +44,38 @@ export class NxtpSdkBase extends NxtpSdkShared {
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
+  /**
+   * Create a singleton instance of the NxtpSdkBase class.
+   *
+   * @param _config - NxtpSdkConfig object.
+   * @param _config.chains - Chain config, at minimum with providers for each chain.
+   * @param _config.signerAddress - Signer address for transactions.
+   * @param _config.logLevel - (optional) Logging severity level.
+   * @param _config.network - (optional) Blockchain environment to interact with.
+   * @returns providers.TransactionRequest object.
+   *
+   * @example:
+   * ```ts
+   * import { NxtpSdkBase } from "@connext/nxtp-sdk";
+   *
+   * const config = {
+   *   "chains": {
+   *     "6648936": {
+   *       "providers": ["https://rpc.ankr.com/eth"]
+   *     },
+   *     "1869640809": {
+   *       "providers": ["https://mainnet.optimism.io"]
+   *     },
+   *     "1886350457": {
+   *       "providers": ["https://polygon-rpc.com"]
+   *     },
+   *   },
+   *   "signerAddress": "<wallet_address>",
+   * }
+   *
+   * const nxtpSdkBase = await NxtpSdkBase.create(config);
+   * ```
+   */
   static async create(
     _config: NxtpSdkConfig,
     _logger?: Logger,
@@ -47,71 +95,107 @@ export class NxtpSdkBase extends NxtpSdkShared {
   }
 
   /**
-   * Check, sanitize, and format the XCall and encode calldata. Returns an ethers TransactionRequest object, ready
+   * Prepares xcall inputs and encodes the calldata. Returns an ethers TransactionRequest object, ready
    * to be sent to an RPC provider.
    *
-   * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
-   * @param args.wrapNativeOnOrigin - Whether we should wrap the native token before sending the xcall. This will
-   * use the Multisend utility contract to deposit ETH, approve Connext as a spender, and call xcall.
-   * @param args.unwrapNativeOnDestination - Whether we should unwrap the wrapped native token when the transfer
-   * reaches its destination. By default, if sending a wrapped native token, the wrapped token is what gets
-   * delivered at the destination. Setting this to `true` means we should overwrite `callData` to target the
-   * Unwrapper utility contract, which will unwrap the wrapped native token and deliver it to the target
-   * recipient (the `to` address).
-   * @param args.asset - The target asset to send with the xcall. Can be set to `address(0)` if this is a 0-value
-   * transfer. If `wrapNativeOnOrigin` is true, this should be the target wrapper contract (e.g. WETH) address.
-   * @param args.amount - The amount of tokens (in specified asset) to send with the xcall. If `wrapNativeOnOrigin`
-   * is true, this will be used as the amount of native token to deposit into the wrapper contract and withdraw
-   * as wrapped native token for sending (e.g. deposit ETH to the WETH contract in exchange for the WETH ERC20).
+   * @param params - SdkXCallParams object.
+   * @param params.origin - The origin domain ID.
+   * @param params.destination - The destination domain ID.
+   * @param params.to - Address receiving funds or the target contract.
+   * @param params.asset - (optional) Address of the token contract. Use zero address only for non-value xcalls.
+   * @param params.delegate - (optional) Address allowed to cancel an xcall on destination.
+   * @param params.amount - (optional) Amount of tokens to transfer.
+   * @param params.slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
+   * @param params.callData - (optional) Calldata to execute (can be empty: "0x").
+   * @param params.relayerFee - (optional) Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
+   * @param params.receiveLocal - (optional) Whether to receive the local asset ("nextAsset").
    * @returns providers.TransactionRequest object.
+   *
+   * @example
+   * ```ts
+   * // call NxtpSdkBase.create(), instantiate a signer
+   *
+   * const params = {
+   *   origin: "6648936"
+   *   destination: "1869640809"
+   *   to: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+   *   delegate: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   amount: "1000000"
+   *   slippage: "300"
+   *   callData: "0x",
+   *   relayerFee: "10000000000000"
+   * };
+   *
+   * const txRequest = nxtpSdkBase.xcall(params);
+   * signer.sendTransaction(txRequest);
+   * ```
    */
-  async xcall(args: SdkXCallArgs): Promise<providers.TransactionRequest> {
+  async xcall(params: SdkXCallParams): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
-    this.logger.info("Method start", requestContext, methodContext, { args });
+    this.logger.info("Method start", requestContext, methodContext, { params });
 
     const {
       origin,
-      relayerFee: _relayerFee,
       destination,
-      asset,
+      callData: _callData,
+      asset: _asset,
+      delegate: _delegate,
       amount: _amount,
-      slippage,
-      receiveLocal,
+      slippage: _slippage,
+      relayerFee: _relayerFee,
+      receiveLocal: _receiveLocal,
       wrapNativeOnOrigin,
       unwrapNativeOnDestination,
-    } = args;
-    let { to } = args;
+    } = params;
+    let { to, callData } = params;
+
+    // Set default values if not provided
+    callData = _callData ?? "0x";
+    const asset = _asset ?? constants.AddressZero;
+    const delegate = _delegate ?? to;
+    const amount = _amount ?? "0";
+    const amountBN = BigNumber.from(amount);
+    const slippage = _slippage ?? "10000";
+    const relayerFee = _relayerFee ?? "0";
+    const relayerFeeBN = BigNumber.from(relayerFee);
+    const receiveLocal = _receiveLocal ?? false;
 
     // Ensure signer is provided.
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
-    // Get the origin chain ID.
-    const chainId = await this.getChainId(origin);
-    // Get Connext address for origin.
-    const connextContractAddress = await this.getDeploymentAddress(origin, "connext");
 
-    /// MARK - Validate arguments.
-    // If address(0) provided for asset, must be a 0-value transfer.
-    if (asset === constants.AddressZero && _amount !== "0") {
-      // TODO: Custom error.
-      throw new Error("Transacting asset specified was address zero; native assets are not supported!");
+    // Input validation
+    if (asset == constants.AddressZero && amount != "0") {
+      throw new ParamsInvalid({
+        paramsError: "Transacting asset specified was address zero; native assets are not supported!",
+      });
     }
-    // Valid (non-zero) recipient must be provided.
+    if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
+      throw new SlippageInvalid(slippage, context);
+    }
     if (to === constants.AddressZero) {
-      // TODO: Custom error.
-      throw new Error("Valid recipient `to` address must be provided; received address(0) as recipient.");
+      throw new ParamsInvalid("Valid recipient `to` address must be provided; received address(0) as recipient.");
     }
 
-    // Sanitize arguments. Substitute default values as needed.
-    const amount = BigNumber.from(_amount);
-    let callData = args.callData ?? "0x";
-    const delegate = args.delegate ?? to; // Default to using the recipient address as the delegate.
-    const relayerFee = BigNumber.from(_relayerFee ?? "0");
-    // TODO: Calculate estimate for relayer fee and include it in the call params.
-    // TODO: Should additionally make sure the asset is set to address(0) if the amount is 0.
-    // TODO: Use ajv validator.
+    const validateInput = ajv.compile(SdkXCallParamsSchema);
+    const validInput = validateInput(params);
+    if (!validInput) {
+      const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+      throw new ParamsInvalid({
+        paramsError: msg,
+        params,
+      });
+    }
+
+    const connextContractAddress = (await this.getConnext(origin)).address;
+
+    let chainId = this.config.chains[origin].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(origin, this.chainData);
+    }
 
     if (unwrapNativeOnDestination) {
       // Sanity check: We'll need to overwrite the callData with an unwrapping call. If a `callData` argument
@@ -148,7 +232,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       to,
       asset,
       delegate,
-      amount,
+      amountBN,
       slippage,
       callData,
     ];
@@ -175,33 +259,33 @@ export class NxtpSdkBase extends NxtpSdkShared {
       txs.push({
         to: asset,
         data: weth.encodeFunctionData("deposit"),
-        value: amount,
+        value: amountBN,
       });
 
       // 2. WETH.approve(connext)
       txs.push({
         to: asset,
-        data: weth.encodeFunctionData("approve", [connextContractAddress, amount]),
+        data: weth.encodeFunctionData("approve", [connextContractAddress, amountBN]),
       });
 
       // 3. xcall(args)
       txs.push({
         to: connextContractAddress,
         data: xcallData,
-        value: relayerFee,
+        value: relayerFeeBN,
       });
 
       // 5. Format Multisend call in an ethers TransactionRequest object.
       txRequest = {
         to: multisendContractAddress,
-        value: amount.add(relayerFee), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+        value: amountBN.add(relayerFeeBN), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
         from: signerAddress,
         chainId,
       };
     } else {
       // Add callback and relayer fee together to get the total ETH value that should be sent.
-      const value = BigNumber.from(relayerFee ?? "0");
+      const value = relayerFeeBN;
 
       // Format the ethers TransactionRequest object.
       txRequest = {
@@ -214,7 +298,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
 
     this.logger.info("XCall transaction formatted.", requestContext, methodContext, {
-      args: { ...args, callData, delegate },
+      args: { ...params, callData, delegate },
       to: txRequest.to,
       from: txRequest.from,
       value: txRequest.value?.toString(),
@@ -224,17 +308,29 @@ export class NxtpSdkBase extends NxtpSdkShared {
   }
 
   /**
-   * Bump the relayer fee bid for a specified transfer.
+   * Increases the relayer fee for a specific transfer on origin; anyone is allowed to bump for any transfer.
    *
-   * @param params.domainId - The origin domain of the xcall.
-   * @param params.transferId - The sent xcall's transfer ID value.
-   * @param params.relayerFee - The amount by which to increase the relayer fee bid in native token (ETH).
+   * @param params - SdkBumpTransferParams object.
+   * @param params.domainId - The origin domain ID of the transfer.
+   * @param params.transferId - The transfer ID.
+   * @param params.relayerFee - The additional relayer fee to increase the transfer by, in native gas token.
+   * @returns providers.TransactionRequest object.
+   *
+   * @example
+   * ```ts
+   * // call NxtpSdkBase.create(), instantiate a signer
+   *
+   * const params = {
+   *   domainId: "6648936",
+   *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
+   *   relayerFee: "10000",
+   * };
+   *
+   * const txRequest = nxtpSdkBase.bumpTransfer(params);
+   * signer.sendTransaction(txRequest);
+   * ```
    */
-  async bumpTransfer(params: {
-    domainId: string;
-    transferId: string;
-    relayerFee: string;
-  }): Promise<providers.TransactionRequest> {
+  async bumpTransfer(params: SdkBumpTransferParams): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
@@ -244,6 +340,21 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
 
     const { domainId, transferId, relayerFee } = params;
+
+    // Input validation
+    if (parseInt(relayerFee) <= 0) {
+      throw new ParamsInvalid({ paramsError: "Must increase relayerFee by > 0", relayerFee: relayerFee });
+    }
+
+    const validateInput = ajv.compile(SdkBumpTransferParamsSchema);
+    const validInput = validateInput(params);
+    if (!validInput) {
+      const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+      throw new ParamsInvalid({
+        paramsError: msg,
+        params,
+      });
+    }
 
     let chainId = this.config.chains[domainId].chainId;
     if (!chainId) {
@@ -269,16 +380,41 @@ export class NxtpSdkBase extends NxtpSdkShared {
     return txRequest;
   }
 
-  async estimateRelayerFee(params: {
-    originDomain: string;
-    destinationDomain: string;
-    originNativeToken?: string;
-    destinationNativeToken?: string;
-    callDataGasAmount?: number;
-    isHighPriority?: boolean;
-  }): Promise<BigNumber> {
+  /**
+   * Calculates an estimated relayer fee in the native asset of the origin domain to be used in xcall.
+   *
+   * @param params - SdkEstimateRelayerFeeParams object.
+   * @param params.originDomain - The origin domain ID of the transfer.
+   * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @returns The relayer fee in native asset of the origin domain.
+   *
+   * @example
+   * ```ts
+   * // call NxtpSdkBase.create(), instantiate a signer
+   *
+   * const params = {
+   *   originDomain: "6648936",
+   *   destinationDomain: "1869640809",
+   * };
+   *
+   * const txRequest = nxtpSdkBase.estimateRelayerFee(params);
+   * signer.sendTransaction(txRequest);
+   * ```
+   */
+  async estimateRelayerFee(params: SdkEstimateRelayerFeeParams): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.estimateRelayerFee.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
+
+    // Input validation
+    const validateInput = ajv.compile(SdkEstimateRelayerFeeParamsSchema);
+    const validInput = validateInput(params);
+    if (!validInput) {
+      const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+      throw new ParamsInvalid({
+        paramsError: msg,
+        params,
+      });
+    }
 
     let gasPrice;
     try {
