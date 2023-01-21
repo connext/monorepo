@@ -28,9 +28,12 @@ import {
   SdkXCallParams,
   SdkBumpTransferParamsSchema,
   SdkBumpTransferParams,
+  SdkUpdateSlippageParamsSchema,
+  SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
 } from "./interfaces";
+import { NxtpSdkUtils } from "./sdkUtils";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -303,6 +306,103 @@ export class NxtpSdkBase extends NxtpSdkShared {
       from: txRequest.from,
       value: txRequest.value?.toString(),
     });
+
+    return txRequest;
+  }
+
+  /**
+   * Updates the slippage tolerance for a specific transfer on origin; only the origin sender is allowed to do so.
+   *
+   * @param params - SdkUpdateSlippageParams object.
+   * @param params.domainId - The origin domain ID of the transfer.
+   * @param params.transferId - The transfer ID.
+   * @param params.slippage - The additional relayer fee to increase the transfer by, in native gas token.
+   * @returns providers.TransactionRequest object.
+   *
+   * @example
+   * ```ts
+   * // call NxtpSdkBase.create(), instantiate a signer
+   *
+   * const params = {
+   *   domainId: "6648936",
+   *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
+   *   relayerFee: "10000",
+   * };
+   *
+   * const txRequest = nxtpSdkBase.bumpTransfer(params);
+   * signer.sendTransaction(txRequest);
+   * ```
+   */
+  async updateSlippage(params: SdkUpdateSlippageParams): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.updateSlippage.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const { domainId, transferId, slippage: _newSlippage } = params;
+
+    // Input validation
+    if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
+      throw new SlippageInvalid(_newSlippage, context);
+    }
+
+    const validateInput = ajv.compile(SdkUpdateSlippageParamsSchema);
+    const validInput = validateInput(params);
+    if (!validInput) {
+      const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+      throw new ParamsInvalid({
+        paramsError: msg,
+        params,
+      });
+    }
+
+    let chainId = this.config.chains[domainId].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(domainId, this.chainData);
+    }
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
+
+    // Construct the TransferInfo for this transferId
+    const sdkUtils = await NxtpSdkUtils.create(this.config);
+    const transfers = await sdkUtils.getTransfers({ transferId: transferId });
+
+    if (transfers.length <= 0) {
+      throw new ParamsInvalid({
+        paramsError: "No transfer found for this transferId",
+        transferId: transferId,
+      });
+    }
+    const transfer = transfers[0];
+
+    const asdf = {
+      originDomain: transfer.origin_domain,
+      destinationDomain: transfer.destination_domain,
+      canonicalDomain: transfer.canonical_domain,
+      to: transfer.to,
+      delegate: transfer.delegate,
+      receiveLocal: transfer.receive_local,
+      callData: transfer.call_data,
+      slippage: transfer.slippage,
+      originSender: transfer.origin_sender,
+      bridgedAmt: transfer.bridged_amt,
+      normalizedIn: transfer.normalized_in,
+      nonce: transfer.nonce,
+      canonicalId: transfer.canonical_id,
+    };
+
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [asdf, _newSlippage]);
+
+    const txRequest = {
+      to: ConnextContractAddress,
+      data,
+      from: signerAddress,
+      chainId,
+    };
+
+    this.logger.info(`${this.updateSlippage.name} transaction created`, requestContext, methodContext, txRequest);
 
     return txRequest;
   }
