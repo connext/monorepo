@@ -74,7 +74,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
   describe("#totalMintedAssets", () => {
     it("should query custodied on-chain", async () => {
       readTxResult = "123";
-      const result = await assetVerifier.totalMintedAssets(targetAsset);
+      const result = await assetVerifier.totalMintedAssets(targetAsset, requestContext);
       expect(BigNumber.from(readTxResult).eq(result));
     });
   });
@@ -82,7 +82,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
   describe("#totalLockedAssets", () => {
     it("should query custodied on-chain", async () => {
       readTxResult = "1234";
-      const result = await assetVerifier.totalLockedAssets(targetAsset);
+      const result = await assetVerifier.totalLockedAssets(targetAsset, requestContext);
       expect(BigNumber.from(readTxResult).eq(result));
     });
   });
@@ -103,8 +103,8 @@ describe("Watcher Adapter: AssetVerifier", () => {
       let result = await assetVerifier.checkInvariant(requestContext);
       expect(result.needsPause).to.be.false;
       // NOTE: If we add more target assets to this test, make sure to modify these checks.
-      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
-      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
+      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
+      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
 
       // totalMinted is less than totalLocked: should pass.
       totalMintedAssetsStub.resolves(BigNumber.from(8_123));
@@ -118,8 +118,8 @@ describe("Watcher Adapter: AssetVerifier", () => {
       totalMintedAssetsStub.resolves(BigNumber.from(20_000));
       const result = await assetVerifier.checkInvariant(requestContext);
       expect(result.needsPause).to.be.true;
-      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
-      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
+      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
+      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
     });
   });
 });
