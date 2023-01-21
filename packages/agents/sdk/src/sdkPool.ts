@@ -33,8 +33,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @param _config - NxtpSdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
-   * @param _config.logLevel - (optional) "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent".
-   * @param _config.network - (optional) "testnet" | "mainnet".
+   * @param _config.logLevel - (optional) Logging severity level.
+   * @param _config.network - (optional) Blockchain environment to interact with.
    * @returns providers.TransactionRequest object.
    *
    * @example:
