@@ -195,6 +195,22 @@ export class NxtpSdkShared {
     return await axiosGetRequest(uri);
   }
 
+  /**
+   * Fetches the list of supported networks and assets.
+   *
+   * @returns Array of objects containing networks and assets supported by the protocol, in the form of:
+   * ```ts
+   * {
+   *   "name": "arbitrum",
+   *   "chainId": 42161,
+   *   "domainId": "1634886255",
+   *   "assets": [
+   *     "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+   *     "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+   *   ]
+   * },
+   * ```
+   */
   async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
 
