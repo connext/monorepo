@@ -67,17 +67,12 @@ contract UnwrapperTest is ForgeHelper {
     if (asset == address(0) || asset == MOCK_WRAPPER) {
       // Fund the target amount of ETH; our fake Wrapper contract certainly won't return any when we `withdraw`.
       vm.deal(address(unwrapper), amount);
-
-      // vm.expectCall(_recipient, amount, abi.encode(""));
-
-      vm.expectEmit(true, true, true, true);
-      emit FundsDelivered(_recipient, address(0), amount);
+      asset = address(0);
     } else {
       vm.expectCall(asset, abi.encodeWithSelector(IERC20.transfer.selector, _recipient, amount));
-
-      vm.expectEmit(true, true, true, true);
-      emit FundsDelivered(_recipient, asset, amount);
     }
+    vm.expectEmit(true, true, true, true);
+    emit FundsDelivered(_recipient, asset, amount);
   }
 
   uint256 initialRecipientBalance;
