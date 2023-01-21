@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { SdkServerApiXCallSchema, SdkServerApiXCall, TIntegerString } from "@connext/nxtp-utils";
+import { NxtpSdkBase, SdkXCallParamsSchema, SdkXCallParams, SdkBumpTransferParamsSchema } from "@connext/nxtp-sdk";
+import { TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 
@@ -16,11 +16,11 @@ export type EstimateRelayerFee = Static<typeof EstimateRelayerFeeSchema>;
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.post<{ Body: SdkServerApiXCall }>(
+  s.post<{ Body: SdkXCallParams }>(
     "/xcall",
     {
       schema: {
-        body: SdkServerApiXCallSchema,
+        body: SdkXCallParamsSchema,
       },
     },
     async (request, reply) => {
@@ -43,19 +43,6 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
   );
 
-  s.post<{ Body: SdkServerApiXCall }>(
-    "/wrapEthAndXCall",
-    {
-      schema: {
-        body: SdkServerApiXCallSchema,
-      },
-    },
-    async (request, reply) => {
-      const txReq = await sdkBaseInstance.wrapEthAndXCall(request.body);
-      reply.status(200).send(txReq);
-    },
-  );
-
   s.post(
     "/approveIfNeeded",
     {
@@ -66,6 +53,19 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     async (request, reply) => {
       const { domainId, assetId, amount, infiniteApprove } = request.body;
       const txReq = await sdkBaseInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post(
+    "/bumpTransfer",
+    {
+      schema: {
+        body: SdkBumpTransferParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.bumpTransfer(request.body);
       reply.status(200).send(txReq);
     },
   );

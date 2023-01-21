@@ -98,7 +98,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await (msg as any).getBlockFromNodeLog(spokeProvider, log);
+    const block = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, log);
     const sendCount = BigNumber.from(block.sendCount);
     if (sendCount.gt(msg.event.position)) {
       foundLog = log;
@@ -109,8 +109,12 @@ export const getProcessFromArbitrumRootArgs = async ({
   }
 
   const earliestNodeWithExit = foundLog.event.nodeNum;
-  const rollup = RollupUserLogic__factory.connect(arbNetwork.ethBridge.rollup, spokeJsonProvider);
-  const foundBlock = await (msg as any).getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
+  const rollup = RollupUserLogic__factory.getContract(arbNetwork.ethBridge.rollup, RollupUserLogic__factory.abi);
+  const foundBlock = await (msg as any).getBlockFromNodeNum(
+    rollup.connect(hubJsonProvider),
+    earliestNodeWithExit,
+    spokeJsonProvider,
+  );
   logger.info("Got node and block", requestContext, methodContext, {
     node: earliestNodeWithExit.toString(),
     block: foundBlock,

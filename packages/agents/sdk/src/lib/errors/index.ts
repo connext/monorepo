@@ -7,8 +7,12 @@ export class SignerAddressMissing extends NxtpError {
 }
 
 export class ContractAddressMissing extends NxtpError {
-  constructor(context: any = {}) {
-    super("Contract Address Missing", context, ContractAddressMissing.name);
+  constructor(domainId: string, which: string, context: any = {}) {
+    super(
+      `Contract address missing for ${domainId}: ${which}`,
+      { ...context, domainId, which },
+      ContractAddressMissing.name,
+    );
   }
 }
 
@@ -42,12 +46,18 @@ export class ParseConnextLogFailed extends NxtpError {
   }
 }
 
-export class PoolDoesNotExist extends NxtpError {
-  constructor(domainId: string, tokenAddress: string, context: any = {}) {
+export class CannotUnwrapOnDestination extends NxtpError {
+  constructor(reason: string, context: any = {}) {
     super(
-      "Pool doesn't exist for the token on this domain.",
-      { ...context, domainId, tokenAddress },
-      PoolDoesNotExist.name,
+      "Cannot fulfill request to unwrap native token on destination due to bad argument: " + reason,
+      { ...context },
+      CannotUnwrapOnDestination.name,
     );
+  }
+}
+
+export class SlippageInvalid extends NxtpError {
+  constructor(slippage: string, context: any = {}) {
+    super("Invalid slippage value. Must be between 0-10000 (inclusive)", { slippage, context }, SlippageInvalid.name);
   }
 }

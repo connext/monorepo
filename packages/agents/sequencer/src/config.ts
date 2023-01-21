@@ -96,7 +96,9 @@ export const getEnvConfig = (
       : configJson.relayers
       ? configJson.relayers
       : configFile.relayers,
-    database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
+    database: {
+      url: process.env.DATABASE_URL || configJson.database.url || configJson.database.url,
+    },
     relayerFeeTolerance: process.env.RELAYER_FEE_TOLERANCE
       ? Number(process.env.RELAYER_FEE_TOLERANCE)
       : configJson.relayerFeeTolerance

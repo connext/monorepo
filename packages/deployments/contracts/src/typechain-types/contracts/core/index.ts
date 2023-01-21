@@ -3,3 +3,5 @@
 /* eslint-disable */
 import type * as connext from "./connext";
 export type { connext };
+import type * as xreceivers from "./xreceivers";
+export type { xreceivers };

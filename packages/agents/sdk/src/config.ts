@@ -14,18 +14,21 @@ export const TAssetDescription = Type.Object({
 
 export type AssetDescription = Static<typeof TAssetDescription>;
 
+export const TChainDeployments = Type.Object({
+  connext: TAddress,
+  multisend: Type.Optional(TAddress),
+  unwrapper: Type.Optional(TAddress),
+  stableSwap: Type.Optional(TAddress),
+});
+
+export type ChainDeployments = Static<typeof TChainDeployments>;
+
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   gasStations: Type.Optional(Type.Array(Type.String())),
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
   chainId: Type.Optional(Type.Number()),
-  deployments: Type.Optional(
-    Type.Object({
-      connext: TAddress,
-      multisend: Type.Optional(TAddress),
-      stableSwap: Type.Optional(TAddress),
-    }),
-  ),
+  deployments: Type.Optional(TChainDeployments),
   assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
@@ -119,6 +122,15 @@ export const getEnvConfig = (
         (() => {
           if (chainDataForChain) {
             const res = deployments.multisend(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
+        })(),
+      unwrapper:
+        chainConfig.deployments?.unwrapper ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.unwrapper(chainDataForChain.chainId);
             return res?.address;
           }
           return undefined;
