@@ -13,7 +13,7 @@ import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, getChainIdFromDomain, calculateRelayerFee } from "./lib/helpers";
+import { getChainData, calculateRelayerFee } from "./lib/helpers";
 import {
   SignerAddressMissing,
   ChainDataUndefined,
@@ -195,10 +195,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     const connextContractAddress = (await this.getConnext(origin)).address;
 
-    let chainId = this.config.chains[origin].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(origin, this.chainData);
-    }
+    const chainId = await this.getChainId(origin);
 
     if (unwrapNativeOnDestination) {
       // Sanity check: We'll need to overwrite the callData with an unwrapping call. If a `callData` argument
@@ -359,10 +356,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       });
     }
 
-    let chainId = this.config.chains[domainId].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domainId, this.chainData);
-    }
+    const chainId = await this.getChainId(domainId);
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // Construct the TransferInfo for this transferId
@@ -456,10 +450,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       });
     }
 
-    let chainId = this.config.chains[domainId].chainId;
-    if (!chainId) {
-      chainId = await getChainIdFromDomain(domainId, this.chainData);
-    }
+    const chainId = await this.getChainId(domainId);
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
