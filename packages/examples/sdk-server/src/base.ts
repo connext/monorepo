@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase, SdkXCallArgs, SdkXCallArgsSchema } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, SdkXCallParamsSchema, SdkXCallParams } from "@connext/nxtp-sdk";
 import { TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
@@ -16,11 +16,11 @@ export type EstimateRelayerFee = Static<typeof EstimateRelayerFeeSchema>;
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.post<{ Body: SdkXCallArgs }>(
+  s.post<{ Body: SdkXCallParams }>(
     "/xcall",
     {
       schema: {
-        body: SdkXCallArgsSchema,
+        body: SdkXCallParamsSchema,
       },
     },
     async (request, reply) => {
