@@ -40,6 +40,8 @@ export const SdkXCallParamsSchema = Type.Intersect([
     origin: TIntegerString,
     relayerFee: TIntegerString,
     receiveLocal: Type.Boolean(),
+    wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
+    unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
   }),
 ]);
 
