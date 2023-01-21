@@ -316,7 +316,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param params - SdkUpdateSlippageParams object.
    * @param params.domainId - The origin domain ID of the transfer.
    * @param params.transferId - The transfer ID.
-   * @param params.slippage - The additional relayer fee to increase the transfer by, in native gas token.
+   * @param params.slippage - The new relayer fee to use for this transfer, in BPS.
    * @returns providers.TransactionRequest object.
    *
    * @example
@@ -326,10 +326,10 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * const params = {
    *   domainId: "6648936",
    *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
-   *   relayerFee: "10000",
+   *   relayerFee: "1000",
    * };
    *
-   * const txRequest = nxtpSdkBase.bumpTransfer(params);
+   * const txRequest = nxtpSdkBase.updateSlippage(params);
    * signer.sendTransaction(txRequest);
    * ```
    */
