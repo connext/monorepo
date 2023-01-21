@@ -75,8 +75,8 @@ GET {{baseUrl}}/getCanonicalTokenId/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8
 GET {{baseUrl}}/getLPTokenAddress/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
-### GET getLPTokenSupply
-GET {{baseUrl}}/getLPTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+### GET getTokenSupply
+GET {{baseUrl}}/getTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
 ### GET calculateCanonicalKey

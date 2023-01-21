@@ -85,7 +85,7 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.getDefaultDeadline).to.be.a("function");
 
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
-      expect(nxtpPool.getLPTokenSupply).to.be.a("function");
+      expect(nxtpPool.getTokenSupply).to.be.a("function");
       expect(nxtpPool.getTokenUserBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
