@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, TIntegerString } from "@connext/nxtp-utils";
+import { TAddress, TIntegerString, XCallArgsSchema } from "@connext/nxtp-utils";
 
 export type Pool = {
   domainId: string;
@@ -34,19 +34,32 @@ export type AssetData = {
 
 export type ConnextSupport = { name: string; chainId: number; domainId: string; assets: string[] };
 
-export const SdkXCallArgsSchema = Type.Object({
-  destination: Type.String(),
-  to: TAddress,
-  asset: TAddress,
-  delegate: Type.Optional(TAddress),
-  amount: TIntegerString,
-  slippage: TIntegerString,
-  callData: Type.Optional(Type.String()),
-  origin: Type.String(),
-  relayerFee: Type.Optional(Type.String()),
-  receiveLocal: Type.Optional(Type.Boolean()),
-  wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
-  unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
+export const SdkXCallParamsSchema = Type.Intersect([
+  XCallArgsSchema,
+  Type.Object({
+    origin: TIntegerString,
+    relayerFee: TIntegerString,
+    receiveLocal: Type.Boolean(),
+  }),
+]);
+
+export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
+
+export const SdkBumpTransferParamsSchema = Type.Object({
+  domainId: TIntegerString,
+  transferId: Type.String(),
+  relayerFee: TIntegerString,
 });
 
-export type SdkXCallArgs = Static<typeof SdkXCallArgsSchema>;
+export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
+
+export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
+  originDomain: TIntegerString,
+  destinationDomain: TIntegerString,
+  originNativeToken: Type.Optional(TAddress),
+  destinationNativeToken: Type.Optional(TAddress),
+  callDataGasAmount: Type.Optional(Type.Integer()),
+  isHighPriority: Type.Optional(Type.Boolean()),
+});
+
+export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
