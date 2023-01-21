@@ -16,7 +16,7 @@ contract UnwrapperTest is ForgeHelper {
 
   // ============ Storage ============
   address constant MOCK_CONNEXT = address(999999);
-  address constant MOCK_WRAPPER = address(888888);
+  address MOCK_WRAPPER = address(888888);
   address constant MOCK_ERC20 = address(777777);
   address constant OWNER = address(666666);
 
@@ -178,6 +178,17 @@ contract UnwrapperTest is ForgeHelper {
     vm.prank(MOCK_CONNEXT);
     vm.expectRevert("test transfer error");
     unwrapper.xReceive(transferId, amount, asset, originSender, origin, callDataWithRecipient);
+  }
+
+  function test_Unwrapper__xReceive_failsIfWrapperFailsToWithdraw() public {
+    MOCK_WRAPPER = address(new RevertingERC20());
+    unwrapper = new Unwrapper(MOCK_CONNEXT, MOCK_WRAPPER);
+
+    uint256 amount = 10 ether;
+
+    vm.prank(MOCK_CONNEXT);
+    vm.expectRevert("test withdraw error");
+    unwrapper.xReceive(transferId, amount, MOCK_WRAPPER, originSender, origin, callDataWithRecipient);
   }
 
   // ============ Unwrapper.sweep ============
