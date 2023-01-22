@@ -715,9 +715,11 @@ export class RpcProviderAggregator {
       const filteredResults: T[] = results.filter((item) => item !== undefined) as T[];
       if (filteredResults.length > 0) {
         // Pick the most common answer.
-        let counts: Map<T, number> = new Map();
+        let counts: Map<string, number> = new Map();
         counts = filteredResults.reduce((counts, item) => {
-          counts.set(item, (counts.get(item) ?? 0) + 1);
+          // Stringify the key. We'll convert it back before returning.
+          const key = JSON.stringify(item);
+          counts.set(key, (counts.get(key) ?? 0) + 1);
           return counts;
         }, counts);
         const maxCount = Math.max(...Array.from(counts.values()));
@@ -745,7 +747,13 @@ export class RpcProviderAggregator {
             },
           );
         }
-        return topResponses[0];
+        // We've been using string keys and need to convert back to the OG item type T.
+        const stringifiedTopResponse = topResponses[0];
+        for (const item of filteredResults) {
+          if (JSON.stringify(item) === stringifiedTopResponse) {
+            return item;
+          }
+        }
       }
     } else {
       // Shuffle the providers (with weighting towards better ones) and pick from the top.
