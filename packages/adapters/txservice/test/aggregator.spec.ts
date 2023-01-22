@@ -693,7 +693,6 @@ describe("RpcProviderAggregator", () => {
     });
 
     it("works with quorum > 1 and different return types", async () => {
-      // Quorum required = 2. The 2 good RPC providers we supplied should suffice.
       (chainProvider as any).config.quorum = 2;
 
       for (const returnValue of ["hello test", false, 12345, BigNumber.from("12345"), { hello: "test" }]) {
@@ -705,6 +704,40 @@ describe("RpcProviderAggregator", () => {
 
         expect(await (chainProvider as any).execute(false, mockMethodParam)).to.be.deep.eq(returnValue);
       }
+    });
+
+    it("works with quorum > 1 and picks the top response", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider, badRpcProvider, goodRpcProvider];
+
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // Hi or Bye, which one is it? It should be "hi" since the goodRpcProviders outnumber the bad.
+      goodRpcProvider.method = Sinon.stub().resolves("hi");
+      badRpcProvider.method = Sinon.stub().resolves("bye");
+
+      const result = await (chainProvider as any).execute(false, mockMethodParam);
+      expect(result).to.be.eq("hi");
+
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(3);
+    });
+
+    it("works with quorum > 1 and multiple top responses", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider, badRpcProvider];
+
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // Hi or Bye, which one is it? Unfortunately will just have to pick one...
+      goodRpcProvider.method = Sinon.stub().resolves("hi");
+      badRpcProvider.method = Sinon.stub().resolves("bye");
+
+      const result = await (chainProvider as any).execute(false, mockMethodParam);
+      expect(result === "hi" || result === "bye").to.be.true;
+
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(2);
     });
 
     it("should fail if quorum not met", async () => {
