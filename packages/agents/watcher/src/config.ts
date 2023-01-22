@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
-  quorum: Type.Optional(Type.Integer()), // Required quorum among RPC providers.
+  quorum: Type.Optional(Type.Integer({ minimum: 2 })), // Required quorum among RPC providers.
 });
 
 export const WatcherConfigSchema = Type.Intersect([
@@ -61,11 +61,10 @@ export const getEnvConfig = (): WatcherConfig => {
   const chains: any = {};
   Object.entries(parsedChains).map(([key, values]) => {
     const { quorum, providers, ...rest } = values;
-    const total = providers.length;
     chains[key] = {
       providers,
       // should always *at least* be 2 for providers
-      quorum: quorum ?? total <= 3 ? total : total - 2,
+      quorum: quorum ?? 2,
       ...rest,
     };
   });
