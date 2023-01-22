@@ -163,6 +163,8 @@ export const saveTransfers = async (
     const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
+    } else if (_transfer.status == XTransferStatus.CompletedFast || _transfer.status == XTransferStatus.CompletedSlow) {
+      _transfer.error_status = undefined;
     }
 
     const transfer: any = { ...dbTransfer, ..._transfer };

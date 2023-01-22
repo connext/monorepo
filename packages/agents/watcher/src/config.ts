@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
-  quorum: Type.Integer(),
+  quorum: Type.Optional(Type.Integer()), // Required quorum among RPC providers.
 });
 
 export const WatcherConfigSchema = Type.Intersect([
