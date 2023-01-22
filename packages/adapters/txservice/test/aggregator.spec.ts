@@ -13,6 +13,7 @@ import {
   OperationTimeout,
   TransactionReadError,
   TransactionReverted,
+  QuorumNotMet,
 } from "../src";
 import {
   makeChaiReadable,
@@ -303,7 +304,7 @@ describe("RpcProviderAggregator", () => {
 
       expect(signer.call.callCount).to.equal(0);
       expect(coreSyncProvider.call.callCount).to.equal(1);
-      const { domain, ...expected } = TEST_READ_TX
+      const { domain, ...expected } = TEST_READ_TX;
       expect(coreSyncProvider.call.getCall(0).args[0]).to.deep.equal({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
       expect(result).to.be.eq(fakeData);
     });
@@ -675,6 +676,33 @@ describe("RpcProviderAggregator", () => {
       expect(badRpcProvider.method.callCount).to.equal(1);
       expect(goodRpcProvider.method.callCount).to.equal(1);
       expect(shuffleSyncedProvidersStub.callCount).to.equal(1);
+    });
+
+    it("happy, with quorum > 1", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider];
+
+      // Quorum required = 2. The 2 good RPC providers we supplied should suffice.
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      expect(await (chainProvider as any).execute(false, mockMethodParam)).to.be.true;
+      // 1 call for bad, 2 for good. 0 calls to shuffle, we should have consulted all providers!
+      expect(badRpcProvider.method.callCount).to.equal(1);
+      expect(goodRpcProvider.method.callCount).to.equal(2);
+      expect(shuffleSyncedProvidersStub.callCount).to.equal(0);
+    });
+
+    it("should fail if quorum not met", async () => {
+      testSyncProviders = [badRpcProvider, badRpcProvider, goodRpcProvider];
+
+      // Quorum required = 2. The 2 BAD RPC providers we supplied should NOT suffice!
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // First, make sure we get the correct value back.
+      await expect((chainProvider as any).execute(false, mockMethodParam)).to.be.rejectedWith(QuorumNotMet);
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(1);
     });
 
     it("should fail if the call needs a signer and needsSigner throws", async () => {
