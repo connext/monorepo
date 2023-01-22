@@ -1,5 +1,6 @@
 import {
   createLoggingContext,
+  createRequestContext,
   delay,
   ERC20Abi,
   jsonifyError,
@@ -730,6 +731,20 @@ export class RpcProviderAggregator {
         }
         // Technically it could be multiple top responses...
         const topResponses = Array.from(counts.keys()).filter((k) => counts.get(k)! === maxCount);
+        if (topResponses.length > 0) {
+          // Did we get multiple conflicting top responses? Worth logging.
+          this.logger.info(
+            "Received conflicting top responses from RPC providers.",
+            createRequestContext(this.execute.name),
+            undefined,
+            {
+              topResponses,
+              providersCount: this.providers.length,
+              responsesCount: filteredResults.length,
+              requiredQuorum: quorum,
+            },
+          );
+        }
         return topResponses[0];
       }
     } else {
