@@ -109,6 +109,19 @@ export const getEnvConfig = (): WatcherConfig => {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
+  // enforce there are at *least* three providers
+  const invalid = Object.entries(config.chains)
+    .map(([key, value]) => {
+      if (value.providers.length < 3) {
+        return key;
+      }
+      return undefined;
+    })
+    .filter((x) => !!x);
+  if (invalid.length) {
+    throw new Error(`Need 3 providers per chain at minimum. Missing those for ${invalid.join(", ")}`);
+  }
+
   return config;
 };
 
