@@ -1,4 +1,5 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { domainToChainId } from "@connext/nxtp-contracts";
 
 import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
@@ -8,8 +9,8 @@ import {
   AssetInfo,
   Report,
   PauseResponse,
-  VerifyResponse,
   WatcherAlertsConfig,
+  WatcherInvariantResponse,
 } from "./types";
 import { AssetVerifier } from "./verifiers";
 
@@ -17,21 +18,39 @@ import { AssetVerifier } from "./verifiers";
 export class WatcherAdapter {
   private readonly verifiers: Verifier[];
   private readonly pauser: Pauser;
+  private readonly context: VerifierContext;
+
+  // transactions sent to connext within the polling interval. cleared after
+  // each time `checkInvariants` is called
+  private readonly latestTransactions: Record<string, string[]> = {};
+
+  private push = false;
+
+  // this is set when `checkInvariants` determines that the system needs to be
+  // paused. will hold all transactions between checks that have gone to
+  // connext
+  private transactionSnapshot: Record<string, string[]> | undefined;
 
   constructor(context: VerifierContext, assets: AssetInfo[]) {
+    this.context = context;
     // Should set all applicable verifiers here!
     this.verifiers = [new AssetVerifier(context, assets)];
     this.pauser = new Pauser(context);
+    this.beginRecordingTransactions();
   }
 
   // TODO: Return invariant check value and let consumer decide whether to pause, or immediately try to pause?
-  public async checkInvariants(requestContext: RequestContext): Promise<VerifyResponse> {
+  public async checkInvariants(requestContext: RequestContext): Promise<WatcherInvariantResponse> {
     for (const verifier of this.verifiers) {
       const result = await verifier.checkInvariant(requestContext);
       if (result.needsPause) {
-        return result;
+        // store potential offending transactions
+        this.recordTransactions();
+        return { ...result, transactions: this.transactionSnapshot! };
       }
     }
+    // if there was no alerting, clear all of the saved transactions
+    this.clearTransactions();
     return {
       needsPause: false,
     };
@@ -150,5 +169,52 @@ export class WatcherAdapter {
     if (errors.filter((x) => !!x).length > 0) {
       throw errors;
     }
+  }
+
+  /**
+   * @notice Resets the latest transactions to ensure we only capture
+   * ones relevant to intervals of invariant calls
+   */
+  private clearTransactions(): void {
+    this.context.domains.forEach((domain) => {
+      this.latestTransactions[domain] = [];
+    });
+  }
+
+  /**
+   * @notice Stores transactions at the first instance of invariant failures
+   */
+  private recordTransactions(): void {
+    if (this.transactionSnapshot) {
+      // Do not override, likely already set from previous round of alerting
+      return;
+    }
+    // Store transactions sent to connext in latest interval
+    this.transactionSnapshot = { ...this.latestTransactions };
+  }
+
+  /**
+   * @notice Kicks off a listener to log any transaction hash that has been sent to connext
+   * between the `checkInvariant` calls. This allows us to log any transactions that may
+   * have caused the invariant failure immediately.
+   */
+  private beginRecordingTransactions(): void {
+    // clear out all the existing transactions. also ensures an array will always be present
+    this.clearTransactions();
+    // start listeners for each transaction
+    this.context.domains.forEach((_domain) => {
+      const domain = +_domain;
+      const chain = domainToChainId(domain);
+      const provider = this.context.txservice.getProvider(domain);
+      // FIXME: the only way to access events is by using the fallback provider, which
+      // will soon be deprecated
+      const { address: connext } = this.verifiers[0].getConnextDeployment(chain);
+      provider.fallbackProvider.on(
+        { address: connext.toLowerCase() /*connext.toLowerCase()*/ },
+        (data: { transactionHash: string }) => {
+          this.latestTransactions[domain].push(data.transactionHash);
+        },
+      );
+    });
   }
 }

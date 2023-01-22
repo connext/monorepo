@@ -8,13 +8,17 @@ export const validateAndPause = async (requestContext: RequestContext) => {
     adapters: { watcher },
   } = getContext();
 
-  const { needsPause, reason } = await watcher.checkInvariants(requestContext);
+  const { needsPause, reason, transactions } = await watcher.checkInvariants(requestContext);
   if (needsPause) {
-    await pauseAndAlert(requestContext, reason || "");
+    await pauseAndAlert(requestContext, reason || "", transactions);
   }
 };
 
-export const pauseAndAlert = async (requestContext: RequestContext, reason: string): Promise<PauseResponse[]> => {
+export const pauseAndAlert = async (
+  requestContext: RequestContext,
+  reason: string,
+  transactions?: Record<string, string[]>,
+): Promise<PauseResponse[]> => {
   const {
     adapters: { watcher },
     logger,
@@ -23,7 +27,7 @@ export const pauseAndAlert = async (requestContext: RequestContext, reason: stri
   const methodContext = createMethodContext(pauseAndAlert.name);
 
   const domains = Object.keys(config.chains);
-  logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason });
+  logger.warn("Pausing contracts!!!", requestContext, methodContext, { reason, transactions, domains });
   const paused = await watcher.pause(requestContext, reason, domains);
   logger.warn("Paused contracts, alerting", requestContext, methodContext, { paused });
   await watcher.alert(

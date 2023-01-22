@@ -1,5 +1,5 @@
 import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
-import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
+import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
 
@@ -17,6 +17,8 @@ export type VerifyResponse = {
   reason?: string;
 };
 
+export type WatcherInvariantResponse = VerifyResponse & { transactions?: Record<string, string[]> };
+
 // Base class for all verifiers. Should be inherited by verifiers, each with their own
 // invariant condition to track and verify.
 export abstract class Verifier {
@@ -26,7 +28,7 @@ export abstract class Verifier {
     throw new Error("not implemented");
   }
 
-  protected getConnextDeployment(chainId: number): { address: string; abi: any } {
+  public getConnextDeployment(chainId: number): { address: string; abi: any } {
     const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
     if (!connext) {
       // TODO: Custom errors for package
