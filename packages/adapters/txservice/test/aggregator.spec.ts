@@ -692,6 +692,21 @@ describe("RpcProviderAggregator", () => {
       expect(shuffleSyncedProvidersStub.callCount).to.equal(0);
     });
 
+    it("works with quorum > 1 and different return types", async () => {
+      // Quorum required = 2. The 2 good RPC providers we supplied should suffice.
+      (chainProvider as any).config.quorum = 2;
+
+      for (const returnValue of ["hello test", false, 12345, BigNumber.from("12345"), { hello: "test" }]) {
+        goodRpcProvider.method = Sinon.stub().resolves(returnValue);
+        badRpcProvider.method = Sinon.stub().rejects(testRpcError);
+
+        testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider];
+        (chainProvider as any).providers = testSyncProviders;
+
+        expect(await (chainProvider as any).execute(false, mockMethodParam)).to.be.deep.eq(returnValue);
+      }
+    });
+
     it("should fail if quorum not met", async () => {
       testSyncProviders = [badRpcProvider, badRpcProvider, goodRpcProvider];
 
