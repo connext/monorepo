@@ -57,11 +57,6 @@ export const ProviderConfigSchema = Type.Object({
    * Lower values will result in more network traffic, but may reduce the response time of requests.
    */
   stallTimeout: Type.Optional(Type.Number()),
-
-  /**
-   * This is the quorum used for the exposed fallback provider
-   */
-  quorum: Type.Optional(Type.Number()),
 });
 
 export type ProviderConfig = Static<typeof ProviderConfigSchema>;
@@ -113,7 +108,7 @@ const CoreChainConfigSchema = Type.Object({
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
   // Whether we want to maximize quorum/consensus from all available providers when we're doing read calls.
-  // Set this valueto `true` if it's critically important to maintain accurate responses from a number of providers that
+  // Set this value if it's critically important to maintain accurate responses from a number of providers that
   // vary in quality. This will increase the number of RPC calls we're making overall, but guarantees accuracy.
   quorum: Type.Optional(Type.Integer()),
 
