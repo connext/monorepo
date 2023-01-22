@@ -107,6 +107,10 @@ const CoreChainConfigSchema = Type.Object({
   // How often (ms) we will check all RPC providers to measure how in-sync they are with the blockchain.
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
+  // Whether we want to maximize quorum/consensus from all available providers when we're doing read calls.
+  // Set this valueto `true` if it's critically important to maintain accurate responses from a number of providers that
+  // vary in quality. This will increase the number of RPC calls we're making overall, but guarantees accuracy.
+  quorum: Type.Optional(Type.Integer()),
 
   /// DEBUGGING / DEVELOPMENT
   // WARNING: Please do not alter these configuration values; they should be used for development and/or debugging
