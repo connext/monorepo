@@ -2,7 +2,7 @@ import { BigNumber, constants } from "ethers";
 
 import { getHardcodedGasLimits } from "../constants";
 import { getChainIdFromDomain, getDecimalsForAsset } from "../helpers";
-import { Logger } from "../logging";
+import { Logger, createLoggingContext, RequestContext } from "../logging";
 
 import { ChainData } from "./chainData";
 import { getConversionRate, getGelatoEstimatedFee } from "./gelato";
@@ -21,7 +21,13 @@ export const calculateRelayerFee = async (
   },
   chainData: Map<string, ChainData>,
   logger?: Logger,
+  _requestContext?: RequestContext,
 ): Promise<BigNumber> => {
+  const { requestContext, methodContext } = createLoggingContext(calculateRelayerFee.name, _requestContext);
+
+  if (logger) {
+    logger.info("Method Start", requestContext, methodContext, { params, gasPrice: params.gasPrice?.toString() });
+  }
   const {
     originDomain,
     destinationDomain,
@@ -46,7 +52,7 @@ export const calculateRelayerFee = async (
     gasPriceFactor,
   } = await getHardcodedGasLimits(originChainId, chainData);
   if (logger) {
-    logger.debug("Hardcoded gasLimits", undefined, undefined, {
+    logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
       executeL1: executeL1GasAmount,
       gasPriceFactor,
@@ -65,10 +71,16 @@ export const calculateRelayerFee = async (
 
   if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && gasPrice)) {
     estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice!);
+    if (logger) {
+      logger.info("Used GasPrice to EstimateRelayerFee", requestContext, methodContext, {
+        estimatedRelayerFee,
+        gasPrice,
+      });
+    }
   }
 
   if (logger) {
-    logger.info("Gas Price estimates", undefined, undefined, {
+    logger.info("Estimate Relayer Fee", requestContext, methodContext, {
       originNativeToken,
       originChainId,
       destinationNativeToken,
@@ -108,7 +120,7 @@ export const calculateRelayerFee = async (
           .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
 
   if (logger) {
-    logger.info("Fee estimation completed!", undefined, undefined, {
+    logger.info("Fee estimation completed!", requestContext, methodContext, {
       bumpedFee: bumpedFee.toString(),
       originTokenPrice,
       destinationTokenPrice,

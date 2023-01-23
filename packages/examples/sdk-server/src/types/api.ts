@@ -16,9 +16,9 @@ export const getLPTokenAddressSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
-export const getLPTokenSupplySchema = Type.Object({
+export const getTokenSupplySchema = Type.Object({
   domainId: Type.String(),
-  lpTokenAddress: Type.String(),
+  tokenAddress: Type.String(),
 });
 
 export const getTokenUserBalanceSchema = Type.Object({
@@ -200,6 +200,11 @@ export const getTransfersByTransactionHashSchema = Type.Object({
 
 export const getTransfersSchema = Type.Object({
   params: Type.Object({
+    serAddress: Type.Optional(Type.String()),
+    routerAddress: Type.Optional(Type.String()),
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+    transferId: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
     range: Type.Optional(
       Type.Object({
         limit: Type.Optional(Type.Number()),
@@ -241,5 +246,15 @@ export const removeRouterLiquiditySchema = Type.Object({
     amount: Type.String(),
     tokenAddress: Type.String(),
     recipient: Type.String(),
+  }),
+});
+
+export const removeRouterLiquidityForSchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    recipient: Type.String(),
+    router: Type.String(),
   }),
 });
