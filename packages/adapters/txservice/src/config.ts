@@ -156,6 +156,27 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
       return;
     }
 
+    // Ensure providers are specified AND number of providers >= quorum
+    if (chainConfig.providers.length === 0) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error: `Providers array was empty. Please specify providers for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
+    } else if (chainConfig.quorum > chainConfig.providers.length) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error:
+            `Number of providers (${chainConfig.providers.length}) must be greater than ` +
+            `configured quorum (${chainConfig.quorum}) for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
+    }
+
     // Make sure config values that must be > X are so (if they are specified).
     const configValueMins = {
       ...DEFAULT_CHAIN_CONFIG_VALUE_MINS,

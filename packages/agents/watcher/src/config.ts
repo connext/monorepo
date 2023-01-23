@@ -51,13 +51,14 @@ export const getEnvConfig = (): WatcherConfig => {
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
+
+  // Take the chain config and enforce default values as needed.
   const parsedChains: object = process.env.WATCHER_CHAIN_CONFIG
     ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
     : configJson.chains
     ? configJson.chains
     : configFile.chains;
-
+  // Default value enforcement.
   const chains: any = {};
   Object.entries(parsedChains).map(([key, values]) => {
     const { quorum, providers, ...rest } = values;
@@ -72,7 +73,7 @@ export const getEnvConfig = (): WatcherConfig => {
   const config: WatcherConfig = {
     mnemonic: process.env.WATCHER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.WATCHER_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    chains: parsedChains as any,
+    chains,
     logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     environment: process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain,
