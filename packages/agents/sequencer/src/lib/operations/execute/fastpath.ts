@@ -403,6 +403,9 @@ export const executeFastPathData = async (
 
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId });
+    // reset error status
+    transfer.origin.errorStatus = undefined;
+    await database.saveTransfers([transfer]);
 
     return { taskId };
   }
