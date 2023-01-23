@@ -425,7 +425,7 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-];
+] as const;
 
 export class IMailbox__factory {
   static readonly abi = _abi;

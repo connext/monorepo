@@ -25,6 +25,10 @@ describe("contracts", () => {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
+            Unwrapper: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
           },
         },
       ],
@@ -52,7 +56,7 @@ describe("contracts", () => {
             name: "test",
             chainId: testChainId1,
             contracts: {
-              ConnextPriceOracle: {
+              Connext: {
                 address: testAddress,
                 abi: ["fakeAbi()"],
               },
@@ -71,7 +75,7 @@ describe("contracts", () => {
             name: "test",
             chainId: testChainId1,
             contracts: {
-              ConnextPriceOracle: {
+              Connext: {
                 address: testAddress,
                 abi: ["fakeAbi()"],
               },
@@ -80,12 +84,62 @@ describe("contracts", () => {
         ],
       };
       contractDeploymentStub.returns(mockContractDeployment);
-      expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.undefined;
+      expect(ContractFns.getDeployedConnextContract(testChainId2)).to.be.undefined;
     });
 
     it("happy case: should return the connext contract", () => {
       contractDeploymentStub.returns(contractDeployment);
       expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.deep.equal({
+        address: testAddress,
+        abi: ["fakeAbi()"],
+      });
+    });
+  });
+
+  describe("#getDeployedUnwrapperContract", () => {
+    beforeEach(() => {});
+
+    it("should return undefined if `unwrapper` doesn't exist in deployments", () => {
+      const mockContractDeployment = {
+        [String(testChainId1)]: [
+          {
+            name: "test",
+            chainId: testChainId1,
+            contracts: {
+              Unwrapper: {
+                address: testAddress,
+                abi: ["fakeAbi()"],
+              },
+            },
+          },
+        ],
+      };
+      contractDeploymentStub.returns(mockContractDeployment);
+      expect(ContractFns.getDeployedUnwrapperContract(1111)).to.be.undefined;
+    });
+
+    it("should return undefined if chainId doesn't exist in deployments", () => {
+      const mockContractDeployment = {
+        [String(testChainId1)]: [
+          {
+            name: "test",
+            chainId: testChainId1,
+            contracts: {
+              Unwrapper: {
+                address: testAddress,
+                abi: ["fakeAbi()"],
+              },
+            },
+          },
+        ],
+      };
+      contractDeploymentStub.returns(mockContractDeployment);
+      expect(ContractFns.getDeployedUnwrapperContract(testChainId2)).to.be.undefined;
+    });
+
+    it("happy case: should return the unwrapper contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
+      expect(ContractFns.getDeployedUnwrapperContract(testChainId1)).to.be.deep.equal({
         address: testAddress,
         abi: ["fakeAbi()"],
       });

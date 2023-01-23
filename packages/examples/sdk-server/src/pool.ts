@@ -5,7 +5,7 @@ import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
   getLPTokenAddressSchema,
-  getLPTokenSupplySchema,
+  getTokenSupplySchema,
   getTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
   getPoolTokenBalanceSchema,
@@ -50,15 +50,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getLPTokenSupply/:domainId/:lpTokenAddress",
+    "/getTokenSupply/:domainId/:lpTokenAddress",
     {
       schema: {
-        params: getLPTokenSupplySchema,
+        params: getTokenSupplySchema,
       },
     },
     async (request, reply) => {
-      const { domainId, lpTokenAddress } = request.params;
-      const res = await sdkPoolInstance.getLPTokenSupply(domainId, lpTokenAddress);
+      const { domainId, tokenAddress } = request.params;
+      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );

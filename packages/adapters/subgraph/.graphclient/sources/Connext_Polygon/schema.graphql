@@ -29,6 +29,10 @@ input polygon_AggregateRoot_filter {
   id_not_in: [ID!]
   root: polygon_Bytes
   root_not: polygon_Bytes
+  root_gt: polygon_Bytes
+  root_lt: polygon_Bytes
+  root_gte: polygon_Bytes
+  root_lte: polygon_Bytes
   root_in: [polygon_Bytes!]
   root_not_in: [polygon_Bytes!]
   root_contains: polygon_Bytes
@@ -159,12 +163,20 @@ input polygon_Asset_filter {
   id_not_in: [ID!]
   key: polygon_Bytes
   key_not: polygon_Bytes
+  key_gt: polygon_Bytes
+  key_lt: polygon_Bytes
+  key_gte: polygon_Bytes
+  key_lte: polygon_Bytes
   key_in: [polygon_Bytes!]
   key_not_in: [polygon_Bytes!]
   key_contains: polygon_Bytes
   key_not_contains: polygon_Bytes
   canonicalId: polygon_Bytes
   canonicalId_not: polygon_Bytes
+  canonicalId_gt: polygon_Bytes
+  canonicalId_lt: polygon_Bytes
+  canonicalId_gte: polygon_Bytes
+  canonicalId_lte: polygon_Bytes
   canonicalId_in: [polygon_Bytes!]
   canonicalId_not_in: [polygon_Bytes!]
   canonicalId_contains: polygon_Bytes
@@ -179,12 +191,20 @@ input polygon_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: polygon_Bytes
   adoptedAsset_not: polygon_Bytes
+  adoptedAsset_gt: polygon_Bytes
+  adoptedAsset_lt: polygon_Bytes
+  adoptedAsset_gte: polygon_Bytes
+  adoptedAsset_lte: polygon_Bytes
   adoptedAsset_in: [polygon_Bytes!]
   adoptedAsset_not_in: [polygon_Bytes!]
   adoptedAsset_contains: polygon_Bytes
   adoptedAsset_not_contains: polygon_Bytes
   localAsset: polygon_Bytes
   localAsset_not: polygon_Bytes
+  localAsset_gt: polygon_Bytes
+  localAsset_lt: polygon_Bytes
+  localAsset_gte: polygon_Bytes
+  localAsset_lte: polygon_Bytes
   localAsset_in: [polygon_Bytes!]
   localAsset_not_in: [polygon_Bytes!]
   localAsset_contains: polygon_Bytes
@@ -263,18 +283,30 @@ input polygon_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: polygon_Bytes
   amb_not: polygon_Bytes
+  amb_gt: polygon_Bytes
+  amb_lt: polygon_Bytes
+  amb_gte: polygon_Bytes
+  amb_lte: polygon_Bytes
   amb_in: [polygon_Bytes!]
   amb_not_in: [polygon_Bytes!]
   amb_contains: polygon_Bytes
   amb_not_contains: polygon_Bytes
   rootManager: polygon_Bytes
   rootManager_not: polygon_Bytes
+  rootManager_gt: polygon_Bytes
+  rootManager_lt: polygon_Bytes
+  rootManager_gte: polygon_Bytes
+  rootManager_lte: polygon_Bytes
   rootManager_in: [polygon_Bytes!]
   rootManager_not_in: [polygon_Bytes!]
   rootManager_contains: polygon_Bytes
   rootManager_not_contains: polygon_Bytes
   mirrorConnector: polygon_Bytes
   mirrorConnector_not: polygon_Bytes
+  mirrorConnector_gt: polygon_Bytes
+  mirrorConnector_lt: polygon_Bytes
+  mirrorConnector_gte: polygon_Bytes
+  mirrorConnector_lte: polygon_Bytes
   mirrorConnector_in: [polygon_Bytes!]
   mirrorConnector_not_in: [polygon_Bytes!]
   mirrorConnector_contains: polygon_Bytes
@@ -349,6 +381,10 @@ input polygon_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: polygon_Bytes
   transferId_not: polygon_Bytes
+  transferId_gt: polygon_Bytes
+  transferId_lt: polygon_Bytes
+  transferId_gte: polygon_Bytes
+  transferId_lte: polygon_Bytes
   transferId_in: [polygon_Bytes!]
   transferId_not_in: [polygon_Bytes!]
   transferId_contains: polygon_Bytes
@@ -398,12 +434,20 @@ input polygon_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: polygon_Bytes
   to_not: polygon_Bytes
+  to_gt: polygon_Bytes
+  to_lt: polygon_Bytes
+  to_gte: polygon_Bytes
+  to_lte: polygon_Bytes
   to_in: [polygon_Bytes!]
   to_not_in: [polygon_Bytes!]
   to_contains: polygon_Bytes
   to_not_contains: polygon_Bytes
   delegate: polygon_Bytes
   delegate_not: polygon_Bytes
+  delegate_gt: polygon_Bytes
+  delegate_lt: polygon_Bytes
+  delegate_gte: polygon_Bytes
+  delegate_lte: polygon_Bytes
   delegate_in: [polygon_Bytes!]
   delegate_not_in: [polygon_Bytes!]
   delegate_contains: polygon_Bytes
@@ -414,6 +458,10 @@ input polygon_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: polygon_Bytes
   callData_not: polygon_Bytes
+  callData_gt: polygon_Bytes
+  callData_lt: polygon_Bytes
+  callData_gte: polygon_Bytes
+  callData_lte: polygon_Bytes
   callData_in: [polygon_Bytes!]
   callData_not_in: [polygon_Bytes!]
   callData_contains: polygon_Bytes
@@ -428,6 +476,10 @@ input polygon_DestinationTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: polygon_Bytes
   originSender_not: polygon_Bytes
+  originSender_gt: polygon_Bytes
+  originSender_lt: polygon_Bytes
+  originSender_gte: polygon_Bytes
+  originSender_lte: polygon_Bytes
   originSender_in: [polygon_Bytes!]
   originSender_not_in: [polygon_Bytes!]
   originSender_contains: polygon_Bytes
@@ -450,6 +502,10 @@ input polygon_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: polygon_Bytes
   canonicalId_not: polygon_Bytes
+  canonicalId_gt: polygon_Bytes
+  canonicalId_lt: polygon_Bytes
+  canonicalId_gte: polygon_Bytes
+  canonicalId_lte: polygon_Bytes
   canonicalId_in: [polygon_Bytes!]
   canonicalId_not_in: [polygon_Bytes!]
   canonicalId_contains: polygon_Bytes
@@ -493,12 +549,20 @@ input polygon_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: polygon_Bytes
   executedCaller_not: polygon_Bytes
+  executedCaller_gt: polygon_Bytes
+  executedCaller_lt: polygon_Bytes
+  executedCaller_gte: polygon_Bytes
+  executedCaller_lte: polygon_Bytes
   executedCaller_in: [polygon_Bytes!]
   executedCaller_not_in: [polygon_Bytes!]
   executedCaller_contains: polygon_Bytes
   executedCaller_not_contains: polygon_Bytes
   executedTransactionHash: polygon_Bytes
   executedTransactionHash_not: polygon_Bytes
+  executedTransactionHash_gt: polygon_Bytes
+  executedTransactionHash_lt: polygon_Bytes
+  executedTransactionHash_gte: polygon_Bytes
+  executedTransactionHash_lte: polygon_Bytes
   executedTransactionHash_in: [polygon_Bytes!]
   executedTransactionHash_not_in: [polygon_Bytes!]
   executedTransactionHash_contains: polygon_Bytes
@@ -537,18 +601,30 @@ input polygon_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: polygon_Bytes
   executedTxOrigin_not: polygon_Bytes
+  executedTxOrigin_gt: polygon_Bytes
+  executedTxOrigin_lt: polygon_Bytes
+  executedTxOrigin_gte: polygon_Bytes
+  executedTxOrigin_lte: polygon_Bytes
   executedTxOrigin_in: [polygon_Bytes!]
   executedTxOrigin_not_in: [polygon_Bytes!]
   executedTxOrigin_contains: polygon_Bytes
   executedTxOrigin_not_contains: polygon_Bytes
   reconciledCaller: polygon_Bytes
   reconciledCaller_not: polygon_Bytes
+  reconciledCaller_gt: polygon_Bytes
+  reconciledCaller_lt: polygon_Bytes
+  reconciledCaller_gte: polygon_Bytes
+  reconciledCaller_lte: polygon_Bytes
   reconciledCaller_in: [polygon_Bytes!]
   reconciledCaller_not_in: [polygon_Bytes!]
   reconciledCaller_contains: polygon_Bytes
   reconciledCaller_not_contains: polygon_Bytes
   reconciledTransactionHash: polygon_Bytes
   reconciledTransactionHash_not: polygon_Bytes
+  reconciledTransactionHash_gt: polygon_Bytes
+  reconciledTransactionHash_lt: polygon_Bytes
+  reconciledTransactionHash_gte: polygon_Bytes
+  reconciledTransactionHash_lte: polygon_Bytes
   reconciledTransactionHash_in: [polygon_Bytes!]
   reconciledTransactionHash_not_in: [polygon_Bytes!]
   reconciledTransactionHash_contains: polygon_Bytes
@@ -587,6 +663,10 @@ input polygon_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: polygon_Bytes
   reconciledTxOrigin_not: polygon_Bytes
+  reconciledTxOrigin_gt: polygon_Bytes
+  reconciledTxOrigin_lt: polygon_Bytes
+  reconciledTxOrigin_gte: polygon_Bytes
+  reconciledTxOrigin_lte: polygon_Bytes
   reconciledTxOrigin_in: [polygon_Bytes!]
   reconciledTxOrigin_not_in: [polygon_Bytes!]
   reconciledTxOrigin_contains: polygon_Bytes
@@ -663,6 +743,10 @@ input polygon_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: polygon_Bytes
   transferId_not: polygon_Bytes
+  transferId_gt: polygon_Bytes
+  transferId_lt: polygon_Bytes
+  transferId_gte: polygon_Bytes
+  transferId_lte: polygon_Bytes
   transferId_in: [polygon_Bytes!]
   transferId_not_in: [polygon_Bytes!]
   transferId_contains: polygon_Bytes
@@ -677,6 +761,10 @@ input polygon_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: polygon_Bytes
   leaf_not: polygon_Bytes
+  leaf_gt: polygon_Bytes
+  leaf_lt: polygon_Bytes
+  leaf_gte: polygon_Bytes
+  leaf_lte: polygon_Bytes
   leaf_in: [polygon_Bytes!]
   leaf_not_in: [polygon_Bytes!]
   leaf_contains: polygon_Bytes
@@ -691,18 +779,30 @@ input polygon_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: polygon_Bytes
   message_not: polygon_Bytes
+  message_gt: polygon_Bytes
+  message_lt: polygon_Bytes
+  message_gte: polygon_Bytes
+  message_lte: polygon_Bytes
   message_in: [polygon_Bytes!]
   message_not_in: [polygon_Bytes!]
   message_contains: polygon_Bytes
   message_not_contains: polygon_Bytes
   root: polygon_Bytes
   root_not: polygon_Bytes
+  root_gt: polygon_Bytes
+  root_lt: polygon_Bytes
+  root_gte: polygon_Bytes
+  root_lte: polygon_Bytes
   root_in: [polygon_Bytes!]
   root_not_in: [polygon_Bytes!]
   root_contains: polygon_Bytes
   root_not_contains: polygon_Bytes
   transactionHash: polygon_Bytes
   transactionHash_not: polygon_Bytes
+  transactionHash_gt: polygon_Bytes
+  transactionHash_lt: polygon_Bytes
+  transactionHash_gte: polygon_Bytes
+  transactionHash_lte: polygon_Bytes
   transactionHash_in: [polygon_Bytes!]
   transactionHash_not_in: [polygon_Bytes!]
   transactionHash_contains: polygon_Bytes
@@ -804,6 +904,10 @@ input polygon_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: polygon_Bytes
   transferId_not: polygon_Bytes
+  transferId_gt: polygon_Bytes
+  transferId_lt: polygon_Bytes
+  transferId_gte: polygon_Bytes
+  transferId_lte: polygon_Bytes
   transferId_in: [polygon_Bytes!]
   transferId_not_in: [polygon_Bytes!]
   transferId_contains: polygon_Bytes
@@ -822,6 +926,10 @@ input polygon_OriginTransfer_filter {
   status_not_in: [polygon_TransferStatus!]
   messageHash: polygon_Bytes
   messageHash_not: polygon_Bytes
+  messageHash_gt: polygon_Bytes
+  messageHash_lt: polygon_Bytes
+  messageHash_gte: polygon_Bytes
+  messageHash_lte: polygon_Bytes
   messageHash_in: [polygon_Bytes!]
   messageHash_not_in: [polygon_Bytes!]
   messageHash_contains: polygon_Bytes
@@ -852,12 +960,20 @@ input polygon_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: polygon_Bytes
   to_not: polygon_Bytes
+  to_gt: polygon_Bytes
+  to_lt: polygon_Bytes
+  to_gte: polygon_Bytes
+  to_lte: polygon_Bytes
   to_in: [polygon_Bytes!]
   to_not_in: [polygon_Bytes!]
   to_contains: polygon_Bytes
   to_not_contains: polygon_Bytes
   delegate: polygon_Bytes
   delegate_not: polygon_Bytes
+  delegate_gt: polygon_Bytes
+  delegate_lt: polygon_Bytes
+  delegate_gte: polygon_Bytes
+  delegate_lte: polygon_Bytes
   delegate_in: [polygon_Bytes!]
   delegate_not_in: [polygon_Bytes!]
   delegate_contains: polygon_Bytes
@@ -868,6 +984,10 @@ input polygon_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: polygon_Bytes
   callData_not: polygon_Bytes
+  callData_gt: polygon_Bytes
+  callData_lt: polygon_Bytes
+  callData_gte: polygon_Bytes
+  callData_lte: polygon_Bytes
   callData_in: [polygon_Bytes!]
   callData_not_in: [polygon_Bytes!]
   callData_contains: polygon_Bytes
@@ -882,6 +1002,10 @@ input polygon_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: polygon_Bytes
   originSender_not: polygon_Bytes
+  originSender_gt: polygon_Bytes
+  originSender_lt: polygon_Bytes
+  originSender_gte: polygon_Bytes
+  originSender_lte: polygon_Bytes
   originSender_in: [polygon_Bytes!]
   originSender_not_in: [polygon_Bytes!]
   originSender_contains: polygon_Bytes
@@ -904,6 +1028,10 @@ input polygon_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: polygon_Bytes
   canonicalId_not: polygon_Bytes
+  canonicalId_gt: polygon_Bytes
+  canonicalId_lt: polygon_Bytes
+  canonicalId_gte: polygon_Bytes
+  canonicalId_lte: polygon_Bytes
   canonicalId_in: [polygon_Bytes!]
   canonicalId_not_in: [polygon_Bytes!]
   canonicalId_contains: polygon_Bytes
@@ -931,6 +1059,10 @@ input polygon_OriginTransfer_filter {
   asset_: polygon_Asset_filter
   transacting: polygon_Bytes
   transacting_not: polygon_Bytes
+  transacting_gt: polygon_Bytes
+  transacting_lt: polygon_Bytes
+  transacting_gte: polygon_Bytes
+  transacting_lte: polygon_Bytes
   transacting_in: [polygon_Bytes!]
   transacting_not_in: [polygon_Bytes!]
   transacting_contains: polygon_Bytes
@@ -966,12 +1098,20 @@ input polygon_OriginTransfer_filter {
   relayerFee_not_in: [BigInt!]
   caller: polygon_Bytes
   caller_not: polygon_Bytes
+  caller_gt: polygon_Bytes
+  caller_lt: polygon_Bytes
+  caller_gte: polygon_Bytes
+  caller_lte: polygon_Bytes
   caller_in: [polygon_Bytes!]
   caller_not_in: [polygon_Bytes!]
   caller_contains: polygon_Bytes
   caller_not_contains: polygon_Bytes
   transactionHash: polygon_Bytes
   transactionHash_not: polygon_Bytes
+  transactionHash_gt: polygon_Bytes
+  transactionHash_lt: polygon_Bytes
+  transactionHash_gte: polygon_Bytes
+  transactionHash_lte: polygon_Bytes
   transactionHash_in: [polygon_Bytes!]
   transactionHash_not_in: [polygon_Bytes!]
   transactionHash_contains: polygon_Bytes
@@ -1010,6 +1150,10 @@ input polygon_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: polygon_Bytes
   txOrigin_not: polygon_Bytes
+  txOrigin_gt: polygon_Bytes
+  txOrigin_lt: polygon_Bytes
+  txOrigin_gte: polygon_Bytes
+  txOrigin_lte: polygon_Bytes
   txOrigin_in: [polygon_Bytes!]
   txOrigin_not_in: [polygon_Bytes!]
   txOrigin_contains: polygon_Bytes
@@ -1066,6 +1210,10 @@ input polygon_PooledToken_filter {
   id_not_in: [ID!]
   asset: polygon_Bytes
   asset_not: polygon_Bytes
+  asset_gt: polygon_Bytes
+  asset_lt: polygon_Bytes
+  asset_gte: polygon_Bytes
+  asset_lte: polygon_Bytes
   asset_in: [polygon_Bytes!]
   asset_not_in: [polygon_Bytes!]
   asset_contains: polygon_Bytes
@@ -1547,6 +1695,10 @@ input polygon_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: polygon_Bytes
   relayer_not: polygon_Bytes
+  relayer_gt: polygon_Bytes
+  relayer_lt: polygon_Bytes
+  relayer_gte: polygon_Bytes
+  relayer_lte: polygon_Bytes
   relayer_in: [polygon_Bytes!]
   relayer_not_in: [polygon_Bytes!]
   relayer_contains: polygon_Bytes
@@ -1633,6 +1785,10 @@ input polygon_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: polygon_Bytes
   root_not: polygon_Bytes
+  root_gt: polygon_Bytes
+  root_lt: polygon_Bytes
+  root_gte: polygon_Bytes
+  root_lte: polygon_Bytes
   root_in: [polygon_Bytes!]
   root_not_in: [polygon_Bytes!]
   root_contains: polygon_Bytes
@@ -1647,12 +1803,20 @@ input polygon_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: polygon_Bytes
   caller_not: polygon_Bytes
+  caller_gt: polygon_Bytes
+  caller_lt: polygon_Bytes
+  caller_gte: polygon_Bytes
+  caller_lte: polygon_Bytes
   caller_in: [polygon_Bytes!]
   caller_not_in: [polygon_Bytes!]
   caller_contains: polygon_Bytes
   caller_not_contains: polygon_Bytes
   transactionHash: polygon_Bytes
   transactionHash_not: polygon_Bytes
+  transactionHash_gt: polygon_Bytes
+  transactionHash_lt: polygon_Bytes
+  transactionHash_gte: polygon_Bytes
+  transactionHash_lte: polygon_Bytes
   transactionHash_in: [polygon_Bytes!]
   transactionHash_not_in: [polygon_Bytes!]
   transactionHash_contains: polygon_Bytes
@@ -1732,18 +1896,30 @@ input polygon_Router_filter {
   isActive_not_in: [Boolean!]
   owner: polygon_Bytes
   owner_not: polygon_Bytes
+  owner_gt: polygon_Bytes
+  owner_lt: polygon_Bytes
+  owner_gte: polygon_Bytes
+  owner_lte: polygon_Bytes
   owner_in: [polygon_Bytes!]
   owner_not_in: [polygon_Bytes!]
   owner_contains: polygon_Bytes
   owner_not_contains: polygon_Bytes
   recipient: polygon_Bytes
   recipient_not: polygon_Bytes
+  recipient_gt: polygon_Bytes
+  recipient_lt: polygon_Bytes
+  recipient_gte: polygon_Bytes
+  recipient_lte: polygon_Bytes
   recipient_in: [polygon_Bytes!]
   recipient_not_in: [polygon_Bytes!]
   recipient_contains: polygon_Bytes
   recipient_not_contains: polygon_Bytes
   proposedOwner: polygon_Bytes
   proposedOwner_not: polygon_Bytes
+  proposedOwner_gt: polygon_Bytes
+  proposedOwner_lt: polygon_Bytes
+  proposedOwner_gte: polygon_Bytes
+  proposedOwner_lte: polygon_Bytes
   proposedOwner_in: [polygon_Bytes!]
   proposedOwner_not_in: [polygon_Bytes!]
   proposedOwner_contains: polygon_Bytes
@@ -1792,6 +1968,10 @@ input polygon_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: polygon_Bytes
   sequencer_not: polygon_Bytes
+  sequencer_gt: polygon_Bytes
+  sequencer_lt: polygon_Bytes
+  sequencer_gte: polygon_Bytes
+  sequencer_lte: polygon_Bytes
   sequencer_in: [polygon_Bytes!]
   sequencer_not_in: [polygon_Bytes!]
   sequencer_contains: polygon_Bytes
@@ -1831,6 +2011,10 @@ input polygon_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: polygon_Bytes
   caller_not: polygon_Bytes
+  caller_gt: polygon_Bytes
+  caller_lt: polygon_Bytes
+  caller_gte: polygon_Bytes
+  caller_lte: polygon_Bytes
   caller_in: [polygon_Bytes!]
   caller_not_in: [polygon_Bytes!]
   caller_contains: polygon_Bytes
@@ -1886,6 +2070,10 @@ input polygon_StableSwapLiquidity_filter {
   id_not_in: [ID!]
   provider: polygon_Bytes
   provider_not: polygon_Bytes
+  provider_gt: polygon_Bytes
+  provider_lt: polygon_Bytes
+  provider_gte: polygon_Bytes
+  provider_lte: polygon_Bytes
   provider_in: [polygon_Bytes!]
   provider_not_in: [polygon_Bytes!]
   provider_contains: polygon_Bytes
@@ -1968,12 +2156,20 @@ input polygon_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: polygon_Bytes
   key_not: polygon_Bytes
+  key_gt: polygon_Bytes
+  key_lt: polygon_Bytes
+  key_gte: polygon_Bytes
+  key_lte: polygon_Bytes
   key_in: [polygon_Bytes!]
   key_not_in: [polygon_Bytes!]
   key_contains: polygon_Bytes
   key_not_contains: polygon_Bytes
   canonicalId: polygon_Bytes
   canonicalId_not: polygon_Bytes
+  canonicalId_gt: polygon_Bytes
+  canonicalId_lt: polygon_Bytes
+  canonicalId_gte: polygon_Bytes
+  canonicalId_lte: polygon_Bytes
   canonicalId_in: [polygon_Bytes!]
   canonicalId_not_in: [polygon_Bytes!]
   canonicalId_contains: polygon_Bytes
@@ -1988,12 +2184,20 @@ input polygon_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: polygon_Bytes
   swapPool_not: polygon_Bytes
+  swapPool_gt: polygon_Bytes
+  swapPool_lt: polygon_Bytes
+  swapPool_gte: polygon_Bytes
+  swapPool_lte: polygon_Bytes
   swapPool_in: [polygon_Bytes!]
   swapPool_not_in: [polygon_Bytes!]
   swapPool_contains: polygon_Bytes
   swapPool_not_contains: polygon_Bytes
   lpToken: polygon_Bytes
   lpToken_not: polygon_Bytes
+  lpToken_gt: polygon_Bytes
+  lpToken_lt: polygon_Bytes
+  lpToken_gte: polygon_Bytes
+  lpToken_lte: polygon_Bytes
   lpToken_in: [polygon_Bytes!]
   lpToken_not_in: [polygon_Bytes!]
   lpToken_contains: polygon_Bytes
@@ -2559,6 +2763,10 @@ input polygon_TransferRelayerFee_filter {
   id_not_in: [ID!]
   transferId: polygon_Bytes
   transferId_not: polygon_Bytes
+  transferId_gt: polygon_Bytes
+  transferId_lt: polygon_Bytes
+  transferId_gte: polygon_Bytes
+  transferId_lte: polygon_Bytes
   transferId_in: [polygon_Bytes!]
   transferId_not_in: [polygon_Bytes!]
   transferId_contains: polygon_Bytes
