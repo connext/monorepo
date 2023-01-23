@@ -122,9 +122,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amounts - The amounts of the tokens to deposit/withdraw, in the correct index order.
+   * @param amounts - The amounts of the tokens to deposit/withdraw, in the correct index order and
+   * in each token's native precision.
    * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
-   * @returns Minimum LP tokens received.
+   * @returns Minimum LP tokens received, in 1e18 precision.
    */
   async calculateTokenAmount(
     domainId: string,
@@ -164,8 +165,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
   /**
    * Calculates the price impact depending on whether liquidity is being deposited or withdrawn.
    *
-   * @param tokenInputAmount - The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits, dx for swaps).
-   * @param tokenOutputAmount - The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits, dy for swaps).
+   * @param tokenInputAmount - The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits,
+   * dx for swaps), in 1e18 precision.
+   * @param tokenOutputAmount - The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits,
+   * dy for swaps), in 1e18 precision.
    * @param virtualPrice - (optional) The current virtual price of the pool.
    * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
    * @returns The price impact.
@@ -195,9 +198,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amountX - The amount of token X (index 0 of the pool).
-   * @param amountY - The amount of token Y (index 1 of the pool).
-   * @returns Price impact for adding liquidity.
+   * @param amountX - The amount of token X (index 0 of the pool), in the token's native precision.
+   * @param amountY - The amount of token Y (index 1 of the pool), in the token's native precision.
+   * @returns Price impact for adding liquidity, in 1e18 precision.
    */
   async calculateAddLiquidityPriceImpact(
     domainId: string,
@@ -230,9 +233,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain id of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amountX - The amount of asset X.
-   * @param amountY - The amount of asset Y.
-   * @returns The price impact for removing liquidity.
+   * @param amountX - The amount of asset X (index 0 of the pool), in the token's native precision.
+   * @param amountY - The amount of asset Y (index 1 of the pool), in the token's native precision.
+   * @returns The price impact for removing liquidity, in 1e18 precision.
    */
   async calculateRemoveLiquidityPriceImpact(
     domainId: string,
@@ -264,10 +267,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * Calculates the price impact of a swap.
    *
    * @param domainId - The domain id of the pool.
-   * @param amountX - The amount of tokens to swap.
+   * @param amountX - The amount of tokens to swap, in the token's native precision.
    * @param tokenX - The address of the token to swap from.
    * @param tokenY - The address of the token to swap to.
-   * @returns The price impact for swapping.
+   * @returns The price impact for swapping, in 1e18 precision.
    */
   async calculateSwapPriceImpact(
     domainId: string,
