@@ -117,7 +117,8 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param params.relayerFee - (optional) Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
    * @param params.receiveLocal - (optional) Whether to receive the local asset ("nextAsset").
    * @param params.wrapNativeOnOrigin - (optional) Whether we should wrap the native token before sending the xcall. This will
-   * use the Multisend utility contract to deposit ETH, approve Connext as a spender, and call xcall.
+   * use the Multisend utility contract to deposit ETH, approve Connext as a spender, and call xcall. If set true, `asset` should
+   * be the target wrapper contract (e.g. WETH) address.
    * @param params.unwrapNativeOnDestination - (optional) Whether we should unwrap the wrapped native token when the transfer
    * reaches its destination. By default, if sending a wrapped native token, the wrapped token is what gets delivered at the
    * destination. Setting this to `true` means we should overwrite `callData` to target the Unwrapper utility contract, which
