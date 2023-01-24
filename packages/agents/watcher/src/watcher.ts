@@ -12,7 +12,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { utils, Wallet } from "ethers";
-import { domainToChainId } from "@connext/contracts";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { bindServer, bindInterval } from "./bindings";
 import { getConfig } from "./config";

@@ -1,4 +1,4 @@
-import { ConnextAbi } from "@connext/contracts";
+import { ConnextAbi } from "@connext/smart-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";

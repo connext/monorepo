@@ -41,7 +41,6 @@
   ],
   "dependencies": {
     "@connext/cartographer-poller": "workspace:*",
-    "@connext/contracts": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
@@ -51,6 +50,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@connext/sdk": "workspace:*",
+    "@connext/smart-contracts": "workspace:*",
     "axios": "1.2.1",
     "ethers": "5.7.2",
     "ts-node": "10.9.1"

@@ -1,5 +1,5 @@
 import { createLoggingContext, Logger } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/contracts";
+import { ConnextInterface } from "@connext/smart-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber } from "ethers";
 

@@ -4,9 +4,9 @@ import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapter
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/contracts/typechain-types/Connext";
-import { ConnextPriceOracleInterface } from "@connext/contracts/typechain-types/ConnextPriceOracle";
-import { StableSwapInterface } from "@connext/contracts/typechain-types/StableSwap";
+import { ConnextInterface } from "@connext/smart-contracts/typechain-types/Connext";
+import { ConnextPriceOracleInterface } from "@connext/smart-contracts/typechain-types/ConnextPriceOracle";
+import { StableSwapInterface } from "@connext/smart-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";

@@ -6,7 +6,7 @@ import { mock } from "./mock";
 import { NxtpSdkPool } from "../src/sdkPool";
 import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
-import { Connext } from "@connext/contracts";
+import { Connext } from "@connext/smart-contracts";
 
 import * as ConfigFns from "../src/config";
 

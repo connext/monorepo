@@ -1,7 +1,7 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/contracts";
+import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
