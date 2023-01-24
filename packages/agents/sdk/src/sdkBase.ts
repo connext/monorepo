@@ -37,6 +37,7 @@ import { NxtpSdkUtils } from "./sdkUtils";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
+ *
  */
 export class NxtpSdkBase extends NxtpSdkShared {
   private static _instance: NxtpSdkBase;
@@ -59,7 +60,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkBase } from "@connext/nxtp-sdk";
+   * import { NxtpSdkBase } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -105,13 +106,23 @@ export class NxtpSdkBase extends NxtpSdkShared {
    * @param params.origin - The origin domain ID.
    * @param params.destination - The destination domain ID.
    * @param params.to - Address receiving funds or the target contract.
-   * @param params.asset - (optional) Address of the token contract. Use zero address only for non-value xcalls.
+   * @param params.asset - (optional) The target asset to send with the xcall. Can be set to `address(0)` if this is a 0-value
+   * transfer. If `wrapNativeOnOrigin` is true, this should be the target wrapper contract (e.g. WETH) address.
    * @param params.delegate - (optional) Address allowed to cancel an xcall on destination.
-   * @param params.amount - (optional) Amount of tokens to transfer.
+   * @param params.amount - (optional) The amount of tokens (in specified asset) to send with the xcall. If `wrapNativeOnOrigin`
+   * is true, this will be used as the amount of native token to deposit into the wrapper contract and withdraw
+   * as wrapped native token for sending (e.g. deposit ETH to the WETH contract in exchange for the WETH ERC20).
    * @param params.slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
    * @param params.callData - (optional) Calldata to execute (can be empty: "0x").
    * @param params.relayerFee - (optional) Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
    * @param params.receiveLocal - (optional) Whether to receive the local asset ("nextAsset").
+   * @param params.wrapNativeOnOrigin - (optional) Whether we should wrap the native token before sending the xcall. This will
+   * use the Multisend utility contract to deposit ETH, approve Connext as a spender, and call xcall. If set true, `asset` should
+   * be the target wrapper contract (e.g. WETH) address.
+   * @param params.unwrapNativeOnDestination - (optional) Whether we should unwrap the wrapped native token when the transfer
+   * reaches its destination. By default, if sending a wrapped native token, the wrapped token is what gets delivered at the
+   * destination. Setting this to `true` means we should overwrite `callData` to target the Unwrapper utility contract, which
+   * will unwrap the wrapped native token and deliver it to the target recipient (the `to` address).
    * @returns providers.TransactionRequest object.
    *
    * @example

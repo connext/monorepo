@@ -108,7 +108,7 @@ const CoreChainConfigSchema = Type.Object({
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
   // Whether we want to maximize quorum/consensus from all available providers when we're doing read calls.
-  // Set this valueto `true` if it's critically important to maintain accurate responses from a number of providers that
+  // Set this value if it's critically important to maintain accurate responses from a number of providers that
   // vary in quality. This will increase the number of RPC calls we're making overall, but guarantees accuracy.
   quorum: Type.Optional(Type.Integer()),
 
@@ -154,6 +154,27 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     // Ignore non-number domains.
     if (isNaN(parseInt(domain))) {
       return;
+    }
+
+    // Ensure providers are specified AND number of providers >= quorum
+    if (chainConfig.providers.length === 0) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error: `Providers array was empty. Please specify providers for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
+    } else if (chainConfig.quorum > chainConfig.providers.length) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error:
+            `Number of providers (${chainConfig.providers.length}) must be greater than ` +
+            `configured quorum (${chainConfig.quorum}) for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
     }
 
     // Make sure config values that must be > X are so (if they are specified).
@@ -220,6 +241,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
+  quorum: 1,
 };
 
 export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {

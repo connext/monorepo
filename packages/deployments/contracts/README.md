@@ -341,3 +341,19 @@ Note: `xcall` takes `--amount` in the token's base units.
 # Run xcall 10 times with 20 concurrent accounts, sending 1 TEST each time
 $ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9 --amount 1000000000000000000 --network rinkeby --destination-domain 3331 --runs 10 --accounts 20
 ```
+
+## Deploying utility contracts
+
+1. Check that target networks are excluded from `SKIP_SETUP` in `packages/deployments/contracts/src/constants.ts`
+
+2. Run this for each network:
+
+```bash
+yarn workspace @connext/nxtp-contracts run hardhat deploy --network <network> --tags Utils
+```
+
+3. Rebuild `deployments.json`
+
+```bash
+yarn workspace @connext/nxtp-contracts run export
+```

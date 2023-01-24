@@ -1,4 +1,4 @@
-import { NxtpSdkRouter } from "@connext/nxtp-sdk";
+import { NxtpSdkRouter } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 

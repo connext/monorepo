@@ -30,7 +30,7 @@ export class NxtpSdkRouter extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkRouter } from "@connext/nxtp-sdk";
+   * import { NxtpSdkRouter } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {

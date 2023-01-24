@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, NxtpSdkUtils, NxtpSdkRouter, create } from "@connext/nxtp-sdk";
+import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, NxtpSdkUtils, NxtpSdkRouter, create } from "@connext/sdk";
 
 import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
