@@ -351,3 +351,9 @@ $ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x
 ```bash
 yarn workspace @connext/nxtp-contracts run hardhat deploy --network <network> --tags Utils
 ```
+
+3. Rebuild `deployments.json`
+
+```bash
+yarn workspace @connext/nxtp-contracts run export
+```
