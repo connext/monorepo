@@ -13,6 +13,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -164,7 +165,7 @@ export const saveTransfers = async (
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
     } else if (_transfer.status == XTransferStatus.CompletedFast || _transfer.status == XTransferStatus.CompletedSlow) {
-      _transfer.error_status = undefined;
+      _transfer.error_status = XTransferErrorStatus.Ok;
     }
 
     const transfer: any = { ...dbTransfer, ..._transfer };
