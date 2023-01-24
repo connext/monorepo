@@ -1,5 +1,5 @@
 import { createRequestContext } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/nxtp-contracts";
+import { ConnextInterface } from "@connext/contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { constants } from "ethers";
 

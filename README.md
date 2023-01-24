@@ -136,20 +136,16 @@ Run router:
 
 - `yarn workspace @connext/nxtp-router dev` - Runs router in hot-reload mode.
 
-Run test-ui:
-
-- `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
-
 ## Running Test
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
   or
-- `yarn workspace @connext/nxtp-contracts build`: Build the specific package.
+- `yarn workspace @connext/contracts build`: Build the specific package.
 
 Run test:
 
-- `yarn workspace @connext/nxtp-contracts test` - Runs test.
+- `yarn workspace @connext/contracts test` - Runs test.
 
 ## Adding Packages
 

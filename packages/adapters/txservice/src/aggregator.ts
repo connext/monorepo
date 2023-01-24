@@ -1,5 +1,6 @@
 import {
   createLoggingContext,
+  createRequestContext,
   delay,
   ERC20Abi,
   jsonifyError,
@@ -8,7 +9,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -26,6 +27,7 @@ import {
   OnchainTransaction,
   StallTimeout,
   WriteTransaction,
+  QuorumNotMet,
 } from "./shared";
 import { axiosGet } from "./mockable";
 
@@ -115,7 +117,7 @@ export class RpcProviderAggregator {
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      this.fallbackProvider = new FallbackProvider(hydratedConfigs, 1);
+      this.fallbackProvider = new FallbackProvider(hydratedConfigs, config.quorum);
       this.providers = hydratedConfigs.map((p) => p.provider);
     } else {
       // Not enough valid providers were found in configuration.
@@ -678,25 +680,93 @@ export class RpcProviderAggregator {
     if (needsSigner) {
       this.checkSigner();
     }
+
     const errors: NxtpError[] = [];
-    const shuffledProviders = this.shuffleSyncedProviders();
-    for (const provider of shuffledProviders) {
-      try {
-        return await method(provider);
-      } catch (e: unknown) {
-        // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
-        // however, as it will return instantly if the error is already a NxtpError.
-        const error = parseError(e);
-        if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
-          // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not
-          // the call - so we'll retry the call with a different provider (if available).
-          errors.push(error);
-        } else {
-          // e.g. a TransactionReverted, TransactionReplaced, etc.
-          throw error;
+    const handleError = (e: unknown) => {
+      // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
+      // however, as it will return instantly if the error is already a NxtpError.
+      const error = parseError(e);
+      if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
+        // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not
+        // the call - so we'll retry the call with a different provider (if available).
+        errors.push(error);
+      } else {
+        // e.g. a TransactionReverted, TransactionReplaced, etc.
+        throw error;
+      }
+    };
+
+    const quorum = this.config.quorum ?? 1;
+    if (quorum > 1) {
+      // Consult ALL providers.
+      const results: (T | undefined)[] = await Promise.all(
+        this.providers.map(async (provider) => {
+          try {
+            return await method(provider);
+          } catch (e: unknown) {
+            handleError(e);
+            return undefined;
+          }
+        }),
+      );
+      // Filter out undefined results.
+      // NOTE: If there aren't any defined results, we'll proceed out of this code block and throw the
+      // RpcError at the end of this method.
+      const filteredResults: T[] = results.filter((item) => item !== undefined) as T[];
+      if (filteredResults.length > 0) {
+        // Pick the most common answer.
+        let counts: Map<string, number> = new Map();
+        counts = filteredResults.reduce((counts, item) => {
+          // Stringify the key. We'll convert it back before returning.
+          const key = JSON.stringify(item);
+          counts.set(key, (counts.get(key) ?? 0) + 1);
+          return counts;
+        }, counts);
+        const maxCount = Math.max(...Array.from(counts.values()));
+        if (maxCount < quorum) {
+          // Quorum is not met: we should toss this response as it could be unreliable.
+          throw new QuorumNotMet(maxCount, quorum, {
+            errors,
+            providersCount: this.providers.length,
+            responsesCount: filteredResults.length,
+          });
+        }
+        // Technically it could be multiple top responses...
+        const topResponses = Array.from(counts.keys()).filter((k) => counts.get(k)! === maxCount);
+        if (topResponses.length > 0) {
+          // Did we get multiple conflicting top responses? Worth logging.
+          this.logger.info(
+            "Received conflicting top responses from RPC providers.",
+            createRequestContext(this.execute.name),
+            undefined,
+            {
+              topResponses,
+              providersCount: this.providers.length,
+              responsesCount: filteredResults.length,
+              requiredQuorum: quorum,
+            },
+          );
+        }
+        // We've been using string keys and need to convert back to the OG item type T.
+        const stringifiedTopResponse = topResponses[0];
+        for (const item of filteredResults) {
+          if (JSON.stringify(item) === stringifiedTopResponse) {
+            return item;
+          }
+        }
+      }
+    } else {
+      // Shuffle the providers (with weighting towards better ones) and pick from the top.
+      const shuffledProviders = this.shuffleSyncedProviders();
+      for (const provider of shuffledProviders) {
+        try {
+          return await method(provider);
+        } catch (e: unknown) {
+          handleError(e);
         }
       }
     }
+
     throw new RpcError(RpcError.reasons.FailedToSend, { errors });
   }
 

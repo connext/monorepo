@@ -164,7 +164,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IConnector__factory {
   static readonly abi = _abi;

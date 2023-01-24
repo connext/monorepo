@@ -59,7 +59,7 @@ jobs:
         run: yarn install
 
       - name: Forge install
-        run: yarn workspace @connext/nxtp-contracts forge:install
+        run: yarn workspace @connext/contracts forge:install
 
       - name: Yarn build
         run: yarn build
@@ -84,11 +84,11 @@ jobs:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           yarn workspace @connext/nxtp-utils npm publish --access public
-          yarn workspace @connext/nxtp-contracts npm publish --access public
+          yarn workspace @connext/contracts npm publish --access public
           yarn workspace @connext/nxtp-txservice npm publish --access public
           yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
           yarn workspace @connext/nxtp-adapters-cache npm publish --access public
-          yarn workspace @connext/nxtp-sdk npm publish --access public
+          yarn workspace @connext/sdk npm publish --access public
 
   build-and-push-router-publisher-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'

@@ -11,7 +11,8 @@ import {
   Logger,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { Wallet } from "ethers";
+import { utils, Wallet } from "ethers";
+import { domainToChainId } from "@connext/contracts";
 
 import { bindServer, bindInterval } from "./bindings";
 import { getConfig } from "./config";
@@ -94,6 +95,42 @@ export const makeWatcher = async () => {
     }
     context.logger.info("Got asset info from subgraph", requestContext, methodContext, { assetInfo });
 
+    // Get asset symbols (for logging)
+    const assets = await Promise.all(
+      assetInfo.map(async (a) => {
+        const { id: address, canonicalDomain, canonicalId } = a;
+        const chain = domainToChainId(+canonicalDomain);
+        const entry = context.chainData.get(chain.toString());
+        if (!entry) {
+          context.logger.warn("Could not find entry in chaindata", requestContext, methodContext, { asset: a, chain });
+          return {
+            address,
+            canonicalDomain,
+            canonicalId,
+            symbol: "N/A",
+          };
+        }
+        let symbol =
+          entry.assetId[address.toLowerCase()]?.symbol ??
+          entry.assetId[address].symbol ??
+          entry.assetId[utils.getAddress(address)].symbol ??
+          entry.assetId[address.toUpperCase()].symbol;
+        if (!symbol) {
+          context.logger.warn("Could not find symbol in chaindata", requestContext, methodContext, {
+            address,
+            assets: entry.assetId,
+          });
+          symbol = "N/A";
+        }
+        return {
+          address,
+          canonicalDomain,
+          canonicalId,
+          symbol,
+        };
+      }),
+    );
+
     /// MARK - Watcher Adapter
     // NOTE: TxService is not added to context directly; we only use it for initializing WatcherAdapter.
     const txservice = new TransactionService(
@@ -109,9 +146,7 @@ export const makeWatcher = async () => {
         txservice,
         isStaging: context.config.environment === "staging",
       },
-      assetInfo.map((a) => {
-        return { address: a.id, canonicalDomain: a.canonicalDomain, canonicalId: a.canonicalId };
-      }),
+      assets,
     );
 
     /// MARK - Bindings

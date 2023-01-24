@@ -1,7 +1,7 @@
 import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
+import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
 import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
 import { getContext } from "../propagate";
@@ -43,10 +43,6 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const rootManagerAddress = getDeployedRootManagerContract(
-    hubChainId,
-    config.environment === "staging" ? "Staging" : "",
-  )!.address;
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
@@ -74,43 +70,10 @@ export const propagate = async () => {
     }
   }
 
-  // encode data
-  const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
-
-  logger.info("Getting gas estimate", requestContext, methodContext, {
-    hubChainId,
-    to: rootManagerAddress,
-    data: encodedData,
-    from: relayerProxyHubAddress,
-    totalFee: _totalFee.toString(),
-  });
-  let gas;
-  try {
-    gas = await chainreader.getGasEstimateWithRevertCode({
-      domain: +config.hubDomain,
-      to: rootManagerAddress,
-      data: encodedData,
-      from: relayerProxyHubAddress,
-      value: _totalFee,
-    });
-  } catch (e: unknown) {
-    logger.error("Error at Gelato Get Gas Estimate", requestContext, methodContext, e as NxtpError, {
-      domain: +config.hubDomain,
-      to: rootManagerAddress,
-      data: encodedData,
-      from: relayerProxyHubAddress,
-      value: _totalFee,
-    });
-    return;
-  }
-
-  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
-  logger.info("Got gas estimate", requestContext, methodContext, { gasLimit: gasLimit.toString() });
-
+  // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
     fee,
-    gasLimit: gasLimit.toString(),
     _connectors,
     _fees,
     _encodedData,

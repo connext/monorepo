@@ -128,7 +128,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class OwnerPausableUpgradeable__factory {
   static readonly abi = _abi;

@@ -5,6 +5,7 @@ import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { FixedNumber, utils } from "ethers";
 import { XTransferStatus } from "@connext/nxtp-utils";
+import { SdkXCallParams } from "@connext/sdk";
 
 import { useWallet } from "../contexts/Wallet";
 import { useAssets } from "../contexts/Assets";
@@ -98,12 +99,12 @@ export const TransferButton = ({
       const source_symbol = source_contract_data?.symbol || source_asset_data?.symbol;
       const destination_chain_data = chains?.find((c) => c?.id === destination_chain?.id);
 
-      const xcallParams = {
+      const xcallParams: SdkXCallParams = {
         destination: destination_chain_data!.domain_id!,
         to: address!,
-        asset: source_contract_data!.contract_address!,
+        asset: source_contract_data!.contract_address,
         delegate: address!,
-        amount: utils.parseUnits(amount?.toString() || "0", source_contract_data?.decimals || 18).toString(),
+        amount: utils.parseUnits(amount!.toString() || "0", source_contract_data?.decimals || 18).toString(),
         slippage: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString(),
         callData: "0x",
         origin: source_chain_data!.domain_id!,
@@ -114,8 +115,8 @@ export const TransferButton = ({
       try {
         const approve_request = await sdk.nxtpSdkBase.approveIfNeeded(
           xcallParams.origin,
-          xcallParams.asset,
-          xcallParams.amount,
+          xcallParams.asset!,
+          xcallParams.amount!,
           false,
         );
 
@@ -235,11 +236,11 @@ export const TransferButton = ({
         if (!xcall?.transfer_id && xcall?.transactionHash) {
           let transfer;
           try {
-            const response = await sdk.nxtpSdkUtils.getTransferByTransactionHash(xcall.transactionHash);
+            const response = await sdk.nxtpSdkUtils.getTransfers({ transactionHash: xcall.transactionHash });
             transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
           } catch (error: unknown) {}
           try {
-            const response = await sdk.nxtpSdkUtils.getTransfersByUser({ userAddress: address });
+            const response = await sdk.nxtpSdkUtils.getTransfers({ userAddress: address });
             transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
           } catch (error: unknown) {}
           if (
@@ -255,7 +256,7 @@ export const TransferButton = ({
             });
           }
         } else if (xcall.transfer_id) {
-          const response = await sdk.nxtpSdkUtils.getTransferById(xcall.transfer_id);
+          const response = await sdk.nxtpSdkUtils.getTransfers({ transferId: xcall.transfer_id });
 
           const transfer = response?.find((t: any) => t?.transfer_id === xcall.transfer_id);
 

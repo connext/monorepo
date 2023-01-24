@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.2.1-rc.14",
+  "version": "0.2.1-rc.16",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -41,16 +41,16 @@
   ],
   "dependencies": {
     "@connext/cartographer-poller": "workspace:*",
+    "@connext/contracts": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-relayer": "workspace:*",
     "@connext/nxtp-router": "workspace:*",
-    "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-sequencer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/sdk": "workspace:*",
     "axios": "1.2.1",
     "ethers": "5.7.2",
     "ts-node": "10.9.1"

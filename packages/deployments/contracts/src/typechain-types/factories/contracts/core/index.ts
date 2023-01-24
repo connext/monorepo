@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as connext from "./connext";
+export * as xreceivers from "./xreceivers";

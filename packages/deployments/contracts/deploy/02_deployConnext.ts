@@ -160,7 +160,7 @@ const proposeDiamondUpgrade = async (
 };
 
 /**
- * Hardhat task defining the contract deployments for nxtp
+ * Hardhat task defining the contract deployments for Connext
  *
  * @param hre Hardhat environment to deploy to
  */
@@ -217,8 +217,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       "LPToken",
       { from: deployer.address, log: true },
       "initialize",
-      "Nxtp Stable LP Token",
-      "NxtpStableLPToken",
+      "Connext Stable LP Token",
+      "ConnextStableLPToken",
     );
   }
 

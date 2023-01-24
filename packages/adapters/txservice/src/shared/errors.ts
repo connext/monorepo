@@ -21,6 +21,22 @@ export class StallTimeout extends NxtpError {
   }
 }
 
+export class QuorumNotMet extends NxtpError {
+  static readonly type = QuorumNotMet.name;
+
+  constructor(highestQuorum: number, requiredQuorum: number, public readonly context: any = {}) {
+    super(
+      `Required quorum for RPC provider responses was not met! Highest quorum: ${highestQuorum}; Required quorum: ${requiredQuorum}`,
+      {
+        ...context,
+        highestQuorum,
+        requiredQuorum,
+      },
+      QuorumNotMet.type,
+    );
+  }
+}
+
 export class RpcError extends NxtpError {
   static readonly type = RpcError.name;
 

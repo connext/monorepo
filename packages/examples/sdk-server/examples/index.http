@@ -14,12 +14,12 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/1869640809
+POST {{baseUrl}}/sendTransaction/1735353714
 Content-Type: application/json
 
 {
-  "data": "0xff126de96d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001858b33ccd7",
-  "to": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA"
+  "data": "0xfd5bd5fe00000000000000000000000000000000000000000000000000000000676f65720000000000000000000000007ea6ea49b0b0ae9c5db7907d139d9cd3439862a10000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1",
+  "to": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649"
 }
 
 ##############
@@ -62,8 +62,8 @@ POST {{baseUrl}}/estimateRelayerFee
 Content-Type: application/json
 
 {
-  "origin": "1869640809",
-  "destination": "1886350457"
+  "origin": "6778479",
+  "destination": "6648936"
 }
 
 ##############
@@ -75,8 +75,8 @@ GET {{baseUrl}}/getCanonicalTokenId/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8
 GET {{baseUrl}}/getLPTokenAddress/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
-### GET getLPTokenSupply
-GET {{baseUrl}}/getLPTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+### GET getTokenSupply
+GET {{baseUrl}}/getTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
 ### GET calculateCanonicalKey
@@ -258,6 +258,17 @@ Content-Type: application/json
 }
 
 ##############
+### POST bumpTransfer 
+POST {{baseUrl}}/bumpTransfer
+Content-Type: application/json
+
+{
+  "domainId": "1869640809",
+  "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
+  "relayerFee": "100000000000"
+}
+
+##############
 ### POST calculateCanonicalHash 
 POST {{baseUrl}}/calculateCanonicalHash
 Content-Type: application/json
@@ -268,63 +279,18 @@ Content-Type: application/json
 }
 
 ##############
-### POST getTransfersByUser 
-POST {{baseUrl}}/getTransfersByUser
-Content-Type: application/json
-
-{
-  "params": {
-    "userAddress": "{{yourAddress}}"
-  }
-}
-
-##############
-### POST getTransfersByStatus 
-POST {{baseUrl}}/getTransfersByStatus
-Content-Type: application/json
-
-{
-  "params": {
-    "status": "XCalled"
-  }
-}
-
-##############
-### POST getTransfersByRouter 
-POST {{baseUrl}}/getTransfersByRouter
-Content-Type: application/json
-
-{
-  "params": {
-    "routerAddress": "0xd2ad711861ab345977b7379c81165708c8717ff1"
-  }
-}
-
-##############
-### POST getTransferById
-POST {{baseUrl}}/getTransferById
-Content-Type: application/json
-
-{
-  "transferId": "0x6a0f389957407ee08acd911577cee33c608ba02b5c6879400bf66a98a6c86d82"
-}
-
-##############
-### POST getTransferByTransactionHash
-POST {{baseUrl}}/getTransferByTransactionHash
-Content-Type: application/json
-
-{
-  "transactionHash": "0xb51cd9fbd5939ebf51b49970d2b2766738a7cc3fdb698c947d95751efb32caee"
-}
-
-##############
 ### POST getTransfers
 POST {{baseUrl}}/getTransfers
 Content-Type: application/json
 
 {
-  "params": {}
+  "params": {
+    "userAddress": "{{yourAddress}}",
+    "routerAddress": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c",
+    "status": "CompletedFast",
+    "transferId": "0x4a379d3367bb589ddc00dd7c2d7d6557bed75c9595e5cd6a4369d85e587ec386",
+    "transactionHash": "0xd1b4f723c1f7453bc38e8dd64f56830ed1e907b95c8b5eba55a9f1a26d867ea8"
+  }
 }
 
 ##############
@@ -368,6 +334,21 @@ Content-Type: application/json
     "amount": "50989998589326827",
     "tokenAddress": "0x2983bf5c334743Aa6657AD70A55041d720d225dB",
     "recipient": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"
+  }
+}
+
+##############
+### POST removeRouterLiquidityFor
+POST {{baseUrl}}/removeRouterLiquidityFor
+Content-Type: application/json
+
+{
+  "params": {
+    "domainId": "1735353714",
+    "amount": "1000000000000000000",
+    "tokenAddress": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+    "recipient": "0xd2ad711861ab345977b7379c81165708c8717ff1",
+    "router": "0xd2ad711861ab345977b7379c81165708c8717ff1"
   }
 }
 

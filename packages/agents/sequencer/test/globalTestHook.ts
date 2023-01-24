@@ -4,6 +4,7 @@ import { ChainReader } from "@connext/nxtp-txservice";
 import { DestinationTransfer, Logger, mkAddress } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
 import { AppContext } from "../src/lib/entities/context";
 import * as SequencerFns from "../src/sequencer";
@@ -62,6 +63,7 @@ export const mochaHooks = {
         relayers: mock.context().adapters.relayers,
         mqClient: mock.context().adapters.mqClient,
         wallet: mock.context().adapters.wallet,
+        database: mockDatabase(),
       },
       config: mock.config(),
       chainData: mock.context().chainData,
