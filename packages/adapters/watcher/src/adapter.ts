@@ -24,8 +24,6 @@ export class WatcherAdapter {
   // each time `checkInvariants` is called
   private readonly latestTransactions: Record<string, string[]> = {};
 
-  private push = false;
-
   // this is set when `checkInvariants` determines that the system needs to be
   // paused. will hold all transactions between checks that have gone to
   // connext
@@ -46,6 +44,7 @@ export class WatcherAdapter {
       if (result.needsPause) {
         // store potential offending transactions
         this.recordTransactions();
+        this.clearTransactions();
         return { ...result, transactions: this.transactionSnapshot! };
       }
     }
