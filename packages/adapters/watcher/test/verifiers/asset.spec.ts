@@ -1,6 +1,6 @@
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
 import { ConnextAbi } from "@connext/nxtp-contracts";
 
@@ -14,7 +14,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
 
   let readTxResult = "test 123";
   let requestContext = createRequestContext("Watcher Adapter: AssetVerifier tests");
-  let domains = [canonicalDomain];
+  let domains: string[];
   let targetAsset: AssetInfo;
 
   let txservice: SinonStubbedInstance<TransactionService>;
@@ -29,11 +29,13 @@ describe("Watcher Adapter: AssetVerifier", () => {
   beforeEach(() => {
     const canonicalAssetAddress = mkAddress("0x123123123");
     const canonicalId = mkBytes32(canonicalAssetAddress);
+    domains = [canonicalDomain];
 
     targetAsset = {
       canonicalId,
       canonicalDomain,
       address: canonicalAssetAddress,
+      symbol: "TEST",
     };
 
     txservice = createStubInstance(TransactionService);
@@ -72,18 +74,77 @@ describe("Watcher Adapter: AssetVerifier", () => {
   });
 
   describe("#totalMintedAssets", () => {
-    it("should query custodied on-chain", async () => {
+    it("should skip the canonical domain", async () => {
+      const result = await assetVerifier.totalMintedAssets(targetAsset, requestContext);
+      expect(result.isZero()).to.be.true;
+      expect(txservice.readTx.callCount).to.be.eq(0);
+    });
+
+    it("should skip addresses with empty representations", async () => {
+      domains.push("133812");
+      stub(MockableFns, "ConnextInterface").value({
+        encodeFunctionData: connextEncodeFunctionData,
+        decodeFunctionResult: stub().returns([constants.AddressZero]),
+      });
+
+      const result = await assetVerifier.totalMintedAssets(targetAsset, requestContext);
+      expect(result.isZero()).to.be.true;
+      expect(txservice.readTx.callCount).to.be.eq(1);
+    });
+
+    it("should fail if decoding supply fails", async () => {
+      domains.push("133812");
+      const error = "error you are testing silly goose";
+      stub(MockableFns, "getErc20Interface").value(() => ({
+        encodeFunctionData: erc20EncodeFunctionData,
+        decodeFunctionResult: stub().throws(error),
+      }));
+
+      await expect(assetVerifier.totalMintedAssets(targetAsset, requestContext)).to.be.rejectedWith(
+        `Failed to convert totalSupply response to BigNumber. token: 123, Received: test 123; Error: ` + error,
+      );
+    });
+
+    it("should work", async () => {
       readTxResult = "123";
-      const result = await assetVerifier.totalMintedAssets(targetAsset);
-      expect(BigNumber.from(readTxResult).eq(result));
+      txservice.readTx.callsFake(async (): Promise<string> => {
+        return readTxResult;
+      });
+      domains.push("133812");
+
+      const result = await assetVerifier.totalMintedAssets(targetAsset, requestContext);
+      expect(result.toString()).to.be.eq(readTxResult);
+      expect(txservice.readTx.callCount).to.be.eq(2);
+      // call to get representation asset
+      expect(txservice.readTx.args[0][0]).to.containSubset({ domain: +domains[1], to: connextAddress, data: "0x123" });
+      // call to get total supply
+      expect(txservice.readTx.args[1][0]).to.containSubset({ domain: +domains[1], to: "123", data: "0x123" });
     });
   });
 
   describe("#totalLockedAssets", () => {
+    it("should fail if decoding fails", async () => {
+      const error = "error you are testing silly goose";
+      stub(MockableFns, "ConnextInterface").value({
+        encodeFunctionData: connextEncodeFunctionData,
+        decodeFunctionResult: stub().throws(error),
+      });
+
+      await expect(assetVerifier.totalLockedAssets(targetAsset, requestContext)).to.be.rejectedWith(
+        `Failed to convert getCustodiedAmount response to BigNumber. Received: 123; Error: ` + error,
+      );
+    });
+
     it("should query custodied on-chain", async () => {
-      readTxResult = "1234";
-      const result = await assetVerifier.totalLockedAssets(targetAsset);
-      expect(BigNumber.from(readTxResult).eq(result));
+      const result = await assetVerifier.totalLockedAssets(targetAsset, requestContext);
+      expect(result.toString()).to.be.eq("123");
+      expect(
+        txservice.readTx.calledOnceWith({
+          domain: +canonicalDomain,
+          to: connextAddress,
+          data: "0x123",
+        }),
+      );
     });
   });
 
@@ -103,8 +164,8 @@ describe("Watcher Adapter: AssetVerifier", () => {
       let result = await assetVerifier.checkInvariant(requestContext);
       expect(result.needsPause).to.be.false;
       // NOTE: If we add more target assets to this test, make sure to modify these checks.
-      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
-      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
+      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
+      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
 
       // totalMinted is less than totalLocked: should pass.
       totalMintedAssetsStub.resolves(BigNumber.from(8_123));
@@ -118,8 +179,8 @@ describe("Watcher Adapter: AssetVerifier", () => {
       totalMintedAssetsStub.resolves(BigNumber.from(20_000));
       const result = await assetVerifier.checkInvariant(requestContext);
       expect(result.needsPause).to.be.true;
-      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
-      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset);
+      expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
+      expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
     });
   });
 });
