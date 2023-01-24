@@ -222,3 +222,20 @@ export function handleReconciled(event: Reconciled): void {
 
   transfer.save();
 }
+
+/**
+ * Updates subgraph records when TransferRelayerFeesIncreased events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased): void {
+  let transfer = OriginTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new OriginTransfer(event.params.transferId.toHexString());
+  }
+
+  transfer.relayerFee = transfer.relayerFee!.plus(event.params.increase);
+  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
+  transfer.save();
+}
