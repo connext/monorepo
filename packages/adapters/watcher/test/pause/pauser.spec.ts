@@ -1,4 +1,4 @@
-import { ConnextAbi } from "@connext/nxtp-contracts";
+import { ConnextAbi } from "@connext/contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
@@ -116,7 +116,9 @@ describe("Watcher Adapter: Pauser", () => {
       expect(result[1].domain).to.be.equal(domains[1]);
       expect(result[1].paused).to.be.equal(false);
       expect(result[1].relevantTransaction).to.be.equal("");
-      expect(result[1].error.toString()).to.be.equal("Error: Cannot find corresponding chainId for domain " + domains[1]);
+      expect(result[1].error.toString()).to.be.equal(
+        "Error: Cannot find corresponding chainId for domain " + domains[1],
+      );
     });
   });
 });

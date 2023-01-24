@@ -9,7 +9,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {

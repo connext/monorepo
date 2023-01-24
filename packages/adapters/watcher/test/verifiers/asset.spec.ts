@@ -2,7 +2,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext, expect, Logger, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
-import { ConnextAbi } from "@connext/nxtp-contracts";
+import { ConnextAbi } from "@connext/contracts";
 
 import * as MockableFns from "../../src/mockable";
 import { AssetVerifier } from "../../src/verifiers";
