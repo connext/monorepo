@@ -174,7 +174,12 @@ CREATE TABLE public.transfers (
     bridged_amt character varying(255),
     normalized_in character varying(255),
     canonical_id character(66),
-    router_fee character varying(255)
+    router_fee character varying(255),
+    xcall_tx_origin character(42),
+    execute_tx_origin character(42),
+    reconcile_tx_origin character(42),
+    relayer_fee character varying(255),
+    error_status character varying(255)
 );
 
 
@@ -739,4 +744,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20221130222017'),
     ('20221207151852'),
     ('20221216164744'),
-    ('20230104142147');
+    ('20230104142147'),
+    ('20230105105045'),
+    ('20230105152814'),
+    ('20230113140119');
