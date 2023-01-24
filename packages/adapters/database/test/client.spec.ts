@@ -94,13 +94,13 @@ describe("Database client", () => {
   it("should save single transfer and update it's error status", async () => {
     const xTransfer = mock.entity.xtransfer({
       status: XTransferStatus.Executed,
-      errorStatus: XTransferErrorStatus.InsufficientRelayerFee,
+      errorStatus: XTransferErrorStatus.LowRelayerFee,
     });
     await saveTransfers([xTransfer], pool);
 
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
-    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.InsufficientRelayerFee);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
   });
 
   it("should save single transfer and update it's error status to undefined", async () => {
@@ -114,6 +114,29 @@ describe("Database client", () => {
 
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
     expect(dbTransfer!.origin?.errorStatus).equal(undefined);
+  });
+
+  it("should save single transfer and update it's error status to None", async () => {
+    let xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Executed,
+      errorStatus: XTransferErrorStatus.LowRelayerFee,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
+
+    xTransfer.origin!.errorStatus = XTransferErrorStatus.None;
+
+    console.log(xTransfer);
+
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
+    console.log(dbTransferUpdated);
+    expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransferUpdated!.origin?.errorStatus).equal(XTransferErrorStatus.None);
   });
 
   it("should save single transfer null destination", async () => {
