@@ -239,3 +239,20 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
   transfer.save();
 }
+
+/**
+ * Updates subgraph records when SlippageUpdated events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleSlippageUpdated(event: SlippageUpdated): void {
+  let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new DestinationTransfer(event.params.transferId.toHexString());
+  }
+
+  transfer.slippage = event.params.slippage;
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.save();
+}
