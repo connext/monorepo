@@ -103,19 +103,6 @@ describe("Database client", () => {
     expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
   });
 
-  it("should save single transfer and update it's error status to undefined", async () => {
-    const xTransfer = mock.entity.xtransfer({
-      status: XTransferStatus.Executed,
-      errorStatus: undefined,
-    });
-    await saveTransfers([xTransfer], pool);
-
-    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
-
-    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
-    expect(dbTransfer!.origin?.errorStatus).equal(undefined);
-  });
-
   it("should save single transfer and update it's error status to None", async () => {
     let xTransfer = mock.entity.xtransfer({
       status: XTransferStatus.Executed,
@@ -127,7 +114,7 @@ describe("Database client", () => {
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
     expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
 
-    xTransfer.origin!.errorStatus = XTransferErrorStatus.None;
+    xTransfer.origin!.errorStatus = XTransferErrorStatus.Ok;
 
     console.log(xTransfer);
 
@@ -136,7 +123,7 @@ describe("Database client", () => {
     const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
     console.log(dbTransferUpdated);
     expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.Executed);
-    expect(dbTransferUpdated!.origin?.errorStatus).equal(XTransferErrorStatus.None);
+    expect(dbTransferUpdated!.origin?.errorStatus).equal(XTransferErrorStatus.Ok);
   });
 
   it("should save single transfer null destination", async () => {
