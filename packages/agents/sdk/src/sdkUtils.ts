@@ -29,7 +29,7 @@ export class NxtpSdkUtils extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkUtils } from "@connext/nxtp-sdk";
+   * import { NxtpSdkUtils } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {

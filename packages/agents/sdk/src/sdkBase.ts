@@ -60,7 +60,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkBase } from "@connext/nxtp-sdk";
+   * import { NxtpSdkBase } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {

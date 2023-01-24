@@ -5,7 +5,7 @@ import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { FixedNumber, utils } from "ethers";
 import { XTransferStatus } from "@connext/nxtp-utils";
-import { SdkXCallParams } from "@connext/nxtp-sdk";
+import { SdkXCallParams } from "@connext/sdk";
 
 import { useWallet } from "../contexts/Wallet";
 import { useAssets } from "../contexts/Assets";
