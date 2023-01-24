@@ -1,6 +1,6 @@
 {
   "name": "@connext/contracts",
-  "version": "0.2.1-rc.16",
+  "version": "0.2.1-rc.17",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-contract 'LiveTest'",
