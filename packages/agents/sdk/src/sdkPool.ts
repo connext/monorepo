@@ -39,7 +39,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkPool } from "@connext/nxtp-sdk";
+   * import { NxtpSdkPool } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {

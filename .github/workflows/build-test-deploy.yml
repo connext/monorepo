@@ -88,7 +88,7 @@ jobs:
           yarn workspace @connext/nxtp-txservice npm publish --access public
           yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
           yarn workspace @connext/nxtp-adapters-cache npm publish --access public
-          yarn workspace @connext/nxtp-sdk npm publish --access public
+          yarn workspace @connext/sdk npm publish --access public
 
   build-and-push-router-publisher-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'

@@ -1,4 +1,4 @@
-import { NxtpSdkPool, NxtpSdkShared } from "@connext/nxtp-sdk";
+import { NxtpSdkPool, NxtpSdkShared } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";

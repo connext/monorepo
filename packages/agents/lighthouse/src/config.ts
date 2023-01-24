@@ -136,7 +136,9 @@ export const getEnvConfig = (
       : configJson.relayers
       ? configJson.relayers
       : configFile.relayers,
-    database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
+    database: {
+      url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
+    },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
