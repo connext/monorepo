@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, getChainData } from "@connext/nxtp-utils";
+import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId, domainToChainId } from "../../domain";
@@ -386,6 +386,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             desired: true,
             read: { method: "approvedRelayers", args: [relayerProxyAddress] },
             write: { method: "addRelayer", args: [relayerProxyAddress] },
+            chainData,
+          });
+
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: GELATO_RELAYER_ADDRESS,
+            read: { method: "gelatoRelayer" },
+            write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
+            chainData,
+          });
+
+          const feeCollector = network.relayerFeeVault;
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: feeCollector,
+            read: { method: "feeCollector" },
+            write: { method: "setFeeCollector", args: [feeCollector] },
             chainData,
           });
         }
