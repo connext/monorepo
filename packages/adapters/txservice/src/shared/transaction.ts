@@ -1,6 +1,6 @@
 import { RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers, utils } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/contracts";
 
 import { Gas, WriteTransaction } from "./types";
 

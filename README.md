@@ -141,11 +141,11 @@ Run router:
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
   or
-- `yarn workspace @connext/nxtp-contracts build`: Build the specific package.
+- `yarn workspace @connext/contracts build`: Build the specific package.
 
 Run test:
 
-- `yarn workspace @connext/nxtp-contracts test` - Runs test.
+- `yarn workspace @connext/contracts test` - Runs test.
 
 ## Adding Packages
 

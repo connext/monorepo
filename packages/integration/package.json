@@ -41,10 +41,10 @@
   ],
   "dependencies": {
     "@connext/cartographer-poller": "workspace:*",
+    "@connext/contracts": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-relayer": "workspace:*",
     "@connext/nxtp-router": "workspace:*",
     "@connext/nxtp-sequencer": "workspace:*",
