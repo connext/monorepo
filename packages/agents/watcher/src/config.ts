@@ -7,6 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
+  quorum: Type.Optional(Type.Integer({ minimum: 2 })), // Required quorum among RPC providers.
 });
 
 export const WatcherConfigSchema = Type.Intersect([
@@ -50,16 +51,29 @@ export const getEnvConfig = (): WatcherConfig => {
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
+
+  // Take the chain config and enforce default values as needed.
+  const parsedChains: object = process.env.WATCHER_CHAIN_CONFIG
+    ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
+    : configJson.chains
+    ? configJson.chains
+    : configFile.chains;
+  // Default value enforcement.
+  const chains: any = {};
+  Object.entries(parsedChains).map(([key, values]) => {
+    const { quorum, providers, ...rest } = values;
+    chains[key] = {
+      providers,
+      // should always *at least* be 2 for providers
+      quorum: quorum ?? 2,
+      ...rest,
+    };
+  });
 
   const config: WatcherConfig = {
     mnemonic: process.env.WATCHER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.WATCHER_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    chains: process.env.WATCHER_CHAIN_CONFIG
-      ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
-      : configJson.chains
-      ? configJson.chains
-      : configFile.chains,
+    chains,
     logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     environment: process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain,
@@ -93,6 +107,19 @@ export const getEnvConfig = (): WatcherConfig => {
 
   if (!valid) {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
+  }
+
+  // enforce there are at *least* three providers
+  const invalid = Object.entries(config.chains)
+    .map(([key, value]) => {
+      if (value.providers.length < 3) {
+        return key;
+      }
+      return undefined;
+    })
+    .filter((x) => !!x);
+  if (invalid.length) {
+    throw new Error(`Need 3 providers per chain at minimum. Missing those for ${invalid.join(", ")}`);
   }
 
   return config;

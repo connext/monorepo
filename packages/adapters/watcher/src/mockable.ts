@@ -2,7 +2,7 @@ import { axiosGet as _axiosGet, axiosPost as _axiosPost } from "@connext/nxtp-ut
 import { Twilio as _Twilio } from "twilio";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 import { trigger as _trigger } from "@pagerduty/pdjs";
-import { ConnextInterface as _ConnextInterface } from "@connext/nxtp-contracts";
+import { ConnextInterface as _ConnextInterface } from "@connext/smart-contracts";
 import { getErc20Interface as _getErc20Interface } from "@connext/nxtp-txservice";
 
 export const axiosGet = _axiosGet;

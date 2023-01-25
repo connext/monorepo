@@ -67,7 +67,10 @@ describe("Helpers: Arbitrum", () => {
         encodeFunctionData: stub().returns("0x123"),
         decodeFunctionResult: confirmData,
       }),
-      connect: stub().returns(undefined),
+      getContract: stub().returns({
+        connect: stub().returns(undefined),
+        calcSrcFees: stub().resolves(constants.One),
+      } as any),
     });
   });
 

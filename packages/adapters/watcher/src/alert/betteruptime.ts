@@ -1,19 +1,11 @@
+import { createMethodContext } from "@connext/nxtp-utils";
+
 import { Report } from "../types";
 import { axiosPost } from "../mockable";
 
 export const alertViaBetterUptime = async (report: Report, apiKey: string, requesterEmail: string) => {
-  const {
-    timestamp,
-    event,
-    reason,
-    errors,
-    logger,
-    requestContext,
-    methodContext,
-    domains,
-    relevantTransactions,
-    rpcs,
-  } = report;
+  const methodContext = createMethodContext(alertViaBetterUptime.name);
+  const { timestamp, event, reason, errors, logger, requestContext, domains, relevantTransactions, rpcs } = report;
   logger.info("Sending message to better uptime", requestContext, methodContext, {
     timestamp,
     event,
@@ -22,6 +14,7 @@ export const alertViaBetterUptime = async (report: Report, apiKey: string, reque
     domains,
     relevantTransactions,
     rpcs,
+    requesterEmail,
   });
 
   const response = await axiosPost(

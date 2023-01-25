@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-txservice",
-  "version": "0.2.1-rc.14",
+  "version": "0.2.1-rc.18",
   "description": "Robust transaction sending service for a wallet configured across multiple chains. Will bump gas and reattempt transactions as needed",
   "author": "Connext",
   "license": "MIT",
@@ -22,8 +22,8 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/smart-contracts": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "@typescript-eslint/eslint-plugin": "5.47.0",
     "ajv": "8.11.2",

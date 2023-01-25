@@ -27,7 +27,13 @@ export default task("unpause", "Unpause Connext contract")
     console.log("connextAddress: ", connextAddress);
 
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+    const paused = await connext.paused();
+    if (paused) {
+      console.log(`already unpaused`);
+      return;
+    }
     const tx = await connext.unpause();
     console.log("unpause tx: ", tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    console.log("unpaused mined:", receipt.transactionHash);
   });

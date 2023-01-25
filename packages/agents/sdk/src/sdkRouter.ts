@@ -18,6 +18,38 @@ export class NxtpSdkRouter extends NxtpSdkShared {
     super(config, logger, chainData);
   }
 
+  /**
+   * Create a singleton instance of the NxtpSdkRouter class.
+   *
+   * @param _config - NxtpSdkConfig object.
+   * @param _config.chains - Chain config, at minimum with providers for each chain.
+   * @param _config.signerAddress - Signer address for transactions.
+   * @param _config.logLevel - (optional) Logging severity level.
+   * @param _config.network - (optional) Blockchain environment to interact with.
+   * @returns providers.TransactionRequest object.
+   *
+   * @example:
+   * ```ts
+   * import { NxtpSdkRouter } from "@connext/sdk";
+   *
+   * const config = {
+   *   "chains": {
+   *     "6648936": {
+   *       "providers": ["https://rpc.ankr.com/eth"]
+   *     },
+   *     "1869640809": {
+   *       "providers": ["https://mainnet.optimism.io"]
+   *     },
+   *     "1886350457": {
+   *       "providers": ["https://polygon-rpc.com"]
+   *     },
+   *   },
+   *   "signerAddress": "<wallet_address>",
+   * }
+   *
+   * const NxtpSdkRouter = await NxtpSdkRouter.create(config);
+   * ```
+   */
   static async create(
     _config: NxtpSdkConfig,
     _logger?: Logger,
@@ -36,6 +68,16 @@ export class NxtpSdkRouter extends NxtpSdkShared {
     return this._instance || (this._instance = new NxtpSdkRouter(nxtpConfig, logger, chainData));
   }
 
+  /**
+   * Returns the transaction request for adding liquidity to a router.
+   *
+   * @param params - addLiquidityForRouter parameters object.
+   * @param params.domainId - The domain ID.
+   * @param params.amount - The amount of the token to add.
+   * @param params.tokenAddress - The address of the token.
+   * @param params.router - The address of the router.
+   * @returns providers.TransactionRequest object.
+   */
   async addLiquidityForRouter(params: {
     domainId: string;
     amount: string;
@@ -64,6 +106,19 @@ export class NxtpSdkRouter extends NxtpSdkShared {
     return txRequest;
   }
 
+  /**
+   * Returns the transaction request for removing liquidity from a router.
+   *
+   * @remarks
+   * This function is permissioned to the router owner only.
+   *
+   * @param params - removeRouterLiquidity parameters object.
+   * @param params.domainId - The domain ID.
+   * @param params.amount - The amount of the token to add.
+   * @param params.tokenAddress - The address of the token.
+   * @param params.recipient - The address where the removed funds will be delivered.
+   * @returns providers.TransactionRequest object.
+   */
   async removeRouterLiquidity(params: {
     domainId: string;
     amount: string;
@@ -92,6 +147,44 @@ export class NxtpSdkRouter extends NxtpSdkShared {
 
     this.logger.info(
       `${this.removeRouterLiquidity.name} transaction created`,
+      requestContext,
+      methodContext,
+      txRequest,
+    );
+
+    return txRequest;
+  }
+
+  async removeRouterLiquidityFor(params: {
+    domainId: string;
+    amount: string;
+    tokenAddress: string;
+    recipient: string;
+    router: string;
+  }): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeRouterLiquidityFor.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const { domainId, amount, tokenAddress, recipient, router } = params;
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, tokenAddress),
+    ]);
+
+    const txRequest = await connextContract.populateTransaction.removeRouterLiquidityFor(
+      { domain: canonicalDomain, id: canonicalId },
+      amount,
+      recipient,
+      router,
+    );
+
+    this.logger.info(
+      `${this.removeRouterLiquidityFor.name} transaction created`,
       requestContext,
       methodContext,
       txRequest,

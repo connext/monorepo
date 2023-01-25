@@ -17,7 +17,7 @@ import { mock } from "./mock";
 import { NxtpSdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
-import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/nxtp-contracts";
+import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/smart-contracts";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";

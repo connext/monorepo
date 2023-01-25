@@ -4,7 +4,6 @@ import {
   createRequestContext,
   jsonifyError,
   NxtpError,
-  RelayerType,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
@@ -155,7 +154,7 @@ export const processSingleRootMessage = async (
     rootMessage.hubDomain,
     hubConnector.address,
     encodedData,
-    [relayers.find((r) => r.type === RelayerType.Connext)!],
+    relayers,
     chainreader,
     logger,
     requestContext,

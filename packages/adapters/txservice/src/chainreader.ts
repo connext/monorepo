@@ -1,6 +1,6 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
 import { createLoggingContext, Logger, RequestContext, getNtpTimeSeconds } from "@connext/nxtp-utils";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {

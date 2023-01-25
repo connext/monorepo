@@ -2,6 +2,16 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.17
+
+- [contracts] NPM package name update (@connext/nxtp-contracts -> @connext/contracts)
+- [sdk] NPM package name update (@connext/nxtp-sdk -> @connext/sdk)
+
+## Amarok 0.2.1-rc.16
+
+- [contracts] Added Unwrapper contract to deliver native tokens on destination
+- [sdk] Updated annotations and error handling, added UpdateSlippage, added removeRouterLiquidityFor
+
 ## Amarok 0.2.1-rc.14
 
 - [all] updates

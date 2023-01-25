@@ -1,4 +1,5 @@
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
+import { createMethodContext } from "@connext/nxtp-utils";
 
 import { sendMessageViaTwilio } from "../mockable";
 import { Report } from "../types";
@@ -10,18 +11,8 @@ export const alertViaSms = async (
   twilioNumber: string,
   toPhoneNumbers: string[],
 ): Promise<MessageInstance[]> => {
-  const {
-    timestamp,
-    event,
-    reason,
-    errors,
-    logger,
-    requestContext,
-    methodContext,
-    domains,
-    relevantTransactions,
-    rpcs,
-  } = report;
+  const methodContext = createMethodContext(alertViaSms.name);
+  const { timestamp, event, reason, errors, logger, requestContext, domains, relevantTransactions, rpcs } = report;
 
   logger.info("Sending message via twilio", requestContext, methodContext, {
     timestamp,

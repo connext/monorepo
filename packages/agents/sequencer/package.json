@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "0.2.1-rc.14",
+  "version": "0.2.1-rc.18",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
@@ -40,7 +40,6 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
-    "dd-trace": "3.9.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.10.2",
