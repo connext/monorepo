@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+/* eslint-disable */
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import { Asset, AssetBalance, Router } from "../../../../generated/schema";

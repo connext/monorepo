@@ -27,6 +27,8 @@ dataSources:
         # AssetAdded: key, canonicalId, domain, adoptedAsset, localAsset, caller
         - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
           handler: handleAssetAdded
+        - event: AssetRemoved(indexed bytes32,address)
+          handler: handleAssetRemoved
         # RelayerAdded: relayer, caller
         - event: RelayerAdded(address,address)
           handler: handleRelayerAdded
@@ -62,6 +64,9 @@ dataSources:
           handler: handleMaxRoutersPerTransferUpdated
         - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
           handler: handleRelayerFeesIncreased
+          # SlippageUpdated(indexed bytes32,uint256)
+        - event: SlippageUpdated(indexed bytes32,uint256)
+          handler: handleSlippageUpdated
       file: ./src/amarok-runtime-staging/mapping/index.ts
   # SPOKE CONNECTOR events
   - kind: ethereum/contract

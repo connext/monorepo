@@ -6,6 +6,13 @@ type Asset @entity {
   adoptedAsset: Bytes
   localAsset: Bytes
   blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
+  # status
+  status: AssetStatus
+}
+
+type AssetStatus @entity {
+  id: ID! # key
+  status: Boolean
 }
 
 type AssetBalance @entity {
@@ -37,12 +44,6 @@ type Relayer @entity {
   id: ID!
   isActive: Boolean!
   relayer: Bytes
-}
-
-type TransferRelayerFee @entity {
-  id: ID!
-  transferId: Bytes!
-  fee: BigInt
 }
 
 type Sequencer @entity {
@@ -91,6 +92,7 @@ type OriginTransfer @entity {
 
   # Relayer Fee paid by user
   relayerFee: BigInt
+  bumpRelayerFeeCount: BigInt
 
   # XCalled Transaction
   caller: Bytes
@@ -99,6 +101,7 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -120,6 +123,7 @@ type DestinationTransfer @entity {
   receiveLocal: Boolean
   callData: Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -139,6 +143,7 @@ type DestinationTransfer @entity {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: Bytes
 
   # Reconciled Transaction
   reconciledCaller: Bytes
@@ -147,6 +152,7 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: Bytes
 }
 
 type OriginMessage @entity {
