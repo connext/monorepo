@@ -42,6 +42,7 @@ export const mock = {
           connext: mkAddress("0xabcdef123"),
           relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
       [mock.domain.B]: {
         confirmations: 1,
@@ -50,6 +51,7 @@ export const mock = {
           connext: mkAddress("0xabcdef123"),
           relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
     },
     logLevel: "info",
@@ -92,7 +94,6 @@ export const mock = {
       },
     ],
     relayerFeeTolerance: 20,
-    excludeListFromRelayerFee: [mockExcludeAddress],
     database: {
       url: "http://example.com",
     },
