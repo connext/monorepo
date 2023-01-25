@@ -32,7 +32,7 @@ const deployContract = async (params: {
 };
 
 /**
- * Hardhat task defining the contract deployments for nxtp
+ * Hardhat task defining the contract deployments for Connext
  *
  * @param hre Hardhat environment to deploy to
  */

@@ -34,8 +34,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "LPToken",
       { from: deployer.address, log: true },
       "initialize",
-      "Nxtp Stable LP Token",
-      "NxtpStableLPToken",
+      "Connext Stable LP Token",
+      "ConnextStableLPToken",
     );
   }
 
