@@ -64,6 +64,7 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    executionWaitTime: 300_000,
     auctionRoundDepth: 4,
     mode: {
       cleanup: false,

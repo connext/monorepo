@@ -86,7 +86,23 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
-  status = await cache.auctions.getExecStatus(transferId);
+  const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
+  if (execStatus && execStatus.status === ExecStatus.Sent) {
+    const startTime = Number(execStatus.timestamp);
+    const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Auction merits retry", requestContext, methodContext, { transferId: transferId });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.auctions.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting relayer execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+      });
+      status = execStatus.status;
+    }
+  }
   if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
