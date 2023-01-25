@@ -22,7 +22,9 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   } = transfer;
 
   if (
-    config.excludeListFromRelayerFee.map((i) => i.toLowerCase()).includes(transfer.xparams.originSender.toLowerCase())
+    config.chains[transfer.xparams.originDomain].excludeListFromRelayerFee
+      .map((i) => i.toLowerCase())
+      .includes(transfer.xparams.originSender.toLowerCase())
   ) {
     return { canSubmit: true, needed: "0" };
   }
