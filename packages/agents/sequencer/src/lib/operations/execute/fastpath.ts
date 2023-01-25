@@ -41,7 +41,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   }
 
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getExecStatus(transferId);
+  let status = await cache.auctions.getExecStatus(transferId);
   if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
     throw new AuctionExpired(status, {
       transferId,
@@ -86,6 +86,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
+  status = await cache.auctions.getExecStatus(transferId);
   if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
@@ -99,6 +100,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       routingKey: transfer.xparams!.originDomain,
       persistent: true,
     });
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
