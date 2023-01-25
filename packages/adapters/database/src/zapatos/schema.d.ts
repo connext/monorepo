@@ -3763,16 +3763,16 @@ declare module 'zapatos/schema' {
       future_a_time: number;
       /**
       * **stableswap_pools.swap_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      swap_fee: number;
+      swap_fee: string;
       /**
       * **stableswap_pools.admin_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      admin_fee: number;
+      admin_fee: string;
       /**
       * **stableswap_pools.pool_tokens**
       * - `_text` in database
@@ -3781,40 +3781,40 @@ declare module 'zapatos/schema' {
       pool_tokens: string[] | null;
       /**
       * **stableswap_pools.token_precision_multipliers**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      token_precision_multipliers: number[] | null;
+      token_precision_multipliers: string[] | null;
       /**
       * **stableswap_pools.pool_token_decimals**
-      * - `_numeric` in database
+      * - `_int4` in database
       * - Nullable, no default
       */
       pool_token_decimals: number[] | null;
       /**
       * **stableswap_pools.balances**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      balances: number[] | null;
+      balances: string[] | null;
       /**
       * **stableswap_pools.virtual_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      virtual_price: number;
+      virtual_price: string;
       /**
       * **stableswap_pools.invariant**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      invariant: number;
+      invariant: string;
       /**
       * **stableswap_pools.lp_token_supply**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      lp_token_supply: number;
+      lp_token_supply: string;
     }
     export interface JSONSelectable {
       /**
@@ -3867,16 +3867,16 @@ declare module 'zapatos/schema' {
       future_a_time: number;
       /**
       * **stableswap_pools.swap_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      swap_fee: number;
+      swap_fee: string;
       /**
       * **stableswap_pools.admin_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      admin_fee: number;
+      admin_fee: string;
       /**
       * **stableswap_pools.pool_tokens**
       * - `_text` in database
@@ -3885,40 +3885,40 @@ declare module 'zapatos/schema' {
       pool_tokens: string[] | null;
       /**
       * **stableswap_pools.token_precision_multipliers**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      token_precision_multipliers: number[] | null;
+      token_precision_multipliers: string[] | null;
       /**
       * **stableswap_pools.pool_token_decimals**
-      * - `_numeric` in database
+      * - `_int4` in database
       * - Nullable, no default
       */
       pool_token_decimals: number[] | null;
       /**
       * **stableswap_pools.balances**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      balances: number[] | null;
+      balances: string[] | null;
       /**
       * **stableswap_pools.virtual_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      virtual_price: number;
+      virtual_price: string;
       /**
       * **stableswap_pools.invariant**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      invariant: number;
+      invariant: string;
       /**
       * **stableswap_pools.lp_token_supply**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      lp_token_supply: number;
+      lp_token_supply: string;
     }
     export interface Whereable {
       /**
@@ -3971,16 +3971,16 @@ declare module 'zapatos/schema' {
       future_a_time?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.swap_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      swap_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      swap_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.admin_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      admin_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      admin_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.pool_tokens**
       * - `_text` in database
@@ -3989,40 +3989,40 @@ declare module 'zapatos/schema' {
       pool_tokens?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.token_precision_multipliers**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      token_precision_multipliers?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      token_precision_multipliers?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.pool_token_decimals**
-      * - `_numeric` in database
+      * - `_int4` in database
       * - Nullable, no default
       */
       pool_token_decimals?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.balances**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      balances?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.virtual_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      virtual_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      virtual_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.invariant**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      invariant?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      invariant?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.lp_token_supply**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      lp_token_supply?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      lp_token_supply?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4075,16 +4075,16 @@ declare module 'zapatos/schema' {
       future_a_time: number | db.Parameter<number> | db.SQLFragment;
       /**
       * **stableswap_pools.swap_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      swap_fee: number | db.Parameter<number> | db.SQLFragment;
+      swap_fee: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pools.admin_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      admin_fee: number | db.Parameter<number> | db.SQLFragment;
+      admin_fee: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pools.pool_tokens**
       * - `_text` in database
@@ -4093,40 +4093,40 @@ declare module 'zapatos/schema' {
       pool_tokens?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
       /**
       * **stableswap_pools.token_precision_multipliers**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      token_precision_multipliers?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
+      token_precision_multipliers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
       /**
       * **stableswap_pools.pool_token_decimals**
-      * - `_numeric` in database
+      * - `_int4` in database
       * - Nullable, no default
       */
       pool_token_decimals?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
       /**
       * **stableswap_pools.balances**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      balances?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
+      balances?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
       /**
       * **stableswap_pools.virtual_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      virtual_price: number | db.Parameter<number> | db.SQLFragment;
+      virtual_price: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pools.invariant**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      invariant: number | db.Parameter<number> | db.SQLFragment;
+      invariant: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pools.lp_token_supply**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      lp_token_supply: number | db.Parameter<number> | db.SQLFragment;
+      lp_token_supply: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4179,16 +4179,16 @@ declare module 'zapatos/schema' {
       future_a_time?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
       /**
       * **stableswap_pools.swap_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      swap_fee?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      swap_fee?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pools.admin_fee**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      admin_fee?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      admin_fee?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pools.pool_tokens**
       * - `_text` in database
@@ -4197,40 +4197,40 @@ declare module 'zapatos/schema' {
       pool_tokens?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **stableswap_pools.token_precision_multipliers**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      token_precision_multipliers?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
+      token_precision_multipliers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **stableswap_pools.pool_token_decimals**
-      * - `_numeric` in database
+      * - `_int4` in database
       * - Nullable, no default
       */
       pool_token_decimals?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **stableswap_pools.balances**
-      * - `_numeric` in database
+      * - `_text` in database
       * - Nullable, no default
       */
-      balances?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
+      balances?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **stableswap_pools.virtual_price**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      virtual_price?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      virtual_price?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pools.invariant**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      invariant?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      invariant?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pools.lp_token_supply**
-      * - `numeric` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      lp_token_supply?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      lp_token_supply?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
     export type UniqueIndex = 'stableswap_pools_id_key' | 'stableswap_pools_pkey';
     export type Column = keyof Selectable;
