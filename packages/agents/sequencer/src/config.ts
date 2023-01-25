@@ -154,6 +154,8 @@ export const getEnvConfig = (
     if (!chainConfig.confirmations) {
       _sequencerConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
     }
+
+    chainConfig.excludeListFromRelayerFee = chainConfig.excludeListFromRelayerFee ?? [];
   });
 
   const validate = ajv.compile(SequencerConfigSchema);

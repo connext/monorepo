@@ -8,7 +8,7 @@ export const TChainConfig = Type.Object({
     connext: TAddress,
     relayerProxy: TAddress,
   }),
-  excludeListFromRelayerFee: Type.Array(Type.String(), { default: [] }),
+  excludeListFromRelayerFee: Type.Array(Type.String()),
 });
 
 export const TMQConnectionConfig = Type.Object({
