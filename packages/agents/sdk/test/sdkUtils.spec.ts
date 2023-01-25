@@ -1,6 +1,5 @@
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { expect, mkAddress, XTransferStatus, getRandomBytes32, Logger } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { reset, restore, stub } from "sinon";
+import { expect, XTransferStatus, getRandomBytes32 } from "@connext/nxtp-utils";
 import { mock } from "./mock";
 import { NxtpSdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
@@ -17,15 +16,13 @@ const chainId = 1337;
 describe("SdkUtils", () => {
   let nxtpUtils: NxtpSdkUtils;
   let config: ConfigFns.NxtpSdkConfig;
-  let logger: Logger;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-    logger = new Logger({ name: "NxtpSdkUtils", level: config.logLevel });
 
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
-    stub(SharedFns, "axiosGetRequest").resolves({ data: {} });
+    stub(SharedFns, "axiosGetRequest").resolves({});
 
     nxtpUtils = await NxtpSdkUtils.create(mockConfig, undefined, mockChainData);
   });
@@ -57,7 +54,7 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getRoutersData();
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
@@ -72,7 +69,7 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getAssetsData();
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
@@ -89,7 +86,7 @@ describe("SdkUtils", () => {
         userAddress: mockConfig.signerAddress,
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with routerAddress", async () => {
@@ -98,7 +95,7 @@ describe("SdkUtils", () => {
         routerAddress: mock.address.router,
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with status", async () => {
@@ -107,7 +104,7 @@ describe("SdkUtils", () => {
         status: XTransferStatus.XCalled,
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with transferId", async () => {
@@ -116,7 +113,7 @@ describe("SdkUtils", () => {
         transferId: getRandomBytes32(),
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with transactionHash", async () => {
@@ -125,7 +122,7 @@ describe("SdkUtils", () => {
         transactionHash: getRandomBytes32(),
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with range", async () => {
@@ -137,7 +134,7 @@ describe("SdkUtils", () => {
         },
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("happy: should work with all params", async () => {
@@ -154,7 +151,7 @@ describe("SdkUtils", () => {
         },
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {

@@ -175,6 +175,7 @@ export class NxtpSdkUtils extends NxtpSdkShared {
     status?: XTransferStatus;
     transferId?: string;
     transactionHash?: string;
+    xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
     const { userAddress, routerAddress, status, transferId, transactionHash, range } = params;
@@ -186,9 +187,15 @@ export class NxtpSdkUtils extends NxtpSdkShared {
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
       : "";
+    const xcallCallerIdentifier = transactionHash ? `xcall_caller=eq.${transactionHash.toLowerCase()}&` : "";
 
     const searchIdentifier =
-      userIdentifier + routerIdentifier + statusIdentifier + transferIdIdentifier + transactionHashIdentifier;
+      userIdentifier +
+      routerIdentifier +
+      statusIdentifier +
+      transferIdIdentifier +
+      transactionHashIdentifier +
+      xcallCallerIdentifier;
 
     const limit = range?.limit ? range.limit : 10;
     const offset = range?.offset ? range.offset : 0;
