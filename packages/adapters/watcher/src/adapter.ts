@@ -1,5 +1,5 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";

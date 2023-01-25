@@ -2,7 +2,7 @@ import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
-import { ConnextAbi } from "@connext/nxtp-contracts";
+import { ConnextAbi } from "@connext/smart-contracts";
 
 import { NxtpSdkConfig } from "../src/config";
 
