@@ -91,6 +91,7 @@ locals {
           name    = "WETH"
           address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         }]
+        excludeListFromRelayerFee = ["0xd4dfee43d46a66471a988f3785106ea87c8f9f25"]
       },
       "1869640809" = {
         providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
