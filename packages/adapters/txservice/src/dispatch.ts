@@ -10,7 +10,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { domainToChainId } from "@connext/contracts";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import {
   BadNonce,

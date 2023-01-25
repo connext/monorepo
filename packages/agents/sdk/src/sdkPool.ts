@@ -309,8 +309,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
   /**
    * Calculates the estimated amount received on the destination domain for a bridge transaction.
    *
-   * @param originDomain - The domain id of the origin chain.
-   * @param destinationDomain - The domain id of the destination chain.
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").

@@ -10,7 +10,7 @@ import { getBaseFee as _getBaseFee } from "@arbitrum/sdk/dist/lib/utils/lib";
 import {
   RollupUserLogic__factory as _RollupUserLogic__factory,
   Outbox__factory as _Outbox__factory,
-} from "@connext/contracts";
+} from "@connext/smart-contracts";
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
