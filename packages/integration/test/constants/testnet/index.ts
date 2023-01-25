@@ -297,11 +297,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         providers: ORIGIN.config.providers,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
+        excludeListFromRelayerFee: [],
       },
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
+        excludeListFromRelayerFee: [],
       },
     },
     logLevel: "info",
@@ -335,7 +337,6 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
     },
     relayerFeeTolerance: 20,
-    excludeListFromRelayerFee: [],
   };
 })();
 
