@@ -8,22 +8,22 @@ CREATE TABLE IF NOT EXISTS public.stableswap_pools (
     future_a integer NOT NULL,
     initial_a_time integer NOT NULL,
     future_a_time integer NOT NULL,
-    swap_fee numeric NOT NULL,
-    admin_fee numeric NOT NULL,
+    swap_fee character varying (255) NOT NULL,
+    admin_fee character varying (255) NOT NULL,
     pool_tokens text [],
-    token_precision_multipliers numeric [],
-    pool_token_decimals numeric [],
-    balances numeric [],
-    virtual_price numeric NOT NULL,
-    invariant numeric NOT NULL,
-    lp_token_supply numeric NOT NULL,
+    token_precision_multipliers text [],
+    pool_token_decimals integer [],
+    balances text [],
+    virtual_price character varying (255) NOT NULL,
+    invariant character varying (255) NOT NULL,
+    lp_token_supply character varying (255) NOT NULL,
     PRIMARY KEY(id, domain)
 );
 
 CREATE TABLE IF NOT EXISTS public.stableswap_exchanges (
     id character(66) NOT NULL UNIQUE,
     pool_id character(66) NOT NULL,
-    domain character varying(255) NOT NULL,
+    domain character varying (255) NOT NULL,
     buyer character (42) NOT NULL,
     bought_id integer NOT NULL,
     sold_id integer NOT NULL,
@@ -40,7 +40,8 @@ CREATE  OR REPLACE VIEW public.hourly_swap_volume AS (
         swap.pool_id,
         swap.domain,
         date_trunc('hour', to_timestamp(swap.timestamp)) AS swap_hour,
-        SUM((swap.tokens_sold + swap.tokens_bought) / 2) As volume,
+        SUM((swap.tokens_sold
+         + swap.tokens_bought) / 2) As volume,
         COUNT(
             swap.pool_id
         ) AS swap_count

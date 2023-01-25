@@ -1,6 +1,7 @@
 import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
+import { StableSwapExchange, StableSwapPool } from "./stableswap";
 import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
 
 /**
@@ -310,5 +311,53 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
     root: message.root,
     domain: message.domain,
     blockNumber: message.block_number,
+  };
+};
+
+/**
+ * Converts a stable swap pool from the cartographer db through
+ * @param pool - the stable swap pool from the cartographer db as a JSON object
+ * @returns an StableSwapPool object
+ */
+export const convertFromDbStableSwapPool = (pool: any): StableSwapPool => {
+  return {
+    id: pool.id,
+    domain: pool.domain,
+    isActive: pool.isActive,
+    lpToken: pool.lpToken,
+    initialA: pool.initialA,
+    futureA: pool.futureA,
+    initialATime: pool.initialATime,
+    futureATime: pool.futureATime,
+    swapFee: pool.swapFee,
+    adminFee: pool.adminFee,
+    poolTokens: pool.poolTokens,
+    tokenPrecisionMultipliers: pool.tokenPrecisionMultipliers,
+    poolTokenDecimals: pool.poolTokenDecimals,
+    balances: pool.balances,
+    virtualPrice: pool.virtualPrice,
+    invariant: pool.invariant,
+    lpTokenSupply: pool.lpTokenSupply,
+  };
+};
+
+/**
+ * Converts a stable swap exchanges from the cartographer db through
+ * @param exchange - the stable swap exchange event from the cartographer db as a JSON object
+ * @returns an StableSwapExchange object
+ */
+export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchange => {
+  return {
+    id: exchange.id,
+    poolId: exchange.poolId,
+    domain: exchange.domain,
+    buyer: exchange.buyer,
+    boughtId: exchange.boughtId,
+    soldId: exchange.soldId,
+    tokensSold: exchange.tokensSold,
+    tokensBought: exchange.tokensBought,
+    blockNumber: exchange.blockNumber,
+    transactionHash: exchange.transactionHash,
+    timestamp: exchange.timestamp,
   };
 };
