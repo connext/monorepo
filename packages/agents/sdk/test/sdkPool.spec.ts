@@ -413,7 +413,7 @@ describe("NxtpSdkPool", () => {
       stub(nxtpPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
 
       const destinationAmountReceived = BigNumber.from("900000");
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
       // only destination swap should be executed so calculateSwap is called once
       stub(nxtpPool, "calculateSwap").resolves(destinationAmountReceived);
       stub(nxtpPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
@@ -434,7 +434,7 @@ describe("NxtpSdkPool", () => {
 
       const originAmountReceived = BigNumber.from("900000");
       const destinationAmountReceived = BigNumber.from("800000");
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
       stub(nxtpPool, "calculateSwap")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountReceived)
