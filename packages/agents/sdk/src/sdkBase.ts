@@ -382,7 +382,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
     const transfer = transfers[0];
 
-    const asdf = {
+    const transferInfo = {
       originDomain: transfer.origin_domain,
       destinationDomain: transfer.destination_domain,
       canonicalDomain: transfer.canonical_domain,
@@ -398,7 +398,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       canonicalId: transfer.canonical_id,
     };
 
-    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [asdf, _newSlippage]);
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [transferInfo, _newSlippage]);
 
     const txRequest = {
       to: ConnextContractAddress,
