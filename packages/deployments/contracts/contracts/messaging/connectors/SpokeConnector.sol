@@ -219,6 +219,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function addSender(address _sender) public onlyOwner {
+    require(!allowlistedSenders[_sender], "allowed");
     allowlistedSenders[_sender] = true;
     emit SenderAdded(_sender);
   }
@@ -228,6 +229,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    */
   function removeSender(address _sender) public onlyOwner {
+    require(allowlistedSenders[_sender], "!allowed");
     delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
   }
