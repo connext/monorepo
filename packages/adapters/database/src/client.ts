@@ -157,7 +157,7 @@ const convertToDbStableSwapPool = (pool: StableSwapPool): s.stableswap_pools.Ins
     future_a_time: pool.futureATime,
     swap_fee: pool.swapFee as any,
     admin_fee: pool.adminFee as any,
-    pool_tokens: pool.poolTokens,
+    pooled_tokens: pool.pooledTokens,
     token_precision_multipliers: pool.tokenPrecisionMultipliers,
     pool_token_decimals: pool.poolTokenDecimals,
     balances: pool.balances,

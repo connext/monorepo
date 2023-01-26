@@ -13,7 +13,7 @@ export const StableSwapPoolSchema = Type.Object({
   futureATime: Type.Number(),
   swapFee: TIntegerString,
   adminFee: TIntegerString,
-  poolTokens: Type.Array(Type.String()),
+  pooledTokens: Type.Array(Type.String()),
   tokenPrecisionMultipliers: Type.Array(TIntegerString),
   poolTokenDecimals: Type.Array(Type.Number()),
   balances: Type.Array(TIntegerString),

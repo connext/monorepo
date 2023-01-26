@@ -331,7 +331,7 @@ export const convertFromDbStableSwapPool = (pool: any): StableSwapPool => {
     futureATime: pool.futureATime,
     swapFee: pool.swapFee,
     adminFee: pool.adminFee,
-    poolTokens: pool.poolTokens,
+    pooledTokens: pool.pooledTokens,
     tokenPrecisionMultipliers: pool.tokenPrecisionMultipliers,
     poolTokenDecimals: pool.poolTokenDecimals,
     balances: pool.balances,

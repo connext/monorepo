@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.stableswap_pools (
     future_a_time integer NOT NULL,
     swap_fee character varying (255) NOT NULL,
     admin_fee character varying (255) NOT NULL,
-    pool_tokens text [],
+    pooled_tokens text [],
     token_precision_multipliers text [],
     pool_token_decimals integer [],
     balances text [],

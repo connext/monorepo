@@ -251,7 +251,7 @@ export const mockStableSwapPoolResponse: StableSwapPool[] = [
     futureATime: 0,
     swapFee: "40000",
     adminFee: "0",
-    poolTokens: [mkAddress("0xa"), mkAddress("0xb")],
+    pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
     tokenPrecisionMultipliers: ["1", "1"],
     poolTokenDecimals: [18, 18],
     balances: ["200000", "200000"],

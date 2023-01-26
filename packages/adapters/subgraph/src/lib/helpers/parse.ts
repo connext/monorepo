@@ -470,7 +470,7 @@ export const stableSwapPool = (entity: any): StableSwapPool => {
     futureATime: BigNumber.from(entity.futureATime ?? "0").toNumber(),
     swapFee: entity.swapFee,
     adminFee: entity.adminFee,
-    poolTokens: entity.pooledTokens.map((token: any) => token.asset),
+    pooledTokens: entity.pooledTokens.map((token: any) => token.asset),
     tokenPrecisionMultipliers: entity.tokenPrecisionMultipliers,
     poolTokenDecimals: entity.tokenPrecisionMultipliers.map((m: string) => 18 - m.length + 1),
     balances: entity.balances,
