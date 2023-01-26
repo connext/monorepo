@@ -42,7 +42,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -96,7 +96,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       status = ExecStatus.None;
       await cache.auctions.setExecStatus(transferId, status);
     } else {
-      logger.info("Transfer awaiting relayer execution", requestContext, methodContext, {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
         elapsed,
         waitTime: config.executionWaitTime,
       });
