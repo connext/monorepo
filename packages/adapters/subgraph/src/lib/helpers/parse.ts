@@ -511,8 +511,8 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
   const soldTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[soldId]).length - 1);
   const boughtTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[boughtId]).length - 1);
 
-  const tokensSold = +utils.formatUnits(entity.tokensSold, soldTokenDecimal);
-  const tokensBought = +utils.formatUnits(entity.tokensBought, boughtTokenDecimal);
+  const tokensSold = +utils.formatUnits(String(entity.tokensSold), soldTokenDecimal);
+  const tokensBought = +utils.formatUnits(String(entity.tokensBought), boughtTokenDecimal);
 
   return {
     id: entity.id,

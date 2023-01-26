@@ -32,7 +32,7 @@ export const updateStableSwap = async () => {
       });
 
       if (pools.length) {
-        await database.saveStableSwapPool(pools as StableSwapPool[]);
+        await database.saveStableSwapPool(pools);
       }
     }),
   );
