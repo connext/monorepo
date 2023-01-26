@@ -1,5 +1,5 @@
 import { createLoggingContext, Logger } from "@connext/nxtp-utils";
-import { canonizeId, ConnextInterface } from "@connext/nxtp-contracts";
+import { canonizeId, ConnextInterface } from "@connext/smart-contracts";
 import { constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
 

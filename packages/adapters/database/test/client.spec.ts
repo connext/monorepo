@@ -13,6 +13,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   mkHash,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -88,6 +89,31 @@ describe("Database client", () => {
   it("should save single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     await saveTransfers([xTransfer], pool);
+  });
+
+  it("should save single transfer and update it's error status", async () => {
+    const xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Executed,
+      errorStatus: XTransferErrorStatus.InsufficientRelayerFee,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.InsufficientRelayerFee);
+  });
+
+  it("should save single transfer and update it's error status to undefined", async () => {
+    const xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Executed,
+      errorStatus: undefined,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.origin?.errorStatus).equal(undefined);
   });
 
   it("should save single transfer null destination", async () => {

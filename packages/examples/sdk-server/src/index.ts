@@ -2,17 +2,17 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, NxtpSdkUtils, NxtpSdkRouter, create } from "@connext/nxtp-sdk";
+import { SdkConfig, SdkBase, SdkPool, SdkUtils, SdkRouter, create } from "@connext/sdk";
 
 import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
 
-let sdkBaseInstance: NxtpSdkBase;
-let sdkPoolInstance: NxtpSdkPool;
-let sdkUtilsInstance: NxtpSdkUtils;
-let sdkRouterInstance: NxtpSdkRouter;
+let sdkBaseInstance: SdkBase;
+let sdkPoolInstance: SdkPool;
+let sdkUtilsInstance: SdkUtils;
+let sdkRouterInstance: SdkRouter;
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -54,7 +54,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     configuredProviders[key] = provider;
   }
 
-  const nxtpConfig: NxtpSdkConfig = {
+  const nxtpConfig: SdkConfig = {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
@@ -63,14 +63,12 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { nxtpSdkBase, nxtpSdkPool, nxtpSdkUtils, nxtpSdkRouter } = await create(nxtpConfig);
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
-  sdkBaseInstance = nxtpSdkBase;
-  sdkPoolInstance = nxtpSdkPool;
-  sdkUtilsInstance = nxtpSdkUtils;
-  sdkRouterInstance = nxtpSdkRouter;
-  console.log(`Initialized SDK with config:`);
-  console.log(nxtpConfig);
+  sdkBaseInstance = sdkBase;
+  sdkPoolInstance = sdkPool;
+  sdkUtilsInstance = sdkUtils;
+  sdkRouterInstance = sdkRouter;
 
   // Register routes
 

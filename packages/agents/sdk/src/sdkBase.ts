@@ -21,8 +21,8 @@ import {
   ParamsInvalid,
   SlippageInvalid,
 } from "./lib/errors";
-import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkShared } from "./sdkShared";
+import { SdkConfig, getConfig } from "./config";
+import { SdkShared } from "./sdkShared";
 import {
   SdkXCallParamsSchema,
   SdkXCallParams,
@@ -33,25 +33,25 @@ import {
   SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
 } from "./interfaces";
-import { NxtpSdkUtils } from "./sdkUtils";
+import { SdkUtils } from "./sdkUtils";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
  *
  */
-export class NxtpSdkBase extends NxtpSdkShared {
-  private static _instance: NxtpSdkBase;
+export class SdkBase extends SdkShared {
+  private static _instance: SdkBase;
   private chainreader: ChainReader;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
   /**
-   * Create a singleton instance of the NxtpSdkBase class.
+   * Create a singleton instance of the SdkBase class.
    *
-   * @param _config - NxtpSdkConfig object.
+   * @param _config - SdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
    * @param _config.logLevel - (optional) Logging severity level.
@@ -60,7 +60,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkBase } from "@connext/nxtp-sdk";
+   * import { SdkBase } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -77,14 +77,10 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *   "signerAddress": "<wallet_address>",
    * }
    *
-   * const nxtpSdkBase = await NxtpSdkBase.create(config);
+   * const sdkBase = await SdkBase.create(config);
    * ```
    */
-  static async create(
-    _config: NxtpSdkConfig,
-    _logger?: Logger,
-    _chainData?: Map<string, ChainData>,
-  ): Promise<NxtpSdkBase> {
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new ChainDataUndefined();
@@ -92,10 +88,10 @@ export class NxtpSdkBase extends NxtpSdkShared {
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
-      ? _logger.child({ name: "NxtpSdkBase" })
-      : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
+      ? _logger.child({ name: "SdkBase" })
+      : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new NxtpSdkBase(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkBase(nxtpConfig, logger, chainData));
   }
 
   /**
@@ -127,7 +123,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example
    * ```ts
-   * // call NxtpSdkBase.create(), instantiate a signer
+   * // call SdkBase.create(), instantiate a signer
    *
    * const params = {
    *   origin: "6648936"
@@ -141,7 +137,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *   relayerFee: "10000000000000"
    * };
    *
-   * const txRequest = nxtpSdkBase.xcall(params);
+   * const txRequest = sdkBase.xcall(params);
    * signer.sendTransaction(txRequest);
    * ```
    */
@@ -329,7 +325,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example
    * ```ts
-   * // call NxtpSdkBase.create(), instantiate a signer
+   * // call SdkBase.create(), instantiate a signer
    *
    * const params = {
    *   domainId: "6648936",
@@ -337,7 +333,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *   relayerFee: "1000",
    * };
    *
-   * const txRequest = nxtpSdkBase.updateSlippage(params);
+   * const txRequest = sdkBase.updateSlippage(params);
    * signer.sendTransaction(txRequest);
    * ```
    */
@@ -371,7 +367,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // Construct the TransferInfo for this transferId
-    const sdkUtils = await NxtpSdkUtils.create(this.config);
+    const sdkUtils = await SdkUtils.create(this.config);
     const transfers = await sdkUtils.getTransfers({ transferId: transferId });
 
     if (transfers.length <= 0) {
@@ -382,7 +378,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
     }
     const transfer = transfers[0];
 
-    const asdf = {
+    const transferInfo = {
       originDomain: transfer.origin_domain,
       destinationDomain: transfer.destination_domain,
       canonicalDomain: transfer.canonical_domain,
@@ -398,7 +394,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
       canonicalId: transfer.canonical_id,
     };
 
-    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [asdf, _newSlippage]);
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [transferInfo, _newSlippage]);
 
     const txRequest = {
       to: ConnextContractAddress,
@@ -423,7 +419,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example
    * ```ts
-   * // call NxtpSdkBase.create(), instantiate a signer
+   * // call SdkBase.create(), instantiate a signer
    *
    * const params = {
    *   domainId: "6648936",
@@ -431,7 +427,7 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *   relayerFee: "10000",
    * };
    *
-   * const txRequest = nxtpSdkBase.bumpTransfer(params);
+   * const txRequest = sdkBase.bumpTransfer(params);
    * signer.sendTransaction(txRequest);
    * ```
    */
@@ -492,14 +488,14 @@ export class NxtpSdkBase extends NxtpSdkShared {
    *
    * @example
    * ```ts
-   * // call NxtpSdkBase.create(), instantiate a signer
+   * // call SdkBase.create(), instantiate a signer
    *
    * const params = {
    *   originDomain: "6648936",
    *   destinationDomain: "1869640809",
    * };
    *
-   * const txRequest = nxtpSdkBase.estimateRelayerFee(params);
+   * const txRequest = sdkBase.estimateRelayerFee(params);
    * signer.sendTransaction(txRequest);
    * ```
    */

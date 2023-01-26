@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { create, NxtpSdkConfig } from "@connext/nxtp-sdk";
-import { ChainConfig } from "@connext/nxtp-sdk/dist/config";
+import { create, SdkConfig } from "@connext/sdk";
+import { ChainConfig } from "@connext/sdk/dist/config";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
 import { useWallet } from "../contexts/Wallet";
@@ -78,7 +78,7 @@ export const Header = () => {
         console.error("Wrong NEXT_PUBLIC_ENVIRONMENT environment variable");
       }
 
-      const config: NxtpSdkConfig = {
+      const config: SdkConfig = {
         chains: chains_config,
         logLevel: "info",
         network,
@@ -99,11 +99,11 @@ export const Header = () => {
   useEffect(() => {
     const update = async () => {
       if (sdk && address) {
-        if (sdk.nxtpSdkBase) {
-          await sdk.nxtpSdkBase.changeSignerAddress(address);
+        if (sdk.sdkBase) {
+          await sdk.sdkBase.changeSignerAddress(address);
         }
-        if (sdk.nxtpSdkRouter) {
-          await sdk.nxtpSdkRouter.changeSignerAddress(address);
+        if (sdk.sdkRouter) {
+          await sdk.sdkRouter.changeSignerAddress(address);
         }
 
         dispatch({
