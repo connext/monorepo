@@ -1,6 +1,6 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS public.stableswap_pools (
-    id character(66) NOT NULL UNIQUE,
+    key character(66) NOT NULL,
     domain character varying(255) NOT NULL,
     is_active boolean DEFAULT false,
     lp_token character(42) NOT NULL,
@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS public.stableswap_pools (
     virtual_price character varying (255) NOT NULL,
     invariant character varying (255) NOT NULL,
     lp_token_supply character varying (255) NOT NULL,
-    PRIMARY KEY(id, domain)
+    PRIMARY KEY(domain, key)
 );
 
 CREATE TABLE IF NOT EXISTS public.stableswap_exchanges (
-    id character(66) NOT NULL UNIQUE,
+    id character varying(255) NOT NULL UNIQUE,
     pool_id character(66) NOT NULL,
     domain character varying (255) NOT NULL,
     buyer character (42) NOT NULL,

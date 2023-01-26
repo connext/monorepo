@@ -321,7 +321,7 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
  */
 export const convertFromDbStableSwapPool = (pool: any): StableSwapPool => {
   return {
-    id: pool.id,
+    key: pool.key,
     domain: pool.domain,
     isActive: pool.isActive,
     lpToken: pool.lpToken,

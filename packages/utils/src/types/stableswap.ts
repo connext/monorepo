@@ -3,7 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { TIntegerString } from "./primitives";
 
 export const StableSwapPoolSchema = Type.Object({
-  id: Type.String(),
+  key: Type.String(),
   domain: Type.String(),
   isActive: Type.Boolean(),
   lpToken: Type.String(),

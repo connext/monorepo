@@ -204,7 +204,7 @@ export const ROOT_MANAGER_META_ENTITY = `
 `;
 
 export const STABLESWAP_POOL_ENTITY = `
-      id
+      key
       isActive
       lpToken
       initialA
@@ -874,7 +874,7 @@ export const getStableSwapPoolsQuery = (domain: string) => {
   const prefix = config.sources[domain].prefix;
   const queryString = `
   ${prefix}_stableSwaps ( 
-    first: 1000
+    first: 100
   ) {
     ${STABLESWAP_POOL_ENTITY}
   }`;

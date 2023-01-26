@@ -355,7 +355,6 @@ export class SubgraphReader {
     const { config } = getContext();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);
-
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
@@ -817,12 +816,13 @@ export class SubgraphReader {
    */
   public async getStableSwapPools(domain: string): Promise<StableSwapPool[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getStableSwapPoolsQuery(domain);
-    const response = await execute(xcalledXQuery);
+    const poolXQuery = getStableSwapPoolsQuery(domain);
+    const response = await execute(poolXQuery);
 
     const _pools: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
+
       const flatten = value?.flat();
       _pools.push(
         flatten?.map((x) => {
@@ -830,12 +830,10 @@ export class SubgraphReader {
         }),
       );
     }
-
     const pools: StableSwapPool[] = _pools
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapPool);
-
     return pools;
   }
 
@@ -843,8 +841,8 @@ export class SubgraphReader {
     agents: Map<string, SubgraphQueryByTimestampMetaParams>,
   ): Promise<StableSwapExchange[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getSwapExchangesQuery(agents);
-    const response = await execute(xcalledXQuery);
+    const exchangeQuery = getSwapExchangesQuery(agents);
+    const response = await execute(exchangeQuery);
 
     const exchanges: any[] = [];
     for (const key of response.keys()) {

@@ -438,7 +438,7 @@ export const stableSwapPool = (entity: any): StableSwapPool => {
   }
 
   for (const field of [
-    "id",
+    "key",
     "domain",
     "isActive",
     "lpToken",
@@ -460,7 +460,7 @@ export const stableSwapPool = (entity: any): StableSwapPool => {
   }
 
   return {
-    id: entity.id,
+    key: entity.key,
     domain: entity.domain,
     isActive: entity.isActive,
     lpToken: entity.lpToken,
@@ -469,12 +469,10 @@ export const stableSwapPool = (entity: any): StableSwapPool => {
     initialATime: BigNumber.from(entity.initialATime ?? "0").toNumber(),
     futureATime: BigNumber.from(entity.futureATime ?? "0").toNumber(),
     swapFee: entity.swapFee,
-    admin_fee: entity.adminFee,
-    poolTokens: entity.poolTokens.map((token: any) => token.asset),
+    adminFee: entity.adminFee,
+    poolTokens: entity.pooledTokens.map((token: any) => token.asset),
     tokenPrecisionMultipliers: entity.tokenPrecisionMultipliers,
-    poolTokenDecimals: entity.tokenPrecisionMultipliers.map((m: string) =>
-      Math.log10(BigNumber.from("10").pow(18).div(BigNumber.from(m)).toNumber()),
-    ),
+    poolTokenDecimals: entity.tokenPrecisionMultipliers.map((m: string) => 18 - m.length + 1),
     balances: entity.balances,
     virtualPrice: entity.virtualPrice,
     invariant: entity.invariant,
@@ -491,14 +489,13 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
   for (const field of [
     "id",
     "domain",
-    "poolId",
     "buyer",
     "boughtId",
     "soldId",
     "tokensSold",
     "tokensBought",
-    "blockNumber",
-    "transactionHash",
+    "block",
+    "transaction",
     "timestamp",
   ]) {
     if (!entity[field]) {
@@ -510,13 +507,9 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
   }
 
   const boughtId = BigNumber.from(entity.boughtId).toNumber();
-  const soldId = BigNumber.from(entity.boughtId).toNumber();
-  const soldTokenDecimal = Math.log10(
-    BigNumber.from("10").pow(18).div(BigNumber.from(entity.stableSwap.tokenPrecisionMultipliers[soldId])).toNumber(),
-  );
-  const boughtTokenDecimal = Math.log10(
-    BigNumber.from("10").pow(18).div(BigNumber.from(entity.stableSwap.tokenPrecisionMultipliers[boughtId])).toNumber(),
-  );
+  const soldId = BigNumber.from(entity.soldId).toNumber();
+  const soldTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[soldId]).length - 1);
+  const boughtTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[boughtId]).length - 1);
 
   const tokensSold = +utils.formatUnits(entity.tokensSold, soldTokenDecimal);
   const tokensBought = +utils.formatUnits(entity.tokensBought, boughtTokenDecimal);
@@ -530,8 +523,8 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     soldId,
     tokensSold,
     tokensBought,
-    blockNumber: BigNumber.from(entity.blockNumber).toNumber(),
+    blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
-    transactionHash: entity.transactionHash,
+    transactionHash: entity.transaction,
   };
 };

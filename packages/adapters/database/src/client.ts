@@ -147,7 +147,7 @@ const convertToDbReceivedAggregateRoot = (root: ReceivedAggregateRoot): s.receiv
 
 const convertToDbStableSwapPool = (pool: StableSwapPool): s.stableswap_pools.Insertable => {
   return {
-    id: pool.id,
+    key: pool.key,
     domain: pool.domain,
     is_active: pool.isActive,
     lp_token: pool.lpToken,
@@ -724,7 +724,7 @@ export const saveStableSwapPool = async (
   const poolToUse = _pool ?? pool;
   const pools: s.stableswap_pools.Insertable[] = _swapPools.map((m) => convertToDbStableSwapPool(m)).map(sanitizeNull);
 
-  await db.upsert("stableswap_pools", pools, ["id", "domain"]).run(poolToUse);
+  await db.upsert("stableswap_pools", pools, ["key", "domain"]).run(poolToUse);
 };
 
 export const saveStableSwapExchange = async (

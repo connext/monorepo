@@ -3362,7 +3362,7 @@ declare module 'zapatos/schema' {
     export interface Selectable {
       /**
       * **stableswap_exchanges.id**
-      * - `bpchar` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -3430,7 +3430,7 @@ declare module 'zapatos/schema' {
     export interface JSONSelectable {
       /**
       * **stableswap_exchanges.id**
-      * - `bpchar` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
       id: string;
@@ -3498,7 +3498,7 @@ declare module 'zapatos/schema' {
     export interface Whereable {
       /**
       * **stableswap_exchanges.id**
-      * - `bpchar` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
@@ -3566,7 +3566,7 @@ declare module 'zapatos/schema' {
     export interface Insertable {
       /**
       * **stableswap_exchanges.id**
-      * - `bpchar` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
       id: string | db.Parameter<string> | db.SQLFragment;
@@ -3634,7 +3634,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       /**
       * **stableswap_exchanges.id**
-      * - `bpchar` in database
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
@@ -3714,11 +3714,11 @@ declare module 'zapatos/schema' {
     export type Table = 'stableswap_pools';
     export interface Selectable {
       /**
-      * **stableswap_pools.id**
+      * **stableswap_pools.key**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      id: string;
+      key: string;
       /**
       * **stableswap_pools.domain**
       * - `varchar` in database
@@ -3818,11 +3818,11 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **stableswap_pools.id**
+      * **stableswap_pools.key**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      id: string;
+      key: string;
       /**
       * **stableswap_pools.domain**
       * - `varchar` in database
@@ -3922,11 +3922,11 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **stableswap_pools.id**
+      * **stableswap_pools.key**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      key?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pools.domain**
       * - `varchar` in database
@@ -4026,11 +4026,11 @@ declare module 'zapatos/schema' {
     }
     export interface Insertable {
       /**
-      * **stableswap_pools.id**
+      * **stableswap_pools.key**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      id: string | db.Parameter<string> | db.SQLFragment;
+      key: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pools.domain**
       * - `varchar` in database
@@ -4130,11 +4130,11 @@ declare module 'zapatos/schema' {
     }
     export interface Updatable {
       /**
-      * **stableswap_pools.id**
+      * **stableswap_pools.key**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      key?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pools.domain**
       * - `varchar` in database
@@ -4232,7 +4232,7 @@ declare module 'zapatos/schema' {
       */
       lp_token_supply?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
-    export type UniqueIndex = 'stableswap_pools_id_key' | 'stableswap_pools_pkey';
+    export type UniqueIndex = 'stableswap_pools_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
