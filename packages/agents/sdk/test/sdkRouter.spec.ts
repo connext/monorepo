@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { constants, providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkRouter } from "../src/sdkRouter";
+import { SdkRouter } from "../src/sdkRouter";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
 
@@ -17,8 +17,8 @@ const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connex
 const chainId = 1337;
 
 describe("SdkRouter", () => {
-  let nxtpRouter: NxtpSdkRouter;
-  let config: ConfigFns.NxtpSdkConfig;
+  let nxtpRouter: SdkRouter;
+  let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
@@ -26,7 +26,7 @@ describe("SdkRouter", () => {
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
-    nxtpRouter = await NxtpSdkRouter.create(mockConfig, undefined, mockChainData);
+    nxtpRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
   });
   afterEach(() => {
     restore();
@@ -47,7 +47,7 @@ describe("SdkRouter", () => {
 
     it("should error if chaindata is undefined", async () => {
       stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkRouter.create(config)).to.be.rejectedWith(ChainDataUndefined);
+      await expect(SdkRouter.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 

@@ -1,32 +1,32 @@
 import { Logger, ChainData, createLoggingContext } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkUtils } from "./sdkUtils";
-import { NxtpSdkBase } from "./sdkBase";
-import { NxtpSdkRouter } from "./sdkRouter";
-import { NxtpSdkPool } from "./sdkPool";
+import { SdkConfig, getConfig } from "./config";
+import { SdkUtils } from "./sdkUtils";
+import { SdkBase } from "./sdkBase";
+import { SdkRouter } from "./sdkRouter";
+import { SdkPool } from "./sdkPool";
 
 export const create = async (
-  _config: NxtpSdkConfig,
+  _config: SdkConfig,
   _logger?: Logger,
   chainData?: Map<string, ChainData>,
 ): Promise<{
-  nxtpSdkBase: NxtpSdkBase;
-  nxtpSdkUtils: NxtpSdkUtils;
-  nxtpSdkRouter: NxtpSdkRouter;
-  nxtpSdkPool: NxtpSdkPool;
+  sdkBase: SdkBase;
+  sdkUtils: SdkUtils;
+  sdkRouter: SdkRouter;
+  sdkPool: SdkPool;
 }> => {
   const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
-  const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
+  const logger = _logger || new Logger({ name: "SDK", level: nxtpConfig.logLevel });
 
-  const nxtpSdkBase = new NxtpSdkBase(nxtpConfig, logger, chainData!);
-  const nxtpSdkUtils = await NxtpSdkUtils.create(nxtpConfig, logger, chainData);
-  const nxtpSdkRouter = await NxtpSdkRouter.create(nxtpConfig, logger, chainData);
-  const nxtpSdkPool = await NxtpSdkPool.create(nxtpConfig, logger, chainData);
+  const sdkBase = new SdkBase(nxtpConfig, logger, chainData!);
+  const sdkUtils = await SdkUtils.create(nxtpConfig, logger, chainData);
+  const sdkRouter = await SdkRouter.create(nxtpConfig, logger, chainData);
+  const sdkPool = await SdkPool.create(nxtpConfig, logger, chainData);
 
   const { requestContext, methodContext } = createLoggingContext("SDK create()");
   logger.info(`Initialized SDK with config: `, requestContext, methodContext, { nxtpConfig: nxtpConfig });
 
-  return { nxtpSdkBase, nxtpSdkUtils, nxtpSdkRouter, nxtpSdkPool };
+  return { sdkBase, sdkUtils, sdkRouter, sdkPool };
 };

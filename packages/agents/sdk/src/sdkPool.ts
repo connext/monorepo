@@ -4,11 +4,11 @@ import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_F
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
-import { NxtpSdkConfig, getConfig } from "./config";
+import { SdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
-import { NxtpSdkShared } from "./sdkShared";
+import { SdkShared } from "./sdkShared";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -18,19 +18,19 @@ import { NxtpSdkShared } from "./sdkShared";
  *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
  */
-export class NxtpSdkPool extends NxtpSdkShared {
-  private static _instance: NxtpSdkPool;
+export class SdkPool extends SdkShared {
+  private static _instance: SdkPool;
   private readonly priceFeed: PriceFeed;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
     this.priceFeed = new PriceFeed();
   }
 
   /**
-   * Create a singleton instance of the NxtpSdkPool class.
+   * Create a singleton instance of the SdkPool class.
    *
-   * @param _config - NxtpSdkConfig object.
+   * @param _config - SdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
    * @param _config.logLevel - (optional) Logging severity level.
@@ -39,7 +39,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkPool } from "@connext/sdk";
+   * import { SdkPool } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -56,14 +56,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *   "signerAddress": "<wallet_address>",
    * }
    *
-   * const nxtpSdkPool = await NxtpSdkPool.create(config);
+   * const sdkPool = await SdkPool.create(config);
    * ```
    */
-  static async create(
-    _config: NxtpSdkConfig,
-    _logger?: Logger,
-    _chainData?: Map<string, ChainData>,
-  ): Promise<NxtpSdkPool> {
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkPool> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new ChainDataUndefined();
@@ -72,10 +68,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
 
     const logger = _logger
-      ? _logger.child({ name: "NxtpSdkPool" })
-      : new Logger({ name: "NxtpSdkPool", level: nxtpConfig.logLevel });
+      ? _logger.child({ name: "SdkPool" })
+      : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new NxtpSdkPool(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
@@ -915,10 +911,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     if (pool) {
       const endTimestamp = unixTimestamp;
-      const endBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+      const endBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
       const startTimestamp = endTimestamp - 86_400; // 24 hours prior
-      let startBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
+      let startBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
       const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);

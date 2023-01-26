@@ -3,24 +3,24 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
-import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkShared } from "./sdkShared";
+import { SdkConfig, getConfig } from "./config";
+import { SdkShared } from "./sdkShared";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
  *
  */
-export class NxtpSdkUtils extends NxtpSdkShared {
-  private static _instance: NxtpSdkUtils;
+export class SdkUtils extends SdkShared {
+  private static _instance: SdkUtils;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
   }
 
   /**
-   * Create a singleton instance of the NxtpSdkUtils class.
+   * Create a singleton instance of the SdkUtils class.
    *
-   * @param _config - NxtpSdkConfig object.
+   * @param _config - SdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
    * @param _config.logLevel - (optional) Logging severity level.
@@ -29,7 +29,7 @@ export class NxtpSdkUtils extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkUtils } from "@connext/sdk";
+   * import { SdkUtils } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -46,14 +46,10 @@ export class NxtpSdkUtils extends NxtpSdkShared {
    *   "signerAddress": "<wallet_address>",
    * }
    *
-   * const NxtpSdkUtils = await NxtpSdkUtils.create(config);
+   * const SdkUtils = await SdkUtils.create(config);
    * ```
    */
-  static async create(
-    _config: NxtpSdkConfig,
-    _logger?: Logger,
-    _chainData?: Map<string, ChainData>,
-  ): Promise<NxtpSdkUtils> {
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkUtils> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new ChainDataUndefined();
@@ -61,10 +57,10 @@ export class NxtpSdkUtils extends NxtpSdkShared {
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
-      ? _logger.child({ name: "NxtpSdkUtils" })
-      : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });
+      ? _logger.child({ name: "SdkUtils" })
+      : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new NxtpSdkUtils(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkUtils(nxtpConfig, logger, chainData));
   }
 
   /**

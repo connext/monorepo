@@ -34,7 +34,7 @@ export const TChainConfig = Type.Object({
 
 export type ChainConfig = Static<typeof TChainConfig>;
 
-export const NxtpSdkConfigSchema = Type.Object({
+export const SdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
@@ -43,7 +43,7 @@ export const NxtpSdkConfigSchema = Type.Object({
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
 
-export type NxtpSdkConfig = Static<typeof NxtpSdkConfigSchema>;
+export type SdkConfig = Static<typeof SdkConfigSchema>;
 
 export const TValidationChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -72,11 +72,11 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
  * @returns The router config with sensible defaults
  */
 export const getEnvConfig = (
-  _nxtpConfig: NxtpSdkConfig,
+  _nxtpConfig: SdkConfig,
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
-): NxtpSdkConfig => {
-  const nxtpConfig: NxtpSdkConfig = {
+): SdkConfig => {
+  const nxtpConfig: SdkConfig = {
     ..._nxtpConfig,
     logLevel: _nxtpConfig.logLevel || "info",
     network: _nxtpConfig.network || "mainnet",
@@ -155,7 +155,7 @@ export const getEnvConfig = (
   return nxtpConfig;
 };
 
-let nxtpConfig: NxtpSdkConfig | undefined;
+let nxtpConfig: SdkConfig | undefined;
 
 /**
  * Caches and returns the environment config
@@ -163,10 +163,10 @@ let nxtpConfig: NxtpSdkConfig | undefined;
  * @returns The config
  */
 export const getConfig = async (
-  _nxtpConfig: NxtpSdkConfig,
+  _nxtpConfig: SdkConfig,
   deployments: ConnextContractDeployments,
   _chainData?: Map<string, ChainData>,
-): Promise<NxtpSdkConfig> => {
+): Promise<SdkConfig> => {
   let chainData = _chainData;
   if (!chainData) {
     chainData = await getChainData();
