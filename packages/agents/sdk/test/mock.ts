@@ -4,13 +4,13 @@ import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
 import { ConnextAbi } from "@connext/smart-contracts";
 
-import { NxtpSdkConfig } from "../src/config";
+import { SdkConfig } from "../src/config";
 
 // Used for stubbing functions at the bottom of this file:
 
 export const mock = {
   ..._mock,
-  config: (): NxtpSdkConfig => ({
+  config: (): SdkConfig => ({
     signerAddress: mkAddress("0xadd9999"),
     logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",

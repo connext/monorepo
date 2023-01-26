@@ -1,7 +1,7 @@
 import { reset, restore, stub } from "sinon";
 import { expect, XTransferStatus, getRandomBytes32 } from "@connext/nxtp-utils";
 import { mock } from "./mock";
-import { NxtpSdkUtils } from "../src/sdkUtils";
+import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, UriInvalid } from "../src/lib/errors";
 
@@ -14,8 +14,8 @@ const mockDeployments = mock.contracts.deployments();
 const chainId = 1337;
 
 describe("SdkUtils", () => {
-  let nxtpUtils: NxtpSdkUtils;
-  let config: ConfigFns.NxtpSdkConfig;
+  let nxtpUtils: SdkUtils;
+  let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
@@ -24,7 +24,7 @@ describe("SdkUtils", () => {
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
     stub(SharedFns, "axiosGetRequest").resolves({});
 
-    nxtpUtils = await NxtpSdkUtils.create(mockConfig, undefined, mockChainData);
+    nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -45,7 +45,7 @@ describe("SdkUtils", () => {
 
     it("should error if chaindata is undefined", async () => {
       stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
+      await expect(SdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
