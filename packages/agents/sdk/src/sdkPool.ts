@@ -865,11 +865,14 @@ export class NxtpSdkPool extends NxtpSdkShared {
             const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
             const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.adopted.address, userAddress);
             const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
-            result.push({
-              info: pool,
-              lpTokenBalance: lpTokenUserBalance,
-              poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-            });
+
+            if (lpTokenUserBalance.gt(0)) {
+              result.push({
+                info: pool,
+                lpTokenBalance: lpTokenUserBalance,
+                poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+              });
+            }
           } else {
             this.logger.info("No pool for asset", requestContext, methodContext, { data });
           }
