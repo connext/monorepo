@@ -1,4 +1,4 @@
-import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask } from "@connext/nxtp-utils";
+import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask, Status } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -108,14 +108,31 @@ export class AuctionsCache extends Cache {
    * @returns ExecStatus if exists, ExecStatus.None if no entry was found.
    */
   public async getExecStatus(transferId: string): Promise<ExecStatus> {
-    const res = await this.data.hget(`${this.prefix}:status`, transferId);
+    const rawStatus = await this.data.hget(`${this.prefix}:status`, transferId);
+    const res = rawStatus ? ((JSON.parse(rawStatus) as Status).status as string) : null;
     return res && Object.values(ExecStatus).includes(res as ExecStatus)
       ? ExecStatus[res as ExecStatus]
       : ExecStatus.None;
   }
 
+  /// MARK - Auction Status with time
+  /**
+   * Gets the auction status with time for the given transfer ID.
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns Status if exists, undefined if no entry was found.
+   */
+  public async getExecStatusWithTime(transferId: string): Promise<Status | undefined> {
+    const rawStatus = await this.data.hget(`${this.prefix}:status`, transferId);
+    return rawStatus ? (JSON.parse(rawStatus) as Status) : undefined;
+  }
+
   public async setExecStatus(transferId: string, status: ExecStatus): Promise<number> {
-    return await this.data.hset(`${this.prefix}:status`, transferId, status.toString());
+    const currrentStatus: Status = {
+      // Update the timestamp to current time
+      timestamp: getNtpTimeSeconds().toString(),
+      status: status.toString(),
+    };
+    return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
   }
 
   /// MARK - Queued Transfers
@@ -155,7 +172,5 @@ export class AuctionsCache extends Cache {
   public async pruneAuctionData(transferId: string): Promise<void> {
     const dataKey = `${this.prefix}:data`;
     await this.data.hdel(dataKey, transferId);
-
-    await this.setExecStatus(transferId, ExecStatus.None);
   }
 }
