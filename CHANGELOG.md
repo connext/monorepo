@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.19
+
+- [sdk] Allow `getTransfers` query to filter by xcall caller.
+
 ## Amarok 0.2.1-rc.18
 
 - [contracts] NPM package name update (@connext/contracts -> @connext/smart-contracts)
