@@ -3,7 +3,7 @@ import { expect, getCanonicalHash, DEFAULT_ROUTER_FEE } from "@connext/nxtp-util
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, Contract, constants } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkPool } from "../src/sdkPool";
+import { SdkPool } from "../src/sdkPool";
 import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
 import { Connext } from "@connext/smart-contracts";
@@ -14,9 +14,9 @@ const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-describe("NxtpSdkPool", () => {
-  let nxtpPool: NxtpSdkPool;
-  let config: ConfigFns.NxtpSdkConfig;
+describe("SdkPool", () => {
+  let nxtpPool: SdkPool;
+  let config: ConfigFns.SdkConfig;
 
   const localAsset: PoolAsset = {
     address: mock.asset.A.address,
@@ -61,7 +61,7 @@ describe("NxtpSdkPool", () => {
 
     stub(ConfigFns, "getConfig").resolves(config);
 
-    nxtpPool = await NxtpSdkPool.create(mockConfig, undefined, mockChainData);
+    nxtpPool = await SdkPool.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
