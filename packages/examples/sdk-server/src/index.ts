@@ -69,8 +69,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   sdkPoolInstance = nxtpSdkPool;
   sdkUtilsInstance = nxtpSdkUtils;
   sdkRouterInstance = nxtpSdkRouter;
-  console.log(`Initialized SDK with config:`);
-  console.log(nxtpConfig);
 
   // Register routes
 

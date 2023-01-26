@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.18
+
+- [contracts] NPM package name update (@connext/contracts -> @connext/smart-contracts)
+
 ## Amarok 0.2.1-rc.17
 
 - [contracts] NPM package name update (@connext/nxtp-contracts -> @connext/contracts)
