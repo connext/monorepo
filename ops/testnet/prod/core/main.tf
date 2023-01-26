@@ -375,7 +375,7 @@ module "ecs" {
   stage                   = var.stage
   environment             = var.environment
   domain                  = var.domain
-  ecs_cluster_name_prefix = "bridge-ecs"
+  ecs_cluster_name_prefix = "ecs"
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   public_subnets          = module.network.public_subnets
