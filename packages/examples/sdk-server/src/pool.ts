@@ -1,4 +1,4 @@
-import { NxtpSdkPool, NxtpSdkShared } from "@connext/sdk";
+import { SdkPool, SdkShared } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
@@ -30,7 +30,7 @@ import {
   getBlockNumberFromUnixTimestampSchema,
 } from "./types/api";
 
-export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
+export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
   // ------------------- Read Operations ------------------- //
@@ -348,7 +348,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     },
     async (request, reply) => {
       const { domainId, unixTimestamp } = request.params;
-      const res = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
+      const res = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
       reply.status(200).send(res);
     },
   );
