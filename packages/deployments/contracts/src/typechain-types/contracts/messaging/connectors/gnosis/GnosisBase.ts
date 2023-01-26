@@ -32,6 +32,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     "MIRROR_CHAIN_ID()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -46,6 +47,7 @@ export interface GnosisBaseInterface extends utils.Interface {
       | "MIRROR_CHAIN_ID"
       | "acceptProposedOwner"
       | "delay"
+      | "gasCap"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -64,6 +66,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -93,6 +96,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -190,6 +194,8 @@ export interface GnosisBase extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeNewOwner(
@@ -221,6 +227,8 @@ export interface GnosisBase extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proposeNewOwner(
@@ -249,6 +257,8 @@ export interface GnosisBase extends BaseContract {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -304,6 +314,8 @@ export interface GnosisBase extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -335,6 +347,8 @@ export interface GnosisBase extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -58,6 +58,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -111,6 +112,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "gasCap"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -196,6 +198,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -359,6 +362,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -807,6 +811,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -988,6 +994,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -1166,6 +1174,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1502,6 +1512,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1683,6 +1695,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

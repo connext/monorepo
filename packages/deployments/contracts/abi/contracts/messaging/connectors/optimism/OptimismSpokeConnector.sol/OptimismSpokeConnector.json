@@ -48,6 +48,7 @@
   "function delay() view returns (uint256)",
   "function delayBlocks() view returns (uint256)",
   "function dispatch(uint32,bytes32,bytes) returns (bytes32, bytes)",
+  "function gasCap() view returns (uint256)",
   "function home() view returns (address)",
   "function isReplica(address) view returns (bool)",
   "function lastSentBlock() view returns (uint256)",

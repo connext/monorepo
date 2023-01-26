@@ -23,6 +23,7 @@
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function executeSignatures(bytes,bytes)",
+  "function gasCap() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
