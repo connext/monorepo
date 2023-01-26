@@ -257,7 +257,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   /**
    * @notice Manually remove a pending aggregateRoot by owner if the contract is paused.
-   * @dev This method is required for handling fraud cases in the current construction.
+   * @dev This method is required for handling fraud cases in the current construction. Specifically,
+   * this will protect against a fraudulent aggregate root getting transported, not fraudulent
+   * roots that constitute a given aggregate root (i.e. can protect against fraudulent
+   * hub -> spoke transport, not spoke -> hub transport).
    * @param _fraudulentRoot Target fraudulent root that should be erased from the
    * `pendingAggregateRoots` mapping.
    */
