@@ -1,9 +1,4 @@
-import {
-  createLoggingContext,
-  SubgraphQueryByTimestampMetaParams,
-  StableSwapPool,
-  StableSwapExchange,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, SubgraphQueryByTimestampMetaParams, StableSwapExchange } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
