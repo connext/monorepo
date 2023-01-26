@@ -340,11 +340,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     });
 
     // Calculate origin swap
-    const originPool = await this.getPool(originDomain, originTokenAddress);
+    const originPool = await this.getPool(originDomain, _originTokenAddress);
     let originAmountReceived = amount;
 
     // Swap IFF supplied origin token is an adopted asset
-    if (!(await this.isNextAsset(originTokenAddress)) && originPool) {
+    if (!(await this.isNextAsset(_originTokenAddress)) && originPool) {
       originAmountReceived = await this.calculateSwap(
         originDomain,
         _originTokenAddress,
@@ -359,7 +359,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
     // Calculate destination swap
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, originTokenAddress);
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, _originTokenAddress);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
     if (!destinationAssetData) {
