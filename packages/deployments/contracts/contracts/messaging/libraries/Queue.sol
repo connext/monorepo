@@ -113,7 +113,7 @@ library QueueLib {
 
     bytes32[] memory items = new bytes32[](last + 1 - first);
     uint256 index; // Cursor for index in the batch of `items`.
-    uint256 removedCount; // If any items have been removed, we filter them here.
+    bool removedItems; // If any items have been removed, we filter them here.
     // NOTE: `first <= last` rephrased here to `!(first > last)` as it's a cheaper condition.
     while (!(first > last)) {
       bytes32 item = queue.data[first];
@@ -125,8 +125,8 @@ library QueueLib {
         }
       } else {
         // The item was removed. We do NOT increment the index (we will re-use this position).
-        unchecked {
-          ++removedCount;
+        if (!removedItems) {
+          removedItems = true;
         }
       }
 
@@ -144,7 +144,7 @@ library QueueLib {
     // Update the value for `first` in our queue object since we've dequeued a number of elements.
     queue.first = first;
 
-    if (removedCount == 0) {
+    if (!removedItems) {
       return items;
     } else {
       // If some items were removed, there will be a number of trailing 0 values we need to truncate
