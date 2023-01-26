@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
@@ -53,14 +52,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event Process(bytes32 leaf, bool success, bytes returnData);
 
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
-
-  /**
-   * @notice Emitted when funds are withdrawn by the admin
-   * @dev See comments in `withdrawFunds`
-   * @param to The recipient of the funds
-   * @param amount The amount withdrawn
-   */
-  event FundsWithdrawn(address indexed to, uint256 amount);
 
   event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex);
 
@@ -264,19 +255,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     require(pendingAggregateRoots[_fraudulentRoot] != 0, "aggregateRoot !exists");
     delete pendingAggregateRoots[_fraudulentRoot];
     emit AggregateRootRemoved(_fraudulentRoot);
-  }
-
-  /**
-   * @notice This function should be callable by owner, and send funds trapped on
-   * a connector to the provided recipient.
-   * @dev Withdraws the entire balance of the contract.
-   *
-   * @param _to The recipient of the funds withdrawn
-   */
-  function withdrawFunds(address _to) public onlyOwner {
-    uint256 amount = address(this).balance;
-    Address.sendValue(payable(_to), amount);
-    emit FundsWithdrawn(_to, amount);
   }
 
   /**

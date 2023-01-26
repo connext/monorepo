@@ -26,13 +26,6 @@ abstract contract GasCap is ProposedOwnable {
    */
   event GasCapUpdated(uint256 _previous, uint256 _updated);
 
-  /**
-   * @notice Emitted when the owner withdraws excess funds from inheriting contracts
-   * @param amount The amount withdrawn
-   * @param recipient Where the funds were sent
-   */
-  event FundsWithdrawn(uint256 amount, address recipient);
-
   // ============ Constructor ============
   constructor(uint256 _gasCap) {
     _setGasCap(_gasCap);
@@ -41,20 +34,6 @@ abstract contract GasCap is ProposedOwnable {
   // ============ Admin Fns ============
   function setGasCap(uint256 _gasCap) public onlyOwner {
     _setGasCap(_gasCap);
-  }
-
-  /**
-   * @notice When this mechanism is used, there may be excess funds sitting
-   * on inherited contracts (i.e. in the case where _gas > gasCap, _gas - gasCap
-   * could be sitting on this contract)
-   * * @param _recipient Where the funds were sent
-   */
-  function reclaimExcess(address _recipient) public onlyOwner {
-    uint256 amount = address(this).balance;
-    // Sends balance on this contract to the specified recipient
-    Address.sendValue(payable(_recipient), amount);
-    // Emit event
-    emit FundsWithdrawn(amount, _recipient);
   }
 
   // ============ Internal Fns ============
