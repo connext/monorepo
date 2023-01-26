@@ -3,7 +3,7 @@ import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@con
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
 import { providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkBase } from "../src/sdkBase";
+import { SdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
 import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/errors";
 
@@ -21,8 +21,8 @@ const mockUnwrapperAddress = mockConfig.chains[mock.domain.B].deployments!.unwra
 const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
-  let nxtpSdkBase: NxtpSdkBase;
-  let config: ConfigFns.NxtpSdkConfig;
+  let sdkBase: SdkBase;
+  let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
@@ -33,8 +33,8 @@ describe("SdkBase", () => {
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
-    nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
-    (nxtpSdkBase as any).chainreader = chainreader;
+    sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
+    (sdkBase as any).chainreader = chainreader;
   });
 
   afterEach(() => {
@@ -44,14 +44,14 @@ describe("SdkBase", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpSdkBase).to.not.be.undefined;
-      expect(nxtpSdkBase.config).to.not.be.null;
-      expect(nxtpSdkBase.chainData).to.not.be.null;
+      expect(sdkBase).to.not.be.undefined;
+      expect(sdkBase.config).to.not.be.null;
+      expect(sdkBase.chainData).to.not.be.null;
 
-      expect(nxtpSdkBase.xcall).to.be.a("function");
-      expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
-      expect(nxtpSdkBase.updateSlippage).to.be.a("function");
-      expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
+      expect(sdkBase.xcall).to.be.a("function");
+      expect(sdkBase.bumpTransfer).to.be.a("function");
+      expect(sdkBase.updateSlippage).to.be.a("function");
+      expect(sdkBase.estimateRelayerFee).to.be.a("function");
     });
   });
 
@@ -139,12 +139,12 @@ describe("SdkBase", () => {
     });
 
     it("happy: should work if ERC20", async () => {
-      const res = await nxtpSdkBase.xcall(sdkXCallArgs);
+      const res = await sdkBase.xcall(sdkXCallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("happy: should use xcallIntoLocal if receiveLocal is used", async () => {
-      const res = await nxtpSdkBase.xcall({
+      const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
       });
@@ -164,7 +164,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall({
+      const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
       });
@@ -186,7 +186,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall({
+      const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
         wrapNativeOnOrigin: true,
@@ -216,7 +216,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall({
+      const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         unwrapNativeOnDestination: true,
       });
@@ -251,7 +251,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.xcall({
+      const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
         unwrapNativeOnDestination: true,
@@ -261,7 +261,7 @@ describe("SdkBase", () => {
 
     it("throws CannotUnwrapOnDestination if receiveLocal && unwrapNativeOnDestination", async () => {
       await expect(
-        nxtpSdkBase.xcall({
+        sdkBase.xcall({
           ...sdkXCallArgs,
           unwrapNativeOnDestination: true,
           callData: "0xabcdef",
@@ -271,7 +271,7 @@ describe("SdkBase", () => {
 
     it("throws CannotUnwrapOnDestination if callData specified && unwrapNativeOnDestination", async () => {
       await expect(
-        nxtpSdkBase.xcall({
+        sdkBase.xcall({
           ...sdkXCallArgs,
           unwrapNativeOnDestination: true,
           receiveLocal: true,
@@ -291,7 +291,7 @@ describe("SdkBase", () => {
         gasPriceFactor: "10000",
       });
 
-      stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
+      stub(sdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
       const mockXcallArgs = mock.entity.xcallArgs();
       const data = getConnextInterface().encodeFunctionData("xcall", [
         mockXcallArgs.destination,
@@ -317,19 +317,19 @@ describe("SdkBase", () => {
         origin,
       };
 
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
+      const res = await sdkBase.xcall(sdkXcallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("should error if signerAddress is undefined", async () => {
-      nxtpSdkBase.config.signerAddress = undefined;
+      sdkBase.config.signerAddress = undefined;
       const origin = mock.entity.callParams().originDomain;
       const sdkXcallArgs = {
         ...mock.entity.xcallArgs(),
         origin,
       };
 
-      await expect(nxtpSdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(sdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
@@ -343,13 +343,13 @@ describe("SdkBase", () => {
     };
 
     it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
+      (sdkBase as any).config.signerAddress = undefined;
 
-      await expect(nxtpSdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
     });
 
     it("happy: should work", async () => {
-      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
+      sdkBase.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
@@ -360,7 +360,7 @@ describe("SdkBase", () => {
         chainId,
       };
 
-      const res = await nxtpSdkBase.bumpTransfer(mockBumpTransferParams);
+      const res = await sdkBase.bumpTransfer(mockBumpTransferParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
     });
   });
@@ -375,9 +375,9 @@ describe("SdkBase", () => {
     };
 
     it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
+      (sdkBase as any).config.signerAddress = undefined;
 
-      await expect(nxtpSdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
@@ -392,7 +392,7 @@ describe("SdkBase", () => {
     });
     it("should return 0 if origin/destination native asset price is 0", async () => {
       calculateRelayerFeeStub.resolves(BigNumber.from(100));
-      const relayerFee = await nxtpSdkBase.estimateRelayerFee({
+      const relayerFee = await sdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });
