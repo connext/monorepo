@@ -41,10 +41,8 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * @dev Get 'Base constructor arguments given twice' when trying to inherit
    */
   function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {
-    // Should not include specialized calldata
-    require(_encodedData.length == 0, "!data length");
-    _sendMessage(_data, bytes(""));
-    emit MessageSent(_data, bytes(""), msg.sender);
+    _sendMessage(_data, _encodedData);
+    emit MessageSent(_data, _encodedData, msg.sender);
   }
 
   // ============ Private fns ============
