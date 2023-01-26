@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
-import { XCalled, Executed, Reconciled, TransferRelayerFeesIncreased } from "../../../generated/Connext/Connext";
 import {
-  Router,
-  OriginTransfer,
-  DestinationTransfer,
-  OriginMessage,
-  TransferRelayerFee,
-} from "../../../generated/schema";
+  XCalled,
+  Executed,
+  Reconciled,
+  TransferRelayerFeesIncreased,
+  SlippageUpdated,
+} from "../../../generated/Connext/Connext";
+import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
 
 import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
 
@@ -62,13 +62,6 @@ export function handleXCalled(event: XCalled): void {
   message.message = event.params.messageBody;
   message.save();
   transfer.message = message.id;
-
-  let transferRelayerFeeEntity = TransferRelayerFee.load(event.params.transferId.toHexString());
-  if (transferRelayerFeeEntity == null) {
-    transfer.relayerFee = BigInt.fromI32(0);
-  } else {
-    transfer.relayerFee = transferRelayerFeeEntity.fee;
-  }
 
   // XCall Transaction
   // NOTE: Using originSender as the caller, since it should have been set to msg.sender.
@@ -236,19 +229,30 @@ export function handleReconciled(event: Reconciled): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased): void {
-  let transferRelayerFeeEntity = TransferRelayerFee.load(event.params.transferId.toHexString());
-  if (transferRelayerFeeEntity == null) {
-    transferRelayerFeeEntity = new TransferRelayerFee(event.params.transferId.toHexString());
-    transferRelayerFeeEntity.transferId = event.params.transferId;
-    transferRelayerFeeEntity.fee = BigInt.fromI32(0);
+  let transfer = OriginTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
 
-  transferRelayerFeeEntity.fee = transferRelayerFeeEntity.fee!.plus(event.params.increase);
-  transferRelayerFeeEntity.save();
+  transfer.relayerFee = transfer.relayerFee!.plus(event.params.increase);
+  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
+  transfer.save();
+}
 
-  let originTransfer = OriginTransfer.load(event.params.transferId.toHexString());
-  if (originTransfer != null) {
-    originTransfer.relayerFee = transferRelayerFeeEntity.fee;
-    originTransfer.save();
+/**
+ * Updates subgraph records when SlippageUpdated events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleSlippageUpdated(event: SlippageUpdated): void {
+  let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
+
+  transfer.slippage = event.params.slippage;
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.save();
 }

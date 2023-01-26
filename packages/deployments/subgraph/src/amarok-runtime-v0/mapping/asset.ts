@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
-import { AssetAdded } from "../../../generated/Connext/Connext";
-import { Asset } from "../../../generated/schema";
+import { AssetAdded, AssetRemoved } from "../../../generated/Connext/Connext";
+import { Asset, AssetStatus } from "../../../generated/schema";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
@@ -15,5 +15,24 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.localAsset = event.params.localAsset;
   asset.blockNumber = event.block.number;
+
+  let assetStatus = AssetStatus.load(event.params.key.toHex());
+  if (assetStatus == null) {
+    assetStatus = new AssetStatus(event.params.key.toHex());
+  }
+  assetStatus.status = true;
+
+  asset.status = assetStatus.id;
+
+  assetStatus.save();
   asset.save();
+}
+
+export function handleAssetRemoved(event: AssetRemoved): void {
+  let assetStatus = AssetStatus.load(event.params.key.toHex());
+  if (assetStatus == null) {
+    assetStatus = new AssetStatus(event.params.key.toHex());
+  }
+  assetStatus.status = false;
+  assetStatus.save();
 }

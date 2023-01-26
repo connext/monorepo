@@ -7,19 +7,19 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
 import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { NxtpSdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 /**
  * @classdesc SDK class encapsulating shared logic to be inherited.
  *
  */
-export class NxtpSdkShared {
-  readonly config: NxtpSdkConfig;
+export class SdkShared {
+  readonly config: SdkConfig;
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
   protected readonly logger: Logger;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;

@@ -1,10 +1,10 @@
-import { NxtpSdkRouter } from "@connext/sdk";
+import { SdkRouter } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
 import { addLiquidityForRouterSchema, removeRouterLiquiditySchema, removeRouterLiquidityForSchema } from "./types/api";
 
-export const routerRoutes = async (server: FastifyInstance, sdkRouterInstance: NxtpSdkRouter): Promise<any> => {
+export const routerRoutes = async (server: FastifyInstance, sdkRouterInstance: SdkRouter): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
   s.post(
