@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/nodejs:18 as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-router package.
+# Builds Docker container for lighthouse package.
 # @dev configuraion located ./config.json (relative to this file)
 
 

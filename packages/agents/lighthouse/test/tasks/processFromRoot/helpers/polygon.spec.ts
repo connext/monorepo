@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkHash } from "@connext/utils";
 import { stub } from "sinon";
 
 import * as MockableFns from "../../../../src/mockable";

@@ -1,19 +1,19 @@
 import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { AuctionsCache, TransfersCache } from "@connext/adapters-cache";
+import { SubgraphReader } from "@connext/adapters-subgraph";
 import {
   ChainReader,
   ConnextContractDeployments,
   ConnextContractInterfaces,
   TransactionService,
-} from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, OriginTransfer } from "@connext/nxtp-utils";
+} from "@connext/txservice";
+import { mkAddress, Logger, mock as _mock, OriginTransfer } from "@connext/utils";
 
 import { AppContext as PublisherAppContext } from "../src/tasks/publisher/context";
 import { AppContext as SubscriberAppContext } from "../src/tasks/subscriber/context";
 import { AppContext as ExecutorAppContext } from "../src/tasks/executor/context";
-import { NxtpRouterConfig } from "../src/config";
+import { RouterConfig } from "../src/config";
 
 export const mock = {
   ..._mock,
@@ -56,7 +56,7 @@ export const mock = {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
     };
   },
-  config: (): NxtpRouterConfig => ({
+  config: (): RouterConfig => ({
     chains: {
       [mock.domain.A]: {
         assets: [mock.asset.A],

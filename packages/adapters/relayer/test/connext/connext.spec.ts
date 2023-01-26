@@ -5,12 +5,12 @@ import {
   mock,
   Logger,
   RelayerApiPostTaskRequestParams,
-  NxtpError,
+  ConnextError,
   mkBytes32,
   RelayerTaskStatus,
-} from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
+} from "@connext/utils";
+import { ChainReader } from "@connext/txservice";
+import { mockChainReader } from "@connext/txservice/test/mock";
 import { constants } from "ethers";
 
 import {
@@ -83,7 +83,7 @@ describe("Connext Relayer", () => {
           logger,
           loggingContext.requestContext,
         ),
-      ).to.be.rejectedWith(NxtpError);
+      ).to.be.rejectedWith(ConnextError);
     });
   });
 

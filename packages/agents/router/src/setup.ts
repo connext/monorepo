@@ -1,6 +1,6 @@
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
+import { StoreManager } from "@connext/adapters-cache";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/utils";
 import rabbit from "foo-foo-mq";
 
 export const XCALL_QUEUE = "xcalls";

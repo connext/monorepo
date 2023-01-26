@@ -1,9 +1,9 @@
-import { ChainData, Logger } from "@connext/nxtp-utils";
-import { ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { ChainData, Logger } from "@connext/utils";
+import { ConnextContractInterfaces, ChainReader } from "@connext/txservice";
+import { Web3Signer } from "@connext/adapters-web3signer";
 import { Wallet } from "ethers";
 
-import { NxtpRouterConfig } from "../../config";
+import { RouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
@@ -13,7 +13,7 @@ export type AppContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     wallet: Wallet | Web3Signer; // Used for signing metatxs for bids.
   };
-  config: NxtpRouterConfig;
+  config: RouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
 };

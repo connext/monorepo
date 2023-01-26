@@ -1,7 +1,7 @@
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { ChainData, Logger } from "@connext/nxtp-utils";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { WatcherAdapter } from "@connext/adapters-watcher";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { ChainData, Logger } from "@connext/utils";
 import { Wallet } from "ethers";
 
 import { WatcherConfig } from "./config";

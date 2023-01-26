@@ -1,9 +1,9 @@
 import * as fs from "fs";
 
-import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
-import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
+import { generateExitPayload as _generateExitPayload } from "@connext/utils";
+import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/txservice";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
-import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
+import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/adapters-relayer";
 import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
 import { getBaseFee as _getBaseFee } from "@arbitrum/sdk/dist/lib/utils/lib";

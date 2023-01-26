@@ -4,7 +4,7 @@ import { BiMessageError, BiMessageCheck, BiMessageDetail } from "react-icons/bi"
 import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { FixedNumber, utils } from "ethers";
-import { XTransferStatus } from "@connext/nxtp-utils";
+import { XTransferStatus } from "@connext/utils";
 import { SdkXCallParams } from "@connext/sdk";
 
 import { useWallet } from "../contexts/Wallet";

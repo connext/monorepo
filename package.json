@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp",
+  "name": "@connext/monorepo",
   "version": "0.2.1-rc.19",
   "private": true,
   "devDependencies": {
@@ -35,16 +35,16 @@
     "packages/examples/bridge-reference"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration run lint",
-    "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
-    "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
+    "lint:all": "yarn workspaces foreach --parallel --exclude @connext/subgraph --exclude @connext/bridge-reference --exclude @connext/integration run lint",
+    "test:all": "yarn workspaces foreach --parallel --exclude @connext/relayer --exclude @connext/subgraph --exclude @connext/integration run test",
+    "clean:all": "yarn workspaces foreach --parallel --exclude @connext/integration --exclude @connext/subgraph run clean",
+    "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/subgraph --exclude @connext/bridge-reference run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach run version $0 && yarn run version $0",
     "purge:all": "yarn workspaces foreach --parallel run purge && rimraf './node_modules'",
     "tsp:root": "tsp",
     "tsp": "tsp",
-    "test:integration": "bash setup-integration-test.sh && sleep 10 && echo 'router logs' && echo 'integration test start' && yarn workspace @connext/nxtp-integration test:local && yarn docker:stop:all",
+    "test:integration": "bash setup-integration-test.sh && sleep 10 && echo 'router logs' && echo 'integration test start' && yarn workspace @connext/integration test:local && yarn docker:stop:all",
     "docker:stop:all": "docker-compose -f docker-compose.chains.yaml -f docker-compose.services.yaml down",
     "version": "yarn version"
   },

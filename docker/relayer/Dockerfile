@@ -1,7 +1,7 @@
 FROM node:18-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-relayer package.
+# Builds Docker container for relayer package.
 
 # ----------------------------------------
 

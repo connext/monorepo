@@ -1,7 +1,7 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
-import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
+import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/utils";
+import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/txservice";
 import { Wallet } from "ethers";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { Web3Signer } from "@connext/adapters-web3signer";
 
 import { getConfig } from "../../config";
 

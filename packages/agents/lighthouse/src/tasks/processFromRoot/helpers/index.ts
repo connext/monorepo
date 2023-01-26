@@ -1,4 +1,4 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { RequestContext } from "@connext/utils";
 
 export { getProcessFromOptimismRootArgs } from "./optimism";
 export { getProcessFromPolygonRootArgs } from "./polygon";

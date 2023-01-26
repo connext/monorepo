@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, RequestContext } from "@connext/utils";
 import { domainToChainId } from "@connext/smart-contracts";
 
 import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";

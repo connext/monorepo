@@ -1,9 +1,9 @@
-import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
-import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/txservice";
+import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/utils";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/adapters-relayer";
+import { SubgraphReader } from "@connext/adapters-subgraph";
 
-import { NxtpLighthouseConfig } from "../../config";
+import { LighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
 import { propagate } from "./operations";
@@ -11,7 +11,7 @@ import { propagate } from "./operations";
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
 
-export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+export const makePropagate = async (config: LighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makePropagate.name);
 
   try {

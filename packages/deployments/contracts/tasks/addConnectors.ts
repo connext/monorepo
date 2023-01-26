@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { constants, Contract, providers, Wallet } from "ethers";
-import { getDomainFromChainId } from "@connext/nxtp-utils";
+import { getDomainFromChainId } from "@connext/utils";
 
 import hardhatConfig from "../hardhat.config";
 import {

@@ -6,9 +6,9 @@ import {
   getUuid,
   jsonifyError,
   Logger,
-  NxtpError,
+  ConnextError,
   RequestContext,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import interval from "interval-promise";
 import { domainToChainId } from "@connext/smart-contracts";
 
@@ -229,7 +229,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         }
       }
     } catch (error: unknown) {
-      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error as NxtpError), {
+      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error as ConnextError), {
         handlingTransaction: transaction ? transaction.loggable : undefined,
       });
     }
@@ -369,7 +369,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     };
 
     const result = await this.queue.add(
-      async (): Promise<{ value: OnchainTransaction | NxtpError; success: boolean }> => {
+      async (): Promise<{ value: OnchainTransaction | ConnextError; success: boolean }> => {
         try {
           // Wait until there's room in the buffer.
           if (this.inflightBuffer.isFull) {
@@ -452,7 +452,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
               }
               await this.submit(transaction);
             } catch (_error: unknown) {
-              const error = _error as NxtpError & { reason: string };
+              const error = _error as ConnextError & { reason: string };
               if (error.type === BadNonce.type) {
                 lastErrorReceived = new Error(error.reason);
                 ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
@@ -476,7 +476,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           this.nonce = nonce + 1;
           return { value: transaction, success: true };
         } catch (error: unknown) {
-          return { value: error as NxtpError, success: false };
+          return { value: error as ConnextError, success: false };
         }
       },
     );
@@ -564,7 +564,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       });
       this.callbacks.onSubmit(transaction);
     } catch (_error: unknown) {
-      const error = _error as NxtpError;
+      const error = _error as ConnextError;
       // If we end up with an error, it should be thrown here. But first, log loudly if we get an insufficient
       // funds error.
       if (
@@ -729,7 +729,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
         requestContext,
         methodContext,
-        jsonifyError(error as NxtpError),
+        jsonifyError(error as ConnextError),
         {
           domain: this.domain,
           transaction: transaction.loggable,

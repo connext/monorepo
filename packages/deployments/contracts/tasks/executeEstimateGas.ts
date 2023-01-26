@@ -1,4 +1,4 @@
-import { ExecuteArgs, getChainData, signRouterPathPayload } from "@connext/nxtp-utils";
+import { ExecuteArgs, getChainData, signRouterPathPayload } from "@connext/utils";
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 

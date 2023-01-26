@@ -1,8 +1,8 @@
-import { Values, NxtpError } from "@connext/nxtp-utils";
+import { Values, ConnextError } from "@connext/utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
-export class MaxBufferLengthError extends NxtpError {
+export class MaxBufferLengthError extends ConnextError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted
    */
@@ -13,7 +13,7 @@ export class MaxBufferLengthError extends NxtpError {
   }
 }
 
-export class StallTimeout extends NxtpError {
+export class StallTimeout extends ConnextError {
   static readonly type = StallTimeout.name;
 
   constructor(public readonly context: any = {}) {
@@ -21,7 +21,7 @@ export class StallTimeout extends NxtpError {
   }
 }
 
-export class QuorumNotMet extends NxtpError {
+export class QuorumNotMet extends ConnextError {
   static readonly type = QuorumNotMet.name;
 
   constructor(highestQuorum: number, requiredQuorum: number, public readonly context: any = {}) {
@@ -37,7 +37,7 @@ export class QuorumNotMet extends NxtpError {
   }
 }
 
-export class RpcError extends NxtpError {
+export class RpcError extends ConnextError {
   static readonly type = RpcError.name;
 
   /**
@@ -63,7 +63,7 @@ export class RpcError extends NxtpError {
   }
 }
 
-export class TransactionReadError extends NxtpError {
+export class TransactionReadError extends ConnextError {
   /**
    * An error that indicates that a read transaction failed.
    */
@@ -78,7 +78,7 @@ export class TransactionReadError extends NxtpError {
   }
 }
 
-export class TransactionReverted extends NxtpError {
+export class TransactionReverted extends ConnextError {
   /**
    * An error that indicates that the transaction was reverted on-chain.
    *
@@ -119,7 +119,7 @@ export class TransactionReverted extends NxtpError {
   }
 }
 
-export class TransactionReplaced extends NxtpError {
+export class TransactionReplaced extends ConnextError {
   /**
    * From ethers docs:
    * If the transaction is replaced by another transaction, a TRANSACTION_REPLACED error will be rejected with the following properties:
@@ -141,8 +141,8 @@ export class TransactionReplaced extends NxtpError {
 }
 
 // TODO: #144 Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
-// being missing. They won't function as proper NxtpErrors, essentially.
-export class OperationTimeout extends NxtpError {
+// being missing. They won't function as proper ConnextErrors, essentially.
+export class OperationTimeout extends ConnextError {
   /**
    * An error indicating that an operation (typically confirmation) timed out.
    */
@@ -153,7 +153,7 @@ export class OperationTimeout extends NxtpError {
   }
 }
 
-export class TransactionBackfilled extends NxtpError {
+export class TransactionBackfilled extends ConnextError {
   /**
    * An error indicating that a transaction was replaced by a backfill, likely because it
    * was unresponsive.
@@ -165,7 +165,7 @@ export class TransactionBackfilled extends NxtpError {
   }
 }
 
-export class UnpredictableGasLimit extends NxtpError {
+export class UnpredictableGasLimit extends ConnextError {
   /**
    * An error that we get back from ethers when we try to do a gas estimate, but this
    * may need to be handled differently.
@@ -177,7 +177,7 @@ export class UnpredictableGasLimit extends NxtpError {
   }
 }
 
-export class BadNonce extends NxtpError {
+export class BadNonce extends ConnextError {
   /**
    * An error indicating that we got a "nonce expired"-like message back from
    * ethers while conducting sendTransaction.
@@ -196,7 +196,7 @@ export class BadNonce extends NxtpError {
   }
 }
 
-export class ServerError extends NxtpError {
+export class ServerError extends ConnextError {
   /**
    * An error indicating that an operation on the node server (such as validation
    * before submitting a transaction) occurred.
@@ -219,7 +219,7 @@ export class ServerError extends NxtpError {
   }
 }
 
-export class TransactionAlreadyKnown extends NxtpError {
+export class TransactionAlreadyKnown extends ConnextError {
   /**
    * This one occurs (usually) when we try to send a transaction to multiple providers
    * and one or more of them already has the transaction in their mempool.
@@ -231,7 +231,7 @@ export class TransactionAlreadyKnown extends NxtpError {
   }
 }
 
-export class TransactionKilled extends NxtpError {
+export class TransactionKilled extends ConnextError {
   /**
    * An error indicating that the transaction was killed by the monitor loop due to
    * it taking too long, and blocking (potentially too many) transactions in the pending
@@ -246,7 +246,7 @@ export class TransactionKilled extends NxtpError {
   }
 }
 
-export class MaxAttemptsReached extends NxtpError {
+export class MaxAttemptsReached extends ConnextError {
   static readonly type = MaxAttemptsReached.name;
 
   static getMessage(attempts: number): string {
@@ -258,7 +258,7 @@ export class MaxAttemptsReached extends NxtpError {
   }
 }
 
-export class NotEnoughConfirmations extends NxtpError {
+export class NotEnoughConfirmations extends ConnextError {
   static readonly type = NotEnoughConfirmations.name;
 
   static getMessage(required: number, hash: string, confs: number): string {
@@ -270,7 +270,7 @@ export class NotEnoughConfirmations extends NxtpError {
   }
 }
 
-export class GasEstimateInvalid extends NxtpError {
+export class GasEstimateInvalid extends ConnextError {
   static readonly type = GasEstimateInvalid.name;
 
   static getMessage(returned: string): string {
@@ -282,7 +282,7 @@ export class GasEstimateInvalid extends NxtpError {
   }
 }
 
-export class ChainNotSupported extends NxtpError {
+export class ChainNotSupported extends ConnextError {
   static readonly type = ChainNotSupported.name;
 
   static getMessage(chainId: string): string {
@@ -295,7 +295,7 @@ export class ChainNotSupported extends NxtpError {
 }
 
 // TODO: ProviderNotConfigured is essentially a more specific ChainNotSupported error. Should they be combined?
-export class ProviderNotConfigured extends NxtpError {
+export class ProviderNotConfigured extends ConnextError {
   static readonly type = ProviderNotConfigured.name;
 
   static getMessage(chainId: string): string {
@@ -307,7 +307,7 @@ export class ProviderNotConfigured extends NxtpError {
   }
 }
 
-export class ConfigurationError extends NxtpError {
+export class ConfigurationError extends ConnextError {
   static readonly type = ConfigurationError.name;
 
   constructor(
@@ -318,7 +318,7 @@ export class ConfigurationError extends NxtpError {
   }
 }
 
-export class InitialSubmitFailure extends NxtpError {
+export class InitialSubmitFailure extends ConnextError {
   static readonly type = InitialSubmitFailure.name;
 
   constructor(public readonly context: any = {}) {
@@ -331,7 +331,7 @@ export class InitialSubmitFailure extends NxtpError {
 }
 
 // These errors should essentially never happen; they are only used within the block of sanity checks.
-export class TransactionProcessingError extends NxtpError {
+export class TransactionProcessingError extends ConnextError {
   static readonly type = TransactionProcessingError.name;
 
   static readonly reasons = {
@@ -363,12 +363,12 @@ export class TransactionProcessingError extends NxtpError {
 }
 
 /**
- * Parses error strings into strongly typed NxtpError.
+ * Parses error strings into strongly typed ConnextError.
  * @param error from ethers.js package
- * @returns NxtpError
+ * @returns ConnextError
  */
-export const parseError = (error: any): NxtpError => {
-  if (error.isNxtpError) {
+export const parseError = (error: any): ConnextError => {
+  if (error.isConnextError) {
     // If the error has already been parsed into a native error, just return it.
     return error;
   }

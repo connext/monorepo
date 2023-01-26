@@ -1,5 +1,5 @@
-import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/utils";
+import { contractDeployments } from "@connext/txservice";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
@@ -55,12 +55,12 @@ export class SdkUtils extends SdkShared {
       throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const connextConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkUtils" })
-      : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });
+      : new Logger({ name: "SdkUtils", level: connextConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkUtils(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkUtils(connextConfig, logger, chainData));
   }
 
   /**

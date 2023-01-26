@@ -1,6 +1,6 @@
 import { reset, restore, stub, spy } from "sinon";
-import { expect, getCanonicalHash, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
-import { getConnextInterface } from "@connext/nxtp-txservice";
+import { expect, getCanonicalHash, DEFAULT_ROUTER_FEE } from "@connext/utils";
+import { getConnextInterface } from "@connext/txservice";
 import { providers, utils, BigNumber, Contract, constants } from "ethers";
 import { mock } from "./mock";
 import { SdkPool } from "../src/sdkPool";
@@ -15,7 +15,7 @@ const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 describe("SdkPool", () => {
-  let nxtpPool: SdkPool;
+  let pool: SdkPool;
   let config: ConfigFns.SdkConfig;
 
   const localAsset: PoolAsset = {
@@ -61,7 +61,7 @@ describe("SdkPool", () => {
 
     stub(ConfigFns, "getConfig").resolves(config);
 
-    nxtpPool = await SdkPool.create(mockConfig, undefined, mockChainData);
+    pool = await SdkPool.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -71,45 +71,45 @@ describe("SdkPool", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpPool).to.not.be.undefined;
-      expect(nxtpPool.config).to.not.be.null;
-      expect(nxtpPool.chainData).to.not.be.null;
+      expect(pool).to.not.be.undefined;
+      expect(pool.config).to.not.be.null;
+      expect(pool.chainData).to.not.be.null;
 
-      expect(nxtpPool.getConnext).to.be.a("function");
-      expect(nxtpPool.getERC20).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.calculateCanonicalKey).to.be.a("function");
-      expect(nxtpPool.calculateSwap).to.be.a("function");
-      expect(nxtpPool.calculateTokenAmount).to.be.a("function");
-      expect(nxtpPool.calculateRemoveSwapLiquidity).to.be.a("function");
-      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateAmountReceived).to.be.a("function");
-      expect(nxtpPool.getTokenPrice).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(pool.getConnext).to.be.a("function");
+      expect(pool.getERC20).to.be.a("function");
+      expect(pool.getDefaultDeadline).to.be.a("function");
+      expect(pool.calculateCanonicalKey).to.be.a("function");
+      expect(pool.calculateSwap).to.be.a("function");
+      expect(pool.calculateTokenAmount).to.be.a("function");
+      expect(pool.calculateRemoveSwapLiquidity).to.be.a("function");
+      expect(pool.calculatePriceImpact).to.be.a("function");
+      expect(pool.calculateSwapPriceImpact).to.be.a("function");
+      expect(pool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(pool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(pool.calculateAmountReceived).to.be.a("function");
+      expect(pool.getTokenPrice).to.be.a("function");
+      expect(pool.getDefaultDeadline).to.be.a("function");
 
-      expect(nxtpPool.getLPTokenAddress).to.be.a("function");
-      expect(nxtpPool.getTokenSupply).to.be.a("function");
-      expect(nxtpPool.getTokenUserBalance).to.be.a("function");
-      expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
-      expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
-      expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
-      expect(nxtpPool.getVirtualPrice).to.be.a("function");
-      expect(nxtpPool.getRepresentation).to.be.a("function");
-      expect(nxtpPool.getAdopted).to.be.a("function");
+      expect(pool.getLPTokenAddress).to.be.a("function");
+      expect(pool.getTokenSupply).to.be.a("function");
+      expect(pool.getTokenUserBalance).to.be.a("function");
+      expect(pool.getPoolTokenIndex).to.be.a("function");
+      expect(pool.getPoolTokenBalance).to.be.a("function");
+      expect(pool.getPoolTokenAddress).to.be.a("function");
+      expect(pool.getVirtualPrice).to.be.a("function");
+      expect(pool.getRepresentation).to.be.a("function");
+      expect(pool.getAdopted).to.be.a("function");
 
-      expect(nxtpPool.addLiquidity).to.be.a("function");
-      expect(nxtpPool.removeLiquidity).to.be.a("function");
-      expect(nxtpPool.swap).to.be.a("function");
+      expect(pool.addLiquidity).to.be.a("function");
+      expect(pool.removeLiquidity).to.be.a("function");
+      expect(pool.swap).to.be.a("function");
 
-      expect(nxtpPool.getPool).to.be.a("function");
-      expect(nxtpPool.getUserPools).to.be.a("function");
-      expect(nxtpPool.getYieldStatsForDay).to.be.a("function");
-      expect(nxtpPool.calculateYield).to.be.a("function");
-      expect(nxtpPool.getYieldData).to.be.a("function");
-      expect(nxtpPool.getLiquidityMiningAprPerPool).to.be.a("function");
+      expect(pool.getPool).to.be.a("function");
+      expect(pool.getUserPools).to.be.a("function");
+      expect(pool.getYieldStatsForDay).to.be.a("function");
+      expect(pool.calculateYield).to.be.a("function");
+      expect(pool.getYieldData).to.be.a("function");
+      expect(pool.getLiquidityMiningAprPerPool).to.be.a("function");
     });
   });
 
@@ -136,9 +136,9 @@ describe("SdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      const res = await nxtpPool.addLiquidity(
+      const res = await pool.addLiquidity(
         mockPool.domainId,
         mockPool.local.address,
         mockParams.amounts,
@@ -172,9 +172,9 @@ describe("SdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      const res = await nxtpPool.removeLiquidity(
+      const res = await pool.removeLiquidity(
         mockPool.domainId,
         mockPool.local.address,
         mockParams.amount,
@@ -212,10 +212,10 @@ describe("SdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
-      stub(nxtpPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(pool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
 
-      const res = await nxtpPool.swap(
+      const res = await pool.swap(
         mockPool.domainId,
         mockPool.local.address,
         mockParams.from,
@@ -235,12 +235,12 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(nxtpPool, "getRepresentation").resolves(mockPool.local.address);
-      stub(nxtpPool, "getAdopted").resolves(mockPool.adopted.address);
-      stub(nxtpPool, "getLPTokenAddress").resolves(mockPool.lpTokenAddress);
-      stub(nxtpPool, "getPoolTokenBalance").resolves(localAsset.balance);
-      stub(nxtpPool, "getPoolTokenIndex").resolves(0);
+      stub(pool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
+      stub(pool, "getRepresentation").resolves(mockPool.local.address);
+      stub(pool, "getAdopted").resolves(mockPool.adopted.address);
+      stub(pool, "getLPTokenAddress").resolves(mockPool.lpTokenAddress);
+      stub(pool, "getPoolTokenBalance").resolves(localAsset.balance);
+      stub(pool, "getPoolTokenIndex").resolves(0);
 
       const provider = providers.getDefaultProvider();
       const connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
@@ -256,10 +256,10 @@ describe("SdkPool", () => {
         },
       };
 
-      stub(nxtpPool, "getConnext").resolves(connextContract as Connext);
-      stub(nxtpPool, "getERC20").resolves(mockERC20 as any);
+      stub(pool, "getConnext").resolves(connextContract as Connext);
+      stub(pool, "getERC20").resolves(mockERC20 as any);
 
-      const res = await nxtpPool.getPool(mockPool.domainId, mockPool.local.address);
+      const res = await pool.getPool(mockPool.domainId, mockPool.local.address);
 
       expect(res!.domainId).to.equal(mockPool.domainId);
       expect(res!.name).to.equal(mockPool.name);
@@ -268,17 +268,17 @@ describe("SdkPool", () => {
     });
 
     it("should throw if local domain is canonical", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      expect(nxtpPool.getPool(mockPool.domainId, mockPool.local.address)).to.be.rejectedWith(
+      expect(pool.getPool(mockPool.domainId, mockPool.local.address)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),
       );
     });
 
     it("should return undefined if local token is adopted", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
+      stub(pool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
 
-      expect(nxtpPool.getPool(mockPool.domainId, mockParams.canonicalId)).to.be.rejectedWith(
+      expect(pool.getPool(mockPool.domainId, mockParams.canonicalId)).to.be.rejectedWith(
         new Error("Pool doesn't exist for the token on this domain"),
       );
     });
@@ -288,9 +288,9 @@ describe("SdkPool", () => {
     it("happy: should return all pools that a user has LP tokens in", async () => {
       const userAddress = "0x01".padEnd(42, "0");
 
-      stub(nxtpPool, "getAssetsData").resolves([mockAssetData, mockAssetData]);
-      stub(nxtpPool, "getPool").resolves(mockPool);
-      stub(nxtpPool, "getTokenUserBalance")
+      stub(pool, "getAssetsData").resolves([mockAssetData, mockAssetData]);
+      stub(pool, "getPool").resolves(mockPool);
+      stub(pool, "getTokenUserBalance")
         .onCall(0) // LP token amount for pool 1
         .resolves(BigNumber.from(100))
         .onCall(1) // adopted token amount for pool 1
@@ -304,7 +304,7 @@ describe("SdkPool", () => {
         .onCall(5) // local token amount for pool 2
         .resolves(BigNumber.from(0));
 
-      const res = await nxtpPool.getUserPools(mockPool.domainId, userAddress);
+      const res = await pool.getUserPools(mockPool.domainId, userAddress);
 
       expect(res).to.have.lengthOf(1);
     });
@@ -312,9 +312,9 @@ describe("SdkPool", () => {
     it("happy: should not return any pools if a user doesn't have LP tokens", async () => {
       const userAddress = "0x01".padEnd(42, "0");
 
-      stub(nxtpPool, "getAssetsData").resolves([mockAssetData]);
-      stub(nxtpPool, "getPool").resolves(mockPool);
-      stub(nxtpPool, "getTokenUserBalance")
+      stub(pool, "getAssetsData").resolves([mockAssetData]);
+      stub(pool, "getPool").resolves(mockPool);
+      stub(pool, "getTokenUserBalance")
         .onCall(0) // LP token amount
         .resolves(BigNumber.from(0))
         .onCall(1) // adopted token amount
@@ -322,7 +322,7 @@ describe("SdkPool", () => {
         .onCall(2) // local token amount
         .resolves(BigNumber.from(0));
 
-      const res = await nxtpPool.getUserPools(mockPool.domainId, userAddress);
+      const res = await pool.getUserPools(mockPool.domainId, userAddress);
 
       expect(res).to.have.lengthOf(0);
     });
@@ -336,10 +336,10 @@ describe("SdkPool", () => {
         },
       };
 
-      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+      stub(pool, "getConnext").resolves(mockConnext as any);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
 
-      const res = await nxtpPool.calculateSwap(mockPool.domainId, mockPool.local.address, 0, 1, 100);
+      const res = await pool.calculateSwap(mockPool.domainId, mockPool.local.address, 0, 1, 100);
 
       expect(res.toString()).to.equal("100");
     });
@@ -353,10 +353,10 @@ describe("SdkPool", () => {
         },
       };
 
-      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+      stub(pool, "getConnext").resolves(mockConnext as any);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
 
-      const res = await nxtpPool.calculateTokenAmount(mockPool.domainId, mockPool.local.address, ["10", "10"]);
+      const res = await pool.calculateTokenAmount(mockPool.domainId, mockPool.local.address, ["10", "10"]);
 
       expect(res.toString()).to.equal("100");
     });
@@ -370,10 +370,10 @@ describe("SdkPool", () => {
         },
       };
 
-      stub(nxtpPool, "getConnext").resolves(mockConnext as any);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+      stub(pool, "getConnext").resolves(mockConnext as any);
+      stub(pool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
 
-      const res = await nxtpPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
+      const res = await pool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
 
       expect(res).to.deep.equal(["100", "100"]);
     });
@@ -391,7 +391,7 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work with deposits", async () => {
-      const res = await nxtpPool.calculatePriceImpact(
+      const res = await pool.calculatePriceImpact(
         mockParams.totalReservesIn,
         mockParams.lpTokensOut,
         mockParams.virtualPrice,
@@ -401,7 +401,7 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with withdrawals", async () => {
-      const res = await nxtpPool.calculatePriceImpact(
+      const res = await pool.calculatePriceImpact(
         mockParams.lpTokensIn,
         mockParams.totalReservesOut,
         mockParams.virtualPrice,
@@ -412,13 +412,13 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with swaps", async () => {
-      const res = await nxtpPool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
+      const res = await pool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
 
       expect(res.toString()).to.equal(BigNumber.from("10000000000000000").toString());
     });
 
     it("should return 0 when amounts are 0", async () => {
-      const res = await nxtpPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
+      const res = await pool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
 
       expect(res.toString()).to.equal(BigNumber.from("0").toString());
     });
@@ -438,7 +438,7 @@ describe("SdkPool", () => {
     const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
 
     it("happy: should work with local origin asset and adopted destination asset", async () => {
-      stub(nxtpPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
+      stub(pool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
 
       const originAmount = BigNumber.from(100_000);
       const originSlippage = "0"; // 0% in BPS
@@ -447,13 +447,13 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(nxtpPool, "calculateSwap")
+      stub(pool, "calculateSwap")
         .onCall(0) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
-      stub(nxtpPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+      stub(pool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(pool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
-      const res = await nxtpPool.calculateAmountReceived(
+      const res = await pool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
         mockPool.local.address,
@@ -465,7 +465,7 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with adopted origin asset and adopted destination asset", async () => {
-      stub(nxtpPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
+      stub(pool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
 
       const originAmount = BigNumber.from(100_000);
       const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
@@ -475,15 +475,15 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(nxtpPool, "calculateSwap")
+      stub(pool, "calculateSwap")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap)
         .onCall(1) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
-      stub(nxtpPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+      stub(pool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(pool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
-      const res = await nxtpPool.calculateAmountReceived(
+      const res = await pool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
         mockPool.adopted.address,
@@ -495,20 +495,20 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with adopted origin asset and local destination asset", async () => {
-      stub(nxtpPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(undefined);
+      stub(pool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(undefined);
 
       const originAmount = BigNumber.from(100_000);
       const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
       const originSlippage = "1000"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
-      stub(nxtpPool, "calculateSwap")
+      stub(pool, "calculateSwap")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
-      stub(nxtpPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+      stub(pool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(pool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
-      const res = await nxtpPool.calculateAmountReceived(
+      const res = await pool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
         mockPool.adopted.address,
@@ -521,16 +521,16 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with local origin asset and local destination asset", async () => {
-      stub(nxtpPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
+      stub(pool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
 
       const originAmount = BigNumber.from(100_000);
       const originSlippage = "0"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
-      stub(nxtpPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+      stub(pool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(pool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
-      const res = await nxtpPool.calculateAmountReceived(
+      const res = await pool.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
         mockPool.local.address,
@@ -545,13 +545,13 @@ describe("SdkPool", () => {
 
   describe("#getTokenPrice", () => {
     it("happy: should return USDC price", async () => {
-      const price = await nxtpPool.getTokenPrice("USDC");
+      const price = await pool.getTokenPrice("USDC");
       expect(price).gt(0);
       expect(price).lt(2);
     });
 
     it("happy: should return OP price", async () => {
-      const price = await nxtpPool.getTokenPrice("OP");
+      const price = await pool.getTokenPrice("OP");
       expect(price).gt(0);
       expect(price).lt(20);
     });
@@ -563,10 +563,10 @@ describe("SdkPool", () => {
         canonicalId: utils.formatBytes32String("0"),
       };
 
-      stub(nxtpPool, "getConnext").resolves(undefined);
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.A, mockParams.canonicalId]);
+      stub(pool, "getConnext").resolves(undefined);
+      stub(pool, "getCanonicalTokenId").resolves([mock.domain.A, mockParams.canonicalId]);
 
-      const result = await nxtpPool.getYieldStatsForDay(mock.domain.A, constants.AddressZero, 1);
+      const result = await pool.getYieldStatsForDay(mock.domain.A, constants.AddressZero, 1);
 
       expect(result).to.be.undefined;
     });
@@ -574,7 +574,7 @@ describe("SdkPool", () => {
 
   describe("#calculateYield", () => {
     it("happy: should return the correct apr, apy", async () => {
-      const yieldData = await nxtpPool.calculateYield(1, 10000, 1);
+      const yieldData = await pool.calculateYield(1, 10000, 1);
 
       expect(yieldData.apr).closeTo(0.0365, 0.001);
       expect(yieldData.apy).closeTo(0.03706870443, 0.001);
@@ -583,7 +583,7 @@ describe("SdkPool", () => {
 
   describe("#getLiquidityMiningAprPerPool", () => {
     it("happy: should return the correct APR", async () => {
-      const apr = await nxtpPool.getLiquidityMiningAprPerPool(250_000, 657_436, 2, "USDC", 1_000_000);
+      const apr = await pool.getLiquidityMiningAprPerPool(250_000, 657_436, 2, "USDC", 1_000_000);
       // should be about 50% APR
       expect(apr).gt(0.45);
       expect(apr).lessThan(0.55);

@@ -1,4 +1,4 @@
-import { expect, mkAddress, mkBytes32, RelayerTaskStatus, RelayerType } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, RelayerTaskStatus, RelayerType } from "@connext/utils";
 import { stub, SinonStub } from "sinon";
 import { BigNumber } from "ethers";
 import { MissingTransfer } from "../../../../src/lib/errors";
@@ -6,7 +6,7 @@ import * as MockableFns from "../../../../src/mockable";
 import { sendExecuteSlowToRelayer } from "../../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockTaskId } from "@connext/adapters-relayer/test/mock";
 
 const { requestContext } = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteSlow", () => {

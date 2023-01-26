@@ -1,4 +1,4 @@
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 
 import { MaxBufferLengthError, TransactionBackfilled } from "./errors";
 import { OnchainTransaction } from "./transaction";

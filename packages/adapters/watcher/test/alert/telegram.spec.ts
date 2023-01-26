@@ -4,7 +4,7 @@ import { TEST_REPORT } from "../utils";
 import { alertViaTelegram } from "../../src/alert";
 import * as Mockable from "../../src/mockable";
 
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 describe("Watcher Adapter: telegram", () => {
   let telegramApiKey = "test-api-key";

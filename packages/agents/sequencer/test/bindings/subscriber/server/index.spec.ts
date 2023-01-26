@@ -1,5 +1,5 @@
 import { restore, reset } from "sinon";
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { FastifyInstance } from "fastify";
 
 import * as BindingFns from "../../../../src/bindings/subscriber";

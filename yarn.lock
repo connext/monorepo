@@ -1891,6 +1891,125 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@connext/adapters-cache@workspace:*, @connext/adapters-cache@workspace:packages/adapters/cache":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-cache@workspace:packages/adapters/cache"
+  dependencies:
+    "@connext/utils": "workspace:*"
+    "@types/ioredis": 5.0.0
+    "@types/mocha": 10.0.1
+    "@typescript-eslint/eslint-plugin": 5.47.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    ioredis: 5.2.4
+    ioredis-mock: 8.2.2
+    mocha: 10.2.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/adapters-database@workspace:*, @connext/adapters-database@workspace:packages/adapters/database":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-database@workspace:packages/adapters/database"
+  dependencies:
+    "@connext/utils": "workspace:*"
+    "@types/mocha": 10.0.1
+    dbmate: 1.0.3
+    eslint: 8.30.0
+    mocha: 10.2.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+    zapatos: 6.1.1
+  languageName: unknown
+  linkType: soft
+
+"@connext/adapters-relayer@workspace:*, @connext/adapters-relayer@workspace:packages/adapters/relayer":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-relayer@workspace:packages/adapters/relayer"
+  dependencies:
+    "@connext/relayer": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@gelatonetwork/relay-sdk": 3.0.0
+    "@types/mocha": 10.0.1
+    eslint: 8.30.0
+    ethers: 5.7.2
+    interval-promise: 1.4.0
+    mocha: 10.2.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/adapters-subgraph@workspace:*, @connext/adapters-subgraph@workspace:packages/adapters/subgraph":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-subgraph@workspace:packages/adapters/subgraph"
+  dependencies:
+    "@connext/utils": "workspace:*"
+    "@graphprotocol/client-cli": 2.2.15
+    "@graphql-mesh/transform-prefix": 0.12.4
+    "@graphql-mesh/transform-rename": 0.14.4
+    "@graphql-mesh/transform-type-merging": 0.5.3
+    "@sinclair/typebox": 0.25.16
+    "@typescript-eslint/eslint-plugin": 5.47.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    graphql: 16.6.0
+    graphql-request: 5.1.0
+    graphql-tag: 2.12.6
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/adapters-watcher@workspace:*, @connext/adapters-watcher@workspace:packages/adapters/watcher":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-watcher@workspace:packages/adapters/watcher"
+  dependencies:
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@pagerduty/pdjs": 2.2.4
+    "@types/mocha": 10.0.1
+    eslint: 8.30.0
+    ethers: 5.7.2
+    interval-promise: 1.4.0
+    mocha: 10.2.0
+    nyc: 15.1.0
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    twilio: 3.83.4
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/adapters-web3signer@workspace:*, @connext/adapters-web3signer@workspace:packages/adapters/web3signer":
+  version: 0.0.0-use.local
+  resolution: "@connext/adapters-web3signer@workspace:packages/adapters/web3signer"
+  dependencies:
+    "@connext/utils": "workspace:*"
+    "@typescript-eslint/eslint-plugin": 5.47.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
 "@connext/bridge-reference@workspace:packages/examples/bridge-reference":
   version: 0.0.0-use.local
   resolution: "@connext/bridge-reference@workspace:packages/examples/bridge-reference"
@@ -1937,9 +2056,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/cartographer-poller@workspace:packages/agents/cartographer/poller"
   dependencies:
-    "@connext/nxtp-adapters-database": "workspace:*"
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/adapters-database": "workspace:*"
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@sinclair/typebox": 0.25.16
     "@types/aws-lambda": 8.10.109
     "@types/pg": 8.6.6
@@ -1965,16 +2084,56 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/integration@workspace:packages/integration":
+  version: 0.0.0-use.local
+  resolution: "@connext/integration@workspace:packages/integration"
+  dependencies:
+    "@connext/adapters-cache": "workspace:*"
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/adapters-web3signer": "workspace:*"
+    "@connext/cartographer-poller": "workspace:*"
+    "@connext/relayer": "workspace:*"
+    "@connext/router": "workspace:*"
+    "@connext/sdk": "workspace:*"
+    "@connext/sequencer": "workspace:*"
+    "@connext/smart-contracts": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@types/chai": 4.3.4
+    "@types/chai-as-promised": 7.1.5
+    "@types/chai-subset": 1.3.3
+    "@types/mocha": 10.0.1
+    "@types/pino": 7.0.5
+    "@types/sinon": 10.0.13
+    axios: 1.2.1
+    chai: 4.3.7
+    chai-as-promised: 7.1.1
+    chai-subset: 1.6.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    mocha: 10.2.0
+    nyc: 15.1.0
+    p-queue: 6.6.2
+    pino-pretty: 9.1.1
+    rimraf: 3.0.2
+    sinon: 15.0.1
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
 "@connext/lighthouse@workspace:packages/agents/lighthouse":
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
     "@arbitrum/sdk": 3.0.0-beta.12
-    "@connext/nxtp-adapters-database": "workspace:*"
-    "@connext/nxtp-adapters-relayer": "workspace:*"
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/adapters-database": "workspace:*"
+    "@connext/adapters-relayer": "workspace:*"
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.9
     "@graphql-codegen/cli": 2.16.1
     "@sinclair/typebox": 0.25.16
@@ -2005,173 +2164,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-adapters-cache@workspace:*, @connext/nxtp-adapters-cache@workspace:packages/adapters/cache":
+"@connext/monorepo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
+  resolution: "@connext/monorepo@workspace:."
   dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@types/ioredis": 5.0.0
-    "@types/mocha": 10.0.1
+    "@istanbuljs/nyc-config-typescript": 1.0.2
+    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
     "@typescript-eslint/eslint-plugin": 5.47.0
+    "@typescript-eslint/parser": 5.47.0
     eslint: 8.30.0
-    ethers: 5.7.2
-    ioredis: 5.2.4
-    ioredis-mock: 8.2.2
-    mocha: 10.2.0
-    nyc: 15.1.0
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-adapters-database@workspace:*, @connext/nxtp-adapters-database@workspace:packages/adapters/database":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-database@workspace:packages/adapters/database"
-  dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@types/mocha": 10.0.1
-    dbmate: 1.0.3
-    eslint: 8.30.0
-    mocha: 10.2.0
-    nyc: 15.1.0
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-    zapatos: 6.1.1
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-adapters-relayer@workspace:*, @connext/nxtp-adapters-relayer@workspace:packages/adapters/relayer":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-relayer@workspace:packages/adapters/relayer"
-  dependencies:
-    "@connext/nxtp-relayer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@gelatonetwork/relay-sdk": 3.0.0
-    "@types/mocha": 10.0.1
-    eslint: 8.30.0
-    ethers: 5.7.2
-    interval-promise: 1.4.0
-    mocha: 10.2.0
-    nyc: 15.1.0
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-adapters-subgraph@workspace:*, @connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph"
-  dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@graphprotocol/client-cli": 2.2.15
-    "@graphql-mesh/transform-prefix": 0.12.4
-    "@graphql-mesh/transform-rename": 0.14.4
-    "@graphql-mesh/transform-type-merging": 0.5.3
-    "@sinclair/typebox": 0.25.16
-    "@typescript-eslint/eslint-plugin": 5.47.0
-    eslint: 8.30.0
-    ethers: 5.7.2
-    graphql: 16.6.0
-    graphql-request: 5.1.0
-    graphql-tag: 2.12.6
-    nyc: 15.1.0
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-adapters-watcher@workspace:*, @connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-watcher@workspace:packages/adapters/watcher"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@pagerduty/pdjs": 2.2.4
-    "@types/mocha": 10.0.1
-    eslint: 8.30.0
-    ethers: 5.7.2
-    interval-promise: 1.4.0
-    mocha: 10.2.0
-    nyc: 15.1.0
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    twilio: 3.83.4
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-adapters-web3signer@workspace:*, @connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer"
-  dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@typescript-eslint/eslint-plugin": 5.47.0
-    eslint: 8.30.0
-    ethers: 5.7.2
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-integration@workspace:packages/integration":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-integration@workspace:packages/integration"
-  dependencies:
-    "@connext/cartographer-poller": "workspace:*"
-    "@connext/nxtp-adapters-cache": "workspace:*"
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-relayer": "workspace:*"
-    "@connext/nxtp-router": "workspace:*"
-    "@connext/nxtp-sequencer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@connext/sdk": "workspace:*"
-    "@connext/smart-contracts": "workspace:*"
-    "@types/chai": 4.3.4
-    "@types/chai-as-promised": 7.1.5
-    "@types/chai-subset": 1.3.3
-    "@types/mocha": 10.0.1
-    "@types/pino": 7.0.5
-    "@types/sinon": 10.0.13
-    axios: 1.2.1
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    eslint: 8.30.0
-    ethers: 5.7.2
-    mocha: 10.2.0
-    nyc: 15.1.0
-    p-queue: 6.6.2
-    pino-pretty: 9.1.1
+    eslint-plugin-import: 2.26.0
+    eslint-plugin-node: 11.1.0
     rimraf: 3.0.2
-    sinon: 15.0.1
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-relayer@workspace:*, @connext/nxtp-relayer@workspace:packages/agents/relayer":
+"@connext/relayer@workspace:*, @connext/relayer@workspace:packages/agents/relayer":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-relayer@workspace:packages/agents/relayer"
+  resolution: "@connext/relayer@workspace:packages/agents/relayer"
   dependencies:
-    "@connext/nxtp-adapters-cache": "workspace:*"
-    "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/adapters-cache": "workspace:*"
+    "@connext/adapters-web3signer": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@sinclair/typebox": 0.25.16
     concurrently: 7.6.0
     eslint: 8.30.0
@@ -2189,15 +2204,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-router@workspace:*, @connext/nxtp-router@workspace:packages/agents/router":
+"@connext/router@workspace:*, @connext/router@workspace:packages/agents/router":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-router@workspace:packages/agents/router"
+  resolution: "@connext/router@workspace:packages/agents/router"
   dependencies:
-    "@connext/nxtp-adapters-cache": "workspace:*"
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/adapters-cache": "workspace:*"
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/adapters-web3signer": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@graphql-codegen/cli": 2.16.1
     "@sinclair/typebox": 0.25.16
     "@types/mocha": 10.0.1
@@ -2225,17 +2240,60 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-sequencer@workspace:*, @connext/nxtp-sequencer@workspace:packages/agents/sequencer":
+"@connext/sdk-server@workspace:packages/examples/sdk-server":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-sequencer@workspace:packages/agents/sequencer"
+  resolution: "@connext/sdk-server@workspace:packages/examples/sdk-server"
   dependencies:
-    "@connext/nxtp-adapters-cache": "workspace:*"
-    "@connext/nxtp-adapters-database": "workspace:*"
-    "@connext/nxtp-adapters-relayer": "workspace:*"
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/sdk": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@fastify/type-provider-typebox": 2.3.0
+    "@types/node": 18.11.17
+    "@types/pino": 7.0.5
+    ethers: 5.7.2
+    fastify: 4.10.2
+    pino: 8.8.0
+    pino-pretty: 9.1.1
+    rimraf: 3.0.2
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/sdk@workspace:*, @connext/sdk@workspace:packages/agents/sdk":
+  version: 0.0.0-use.local
+  resolution: "@connext/sdk@workspace:packages/agents/sdk"
+  dependencies:
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@sinclair/typebox": 0.25.16
+    "@types/isomorphic-fetch": ^0.0.36
+    "@types/memoizee": 0
+    concat-md: 0.5.0
+    eslint: 8.26.0
+    ethers: 5.7.2
+    isomorphic-fetch: ^3.0.0
+    memoizee: 0.4.15
+    mocha: 10.1.0
+    nyc: 15.1.0
+    rimraf: 3.0.2
+    ts-mocha: 10.0.0
+    typedoc: 0.23.23
+    typedoc-plugin-markdown: 3.14.0
+    typescript: 4.8.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/sequencer@workspace:*, @connext/sequencer@workspace:packages/agents/sequencer":
+  version: 0.0.0-use.local
+  resolution: "@connext/sequencer@workspace:packages/agents/sequencer"
+  dependencies:
+    "@connext/adapters-cache": "workspace:*"
+    "@connext/adapters-database": "workspace:*"
+    "@connext/adapters-relayer": "workspace:*"
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/adapters-web3signer": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@sinclair/typebox": 0.25.16
     "@types/pg": 8.6.5
     concurrently: 7.6.0
@@ -2260,195 +2318,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-subgraph@workspace:packages/deployments/subgraph":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-subgraph@workspace:packages/deployments/subgraph"
-  dependencies:
-    "@graphprotocol/graph-cli": 0.37.1
-    "@graphprotocol/graph-ts": 0.29.0
-    "@protofire/subgraph-toolkit": 0.1.2
-    "@types/js-yaml": 4.0.5
-    "@types/mustache": 4.2.2
-    "@types/yaml": 1.9.7
-    eslint: 8.30.0
-    ethers: 5.7.2
-    js-yaml: 4.1.0
-    mustache: 4.2.0
-    sinon: 15.0.1
-    ts-node: 10.9.1
-    yaml: 2.2.0
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-txservice@workspace:*, @connext/nxtp-txservice@workspace:packages/adapters/txservice":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-txservice@workspace:packages/adapters/txservice"
-  dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@connext/smart-contracts": "workspace:*"
-    "@sinclair/typebox": 0.25.16
-    "@types/chai": 4.3.4
-    "@types/chai-as-promised": 7.1.5
-    "@types/chai-subset": 1.3.3
-    "@types/mocha": 10.0.1
-    "@types/sinon": 10.0.13
-    "@typescript-eslint/eslint-plugin": 5.47.0
-    ajv: 8.11.2
-    ajv-formats: 2.1.1
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    eslint: 8.30.0
-    ethers: 5.7.2
-    evt: 2.4.13
-    interval-promise: 1.4.0
-    mocha: 10.2.0
-    nyc: 15.1.0
-    p-queue: 6.6.2
-    rimraf: 3.0.2
-    sinon: 15.0.1
-    ts-mocha: 10.0.0
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-utils@workspace:*, @connext/nxtp-utils@workspace:packages/utils":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-utils@workspace:packages/utils"
-  dependencies:
-    "@maticnetwork/maticjs": 3.5.0
-    "@maticnetwork/maticjs-web3": 1.0.4
-    "@sinclair/typebox": 0.25.16
-    "@types/chai": 4.3.4
-    "@types/chai-as-promised": 7.1.5
-    "@types/chai-subset": 1.3.3
-    "@types/mocha": 10.0.1
-    "@types/pino": 7.0.5
-    "@types/secp256k1": 4.0.3
-    "@types/sinon": 10.0.13
-    "@types/sinon-chai": 3.2.9
-    "@typescript-eslint/eslint-plugin": 5.47.0
-    ajv: 8.11.2
-    ajv-formats: 2.1.1
-    axios: 1.2.1
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    eslint: 8.30.0
-    ethers: 5.7.2
-    graphql-request: 5.1.0
-    hyperid: 3.0.1
-    merkletreejs: 0.3.9
-    mocha: 10.2.0
-    nyc: 15.1.0
-    p-queue: 6.6.2
-    pino: 8.8.0
-    proxyquire: 2.1.3
-    rimraf: 3.0.2
-    secp256k1: 4.0.3
-    sinon: 15.0.1
-    sinon-chai: 3.7.0
-    ts-mocha: 10.0.0
-    ts-natsutil: 1.1.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-watcher@workspace:packages/agents/watcher":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-watcher@workspace:packages/agents/watcher"
-  dependencies:
-    "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-adapters-watcher": "workspace:*"
-    "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": 0.25.16
-    "@types/aws-lambda": 8.10.109
-    dd-trace: 3.9.3
-    dotenv: 16.0.3
-    eslint: 8.30.0
-    ethers: 5.7.2
-    interval-promise: 1.4.0
-    nodemon: 2.0.20
-    nyc: 15.1.0
-    pino-pretty: 9.1.1
-    rimraf: 3.0.2
-    sinclair: 0.2.0
-    sinon: 15.0.1
-    ts-mocha: 10.0.0
-    ts-node: 10.9.1
-    tslib: 2.4.1
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp@workspace:."
-  dependencies:
-    "@istanbuljs/nyc-config-typescript": 1.0.2
-    "@jtbennett/ts-project-scripts": 1.0.0-rc.4
-    "@typescript-eslint/eslint-plugin": 5.47.0
-    "@typescript-eslint/parser": 5.47.0
-    eslint: 8.30.0
-    eslint-plugin-import: 2.26.0
-    eslint-plugin-node: 11.1.0
-    rimraf: 3.0.2
-  languageName: unknown
-  linkType: soft
-
-"@connext/sdk-server@workspace:packages/examples/sdk-server":
-  version: 0.0.0-use.local
-  resolution: "@connext/sdk-server@workspace:packages/examples/sdk-server"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@connext/sdk": "workspace:*"
-    "@fastify/type-provider-typebox": 2.3.0
-    "@types/node": 18.11.17
-    "@types/pino": 7.0.5
-    ethers: 5.7.2
-    fastify: 4.10.2
-    pino: 8.8.0
-    pino-pretty: 9.1.1
-    rimraf: 3.0.2
-    typescript: 4.9.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/sdk@workspace:*, @connext/sdk@workspace:packages/agents/sdk":
-  version: 0.0.0-use.local
-  resolution: "@connext/sdk@workspace:packages/agents/sdk"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": 0.25.16
-    "@types/isomorphic-fetch": ^0.0.36
-    "@types/memoizee": 0
-    concat-md: 0.5.0
-    eslint: 8.26.0
-    ethers: 5.7.2
-    isomorphic-fetch: ^3.0.0
-    memoizee: 0.4.15
-    mocha: 10.1.0
-    nyc: 15.1.0
-    rimraf: 3.0.2
-    ts-mocha: 10.0.0
-    typedoc: 0.23.23
-    typedoc-plugin-markdown: 3.14.0
-    typescript: 4.8.4
-  languageName: unknown
-  linkType: soft
-
 "@connext/smart-contracts@workspace:*, @connext/smart-contracts@workspace:packages/deployments/contracts":
   version: 0.0.0-use.local
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@arbitrum/sdk": 3.0.0-beta.12
-    "@connext/nxtp-utils": "workspace:*"
+    "@connext/utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.9
     "@gelatonetwork/relay-context": 2.1.0
     "@matterlabs/zksync-contracts": 0.4.2
@@ -2491,6 +2366,131 @@ __metadata:
     solidity-coverage: 0.7.22
     ts-node: 10.9.1
     typechain: 8.1.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/subgraph@workspace:packages/deployments/subgraph":
+  version: 0.0.0-use.local
+  resolution: "@connext/subgraph@workspace:packages/deployments/subgraph"
+  dependencies:
+    "@graphprotocol/graph-cli": 0.37.1
+    "@graphprotocol/graph-ts": 0.29.0
+    "@protofire/subgraph-toolkit": 0.1.2
+    "@types/js-yaml": 4.0.5
+    "@types/mustache": 4.2.2
+    "@types/yaml": 1.9.7
+    eslint: 8.30.0
+    ethers: 5.7.2
+    js-yaml: 4.1.0
+    mustache: 4.2.0
+    sinon: 15.0.1
+    ts-node: 10.9.1
+    yaml: 2.2.0
+  languageName: unknown
+  linkType: soft
+
+"@connext/txservice@workspace:*, @connext/txservice@workspace:packages/adapters/txservice":
+  version: 0.0.0-use.local
+  resolution: "@connext/txservice@workspace:packages/adapters/txservice"
+  dependencies:
+    "@connext/smart-contracts": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@sinclair/typebox": 0.25.16
+    "@types/chai": 4.3.4
+    "@types/chai-as-promised": 7.1.5
+    "@types/chai-subset": 1.3.3
+    "@types/mocha": 10.0.1
+    "@types/sinon": 10.0.13
+    "@typescript-eslint/eslint-plugin": 5.47.0
+    ajv: 8.11.2
+    ajv-formats: 2.1.1
+    chai: 4.3.7
+    chai-as-promised: 7.1.1
+    chai-subset: 1.6.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    evt: 2.4.13
+    interval-promise: 1.4.0
+    mocha: 10.2.0
+    nyc: 15.1.0
+    p-queue: 6.6.2
+    rimraf: 3.0.2
+    sinon: 15.0.1
+    ts-mocha: 10.0.0
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/utils@workspace:*, @connext/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@connext/utils@workspace:packages/utils"
+  dependencies:
+    "@maticnetwork/maticjs": 3.5.0
+    "@maticnetwork/maticjs-web3": 1.0.4
+    "@sinclair/typebox": 0.25.16
+    "@types/chai": 4.3.4
+    "@types/chai-as-promised": 7.1.5
+    "@types/chai-subset": 1.3.3
+    "@types/mocha": 10.0.1
+    "@types/pino": 7.0.5
+    "@types/secp256k1": 4.0.3
+    "@types/sinon": 10.0.13
+    "@types/sinon-chai": 3.2.9
+    "@typescript-eslint/eslint-plugin": 5.47.0
+    ajv: 8.11.2
+    ajv-formats: 2.1.1
+    axios: 1.2.1
+    chai: 4.3.7
+    chai-as-promised: 7.1.1
+    chai-subset: 1.6.0
+    eslint: 8.30.0
+    ethers: 5.7.2
+    graphql-request: 5.1.0
+    hyperid: 3.0.1
+    merkletreejs: 0.3.9
+    mocha: 10.2.0
+    nyc: 15.1.0
+    p-queue: 6.6.2
+    pino: 8.8.0
+    proxyquire: 2.1.3
+    rimraf: 3.0.2
+    secp256k1: 4.0.3
+    sinon: 15.0.1
+    sinon-chai: 3.7.0
+    ts-mocha: 10.0.0
+    ts-natsutil: 1.1.1
+    tslib: 2.4.1
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/watcher@workspace:packages/agents/watcher":
+  version: 0.0.0-use.local
+  resolution: "@connext/watcher@workspace:packages/agents/watcher"
+  dependencies:
+    "@connext/adapters-subgraph": "workspace:*"
+    "@connext/adapters-watcher": "workspace:*"
+    "@connext/adapters-web3signer": "workspace:*"
+    "@connext/txservice": "workspace:*"
+    "@connext/utils": "workspace:*"
+    "@sinclair/typebox": 0.25.16
+    "@types/aws-lambda": 8.10.109
+    dd-trace: 3.9.3
+    dotenv: 16.0.3
+    eslint: 8.30.0
+    ethers: 5.7.2
+    interval-promise: 1.4.0
+    nodemon: 2.0.20
+    nyc: 15.1.0
+    pino-pretty: 9.1.1
+    rimraf: 3.0.2
+    sinclair: 0.2.0
+    sinon: 15.0.1
+    ts-mocha: 10.0.0
+    ts-node: 10.9.1
+    tslib: 2.4.1
     typescript: 4.9.4
   languageName: unknown
   linkType: soft
@@ -4336,20 +4336,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/delegate@npm:9.0.22":
-  version: 9.0.22
-  resolution: "@graphql-tools/delegate@npm:9.0.22"
+"@graphql-tools/delegate@npm:9.0.23":
+  version: 9.0.23
+  resolution: "@graphql-tools/delegate@npm:9.0.23"
   dependencies:
     "@graphql-tools/batch-execute": 8.5.15
     "@graphql-tools/executor": 0.0.12
-    "@graphql-tools/schema": 9.0.13
+    "@graphql-tools/schema": 9.0.14
     "@graphql-tools/utils": 9.1.4
     dataloader: 2.1.0
     tslib: ~2.4.0
     value-or-promise: 1.0.12
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 0a08d25b07a21ab0376085994f4829d789bd79ee88f0f0289e511f02ba7a30abf80ba467f41e3d5fcf3e5c0c0c29c3b0f829135e3e13896a679bf117744d8265
+  checksum: 310c21ab12dedd3eda0ee91637148be51de1109325379ddb27630d85ba0079090ce27b8225901063ee55e2434c84923b828f7047d8f2e3cd2d6ab1b35e3885f8
   languageName: node
   linkType: hard
 
@@ -4610,16 +4610,16 @@ __metadata:
   linkType: hard
 
 "@graphql-tools/load@npm:^7.5.5":
-  version: 7.8.9
-  resolution: "@graphql-tools/load@npm:7.8.9"
+  version: 7.8.10
+  resolution: "@graphql-tools/load@npm:7.8.10"
   dependencies:
-    "@graphql-tools/schema": 9.0.13
+    "@graphql-tools/schema": 9.0.14
     "@graphql-tools/utils": 9.1.4
     p-limit: 3.1.0
     tslib: ^2.4.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: e5c8d9153195ba094fcf45a8619de22476d1e2ed052a7fbc4b2a887592d6c93e8b38b9b56edfe432c35d740dafdd0c53abca07c94f4632bdd6a75dbd158377dd
+  checksum: 9b1fd7041fc69072c4f7d6bc320c9de7f990e1792db567d3d913b9cc77f5c164ffee968dd90a688d89856e1e8c01beb8e1bbe9f22464fa8c563553229c3a3f28
   languageName: node
   linkType: hard
 
@@ -4635,15 +4635,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/merge@npm:8.3.15, @graphql-tools/merge@npm:^8.2.6":
-  version: 8.3.15
-  resolution: "@graphql-tools/merge@npm:8.3.15"
+"@graphql-tools/merge@npm:8.3.16, @graphql-tools/merge@npm:^8.2.6":
+  version: 8.3.16
+  resolution: "@graphql-tools/merge@npm:8.3.16"
   dependencies:
     "@graphql-tools/utils": 9.1.4
     tslib: ^2.4.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 7823d3b3a2bb7a661826eb8fce8a4fcb17439224818aa08ca814d7b25324b66b790cf8e7fa083dfa9f41b2213355fb1f0db88d1e7334788347a6d69c8f5555e9
+  checksum: 4d7fa594e0d97b6d596c85619a8203cb9c88452b75efac4191697de00db5d043639ed47f6bf0a3ccc11e8638714d92a4a8bc37e77b61b46790ddf4a1e5d4bb87
   languageName: node
   linkType: hard
 
@@ -4671,10 +4671,10 @@ __metadata:
   linkType: hard
 
 "@graphql-tools/prisma-loader@npm:^7.2.7":
-  version: 7.2.54
-  resolution: "@graphql-tools/prisma-loader@npm:7.2.54"
+  version: 7.2.55
+  resolution: "@graphql-tools/prisma-loader@npm:7.2.55"
   dependencies:
-    "@graphql-tools/url-loader": 7.17.3
+    "@graphql-tools/url-loader": 7.17.4
     "@graphql-tools/utils": 9.1.4
     "@types/js-yaml": ^4.0.0
     "@types/json-stable-stringify": ^1.0.32
@@ -4695,7 +4695,7 @@ __metadata:
     yaml-ast-parser: ^0.0.43
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 62fcc5a9d79d26065b1b56799b5a4213a8c967564917adf5f9c8e333f1b8d53513805d391bd8410db723c3fffeca5b42217155f40d86ffa0640ef1bec41b09bd
+  checksum: 1d1d301ea53df4947e56759389b13be8b43fa674ea2ac2a2f1cf88ba23b74d836454a8584990a0c13aa8458b9c5e36a68a59fc3fa43a888d044596c22e9e7251
   languageName: node
   linkType: hard
 
@@ -4726,17 +4726,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/schema@npm:9.0.13, @graphql-tools/schema@npm:^9.0.0":
-  version: 9.0.13
-  resolution: "@graphql-tools/schema@npm:9.0.13"
+"@graphql-tools/schema@npm:9.0.14, @graphql-tools/schema@npm:^9.0.0":
+  version: 9.0.14
+  resolution: "@graphql-tools/schema@npm:9.0.14"
   dependencies:
-    "@graphql-tools/merge": 8.3.15
+    "@graphql-tools/merge": 8.3.16
     "@graphql-tools/utils": 9.1.4
     tslib: ^2.4.0
     value-or-promise: 1.0.12
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: fa5c5033c79e3ab210207c68bf80729448f0ae0bf071e029a218043d952dec8352b0d4ad467ca789a08e292d60c1ee111d266a2193bd50759c9eb82e8f9ad586
+  checksum: ae958892363fe8b1715a9fd3c4bdb56d0d5d429693dbb9774ce930d104ed5a7c94db3c41c12d91fd930bf90ab186337d3ba660e765a99a98bde892f0d2dcf40e
   languageName: node
   linkType: hard
 
@@ -4822,17 +4822,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/url-loader@npm:7.17.3, @graphql-tools/url-loader@npm:^7.13.2, @graphql-tools/url-loader@npm:^7.9.7":
-  version: 7.17.3
-  resolution: "@graphql-tools/url-loader@npm:7.17.3"
+"@graphql-tools/url-loader@npm:7.17.4, @graphql-tools/url-loader@npm:^7.13.2, @graphql-tools/url-loader@npm:^7.9.7":
+  version: 7.17.4
+  resolution: "@graphql-tools/url-loader@npm:7.17.4"
   dependencies:
     "@ardatan/sync-fetch": 0.0.1
-    "@graphql-tools/delegate": 9.0.22
+    "@graphql-tools/delegate": 9.0.23
     "@graphql-tools/executor-graphql-ws": 0.0.7
     "@graphql-tools/executor-http": 0.1.1
     "@graphql-tools/executor-legacy-ws": 0.0.6
     "@graphql-tools/utils": 9.1.4
-    "@graphql-tools/wrap": 9.3.1
+    "@graphql-tools/wrap": 9.3.2
     "@types/ws": ^8.0.0
     "@whatwg-node/fetch": ^0.6.0
     isomorphic-ws: 5.0.0
@@ -4841,7 +4841,7 @@ __metadata:
     ws: 8.12.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 5189c03522835d2ac04d80dd6a4ae7e126aeb377f96c424ef1819d1201be7282b0b28afca3f062cc498e0a054474f68515f8f3f1fd8b804d60e7cd77b01621bb
+  checksum: a1cc3c12271d832dbefc6511e53b981742567ceb93937f40b69089c55eaabcf457306ac7b2b448aa2f058c24ba7d48beb3d0280e319e3f483985db6b8ba8a165
   languageName: node
   linkType: hard
 
@@ -4919,18 +4919,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/wrap@npm:9.3.1":
-  version: 9.3.1
-  resolution: "@graphql-tools/wrap@npm:9.3.1"
+"@graphql-tools/wrap@npm:9.3.2":
+  version: 9.3.2
+  resolution: "@graphql-tools/wrap@npm:9.3.2"
   dependencies:
-    "@graphql-tools/delegate": 9.0.22
-    "@graphql-tools/schema": 9.0.13
+    "@graphql-tools/delegate": 9.0.23
+    "@graphql-tools/schema": 9.0.14
     "@graphql-tools/utils": 9.1.4
     tslib: ^2.4.0
     value-or-promise: 1.0.12
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: e3adef535b0f368c752d6a99b5dbd600acf007dc918ede9c313f0994bbfe87886331e458b831b1651c1663084bfdbd110b2f6955c61b93f0e92b45a23ced5bb4
+  checksum: 8c56c504d2eec1d31acda03993b1fa24ff645d71bcc6149279d352b48420503aa2606d3d629af041e02a25cac6ce343bf148feed2bd43ceb1698f4ca539fef50
   languageName: node
   linkType: hard
 
@@ -10145,9 +10145,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001400, caniuse-lite@npm:^1.0.30001406, caniuse-lite@npm:^1.0.30001426":
-  version: 1.0.30001447
-  resolution: "caniuse-lite@npm:1.0.30001447"
-  checksum: b45ae1c4f2df2fb9ad71dc543b1d71c00b125c1aea1ffa25086fe4bee6c17163222dfaa6c0b8488e403b801f6550889f712d1624ba000a7acb8538a62c738c56
+  version: 1.0.30001448
+  resolution: "caniuse-lite@npm:1.0.30001448"
+  checksum: 8d8bb7d097a9c80c01a4f8e3e1819cc7fc218114c8cc8773fe35aef898d12ff4e668b132a661a221ab56c022981c1df708fbe8efa09a3ce21dff97eee483cf90
   languageName: node
   linkType: hard
 
@@ -11796,7 +11796,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^2.0.1":
+"denque@npm:^2.0.1, denque@npm:^2.1.0":
   version: 2.1.0
   resolution: "denque@npm:2.1.0"
   checksum: 1d4ae1d05e59ac3a3481e7b478293f4b4c813819342273f3d5b826c7ffa9753c520919ba264f377e09108d24ec6cf0ec0ac729a5686cbb8f32d797126c5dae74
@@ -16417,19 +16417,19 @@ __metadata:
   linkType: hard
 
 "ioredis@npm:*":
-  version: 5.2.5
-  resolution: "ioredis@npm:5.2.5"
+  version: 5.3.0
+  resolution: "ioredis@npm:5.3.0"
   dependencies:
     "@ioredis/commands": ^1.1.1
     cluster-key-slot: ^1.1.0
     debug: ^4.3.4
-    denque: ^2.0.1
+    denque: ^2.1.0
     lodash.defaults: ^4.2.0
     lodash.isarguments: ^3.1.0
     redis-errors: ^1.2.0
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
-  checksum: 3881c505b287f1277394fda78fa0239fe35ee0f88116ab0d4ad74d915bace68928afa802a455fa87a74009d68ac859becc820a8cb59ae2ffca95b84c8b575198
+  checksum: d3a1fd8f1b5d9ce6d4b7dd083773dbe0936ea3d1f55f07d36daa3d0b59c4636e95640f90bc003a08bc900a9803307e7d7e191817a2c2970696e204dae6f3dc35
   languageName: node
   linkType: hard
 
@@ -22250,8 +22250,8 @@ __metadata:
   linkType: hard
 
 "protobufjs@npm:^7.0.0, protobufjs@npm:^7.1.2":
-  version: 7.1.2
-  resolution: "protobufjs@npm:7.1.2"
+  version: 7.2.0
+  resolution: "protobufjs@npm:7.2.0"
   dependencies:
     "@protobufjs/aspromise": ^1.1.2
     "@protobufjs/base64": ^1.1.2
@@ -22265,7 +22265,7 @@ __metadata:
     "@protobufjs/utf8": ^1.1.0
     "@types/node": ">=13.7.0"
     long: ^5.0.0
-  checksum: ae41669b1b0372fb1d49f506f2d1f2b0fb3dc3cece85987b17bcb544e4cef7c8d27f480486cdec324146ad0a5d22a327166a7ea864a9b3e49cc3c92a5d3f6500
+  checksum: 27d204d5765ad241c8141c47dbdf4e8a527a0bc916eade658b5cf561e33320fe928a0273cddd01c864fdc3822312cad5a536d56dd378697a06a0c24ae882cbb6
   languageName: node
   linkType: hard
 

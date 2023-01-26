@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
 import { reset, restore, stub } from "sinon";
-import { getRandomBytes32, mkHash } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils";
+import { getRandomBytes32, mkHash } from "@connext/utils";
+import { expect } from "@connext/utils";
 import { OnchainTransaction } from "../../src/shared";
 import {
   MockOnchainTransactionState,

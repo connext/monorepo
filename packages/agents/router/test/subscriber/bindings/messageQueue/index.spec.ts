@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 import { bindMessageQueue } from "../../../../src/tasks/subscriber/bindings/messageQueue";
 import { mockSubContext } from "../../../globalTestHook";

@@ -17,7 +17,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getHelpers } from "./lib/helpers";
 import {

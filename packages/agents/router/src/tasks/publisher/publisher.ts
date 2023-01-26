@@ -1,7 +1,7 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/utils";
+import { contractDeployments } from "@connext/txservice";
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import { getConfig, RouterConfig } from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
@@ -12,7 +12,7 @@ import { bindSubgraph, bindServer } from "./bindings";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
+export const makePublisher = async (_configOverride?: RouterConfig) => {
   const requestContext = createRequestContext("Publisher Init");
   const methodContext = createMethodContext(makePublisher.name);
 

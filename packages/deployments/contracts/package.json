@@ -71,7 +71,7 @@
     "typescript": "4.9.4"
   },
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "2.1.0",
     "@openzeppelin/hardhat-upgrades": "1.17.0",

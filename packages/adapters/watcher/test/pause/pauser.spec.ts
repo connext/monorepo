@@ -1,6 +1,6 @@
 import { ConnextAbi } from "@connext/smart-contracts";
-import { TransactionService } from "@connext/nxtp-txservice";
-import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/nxtp-utils";
+import { TransactionService } from "@connext/txservice";
+import { createRequestContext, expect, Logger, mkAddress, mkHash, mock } from "@connext/utils";
 import { BigNumber, providers } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 

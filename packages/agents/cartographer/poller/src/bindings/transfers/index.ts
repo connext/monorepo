@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, ConnextError } from "@connext/utils";
 
 import { AppContext } from "../../shared";
 import { updateTransfers } from "../../lib/operations";
@@ -15,7 +15,7 @@ export const bindTransfers = async (context: AppContext) => {
       "Error getting txs, waiting for next loop",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 };

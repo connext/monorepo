@@ -1,4 +1,4 @@
-import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
+import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } from "@connext/utils";
 import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../../src/lib/entities";
 import {

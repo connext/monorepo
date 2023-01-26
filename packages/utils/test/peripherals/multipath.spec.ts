@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { getMinimumBidsCountForRound } from "../../src";
 
 describe("Peripherals:MultiPath", () => {

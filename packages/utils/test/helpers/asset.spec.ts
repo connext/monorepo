@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { restore, reset, stub } from "sinon";
 import { constants, providers } from "ethers";
 import { parseEther } from "ethers/lib/utils";

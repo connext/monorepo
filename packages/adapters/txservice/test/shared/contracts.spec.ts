@@ -1,4 +1,4 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/utils";
 import Sinon, { reset, restore, SinonStub } from "sinon";
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/smart-contracts/typechain-types";
 import * as ContractFns from "../../src/shared/contracts";

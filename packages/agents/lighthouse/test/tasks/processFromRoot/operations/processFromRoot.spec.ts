@@ -1,4 +1,4 @@
-import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerType } from "@connext/nxtp-utils";
+import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerType } from "@connext/utils";
 import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";

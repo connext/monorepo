@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkAddress } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkAddress } from "@connext/utils";
 import { SinonStub, stub, createStubInstance } from "sinon";
 import { NoProviderForDomain, NoSpokeConnector, NoHubConnector } from "../../../../src/tasks/propagate/errors";
 

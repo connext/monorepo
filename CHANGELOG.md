@@ -1,4 +1,4 @@
-# NXTP Changelog
+# Changelog
 
 ## Next Release
 
@@ -12,8 +12,8 @@
 
 ## Amarok 0.2.1-rc.17
 
-- [contracts] NPM package name update (@connext/nxtp-contracts -> @connext/contracts)
-- [sdk] NPM package name update (@connext/nxtp-sdk -> @connext/sdk)
+- [contracts] NPM package name update (@connext/contracts -> @connext/contracts)
+- [sdk] NPM package name update (@connext/sdk -> @connext/sdk)
 
 ## Amarok 0.2.1-rc.16
 

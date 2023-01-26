@@ -13,7 +13,7 @@ import {
   RouterBalance,
   mkAddress,
   mkBytes32,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { CartographerConfig } from "../src/config";
 

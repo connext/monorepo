@@ -1,6 +1,6 @@
 import { constants, utils, BigNumber, Signer, Wallet } from "ethers";
 import { reset, restore, SinonStub, stub } from "sinon";
-import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/nxtp-utils";
+import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/utils";
 
 import * as ExecuteFns from "../../../src/tasks/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";

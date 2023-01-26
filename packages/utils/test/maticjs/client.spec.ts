@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { POSClient } from "@maticnetwork/maticjs";
 import { initMatic } from "../../src";
 

@@ -1,6 +1,6 @@
-import { createLoggingContext, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/utils";
 import { ConnextInterface } from "@connext/smart-contracts";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { TransactionService } from "@connext/txservice";
 
 export const addRelayer = async (
   domains: { domain: string; relayer: string; Connext: string }[],

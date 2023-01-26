@@ -1,6 +1,6 @@
 import tracer from "dd-trace";
-import { getChainData } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { getChainData } from "@connext/utils";
+import { contractDeployments } from "@connext/txservice";
 
 import { getConfig } from "../config";
 

@@ -3,12 +3,12 @@ import {
   ConnextContractDeployments,
   AmbContractABIs,
   ConnextContractInterfaces,
-} from "@connext/nxtp-txservice";
-import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+} from "@connext/txservice";
+import { ChainData, Logger, RelayerType } from "@connext/utils";
+import { Relayer } from "@connext/adapters-relayer";
+import { SubgraphReader } from "@connext/adapters-subgraph";
 
-import { NxtpLighthouseConfig } from "../../config";
+import { LighthouseConfig } from "../../config";
 
 export type PropagateContext = {
   logger: Logger;
@@ -21,6 +21,6 @@ export type PropagateContext = {
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[];
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
   };
-  config: NxtpLighthouseConfig;
+  config: LighthouseConfig;
   chainData: Map<string, ChainData>;
 };

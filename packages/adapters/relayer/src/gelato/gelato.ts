@@ -3,7 +3,7 @@ import {
   Logger,
   RequestContext,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   RelayerTaskStatus,
   RelayerSyncFeeRequest,
   RelayResponse,
@@ -11,7 +11,7 @@ import {
   NATIVE_TOKEN,
   RelayerRequest,
   GELATO_RELAYER_ADDRESS,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import interval from "interval-promise";
 
 import {
@@ -135,7 +135,7 @@ export const waitForTaskCompletion = async (
           "Error getting gelato task status, waiting for next loop",
           requestContext,
           methodContext,
-          jsonifyError(error as NxtpError),
+          jsonifyError(error as ConnextError),
         );
       }
     }, _pollInterval);

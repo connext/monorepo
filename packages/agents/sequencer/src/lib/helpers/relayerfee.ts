@@ -1,4 +1,4 @@
-import { XTransfer, NxtpError, createLoggingContext } from "@connext/nxtp-utils";
+import { XTransfer, ConnextError, createLoggingContext } from "@connext/utils";
 import { BigNumber, constants } from "ethers";
 
 import { calculateRelayerFee } from "../../mockable";
@@ -38,7 +38,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     gasPrice = await chainreader.getGasPrice(Number(destinationDomain), requestContext);
   } catch (e: unknown) {
     logger.warn("Error getting GasPrice", requestContext, methodContext, {
-      error: e as NxtpError,
+      error: e as ConnextError,
       domain: destinationDomain,
     });
   }

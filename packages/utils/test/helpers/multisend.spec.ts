@@ -1,5 +1,5 @@
 import { BigNumber, utils } from "ethers";
-import { expect, mkAddress, MultisendAbi } from "@connext/nxtp-utils";
+import { expect, mkAddress, MultisendAbi } from "@connext/utils";
 
 import { encodeMultisendCall, MultisendTransaction, MultisendTransactionOperation } from "../../src";
 

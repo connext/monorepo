@@ -1,6 +1,6 @@
 import pino, { BaseLogger, Bindings, LoggerOptions } from "pino";
 
-import { NxtpErrorJson } from "..";
+import { ConnextErrorJson } from "..";
 
 import { createMethodContext, createRequestContext, MethodContext, RequestContext } from ".";
 
@@ -53,7 +53,7 @@ export class Logger {
     msg: string,
     requestContext?: RequestContext,
     methodContext?: MethodContext,
-    error?: NxtpErrorJson,
+    error?: ConnextErrorJson,
     ctx?: any,
   ): void {
     this.print(

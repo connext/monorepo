@@ -1,6 +1,6 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
-import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
+import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/utils";
+import { getConnextInterface, ChainReader } from "@connext/txservice";
 import { providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";

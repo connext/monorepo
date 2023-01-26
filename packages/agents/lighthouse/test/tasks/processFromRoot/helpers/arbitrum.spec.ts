@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkHash } from "@connext/utils";
 import { stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";

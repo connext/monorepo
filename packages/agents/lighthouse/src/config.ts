@@ -1,9 +1,9 @@
-///NXTP Config Generator based on vector/modules/router/src/config.ts
+/// Connext Config Generator based on vector/modules/router/src/config.ts
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { ajv, ChainData, TAddress, TDatabaseConfig, TLogLevel } from "@connext/utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/txservice";
 
 import { existsSync, readFileSync } from "./mockable";
 
@@ -33,7 +33,7 @@ export const TPollingConfig = Type.Object({
   cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
 });
 
-export const NxtpLighthouseConfigSchema = Type.Object({
+export const LighthouseConfigSchema = Type.Object({
   hubDomain: Type.String(),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
@@ -62,7 +62,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   service: Type.Union([Type.Literal("prover"), Type.Literal("propagate"), Type.Literal("process")]),
 });
 
-export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
+export type LighthouseConfig = Static<typeof LighthouseConfigSchema>;
 
 // map spoke connector contract names to domains, i.e. MainnetSpokeConnector
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
@@ -88,18 +88,18 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
-): NxtpLighthouseConfig => {
+): LighthouseConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.NXTP_CONFIG || "");
+    configJson = JSON.parse(process.env.LIGHTHOUSE_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No NXTP_CONFIG exists, using config file and individual env vars");
+    console.info("No LIGHTHOUSE_CONFIG exists, using config file and individual env vars");
   }
   try {
     let json: string;
-    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+    const path = process.env.LIGHTHOUSE_CONFIG_FILE ?? "config.json";
 
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
@@ -110,67 +110,66 @@ export const getEnvConfig = (
     process.exit(1);
   }
 
-  const nxtpConfig: NxtpLighthouseConfig = {
+  const connextConfig: LighthouseConfig = {
     hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1735353714",
-    chains: process.env.NXTP_CHAIN_CONFIG
-      ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
+    chains: process.env.CHAIN_CONFIG
+      ? JSON.parse(process.env.CHAIN_CONFIG)
       : configJson.chains
       ? configJson.chains
       : configFile.chains,
-    logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
-    network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
+    logLevel: process.env.LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
+    network: process.env.NETWORK || configJson.network || configFile.network || "mainnet",
     mode: {
-      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
-      diagnostic:
-        process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
+      cleanup: process.env.CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
+      diagnostic: process.env.DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     polling: {
       cartographer:
-        process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
+        process.env.CARTOGRAPHER_POLL_INTERVAL ||
         configJson.polling?.cache ||
         configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
-    relayers: process.env.NXTP_RELAYERS
-      ? JSON.parse(process.env.NXTP_RELAYERS)
+    relayers: process.env.RELAYERS
+      ? JSON.parse(process.env.RELAYERS)
       : configJson.relayers
       ? configJson.relayers
       : configFile.relayers,
     database: {
       url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
     },
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
-    healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
+    environment: process.env.ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    cartographerUrl: process.env.CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
+    subgraphPrefix: process.env.SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
+    healthUrls: process.env.HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
     service: process.env.LIGHTHOUSE_SERVICE || configJson.service || configFile.service,
     proverBatchSize:
-      process.env.NXTP_PROVER_BATCH_SIZE ||
+      process.env.PROVER_BATCH_SIZE ||
       configJson.proverBatchSize ||
       configFile.proverBatchSize ||
       DEFAULT_PROVER_BATCH_SIZE,
   };
 
-  nxtpConfig.cartographerUrl =
-    nxtpConfig.cartographerUrl ??
-    (nxtpConfig.environment === "production"
+  connextConfig.cartographerUrl =
+    connextConfig.cartographerUrl ??
+    (connextConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja");
 
   const contractPostfix: ContractPostfix =
-    nxtpConfig.environment === "production"
+    connextConfig.environment === "production"
       ? ""
-      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
+      : (`${connextConfig.environment[0].toUpperCase()}${connextConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
-  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+  Object.entries(connextConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
-    nxtpConfig.chains[domainId].deployments = {
+    connextConfig.chains[domainId].deployments = {
       spokeConnector:
-        nxtpConfig.chains[domainId].deployments?.spokeConnector ??
+        connextConfig.chains[domainId].deployments?.spokeConnector ??
         (() => {
           const prefix = SPOKE_CONNECTOR_PREFIXES[domainId];
           if (!prefix) {
@@ -202,18 +201,18 @@ export const getEnvConfig = (
     };
   });
 
-  const validate = ajv.compile(NxtpLighthouseConfigSchema);
+  const validate = ajv.compile(LighthouseConfigSchema);
 
-  const valid = validate(nxtpConfig);
+  const valid = validate(connextConfig);
 
   if (!valid) {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
-  return nxtpConfig;
+  return connextConfig;
 };
 
-let nxtpConfig: NxtpLighthouseConfig | undefined;
+let connextConfig: LighthouseConfig | undefined;
 
 /**
  * Caches and returns the environment config
@@ -223,9 +222,9 @@ let nxtpConfig: NxtpLighthouseConfig | undefined;
 export const getConfig = async (
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
-): Promise<NxtpLighthouseConfig> => {
-  if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(chainData, deployments);
+): Promise<LighthouseConfig> => {
+  if (!connextConfig) {
+    connextConfig = getEnvConfig(chainData, deployments);
   }
-  return nxtpConfig;
+  return connextConfig;
 };

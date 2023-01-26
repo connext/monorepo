@@ -1,4 +1,4 @@
-import { expect, mkHash, mkSig } from "@connext/nxtp-utils";
+import { expect, mkHash, mkSig } from "@connext/utils";
 import { restore, reset, stub, SinonStub } from "sinon";
 import * as SharedFns from "../../src/ethers/shared";
 import { generateExitPayload, initMatic } from "../../src";

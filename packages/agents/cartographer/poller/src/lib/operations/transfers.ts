@@ -5,7 +5,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   DestinationTransfer,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../shared";
 

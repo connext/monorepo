@@ -1,4 +1,4 @@
-import { createMethodContext, jsonifyError } from "@connext/nxtp-utils";
+import { createMethodContext, jsonifyError } from "@connext/utils";
 
 import { pagerDutyTrigger } from "../mockable";
 import { Report } from "../types";

@@ -1,4 +1,4 @@
-import { RequestContext, ExecutorData, getChainIdFromDomain, createLoggingContext } from "@connext/nxtp-utils";
+import { RequestContext, ExecutorData, getChainIdFromDomain, createLoggingContext } from "@connext/utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";

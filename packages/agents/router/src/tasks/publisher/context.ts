@@ -1,9 +1,9 @@
-import { ChainData, Logger } from "@connext/nxtp-utils";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { ChainData, Logger } from "@connext/utils";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { StoreManager } from "@connext/adapters-cache";
 import Rabbit from "foo-foo-mq";
 
-import { NxtpRouterConfig } from "../../config";
+import { RouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
@@ -13,7 +13,7 @@ export type AppContext = {
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
     mqClient: typeof Rabbit;
   };
-  config: NxtpRouterConfig;
+  config: RouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
 };

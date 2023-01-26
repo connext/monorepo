@@ -1,9 +1,9 @@
-///NXTP Config Generator based on vector/modules/router/src/config.ts
+/// Connext Config Generator based on vector/modules/router/src/config.ts
 import { existsSync, readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, TLogLevel, TDatabaseConfig } from "@connext/nxtp-utils";
+import { ajv, TLogLevel, TDatabaseConfig } from "@connext/utils";
 
 const DEFAULT_POLL_INTERVAL = 15_000;
 
@@ -64,7 +64,7 @@ export const getEnvConfig = (): CartographerConfig => {
     process.exit(1);
   }
 
-  const nxtpConfig: CartographerConfig = {
+  const connextConfig: CartographerConfig = {
     pollInterval:
       process.env.CARTOGRAPHER_POLL_INTERVAL ||
       configJson.pollInterval ||
@@ -87,16 +87,16 @@ export const getEnvConfig = (): CartographerConfig => {
 
   const validate = ajv.compile(Cartographer);
 
-  const valid = validate(nxtpConfig);
+  const valid = validate(connextConfig);
 
   if (!valid) {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
-  return nxtpConfig;
+  return connextConfig;
 };
 
-let nxtpConfig: CartographerConfig | undefined;
+let connextConfig: CartographerConfig | undefined;
 
 /**
  * Caches and returns the environment config
@@ -104,8 +104,8 @@ let nxtpConfig: CartographerConfig | undefined;
  * @returns The config
  */
 export const getConfig = async (): Promise<CartographerConfig> => {
-  if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig();
+  if (!connextConfig) {
+    connextConfig = getEnvConfig();
   }
-  return nxtpConfig;
+  return connextConfig;
 };

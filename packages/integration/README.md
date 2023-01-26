@@ -15,8 +15,8 @@ Make sure you have docker installed globally.
 In your local environment, run the following commands to export env variables which will be used in the local e2e runtime environment:
 
 ```sh
-export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/nxtp"
-export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
+export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/connext"
+export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/connext"
 ```
 
 In `setup-integration-test.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
@@ -38,7 +38,7 @@ If you need to run the test locally against local changes, you can build the ima
 ### 5. Run the Test
 
 ```sh
-yarn workspace @connext/nxtp-integration run test
+yarn workspace @connext/integration run test
 ```
 
 ## Logs from Deployment
@@ -377,10 +377,10 @@ And that's it! No additional set up is required. All pre-flight tasking will be 
 
 ## Execution
 
-To execute the test, just run (in NXTP root):
+To execute the test, just run (in monorepo root):
 
 ```s
-yarn workspace @connext/nxtp-integration run test
+yarn workspace @connext/integration run test
 ```
 
 NOTE: Do **NOT** run the router or sequencer separately, both will be initialized within the test itself.

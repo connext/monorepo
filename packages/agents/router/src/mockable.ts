@@ -5,7 +5,7 @@ import {
   recoverRouterPathPayload as _recoverRouterPathPayload,
   axiosGet as _axiosGet,
   axiosPost as _axiosPost,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 export const signRouterPathPayload = _signRouterPathPayload;
 export const recoverRouterPathPayload = _recoverRouterPathPayload;

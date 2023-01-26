@@ -1,4 +1,4 @@
-import { TAddress } from "@connext/nxtp-utils";
+import { TAddress } from "@connext/utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Wallet } from "ethers";
 

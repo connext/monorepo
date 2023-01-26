@@ -1,5 +1,5 @@
-import { Logger, ChainData, createLoggingContext } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { Logger, ChainData, createLoggingContext } from "@connext/utils";
+import { contractDeployments } from "@connext/txservice";
 
 import { SdkConfig, getConfig } from "./config";
 import { SdkUtils } from "./sdkUtils";
@@ -17,16 +17,16 @@ export const create = async (
   sdkRouter: SdkRouter;
   sdkPool: SdkPool;
 }> => {
-  const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
-  const logger = _logger || new Logger({ name: "SDK", level: nxtpConfig.logLevel });
+  const connextConfig = await getConfig(_config, contractDeployments, chainData);
+  const logger = _logger || new Logger({ name: "SDK", level: connextConfig.logLevel });
 
-  const sdkBase = new SdkBase(nxtpConfig, logger, chainData!);
-  const sdkUtils = await SdkUtils.create(nxtpConfig, logger, chainData);
-  const sdkRouter = await SdkRouter.create(nxtpConfig, logger, chainData);
-  const sdkPool = await SdkPool.create(nxtpConfig, logger, chainData);
+  const sdkBase = new SdkBase(connextConfig, logger, chainData!);
+  const sdkUtils = await SdkUtils.create(connextConfig, logger, chainData);
+  const sdkRouter = await SdkRouter.create(connextConfig, logger, chainData);
+  const sdkPool = await SdkPool.create(connextConfig, logger, chainData);
 
   const { requestContext, methodContext } = createLoggingContext("SDK create()");
-  logger.info(`Initialized SDK with config: `, requestContext, methodContext, { nxtpConfig: nxtpConfig });
+  logger.info(`Initialized SDK with config: `, requestContext, methodContext, { connextConfig });
 
   return { sdkBase, sdkUtils, sdkRouter, sdkPool };
 };

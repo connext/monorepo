@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { SinonStub, stub } from "sinon";
 
 import { NoChainIdForHubDomain, RelayerProxyHubNotFound } from "../../../../src/tasks/propagate/errors";

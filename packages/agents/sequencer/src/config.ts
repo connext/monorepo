@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
-import { ajv, ChainData } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { ajv, ChainData } from "@connext/utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/txservice";
 import { config as dotEnvConfig } from "dotenv";
 
 // @ts-ignore
@@ -53,9 +53,8 @@ export const getEnvConfig = (
       ? configJson.chains
       : configFile.chains,
     logLevel:
-      process.env.SEQ_LOG_LEVEL || configJson.logLevel || configFile.logLevel || process.env.NXTP_LOG_LEVEL || "info",
-    network:
-      process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
+      process.env.SEQ_LOG_LEVEL || configJson.logLevel || configFile.logLevel || process.env.LOG_LEVEL || "info",
+    network: process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NETWORK || "mainnet",
     server: {
       sub: {
         port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8082,
@@ -91,8 +90,8 @@ export const getEnvConfig = (
       : configJson.messageQueue
       ? configJson.messageQueue
       : configFile.messageQueue,
-    relayers: process.env.NXTP_RELAYERS
-      ? JSON.parse(process.env.NXTP_RELAYERS)
+    relayers: process.env.RELAYERS
+      ? JSON.parse(process.env.RELAYERS)
       : configJson.relayers
       ? configJson.relayers
       : configFile.relayers,

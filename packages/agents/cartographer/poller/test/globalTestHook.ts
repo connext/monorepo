@@ -1,5 +1,5 @@
 import { stub, restore, reset } from "sinon";
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 
 import { CartographerConfig } from "../src/config";
 import { AppContext } from "../src/shared";
@@ -7,7 +7,7 @@ import * as shared from "../src/shared";
 import { mockDatabase } from "../../../../adapters/database/test/mock";
 
 import { mockChainData, mockConfig } from "./mock";
-import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
+import { mockSubgraph } from "@connext/adapters-subgraph/test/mock";
 
 export let mockContext: AppContext;
 

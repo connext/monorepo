@@ -1,4 +1,4 @@
-import { chainDataToMap, expect } from "@connext/nxtp-utils";
+import { chainDataToMap, expect } from "@connext/utils";
 import { stub, restore, reset } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
@@ -21,7 +21,7 @@ describe("Config", () => {
       expect(() => getEnvConfig(mockConfig, mockChainData, mockDeployments)).not.throw();
     });
 
-    it("should read config from NXTP Config with testnet network values overridden", () => {
+    it("should read config from Config with testnet network values overridden", () => {
       expect(() => getEnvConfig({ ...mockConfig, network: "testnet" }, mockChainData, mockDeployments)).not.throw();
     });
 

@@ -1,4 +1,4 @@
-import { AdminSchema, NxtpErrorJsonSchema, TAddress } from "@connext/nxtp-utils";
+import { AdminSchema, ConnextErrorJsonSchema, TAddress } from "@connext/utils";
 import { Static, Type } from "@sinclair/typebox";
 
 export const PauseRequestSchema = Type.Intersect([AdminSchema, Type.Object({ reason: Type.String() })]);
@@ -16,7 +16,7 @@ export type PauseResponse = Static<typeof PauseResponseSchema>;
 
 export const WatcherApiErrorResponseSchema = Type.Object({
   message: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
+  error: Type.Optional(ConnextErrorJsonSchema),
 });
 export type WatcherApiErrorResponse = Static<typeof WatcherApiErrorResponseSchema>;
 

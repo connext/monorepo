@@ -9,14 +9,14 @@ import {
   jsonifyError,
   RelayerType,
   XTransferErrorStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import Broker from "foo-foo-mq";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
-import { getDatabase } from "@connext/nxtp-adapters-database";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { StoreManager } from "@connext/adapters-cache";
+import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/txservice";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/adapters-relayer";
+import { getDatabase } from "@connext/adapters-database";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";

@@ -1,4 +1,4 @@
-import { createLoggingContext, ExecStatus, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecStatus, RelayerTaskStatus } from "@connext/utils";
 
 import { getContext } from "../../sequencer";
 import { MessageType } from "../entities";

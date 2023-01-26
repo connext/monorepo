@@ -1,4 +1,4 @@
-import { GELATO_SERVER } from "@connext/nxtp-utils";
+import { GELATO_SERVER } from "@connext/utils";
 import { GelatoRelay } from "@gelatonetwork/relay-sdk";
 
 import { Relayer } from "..";

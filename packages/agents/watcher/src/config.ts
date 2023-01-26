@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "fs";
 
-import { WatcherAlertsConfigSchema } from "@connext/nxtp-adapters-watcher";
-import { ajv, TAssetDescription, TLogLevel } from "@connext/nxtp-utils";
+import { WatcherAlertsConfigSchema } from "@connext/adapters-watcher";
+import { ajv, TAssetDescription, TLogLevel } from "@connext/utils";
 import { Static, Type } from "@sinclair/typebox";
 
 export const TChainConfig = Type.Object({

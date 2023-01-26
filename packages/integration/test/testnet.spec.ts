@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
-import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
-import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
-import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
-import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
+import { makeRelayer } from "@connext/relayer/src/relayer";
+import { SequencerConfig } from "@connext/sequencer/src/lib/entities/config";
+import { RouterConfig } from "@connext/router/src/config";
+import { RelayerConfig } from "@connext/relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 import {
   SequencerApiErrorResponse,
@@ -15,9 +15,9 @@ import {
   Logger,
   XCallArgs,
   ChainData,
-} from "@connext/nxtp-utils";
-import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+} from "@connext/utils";
+import { ChainReader, getConnextInterface } from "@connext/txservice";
+import { SubgraphReader } from "@connext/adapters-subgraph";
 
 import {
   DomainInfo,

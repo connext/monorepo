@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";

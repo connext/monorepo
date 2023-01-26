@@ -1,4 +1,4 @@
-import { expect, mkBytes32, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
+import { expect, mkBytes32, OriginTransfer, DestinationTransfer } from "@connext/utils";
 
 import { mock } from "../../mock";
 import { mockPubContext } from "../../globalTestHook";

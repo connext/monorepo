@@ -1,5 +1,5 @@
-import { Database } from "@connext/nxtp-adapters-database";
-import { DBHelper } from "@connext/nxtp-utils";
+import { Database } from "@connext/adapters-database";
+import { DBHelper } from "@connext/utils";
 
 export class SpokeDBHelper implements DBHelper {
   constructor(private domain: string, private count: number, private db: Database) {}

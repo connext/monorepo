@@ -1,7 +1,7 @@
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { WatcherAdapter } from "@connext/adapters-watcher";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { TransactionService } from "@connext/txservice";
 import {
   Asset,
   ChainData,
@@ -10,7 +10,7 @@ import {
   getChainData,
   Logger,
   RequestContext,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { utils, Wallet } from "ethers";
 import { domainToChainId } from "@connext/smart-contracts";
 

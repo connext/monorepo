@@ -1,5 +1,5 @@
-import { expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
-import { RelayerTaskStatus, RelayerType } from "@connext/nxtp-utils/dist/types/relayer";
+import { expect, MetaTxTask, mkBytes32 } from "@connext/utils";
+import { RelayerTaskStatus, RelayerType } from "@connext/utils/dist/types/relayer";
 import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../src/lib/entities";
 import { updateTask } from "../../../src/lib/operations/tasks";

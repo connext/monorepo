@@ -7,7 +7,7 @@ import {
   mkAddress,
   ExecutorPostDataRequest,
   mkBytes32,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { FastifyInstance } from "fastify";
 
 import * as BindingFns from "../../../../src/bindings/publisher";

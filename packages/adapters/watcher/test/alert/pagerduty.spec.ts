@@ -2,7 +2,7 @@ import { SinonStub, stub } from "sinon";
 
 import { TEST_REPORT } from "../utils";
 import { alertViaPagerDuty } from "../../src/alert";
-import { expect, mkHash } from "@connext/nxtp-utils";
+import { expect, mkHash } from "@connext/utils";
 import * as Mockable from "../../src/mockable";
 
 describe("Watcher Adapter: pagerDuty", () => {
@@ -15,7 +15,7 @@ describe("Watcher Adapter: pagerDuty", () => {
       triggerStub = stub(Mockable, "pagerDutyTrigger");
     });
 
-    afterEach(() => triggerStub.restore())
+    afterEach(() => triggerStub.restore());
 
     it("should throw if routing key is less than 32", async () => {
       await expect(alertViaPagerDuty(TEST_REPORT, "xxx")).to.be.rejectedWith(

@@ -4,14 +4,14 @@ import {
   RelayerApiPostTaskResponse,
   createLoggingContext,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   RelayerApiPostTaskRequestParamsSchema,
   RelayerApiPostTaskResponseSchema,
   RelayerApiErrorResponseSchema,
   RelayerApiErrorResponse,
   ClearCacheRequest,
   ClearCacheRequestSchema,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../relayer";
 import { getOperations } from "../../lib/operations";
@@ -61,7 +61,7 @@ export const bindServer = () =>
           const { chainId } = request.params;
           const chain = Number(chainId);
           if (isNaN(chain)) {
-            throw new NxtpError("Invalid chainId, must be numeric", { chainId });
+            throw new ConnextError("Invalid chainId, must be numeric", { chainId });
           }
           if (request.body.apiKey !== config.server.adminToken) {
             return response.status(401).send({ message: "Invalid API key" });
@@ -70,7 +70,7 @@ export const bindServer = () =>
           const taskId = await createTask(chain, task, requestContext);
           return response.status(200).send({ message: "Task created", taskId });
         } catch (error: unknown) {
-          const type = (error as NxtpError).type;
+          const type = (error as ConnextError).type;
           logger.error("Create Task Post Error", requestContext, methodContext, jsonifyError(error as Error));
           return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
         }

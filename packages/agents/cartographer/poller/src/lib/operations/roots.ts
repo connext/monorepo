@@ -1,4 +1,4 @@
-import { createLoggingContext, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "@connext/nxtp-utils";
+import { createLoggingContext, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "@connext/utils";
 
 import { getContext } from "../../shared";
 

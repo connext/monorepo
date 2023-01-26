@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, OriginTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, OriginTransfer } from "@connext/utils";
 
 import { ExecuteError } from "../../../../errors";
 import { XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../../setup";

@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams, XTransfer } from "@connext/utils";
 
 import { getContext } from "../publisher";
 

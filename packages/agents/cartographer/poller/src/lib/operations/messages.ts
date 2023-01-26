@@ -1,4 +1,4 @@
-import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, RootMessage } from "@connext/utils";
 
 import { getContext } from "../../shared";
 

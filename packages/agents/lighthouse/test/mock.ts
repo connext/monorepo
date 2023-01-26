@@ -1,6 +1,6 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/txservice";
 import {
   mkAddress,
   Logger,
@@ -11,17 +11,17 @@ import {
   RootMessage,
   RelayerType,
   ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
-import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
+} from "@connext/utils";
+import { Relayer } from "@connext/adapters-relayer";
+import { mockRelayer } from "@connext/adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/adapters-database/test/mock";
+import { mockChainReader } from "@connext/txservice/test/mock";
 
-import { NxtpLighthouseConfig } from "../src/config";
+import { LighthouseConfig } from "../src/config";
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { PropagateContext } from "../src/tasks/propagate/context";
-import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
+import { mockSubgraph } from "@connext/adapters-subgraph/test/mock";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -82,7 +82,7 @@ export const mock = {
       chainData: mock.chainData(),
     };
   },
-  config: (): NxtpLighthouseConfig => ({
+  config: (): LighthouseConfig => ({
     chains: {
       [mock.domain.A]: {
         providers: ["http://example.com"],

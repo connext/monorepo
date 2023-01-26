@@ -1,4 +1,4 @@
-import { getChainData } from "@connext/nxtp-utils";
+import { getChainData } from "@connext/utils";
 import { SubgraphReader } from "../src/reader";
 
 export const livetest = async () => {

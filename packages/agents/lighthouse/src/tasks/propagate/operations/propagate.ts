@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, ConnextError, RequestContext, RootManagerMeta } from "@connext/utils";
 import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -99,7 +99,7 @@ export const propagate = async () => {
     );
     logger.info("Propagate tx sent", requestContext, methodContext, { taskId });
   } catch (e: unknown) {
-    logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
+    logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as ConnextError, {
       hubChainId,
       hubDomain: config.hubDomain,
       relayerProxyHubAddress,

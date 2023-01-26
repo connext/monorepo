@@ -1,4 +1,4 @@
-import { DBHelper, expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { DBHelper, expect, getRandomBytes32 } from "@connext/utils";
 import { constants } from "ethers";
 
 import { SparseMerkleTree, ZERO_HASHES } from "../../src/helpers/merkle";

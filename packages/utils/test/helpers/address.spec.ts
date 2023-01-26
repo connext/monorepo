@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 import { getAddressFromPublicKey, compressPublicKey, validateAndParseAddress, mkAddress } from "../../src";
 

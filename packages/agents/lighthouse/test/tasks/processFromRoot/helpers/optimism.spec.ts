@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkAddress, mkBytes32, mkHash } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkAddress, mkBytes32, mkHash } from "@connext/utils";
 import { stub, SinonStub } from "sinon";
 import { CrossChainMessage, CrossChainMessageProof } from "@eth-optimism/sdk";
 

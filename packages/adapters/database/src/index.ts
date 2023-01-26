@@ -9,7 +9,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
 

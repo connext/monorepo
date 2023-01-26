@@ -1,6 +1,6 @@
 import { utils, BigNumber, constants, Wallet } from "ethers";
-import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
-import { ERC20Abi } from "@connext/nxtp-utils";
+import { ChainReader, getConnextInterface } from "@connext/txservice";
+import { ERC20Abi } from "@connext/utils";
 
 import { DomainInfo, TestAgents } from "../../constants/testnet";
 

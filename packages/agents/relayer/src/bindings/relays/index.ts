@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
-import { createLoggingContext, createRequestContext, jsonifyError, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, createRequestContext, jsonifyError, RelayerTaskStatus } from "@connext/utils";
 import interval from "interval-promise";
-import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
+import { CachedTaskData } from "@connext/adapters-cache/dist/lib/caches/tasks";
 
 import { getContext } from "../../relayer";
 

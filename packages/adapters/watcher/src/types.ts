@@ -1,5 +1,5 @@
-import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
-import { Logger, RequestContext } from "@connext/nxtp-utils";
+import { getDeployedConnextContract, TransactionService } from "@connext/txservice";
+import { Logger, RequestContext } from "@connext/utils";
 import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
 

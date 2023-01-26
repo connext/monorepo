@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, ConnextError } from "@connext/utils";
 
 import { AppContext } from "../../shared";
 import {
@@ -20,7 +20,7 @@ export const bindMessages = async (context: AppContext) => {
       "Error getting origin messages, waiting for next loop",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 
@@ -31,7 +31,7 @@ export const bindMessages = async (context: AppContext) => {
       "Error updating messages, waiting for next loop",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 
@@ -42,7 +42,7 @@ export const bindMessages = async (context: AppContext) => {
       "Error getting sent root messages, waiting for next loop",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 
@@ -53,7 +53,7 @@ export const bindMessages = async (context: AppContext) => {
       "Error getting processed root messages, waiting for next loop",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 

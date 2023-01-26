@@ -1,6 +1,6 @@
-import { createRequestContext } from "@connext/nxtp-utils";
+import { createRequestContext } from "@connext/utils";
 import { ConnextInterface } from "@connext/smart-contracts";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { TransactionService } from "@connext/txservice";
 import { constants } from "ethers";
 
 export const setupRouter = async (

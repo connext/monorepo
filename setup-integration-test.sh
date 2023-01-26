@@ -27,22 +27,22 @@ ROUTER_PORT=${ROUTER_PORT}
 SEQUENCER_PORT=${SEQUENCER_PORT}
 
 # Agent configuration
-NXTP_SEQUENCER=http://${LOCALHOST}:${SEQUENCER_PORT}
-NXTP_MNEMONIC=${DEFAULT_MNEMONIC}
-NXTP_SERVER_HOST=http://${LOCALHOST}
-NXTP_SERVER_PORT=${ROUTER_PORT}
+SEQUENCER=http://${LOCALHOST}:${SEQUENCER_PORT}
+MNEMONIC=${DEFAULT_MNEMONIC}
+SERVER_HOST=http://${LOCALHOST}
+SERVER_PORT=${ROUTER_PORT}
 
 SEQ_SERVER_HOST=http://${LOCALHOST}
 SEQ_SERVER_PORT=${SEQUENCER_PORT}
 SEQ_ENVIRONMENT=production
 SEQ_RELAYER_URL=${RELAYER_URL}
 
-NXTP_CONFIG=config.local.json
+CONFIG=config.local.json
 SEQ_CONFIG=config.local.json
 RELAYER_CONFIG=config.local.json
 
-NXTP_ENVIRONMENT=local
-NXTP_NOMAD_ENVIRONMENT=staging
+ENVIRONMENT=local
+NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
 WEB3_SIGNER_PRIVATE_KEY_ROUTER=${WEB3_SIGNER_PRIVATE_KEY_ROUTER}
@@ -62,8 +62,8 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 
 # Optional:
 # AUCTION_ROUND_DEPTH
-# NXTP_SUBGRAPH_POLL_INTERVAL
-# NXTP_CACHE_POLL_INTERVAL
+# SUBGRAPH_POLL_INTERVAL
+# CACHE_POLL_INTERVAL
 " > .env
 #####
 
@@ -92,23 +92,23 @@ echo "Deployed contracts to 1338"
 
 ##### Subgraph Deployments
 echo "Building subgraph..."
-yarn workspace @connext/nxtp-subgraph prepare:local_1337
-yarn workspace @connext/nxtp-subgraph codegen
+yarn workspace @connext/subgraph prepare:local_1337
+yarn workspace @connext/subgraph codegen
 echo "Built subgraph"
 
 echo "Deploying subgraph to 1337..."
-yarn workspace @connext/nxtp-subgraph create-local-1337
-yarn workspace @connext/nxtp-subgraph deploy-local-1337 -l v0.0.1
+yarn workspace @connext/subgraph create-local-1337
+yarn workspace @connext/subgraph deploy-local-1337 -l v0.0.1
 echo "Deployed subgraph to 1337"
 
 echo "Building subgraph..."
-yarn workspace @connext/nxtp-subgraph prepare:local_1338
-yarn workspace @connext/nxtp-subgraph codegen
+yarn workspace @connext/subgraph prepare:local_1338
+yarn workspace @connext/subgraph codegen
 echo "Built subgraph"
 
 echo "Deploying subgraph to 1338..."
-yarn workspace @connext/nxtp-subgraph create-local-1338
-yarn workspace @connext/nxtp-subgraph deploy-local-1338 -l v0.0.1
+yarn workspace @connext/subgraph create-local-1338
+yarn workspace @connext/subgraph deploy-local-1338 -l v0.0.1
 echo "Deployed subgraph to 1338"
 #####
 

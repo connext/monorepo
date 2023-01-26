@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-watcher",
+  "name": "@connext/watcher",
   "version": "0.2.1-rc.19",
   "description": "",
   "types": "dist/index.d.ts",
@@ -21,11 +21,11 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-adapters-watcher": "workspace:*",
-    "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/adapters-subgraph": "workspace:*",
+    "@connext/adapters-watcher": "workspace:*",
+    "@connext/adapters-web3signer": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "dd-trace": "3.9.3",
     "dotenv": "16.0.3",

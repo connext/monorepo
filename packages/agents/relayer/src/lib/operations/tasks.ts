@@ -5,7 +5,7 @@ import {
   RelayerApiPostTaskRequestParams,
   ajv,
   RelayerApiPostTaskRequestParamsSchema,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../relayer";
 import { ChainNotSupported, ParamsInvalid } from "../errors/tasks";

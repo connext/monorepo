@@ -1,11 +1,11 @@
-import { ChainData, Logger } from "@connext/nxtp-utils";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { ChainData, Logger } from "@connext/utils";
+import { SubgraphReader } from "@connext/adapters-subgraph";
 import Rabbit from "foo-foo-mq";
 import { Wallet } from "ethers";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { ConnextContractInterfaces, TransactionService } from "@connext/txservice";
 
-import { NxtpRouterConfig } from "../../config";
+import { RouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
@@ -17,7 +17,7 @@ export type AppContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     mqClient: typeof Rabbit;
   };
-  config: NxtpRouterConfig;
+  config: RouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
 };

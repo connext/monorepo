@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
-import { ajv, ChainData } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { ajv, ChainData } from "@connext/utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/txservice";
 
 import { RelayerConfig, RelayerConfigSchema } from "./lib/entities";
 
@@ -13,14 +13,14 @@ export const getEnvConfig = (
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.NXTP_CONFIG || process.env.RELAYER_CONFIG || "");
+    configJson = JSON.parse(process.env.RELAYER_CONFIG || process.env.RELAYER_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No RELAYER_CONFIG or NXTP_CONFIG exists; using config file and individual env vars.");
+    console.info("No RELAYER_CONFIG or RELAYER_CONFIG exists; using config file and individual env vars.");
   }
   try {
     let json: string;
 
-    const path = process.env.NXTP_CONFIG_FILE ?? process.env.RELAYER_CONFIG_FILE ?? "config.json";
+    const path = process.env.RELAYER_CONFIG_FILE ?? process.env.RELAYER_CONFIG_FILE ?? "config.json";
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -56,19 +56,19 @@ export const getEnvConfig = (
       process.env.SEQ_LOG_LEVEL ||
       configJson.logLevel ||
       configFile.logLevel ||
-      process.env.NXTP_LOG_LEVEL ||
+      process.env.LOG_LEVEL ||
       "info",
     network:
       process.env.RELAYER_NETWORK ||
       process.env.SEQ_NETWORK ||
       configJson.network ||
       configFile.network ||
-      process.env.NXTP_NETWORK ||
+      process.env.NETWORK ||
       "mainnet",
-    mnemonic: process.env.RELAYER_MNEMONIC || process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    mnemonic: process.env.RELAYER_MNEMONIC || process.env.MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl:
       process.env.RELAYER_WEB3_SIGNER_URL ||
-      process.env.NXTP_WEB3_SIGNER_URL ||
+      process.env.WEB3_SIGNER_URL ||
       configJson.web3SignerUrl ||
       configFile.web3SignerUrl,
     server: {
@@ -91,9 +91,9 @@ export const getEnvConfig = (
         configFile.server?.adminToken,
     },
     mode: {
-      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
+      cleanup: process.env.CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    environment: process.env.ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   if (!_relayerConfig.mnemonic && !_relayerConfig.web3SignerUrl) {

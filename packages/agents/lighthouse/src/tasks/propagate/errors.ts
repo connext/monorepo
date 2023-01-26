@@ -1,6 +1,6 @@
-import { MethodContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { MethodContext, ConnextError, RequestContext } from "@connext/utils";
 
-export class NoChainIdForHubDomain extends NxtpError {
+export class NoChainIdForHubDomain extends ConnextError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
@@ -15,7 +15,7 @@ export class NoChainIdForHubDomain extends NxtpError {
   }
 }
 
-export class RelayerProxyHubNotFound extends NxtpError {
+export class RelayerProxyHubNotFound extends ConnextError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
@@ -30,7 +30,7 @@ export class RelayerProxyHubNotFound extends NxtpError {
   }
 }
 
-export class NoProviderForDomain extends NxtpError {
+export class NoProviderForDomain extends ConnextError {
   constructor(
     public readonly domain: string,
     public readonly requestContext: RequestContext,
@@ -45,7 +45,7 @@ export class NoProviderForDomain extends NxtpError {
   }
 }
 
-export class NoHubConnector extends NxtpError {
+export class NoHubConnector extends ConnextError {
   constructor(
     public readonly chainId: number,
     public readonly requestContext: RequestContext,
@@ -60,7 +60,7 @@ export class NoHubConnector extends NxtpError {
   }
 }
 
-export class NoSpokeConnector extends NxtpError {
+export class NoSpokeConnector extends ConnextError {
   constructor(
     public readonly chainId: number,
     public readonly requestContext: RequestContext,

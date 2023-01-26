@@ -1,4 +1,4 @@
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 
 import { TransfersCache, AuctionsCache, RoutersCache, TasksCache, ExecutorCache } from "./lib/caches";
 import { StoreManagerParams, StoreChannel } from "./lib/entities";

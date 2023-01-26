@@ -1,4 +1,4 @@
-import { expect, Logger, NxtpError } from "@connext/nxtp-utils";
+import { expect, Logger, ConnextError } from "@connext/utils";
 
 import { MaxBufferLengthError, TransactionBackfilled, TransactionBuffer } from "../../src/shared";
 import { getMockOnchainTransaction, TEST_SENDER_CHAIN_ID } from "../utils";
@@ -46,7 +46,7 @@ describe("TransactionBuffer", () => {
 
       expect(buffer.length).to.eq(1);
       expect(buffer[0]).to.deep.eq(tx2);
-      expect((tx1.error as NxtpError).type).to.be.eq(TransactionBackfilled.type);
+      expect((tx1.error as ConnextError).type).to.be.eq(TransactionBackfilled.type);
     });
 
     it("throws MaxBufferLengthError if at max length", () => {

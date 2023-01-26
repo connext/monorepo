@@ -1,8 +1,8 @@
-import { NxtpError, Values } from "@connext/nxtp-utils";
+import { ConnextError, Values } from "@connext/utils";
 
-export class ExecuteError extends NxtpError {
+export class ExecuteError extends ConnextError {
   constructor(
-    public readonly msg: Values<typeof NxtpError.reasons>,
+    public readonly msg: Values<typeof ConnextError.reasons>,
     public readonly context: any = {},
     public readonly type = ExecuteError.name,
     public readonly level: "debug" | "info" | "warn" | "error" = "error",

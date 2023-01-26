@@ -22,13 +22,13 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   let configJson: Record<string, any> = {};
 
   try {
-    configJson = JSON.parse(process.env.NXTP_CONFIG || "");
+    configJson = JSON.parse(process.env.CONFIG || "");
   } catch (e: unknown) {
-    console.info("No NXTP_CONFIG exists, using config file and individual env vars");
+    console.info("No CONFIG exists, using config file and individual env vars");
   }
   try {
     let json: string;
-    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+    const path = process.env.CONFIG_FILE ?? "config.json";
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configJson = JSON.parse(json);
@@ -54,7 +54,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     configuredProviders[key] = provider;
   }
 
-  const nxtpConfig: SdkConfig = {
+  const connextConfig: SdkConfig = {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
@@ -63,7 +63,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(connextConfig);
 
   sdkBaseInstance = sdkBase;
   sdkPoolInstance = sdkPool;

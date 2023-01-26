@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, ConnextError, RequestContext } from "@connext/utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
@@ -97,7 +97,7 @@ export const getPropagateParams = async (
     callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
   } catch (err: unknown) {
     console.log(err);
-    logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
+    logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as ConnextError);
     submissionPriceWei = "0";
     maxGas = "0";
     gasPriceBid = "0";

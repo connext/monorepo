@@ -14,7 +14,7 @@ import {
   PropagatedRoot,
   mkHash,
   XTransferErrorStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
 

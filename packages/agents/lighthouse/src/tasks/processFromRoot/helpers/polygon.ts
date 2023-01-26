@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/utils";
 
 import { getContext } from "../processFromRoot";
 import { NoRootAvailable } from "../errors";

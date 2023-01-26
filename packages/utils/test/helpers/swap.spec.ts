@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 
 import { getReceiverAmount, getSwapRate } from "../../src";

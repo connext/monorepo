@@ -1,4 +1,4 @@
-import { mock } from "@connext/nxtp-utils";
+import { mock } from "@connext/utils";
 import { stub } from "sinon";
 
 import { Database } from "../src/index";

@@ -1,4 +1,4 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { RequestContext } from "@connext/utils";
 import { BigNumber, providers, utils } from "ethers";
 import { domainToChainId } from "@connext/smart-contracts";
 

@@ -1,7 +1,7 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { getRandomBytes32, Logger, mkAddress, mock } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils";
+import { getRandomBytes32, Logger, mkAddress, mock } from "@connext/utils";
+import { expect } from "@connext/utils";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
@@ -505,7 +505,7 @@ describe("TransactionDispatch", () => {
       expect(getGasPriceStub.callCount).to.eq(1);
       expect(estimateGasStub.callCount).to.eq(1);
       const { domain, ...expected } = TEST_TX;
-      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq({ ...expected, chainId: TEST_SENDER_CHAIN_ID});
+      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
 
       // should have called submit (just once)
       expect(submitStub.callCount).to.eq(1);

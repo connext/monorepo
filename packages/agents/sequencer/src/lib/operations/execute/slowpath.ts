@@ -6,7 +6,7 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   XTransferErrorStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../../sequencer";
 import {

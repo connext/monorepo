@@ -1,4 +1,4 @@
-import { expect, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, mkBytes32 } from "@connext/utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { CartoApiRequestFailed } from "../../../src/errors";

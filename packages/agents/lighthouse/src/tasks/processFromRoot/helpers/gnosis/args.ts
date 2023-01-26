@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/utils";
 import { ethers } from "ethers";
 
 import { getContext } from "../../processFromRoot";

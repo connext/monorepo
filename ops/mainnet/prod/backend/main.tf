@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-mainnet-prod-backend"
+    bucket = "terraform-mainnet-prod-backend"
     key    = "state/"
     region = "us-east-1"
   }
@@ -86,7 +86,7 @@ module "postgrest" {
 
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-cartographer"
+  ecr_repository_name = "cartographer"
   docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer-routers"
   environment         = var.environment
@@ -97,7 +97,7 @@ module "cartographer-routers-lambda-cron" {
 
 module "cartographer-transfers-lambda-cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-cartographer"
+  ecr_repository_name = "cartographer"
   docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer-transfers"
   environment         = var.environment
@@ -108,7 +108,7 @@ module "cartographer-transfers-lambda-cron" {
 
 module "cartographer-messages-lambda-cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-cartographer"
+  ecr_repository_name = "cartographer"
   docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer-messages"
   environment         = var.environment
@@ -119,7 +119,7 @@ module "cartographer-messages-lambda-cron" {
 
 module "cartographer-roots-lambda-cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-cartographer"
+  ecr_repository_name = "cartographer"
   docker_image_tag    = var.cartographer_image_tag
   container_family    = "cartographer-roots"
   environment         = var.environment
@@ -153,7 +153,7 @@ module "ecs" {
   stage                   = var.stage
   environment             = var.environment
   domain                  = var.domain
-  ecs_cluster_name_prefix = "nxtp-ecs"
+  ecs_cluster_name_prefix = "ecs"
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   public_subnets          = module.network.public_subnets

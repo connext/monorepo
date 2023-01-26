@@ -1,4 +1,4 @@
-import { chainDataToMap, expect, mkAddress } from "@connext/nxtp-utils";
+import { chainDataToMap, expect, mkAddress } from "@connext/utils";
 import { stub, SinonStub, restore, reset } from "sinon";
 import * as GraphClientFns from "../../../src/lib/helpers/graphclient";
 import { create, getNetwork } from "../../../src/lib/helpers/create";

@@ -3,10 +3,10 @@ import {
   createMethodContext,
   createRequestContext,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   RequestContext,
   RootMessage,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { ProcessConfigNotAvailable } from "../errors";
@@ -83,7 +83,7 @@ export const processFromRoot = async () => {
     try {
       await processSingleRootMessage(msg, requestContext);
     } catch (err: unknown) {
-      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as ConnextError));
     }
   }
 };

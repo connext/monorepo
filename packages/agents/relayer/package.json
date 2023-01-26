@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-relayer",
+  "name": "@connext/relayer",
   "version": "0.2.1-rc.19",
   "description": "Generic relayer agent for Amarok",
   "author": "Connext",
@@ -28,10 +28,10 @@
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "dependencies": {
-    "@connext/nxtp-adapters-cache": "workspace:*",
-    "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/adapters-cache": "workspace:*",
+    "@connext/adapters-web3signer": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "ethers": "5.7.2",
     "fastify": "4.10.2",

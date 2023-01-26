@@ -1,14 +1,14 @@
 import { Signer, providers } from "ethers";
 import { Evt } from "evt";
-import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, ConnextError, RequestContext } from "@connext/utils";
 
 import { ChainConfig } from "./config";
 import {
   WriteTransaction,
   OnchainTransaction,
-  NxtpTxServiceEventPayloads,
-  NxtpTxServiceEvent,
-  NxtpTxServiceEvents,
+  TxServiceEventPayloads,
+  TxServiceEvent,
+  TxServiceEvents,
   TxServiceConfirmedEvent,
   TxServiceFailedEvent,
   TxServiceMinedEvent,
@@ -32,11 +32,11 @@ export class TransactionService extends ChainReader {
   private static instance?: TransactionService;
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
-  private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
-    [NxtpTxServiceEvents.TransactionSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
-    [NxtpTxServiceEvents.TransactionMined]: Evt.create<TxServiceMinedEvent>(),
-    [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
-    [NxtpTxServiceEvents.TransactionFailed]: Evt.create<TxServiceFailedEvent>(),
+  private evts: { [K in TxServiceEvent]: Evt<TxServiceEventPayloads[K]> } = {
+    [TxServiceEvents.TransactionSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
+    [TxServiceEvents.TransactionMined]: Evt.create<TxServiceMinedEvent>(),
+    [TxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
+    [TxServiceEvents.TransactionFailed]: Evt.create<TxServiceFailedEvent>(),
   };
 
   /**
@@ -62,7 +62,7 @@ export class TransactionService extends ChainReader {
     // if (TransactionService._instances.has(_signer)) {}
     if (TransactionService.instance) {
       const msg = "CRITICAL: ChainService.constructor was called twice! Please report this incident.";
-      const error = new NxtpError(msg);
+      const error = new ConnextError(msg);
       logger.error(msg, requestContext, methodContext, error, {
         instance: TransactionService.instance.toString(),
       });
@@ -108,10 +108,10 @@ export class TransactionService extends ChainReader {
    * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
    * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
    */
-  public attach<T extends NxtpTxServiceEvent>(
+  public attach<T extends TxServiceEvent>(
     event: T,
-    callback: (data: NxtpTxServiceEventPayloads[T]) => void,
-    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
+    callback: (data: TxServiceEventPayloads[T]) => void,
+    filter: (data: TxServiceEventPayloads[T]) => boolean = (_data: TxServiceEventPayloads[T]) => true,
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
@@ -128,10 +128,10 @@ export class TransactionService extends ChainReader {
    * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
    *
    */
-  public attachOnce<T extends NxtpTxServiceEvent>(
+  public attachOnce<T extends TxServiceEvent>(
     event: T,
-    callback: (data: NxtpTxServiceEventPayloads[T]) => void,
-    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
+    callback: (data: TxServiceEventPayloads[T]) => void,
+    filter: (data: TxServiceEventPayloads[T]) => boolean = (_data: TxServiceEventPayloads[T]) => true,
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
@@ -144,7 +144,7 @@ export class TransactionService extends ChainReader {
    *
    * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
    */
-  public detach<T extends NxtpTxServiceEvent>(event?: T): void {
+  public detach<T extends TxServiceEvent>(event?: T): void {
     if (event) {
       this.evts[event].detach();
       return;
@@ -162,11 +162,11 @@ export class TransactionService extends ChainReader {
    * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
    *
    */
-  public waitFor<T extends NxtpTxServiceEvent>(
+  public waitFor<T extends TxServiceEvent>(
     event: T,
     timeout: number,
-    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
-  ): Promise<NxtpTxServiceEventPayloads[T]> {
+    filter: (data: TxServiceEventPayloads[T]) => boolean = (_data: TxServiceEventPayloads[T]) => true,
+  ): Promise<TxServiceEventPayloads[T]> {
     return this.evts[event].pipe(filter).waitFor(timeout);
   }
 
@@ -237,13 +237,13 @@ export class TransactionService extends ChainReader {
       }
       const provider = new TransactionDispatch(this.logger, domain, chain, signer, {
         onSubmit: (transaction: OnchainTransaction) =>
-          this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
+          this.evts[TxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
         onMined: (transaction: OnchainTransaction) =>
-          this.evts[NxtpTxServiceEvents.TransactionMined].post({ receipt: transaction.receipt! }),
+          this.evts[TxServiceEvents.TransactionMined].post({ receipt: transaction.receipt! }),
         onConfirm: (transaction: OnchainTransaction) =>
-          this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt: transaction.receipt! }),
+          this.evts[TxServiceEvents.TransactionConfirmed].post({ receipt: transaction.receipt! }),
         onFail: (transaction: OnchainTransaction) =>
-          this.evts[NxtpTxServiceEvents.TransactionFailed].post({
+          this.evts[TxServiceEvents.TransactionFailed].post({
             error: transaction.error!,
             receipt: transaction.receipt,
           }),

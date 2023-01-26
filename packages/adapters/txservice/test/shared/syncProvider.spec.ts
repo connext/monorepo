@@ -1,6 +1,6 @@
 import { randomInt } from "crypto";
 import { reset, restore, SinonStub, stub } from "sinon";
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 import { RpcError, SyncProvider, TransactionReverted } from "../../src/shared";
 import { TEST_ERROR, TEST_SENDER_DOMAIN } from "../utils";

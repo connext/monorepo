@@ -1,7 +1,7 @@
 {
   "name": "@connext/sdk",
   "version": "0.2.1-rc.19",
-  "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
+  "description": "Client-side package for interacting with the Connext protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
@@ -29,13 +29,13 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
+      "../@connext/txservice/dist",
+      "../@connext/utils/dist"
     ]
   },
   "dependencies": {
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",

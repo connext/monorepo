@@ -1,4 +1,4 @@
-\*\*\*\*# NXTP Subgraph
+\*\*\*\*# Connext Subgraph
 
 ## Development
 
@@ -11,7 +11,7 @@ If contract changes have been made, create a new version under `src` directory a
 When changes have been made to the `Connext.sol` events, first update the [subgraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph prepare:local
+yarn workspace @connext/subgraph prepare:local
 ```
 
 which will ensure a `subgraph.yaml` gets generated from the template.
@@ -19,13 +19,13 @@ which will ensure a `subgraph.yaml` gets generated from the template.
 Then, regenerate the typings by running:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph codegen
+yarn workspace @connext/subgraph codegen
 ```
 
 From there, you can update the `mapping.ts` as needed to conform to the new event structures. Once the `mapping.ts` is updated, run:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph build
+yarn workspace @connext/subgraph build
 ```
 
 #### Subgraph Schema Changes
@@ -33,19 +33,19 @@ yarn workspace @connext/nxtp-subgraph build
 If you would like to change the schema of the subgraph, make the requisite changes in the respective version's `schema.graphql` and regenerate the typings by running:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph prepare:local
+yarn workspace @connext/subgraph prepare:local
 ```
 
 which will ensure a `subgraph.yaml` gets generated from the template.
 
 ```sh
-yarn workspace @connext/nxtp-subgraph codegen
+yarn workspace @connext/subgraph codegen
 ```
 
 Then, update the `mapping.ts` as needed to properly account for the schema changes and run:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph build
+yarn workspace @connext/subgraph build
 ```
 
 ### Deploying Subgraph
@@ -62,19 +62,19 @@ Then, once you added the `subgraph name`, `network`, `start block number` and `a
 For example, if you want to use contract version `v1-runtime`, under `v1-runtime`, run:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy v1-runtime v1-runtime rinkeby <graph-access-token>
+yarn workspace @connext/subgraph deploy v1-runtime v1-runtime rinkeby <graph-access-token>
 ```
 
 OR
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy:v1-runtime rinkeby <graph-access-token>
+yarn workspace @connext/subgraph deploy:v1-runtime rinkeby <graph-access-token>
 ```
 
 You can also deploy subgraph on all the networks for given environment at once by using `ALL`.
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy v1-runtime v1-runtime all <graph-access-token>
+yarn workspace @connext/subgraph deploy v1-runtime v1-runtime all <graph-access-token>
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.

@@ -1,4 +1,4 @@
-import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask } from "@connext/nxtp-utils";
+import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask } from "@connext/utils";
 
 import { Cache } from "./cache";
 

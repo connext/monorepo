@@ -124,17 +124,17 @@ Here `yarn`: Install deps, create symlinks, hoist packages. & `yarn build:all`: 
 
 And now you are all ready to interact with Monorepo.
 
-Individual commands can be run against workspaces as so (example for `nxtp-utils` package):
+Individual commands can be run against workspaces as so (example for `utils` package):
 
-`yarn workspace @connext/nxtp-utils test`
+`yarn workspace @connext/utils test`
 
 You should be able to do everything from the root and not need to go into the individual package dirs. For example, adding an npm package:
 
-`yarn workspace @connext/nxtp-txservice add ethers`
+`yarn workspace @connext/txservice add ethers`
 
 Run router:
 
-- `yarn workspace @connext/nxtp-router dev` - Runs router in hot-reload mode.
+- `yarn workspace @connext/router dev` - Runs router in hot-reload mode.
 
 ## Running Test
 

@@ -9,23 +9,23 @@ if [ $BUILD_USING_LIVE_VERSION -eq 1 ]; then
     export GRAPH_1337_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
     export GRAPH_1338_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
 else
-    export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/nxtp"
-    export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
+    export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/connext"
+    export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/connext"
 
     # bring up chains/graph node/ipfs
     docker compose -f docker-compose.chains.yaml up -d
 
     # build subgraph
-    yarn workspace @connext/nxtp-subgraph prepare:v0
-    yarn workspace @connext/nxtp-subgraph codegen
+    yarn workspace @connext/subgraph prepare:v0
+    yarn workspace @connext/subgraph codegen
 
     # create/deploy subgraphs to graph nodes
-    yarn workspace @connext/nxtp-subgraph create-local-1337
-    yarn workspace @connext/nxtp-subgraph deploy-local-1337 -l v0.0.1
-    yarn workspace @connext/nxtp-subgraph create-local-1338
-    yarn workspace @connext/nxtp-subgraph deploy-local-1338 -l v0.0.1
+    yarn workspace @connext/subgraph create-local-1337
+    yarn workspace @connext/subgraph deploy-local-1337 -l v0.0.1
+    yarn workspace @connext/subgraph create-local-1338
+    yarn workspace @connext/subgraph deploy-local-1338 -l v0.0.1
 fi
 
 # generate client
 echo "Building graph client..."
-yarn workspace @connext/nxtp-adapters-subgraph run build-client
+yarn workspace @connext/adapters-subgraph run build-client

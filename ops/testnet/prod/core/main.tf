@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet-prod-core"
+    bucket = "terraform-testnet-prod-core"
     key    = "state/"
     region = "us-east-1"
   }
@@ -258,7 +258,7 @@ module "sequencer_web3signer" {
 
 module "lighthouse_prover_cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
+  ecr_repository_name = "lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse-prover"
   environment         = var.environment
@@ -269,7 +269,7 @@ module "lighthouse_prover_cron" {
 
 module "lighthouse_process_from_root_cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
+  ecr_repository_name = "lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse-process-from-root"
   environment         = var.environment
@@ -281,7 +281,7 @@ module "lighthouse_process_from_root_cron" {
 
 module "lighthouse_propagate_cron" {
   source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
+  ecr_repository_name = "lighthouse"
   docker_image_tag    = var.lighthouse_image_tag
   container_family    = "lighthouse-propagate"
   environment         = var.environment
@@ -375,7 +375,7 @@ module "ecs" {
   stage                   = var.stage
   environment             = var.environment
   domain                  = var.domain
-  ecs_cluster_name_prefix = "nxtp-ecs"
+  ecs_cluster_name_prefix = "ecs"
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   public_subnets          = module.network.public_subnets

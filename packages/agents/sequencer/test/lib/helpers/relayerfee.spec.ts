@@ -1,4 +1,4 @@
-import { expect, OriginTransfer } from "@connext/nxtp-utils";
+import { expect, OriginTransfer } from "@connext/utils";
 import { BigNumber } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 

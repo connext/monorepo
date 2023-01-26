@@ -8,9 +8,9 @@ import {
   RelayerTaskStatus,
   mkBytes32,
   createRequestContext,
-} from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
-import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
+} from "@connext/utils";
+import { ChainReader } from "@connext/txservice";
+import { mockChainReader } from "@connext/txservice/test/mock";
 
 import * as RelayerIndexFns from "../../src/gelato/index";
 import { mockTaskId } from "../mock";

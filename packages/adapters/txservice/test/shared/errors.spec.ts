@@ -1,5 +1,5 @@
 import { Logger } from "ethers/lib/utils";
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 import {
   parseError,
@@ -13,7 +13,7 @@ import {
 } from "../../src/shared/errors";
 
 describe("#parseError", () => {
-  it("should return error if it is nxtp error", () => {
+  it("should return error if it is connext error", () => {
     const err = new RpcError("fail");
     const parsed = parseError(err);
     expect(err).to.be.deep.eq(parsed);
@@ -97,7 +97,7 @@ describe("#parseError", () => {
     expect(parsed).to.be.deep.eq(err);
   });
 
-  it("should return just err object when it is already nxtp error", () => {
+  it("should return just err object when it is already connext error", () => {
     const err = {
       body: "fail",
     };

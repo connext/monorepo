@@ -6,10 +6,10 @@ import {
   WETHAbi,
   MultisendTransaction,
   encodeMultisendCall,
-  NxtpError,
+  ConnextError,
   ajv,
-} from "@connext/nxtp-utils";
-import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+} from "@connext/utils";
+import { contractDeployments, ChainReader } from "@connext/txservice";
 
 export type logger = Logger;
 
@@ -86,12 +86,12 @@ export class SdkBase extends SdkShared {
       throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const connextConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkBase" })
-      : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
+      : new Logger({ name: "SdkBase", level: connextConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkBase(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkBase(connextConfig, logger, chainData));
   }
 
   /**
@@ -519,7 +519,7 @@ export class SdkBase extends SdkShared {
       gasPrice = await this.chainreader.getGasPrice(Number(params.destinationDomain), requestContext);
     } catch (e: unknown) {
       this.logger.warn("Error getting GasPrice", requestContext, methodContext, {
-        error: e as NxtpError,
+        error: e as ConnextError,
         domain: params.destinationDomain,
       });
     }

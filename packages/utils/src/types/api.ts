@@ -2,7 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
 import { ExecutorDataSchema, RelayerTaskStatus } from "./relayer";
-import { NxtpErrorJsonSchema } from "./error";
+import { ConnextErrorJsonSchema } from "./error";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
 
 export enum ExecStatus {
@@ -26,7 +26,7 @@ export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 export const SequencerApiErrorResponseSchema = Type.Object({
   message: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
+  error: Type.Optional(ConnextErrorJsonSchema),
 });
 export type SequencerApiErrorResponse = Static<typeof SequencerApiErrorResponseSchema>;
 
@@ -38,7 +38,7 @@ export const ExecuteFastApiBidResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
   router: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
+  error: Type.Optional(ConnextErrorJsonSchema),
 });
 export type ExecuteFastApiBidResponse = Static<typeof ExecuteFastApiBidResponseSchema>;
 
@@ -74,7 +74,7 @@ export type ExecutorPostDataRequest = Static<typeof ExecutorDataSchema>;
 export const ExecutorPostDataResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
+  error: Type.Optional(ConnextErrorJsonSchema),
 });
 
 export type ExecutorPostDataResponse = Static<typeof ExecutorPostDataResponseSchema>;
@@ -137,7 +137,7 @@ export type RelayerApiPostTaskResponse = Static<typeof RelayerApiPostTaskRespons
 
 export const RelayerApiErrorResponseSchema = Type.Object({
   message: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
+  error: Type.Optional(ConnextErrorJsonSchema),
 });
 export type RelayerApiErrorResponse = Static<typeof RelayerApiErrorResponseSchema>;
 

@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { keccak256 } from "ethers/lib/utils";
 
 import {

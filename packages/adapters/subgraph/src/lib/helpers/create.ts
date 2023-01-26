@@ -1,4 +1,4 @@
-import { ChainData } from "@connext/nxtp-utils";
+import { ChainData } from "@connext/utils";
 
 import { SubgraphMap } from "../entities";
 

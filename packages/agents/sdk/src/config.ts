@@ -1,7 +1,7 @@
-///NXTP Config Generator based on vector/modules/router/src/config.ts
+/// Connext Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
-import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { ajv, ChainData, TAddress, TLogLevel } from "@connext/utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/txservice";
 
 import { getChainData } from "./lib/helpers";
 
@@ -57,7 +57,7 @@ export const TValidationChainConfig = Type.Object({
   assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
-export const NxtpValidationSdkConfigSchema = Type.Object({
+export const ValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
@@ -72,19 +72,19 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
  * @returns The router config with sensible defaults
  */
 export const getEnvConfig = (
-  _nxtpConfig: SdkConfig,
+  _connextConfig: SdkConfig,
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
 ): SdkConfig => {
-  const nxtpConfig: SdkConfig = {
-    ..._nxtpConfig,
-    logLevel: _nxtpConfig.logLevel || "info",
-    network: _nxtpConfig.network || "mainnet",
-    environment: _nxtpConfig.environment || "production",
-    cartographerUrl: _nxtpConfig.cartographerUrl
-      ? _nxtpConfig.cartographerUrl
-      : _nxtpConfig.network === "testnet"
-      ? _nxtpConfig.environment === "staging"
+  const connextConfig: SdkConfig = {
+    ..._connextConfig,
+    logLevel: _connextConfig.logLevel || "info",
+    network: _connextConfig.network || "mainnet",
+    environment: _connextConfig.environment || "production",
+    cartographerUrl: _connextConfig.cartographerUrl
+      ? _connextConfig.cartographerUrl
+      : _connextConfig.network === "testnet"
+      ? _connextConfig.environment === "staging"
         ? "https://postgrest.testnet.connext.ninja"
         : "https://postgrest.testnet.staging.connext.ninja"
       : "https://postgrest.mainnet.connext.ninja",
@@ -93,11 +93,11 @@ export const getEnvConfig = (
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
   const contractPostfix: ContractPostfix =
-    nxtpConfig.environment === "production"
+    connextConfig.environment === "production"
       ? ""
-      : (`${nxtpConfig.environment![0].toUpperCase()}${nxtpConfig.environment!.slice(1)}` as ContractPostfix);
+      : (`${connextConfig.environment![0].toUpperCase()}${connextConfig.environment!.slice(1)}` as ContractPostfix);
   // add contract deployments if they exist
-  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+  Object.entries(connextConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
@@ -105,7 +105,7 @@ export const getEnvConfig = (
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
-    nxtpConfig.chains[domainId].deployments = {
+    connextConfig.chains[domainId].deployments = {
       connext:
         chainConfig.deployments?.connext ??
         (() => {
@@ -137,25 +137,25 @@ export const getEnvConfig = (
         })(),
     };
 
-    nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
+    connextConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
 
-    nxtpConfig.chains[domainId].gasStations = (nxtpConfig.chains[domainId].gasStations ?? []).concat(
+    connextConfig.chains[domainId].gasStations = (connextConfig.chains[domainId].gasStations ?? []).concat(
       chainRecommendedGasStations,
     );
   });
 
-  const validate = ajv.compile(NxtpValidationSdkConfigSchema);
+  const validate = ajv.compile(ValidationSdkConfigSchema);
 
-  const valid = validate(nxtpConfig);
+  const valid = validate(connextConfig);
 
   if (!valid) {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
-  return nxtpConfig;
+  return connextConfig;
 };
 
-let nxtpConfig: SdkConfig | undefined;
+let connextConfig: SdkConfig | undefined;
 
 /**
  * Caches and returns the environment config
@@ -163,7 +163,7 @@ let nxtpConfig: SdkConfig | undefined;
  * @returns The config
  */
 export const getConfig = async (
-  _nxtpConfig: SdkConfig,
+  _connextConfig: SdkConfig,
   deployments: ConnextContractDeployments,
   _chainData?: Map<string, ChainData>,
 ): Promise<SdkConfig> => {
@@ -171,8 +171,8 @@ export const getConfig = async (
   if (!chainData) {
     chainData = await getChainData();
   }
-  nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
-  return nxtpConfig;
+  connextConfig = getEnvConfig(_connextConfig, chainData, deployments);
+  return connextConfig;
 };
 
 export const domainsToChainNames: Record<string, string> = {

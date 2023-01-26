@@ -1,9 +1,9 @@
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
-import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
-import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/utils";
+import { getContractInterfaces, ChainReader } from "@connext/txservice";
+import { closeDatabase, getDatabase } from "@connext/adapters-database";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/adapters-relayer";
 
-import { NxtpLighthouseConfig } from "../../config";
+import { LighthouseConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
@@ -12,7 +12,7 @@ import { proveAndProcess } from "./operations";
 const context: ProverContext = {} as any;
 export const getContext = () => context;
 
-export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+export const makeProver = async (config: LighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makeProver.name);
 
   try {

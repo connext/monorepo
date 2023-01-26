@@ -1,6 +1,6 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { ConnextError } from "@connext/utils";
 
-export class DomainInvalid extends NxtpError {
+export class DomainInvalid extends ConnextError {
   constructor(domain: string, context: any = {}) {
     super(
       "Domain invalid: no supported subgraph found for given domain.",
@@ -10,7 +10,7 @@ export class DomainInvalid extends NxtpError {
   }
 }
 
-export class PrefixInvalid extends NxtpError {
+export class PrefixInvalid extends ConnextError {
   constructor(name: string, regexMatch: any, context: any = {}) {
     super(
       "Subgraph prefix name is invalid: unable to parse network from prefix. Did the prefix formatting change?",
@@ -24,19 +24,19 @@ export class PrefixInvalid extends NxtpError {
   }
 }
 
-export class DocumentInvalid extends NxtpError {
+export class DocumentInvalid extends ConnextError {
   constructor(context: any = {}) {
     super("Document invalid", context, DocumentInvalid.name);
   }
 }
 
-export class RuntimeError extends NxtpError {
+export class RuntimeError extends ConnextError {
   constructor(context: any = {}) {
     super("Executing the query failed!", context, RuntimeError.name);
   }
 }
 
-export class XQueryResultParseError extends NxtpError {
+export class XQueryResultParseError extends ConnextError {
   constructor(context: any = {}) {
     super("Parsing xquery result failed!", context, XQueryResultParseError.name);
   }

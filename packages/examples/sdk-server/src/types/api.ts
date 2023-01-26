@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { XTransferStatus } from "@connext/nxtp-utils";
+import { XTransferStatus } from "@connext/utils";
 
 export const getCanonicalTokenIdSchema = Type.Object({
   domainId: Type.String(),

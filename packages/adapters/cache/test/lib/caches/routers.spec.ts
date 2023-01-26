@@ -1,4 +1,4 @@
-import { Logger, expect, mock, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { Logger, expect, mock, getNtpTimeSeconds } from "@connext/utils";
 
 import { RoutersCache } from "../../../src/index";
 import { TimestampedCacheValue } from "../../../src/lib/entities";

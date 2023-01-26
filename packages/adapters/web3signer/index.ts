@@ -1,5 +1,5 @@
 import { Signer, providers, utils, Bytes, BigNumber } from "ethers";
-import { getAddressFromPublicKey } from "@connext/nxtp-utils";
+import { getAddressFromPublicKey } from "@connext/utils";
 
 import { Web3SignerApi } from "./api";
 

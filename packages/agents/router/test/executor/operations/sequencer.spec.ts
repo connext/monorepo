@@ -1,4 +1,4 @@
-import { createLoggingContext, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { createLoggingContext, expect, mkAddress, mkBytes32 } from "@connext/utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { sendExecuteSlowToSequencer } from "../../../src/tasks/executor/operations";
 import { mock } from "../../mock";

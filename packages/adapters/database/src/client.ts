@@ -13,7 +13,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
 import { conditions as dc } from "zapatos/db";

@@ -3,12 +3,12 @@ import {
   createLoggingContext,
   ExecuteArgs,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   formatUrl,
   getChainIdFromDomain,
   ExecutorPostDataRequest,
   ExecutorData,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../executor";
 // @ts-ignore
@@ -68,7 +68,7 @@ export const sendExecuteSlowToSequencer = async (
       transferId: transferId,
     });
   } catch (err: unknown) {
-    logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
+    logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as ConnextError), {
       chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
@@ -107,7 +107,7 @@ export const sendExecuteSlowToSequencer = async (
       "Sequencer POST request failed",
       requestContext,
       methodContext,
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
       executorRequestData,
     );
   }

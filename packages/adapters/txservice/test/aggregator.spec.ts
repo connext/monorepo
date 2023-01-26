@@ -1,6 +1,6 @@
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { getRandomAddress, getRandomBytes32, expect, Logger, ConnextError, RequestContext } from "@connext/utils";
 
 import { RpcProviderAggregator } from "../src/aggregator";
 import * as Mockable from "../src/mockable";
@@ -646,7 +646,7 @@ describe("RpcProviderAggregator", () => {
   describe("#checkSigner", () => {
     it("throws if no signer available", async () => {
       (chainProvider as any).signer = undefined;
-      expect(() => (chainProvider as any).checkSigner()).to.throw(NxtpError);
+      expect(() => (chainProvider as any).checkSigner()).to.throw(ConnextError);
     });
   });
 

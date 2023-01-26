@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { restore, reset } from "sinon";
 import { getDomainFromPrefix, getPrefixForDomain } from "../../../src/lib/helpers/prefix";
 import { stubContext } from "../../mock";

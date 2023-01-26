@@ -26,9 +26,9 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-database": "workspace:*",
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/adapters-database": "workspace:*",
+    "@connext/adapters-subgraph": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "datadog-lambda-js": "6.85.0",
     "dd-trace": "3.9.3",

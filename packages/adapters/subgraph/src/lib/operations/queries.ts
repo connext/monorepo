@@ -3,7 +3,7 @@ import {
   SubgraphQueryMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../reader";
 

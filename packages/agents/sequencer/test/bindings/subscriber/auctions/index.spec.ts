@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { stub, SinonStub } from "sinon";
 
 import { bindSubscriber } from "../../../../src/bindings/subscriber";

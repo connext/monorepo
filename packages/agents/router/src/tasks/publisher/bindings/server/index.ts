@@ -1,4 +1,4 @@
-import { jsonifyError, NxtpError, ClearCacheRequestSchema, ClearCacheRequest, AdminRequest } from "@connext/nxtp-utils";
+import { jsonifyError, ConnextError, ClearCacheRequestSchema, ClearCacheRequest, AdminRequest } from "@connext/utils";
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { register } from "prom-client";
 
@@ -45,7 +45,7 @@ export const api = {
         const result = await register.metrics();
         return res.status(200).send(result);
       } catch (e: unknown) {
-        const json = jsonifyError(e as NxtpError);
+        const json = jsonifyError(e as ConnextError);
         logger.error("Failed to collect metrics", undefined, undefined, json);
         return res.status(500).send(json);
       }

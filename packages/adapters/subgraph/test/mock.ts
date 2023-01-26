@@ -13,7 +13,7 @@ import {
   RouterBalance,
   XMessage,
   XTransferStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { stub, SinonStub, createStubInstance } from "sinon";
 import { SubgraphMap } from "../src/lib/entities";
 import * as Reader from "../src/reader";

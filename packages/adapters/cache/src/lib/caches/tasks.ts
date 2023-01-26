@@ -1,4 +1,4 @@
-import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { getRandomBytes32, RelayerApiFee, RelayerTaskStatus } from "@connext/utils";
 
 import { Cache } from "./cache";
 
@@ -18,7 +18,7 @@ export type CachedTaskData = {
  *   key: status:$taskId | value: RelayerApiTaskStatus;
  *
  * Task Errors:
- *   key: error:$taskId | value: JSON.stringify(NxtpError);
+ *   key: error:$taskId | value: JSON.stringify(ConnextError);
  *
  * Task Tx Hash:
  *   key: hash:$taskId | value: string;

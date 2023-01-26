@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { stub, SinonStub, restore, reset } from "sinon";
 import * as GraphclientFns from "../../../src/lib/helpers/graphclient";
 import * as ParserFns from "../../../src/lib/helpers/parse";

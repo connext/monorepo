@@ -1,5 +1,5 @@
-import { BaseRequestContext, createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
-import { PauseResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
+import { BaseRequestContext, createRequestContext, expect, mkHash } from "@connext/utils";
+import { PauseResponse, ReportEventType } from "@connext/adapters-watcher";
 import { stub, SinonStub } from "sinon";
 import * as ValidateAndPauseFns from "../../src/operations/validateAndPause";
 import { ctxMock } from "../globalTestHook";

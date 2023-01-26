@@ -4,7 +4,7 @@ import { TEST_REPORT } from "../utils";
 import { alertViaDiscord } from "../../src/alert";
 import * as Mockable from "../../src/mockable";
 
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 describe("Watcher Adapter: discord", () => {
   beforeEach(() => {});

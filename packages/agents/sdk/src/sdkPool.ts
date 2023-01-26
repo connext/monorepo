@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/utils";
+import { contractDeployments } from "@connext/txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
@@ -65,13 +65,13 @@ export class SdkPool extends SdkShared {
       throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const connextConfig = await getConfig(_config, contractDeployments, chainData);
 
     const logger = _logger
       ? _logger.child({ name: "SdkPool" })
-      : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
+      : new Logger({ name: "SdkPool", level: connextConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkPool(connextConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //

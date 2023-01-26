@@ -1,6 +1,6 @@
 import { createStubInstance } from "sinon";
 import { BigNumber, utils } from "ethers";
-import { mock } from "@connext/nxtp-utils";
+import { mock } from "@connext/utils";
 
 import { ChainReader } from "../src";
 

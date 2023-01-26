@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-adapters-web3signer",
+  "name": "@connext/adapters-web3signer",
   "version": "0.2.1-rc.19",
-  "description": "adapter for subgraph interaction of nxtp protocol",
+  "description": "adapter for web3signer interaction of connext protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -28,15 +28,15 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
+      "../@connext/txservice/dist",
+      "../@connext/utils/dist"
     ]
   },
   "eslintIgnore": [],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@typescript-eslint/eslint-plugin": "5.47.0",
     "ethers": "5.7.2"
   },

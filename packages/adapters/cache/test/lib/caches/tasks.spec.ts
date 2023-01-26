@@ -7,7 +7,7 @@ import {
   getRandomBytes32,
   getNtpTimeSeconds,
   RelayerTaskStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { CachedTaskData, TasksCache } from "../../../src/lib/caches/tasks";
 

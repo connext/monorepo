@@ -1,6 +1,6 @@
-import { createLoggingContext, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/utils";
 import { ConnextInterface } from "@connext/smart-contracts";
-import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
+import { getErc20Interface, TransactionService } from "@connext/txservice";
 import { BigNumber } from "ethers";
 
 export const addLiquidity = async (

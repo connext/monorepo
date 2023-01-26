@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId, domainToChainId } from "../../domain";

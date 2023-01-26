@@ -1,7 +1,7 @@
 import { SdkPool, SdkShared } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { getCanonicalHash } from "@connext/nxtp-utils";
+import { getCanonicalHash } from "@connext/utils";
 
 import {
   getLPTokenAddressSchema,

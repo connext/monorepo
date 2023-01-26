@@ -9,7 +9,7 @@ import {
   Logger,
   mock,
   chainDataToMap,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
 import { RpcProviderAggregator } from "../src/aggregator";

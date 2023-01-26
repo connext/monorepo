@@ -1,4 +1,4 @@
-import { chainDataToMap, expect } from "@connext/nxtp-utils";
+import { chainDataToMap, expect } from "@connext/utils";
 import { stub } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
@@ -16,21 +16,21 @@ describe("Config", () => {
     it("happy: should parse out configuration", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_MNEMONIC: mockConfig.mnemonic,
-        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
-        NXTP_LOG_LEVEL: mockConfig.logLevel,
-        NXTP_CONFIG: JSON.stringify(mockConfig),
+        MNEMONIC: mockConfig.mnemonic,
+        CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
+        LOG_LEVEL: mockConfig.logLevel,
+        CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
     });
 
-    it("should read config from NXTP Config with testnet network values overridden", () => {
+    it("should read config from Config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(mockConfig),
+        CONFIG_FILE: "buggypath",
+        NETWORK: "testnet",
+        CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -40,8 +40,8 @@ describe("Config", () => {
       mockChainData[testDomainId] = undefined;
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify({
+        NETWORK: "local",
+        CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             [testDomainId]: {
@@ -78,14 +78,14 @@ describe("Config", () => {
     it("should error if the wallet is missing", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_MNEMONIC: null,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify({
+        MNEMONIC: null,
+        NETWORK: "local",
+        CONFIG: JSON.stringify({
           ...mockConfig,
           mnemonic: null,
           web3SignerUrl: null,
         }),
-        NXTP_CONFIG_FILE: "buggypath",
+        CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).throw(
@@ -97,8 +97,8 @@ describe("Config", () => {
       const alteredMockChain = mock.domain.A;
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify({
+        NETWORK: "local",
+        CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             ...mockConfig.chains,
@@ -124,8 +124,8 @@ describe("Config", () => {
     it("should error if validation fails", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify({
+        NETWORK: "local",
+        CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             1337: {
@@ -149,11 +149,11 @@ describe("Config", () => {
       expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("No Connext contract address for domain");
     });
 
-    it("should read config from NXTP Config with local network values overridden", () => {
+    it("should read config from Config with local network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify(mockConfig),
+        NETWORK: "local",
+        CONFIG: JSON.stringify(mockConfig),
       });
 
       let res;
@@ -173,7 +173,7 @@ describe("Config", () => {
       stub(Mockable, "readFileSync").returns(JSON.stringify(mockConfig));
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
+        CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -184,10 +184,10 @@ describe("Config", () => {
     it("should work", async () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_MNEMONIC: mockConfig.mnemonic,
-        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
-        NXTP_LOG_LEVEL: mockConfig.logLevel,
-        NXTP_CONFIG: JSON.stringify(mockConfig),
+        MNEMONIC: mockConfig.mnemonic,
+        CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
+        LOG_LEVEL: mockConfig.logLevel,
+        CONFIG: JSON.stringify(mockConfig),
       });
 
       const env = getEnvConfig(mockChainData, mockDeployments);

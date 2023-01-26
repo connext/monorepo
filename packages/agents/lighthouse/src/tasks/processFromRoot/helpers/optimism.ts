@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/utils";
 import { CrossChainMessageProof } from "@eth-optimism/sdk";
 import { BigNumber, providers } from "ethers";
 

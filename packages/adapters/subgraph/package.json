@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-adapters-subgraph",
+  "name": "@connext/adapters-subgraph",
   "version": "0.2.1-rc.19",
-  "description": "adapter for subgraph interaction of nxtp protocol",
+  "description": "adapter for subgraph interaction of Connext protocol",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
@@ -35,7 +35,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@graphprotocol/client-cli": "2.2.15",
     "@graphql-mesh/transform-prefix": "0.12.4",
     "@graphql-mesh/transform-rename": "0.14.4",

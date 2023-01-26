@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-adapters-cache",
+  "name": "@connext/adapters-cache",
   "version": "0.2.1-rc.19",
-  "description": "adapter for handling communication with Redis cache for nxtp protocol",
+  "description": "adapter for handling communication with Redis cache for Connext protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -28,14 +28,14 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-utils/dist"
+      "../@connext/utils/dist"
     ]
   },
   "eslintIgnore": [],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@typescript-eslint/eslint-plugin": "5.47.0",
     "ethers": "5.7.2",
     "ioredis": "5.2.4",

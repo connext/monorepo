@@ -9,7 +9,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   mock,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import {
   mockChainData,
   mockDestinationTransferEntity,

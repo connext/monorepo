@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress } from "@connext/nxtp-utils";
+import { TAddress } from "@connext/utils";
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),

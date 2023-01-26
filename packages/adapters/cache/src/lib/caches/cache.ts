@@ -1,4 +1,4 @@
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 import Redis from "ioredis";
 
 import { CacheParams } from "../entities";

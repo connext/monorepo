@@ -11,7 +11,7 @@ import {
   Bid,
   getNtpTimeSeconds,
   RelayerType,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { AuctionsCache } from "../../../src/index";
 

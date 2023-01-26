@@ -2,7 +2,7 @@ import { SinonStub, stub } from "sinon";
 
 import { TEST_REPORT } from "../utils";
 import { alertViaBetterUptime } from "../../src/alert";
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import * as Mockable from "../../src/mockable";
 
 describe("Watcher Adapter: betteruptime", () => {

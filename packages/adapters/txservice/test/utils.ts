@@ -1,6 +1,6 @@
 import { providers, BigNumber, utils } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
-import { mkHash, mkAddress, RequestContext, getRandomBytes32 } from "@connext/nxtp-utils";
+import { mkHash, mkAddress, RequestContext, getRandomBytes32 } from "@connext/utils";
 
 import { OnchainTransaction, ReadTransaction, WriteTransaction } from "../src/shared";
 import { stub } from "sinon";

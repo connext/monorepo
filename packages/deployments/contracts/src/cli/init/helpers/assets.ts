@@ -1,5 +1,5 @@
 import { BigNumber, constants, utils } from "ethers";
-import { ChainData } from "@connext/nxtp-utils";
+import { ChainData } from "@connext/utils";
 
 import { canonizeId } from "../../../domain";
 

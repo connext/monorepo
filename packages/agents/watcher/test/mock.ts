@@ -1,8 +1,8 @@
 import { Wallet } from "ethers";
 import { createStubInstance } from "sinon";
-import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
-import { Logger, mkHash, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
-import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
+import { WatcherAdapter } from "@connext/adapters-watcher";
+import { Logger, mkHash, mock as _mock, mockSequencer } from "@connext/utils";
+import { mockSubgraph } from "@connext/adapters-subgraph/test/mock";
 
 import { WatcherConfig } from "../src/config";
 import { WatcherContext } from "../src/context";

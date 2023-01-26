@@ -1,7 +1,7 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import { TimeoutEvtError } from "evt";
-import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
+import { getRandomBytes32, RequestContext, expect, Logger, ConnextError } from "@connext/utils";
 
 import { TransactionService } from "../src/transactionservice";
 import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
@@ -9,7 +9,7 @@ import {
   ConfigurationError,
   ProviderNotConfigured,
   TransactionReverted,
-  NxtpTxServiceEvents,
+  TxServiceEvents,
   OnchainTransaction,
 } from "../src/shared";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
@@ -84,7 +84,7 @@ describe("TransactionService", () => {
     it("will not instantiate twice", () => {
       expect(() => {
         new TransactionService(logger, {}, signer);
-      }).to.throw(NxtpError);
+      }).to.throw(ConnextError);
     });
   });
 
@@ -109,16 +109,16 @@ describe("TransactionService", () => {
   describe("#attach", () => {
     it("should attach callback to event", async () => {
       const onSubmitSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, onSubmitSpy);
+      chainService.attach(TxServiceEvents.TransactionSubmitted, onSubmitSpy);
 
       const onMinedSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionMined, onMinedSpy);
+      chainService.attach(TxServiceEvents.TransactionMined, onMinedSpy);
 
       const onConfirmSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionConfirmed, onConfirmSpy);
+      chainService.attach(TxServiceEvents.TransactionConfirmed, onConfirmSpy);
 
       const onFailSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionFailed, onFailSpy);
+      chainService.attach(TxServiceEvents.TransactionFailed, onFailSpy);
 
       dispatchCallbacks.onSubmit(transaction);
       dispatchCallbacks.onMined(transaction);
@@ -135,7 +135,7 @@ describe("TransactionService", () => {
       const totalCallNumber = 6;
       const filteredCallThreshold = 3;
       const spy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
+      chainService.attach(TxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
         return data.responses.length > filteredCallThreshold;
       });
 
@@ -152,14 +152,14 @@ describe("TransactionService", () => {
   describe("#attachOnce", () => {
     it("happy", async () => {
       const spy = Sinon.spy();
-      chainService.attachOnce(NxtpTxServiceEvents.TransactionSubmitted, spy);
+      chainService.attachOnce(TxServiceEvents.TransactionSubmitted, spy);
       dispatchCallbacks.onSubmit(transaction);
       expect(spy.callCount).to.equal(1);
     });
 
     it("should properly use filtering condition", async () => {
       const spy = Sinon.spy();
-      chainService.attachOnce(NxtpTxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
+      chainService.attachOnce(TxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
         return data.responses.length > 3;
       });
 
@@ -176,14 +176,14 @@ describe("TransactionService", () => {
   describe("#detach", () => {
     it("should remove listener from event", async () => {
       const spy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, spy);
+      chainService.attach(TxServiceEvents.TransactionSubmitted, spy);
 
       // Event should be triggered for this round.
       dispatchCallbacks.onSubmit(transaction);
       expect(spy.callCount).to.equal(1);
 
       // Event should NOT be triggered for this round.
-      chainService.detach(NxtpTxServiceEvents.TransactionSubmitted);
+      chainService.detach(TxServiceEvents.TransactionSubmitted);
       dispatchCallbacks.onSubmit(transaction);
 
       // Call count should remain the same.
@@ -192,10 +192,10 @@ describe("TransactionService", () => {
 
     it("should detach all listeners if no event specified", async () => {
       const onSubmitSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, onSubmitSpy);
+      chainService.attach(TxServiceEvents.TransactionSubmitted, onSubmitSpy);
 
       const onMinedSpy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionMined, onMinedSpy);
+      chainService.attach(TxServiceEvents.TransactionMined, onMinedSpy);
 
       // Events should be triggered for this round.
       dispatchCallbacks.onSubmit(transaction);
@@ -224,11 +224,11 @@ describe("TransactionService", () => {
   describe("#waitFor", () => {
     it("should wait for event", async () => {
       const spy = Sinon.spy();
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, spy);
+      chainService.attach(TxServiceEvents.TransactionSubmitted, spy);
 
       // Wrap in a promise here to be sure that the waitFor call is blocking.
       const promise = new Promise<boolean>(async (resolve) => {
-        await chainService.waitFor(NxtpTxServiceEvents.TransactionSubmitted, 10_000);
+        await chainService.waitFor(TxServiceEvents.TransactionSubmitted, 10_000);
         resolve(spy.callCount === 1);
       });
 
@@ -237,10 +237,8 @@ describe("TransactionService", () => {
     });
 
     it("should expire after timeout", async () => {
-      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, () => {});
-      await expect(chainService.waitFor(NxtpTxServiceEvents.TransactionSubmitted, 10)).to.be.rejectedWith(
-        TimeoutEvtError,
-      );
+      chainService.attach(TxServiceEvents.TransactionSubmitted, () => {});
+      await expect(chainService.waitFor(TxServiceEvents.TransactionSubmitted, 10)).to.be.rejectedWith(TimeoutEvtError);
     });
   });
 

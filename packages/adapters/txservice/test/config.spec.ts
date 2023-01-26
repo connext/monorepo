@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { DEFAULT_CHAIN_CONFIG_VALUE_MINS, validateTransactionServiceConfig } from "../src/config";
 import { ConfigurationError } from "../src/shared";
 import { TEST_SENDER_CHAIN_ID } from "./utils";

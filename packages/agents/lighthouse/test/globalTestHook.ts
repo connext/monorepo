@@ -1,8 +1,8 @@
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader } from "@connext/txservice";
 import { parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { BaseRequestContext, Logger, RelayerType } from "@connext/nxtp-utils";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { BaseRequestContext, Logger, RelayerType } from "@connext/utils";
+import { Relayer } from "@connext/adapters-relayer";
 
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";

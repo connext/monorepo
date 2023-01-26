@@ -1,7 +1,7 @@
 import {
   createLoggingContext,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   XMessage,
   SparseMerkleTree,
   RootMessage,
@@ -9,7 +9,7 @@ import {
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import {
   NoDestinationDomainForProof,
@@ -137,12 +137,17 @@ export const proveAndProcess = async () => {
                 }
               }
             } catch (err: unknown) {
-              logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
+              logger.error(
+                "Error processing messages",
+                requestContext,
+                methodContext,
+                jsonifyError(err as ConnextError),
+              );
             }
           }),
         );
       } catch (err: unknown) {
-        logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
+        logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as ConnextError));
       }
     }),
   );
@@ -332,6 +337,6 @@ export const processMessages = async (
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
   } catch (err: unknown) {
-    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as ConnextError));
   }
 };

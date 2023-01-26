@@ -1,4 +1,4 @@
-# Cross Chain Subgraph for NXTP
+# Cross Chain Subgraph for Connext
 
 The subgraph adapter has been built on top of the [graphclient](https://github.com/graphprotocol/graph-client). This basically works in cross-chain mode right now and uses `highestValue` strategy, but we will integrate the `most-synced` strategy once they get it released [here](https://github.com/graphprotocol/graph-client/issues/63).
 
@@ -63,7 +63,7 @@ GRAPH_1338_ENDPOINT=https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-
 ```
 
 ```sh
-yarn workspace @connext/nxtp-adapters-subgraph build-client
+yarn workspace @connext/adapters-subgraph build-client
 ```
 
 This basically fetches the schemas from endpoints and creates typescript-based entities which are prefixed.

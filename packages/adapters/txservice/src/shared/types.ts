@@ -1,4 +1,4 @@
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 import { BigNumber, BigNumberish, providers } from "ethers";
 
 export type ReadTransaction = {
@@ -32,19 +32,19 @@ export type TxServiceFailedEvent = {
   receipt?: providers.TransactionReceipt;
 };
 
-export const NxtpTxServiceEvents = {
+export const TxServiceEvents = {
   TransactionSubmitted: "TransactionSubmitted",
   TransactionMined: "TransactionMined",
   TransactionConfirmed: "TransactionConfirmed",
   TransactionFailed: "TransactionFailed",
 } as const;
-export type NxtpTxServiceEvent = typeof NxtpTxServiceEvents[keyof typeof NxtpTxServiceEvents];
+export type TxServiceEvent = typeof TxServiceEvents[keyof typeof TxServiceEvents];
 
-export interface NxtpTxServiceEventPayloads {
-  [NxtpTxServiceEvents.TransactionSubmitted]: TxServiceSubmittedEvent;
-  [NxtpTxServiceEvents.TransactionMined]: TxServiceMinedEvent;
-  [NxtpTxServiceEvents.TransactionConfirmed]: TxServiceConfirmedEvent;
-  [NxtpTxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
+export interface TxServiceEventPayloads {
+  [TxServiceEvents.TransactionSubmitted]: TxServiceSubmittedEvent;
+  [TxServiceEvents.TransactionMined]: TxServiceMinedEvent;
+  [TxServiceEvents.TransactionConfirmed]: TxServiceConfirmedEvent;
+  [TxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
 }
 
 export type Gas = {

@@ -1,8 +1,8 @@
 import { Wallet } from "ethers";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { ChainData, Logger } from "@connext/nxtp-utils";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { TransactionService, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { ChainData, Logger } from "@connext/utils";
+import { StoreManager } from "@connext/adapters-cache";
+import { TransactionService, ConnextContractInterfaces } from "@connext/txservice";
 
 import { RelayerConfig } from ".";
 

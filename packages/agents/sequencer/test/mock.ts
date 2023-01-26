@@ -1,17 +1,17 @@
 import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/nxtp-utils";
+import { AuctionsCache, RoutersCache, StoreManager } from "@connext/adapters-cache";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { ChainReader, ConnextContractInterfaces } from "@connext/txservice";
+import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/utils";
 import { ConnextInterface } from "@connext/smart-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/smart-contracts/typechain-types/ConnextPriceOracle";
 import { StableSwapInterface } from "@connext/smart-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
-import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockRelayer } from "@connext/adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/adapters-database/test/mock";
 
 export const mockExcludeAddress = mkAddress("0xmockExcludeAddr");
 export const mock = {

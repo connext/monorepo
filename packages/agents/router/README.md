@@ -30,7 +30,7 @@ Run all commands from the root directory.
 - Run the router in hot-reload mode.
 
 ```sh
-yarn workspace @connext/nxtp-router dev
+yarn workspace @connext/router dev
 ```
 
 ### Generating Subgraph Client
@@ -42,5 +42,5 @@ The router uses [graphql-codegen](https://www.graphql-code-generator.com) to gen
 - Regenerate client code.
 
 ```sh
-yarn workspace @connext/nxtp-router codegen
+yarn workspace @connext/router codegen
 ```

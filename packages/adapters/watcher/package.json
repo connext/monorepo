@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-adapters-watcher",
+  "name": "@connext/adapters-watcher",
   "version": "0.2.1-rc.19",
   "description": "adapter for watcher related calls, monitoring, and functionality",
   "main": "dist/index.js",
@@ -24,8 +24,8 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@pagerduty/pdjs": "2.2.4",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",

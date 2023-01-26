@@ -4,8 +4,8 @@ import {
   createMethodContext,
   createRequestContext,
   jsonifyError,
-  NxtpError,
-} from "@connext/nxtp-utils";
+  ConnextError,
+} from "@connext/utils";
 
 import { getContext } from "../../watcher";
 import { pauseAndAlert } from "../../operations/validateAndPause";
@@ -48,7 +48,7 @@ export const bindServer = async (): Promise<void> => {
         const address = await wallet.getAddress();
         return res.status(200).send({ address });
       } catch (err: unknown) {
-        return res.status(500).send({ error: jsonifyError(err as NxtpError), message: "Error getting config" });
+        return res.status(500).send({ error: jsonifyError(err as ConnextError), message: "Error getting config" });
       }
     },
   );
@@ -78,7 +78,7 @@ export const bindServer = async (): Promise<void> => {
         const paused = await pauseAndAlert(requestContext, "TODO");
         return res.status(200).send(paused);
       } catch (err: unknown) {
-        return res.status(500).send({ error: jsonifyError(err as NxtpError), message: "Error pausing" });
+        return res.status(500).send({ error: jsonifyError(err as ConnextError), message: "Error pausing" });
       }
     },
   );
@@ -90,7 +90,7 @@ export const bindServer = async (): Promise<void> => {
       "Error starting server",
       createRequestContext(""),
       createMethodContext(""),
-      jsonifyError(err as NxtpError),
+      jsonifyError(err as ConnextError),
     );
   }
 };

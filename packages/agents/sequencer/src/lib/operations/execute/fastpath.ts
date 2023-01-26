@@ -10,7 +10,7 @@ import {
   jsonifyError,
   OriginTransfer,
   XTransferErrorStatus,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
 import { getContext } from "../../../sequencer";

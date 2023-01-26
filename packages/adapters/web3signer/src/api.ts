@@ -1,4 +1,4 @@
-import { NxtpError, axiosPost, axiosGet } from "@connext/nxtp-utils";
+import { ConnextError, axiosPost, axiosGet } from "@connext/utils";
 import { Bytes } from "ethers";
 
 // TODO: This class might benefit from some error handling / logging and response sanitization logic.
@@ -53,7 +53,7 @@ export class Web3SignerApi {
     endpoint: typeof Web3SignerApi.ENDPOINTS[keyof typeof Web3SignerApi.ENDPOINTS],
   ) {
     if (!response || !response.data || response.data.length === 0) {
-      throw new NxtpError(
+      throw new ConnextError(
         "Received bad response from web3signer instance; make sure your key file is configured correctly.",
         {
           response,

@@ -1,5 +1,5 @@
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
-import { createMethodContext } from "@connext/nxtp-utils";
+import { createMethodContext } from "@connext/utils";
 
 import { sendMessageViaTwilio } from "../mockable";
 import { Report } from "../types";

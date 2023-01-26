@@ -1,4 +1,4 @@
-import { expect, mkAddress, mkBytes32, OriginMessage, RootMessage, ReceivedAggregateRoot } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, OriginMessage, RootMessage, ReceivedAggregateRoot } from "@connext/utils";
 import {
   destinationTransfer,
   originMessage,
@@ -8,7 +8,7 @@ import {
   xquery,
 } from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
-import { mock } from "@connext/nxtp-utils";
+import { mock } from "@connext/utils";
 import { restore, reset } from "sinon";
 import { constants, utils } from "ethers";
 

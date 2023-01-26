@@ -1,5 +1,5 @@
 import { providers } from "ethers";
-import { getChainData } from "@connext/nxtp-utils";
+import { getChainData } from "@connext/utils";
 
 import { Deployment } from "../../types";
 

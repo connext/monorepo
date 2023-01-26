@@ -2,13 +2,13 @@ import {
   createLoggingContext,
   jsonifyError,
   Logger,
-  NxtpError,
+  ConnextError,
   RelayerApiPostTaskRequestParams,
   RelayerApiPostTaskResponse,
   RelayerTaskStatus,
   RequestContext,
-} from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+} from "@connext/utils";
+import { ChainReader } from "@connext/txservice";
 import { constants } from "ethers";
 import interval from "interval-promise";
 
@@ -139,7 +139,7 @@ export const waitForTaskCompletion = async (
           "Error getting connext task status, waiting for next loop",
           requestContext,
           methodContext,
-          jsonifyError(error as NxtpError),
+          jsonifyError(error as ConnextError),
         );
       }
     }, _pollInterval);

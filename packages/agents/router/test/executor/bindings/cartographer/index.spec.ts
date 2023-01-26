@@ -1,4 +1,4 @@
-import { delay, expect } from "@connext/nxtp-utils";
+import { delay, expect } from "@connext/utils";
 import { stub, SinonStub } from "sinon";
 import { bindCartographer } from "../../../../src/tasks/executor/bindings";
 

@@ -1,6 +1,6 @@
-import { MethodContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { MethodContext, ConnextError, RequestContext } from "@connext/utils";
 
-export class NoRootAvailable extends NxtpError {
+export class NoRootAvailable extends ConnextError {
   constructor(
     public readonly spokeChain: number,
     public readonly hubChain: number,
@@ -18,7 +18,7 @@ export class NoRootAvailable extends NxtpError {
   }
 }
 
-export class ProcessConfigNotAvailable extends NxtpError {
+export class ProcessConfigNotAvailable extends ConnextError {
   constructor(
     public readonly spokeDomain: string,
     public readonly hubDomain: string,
@@ -36,7 +36,7 @@ export class ProcessConfigNotAvailable extends NxtpError {
   }
 }
 
-export class ConfirmDataDoesNotMatch extends NxtpError {
+export class ConfirmDataDoesNotMatch extends ConnextError {
   constructor(public readonly confirmData: string, public readonly encoded: string, public readonly context: any = {}) {
     super(`Confirm data does not match`, {
       ...context,

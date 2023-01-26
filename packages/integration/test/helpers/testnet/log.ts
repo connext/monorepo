@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 
-import { getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { getNtpTimeSeconds } from "@connext/utils";
 
 import { DomainInfo, LOGFILE_PATH } from "../../constants/testnet";
 

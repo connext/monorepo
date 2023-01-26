@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
-import { generateExitPayload } from "@connext/nxtp-utils";
+import { generateExitPayload } from "@connext/utils";
 
 import hardhatConfig from "../hardhat.config";
 import { Env, getConnectorDeployments, getDeploymentName, mustGetEnv, ProtocolNetwork } from "../src/utils";

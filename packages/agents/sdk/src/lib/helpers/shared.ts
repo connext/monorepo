@@ -1,4 +1,4 @@
-import { getContractInterfaces } from "@connext/nxtp-txservice";
+import { getContractInterfaces } from "@connext/txservice";
 import {
   ajv,
   TUrl,
@@ -11,7 +11,7 @@ import {
   getHardcodedGasLimits as _getHardcodedGasLimits,
   calculateRelayerFee as _calculateRelayerFee,
   axiosGet,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { providers } from "ethers";
 
 import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/index";

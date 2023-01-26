@@ -1,4 +1,4 @@
-import { Logger } from "@connext/nxtp-utils";
+import { Logger } from "@connext/utils";
 
 export type CacheParams = { host?: string; port?: number; mock: boolean; logger: Logger };
 

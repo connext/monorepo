@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/utils";
 
 import { getContext } from "../../../sequencer";
 import { Message, MessageType } from "../../../lib/entities";

@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-infra"
+    bucket = "terraform-infra"
     key    = "state/"
     region = "us-east-1"
   }
@@ -23,7 +23,7 @@ module "kms" {
 
 module "ecr" {
   source           = "../modules/ecr"
-  repository_names = ["nxtp-cartographer", "nxtp-lighthouse"]
+  repository_names = ["cartographer", "lighthouse"]
   registry_replication_rules = [
     {
       destinations = [

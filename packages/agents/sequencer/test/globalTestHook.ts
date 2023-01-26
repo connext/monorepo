@@ -1,10 +1,10 @@
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainReader } from "@connext/nxtp-txservice";
-import { DestinationTransfer, Logger, mkAddress } from "@connext/nxtp-utils";
+import { StoreManager } from "@connext/adapters-cache";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { ChainReader } from "@connext/txservice";
+import { DestinationTransfer, Logger, mkAddress } from "@connext/utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockDatabase } from "@connext/adapters-database/test/mock";
 
 import { AppContext } from "../src/lib/entities/context";
 import * as SequencerFns from "../src/sequencer";

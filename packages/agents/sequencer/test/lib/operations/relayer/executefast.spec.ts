@@ -1,12 +1,12 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, expect, OriginTransfer, XTransfer, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { mkAddress, expect, OriginTransfer, XTransfer, RelayerTaskStatus } from "@connext/utils";
 import { BigNumber } from "ethers";
 
 import { mock } from "../../../mock";
 import { sendExecuteFastToRelayer } from "../../../../src/lib/operations/relayer";
 import { getHelpersStub } from "../../../globalTestHook";
 import * as MockableFns from "../../../../src/mockable";
-import { mockTaskId } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockTaskId } from "@connext/adapters-relayer/test/mock";
 
 const mockTransfers: XTransfer[] = [
   mock.entity.xtransfer({

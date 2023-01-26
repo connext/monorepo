@@ -1,5 +1,5 @@
 import { reset, restore, stub } from "sinon";
-import { expect, XTransferStatus, getRandomBytes32 } from "@connext/nxtp-utils";
+import { expect, XTransferStatus, getRandomBytes32 } from "@connext/utils";
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
@@ -14,7 +14,7 @@ const mockDeployments = mock.contracts.deployments();
 const chainId = 1337;
 
 describe("SdkUtils", () => {
-  let nxtpUtils: SdkUtils;
+  let utils: SdkUtils;
   let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe("SdkUtils", () => {
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
     stub(SharedFns, "axiosGetRequest").resolves({});
 
-    nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
+    utils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -34,13 +34,13 @@ describe("SdkUtils", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpUtils).to.not.be.undefined;
-      expect(nxtpUtils.config).to.not.be.null;
-      expect(nxtpUtils.chainData).to.not.be.null;
+      expect(utils).to.not.be.undefined;
+      expect(utils.config).to.not.be.null;
+      expect(utils.chainData).to.not.be.null;
 
-      expect(nxtpUtils.getRoutersData).to.be.a("function");
-      expect(nxtpUtils.getAssetsData).to.be.a("function");
-      expect(nxtpUtils.getTransfers).to.be.a("function");
+      expect(utils.getRoutersData).to.be.a("function");
+      expect(utils.getAssetsData).to.be.a("function");
+      expect(utils.getTransfers).to.be.a("function");
     });
 
     it("should error if chaindata is undefined", async () => {
@@ -51,38 +51,38 @@ describe("SdkUtils", () => {
 
   describe("#getRoutersData", () => {
     it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getRoutersData();
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getRoutersData();
 
       expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
+      (utils as any).config.cartographerUrl = "invalidUrl";
 
-      await expect(nxtpUtils.getRoutersData()).to.be.rejectedWith(UriInvalid);
+      await expect(utils.getRoutersData()).to.be.rejectedWith(UriInvalid);
     });
   });
 
   describe("#getAssetsData", () => {
     it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getAssetsData();
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getAssetsData();
 
       expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
+      (utils as any).config.cartographerUrl = "invalidUrl";
 
-      await expect(nxtpUtils.getAssetsData()).to.be.rejectedWith(UriInvalid);
+      await expect(utils.getAssetsData()).to.be.rejectedWith(UriInvalid);
     });
   });
 
   describe("#getTransfers", () => {
     it("happy: should work with userAddress", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         userAddress: mockConfig.signerAddress,
       });
 
@@ -90,8 +90,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with routerAddress", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         routerAddress: mock.address.router,
       });
 
@@ -99,8 +99,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with status", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         status: XTransferStatus.XCalled,
       });
 
@@ -108,8 +108,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with transferId", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         transferId: getRandomBytes32(),
       });
 
@@ -117,8 +117,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with transactionHash", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         transactionHash: getRandomBytes32(),
       });
 
@@ -126,8 +126,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with range", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         range: {
           limit: 100,
           offset: 20,
@@ -138,8 +138,8 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with all params", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfers({
+      (utils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await utils.getTransfers({
         userAddress: mockConfig.signerAddress,
         routerAddress: mock.address.router,
         status: XTransferStatus.XCalled,
@@ -155,9 +155,9 @@ describe("SdkUtils", () => {
     });
 
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
+      (utils as any).config.cartographerUrl = "invalidUrl";
 
-      await expect(nxtpUtils.getTransfers({})).to.be.rejectedWith(UriInvalid);
+      await expect(utils.getTransfers({})).to.be.rejectedWith(UriInvalid);
     });
   });
 });

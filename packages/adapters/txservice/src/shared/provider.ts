@@ -1,4 +1,4 @@
-import { delay, parseHostname } from "@connext/nxtp-utils";
+import { delay, parseHostname } from "@connext/utils";
 import { providers, utils } from "ethers";
 import { domainToChainId } from "@connext/smart-contracts";
 

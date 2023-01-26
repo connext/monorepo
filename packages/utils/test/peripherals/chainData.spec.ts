@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 import { restore, reset, stub, SinonStub } from "sinon";
 import * as SharedFns from "../../src/ethers/shared";
 

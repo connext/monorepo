@@ -1,5 +1,5 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { chainDataToMap, expect } from "@connext/nxtp-utils";
+import { chainDataToMap, expect } from "@connext/utils";
 import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";
@@ -36,7 +36,7 @@ describe("Config", () => {
       reset();
     });
 
-    it("should read config from NXTP config with testnet network values overridden", () => {
+    it("should read config from config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
         SEQ_NETWORK: "testnet",

@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, TIntegerString } from "@connext/nxtp-utils";
+import { TAddress, TIntegerString } from "@connext/utils";
 
 export type Pool = {
   domainId: string;

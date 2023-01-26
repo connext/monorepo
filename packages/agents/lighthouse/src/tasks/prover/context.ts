@@ -1,9 +1,9 @@
-import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
-import { Database } from "@connext/nxtp-adapters-database";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { ChainReader, ConnextContractInterfaces } from "@connext/txservice";
+import { ChainData, Logger, RelayerType } from "@connext/utils";
+import { Database } from "@connext/adapters-database";
+import { Relayer } from "@connext/adapters-relayer";
 
-import { NxtpLighthouseConfig } from "../../config";
+import { LighthouseConfig } from "../../config";
 
 export type ProverContext = {
   logger: Logger;
@@ -14,6 +14,6 @@ export type ProverContext = {
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
   };
-  config: NxtpLighthouseConfig;
+  config: LighthouseConfig;
   chainData: Map<string, ChainData>;
 };

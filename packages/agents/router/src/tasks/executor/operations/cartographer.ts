@@ -2,11 +2,11 @@ import {
   createLoggingContext,
   ExecuteArgs,
   jsonifyError,
-  NxtpError,
+  ConnextError,
   formatUrl,
   convertFromDbTransfer,
   transfersCastForUrl,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { constants } from "ethers";
 
 import { CartoApiRequestFailed } from "../../../errors";
@@ -49,9 +49,15 @@ export const pollCartographer = async () => {
 
           execute(executeParams, transferId);
         } catch (error: any) {
-          logger.error("Error Cartographer Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
-            transaction,
-          });
+          logger.error(
+            "Error Cartographer Binding",
+            requestContext,
+            methodContext,
+            jsonifyError(error as ConnextError),
+            {
+              transaction,
+            },
+          );
         }
       }),
     );
@@ -84,7 +90,7 @@ export const getReconciledTransactions = async (param: {
     }
   } catch (error: any) {
     nextPage = false;
-    throw new CartoApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
+    throw new CartoApiRequestFailed({ uri, error: jsonifyError(error as ConnextError) });
   }
 
   return { data, nextPage };

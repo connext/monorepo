@@ -6,7 +6,7 @@ import {
   signSequencerPermitPayload as _signSequencerPermitPayload,
   createLoggingContext,
   RequestContext,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";

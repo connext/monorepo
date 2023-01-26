@@ -1,8 +1,8 @@
 import { Wallet } from "ethers";
-import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/utils";
 import { compare } from "compare-versions";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/txservice";
 import fetch, { Headers, Request, Response } from "node-fetch";
 
 // @ts-ignore
@@ -16,7 +16,7 @@ if (!(globalThis as any).fetch) {
   (globalThis as any).Response = Response;
 }
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import { getConfig, RouterConfig } from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupMq, setupSubgraphReader } from "../../setup";
 import { axiosGet } from "../../mockable";
@@ -28,7 +28,7 @@ import { bindMessageQueue, bindServer } from "./bindings";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
+export const makeSubscriber = async (_configOverride?: RouterConfig) => {
   const requestContext = createRequestContext("Router subscriber Init");
   const methodContext = createMethodContext(makeSubscriber.name);
 

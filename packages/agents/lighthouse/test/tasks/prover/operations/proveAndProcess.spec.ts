@@ -1,4 +1,4 @@
-import { BaseRequestContext, expect, SparseMerkleTree, createRequestContext } from "@connext/nxtp-utils";
+import { BaseRequestContext, expect, SparseMerkleTree, createRequestContext } from "@connext/utils";
 import { SinonStub, stub } from "sinon";
 
 import { proveAndProcess, processMessages } from "../../../../src/tasks/prover/operations/proveAndProcess";

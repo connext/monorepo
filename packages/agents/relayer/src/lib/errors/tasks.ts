@@ -1,12 +1,12 @@
-import { NxtpError, Values } from "@connext/nxtp-utils";
+import { ConnextError, Values } from "@connext/utils";
 
-export class DecodeExecuteError extends NxtpError {
+export class DecodeExecuteError extends ConnextError {
   constructor(context: any = {}) {
     super("Failed to decode execute function data.", context, DecodeExecuteError.name);
   }
 }
 
-export class ChainNotSupported extends NxtpError {
+export class ChainNotSupported extends ConnextError {
   constructor(chain: number, context: any = {}) {
     super(
       "Relayer does not support relaying transactions on this chain.",
@@ -16,13 +16,13 @@ export class ChainNotSupported extends NxtpError {
   }
 }
 
-export class ParamsInvalid extends NxtpError {
+export class ParamsInvalid extends ConnextError {
   constructor(context: any = {}) {
     super("Params for `execute` call were invalid.", context, ParamsInvalid.name);
   }
 }
 
-export class ContractDeploymentMissing extends NxtpError {
+export class ContractDeploymentMissing extends ConnextError {
   public static contracts = {
     connext: "Connext",
   };

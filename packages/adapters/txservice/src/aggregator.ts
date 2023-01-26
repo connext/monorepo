@@ -5,9 +5,9 @@ import {
   ERC20Abi,
   jsonifyError,
   Logger,
-  NxtpError,
+  ConnextError,
   RequestContext,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
 import { domainToChainId } from "@connext/smart-contracts";
 
@@ -208,7 +208,7 @@ export class RpcProviderAggregator {
     let remainingConfirmations = confirmations;
     let mined = false;
     let reverted: providers.TransactionReceipt[] = [];
-    let errors: NxtpError[] = [];
+    let errors: ConnextError[] = [];
     while (!timedOut) {
       errors = [];
       reverted = [];
@@ -218,7 +218,7 @@ export class RpcProviderAggregator {
           try {
             return await this.getTransactionReceipt(response.hash);
           } catch (error: unknown) {
-            errors.push(error as NxtpError);
+            errors.push(error as ConnextError);
             return null;
           }
         },
@@ -314,7 +314,7 @@ export class RpcProviderAggregator {
         return [await provider.getTransaction(tx)];
       });
     }
-    const errors: NxtpError[] = [];
+    const errors: ConnextError[] = [];
     const txs = await Promise.all(
       tx.responses.map(async (response) => {
         try {
@@ -322,7 +322,7 @@ export class RpcProviderAggregator {
             return await provider.getTransaction(response.hash);
           });
         } catch (error: unknown) {
-          errors.push(error as NxtpError);
+          errors.push(error as ConnextError);
           return null;
         }
       }),
@@ -419,7 +419,7 @@ export class RpcProviderAggregator {
         this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
           uri,
           res: response ? (response?.data ? response.data : response) : undefined,
-          error: jsonifyError(e as NxtpError),
+          error: jsonifyError(e as ConnextError),
         });
       }
     }
@@ -657,11 +657,11 @@ export class RpcProviderAggregator {
    * A helper to throw a custom error if the method requires a signer but no signer has
    * been injected into the provider.
    *
-   * @throws NxtpError if signer is required and not provided.
+   * @throws ConnextError if signer is required and not provided.
    */
   private checkSigner() {
     if (!this.signer) {
-      throw new NxtpError("Method requires signer, and no signer was provided.");
+      throw new ConnextError("Method requires signer, and no signer was provided.");
     }
   }
 
@@ -673,7 +673,7 @@ export class RpcProviderAggregator {
    *
    * @param method - The method callback to execute and wrap in retries.
    * @returns The object of the specified generic type.
-   * @throws NxtpError if the method fails to execute.
+   * @throws ConnextError if the method fails to execute.
    */
   private async execute<T>(needsSigner: boolean, method: (provider: SyncProvider) => Promise<T>): Promise<T> {
     // If we need a signer, check to ensure we have one.
@@ -681,10 +681,10 @@ export class RpcProviderAggregator {
       this.checkSigner();
     }
 
-    const errors: NxtpError[] = [];
+    const errors: ConnextError[] = [];
     const handleError = (e: unknown) => {
       // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
-      // however, as it will return instantly if the error is already a NxtpError.
+      // however, as it will return instantly if the error is already a ConnextError.
       const error = parseError(e);
       if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
         // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not

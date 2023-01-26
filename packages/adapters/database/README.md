@@ -29,17 +29,17 @@ DATABASE_URL=postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
 In order to update the database schema, create a new migration:
 
 ```sh
-yarn workspace @connext/nxtp-adapters-database dbmate new migration_name
+yarn workspace @connext/adapters-database dbmate new migration_name
 ```
 
 Edit the migration file and run the migration:
 
 ```sh
-yarn workspace @connext/nxtp-adapters-database dbmate up
+yarn workspace @connext/adapters-database dbmate up
 ```
 
 Create the Typescript schema using [Zapatos](https://jawj.github.io/zapatos/):
 
 ```sh
-yarn workspace @connext/nxtp-adapters-database zapatos
+yarn workspace @connext/adapters-database zapatos
 ```

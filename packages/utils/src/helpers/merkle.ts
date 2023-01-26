@@ -1,16 +1,16 @@
 import { MerkleTree } from "merkletreejs";
 import { utils } from "ethers";
 
-import { NxtpError } from "../types";
+import { ConnextError } from "../types";
 import { mkBytes32 } from "../mocks";
 
-export class MerkleRootInvalid extends NxtpError {
+export class MerkleRootInvalid extends ConnextError {
   constructor(context: any = {}) {
     super("Bad root or branch.", context, MerkleRootInvalid.name);
   }
 }
 
-export class MerkleProofVerificationFailed extends NxtpError {
+export class MerkleProofVerificationFailed extends ConnextError {
   constructor(context: any = {}) {
     super("Merkle proof verification failed.", context, MerkleProofVerificationFailed.name);
   }

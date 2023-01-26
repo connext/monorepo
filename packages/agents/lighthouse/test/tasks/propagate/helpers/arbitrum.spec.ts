@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkBytes32 } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkBytes32 } from "@connext/utils";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { BigNumber, constants, providers } from "ethers";
 

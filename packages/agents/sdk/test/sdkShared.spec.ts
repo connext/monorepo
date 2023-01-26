@@ -10,8 +10,8 @@ import {
   SinonMock,
   mock as sinonMock,
 } from "sinon";
-import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
+import { expect, mkAddress, Logger } from "@connext/utils";
+import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/txservice";
 import { constants, providers, BigNumber, utils, Contract } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";

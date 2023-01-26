@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-adapters-database",
+  "name": "@connext/adapters-database",
   "version": "0.2.1-rc.19",
-  "description": "adapter for handling communication with Redis cache for nxtp protocol",
+  "description": "adapter for handling communication with database for Connext protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -27,7 +27,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/utils": "workspace:*",
     "dbmate": "1.0.3",
     "zapatos": "6.1.1"
   },

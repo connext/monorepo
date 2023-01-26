@@ -1,3 +1,3 @@
-import { axiosGet as _axiosGet } from "@connext/nxtp-utils";
+import { axiosGet as _axiosGet } from "@connext/utils";
 
 export const axiosGet = _axiosGet;

@@ -1,14 +1,14 @@
 import { utils, Wallet } from "ethers";
-import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/nxtp-utils";
+import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/utils";
 import {
   getDeployedConnextContract,
   getDeployedRelayerProxyContract,
   _getContractDeployments,
-} from "@connext/nxtp-txservice";
-import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
-import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
-import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
-import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
+} from "@connext/txservice";
+import { SequencerConfig } from "@connext/sequencer/src/lib/entities/config";
+import { RouterConfig } from "@connext/router/src/config";
+import { version as routerPackageVersion } from "@connext/router/package.json";
+import { RelayerConfig } from "@connext/relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 
 export enum Environment {

@@ -16,7 +16,7 @@ import {
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
-  NxtpError,
+  ConnextError,
   ExecutorDataSchema,
   ExecutorPostDataRequest,
   ExecutorPostDataResponseSchema,
@@ -24,7 +24,7 @@ import {
   ExecStatusRequest,
   ExecStatusResponse,
   ExecStatusResponseSchema,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 
 import { getContext } from "../../../sequencer";
 import { getOperations } from "../../../lib/operations";
@@ -115,7 +115,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
         logger.error(`Failed to store fastpath data`, requestContext, methodContext, jsonifyError(error as Error));
-        const type = (error as NxtpError).type;
+        const type = (error as ConnextError).type;
         return response
           .code(500)
           .send({ message: type ?? "Failed to store fastpath data", error: jsonifyError(error as Error) });
@@ -167,7 +167,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
         logger.error(`Failed to store slowpath data`, requestContext, methodContext, jsonifyError(error as Error));
-        const type = (error as NxtpError).type;
+        const type = (error as ConnextError).type;
         return response
           .code(500)
           .send({ message: type ?? "Failed to store slowpath data", error: jsonifyError(error as Error) });
@@ -191,7 +191,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         const status = await cache.executors.getExecStatus(transferId);
         return response.status(200).send({ transferId, status });
       } catch (error: unknown) {
-        const type = (error as NxtpError).type;
+        const type = (error as ConnextError).type;
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
     },
@@ -230,7 +230,7 @@ export const api = {
           supportedVersion: config.supportedVersion,
         });
       } catch (e: unknown) {
-        const json = jsonifyError(e as NxtpError);
+        const json = jsonifyError(e as ConnextError);
         return res.status(500).send(json);
       }
     },

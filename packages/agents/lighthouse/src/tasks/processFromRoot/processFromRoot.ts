@@ -1,9 +1,9 @@
-import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
-import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
-import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { ChainReader, contractDeployments } from "@connext/txservice";
+import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/utils";
+import { closeDatabase, getDatabase } from "@connext/adapters-database";
+import { setupConnextRelayer, setupGelatoRelayer } from "@connext/adapters-relayer";
 
-import { NxtpLighthouseConfig } from "../../config";
+import { LighthouseConfig } from "../../config";
 
 import { ProcessFromRootContext } from "./context";
 import { processFromRoot } from "./operations";
@@ -11,7 +11,7 @@ import { processFromRoot } from "./operations";
 const context: ProcessFromRootContext = {} as any;
 export const getContext = () => context;
 
-export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+export const makeProcessFromRoot = async (config: LighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makeProcessFromRoot.name);
 
   try {

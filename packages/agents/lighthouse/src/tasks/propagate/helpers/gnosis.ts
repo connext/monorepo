@@ -1,5 +1,5 @@
 import { ContractInterface, utils } from "ethers";
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext } from "@connext/utils";
 
 import { getContract, getJsonRpcProvider } from "../../../mockable";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";

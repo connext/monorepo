@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-router",
+  "name": "@connext/router",
   "version": "0.2.1-rc.19",
   "description": "",
   "main": "dist/index.js",
@@ -25,11 +25,11 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-cache": "workspace:*",
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/adapters-cache": "workspace:*",
+    "@connext/adapters-subgraph": "workspace:*",
+    "@connext/adapters-web3signer": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "compare-versions": "6.0.0-rc.1",
     "dd-trace": "3.9.3",

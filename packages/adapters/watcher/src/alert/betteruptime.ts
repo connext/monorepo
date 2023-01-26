@@ -1,4 +1,4 @@
-import { createMethodContext } from "@connext/nxtp-utils";
+import { createMethodContext } from "@connext/utils";
 
 import { Report } from "../types";
 import { axiosPost } from "../mockable";

@@ -42,7 +42,7 @@ import {
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
-import { delay, getOnchainBalance, signRouterPathPayload } from "@connext/nxtp-utils";
+import { delay, getOnchainBalance, signRouterPathPayload } from "@connext/utils";
 import { deployDiamond } from "./diamondUtils";
 
 const SEED = utils.parseEther("1");

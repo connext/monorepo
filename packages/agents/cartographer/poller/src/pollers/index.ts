@@ -1,6 +1,6 @@
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { createMethodContext, createRequestContext, getChainData, Logger, sendHeartbeat } from "@connext/nxtp-utils";
-import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { createMethodContext, createRequestContext, getChainData, Logger, sendHeartbeat } from "@connext/utils";
+import { closeDatabase, getDatabase } from "@connext/adapters-database";
 
 import { bind } from "../bindings";
 import { CartographerConfig, getConfig } from "../config";

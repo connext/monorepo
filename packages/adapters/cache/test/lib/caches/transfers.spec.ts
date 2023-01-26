@@ -1,4 +1,4 @@
-import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/utils";
 import { TransfersCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });

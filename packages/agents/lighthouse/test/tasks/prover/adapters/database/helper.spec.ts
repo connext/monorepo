@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/utils";
 
 import { HubDBHelper, SpokeDBHelper } from "../../../../../src/tasks/prover/adapters/database/helper";
 import { proverCtxMock } from "../../../../globalTestHook";

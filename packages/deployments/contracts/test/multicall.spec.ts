@@ -7,7 +7,7 @@ import { Contract, Wallet } from "ethers";
 import { deployContract } from "./utils";
 import { Multicall, RevertableERC20 } from "../src/typechain-types";
 import { Bytes, Interface, parseEther } from "ethers/lib/utils";
-import { MulticallAbi } from "@connext/nxtp-utils";
+import { MulticallAbi } from "@connext/utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Multicall.sol", () => {

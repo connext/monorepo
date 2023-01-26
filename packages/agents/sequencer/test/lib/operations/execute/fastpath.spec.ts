@@ -10,7 +10,7 @@ import {
   mkSig,
   RelayerType,
   mkBytes32,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
 import Broker from "foo-foo-mq";

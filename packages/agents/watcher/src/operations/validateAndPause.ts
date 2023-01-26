@@ -1,5 +1,5 @@
-import { PauseResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
-import { createMethodContext, RequestContext } from "@connext/nxtp-utils";
+import { PauseResponse, ReportEventType } from "@connext/adapters-watcher";
+import { createMethodContext, RequestContext } from "@connext/utils";
 
 import { getContext } from "../watcher";
 

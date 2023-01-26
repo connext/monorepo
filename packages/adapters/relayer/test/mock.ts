@@ -1,4 +1,4 @@
-import { RelayerTaskStatus, mkBytes32, mkAddress } from "@connext/nxtp-utils";
+import { RelayerTaskStatus, mkBytes32, mkAddress } from "@connext/utils";
 import { stub } from "sinon";
 
 import { Relayer } from "../src";

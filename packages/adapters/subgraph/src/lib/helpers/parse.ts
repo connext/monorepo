@@ -1,5 +1,5 @@
 import {
-  NxtpError,
+  ConnextError,
   DestinationTransfer,
   OriginMessage,
   RootMessage,
@@ -9,7 +9,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -34,11 +34,13 @@ const getDecimals = (assets: Record<string, AssetId>, assetId: string): number =
 export const originTransfer = (entity: any, asset: Record<string, AssetId>): OriginTransfer => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
+    throw new ConnextError("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
   }
   if (entity.executedTransactionHash || entity.reconciledTransactionHash) {
     // Wrong transfer type. This is a destination transfer entity!
-    throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
+    throw new ConnextError(
+      "Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.",
+    );
   }
   for (const field of [
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
@@ -49,7 +51,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
     "callData",
   ]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field", {
+      throw new ConnextError("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field", {
         missingField: field,
         entity,
       });
@@ -57,7 +59,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   }
 
   // get the decimals
-  // FIXME: https://github.com/connext/nxtp/issues/2862
+  // FIXME: https://github.com/connext/monorepo/issues/2862
   const transactingAsset = entity.asset?.adoptedAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
@@ -92,7 +94,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       relayerFee: entity.relayerFee,
 
       // Assets
-      // FIXME: https://github.com/connext/nxtp/issues/2862
+      // FIXME: https://github.com/connext/monorepo/issues/2862
       assets: {
         transacting: {
           asset: transactingAsset,
@@ -131,11 +133,13 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
 export const destinationTransfer = (entity: any): DestinationTransfer => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is `undefined`.");
+    throw new ConnextError("Subgraph `DestinationTransfer` entity parser: Transfer entity is `undefined`.");
   }
   if (entity.transactionHash) {
     // Wrong transfer type. This is an origin transfer entity!
-    throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
+    throw new ConnextError(
+      "Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.",
+    );
   }
   for (const field of [
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
@@ -145,7 +149,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     "routers",
   ]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity missing required field", {
+      throw new ConnextError("Subgraph `DestinationTransfer` entity parser: Transfer entity missing required field", {
         missingField: field,
         entity,
       });
@@ -236,11 +240,11 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 export const originMessage = (entity: any): OriginMessage => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
+    throw new ConnextError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
   }
   for (const field of ["index", "leaf", "root", "domain", "destinationDomain", "transferId", "message"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -289,11 +293,11 @@ export const xquery = (response: any): Map<string, any[]> => {
 export const rootMessage = (entity: any): RootMessage => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+    throw new ConnextError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
   }
   for (const field of ["id", "spokeDomain", "hubDomain", "root", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -319,11 +323,11 @@ export const rootMessage = (entity: any): RootMessage => {
 export const aggregatedRoot = (entity: any): AggregatedRoot => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
+    throw new ConnextError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
   }
   for (const field of ["id", "domain", "receivedRoot", "index"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -341,11 +345,11 @@ export const aggregatedRoot = (entity: any): AggregatedRoot => {
 export const propagatedRoot = (entity: any): PropagatedRoot => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
+    throw new ConnextError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
   }
   for (const field of ["id", "aggregate", "domainsHash", "count"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -363,11 +367,11 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
 export const connectorMeta = (entity: any): ConnectorMeta => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
+    throw new ConnextError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
   }
   for (const field of ["id", "spokeDomain", "hubDomain", "rootManager", "mirrorConnector", "amb"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -387,11 +391,11 @@ export const connectorMeta = (entity: any): ConnectorMeta => {
 export const rootManagerMeta = (entity: any): RootManagerMeta => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `RootManagerMeta` entity parser: RootManagerMeta, entity is `undefined`.");
+    throw new ConnextError("Subgraph `RootManagerMeta` entity parser: RootManagerMeta, entity is `undefined`.");
   }
   for (const field of ["id", "connectors", "domains"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `RootManagerMeta` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `RootManagerMeta` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -408,13 +412,13 @@ export const rootManagerMeta = (entity: any): RootManagerMeta => {
 export const receivedAggregateRoot = (entity: any): ReceivedAggregateRoot => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError(
+    throw new ConnextError(
       "Subgraph `ReceivedAggregateRoot` entity parser: ReceivedAggregateRoot, entity is `undefined`.",
     );
   }
   for (const field of ["id", "root", "domain", "blockNumber"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field", {
+      throw new ConnextError("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });

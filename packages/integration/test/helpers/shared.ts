@@ -1,4 +1,4 @@
-import { delay } from "@connext/nxtp-utils";
+import { delay } from "@connext/utils";
 
 export const pollSomething = async (input: { attempts: number; parity: number; method: () => Promise<any> }) => {
   const { attempts, parity, method } = input;

@@ -1,13 +1,4 @@
-import {
-  Bid,
-  ExecuteArgs,
-  expect,
-  mkAddress,
-  mkBytes32,
-  mkSig,
-  OriginTransfer,
-  mockSequencer,
-} from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, expect, mkAddress, mkBytes32, mkSig, OriginTransfer, mockSequencer } from "@connext/utils";
 import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 

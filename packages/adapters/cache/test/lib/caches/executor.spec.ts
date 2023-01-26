@@ -1,4 +1,4 @@
-import { expect, ExecutorData, ExecStatus, Logger, mkBytes32, RelayerType } from "@connext/nxtp-utils";
+import { expect, ExecutorData, ExecStatus, Logger, mkBytes32, RelayerType } from "@connext/utils";
 import { constants } from "ethers";
 import { ExecutorCache } from "../../../src";
 

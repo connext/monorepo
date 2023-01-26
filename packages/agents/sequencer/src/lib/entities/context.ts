@@ -1,11 +1,11 @@
 import { Wallet } from "ethers";
-import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { Relayer } from "@connext/nxtp-adapters-relayer";
-import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { Database } from "@connext/nxtp-adapters-database";
+import { ChainData, Logger, RelayerType } from "@connext/utils";
+import { StoreManager } from "@connext/adapters-cache";
+import { SubgraphReader } from "@connext/adapters-subgraph";
+import { Web3Signer } from "@connext/adapters-web3signer";
+import { Relayer } from "@connext/adapters-relayer";
+import { ChainReader, ConnextContractInterfaces } from "@connext/txservice";
+import { Database } from "@connext/adapters-database";
 import Broker from "foo-foo-mq";
 
 import { SequencerConfig } from ".";

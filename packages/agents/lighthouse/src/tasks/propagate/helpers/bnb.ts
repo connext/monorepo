@@ -1,5 +1,5 @@
 import { ContractInterface } from "ethers";
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext } from "@connext/utils";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";

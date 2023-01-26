@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, ConnextError } from "@connext/utils";
 import interval from "interval-promise";
 
 import { validateAndPause } from "../../operations/validateAndPause";
@@ -14,7 +14,7 @@ export const bindInterval = async (): Promise<void> => {
       await validateAndPause(requestContext);
       logger.info("Finished interval", requestContext, methodContext);
     } catch (err: unknown) {
-      logger.error("Error in watcher interval!", requestContext, methodContext, jsonifyError(err as NxtpError));
+      logger.error("Error in watcher interval!", requestContext, methodContext, jsonifyError(err as ConnextError));
     }
   }, config.interval);
 };

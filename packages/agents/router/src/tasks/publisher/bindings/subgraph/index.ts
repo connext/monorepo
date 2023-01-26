@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/utils";
 import interval from "interval-promise";
 
 import { retryXCalls } from "../../operations";

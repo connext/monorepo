@@ -2,12 +2,12 @@ import {
   createLoggingContext,
   jsonifyError,
   Logger,
-  NxtpError,
+  ConnextError,
   RelayerTaskStatus,
   RelayerType,
   RequestContext,
-} from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+} from "@connext/utils";
+import { ChainReader } from "@connext/txservice";
 
 import { setupRelayer as _setupGelatoRelayer } from "./gelato";
 import { setupRelayer as _setupConnextRelayer } from "./connext";
@@ -74,7 +74,7 @@ export const sendWithRelayerWithBackup = async (
         `Failed to sent data with ${relayer.type}`,
         requestContext,
         methodContext,
-        jsonifyError(err as NxtpError),
+        jsonifyError(err as ConnextError),
       );
     }
   }

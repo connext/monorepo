@@ -8,7 +8,7 @@ import {
   ExecuteFastApiPostBidReq,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   OriginTransferSchema,
-} from "@connext/nxtp-utils";
+} from "@connext/utils";
 import { BigNumber, ethers } from "ethers";
 
 import {

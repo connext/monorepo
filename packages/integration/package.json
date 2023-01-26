@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-integration",
+  "name": "@connext/integration",
   "version": "0.2.1-rc.19",
-  "description": "Integration tests for NXTP",
+  "description": "Integration tests for Connext",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
@@ -40,17 +40,17 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@connext/adapters-cache": "workspace:*",
+    "@connext/adapters-subgraph": "workspace:*",
+    "@connext/adapters-web3signer": "workspace:*",
     "@connext/cartographer-poller": "workspace:*",
-    "@connext/nxtp-adapters-cache": "workspace:*",
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-relayer": "workspace:*",
-    "@connext/nxtp-router": "workspace:*",
-    "@connext/nxtp-sequencer": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
-    "@connext/nxtp-utils": "workspace:*",
+    "@connext/relayer": "workspace:*",
+    "@connext/router": "workspace:*",
     "@connext/sdk": "workspace:*",
+    "@connext/sequencer": "workspace:*",
     "@connext/smart-contracts": "workspace:*",
+    "@connext/txservice": "workspace:*",
+    "@connext/utils": "workspace:*",
     "axios": "1.2.1",
     "ethers": "5.7.2",
     "ts-node": "10.9.1"

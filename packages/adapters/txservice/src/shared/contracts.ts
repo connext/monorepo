@@ -25,7 +25,7 @@ import GnosisAmbArtifact from "@connext/smart-contracts/artifacts/contracts/mess
 import MultichainAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
 import ArbitrumAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
-import { ERC20Abi } from "@connext/nxtp-utils";
+import { ERC20Abi } from "@connext/utils";
 
 export type ContractPostfix = "Staging" | "";
 

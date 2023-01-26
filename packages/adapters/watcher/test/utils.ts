@@ -1,4 +1,4 @@
-import { createMethodContext, createRequestContext, Logger, mkHash } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, Logger, mkHash } from "@connext/utils";
 import { Report, ReportEventType } from "../src/types";
 
 export const TEST_DOMAINS = ["1337", "1338"];
