@@ -21,7 +21,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  * @title SpokeConnector
  * @author Connext Labs, Inc.
  * @notice This contract implements the messaging functions needed on the spoke-side of a given AMB.
- * The SpokeConnector extends the Connector functionality by being able to send, store, and prove
+ * The SpokeConnector extends the HubConnector functionality by being able to send, store, and prove
  * messages.
  *
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
@@ -37,68 +37,22 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Events ============
 
-  /**
-   * @notice Emitted when a new sender is whitelisted for messaging
-   * @param sender Whitelisted address
-   */
-  event SenderAdded(address indexed sender);
+  event SenderAdded(address sender);
 
-  /**
-   * @notice Emitted when a new sender is de-whitelisted for messaging
-   * @param sender Removed address
-   */
-  event SenderRemoved(address indexed sender);
+  event SenderRemoved(address sender);
 
-  /**
-   * @notice Emitted when a new aggregate root is delivered from the hub
-   * @param root Delivered root
-   */
-  event AggregateRootReceived(bytes32 indexed root);
+  event AggregateRootReceived(bytes32 root);
 
-  /**
-   * @notice Emitted when a proposed aggregate root is removed by admin
-   * @param root Removed root
-   */
-  event AggregateRootRemoved(bytes32 indexed root);
+  event AggregateRootRemoved(bytes32 root);
 
-  /**
-   * @notice Emitted when an aggregate root has made it through the fraud period
-   * without being disputed
-   * @param root Newly verified root
-   */
   event AggregateRootVerified(bytes32 indexed root);
 
-  /**
-   * @notice Emitted when a message is sent (leaf added to outbound root)
-   * @param leaf The hash added to tree
-   * @param index The index of the leaf
-   * @param root The updated outbound root after insertion
-   * @param message The raw message body
-   */
-  event Dispatch(bytes32 indexed leaf, uint256 indexed index, bytes32 indexed root, bytes message);
+  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
-  /**
-   * @notice Emitted when a message is handled (this is the destination domain)
-   * @param leaf The leaf processed
-   * @param success Whether `handle` call on recipient is successful
-   * @param returnData The data returned from the `handle` call on recipient
-   */
-  event Process(bytes32 indexed leaf, bool success, bytes returnData);
+  event Process(bytes32 leaf, bool success, bytes returnData);
 
-  /**
-   * @notice Emitted when the admin updates the delay blocks
-   * @param updated The new delay blocks
-   * @param caller The msg.sender of transaction
-   */
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
 
-  /**
-   * @notice Emitted when a message (outbound root from different spoke) is proven
-   * against the aggregate root
-   * @param leaf The proven leaf
-   * @param aggregateRoot The root the leaf was proven against
-   * @param aggregateIndex Position of leaf in the aggregate root
-   */
   event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex);
 
   // ============ Structs ============
@@ -116,7 +70,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * Struct for submitting a proof for a given message. Used in `proveAndProcess` below.
    * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
-   * @param path Path in tree for given leaf.
+   * @param proof Merkle proof of inclusion for given leaf.
    * @param index Index of leaf in home's merkle tree.
    */
   struct Proof {
@@ -183,7 +137,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   mapping(bytes32 => bool) public sentMessageRoots;
 
   /**
-   * @notice Records all whitelisted senders
    * @dev This is used for the `onlyAllowlistedSender` modifier, which gates who
    * can send messages using `dispatch`.
    */
@@ -201,9 +154,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Modifiers ============
 
-  /**
-   * @notice Ensures the msg.sender is allowlisted
-   */
   modifier onlyAllowlistedSender() {
     require(allowlistedSenders[msg.sender], "!allowlisted");
     _;
@@ -258,7 +208,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Adds a sender to the allowlist.
    * @dev Only allowlisted routers (senders) can call `dispatch`.
-   * @param _sender Sender to whitelist
    */
   function addSender(address _sender) public onlyOwner {
     allowlistedSenders[_sender] = true;
@@ -268,7 +217,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Removes a sender from the allowlist.
    * @dev Only allowlisted routers (senders) can call `dispatch`.
-   * @param _sender Sender to remove from whitelist
    */
   function removeSender(address _sender) public onlyOwner {
     delete allowlistedSenders[_sender];
@@ -278,7 +226,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
-   * @param _delayBlocks Updated delay block value
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
@@ -337,8 +284,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice This dispatches outbound root to hub via AMB
-   * @param _encodedData Data needed to send crosschain message by associated amb
+   * @notice This returns the root of all messages with the origin domain as this domain (i.e.
+   * all outbound messages)
    */
   function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
     bytes32 root = MERKLE.root();
@@ -356,9 +303,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * chains). This aggregate root will be redistributed to all destination chains.
    *
    * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
-   * @param _destinationDomain Domain message is intended for
-   * @param _recipientAddress Address for message recipient
-   * @param _messageBody Message contents
    */
   function dispatch(
     uint32 _destinationDomain,
@@ -469,10 +413,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   // ============ Private Functions ============
 
   /**
-   * @notice Called to accept aggregate root dispatched from the RootManager on the hub.
+   * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
+   * latest `aggregateRoot` from the AMB (sourced from mainnet) OR called by the AMB directly.
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
    * these roots.
-   * @param _newRoot Received aggregate
    */
   function receiveAggregateRoot(bytes32 _newRoot) internal {
     require(_newRoot != bytes32(""), "new root empty");
