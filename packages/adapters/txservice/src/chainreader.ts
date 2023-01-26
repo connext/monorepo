@@ -20,6 +20,7 @@ import {
   getPriceOracleInterface,
   WriteTransaction,
   getDeployedMultisendContract,
+  MultireadTransaction,
 } from "./shared";
 import { RpcProviderAggregator } from "./aggregator";
 
@@ -88,20 +89,12 @@ export class ChainReader {
    */
   public async multiread(params: {
     domain: number;
-    txs: ReadTransaction[];
-    resultTypes: (string | utils.ParamType)[];
+    txs: MultireadTransaction[];
     multisendContract?: string;
     blockTag?: providers.BlockTag;
     requestContext?: RequestContext;
   }): Promise<utils.Result> {
-    const { domain, txs, multisendContract, blockTag, resultTypes } = params;
-
-    // Sanity check: all domains match.
-    for (const tx of txs) {
-      if (tx.domain !== domain) {
-        throw new Error("A tx was provided in the multiread batch whose domain did not match the `domain` parameter.");
-      }
-    }
+    const { domain, txs, multisendContract, blockTag } = params;
 
     const chainId = domainToChainId(domain);
     const multisend = multisendContract ?? getDeployedMultisendContract(chainId)?.address;
@@ -121,11 +114,17 @@ export class ChainReader {
       const provider = this.getProvider(domain);
       const result = await Promise.all(
         txs.map(async (tx) => {
-          return await provider.readContract(tx, blockTag ?? "latest");
+          return await provider.readContract(
+            {
+              ...tx,
+              domain,
+            },
+            blockTag ?? "latest",
+          );
         }),
       );
       // Decode results and flatten array to make them sequential.
-      return result.map((r, i) => utils.defaultAbiCoder.decode([resultTypes[i]], r)).flat();
+      return result.map((r, i) => utils.defaultAbiCoder.decode(txs[i].resultTypes, r)).flat();
     }
 
     // Format calldata.
@@ -147,6 +146,7 @@ export class ChainReader {
       blockTag ?? "latest",
     );
     // Decode the result to fit with the expected result types.
+    const resultTypes = txs.map((tx) => tx.resultTypes).flat();
     return utils.defaultAbiCoder.decode(resultTypes, result);
   }
 

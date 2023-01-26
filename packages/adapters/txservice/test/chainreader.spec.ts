@@ -16,7 +16,14 @@ import {
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
 import { RpcProviderAggregator } from "../src/aggregator";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, ReadTransaction, RpcError } from "../src/shared";
+import {
+  ChainNotSupported,
+  ConfigurationError,
+  MultireadTransaction,
+  ProviderNotConfigured,
+  ReadTransaction,
+  RpcError,
+} from "../src/shared";
 import * as ContractFns from "../src/shared/contracts";
 import {
   TEST_SENDER_CHAIN_ID,
@@ -189,15 +196,15 @@ describe("ChainReader", () => {
     ];
     let expectedResultValues: any[] = [];
     let orderedResultTypes: (string | utils.ParamType)[] = [];
-    const txs: ReadTransaction[] = getValueMockCalls.map((call, i) => {
+    const txs: MultireadTransaction[] = getValueMockCalls.map((call, i) => {
       // Concatenate expected result types and values in tx order.
       expectedResultValues = expectedResultValues.concat(call.resultValues);
       orderedResultTypes = orderedResultTypes.concat(call.resultTypes);
       // Return formatted read transaction.
       return {
-        domain: TEST_SENDER_DOMAIN,
         to: mkAddress(`0x${i}`), // NOTE: Varying `to` address, as if we're targeting multiple contracts.
         data: call.data,
+        resultTypes: call.resultTypes,
       };
     });
 
@@ -205,17 +212,16 @@ describe("ChainReader", () => {
       // Encode the final resulting return value.
       // This is basically the blob of data that corresponds to many read calls in the exact way that MultiSend would
       // return it.
-      const multisendResult = utils.defaultAbiCoder.encode(orderedResultTypes, expectedResultValues);
-      provider.readContract.resolves(multisendResult);
+      const multireadResult = utils.defaultAbiCoder.encode(orderedResultTypes, expectedResultValues);
+      provider.readContract.resolves(multireadResult);
       // NOTE: Technically we should just expect the result values to be == return data below, but doing this decoding
       // step here ensures that this supplied input data is valid.
-      const expectedDecodedResult = utils.defaultAbiCoder.decode(orderedResultTypes, multisendResult);
+      const expectedDecodedResult = utils.defaultAbiCoder.decode(orderedResultTypes, multireadResult);
 
       const multisendContract = mkAddress("0x2c001");
       const result = await chainReader.multiread({
         domain: TEST_SENDER_DOMAIN,
         txs,
-        resultTypes: orderedResultTypes,
         multisendContract,
       });
 
@@ -247,29 +253,10 @@ describe("ChainReader", () => {
       const result = await chainReader.multiread({
         domain: TEST_SENDER_DOMAIN,
         txs,
-        resultTypes: orderedResultTypes,
       });
 
       expect(result).to.deep.eq(expectedDecodedResult);
       expect(provider.readContract.callCount).to.equal(getValueMockCalls.length); // Many RPC calls, sad :(
-    });
-
-    it("errors if domains don't match", async () => {
-      await expect(
-        chainReader.multiread({
-          domain: TEST_READ_TX.domain,
-          txs: [
-            TEST_READ_TX,
-            TEST_READ_TX,
-            {
-              ...TEST_READ_TX,
-              domain: 666,
-            },
-            TEST_READ_TX,
-          ],
-          resultTypes: orderedResultTypes,
-        }),
-      ).to.be.rejectedWith(Error);
     });
   });
 

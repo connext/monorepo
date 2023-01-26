@@ -521,12 +521,17 @@ export class SdkPool extends SdkShared {
    * @param poolTokenAddress - The address of the pool token.
    * @returns The balance of the pool token.
    */
-  async getPoolTokenBalance(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<BigNumber> {
+  async getPoolTokenBalance(
+    domainId: string,
+    tokenAddress: string,
+    poolTokenAddress: string,
+    _index?: number,
+  ): Promise<BigNumber> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getPoolTokenIndex(domainId, _tokenAddress, poolTokenAddress),
+      _index ?? this.getPoolTokenIndex(domainId, _tokenAddress, poolTokenAddress),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
