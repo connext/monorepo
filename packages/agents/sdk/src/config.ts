@@ -83,11 +83,11 @@ export const getEnvConfig = (
     environment: _nxtpConfig.environment || "production",
     cartographerUrl: _nxtpConfig.cartographerUrl
       ? _nxtpConfig.cartographerUrl
-      : _nxtpConfig.network === "mainnet"
-      ? "https://postgrest.mainnet.connext.ninja"
-      : _nxtpConfig.environment === "production"
-      ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.testnet.staging.connext.ninja",
+      : _nxtpConfig.network === "testnet"
+      ? _nxtpConfig.environment === "staging"
+        ? "https://postgrest.testnet.connext.ninja"
+        : "https://postgrest.testnet.staging.connext.ninja"
+      : "https://postgrest.mainnet.connext.ninja",
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
