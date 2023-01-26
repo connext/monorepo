@@ -10,7 +10,7 @@ abstract contract GasCap is ProposedOwnable {
    * The gas used will be passed in by the relayer to allow for real-time estimates,
    * but will be capped at the admin-set cap.
    */
-  uint256 gasCap;
+  uint256 public gasCap;
 
   // ============ Events ============
 
