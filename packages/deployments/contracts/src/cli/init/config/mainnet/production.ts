@@ -157,6 +157,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c",
         "0x97b9dcB1AA34fE5F12b728D9166ae353d1e7f5C4", // P2P router
         "0x8cb19ce8eedf740389d428879a876a3b030b9170", // BWare router
+        "0x0e62f9fa1f9b3e49759dc94494f5bc37a83d1fad", // Bazilik router
       ],
     },
     sequencers: {
