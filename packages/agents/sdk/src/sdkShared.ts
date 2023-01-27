@@ -370,33 +370,33 @@ export class SdkShared {
    * @param erc20TokenContracts ethers Contract instances with populated address and interface.
    * @returns ethers utils.Result
    */
-  async getInfoForTokens(domainId: string, erc20TokenContracts: Contract[]): Promise<utils.Result> {
-    const erc20Iface = getErc20Interface(); // As a backup, in case the interface is not populated correctly.
-    const txs = erc20TokenContracts
-      .map((contract) => {
-        return [
-          {
-            to: contract.address,
-            data: contract.interface.encodeFunctionData("name"),
-            resultTypes: contract.interface.getFunction("name").outputs ?? erc20Iface.getFunction("name").outputs!,
-          },
-          {
-            to: contract.address,
-            data: contract.interface.encodeFunctionData("symbol"),
-            resultTypes: contract.interface.getFunction("symbol").outputs ?? erc20Iface.getFunction("symbol").outputs!,
-          },
-          {
-            to: contract.address,
-            data: contract.interface.encodeFunctionData("decimals"),
-            resultTypes:
-              contract.interface.getFunction("decimals").outputs ?? erc20Iface.getFunction("decimals").outputs!,
-          },
-        ];
-      })
-      .flat();
-    return await this.chainreader.multiread({
-      domain: +domainId,
-      txs,
-    });
-  }
+  // async getInfoForTokens(domainId: string, erc20TokenContracts: Contract[]): Promise<utils.Result> {
+  //   const erc20Iface = getErc20Interface(); // As a backup, in case the interface is not populated correctly.
+  //   const txs = erc20TokenContracts
+  //     .map((contract) => {
+  //       return [
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("name"),
+  //           resultTypes: contract.interface.getFunction("name").outputs ?? erc20Iface.getFunction("name").outputs!,
+  //         },
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("symbol"),
+  //           resultTypes: contract.interface.getFunction("symbol").outputs ?? erc20Iface.getFunction("symbol").outputs!,
+  //         },
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("decimals"),
+  //           resultTypes:
+  //             contract.interface.getFunction("decimals").outputs ?? erc20Iface.getFunction("decimals").outputs!,
+  //         },
+  //       ];
+  //     })
+  //     .flat();
+  //   return await this.chainreader.multiread({
+  //     domain: +domainId,
+  //     txs,
+  //   });
+  // }
 }
