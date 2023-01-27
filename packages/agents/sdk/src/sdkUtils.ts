@@ -101,6 +101,7 @@ export class SdkUtils extends SdkShared {
    * @param status - (optional) The xcall status.
    * @param transferId - (optional) The unique transfer ID of the xcall.
    * @param transactionHash - (optional) The transaction hash associated with the xcall.
+   * @param xcallCaller - (optional) The origin caller of the xcall.
    * @param range - (optional) The object with limit and offset options.
    * @param range.limit - (optional) The number of results to get.
    * @param range.offset - (optional) The offset in the returned data to start from.

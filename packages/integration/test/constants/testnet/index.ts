@@ -311,6 +311,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 5_000,
+    executionWaitTime: 300_000,
     auctionRoundDepth: 3,
     network: "testnet",
     supportedVersion: routerPackageVersion,
