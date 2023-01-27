@@ -19,7 +19,7 @@ describe("Config", () => {
         MNEMONIC: mockConfig.mnemonic,
         CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
         LOG_LEVEL: mockConfig.logLevel,
-        CONFIG: JSON.stringify(mockConfig),
+        ROUTER_CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -28,9 +28,9 @@ describe("Config", () => {
     it("should read config from Config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
-        CONFIG_FILE: "buggypath",
+        ROUTER_CONFIG_FILE: "buggypath",
         NETWORK: "testnet",
-        CONFIG: JSON.stringify(mockConfig),
+        ROUTER_CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -41,7 +41,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NETWORK: "local",
-        CONFIG: JSON.stringify({
+        ROUTER_CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             [testDomainId]: {
@@ -80,12 +80,12 @@ describe("Config", () => {
         ...process.env,
         MNEMONIC: null,
         NETWORK: "local",
-        CONFIG: JSON.stringify({
+        ROUTER_CONFIG: JSON.stringify({
           ...mockConfig,
           mnemonic: null,
           web3SignerUrl: null,
         }),
-        CONFIG_FILE: "buggypath",
+        ROUTER_CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).throw(
@@ -98,7 +98,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NETWORK: "local",
-        CONFIG: JSON.stringify({
+        ROUTER_CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             ...mockConfig.chains,
@@ -125,7 +125,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NETWORK: "local",
-        CONFIG: JSON.stringify({
+        ROUTER_CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
             1337: {
@@ -153,7 +153,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NETWORK: "local",
-        CONFIG: JSON.stringify(mockConfig),
+        ROUTER_CONFIG: JSON.stringify(mockConfig),
       });
 
       let res;
@@ -173,7 +173,7 @@ describe("Config", () => {
       stub(Mockable, "readFileSync").returns(JSON.stringify(mockConfig));
       stub(process, "env").value({
         ...process.env,
-        CONFIG_FILE: "buggypath",
+        ROUTER_CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -187,7 +187,7 @@ describe("Config", () => {
         MNEMONIC: mockConfig.mnemonic,
         CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
         LOG_LEVEL: mockConfig.logLevel,
-        CONFIG: JSON.stringify(mockConfig),
+        ROUTER_CONFIG: JSON.stringify(mockConfig),
       });
 
       const env = getEnvConfig(mockChainData, mockDeployments);
