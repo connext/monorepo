@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.20
+
+- [sdk] Fix config default for cartographer uri
+
 ## Amarok 0.2.1-rc.19
 
 - [sdk] Allow `getTransfers` query to filter by xcall caller.
