@@ -115,14 +115,14 @@ export const getEnvConfig = (
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.CONFIG || "");
+    configJson = JSON.parse(process.env.ROUTER_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No CONFIG exists, using config file and individual env vars");
+    console.info("No ROUTER_CONFIG exists, using config file and individual env vars");
   }
   try {
     let json: string;
 
-    const path = process.env.CONFIG_FILE ?? "config.json";
+    const path = process.env.ROUTER_CONFIG_FILE ?? "config.json";
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
