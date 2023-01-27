@@ -736,5 +736,5 @@ export const saveStableSwapExchange = async (
     .map((m) => convertToDbStableSwapExchange(m))
     .map(sanitizeNull);
 
-  await db.upsert("stableswap_exchanges", exchanges, ["id"]).run(poolToUse);
+  await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
 };
