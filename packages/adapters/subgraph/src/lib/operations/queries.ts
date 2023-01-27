@@ -874,7 +874,7 @@ export const getStableSwapPoolsQuery = (domain: string) => {
   const prefix = config.sources[domain].prefix;
   const queryString = `
   ${prefix}_stableSwaps ( 
-    first: 100
+    first: 1000
   ) {
     ${STABLESWAP_POOL_ENTITY}
   }`;
