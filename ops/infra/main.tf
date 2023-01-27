@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "terraform-infra"
+    bucket = "connext-terraform-infra"
     key    = "state/"
     region = "us-east-1"
   }
