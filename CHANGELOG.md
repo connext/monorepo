@@ -4,7 +4,7 @@
 
 ## Amarok 0.2.1-rc.20
 
-- [sdk] Fix config default for cartographer uri
+- [sdk] Fix config default for cartographer uri, testnet relayerFee estimates.
 
 ## Amarok 0.2.1-rc.19
 
