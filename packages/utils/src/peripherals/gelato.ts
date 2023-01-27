@@ -35,6 +35,10 @@ const EquivalentChainsForGelato: Record<number, number> = {
   1337: 1,
   1338: 1,
   420: 1,
+  800001: 1,
+  421613: 1,
+  10200: 1,
+  97: 1,
 };
 
 /**
