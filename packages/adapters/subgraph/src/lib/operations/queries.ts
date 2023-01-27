@@ -890,7 +890,7 @@ const swapExchangeQueryString = (
   prefix: string,
   fromTimestamp: number,
   maxBlockNumber?: number,
-  orderDirection: "asc" | "desc" = "desc",
+  orderDirection: "asc" | "desc" = "asc",
 ) => {
   return `${prefix}_stableSwapExchanges(
     where: {
