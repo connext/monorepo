@@ -109,7 +109,7 @@ export class AuctionsCache extends Cache {
    */
   public async getExecStatus(transferId: string): Promise<ExecStatus> {
     const rawStatus = await this.data.hget(`${this.prefix}:status`, transferId);
-    const res = rawStatus ? ((JSON.parse(rawStatus) as Status).status as string) : null;
+    const res = rawStatus ? (JSON.parse(rawStatus) as Status).status : null;
     return res && Object.values(ExecStatus).includes(res as ExecStatus)
       ? ExecStatus[res as ExecStatus]
       : ExecStatus.None;
