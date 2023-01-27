@@ -85,8 +85,8 @@ export const getEnvConfig = (
       ? _connextConfig.cartographerUrl
       : _connextConfig.network === "testnet"
       ? _connextConfig.environment === "staging"
-        ? "https://postgrest.testnet.connext.ninja"
-        : "https://postgrest.testnet.staging.connext.ninja"
+        ? "https://postgrest.testnet.staging.connext.ninja"
+        : "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.mainnet.connext.ninja",
   };
 
