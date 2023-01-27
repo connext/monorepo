@@ -136,7 +136,7 @@ describe("Operations:Execute:FastPath", () => {
 
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
-      getStatusStub.resolves(ExecStatus.Sent);
+      getStatusStub.resolves(ExecStatus.Completed);
       await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 

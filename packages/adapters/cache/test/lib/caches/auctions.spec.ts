@@ -11,6 +11,7 @@ import {
   Bid,
   getNtpTimeSeconds,
   RelayerType,
+  Status,
 } from "@connext/utils";
 
 import { AuctionsCache } from "../../../src/index";
@@ -30,9 +31,17 @@ describe("AuctionCache", () => {
     },
 
     setExecStatus: async (transferId: string, status: ExecStatus) =>
-      await redis.hset(`${prefix}:status`, transferId, status.toString()),
+      await redis.hset(
+        `${prefix}:status`,
+        transferId,
+        JSON.stringify({
+          timestamp: "1000".toString(),
+          status: status.toString(),
+        }),
+      ),
     getExecStatus: async (transferId: string): Promise<ExecStatus | null> => {
-      const res = await redis.hget(`${prefix}:status`, transferId);
+      const rawStatus = await redis.hget(`${prefix}:status`, transferId);
+      const res = rawStatus ? ((JSON.parse(rawStatus) as Status).status as string) : null;
       return res ? ExecStatus[res as ExecStatus] : null;
     },
 
