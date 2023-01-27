@@ -301,7 +301,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod' || github.ref == 'refs/heads/2915-remove-nxtp'
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
@@ -345,7 +345,7 @@ jobs:
           docker push ghcr.io/connext/cartographer:$IMAGE_TAG
 
   build-and-push-lighthouse-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod' || github.ref == 'refs/heads/2915-remove-nxtp
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
