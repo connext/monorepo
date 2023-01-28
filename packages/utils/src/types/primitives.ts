@@ -77,4 +77,5 @@ export const TRequiredPeripheralConfig = Type.Object({
   host: Type.Optional(Type.String()),
   user: Type.Optional(Type.String()),
   pass: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
 });
