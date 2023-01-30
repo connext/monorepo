@@ -28,6 +28,7 @@ import {
   getYieldStatsForDaySchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
+  getTokenSwapEventsSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
@@ -247,6 +248,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     async (request, reply) => {
       const { tokenSymbol } = request.params;
       const res = await sdkPoolInstance.getTokenPrice(tokenSymbol);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getTokenSwapEvents",
+    {
+      schema: {
+        body: getTokenSwapEventsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkPoolInstance.getTokenSwapEvents(params);
       reply.status(200).send(res);
     },
   );
