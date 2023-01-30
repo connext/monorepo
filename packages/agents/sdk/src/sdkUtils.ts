@@ -175,7 +175,7 @@ export class SdkUtils extends SdkShared {
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range } = params;
+    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller } = params;
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
@@ -184,7 +184,7 @@ export class SdkUtils extends SdkShared {
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
       : "";
-    const xcallCallerIdentifier = transactionHash ? `xcall_caller=eq.${transactionHash.toLowerCase()}&` : "";
+    const xcallCallerIdentifier = xcallCaller ? `xcall_caller=eq.${xcallCaller.toLowerCase()}&` : "";
 
     const searchIdentifier =
       userIdentifier +
