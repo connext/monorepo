@@ -1984,6 +1984,7 @@ __metadata:
     "@types/sinon": 10.0.13
     concurrently: 7.6.0
     datadog-lambda-js: 6.85.0
+    dd-trace: 3.9.3
     dotenv: 16.0.3
     eslint: 8.30.0
     ethers: 5.7.2
