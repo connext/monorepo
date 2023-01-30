@@ -1,5 +1,5 @@
 import { expect, mkBytes32 } from "@connext/nxtp-utils";
-import { stub, restore, reset, SinonStub } from "sinon";
+import { stub, SinonStub } from "sinon";
 import { execute } from "../../../src/tasks/executor/operations";
 
 import { mock } from "../../mock";
@@ -12,13 +12,9 @@ describe("Operations:Execute", () => {
   beforeEach(() => {
     sendExecuteFastToRelayerStub = stub(SequencerFns, "sendExecuteSlowToSequencer").resolves();
   });
-  afterEach(() => {
-    restore();
-    reset();
-  });
   describe("#execute", () => {
     it("should not send to the relayer if not valid ", async () => {
-      const executeArgs = { ...mock.entity.executeArgs(), routers: "0x" };
+      const executeArgs = { ...mock.entity.executeArgs(), routers: ["0x"] };
       const transferId = mkBytes32();
       await expect(execute(executeArgs, transferId)).to.be.rejectedWith(Error);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
