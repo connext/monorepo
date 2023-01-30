@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.1-rc.16",
+  "version": "0.2.1-rc.21",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -59,7 +59,7 @@ jobs:
         run: yarn install
 
       - name: Forge install
-        run: yarn workspace @connext/nxtp-contracts forge:install
+        run: yarn workspace @connext/smart-contracts forge:install
 
       - name: Yarn build
         run: yarn build
@@ -84,7 +84,7 @@ jobs:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           yarn workspace @connext/nxtp-utils npm publish --access public
-          yarn workspace @connext/nxtp-contracts npm publish --access public
+          yarn workspace @connext/smart-contracts npm publish --access public
           yarn workspace @connext/nxtp-txservice npm publish --access public
           yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
           yarn workspace @connext/nxtp-adapters-cache npm publish --access public

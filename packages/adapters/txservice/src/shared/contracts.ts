@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import _contractDeployments from "@connext/smart-contracts/deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   Connext as TConnext,
@@ -11,20 +11,20 @@ import {
   RootManager as TRootManager,
   MultiSend as TMultisend,
   Unwrapper as TUnwrapper,
-} from "@connext/nxtp-contracts";
-import RootManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
-import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
-import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
-import SpokeConnectorArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
-import RelayerProxyArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
-import RelayerProxyHubArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
-import MultiSendArtifact from "@connext/nxtp-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
-import UnwrapperArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
-import GnosisAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
-import MultichainAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
-import OptimismAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
-import ArbitrumAmbArtifact from "@connext/nxtp-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
+} from "@connext/smart-contracts";
+import RootManagerArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
+import PriceOracleArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import ConnextArtifact from "@connext/smart-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
+import StableSwapArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
+import SpokeConnectorArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import RelayerProxyArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
+import RelayerProxyHubArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
+import MultiSendArtifact from "@connext/smart-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
+import UnwrapperArtifact from "@connext/smart-contracts/artifacts/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
+import GnosisAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
+import MultichainAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
+import OptimismAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
+import ArbitrumAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";

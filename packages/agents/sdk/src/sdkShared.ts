@@ -1,25 +1,25 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/nxtp-contracts";
+import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
 import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { NxtpSdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 /**
  * @classdesc SDK class encapsulating shared logic to be inherited.
  *
  */
-export class NxtpSdkShared {
-  readonly config: NxtpSdkConfig;
+export class SdkShared {
+  readonly config: SdkConfig;
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
   protected readonly logger: Logger;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
@@ -309,13 +309,19 @@ export class NxtpSdkShared {
    * @param domainId The canonical domain ID of the token.
    * @param canonicalId The canonical ID of the token.
    */
-  calculateCanonicalKey(domainId: string, tokenId: string): string {
-    return getCanonicalHash(domainId, tokenId);
+  calculateCanonicalKey(domainId: string, canonicalId: string): string {
+    return getCanonicalHash(domainId, canonicalId);
   }
 
-  async getCanonicalTokenId(domainId: string, canonicalId: string): Promise<[string, string]> {
+  /**
+   * Returns the canonical ID and canonical domain of a token.
+   *
+   * @param domainId The canonical domain ID of the token.
+   * @param tokenAddress The address of the token.
+   */
+  async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
     const connextContract = await this.getConnext(domainId);
-    const tokenId = await connextContract.getTokenId(canonicalId);
+    const tokenId = await connextContract.getTokenId(tokenAddress);
 
     return [tokenId.domain.toString(), tokenId.id];
   }

@@ -1,13 +1,13 @@
-import { NxtpSdkBase, NxtpSdkPool, NxtpSdkRouter, NxtpSdkUtils } from "@connext/sdk";
+import { SdkBase, SdkPool, SdkRouter, SdkUtils } from "@connext/sdk";
 import { useContext } from "react";
 
 import { createCtx } from "../utils/context";
 
 type SDK = {
-  nxtpSdkBase: NxtpSdkBase;
-  nxtpSdkUtils: NxtpSdkUtils;
-  nxtpSdkRouter: NxtpSdkRouter;
-  nxtpSdkPool: NxtpSdkPool;
+  sdkBase: SdkBase;
+  sdkUtils: SdkUtils;
+  sdkRouter: SdkRouter;
+  sdkPool: SdkPool;
 };
 
 interface IAppState {

@@ -200,7 +200,7 @@ export const getTransfersByTransactionHashSchema = Type.Object({
 
 export const getTransfersSchema = Type.Object({
   params: Type.Object({
-    serAddress: Type.Optional(Type.String()),
+    userAddress: Type.Optional(Type.String()),
     routerAddress: Type.Optional(Type.String()),
     status: Type.Optional(Type.Enum(XTransferStatus)),
     transferId: Type.Optional(Type.String()),

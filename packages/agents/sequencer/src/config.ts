@@ -10,6 +10,7 @@ import { version } from "../package.json";
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
+const DEFAULT_EXECUTION_WAIT_TIME = 300_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 const DEFAULT_RELAYER_FEE_TOLERANCE = 10;
 
@@ -74,6 +75,11 @@ export const getEnvConfig = (
       configJson.auctionWaitTime ||
       configFile.auctionWaitTime ||
       DEFAULT_AUCTION_WAIT_TIME,
+    executionWaitTime:
+      process.env.SEQ_EXECUTION_WAIT_TIME ||
+      configJson.executionWaitTime ||
+      configFile.executionWaitTime ||
+      DEFAULT_EXECUTION_WAIT_TIME,
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
@@ -154,6 +160,8 @@ export const getEnvConfig = (
     if (!chainConfig.confirmations) {
       _sequencerConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
     }
+
+    chainConfig.excludeListFromRelayerFee = chainConfig.excludeListFromRelayerFee ?? [];
   });
 
   const validate = ajv.compile(SequencerConfigSchema);
