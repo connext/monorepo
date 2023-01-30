@@ -142,7 +142,7 @@ export const executeSlowPathData = async (
   if (!canSubmit) {
     await cache.executors.setExecStatus(transferId, ExecStatus.None);
     if (transfer.origin) {
-      transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+      transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
       await database.saveTransfers([transfer]);
     }
 

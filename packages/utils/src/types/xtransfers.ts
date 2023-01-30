@@ -14,7 +14,7 @@ export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatu
 
 export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
-  InsufficientRelayerFee: "InsufficientRelayerFee",
+  LowRelayerFee: "LowRelayerFee",
 } as const;
 export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
 
