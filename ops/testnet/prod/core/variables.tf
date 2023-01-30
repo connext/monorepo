@@ -116,6 +116,10 @@ variable "mumbai_blast_key_0" {
   type = string
 }
 
+variable "optgoerli_blast_key" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
