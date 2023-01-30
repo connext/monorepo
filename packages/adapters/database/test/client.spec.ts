@@ -68,7 +68,7 @@ describe("Database client", () => {
   afterEach(async () => {
     await pool.query("DELETE FROM asset_balances CASCADE");
     await pool.query("DELETE FROM assets CASCADE");
-    // await pool.query("DELETE FROM transfers CASCADE");
+    await pool.query("DELETE FROM transfers CASCADE");
     await pool.query("DELETE FROM messages CASCADE");
     await pool.query("DELETE FROM root_messages CASCADE");
     await pool.query("DELETE FROM routers CASCADE");
