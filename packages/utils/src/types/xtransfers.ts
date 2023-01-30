@@ -223,3 +223,11 @@ export type AssetBalance = Static<typeof AssetBalanceSchema>;
 
 export const RouterBalanceSchema = Type.Object({ router: TAddress, assets: Type.Array(AssetBalanceSchema) });
 export type RouterBalance = Static<typeof RouterBalanceSchema>;
+
+export const BidStatusSchema = Type.Object({
+  timestamp: Type.String(),
+  attempts: Type.Number(),
+});
+
+// BidStatus type - used for tracking transfer bid status by routers.
+export type BidStatus = Static<typeof BidStatusSchema>;
