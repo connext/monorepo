@@ -1,11 +1,20 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
+import {
+  getChainData,
+  Logger,
+  createLoggingContext,
+  ChainData,
+  DEFAULT_ROUTER_FEE,
+  formatUrl,
+  StableSwapExchange,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
@@ -592,6 +601,42 @@ export class SdkPool extends SdkShared {
     const adopted = await connextContract["canonicalToAdopted(bytes32)"](key);
 
     return adopted;
+  }
+
+  /**
+   * Retrieve the "TokenSwap" events for StableSwap pools.
+   *
+   * @returns The object containing asset data.
+   */
+  async getTokenSwapEvents(params: {
+    key?: string;
+    buyer?: string;
+    transactionHash?: string;
+    range?: { limit?: number; offset?: number };
+  }): Promise<StableSwapExchange[]> {
+    const { key, buyer, transactionHash, range } = params;
+
+    const poolIdentifier = key ? `pool_id=eq.${key}&` : "";
+    const buyerIdentifier = buyer ? `buyer=eq.${buyer.toLowerCase()}&` : "";
+    const transactionHashIdentifier = transactionHash ? `transaction_hash=eq.${transactionHash.toLowerCase()}&` : "";
+
+    const searchIdentifier = poolIdentifier + buyerIdentifier + transactionHashIdentifier;
+
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
+    const orderIdentifier = `order=timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "stableswap_exchanges?",
+      searchIdentifier + rangeIdentifier + orderIdentifier,
+    );
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   // ------------------- Pool Operations ------------------- //
