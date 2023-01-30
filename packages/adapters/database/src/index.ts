@@ -47,6 +47,7 @@ import {
   getRoot,
   putRoot,
   getCompletedTransfersByMessageHashes,
+  increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
 } from "./client";
@@ -170,6 +171,7 @@ export type Database = {
   ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  increaseBackoff: (transferId: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapPool: (_swapPools: StableSwapPool[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapExchange: (
     _swapExchanges: StableSwapExchange[],
@@ -222,6 +224,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getHubNodes,
     getRoot,
     putRoot,
+    increaseBackoff,
     saveStableSwapPool,
     saveStableSwapExchange,
   };

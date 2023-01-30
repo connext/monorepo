@@ -4909,6 +4909,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_status: string | null;
+      /**
+      * **transfers.backoff**
+      * - `int4` in database
+      * - `NOT NULL`, default: `32`
+      */
+      backoff: number;
+      /**
+      * **transfers.next_execution_timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, default: `0`
+      */
+      next_execution_timestamp: number;
     }
     export interface JSONSelectable {
       /**
@@ -5229,6 +5241,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_status: string | null;
+      /**
+      * **transfers.backoff**
+      * - `int4` in database
+      * - `NOT NULL`, default: `32`
+      */
+      backoff: number;
+      /**
+      * **transfers.next_execution_timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, default: `0`
+      */
+      next_execution_timestamp: number;
     }
     export interface Whereable {
       /**
@@ -5549,6 +5573,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.backoff**
+      * - `int4` in database
+      * - `NOT NULL`, default: `32`
+      */
+      backoff?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.next_execution_timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, default: `0`
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -5869,6 +5905,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.backoff**
+      * - `int4` in database
+      * - `NOT NULL`, default: `32`
+      */
+      backoff?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.next_execution_timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, default: `0`
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -6189,6 +6237,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.backoff**
+      * - `int4` in database
+      * - `NOT NULL`, default: `32`
+      */
+      backoff?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.next_execution_timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, default: `0`
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
