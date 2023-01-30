@@ -73,7 +73,7 @@ export const getReconciledTransactions = async (param: {
 
   const statusIdentifier = `status=eq.Reconciled`;
   // query executable transfers based on exponentially backed off execution time
-  const timeIdentifier = `&next_execution_secs=gte.${Math.floor(Date.now() / 1000)}&${transfersCastForUrl}`;
+  const timeIdentifier = `&next_execution_secs=lte.${Math.floor(Date.now() / 1000)}&${transfersCastForUrl}`;
   const rangeIdentifier = `&limit=${pageSize}&offset=${offset}`;
   const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + timeIdentifier + rangeIdentifier);
   logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
