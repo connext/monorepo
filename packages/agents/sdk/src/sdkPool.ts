@@ -606,7 +606,32 @@ export class SdkPool extends SdkShared {
   /**
    * Retrieve the "TokenSwap" events for StableSwap pools.
    *
-   * @returns The object containing asset data.
+   * @param userAddress - (optional) The origin caller address.
+   * @param routerAddress - (optional) The router that facilitated the transfer.
+   * @param status - (optional) The xcall status.
+   * @param transferId - (optional) The unique transfer ID of the xcall.
+   * @param transactionHash - (optional) The transaction hash associated with the xcall.
+   * @param xcallCaller - (optional) The origin caller of the xcall.
+   * @param range - (optional) The object with limit and offset options.
+   * @param range.limit - (optional) The number of results to get.
+   * @param range.offset - (optional) The offset in the returned data to start from.
+   * @returns The object containing TokenSwap event data in the form of:
+   *
+   * ```ts
+   * {
+   *   "id": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f-0x5f9c237682049e4efe7f4bc4bfb9bd5174fccb9e86241254ea3e369515943e59-4",
+   *   "pool_id": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+   *   "domain": "9991",
+   *   "buyer": "0xba05138df56ea700435448fba4a8cf9a716ed252",
+   *   "bought_id": 1,
+   *   "sold_id": 0,
+   *   "tokens_sold": 9.8e-17,
+   *   "tokens_bought": 9.7e-17,
+   *   "block_number": 29904034,
+   *   "transaction_hash": "0x5f9c237682049e4efe7f4bc4bfb9bd5174fccb9e86241254ea3e369515943e59",
+   *   "timestamp": 1671493053
+   * }
+   * ```
    */
   async getTokenSwapEvents(params: {
     key?: string;
