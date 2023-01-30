@@ -30,17 +30,17 @@ export const getGelatoEstimatedFee = async (
 
 /// MARK - This is used for testnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
-  4: 1,
-  5: 1,
-  1337: 1,
-  1338: 1,
-  13337: 1,
-  13338: 1,
-  420: 1,
-  80001: 1,
-  421613: 1,
-  10200: 1,
-  97: 1,
+  4: 1, // rinkeby
+  5: 1, // goerli
+  1337: 1, // local chain
+  1338: 1, // local chain
+  13337: 1, // local chain
+  13338: 1, // local chain
+  420: 1, //  optimism-goerli
+  80001: 137, // mumbai (polygon testnet)
+  421613: 1, // arbitrum-goerli
+  10200: 100, // chiado (gnosis testnet)
+  97: 56, // chapel (bnb testnet)
 };
 
 /**
