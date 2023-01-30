@@ -68,7 +68,7 @@ describe("Database client", () => {
   afterEach(async () => {
     await pool.query("DELETE FROM asset_balances CASCADE");
     await pool.query("DELETE FROM assets CASCADE");
-    await pool.query("DELETE FROM transfers CASCADE");
+    // await pool.query("DELETE FROM transfers CASCADE");
     await pool.query("DELETE FROM messages CASCADE");
     await pool.query("DELETE FROM root_messages CASCADE");
     await pool.query("DELETE FROM routers CASCADE");
@@ -114,16 +114,13 @@ describe("Database client", () => {
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
     expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
 
-    xTransfer.origin!.errorStatus = XTransferErrorStatus.Ok;
-
-    console.log(xTransfer);
+    xTransfer.destination!.status = XTransferStatus.CompletedFast;
 
     await saveTransfers([xTransfer], pool);
 
     const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
-    console.log(dbTransferUpdated);
-    expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.Executed);
-    expect(dbTransferUpdated!.origin?.errorStatus).equal(XTransferErrorStatus.Ok);
+    expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransferUpdated!.origin?.errorStatus).equal(undefined);
   });
 
   it("should save single transfer null destination", async () => {
