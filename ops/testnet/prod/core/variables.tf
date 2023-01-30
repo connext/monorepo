@@ -112,11 +112,7 @@ variable "arbgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "mumbai_blast_key_0" {
-  type = string
-}
-
-variable "optgoerli_blast_key" {
+variable "blast_key" {
   type = string
 }
 
