@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.1-rc.16",
+  "version": "0.2.1-rc.21",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -31,7 +31,6 @@
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "datadog-lambda-js": "6.85.0",
-    "dd-trace": "3.9.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",

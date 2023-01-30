@@ -55,6 +55,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
     );
     context.adapters.mqClient = await setupMq(
       context.config.messageQueue.uri as string,
+      context.config.messageQueue.limit as number,
       context.logger,
       requestContext,
     );

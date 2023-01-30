@@ -9,7 +9,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -117,7 +117,7 @@ export class RpcProviderAggregator {
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      this.fallbackProvider = new FallbackProvider(hydratedConfigs, 1);
+      this.fallbackProvider = new FallbackProvider(hydratedConfigs, config.quorum);
       this.providers = hydratedConfigs.map((p) => p.provider);
     } else {
       // Not enough valid providers were found in configuration.

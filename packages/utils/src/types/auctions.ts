@@ -41,4 +41,12 @@ export type Auction = AuctionHeader & {
   };
 };
 
+// Status type - used for tracking transfer auction status.
+export type Status = {
+  // Timestamp of when status was last updated.
+  timestamp: string;
+  // Status
+  status: string;
+};
+
 /// -------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
-import { domainToChainId } from "@connext/nxtp-contracts";
-import { getCanonicalHash, RequestContext } from "@connext/nxtp-utils";
+import { domainToChainId } from "@connext/smart-contracts";
+import { createLoggingContext, getCanonicalHash, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, constants } from "ethers";
 
 import { ConnextInterface, getErc20Interface } from "../mockable";
@@ -20,15 +20,15 @@ export class AssetVerifier extends Verifier {
    */
   public override async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
     for (const asset of this.assets) {
-      const totalMinted = await this.totalMintedAssets(asset);
-      const totalLocked = await this.totalLockedAssets(asset);
+      const totalMinted = await this.totalMintedAssets(asset, _requestContext);
+      const totalLocked = await this.totalLockedAssets(asset, _requestContext);
       // Invariant: totalMintedAssets <= totalLockedAssets
       if (totalMinted.gt(totalLocked)) {
         return {
           needsPause: true,
           reason: `totalMintedAssets (${totalMinted.toString()}) is less than or equal to totalLockedAssets (${totalLocked.toString()}) for ${
-            asset.address
-          }`,
+            asset.symbol
+          } (${asset.address})`,
         };
       }
     }
@@ -42,13 +42,18 @@ export class AssetVerifier extends Verifier {
    * @param asset - AssetInfo for the target asset.
    * @returns BigNumber representing the total number of representative assets minted.
    */
-  public async totalMintedAssets(asset: AssetInfo): Promise<BigNumber> {
+  public async totalMintedAssets(asset: AssetInfo, requestContext: RequestContext): Promise<BigNumber> {
+    const { methodContext } = createLoggingContext(this.totalMintedAssets.name);
     const erc20 = getErc20Interface();
     const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
 
     // Loop through all domains, adding up the minted amount for the asset on each one.
     let totalMintedAmount = BigNumber.from(0);
     for (const domain of this.context.domains) {
+      if (asset.canonicalDomain === domain) {
+        // Assets are not minted on canonical domains
+        continue;
+      }
       const chainId = domainToChainId(+domain);
       const connext = this.getConnextDeployment(chainId);
 
@@ -63,7 +68,12 @@ export class AssetVerifier extends Verifier {
         data: canonicalToRepresentationCalldata,
       });
 
-      this.context.logger.debug("Queried for representation asset", undefined, undefined, {
+      const representation = ConnextInterface.decodeFunctionResult(
+        "canonicalToRepresentation(bytes32)",
+        representationRes,
+      )[0];
+
+      this.context.logger.debug("Queried for representation asset", requestContext, methodContext, {
         domain,
         chainId,
         connext: connext.address,
@@ -71,12 +81,9 @@ export class AssetVerifier extends Verifier {
         assetKey,
         data: canonicalToRepresentationCalldata,
         result: representationRes,
+        representation,
       });
 
-      const representation = ConnextInterface.decodeFunctionResult(
-        "canonicalToRepresentation(bytes32)",
-        representationRes,
-      )[0];
       if (representation === constants.AddressZero) {
         // If this is address(0), then there is no mintable token for this asset on this domain
         continue;
@@ -93,15 +100,46 @@ export class AssetVerifier extends Verifier {
       try {
         totalSupply = erc20.decodeFunctionResult("totalSupply", totalSupplyRes)[0];
       } catch (e: any) {
+        this.context.logger.error(
+          "Failed to decode totalSupply",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+          {
+            domain,
+            chainId,
+            connext: connext.address,
+            asset,
+            assetKey,
+            data: totalSupplyCalldata,
+            result: totalSupplyRes,
+          },
+        );
         throw new Error(
           "Failed to convert totalSupply response to BigNumber. " +
             `token: ${representation}, Received: ${totalSupplyRes}; Error: ${e.toString()}`,
         );
       }
+      this.context.logger.debug("Queried for supply of representation", requestContext, methodContext, {
+        domain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: totalSupplyCalldata,
+        result: totalSupplyRes,
+        totalSupply: totalSupply.toString(),
+      });
 
       // 3. Add to total.
       totalMintedAmount = totalMintedAmount.add(totalSupply);
     }
+
+    this.context.logger.debug("Calculated minted", requestContext, methodContext, {
+      domains: this.context.domains,
+      asset,
+      minted: totalMintedAmount.toString(),
+    });
 
     return totalMintedAmount;
   }
@@ -112,7 +150,8 @@ export class AssetVerifier extends Verifier {
    * @param asset - The AssetInfo for the target asset.
    * @returns BigNumber representing the total number of tokens locked.
    */
-  public async totalLockedAssets(asset: AssetInfo): Promise<BigNumber> {
+  public async totalLockedAssets(asset: AssetInfo, requestContext: RequestContext): Promise<BigNumber> {
+    const { methodContext } = createLoggingContext(this.totalLockedAssets.name);
     const assetKey = getCanonicalHash(asset.canonicalDomain, asset.canonicalId);
 
     const chainId = domainToChainId(+asset.canonicalDomain);
@@ -126,8 +165,34 @@ export class AssetVerifier extends Verifier {
       data: getCustodiedAmountCalldata,
     });
     try {
-      return ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
+      const ret = ConnextInterface.decodeFunctionResult("getCustodiedAmount", amountRes)[0];
+      this.context.logger.debug("Queried for custodied amount", requestContext, methodContext, {
+        domain: +asset.canonicalDomain,
+        chainId,
+        connext: connext.address,
+        asset,
+        assetKey,
+        data: getCustodiedAmountCalldata,
+        result: amountRes,
+        custodied: ret.toString(),
+      });
+      return ret;
     } catch (e: any) {
+      this.context.logger.error(
+        "Failed to decode custodiedAmount",
+        requestContext,
+        methodContext,
+        jsonifyError(e as Error),
+        {
+          domain: +asset.canonicalDomain,
+          chainId,
+          connext: connext.address,
+          asset,
+          assetKey,
+          data: getCustodiedAmountCalldata,
+          result: amountRes,
+        },
+      );
       throw new Error(
         "Failed to convert getCustodiedAmount response to BigNumber. " +
           `Received: ${amountRes}; Error: ${e.toString()}`,

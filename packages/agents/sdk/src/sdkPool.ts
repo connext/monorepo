@@ -4,11 +4,11 @@ import { getChainData, Logger, createLoggingContext, ChainData, DEFAULT_ROUTER_F
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
-import { NxtpSdkConfig, getConfig } from "./config";
+import { SdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
-import { NxtpSdkShared } from "./sdkShared";
+import { SdkShared } from "./sdkShared";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -18,19 +18,19 @@ import { NxtpSdkShared } from "./sdkShared";
  *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
  */
-export class NxtpSdkPool extends NxtpSdkShared {
-  private static _instance: NxtpSdkPool;
+export class SdkPool extends SdkShared {
+  private static _instance: SdkPool;
   private readonly priceFeed: PriceFeed;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
     this.priceFeed = new PriceFeed();
   }
 
   /**
-   * Create a singleton instance of the NxtpSdkPool class.
+   * Create a singleton instance of the SdkPool class.
    *
-   * @param _config - NxtpSdkConfig object.
+   * @param _config - SdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
    * @param _config.logLevel - (optional) Logging severity level.
@@ -39,7 +39,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkPool } from "@connext/nxtp-sdk";
+   * import { SdkPool } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -56,14 +56,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *   "signerAddress": "<wallet_address>",
    * }
    *
-   * const nxtpSdkPool = await NxtpSdkPool.create(config);
+   * const sdkPool = await SdkPool.create(config);
    * ```
    */
-  static async create(
-    _config: NxtpSdkConfig,
-    _logger?: Logger,
-    _chainData?: Map<string, ChainData>,
-  ): Promise<NxtpSdkPool> {
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkPool> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new ChainDataUndefined();
@@ -72,10 +68,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
 
     const logger = _logger
-      ? _logger.child({ name: "NxtpSdkPool" })
-      : new Logger({ name: "NxtpSdkPool", level: nxtpConfig.logLevel });
+      ? _logger.child({ name: "SdkPool" })
+      : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new NxtpSdkPool(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
@@ -107,9 +103,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     tokenIndexTo: number,
     amount: BigNumberish,
   ): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const minAmount = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amount);
@@ -122,9 +120,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amounts - The amounts of the tokens to deposit/withdraw, in the correct index order.
+   * @param amounts - The amounts of the tokens to deposit/withdraw, in the correct index order and
+   * in each token's native precision.
    * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
-   * @returns Minimum LP tokens received.
+   * @returns Minimum LP tokens received, in 1e18 precision.
    */
   async calculateTokenAmount(
     domainId: string,
@@ -132,9 +131,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     amounts: string[],
     isDeposit = true,
   ): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amount = await connextContract.calculateSwapTokenAmount(key, amounts, isDeposit);
@@ -151,9 +152,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns Array containing amount of each underlying token returned, in correct index order.
    */
   async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
@@ -164,8 +167,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
   /**
    * Calculates the price impact depending on whether liquidity is being deposited or withdrawn.
    *
-   * @param tokenInputAmount - The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits, dx for swaps).
-   * @param tokenOutputAmount - The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits, dy for swaps).
+   * @param tokenInputAmount - The amount of inbound tokens (LP tokens for withdrawals, total tokens for deposits,
+   * dx for swaps), in 1e18 precision.
+   * @param tokenOutputAmount - The amount of outbound tokens (total tokens for withdrawals, LP tokens for deposits,
+   * dy for swaps), in 1e18 precision.
    * @param virtualPrice - (optional) The current virtual price of the pool.
    * @param isDeposit - (optional) Whether this is a deposit or withdrawal.
    * @returns The price impact.
@@ -195,9 +200,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amountX - The amount of token X (index 0 of the pool).
-   * @param amountY - The amount of token Y (index 1 of the pool).
-   * @returns Price impact for adding liquidity.
+   * @param amountX - The amount of token X (index 0 of the pool), in the token's native precision.
+   * @param amountY - The amount of token Y (index 1 of the pool), in the token's native precision.
+   * @returns Price impact for adding liquidity, in 1e18 precision.
    */
   async calculateAddLiquidityPriceImpact(
     domainId: string,
@@ -205,13 +210,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
     amountX: string,
     amountY: string,
   ): Promise<BigNumber | undefined> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [virtualPrice, lpTokenAmount] = await Promise.all([
-      this.getVirtualPrice(domainId, tokenAddress),
-      this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY]),
+      this.getVirtualPrice(domainId, _tokenAddress),
+      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY]),
     ]);
 
     // Normalize to 18 decimals
-    const pool = await this.getPool(domainId, tokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
     if (pool) {
       let decimals = [pool.local.decimals, pool.adopted.decimals];
       decimals = pool.local.index == 0 ? decimals : decimals.reverse();
@@ -230,9 +237,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    *
    * @param domainId - The domain id of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amountX - The amount of asset X.
-   * @param amountY - The amount of asset Y.
-   * @returns The price impact for removing liquidity.
+   * @param amountX - The amount of asset X (index 0 of the pool), in the token's native precision.
+   * @param amountY - The amount of asset Y (index 1 of the pool), in the token's native precision.
+   * @returns The price impact for removing liquidity, in 1e18 precision.
    */
   async calculateRemoveLiquidityPriceImpact(
     domainId: string,
@@ -240,13 +247,15 @@ export class NxtpSdkPool extends NxtpSdkShared {
     amountX: string,
     amountY: string,
   ): Promise<BigNumber | undefined> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [virtualPrice, lpTokenAmount] = await Promise.all([
-      this.getVirtualPrice(domainId, tokenAddress),
-      this.calculateTokenAmount(domainId, tokenAddress, [amountX, amountY], false),
+      this.getVirtualPrice(domainId, _tokenAddress),
+      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY], false),
     ]);
 
     // Normalize to 18 decimals
-    const pool = await this.getPool(domainId, tokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
     if (pool) {
       let decimals = [pool.local.decimals, pool.adopted.decimals];
       decimals = pool.local.index == 0 ? decimals : decimals.reverse();
@@ -264,10 +273,10 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * Calculates the price impact of a swap.
    *
    * @param domainId - The domain id of the pool.
-   * @param amountX - The amount of tokens to swap.
+   * @param amountX - The amount of tokens to swap, in the token's native precision.
    * @param tokenX - The address of the token to swap from.
    * @param tokenY - The address of the token to swap to.
-   * @returns The price impact for swapping.
+   * @returns The price impact for swapping, in 1e18 precision.
    */
   async calculateSwapPriceImpact(
     domainId: string,
@@ -275,6 +284,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
     tokenX: string,
     tokenY: string,
   ): Promise<BigNumber> {
+    const _tokenX = utils.getAddress(tokenX);
+    const _tokenY = utils.getAddress(tokenY);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, tokenX),
@@ -282,13 +294,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
     const [tokenIndexFrom, tokenIndexTo] = await Promise.all([
-      connextContract.getSwapTokenIndex(key, tokenX),
-      connextContract.getSwapTokenIndex(key, tokenY),
+      connextContract.getSwapTokenIndex(key, _tokenX),
+      connextContract.getSwapTokenIndex(key, _tokenY),
     ]);
 
     const [tokenXContract, tokenYContract] = await Promise.all([
-      this.getERC20(domainId, tokenX),
-      this.getERC20(domainId, tokenY),
+      this.getERC20(domainId, _tokenX),
+      this.getERC20(domainId, _tokenY),
     ]);
 
     const [tokenXDecimals, tokenYDecimals] = await Promise.all([tokenXContract.decimals(), tokenYContract.decimals()]);
@@ -306,8 +318,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
   /**
    * Calculates the estimated amount received on the destination domain for a bridge transaction.
    *
-   * @param originDomain - The domain id of the origin chain.
-   * @param destinationDomain - The domain id of the destination chain.
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
@@ -337,11 +349,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
     });
 
     // Calculate origin swap
-    const originPool = await this.getPool(originDomain, originTokenAddress);
+    const originPool = await this.getPool(originDomain, _originTokenAddress);
     let originAmountReceived = amount;
 
     // Swap IFF supplied origin token is an adopted asset
-    if (!(await this.isNextAsset(originTokenAddress)) && originPool) {
+    if (!(await this.isNextAsset(_originTokenAddress)) && originPool) {
       originAmountReceived = await this.calculateSwap(
         originDomain,
         _originTokenAddress,
@@ -356,7 +368,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
     // Calculate destination swap
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, originTokenAddress);
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, _originTokenAddress);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
     if (!destinationAssetData) {
@@ -412,9 +424,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The LP token address.
    */
   async getLPTokenAddress(domainId: string, tokenAddress: string): Promise<string> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const lpTokenAddress = await connextContract.getSwapLPToken(key);
@@ -430,7 +444,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The balance of the address.
    */
   async getTokenSupply(domainId: string, tokenAddress: string): Promise<BigNumber> {
-    const erc20Contract = await this.getERC20(domainId, tokenAddress);
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
     const amount = erc20Contract.totalSupply();
 
     return amount;
@@ -445,7 +461,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The balance of the address.
    */
   async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
-    const erc20Contract = await this.getERC20(domainId, tokenAddress);
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
     const balance = erc20Contract.balanceOf(userAddress);
 
     return balance;
@@ -460,9 +478,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The index of the specified token in the pool.
    */
   async getPoolTokenIndex(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const index = await connextContract.getSwapTokenIndex(key, poolTokenAddress);
@@ -479,10 +499,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The balance of the pool token.
    */
   async getPoolTokenBalance(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getPoolTokenIndex(domainId, tokenAddress, poolTokenAddress),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getPoolTokenIndex(domainId, _tokenAddress, poolTokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const balance = await connextContract.getSwapTokenBalance(key, index);
@@ -499,9 +521,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The address of the specified token in the pool.
    */
   async getPoolTokenAddress(domainId: string, tokenAddress: string, index: number) {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const poolTokenAddress = await connextContract.getSwapToken(key, index);
@@ -518,9 +542,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The virtual price, scaled to the pool's decimal precision (10^18).
    */
   async getVirtualPrice(domainId: string, tokenAddress: string): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const price = await connextContract.getSwapVirtualPrice(key);
@@ -536,9 +562,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The representation asset - adopted if on the canonical domain, local (nextAsset) otherwise.
    */
   async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const representation = await connextContract["canonicalToRepresentation(bytes32)"](key);
@@ -554,9 +582,11 @@ export class NxtpSdkPool extends NxtpSdkShared {
    * @returns The adopted asset.
    */
   async getAdopted(domainId: string, tokenAddress: string): Promise<string> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const adopted = await connextContract["canonicalToAdopted(bytes32)"](key);
@@ -586,6 +616,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
 
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
@@ -593,7 +625,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
@@ -623,6 +655,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
 
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
@@ -630,7 +664,7 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
@@ -671,6 +705,8 @@ export class NxtpSdkPool extends NxtpSdkShared {
       deadline,
     });
 
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
@@ -678,9 +714,9 @@ export class NxtpSdkPool extends NxtpSdkShared {
 
     const [connextContract, [canonicalDomain, canonicalId], tokenIndexFrom, tokenIndexTo] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
-      this.getPoolTokenIndex(domainId, tokenAddress, from),
-      this.getPoolTokenIndex(domainId, tokenAddress, to),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+      this.getPoolTokenIndex(domainId, _tokenAddress, from),
+      this.getPoolTokenIndex(domainId, _tokenAddress, to),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
@@ -715,23 +751,25 @@ export class NxtpSdkPool extends NxtpSdkShared {
         tokenAddress,
       });
 
-      const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, tokenAddress);
+      const _tokenAddress = utils.getAddress(tokenAddress);
+
+      const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, _tokenAddress);
 
       if (canonicalDomain == domainId) {
-        this.logger.debug(`No Pool; token ${tokenAddress} is canonical on domain ${domainId}`);
+        this.logger.debug(`No Pool; token ${_tokenAddress} is canonical on domain ${domainId}`);
         return;
       }
 
       const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
       const [local, adopted, lpTokenAddress] = await Promise.all([
-        this.getRepresentation(domainId, tokenAddress),
-        this.getAdopted(domainId, tokenAddress),
-        this.getLPTokenAddress(domainId, tokenAddress),
+        this.getRepresentation(domainId, _tokenAddress),
+        this.getAdopted(domainId, _tokenAddress),
+        this.getLPTokenAddress(domainId, _tokenAddress),
       ]);
 
       if (local == adopted) {
-        this.logger.debug(`No Pool for token ${tokenAddress} on domain ${domainId}`);
+        this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
 
@@ -756,12 +794,12 @@ export class NxtpSdkPool extends NxtpSdkShared {
         adoptedErc20Contract.symbol(),
         this.getPoolTokenBalance(domainId, adopted, adopted),
         adoptedErc20Contract.decimals(),
-        this.getPoolTokenIndex(domainId, tokenAddress, adopted),
+        this.getPoolTokenIndex(domainId, _tokenAddress, adopted),
         localErc20Contract.name(),
         localErc20Contract.symbol(),
         this.getPoolTokenBalance(domainId, local, local),
         localErc20Contract.decimals(),
-        this.getPoolTokenIndex(domainId, tokenAddress, local),
+        this.getPoolTokenIndex(domainId, _tokenAddress, local),
       ]);
 
       const localAsset: PoolAsset = {
@@ -823,11 +861,14 @@ export class NxtpSdkPool extends NxtpSdkShared {
             const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
             const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.adopted.address, userAddress);
             const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
-            result.push({
-              info: pool,
-              lpTokenBalance: lpTokenUserBalance,
-              poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-            });
+
+            if (lpTokenUserBalance.gt(0)) {
+              result.push({
+                info: pool,
+                lpTokenBalance: lpTokenUserBalance,
+                poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+              });
+            }
           } else {
             this.logger.info("No pool for asset", requestContext, methodContext, { data });
           }
@@ -859,19 +900,21 @@ export class NxtpSdkPool extends NxtpSdkShared {
       }
     | undefined
   > {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, tokenAddress),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const pool = await this.getPool(domainId, tokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
 
     if (pool) {
       const endTimestamp = unixTimestamp;
-      const endBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+      const endBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
 
       const startTimestamp = endTimestamp - 86_400; // 24 hours prior
-      let startBlock = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
+      let startBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
 
       const perBatch = 2000;
       let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
@@ -965,11 +1008,13 @@ export class NxtpSdkPool extends NxtpSdkShared {
         }
       | undefined
     > => {
+      const _tokenAddress = utils.getAddress(tokenAddress);
+
       const provider = this.getProvider(domainId);
       const block = await provider.getBlock("latest");
       const endTimestamp = block.timestamp;
 
-      const yieldStats = await this.getYieldStatsForDay(domainId, tokenAddress, endTimestamp);
+      const yieldStats = await this.getYieldStatsForDay(domainId, _tokenAddress, endTimestamp);
 
       if (yieldStats) {
         const {
