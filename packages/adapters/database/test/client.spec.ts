@@ -848,18 +848,18 @@ describe("Database client", () => {
 
     let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(32);
-    expect(queryRes.rows[0].next_execution_secs).to.eq(0);
+    expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
 
     await increaseBackoff(transfer.transferId, pool);
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
-    expect(queryRes.rows[0].next_execution_secs).to.gte(Date.now() / 1000 + 63); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
 
     await increaseBackoff(transfer.transferId, pool);
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(128);
-    expect(queryRes.rows[0].next_execution_secs).to.gte(Date.now() / 1000 + 127); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
   });
 });
