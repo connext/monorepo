@@ -13,7 +13,6 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
-  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
