@@ -320,9 +320,19 @@ export class SdkShared {
    * @param tokenAddress The address of the token.
    */
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
-    const connextContract = await this.getConnext(domainId);
-    const tokenId = await connextContract.getTokenId(tokenAddress);
+    const assetsData = await this.getAssetsData();
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == tokenAddress.toLowerCase() ||
+          utils.getAddress(assetData.adopted) == tokenAddress.toLowerCase())
+      );
+    });
 
-    return [tokenId.domain.toString(), tokenId.id];
+    if (asset) {
+      return [asset.canonicalDomain, asset.canonicalId];
+    }
+
+    return ["0", constants.HashZero];
   }
 }

@@ -17,6 +17,8 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -44,12 +46,14 @@ import {
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
   getReceivedAggregatedRootsByDomainQuery,
+  getSwapExchangesQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
   getPropagatedRootsQuery,
   getRootManagerMetaQuery,
+  getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 
@@ -351,7 +355,6 @@ export class SubgraphReader {
     const { config } = getContext();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);
-
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
@@ -804,5 +807,59 @@ export class SubgraphReader {
       .map(parser.receivedAggregateRoot);
 
     return receivedRoots;
+  }
+
+  /**
+   * Gets all stable swap pools for a given domain
+   * @param domain - The domain
+   * @returns - The array of `StableSwapPool`
+   */
+  public async getStableSwapPools(domain: string): Promise<StableSwapPool[]> {
+    const { execute, parser } = getHelpers();
+    const poolXQuery = getStableSwapPoolsQuery(domain);
+    const response = await execute(poolXQuery);
+
+    const _pools: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+
+      const flatten = value?.flat();
+      _pools.push(
+        flatten?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+    const pools: StableSwapPool[] = _pools
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapPool);
+    return pools;
+  }
+
+  public async getStableSwapExchangeByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<StableSwapExchange[]> {
+    const { execute, parser } = getHelpers();
+    const exchangeQuery = getSwapExchangesQuery(agents);
+    const response = await execute(exchangeQuery);
+
+    const exchanges: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _exchanges = value?.flat();
+      exchanges.push(
+        _exchanges?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainExchanges: StableSwapExchange[] = exchanges
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapExchange);
+
+    return domainExchanges;
   }
 }

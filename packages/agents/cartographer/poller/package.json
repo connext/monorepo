@@ -8,11 +8,12 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js'",
+    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots,stableswap' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js' 'node dist/entryStableSwap.js'",
     "start:transfers": "CARTOGRAPHER_SERVICE=transfers npx ts-node test/run.ts",
     "start:routers": "CARTOGRAPHER_SERVICE=routers npx ts-node test/run.ts",
     "start:messages": "CARTOGRAPHER_SERVICE=messages npx ts-node test/run.ts",
     "start:roots": "CARTOGRAPHER_SERVICE=roots npx ts-node test/run.ts",
+    "start:stableswap": "CARTOGRAPHER_SERVICE=stableswap npx ts-node test/run.ts",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
@@ -30,8 +31,6 @@
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
-    "datadog-lambda-js": "6.85.0",
-    "dd-trace": "3.9.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",

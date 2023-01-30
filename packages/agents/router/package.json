@@ -32,7 +32,6 @@
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.16",
     "compare-versions": "6.0.0-rc.1",
-    "dd-trace": "3.9.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.10.2",
