@@ -170,7 +170,7 @@ export const executeSlowPathData = async (
     await cache.executors.upsertMetaTxTask({ transferId, taskId });
     // reset error status
     if (transfer.origin) {
-      transfer.origin.errorStatus = XTransferErrorStatus.Ok;
+      transfer.origin.errorStatus = undefined;
       await database.saveTransfers([transfer]);
     }
   } else {
