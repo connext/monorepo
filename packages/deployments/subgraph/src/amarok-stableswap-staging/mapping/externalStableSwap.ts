@@ -175,7 +175,13 @@ export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
 
 export function handleTokenSwap(event: TokenSwap): void {
   let stableSwap = getOrCreateStableSwap(event.address);
-  let exchangeId = event.address.toHexString().concat(event.transaction.hash.toHexString());
+  let exchangeId =
+    event.address.toHexString() +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
+
   let exchange = new StableSwapExchange(exchangeId);
 
   exchange.stableSwap = stableSwap.id;
