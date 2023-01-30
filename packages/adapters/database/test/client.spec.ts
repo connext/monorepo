@@ -51,6 +51,7 @@ import {
   getMessageRootCount,
   transaction,
   getCompletedTransfersByMessageHashes,
+  increaseBackoff,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -839,5 +840,26 @@ describe("Database client", () => {
     await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
+  });
+
+  it("should increase the backoff", async () => {
+    const transfer = mock.entity.xtransfer();
+    await saveTransfers([transfer], pool);
+
+    let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(32);
+    expect(queryRes.rows[0].next_execution_secs).to.eq(0);
+
+    await increaseBackoff(transfer.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(64);
+    expect(queryRes.rows[0].next_execution_secs).to.gte(Date.now() / 1000 + 63); // because of rounding
+
+    await increaseBackoff(transfer.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(128);
+    expect(queryRes.rows[0].next_execution_secs).to.gte(Date.now() / 1000 + 127); // because of rounding
   });
 });

@@ -45,6 +45,7 @@ import {
   getRoot,
   putRoot,
   getCompletedTransfersByMessageHashes,
+  increaseBackoff,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -166,6 +167,7 @@ export type Database = {
   ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  increaseBackoff: (transferId: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -213,6 +215,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getHubNodes,
     getRoot,
     putRoot,
+    increaseBackoff,
   };
 };
 

@@ -136,6 +136,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   } catch (error: any) {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
+    await context.adapters.database.increaseBackoff(transferId);
 
     if (errorObj.message && errorObj.message == slippageErrorMsg) {
       const transfer = await context.adapters.cache.transfers.getTransfer(transferId);

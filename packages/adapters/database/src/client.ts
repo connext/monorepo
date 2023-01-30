@@ -676,3 +676,23 @@ export const saveReceivedAggregateRoot = async (
 
   await db.upsert("received_aggregate_roots", roots, ["root", "domain"]).run(poolToUse);
 };
+
+/**
+ * Uses an exponential backoff forumla to increase the backoff time for a transfer execution.
+ * @param transferId
+ * @param _pool
+ * @returns
+ */
+export const increaseBackoff = async (
+  transferId: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.selectOne("transfers", { transfer_id: transferId }).run(poolToUse);
+  if (!transfer) {
+    return;
+  }
+  const backoff = transfer.backoff * 2;
+  const next_execution_secs = Math.floor(Date.now() / 1000) + backoff;
+  await db.update("transfers", { backoff, next_execution_secs }, { transfer_id: transferId }).run(poolToUse);
+};
