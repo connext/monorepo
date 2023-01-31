@@ -973,8 +973,9 @@ export class SdkPool extends SdkShared {
       let totalFees = BigNumber.from(0);
       for (const event of tokenSwapEvents) {
         const tokensSold = BigNumber.from(event.tokensSold);
+        const tokensBought = BigNumber.from(event.tokensBought);
         totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
-        totalVolume = totalVolume.add(tokensSold);
+        totalVolume = totalVolume.add(tokensSold.add(tokensBought).div(2));
       }
 
       const reserve0 = BigNumber.from(pool.local.balance);
