@@ -482,7 +482,7 @@ export class SdkPool extends SdkShared {
    * @param domainId - The domain id of the pool.
    * @param tokenAddress - The address of local or adopted token.
    * @param poolTokenAddress - The address of the token in the pool to get the index for.
-   * @returns The index of the specified token in the pool.
+   * @returns The index of the specified token in the pool or -1 if not found.
    */
   async getPoolTokenIndex(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
     const _tokenAddress = utils.getAddress(tokenAddress);
@@ -561,11 +561,12 @@ export class SdkPool extends SdkShared {
   }
 
   /**
-   * Reads the representation asset of the pool.
+   * Reads the representation asset of the pool. The representation asset is the adopted
+   * asset on the canonical domain and local (nextAsset) otherwise.
    *
    * @param domainId - The domain id of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @returns The representation asset - adopted if on the canonical domain, local (nextAsset) otherwise.
+   * @returns The representation asset or zero address for unregistered assets.
    */
   async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
     const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
@@ -582,7 +583,7 @@ export class SdkPool extends SdkShared {
    *
    * @param domainId - The domain id of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @returns The adopted asset.
+   * @returns The adopted asset or zero address for unregistered assets.
    */
   async getAdopted(domainId: string, tokenAddress: string): Promise<string> {
     const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
