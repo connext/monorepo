@@ -1099,4 +1099,66 @@ export class SdkPool extends SdkShared {
     },
     { promise: true },
   );
+
+  /**
+   * Fetches hourly StableSwap volume.
+   *
+   * @param params - (optional) Parameters object.
+   * @param params.key - (optional) The canonical hash (key) of the pool.
+   * @param params.domainId - (optional) The domain ID.
+   * @param params.startTimestamp - (optional) The lower bound unix timestamp, inclusive.
+   * @param params.endTimestamp - (optional) The upper bound unix timestamp, inclusive.
+   * @param params.range - (optional) The object with limit and offset options.
+   * @param params.range.limit - (optional) The number of results to get.
+   * @param params.range.offset - (optional) The offset in the returned data to start from.
+   * @returns The object containing hourly swap volume data, in the form of:
+   *
+   * ```ts
+   * {
+   *   "pool_id": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+   *   "domain": "9991",
+   *   "swap_hour": "2022-12-19T23:00:00+00:00",
+   *   "volume": 0.000099882586128429500000000000000000,
+   *   "swap_count": 2,
+   * }
+   * ```
+   */
+  async getHourlySwapVolume(params: {
+    key?: string;
+    domainId?: string;
+    startTimestamp?: number;
+    endTimestamp?: number;
+    range?: { limit?: number; offset?: number };
+  }): Promise<any> {
+    const { key, domainId, startTimestamp, endTimestamp, range } = params;
+
+    const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
+    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const millis = 1000;
+    const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
+    const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
+    const startTimestampIdentifier = start ? `swap_hour=gt.${start}&` : "";
+    const endTimestampIdentifier = end ? `swap_hour=lt.${end}&` : "";
+
+    const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
+    const orderIdentifier = `order=swap_hour.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "hourly_swap_volume?",
+      poolIdentifier +
+        startTimestampIdentifier +
+        endTimestampIdentifier +
+        domainIdentifier +
+        rangeIdentifier +
+        orderIdentifier,
+    );
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
 }
