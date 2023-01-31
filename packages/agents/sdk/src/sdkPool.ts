@@ -486,15 +486,15 @@ export class SdkPool extends SdkShared {
    */
   async getPoolTokenIndex(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
     const _tokenAddress = utils.getAddress(tokenAddress);
+    const _poolTokenAddress = utils.getAddress(poolTokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const index = await connextContract.getSwapTokenIndex(key, poolTokenAddress);
+    if (pool) {
+      if (pool.local.address === _poolTokenAddress) return pool.local.index;
+      else if (pool.adopted.address === _poolTokenAddress) return pool.adopted.index;
+    }
 
-    return index;
+    return -1;
   }
 
   /**
@@ -529,15 +529,14 @@ export class SdkPool extends SdkShared {
    */
   async getPoolTokenAddress(domainId: string, tokenAddress: string, index: number) {
     const _tokenAddress = utils.getAddress(tokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const poolTokenAddress = await connextContract.getSwapToken(key, index);
+    if (pool) {
+      if (pool.local.index === index) return pool.local.address;
+      else if (pool.adopted.index === index) return pool.adopted.address;
+    }
 
-    return poolTokenAddress;
+    return constants.AddressZero;
   }
 
   /**
@@ -569,16 +568,13 @@ export class SdkPool extends SdkShared {
    * @returns The representation asset - adopted if on the canonical domain, local (nextAsset) otherwise.
    */
   async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
-    const _tokenAddress = utils.getAddress(tokenAddress);
+    const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const representation = await connextContract["canonicalToRepresentation(bytes32)"](key);
+    if (asset) {
+      return asset.canonical_domain == domainId ? asset.adopted : asset.local;
+    }
 
-    return representation;
+    return constants.AddressZero;
   }
 
   /**
@@ -589,16 +585,13 @@ export class SdkPool extends SdkShared {
    * @returns The adopted asset.
    */
   async getAdopted(domainId: string, tokenAddress: string): Promise<string> {
-    const _tokenAddress = utils.getAddress(tokenAddress);
+    const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const adopted = await connextContract["canonicalToAdopted(bytes32)"](key);
+    if (asset) {
+      return asset.adopted;
+    }
 
-    return adopted;
+    return constants.AddressZero;
   }
 
   /**

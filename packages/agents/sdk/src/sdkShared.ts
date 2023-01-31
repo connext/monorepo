@@ -238,6 +238,31 @@ export class SdkShared {
   }
 
   /**
+   * Retrieve the asset data for a specific domain and address.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The local or adopted address.
+   * @returns The object containing asset data.
+   */
+  async getAssetsDataByDomainAndAddress(domainId: string, tokenAddress: string): Promise<AssetData | undefined> {
+    const assetsData = await this.getAssetsData();
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
+      );
+    });
+
+    if (asset) {
+      return asset;
+    }
+
+    return;
+  }
+
+  /**
    * Retrieve the asset data for a specific domain and key.
    *
    * @param domainId - The domain ID.
@@ -320,13 +345,7 @@ export class SdkShared {
    * @param tokenAddress The address of the token.
    */
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
-    const assetsData = await this.getAssetsData();
-    const asset = assetsData.find((assetData) => {
-      return (
-        domainId === assetData.domain &&
-        (utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress)
-      );
-    });
+    const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
     if (asset) {
       return [asset.canonical_domain, asset.canonical_id];
