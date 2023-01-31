@@ -179,7 +179,9 @@ CREATE TABLE public.transfers (
     execute_tx_origin character(42),
     reconcile_tx_origin character(42),
     relayer_fee character varying(255),
-    error_status character varying(255)
+    error_status character varying(255),
+    backoff integer DEFAULT 32 NOT NULL,
+    next_execution_timestamp integer DEFAULT 0 NOT NULL
 );
 
 
@@ -748,4 +750,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230105105045'),
     ('20230105152814'),
     ('20230113140119'),
-    ('20230127195903');
+    ('20230127195903'),
+    ('20230130081731');
