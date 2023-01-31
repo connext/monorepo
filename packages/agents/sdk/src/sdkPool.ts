@@ -950,32 +950,32 @@ export class SdkPool extends SdkShared {
     const pool = await this.getPool(domainId, _tokenAddress);
 
     if (pool) {
-      const tokenSwapEvents = await this.getTokenSwapEvents({
+      const hourlyVolumes = await this.getHourlySwapVolume({
         key: pool.canonicalHash,
+        domainId: pool.domainId,
         startTimestamp: unixTimestamp,
         endTimestamp: unixTimestamp - 86_400, // 24 hours prior
+        range: { limit: 24 },
       });
 
       const basisPoints = pool.swapFee;
       const FEE_DENOMINATOR = 1e10;
-      const decimals = pool.local.decimals;
 
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
-      for (const event of tokenSwapEvents) {
-        const tokensSold = BigNumber.from(event.tokensSold);
-        const tokensBought = BigNumber.from(event.tokensBought);
-        totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
-        totalVolume = totalVolume.add(tokensSold.add(tokensBought).div(2));
+      for (const volumeData of hourlyVolumes) {
+        totalVolume = totalVolume.add(utils.parseEther(String(volumeData.volume)));
       }
+      totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
 
-      const reserve0 = BigNumber.from(pool.local.balance);
-      const reserve1 = BigNumber.from(pool.adopted.balance);
+      const reserve0 = BigNumber.from(pool.local.balance).mul(BigNumber.from(10).pow(18 - pool.local.decimals));
+      const reserve1 = BigNumber.from(pool.adopted.balance).mul(BigNumber.from(10).pow(18 - pool.adopted.decimals));
       const totalLiquidity = reserve0.add(reserve1);
-      const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
-      const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
-      const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, decimals));
+      const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, 18));
+      const totalFeesFormatted = Number(utils.formatUnits(totalFees, 18));
+      const totalVolumeFormatted = Number(utils.formatUnits(totalVolume, 18));
 
+      // all data formatted as decimal 18
       return {
         totalFeesFormatted,
         totalLiquidityFormatted,
