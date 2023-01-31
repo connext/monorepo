@@ -302,8 +302,8 @@ export class TransfersCache extends Cache {
    */
   public async pruneBidStatusByIds(transferIds: string[]): Promise<void> {
     for (const transferId of transferIds) {
-      const transfer = await this.getTransfer(transferId);
-      if (transfer) {
+      const currentBid = await this.getBidStatus(transferId);
+      if (currentBid) {
         await this.data.hdel(`${this.prefix}:status`, transferId);
       }
     }
