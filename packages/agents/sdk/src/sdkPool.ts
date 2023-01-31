@@ -606,15 +606,13 @@ export class SdkPool extends SdkShared {
   /**
    * Retrieve the "TokenSwap" events for StableSwap pools.
    *
-   * @param userAddress - (optional) The origin caller address.
-   * @param routerAddress - (optional) The router that facilitated the transfer.
-   * @param status - (optional) The xcall status.
-   * @param transferId - (optional) The unique transfer ID of the xcall.
-   * @param transactionHash - (optional) The transaction hash associated with the xcall.
-   * @param xcallCaller - (optional) The origin caller of the xcall.
-   * @param range - (optional) The object with limit and offset options.
-   * @param range.limit - (optional) The number of results to get.
-   * @param range.offset - (optional) The offset in the returned data to start from.
+   * @param params - (optional) Parameters object.
+   * @param params.key - (optional) Canonical hash (key) of the pool.
+   * @param params.buyer - (optional) The address executing the swap transaction.
+   * @param transactionHash - (optional) The transaction hash of the swap.
+   * @param params.range - (optional) The object with limit and offset options.
+   * @param params.range.limit - (optional) The number of results to get.
+   * @param params.range.offset - (optional) The offset in the returned data to start from.
    * @returns The object containing TokenSwap event data in the form of:
    *
    * ```ts
@@ -637,9 +635,11 @@ export class SdkPool extends SdkShared {
     key?: string;
     buyer?: string;
     transactionHash?: string;
+    startTimestamp?: number;
+    endTimestamp?: number;
     range?: { limit?: number; offset?: number };
   }): Promise<StableSwapExchange[]> {
-    const { key, buyer, transactionHash, range } = params;
+    const { key, buyer, transactionHash, startTimestamp, endTimestamp, range } = params;
 
     const poolIdentifier = key ? `pool_id=eq.${key}&` : "";
     const buyerIdentifier = buyer ? `buyer=eq.${buyer.toLowerCase()}&` : "";
@@ -650,13 +650,16 @@ export class SdkPool extends SdkShared {
     const limit = range?.limit ? range.limit : 10;
     const offset = range?.offset ? range.offset : 0;
 
+    const startTimestampIdentifier = `timestamp=gt.${startTimestamp}&`;
+    const endTimestampIdentifier = `timestamp=lt.${endTimestamp}&`;
+
     const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
     const orderIdentifier = `order=timestamp.desc`;
 
     const uri = formatUrl(
       this.config.cartographerUrl!,
       "stableswap_exchanges?",
-      searchIdentifier + rangeIdentifier + orderIdentifier,
+      searchIdentifier + startTimestampIdentifier + endTimestampIdentifier + rangeIdentifier + orderIdentifier,
     );
     // Validate uri
     validateUri(uri);
@@ -972,11 +975,6 @@ export class SdkPool extends SdkShared {
   > {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const pool = await this.getPool(domainId, _tokenAddress);
 
     if (pool) {
