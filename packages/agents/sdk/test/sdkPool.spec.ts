@@ -653,4 +653,76 @@ describe("SdkPool", () => {
       await expect(sdkPool.getTokenSwapEvents({})).to.be.rejectedWith(UriInvalid);
     });
   });
+
+  describe("#getHourlySwapVolume", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        domainId: mock.domain.A,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with startTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        startTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with endTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        endTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        key: getRandomBytes32(),
+        domainId: mock.domain.A,
+        startTimestamp: new Date().valueOf(),
+        endTimestamp: new Date().valueOf(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getHourlySwapVolume({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
 });
