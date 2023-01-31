@@ -52,7 +52,7 @@ export const retryXCalls = async (): Promise<void> => {
             if (bidStatus !== undefined) {
               const startTime = Number(bidStatus.timestamp);
               const elapsedTime = getNtpTimeSeconds() - startTime;
-              const waitTime = Math.pow(2, bidStatus.attempts as number);
+              const waitTime = Math.pow(2, bidStatus.attempts);
               if (elapsedTime > waitTime) {
                 return transferId;
               }
