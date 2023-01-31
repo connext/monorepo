@@ -25,8 +25,8 @@ export type PoolAsset = {
 export type AssetData = {
   local: string;
   adopted: string;
-  canonicalId: string;
-  canonicalDomain: string;
+  canonical_id: string;
+  canonical_domain: string;
   domain: string;
   key: string;
   id: string;

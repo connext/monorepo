@@ -50,8 +50,8 @@ describe("SdkPool", () => {
   const mockAssetData = {
     local: mockPool.local.address,
     adopted: mockPool.adopted.address,
-    canonicalId: utils.formatBytes32String("0"),
-    canonicalDomain: mockPool.domainId,
+    canonical_id: utils.formatBytes32String("0"),
+    canonical_domain: mockPool.domainId,
     domain: mockPool.domainId,
     key: mockPool.canonicalHash,
     id: mockPool.local.address,
@@ -430,8 +430,8 @@ describe("SdkPool", () => {
     const mockAssetData = {
       local: mockPool.local.address,
       adopted: mockPool.adopted.address,
-      canonicalId: utils.formatBytes32String("0"),
-      canonicalDomain: mockPool.domainId,
+      canonical_id: utils.formatBytes32String("0"),
+      canonical_domain: mockPool.domainId,
       domain: mockPool.domainId,
       key: mockPool.canonicalHash,
       id: mockPool.local.address,
@@ -452,7 +452,7 @@ describe("SdkPool", () => {
       stub(sdkPool, "calculateSwap")
         .onCall(0) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
       stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
       const res = await sdkPool.calculateAmountReceived(
@@ -482,7 +482,7 @@ describe("SdkPool", () => {
         .resolves(originAmountAfterSwap)
         .onCall(1) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
       stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
       const res = await sdkPool.calculateAmountReceived(
@@ -507,7 +507,7 @@ describe("SdkPool", () => {
       stub(sdkPool, "calculateSwap")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap);
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
       stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
       const res = await sdkPool.calculateAmountReceived(
@@ -529,7 +529,7 @@ describe("SdkPool", () => {
       const originSlippage = "0"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonicalDomain, mockAssetData.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
       stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
 
       const res = await sdkPool.calculateAmountReceived(
