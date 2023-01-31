@@ -127,6 +127,17 @@ module "cartographer-roots-lambda-cron" {
   schedule_expression = "rate(1 minute)"
 }
 
+module "cartographer-stableswap-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer-stableswap"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "stableswap" })
+  schedule_expression = "rate(1 minute)"
+}
+
 
 module "network" {
   source      = "../../../modules/networking"

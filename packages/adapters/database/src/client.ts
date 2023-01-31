@@ -13,6 +13,8 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -140,6 +142,44 @@ const convertToDbReceivedAggregateRoot = (root: ReceivedAggregateRoot): s.receiv
     domain: root.domain,
     root: root.root,
     block_number: root.blockNumber,
+  };
+};
+
+const convertToDbStableSwapPool = (pool: StableSwapPool): s.stableswap_pools.Insertable => {
+  return {
+    key: pool.key,
+    domain: pool.domain,
+    is_active: pool.isActive,
+    lp_token: pool.lpToken,
+    initial_a: pool.initialA,
+    future_a: pool.futureA,
+    initial_a_time: pool.initialATime,
+    future_a_time: pool.futureATime,
+    swap_fee: pool.swapFee as any,
+    admin_fee: pool.adminFee as any,
+    pooled_tokens: pool.pooledTokens,
+    token_precision_multipliers: pool.tokenPrecisionMultipliers,
+    pool_token_decimals: pool.poolTokenDecimals,
+    balances: pool.balances,
+    virtual_price: pool.virtualPrice,
+    invariant: pool.invariant,
+    lp_token_supply: pool.lpTokenSupply,
+  };
+};
+
+const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stableswap_exchanges.Insertable => {
+  return {
+    id: exchange.id,
+    pool_id: exchange.poolId,
+    domain: exchange.domain,
+    buyer: exchange.buyer,
+    bought_id: exchange.boughtId,
+    sold_id: exchange.soldId,
+    tokens_sold: exchange.tokensSold,
+    tokens_bought: exchange.tokensBought,
+    block_number: exchange.blockNumber,
+    transaction_hash: exchange.transactionHash,
+    timestamp: exchange.timestamp,
   };
 };
 
@@ -675,4 +715,46 @@ export const saveReceivedAggregateRoot = async (
     .map(sanitizeNull);
 
   await db.upsert("received_aggregate_roots", roots, ["root", "domain"]).run(poolToUse);
+};
+
+/**
+ * Uses an exponential backoff forumla to increase the backoff time for a transfer execution.
+ * @param transferId
+ * @param _pool
+ * @returns
+ */
+export const increaseBackoff = async (
+  transferId: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.selectOne("transfers", { transfer_id: transferId }).run(poolToUse);
+  if (!transfer) {
+    return;
+  }
+  const backoff = transfer.backoff * 2;
+  const next_execution_timestamp = Math.floor(Date.now() / 1000) + backoff;
+  await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
+};
+
+export const saveStableSwapPool = async (
+  _swapPools: StableSwapPool[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const pools: s.stableswap_pools.Insertable[] = _swapPools.map((m) => convertToDbStableSwapPool(m)).map(sanitizeNull);
+
+  await db.upsert("stableswap_pools", pools, ["key", "domain"]).run(poolToUse);
+};
+
+export const saveStableSwapExchange = async (
+  _swapExchanges: StableSwapExchange[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const exchanges: s.stableswap_exchanges.Insertable[] = _swapExchanges
+    .map((m) => convertToDbStableSwapExchange(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
 };

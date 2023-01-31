@@ -235,7 +235,7 @@ export const executeFastPathData = async (
       needed,
     });
 
-    transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+    transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
     await database.saveTransfers([transfer]);
     return { taskId };
   }
