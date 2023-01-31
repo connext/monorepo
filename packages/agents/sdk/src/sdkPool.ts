@@ -826,81 +826,65 @@ export class SdkPool extends SdkShared {
 
       const _tokenAddress = utils.getAddress(tokenAddress);
 
-      const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(domainId, _tokenAddress);
+      const assetsData = await this.getAssetsData();
+      const asset = assetsData.find((assetData) => {
+        return (
+          domainId === assetData.domain &&
+          (utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress)
+        );
+      });
 
-      if (canonicalDomain == domainId) {
-        this.logger.debug(`No Pool; token ${_tokenAddress} is canonical on domain ${domainId}`);
+      if (!asset) {
+        this.logger.debug(`No asset data found for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
 
-      const key: string = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+      // Fetch pool data from cartographer
+      const poolIdentifier = asset.key ? `pool_id=eq.${asset.key}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+      const orderIdentifier = `order=timestamp.desc`;
 
-      const [local, adopted, lpTokenAddress] = await Promise.all([
-        this.getRepresentation(domainId, _tokenAddress),
-        this.getAdopted(domainId, _tokenAddress),
-        this.getLPTokenAddress(domainId, _tokenAddress),
-      ]);
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "stableswap_pools?",
+        poolIdentifier + domainIdentifier + orderIdentifier,
+      );
+      validateUri(uri);
 
-      if (local == adopted) {
+      const poolData = (await axiosGetRequest(uri))[0];
+
+      if (!poolData) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
 
-      const [localErc20Contract, adoptedErc20Contract] = await Promise.all([
-        this.getERC20(domainId, local),
-        this.getERC20(domainId, adopted),
-      ]);
-
-      const [
-        adoptedName,
-        adoptedSymbol,
-        adoptedBalance,
-        adoptedDecimals,
-        adoptedIdx,
-        localName,
-        localSymbol,
-        localBalance,
-        localDecimals,
-        localIdx,
-      ] = await Promise.all([
-        adoptedErc20Contract.name(),
-        adoptedErc20Contract.symbol(),
-        this.getPoolTokenBalance(domainId, adopted, adopted),
-        adoptedErc20Contract.decimals(),
-        this.getPoolTokenIndex(domainId, _tokenAddress, adopted),
-        localErc20Contract.name(),
-        localErc20Contract.symbol(),
-        this.getPoolTokenBalance(domainId, local, local),
-        localErc20Contract.decimals(),
-        this.getPoolTokenIndex(domainId, _tokenAddress, local),
-      ]);
-
-      const localAsset: PoolAsset = {
-        address: local,
-        name: localName,
-        symbol: localSymbol,
-        decimals: localDecimals,
-        index: localIdx,
-        balance: localBalance,
+      // Construct Pool object
+      const assetX: PoolAsset = {
+        address: poolData.pooled_tokens[0],
+        // name: poolData.,
+        // symbol: poolData.,
+        decimals: poolData.pool_token_decimals[0],
+        index: 0,
+        balance: poolData.balances[0],
       };
 
-      const adoptedAsset: PoolAsset = {
-        address: adopted,
-        name: adoptedName,
-        symbol: adoptedSymbol,
-        decimals: adoptedDecimals,
-        index: adoptedIdx,
-        balance: adoptedBalance,
+      const assetY: PoolAsset = {
+        address: poolData.pooled_tokens[1],
+        // name: poolData.,
+        // symbol: poolData.,
+        decimals: poolData.pool_token_decimals[1],
+        index: 1,
+        balance: poolData.balances[1],
       };
 
       const pool: Pool = {
         domainId: domainId,
-        name: `${localSymbol}-Pool`,
-        symbol: `${localSymbol}-${localSymbol}`,
-        local: localAsset,
-        adopted: adoptedAsset,
-        lpTokenAddress: lpTokenAddress,
-        canonicalHash: key,
+        // name: `${localSymbol}-Pool`,
+        // symbol: `${localSymbol}-${localSymbol}`,
+        local: asset.local == assetX.address ? assetX : assetY,
+        adopted: asset.local == assetX.address ? assetY : assetX,
+        lpTokenAddress: poolData.lp_token,
+        canonicalHash: poolData.key,
       };
 
       return pool;
