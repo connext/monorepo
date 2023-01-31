@@ -172,6 +172,28 @@ export class SdkShared {
   }
 
   /**
+   * Returns the transaction request for an allowance permit approval.
+   *
+   * @param domainId - The domain ID.
+   * @param holder - The account which allows the `connext` contract to transfer tokens from
+   * @param assetId - The address of the token.
+   * @param amount - The amount of the token.
+   * @param deadline - The expiry time for permit approval
+   * @param infiniteApprove - (optional) Whether to approve an infinite amount.
+   * @returns providers.TransactionRequest object.
+   */
+  async permit(
+    domainId: string,
+    holder: string,
+    assetId: string,
+    amount: string,
+    deadline?: number,
+    infiniteApprove = true,
+  ): Promise<providers.TransactionRequest | undefined> {
+    throw new Error("Not implemented yet");
+  }
+
+  /**
    * Fetches the list of registered assets.
    *
    * @returns Array of objects containing assets registered to the network, in the form of:
