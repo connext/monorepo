@@ -650,8 +650,8 @@ export class SdkPool extends SdkShared {
     const limit = range?.limit ? range.limit : 10;
     const offset = range?.offset ? range.offset : 0;
 
-    const startTimestampIdentifier = `timestamp=gt.${startTimestamp}&`;
-    const endTimestampIdentifier = `timestamp=lt.${endTimestamp}&`;
+    const startTimestampIdentifier = startTimestamp ? `timestamp=gt.${startTimestamp}&` : "";
+    const endTimestampIdentifier = endTimestamp ? `timestamp=lt.${endTimestamp}&` : "";
 
     const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
     const orderIdentifier = `order=timestamp.desc`;
@@ -840,15 +840,10 @@ export class SdkPool extends SdkShared {
       }
 
       // Fetch pool data from cartographer
-      const poolIdentifier = asset.key ? `pool_id=eq.${asset.key}&` : "";
+      const poolIdentifier = asset.key ? `key=eq.${asset.key}&` : "";
       const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
-      const orderIdentifier = `order=timestamp.desc`;
 
-      const uri = formatUrl(
-        this.config.cartographerUrl!,
-        "stableswap_pools?",
-        poolIdentifier + domainIdentifier + orderIdentifier,
-      );
+      const uri = formatUrl(this.config.cartographerUrl!, "stableswap_pools?", poolIdentifier + domainIdentifier);
       validateUri(uri);
 
       const poolData = (await axiosGetRequest(uri))[0];
@@ -885,6 +880,8 @@ export class SdkPool extends SdkShared {
         adopted: asset.local == assetX.address ? assetY : assetX,
         lpTokenAddress: poolData.lp_token,
         canonicalHash: poolData.key,
+        swapFee: poolData.swap_fee,
+        adminFee: poolData.admin_fee,
       };
 
       return pool;
@@ -962,43 +959,26 @@ export class SdkPool extends SdkShared {
     const pool = await this.getPool(domainId, _tokenAddress);
 
     if (pool) {
-      const endTimestamp = unixTimestamp;
-      const endBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, endTimestamp);
+      const tokenSwapEvents = await this.getTokenSwapEvents({
+        key: pool.canonicalHash,
+        startTimestamp: unixTimestamp,
+        endTimestamp: unixTimestamp - 86_400, // 24 hours prior
+      });
 
-      const startTimestamp = endTimestamp - 86_400; // 24 hours prior
-      let startBlock = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, startTimestamp);
-
-      const perBatch = 2000;
-      let endBatchBlock = Math.min(startBlock + perBatch, endBlock);
-
-      const tokenSwapEvents: any[] = [];
-      while (startBlock < endBlock) {
-        tokenSwapEvents.push(
-          ...(await connextContract.queryFilter(
-            connextContract.filters.TokenSwap(pool.canonicalHash),
-            startBlock,
-            endBatchBlock,
-          )),
-        );
-        startBlock = endBatchBlock;
-        endBatchBlock = Math.min(endBatchBlock + perBatch, endBlock);
-      }
-
-      const swapStorage = await connextContract.getSwapStorage(key);
-      const basisPoints = swapStorage.swapFee;
+      const basisPoints = pool.swapFee;
       const FEE_DENOMINATOR = 1e10;
       const decimals = pool.local.decimals;
 
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
       for (const event of tokenSwapEvents) {
-        const tokensSold: BigNumber = event.args.tokensSold;
+        const tokensSold = BigNumber.from(event.tokensSold);
         totalFees = totalFees.add(tokensSold.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR)));
         totalVolume = totalVolume.add(tokensSold);
       }
 
-      const reserve0 = pool.local.balance;
-      const reserve1 = pool.adopted.balance;
+      const reserve0 = BigNumber.from(pool.local.balance);
+      const reserve1 = BigNumber.from(pool.adopted.balance);
       const totalLiquidity = reserve0.add(reserve1);
       const totalLiquidityFormatted = Number(utils.formatUnits(totalLiquidity, decimals));
       const totalFeesFormatted = Number(utils.formatUnits(totalFees, decimals));
