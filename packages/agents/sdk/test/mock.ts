@@ -2,16 +2,16 @@ import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
-import { ConnextAbi } from "@connext/nxtp-contracts";
+import { ConnextAbi } from "@connext/smart-contracts";
 
-import { NxtpSdkConfig } from "../src/config";
+import { SdkConfig } from "../src/config";
 
 // Used for stubbing functions at the bottom of this file:
 
 export const mock = {
   ..._mock,
-  config: (): NxtpSdkConfig => ({
-    signerAddress: mkAddress("0xabcdef123"),
+  config: (): SdkConfig => ({
+    signerAddress: mkAddress("0xadd9999"),
     logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",
     environment: "staging",
@@ -22,9 +22,10 @@ export const mock = {
         chainId: Number(mock.chain.A),
         providers: ["http://example.com"],
         deployments: {
-          connext: mkAddress("0xabcdef123"),
-          stableSwap: mkAddress("0xabcdef123"),
-          multisend: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xadd0101"),
+          stableSwap: mkAddress("0xadd0102"),
+          multisend: mkAddress("0xadd0103"),
+          unwrapper: mkAddress("0xadd0104"),
         },
         gasStations: [],
       },
@@ -34,9 +35,10 @@ export const mock = {
         chainId: Number(mock.chain.B),
         providers: ["http://example.com"],
         deployments: {
-          connext: mkAddress("0xabcdef123"),
-          stableSwap: mkAddress("0xabcdef123"),
-          multisend: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xadd0201"),
+          stableSwap: mkAddress("0xadd0202"),
+          multisend: mkAddress("0xadd0203"),
+          unwrapper: mkAddress("0xadd0204"),
         },
         gasStations: [],
       },
@@ -86,6 +88,10 @@ export const mock = {
       rootManager.encodeFunctionData.returns(encodedDataMock);
       rootManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const unwrapper = createStubInstance(utils.Interface);
+      unwrapper.encodeFunctionData.returns(encodedDataMock);
+      unwrapper.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         // erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
@@ -96,6 +102,7 @@ export const mock = {
         relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
         relayerProxyHub: relayerProxyHub as unknown as ConnextContractInterfaces["relayerProxyHub"],
         rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
+        unwrapper: unwrapper as unknown as ConnextContractInterfaces["unwrapper"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -110,6 +117,7 @@ export const mock = {
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         relayerProxy: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         multisend: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        unwrapper: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

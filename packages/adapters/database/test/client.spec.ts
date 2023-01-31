@@ -13,6 +13,7 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   mkHash,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -50,6 +51,7 @@ import {
   getMessageRootCount,
   transaction,
   getCompletedTransfersByMessageHashes,
+  increaseBackoff,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -88,6 +90,38 @@ describe("Database client", () => {
   it("should save single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     await saveTransfers([xTransfer], pool);
+  });
+
+  it("should save single transfer and update it's error status", async () => {
+    const xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Executed,
+      errorStatus: XTransferErrorStatus.LowRelayerFee,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
+  });
+
+  it("should save single transfer and update it's error status to None", async () => {
+    let xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Executed,
+      errorStatus: XTransferErrorStatus.LowRelayerFee,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
+
+    xTransfer.destination!.status = XTransferStatus.CompletedFast;
+
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransferUpdated!.origin?.errorStatus).equal(undefined);
   });
 
   it("should save single transfer null destination", async () => {
@@ -813,5 +847,26 @@ describe("Database client", () => {
     await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
+  });
+
+  it("should increase the backoff", async () => {
+    const transfer = mock.entity.xtransfer();
+    await saveTransfers([transfer], pool);
+
+    let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(32);
+    expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
+
+    await increaseBackoff(transfer.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(64);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+
+    await increaseBackoff(transfer.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(128);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
   });
 });

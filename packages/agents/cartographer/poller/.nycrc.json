@@ -15,6 +15,7 @@
     "src/bindings/messages/index.ts",
     "src/bindings/transfers/index.ts",
     "src/bindings/roots/index.ts",
+    "src/bindings/stableswap/index.ts",
     "src/lib/operations/index.ts",
     "src/lib/operations/migrations.ts",
     "src/pollers/index.ts",

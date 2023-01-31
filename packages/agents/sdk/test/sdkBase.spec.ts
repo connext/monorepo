@@ -1,26 +1,28 @@
-import { reset, restore, stub, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
-import { expect } from "@connext/nxtp-utils";
+import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
+import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils } from "ethers";
+import { providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkBase } from "../src/sdkBase";
+import { SdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
-import { SignerAddressMissing } from "../src/lib/errors";
+import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
+import { SdkXCallParams } from "../src/interfaces";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
+const mockConnextAddress = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockMultisendAddress = mockConfig.chains[mock.domain.A].deployments!.multisend;
-const chainId = 1337;
+const mockUnwrapperAddress = mockConfig.chains[mock.domain.B].deployments!.unwrapper!;
+const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
-  let nxtpSdkBase: NxtpSdkBase;
-  let config: ConfigFns.NxtpSdkConfig;
+  let sdkBase: SdkBase;
+  let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
@@ -31,8 +33,8 @@ describe("SdkBase", () => {
     stub(ConfigFns, "getConfig").resolves(config);
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
-    nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
-    (nxtpSdkBase as any).chainreader = chainreader;
+    sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
+    (sdkBase as any).chainreader = chainreader;
   });
 
   afterEach(() => {
@@ -42,14 +44,14 @@ describe("SdkBase", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpSdkBase).to.not.be.undefined;
-      expect(nxtpSdkBase.config).to.not.be.null;
-      expect(nxtpSdkBase.chainData).to.not.be.null;
+      expect(sdkBase).to.not.be.undefined;
+      expect(sdkBase.config).to.not.be.null;
+      expect(sdkBase.chainData).to.not.be.null;
 
-      expect(nxtpSdkBase.xcall).to.be.a("function");
-      expect(nxtpSdkBase.wrapEthAndXCall).to.be.a("function");
-      expect(nxtpSdkBase.bumpTransfer).to.be.a("function");
-      expect(nxtpSdkBase.estimateRelayerFee).to.be.a("function");
+      expect(sdkBase.xcall).to.be.a("function");
+      expect(sdkBase.bumpTransfer).to.be.a("function");
+      expect(sdkBase.updateSlippage).to.be.a("function");
+      expect(sdkBase.estimateRelayerFee).to.be.a("function");
     });
   });
 
@@ -58,6 +60,72 @@ describe("SdkBase", () => {
     let getDecimalsForAssetStub: SinonStub;
     let getHardcodedGasLimitsStub: SinonStub;
     let relayerFee = BigNumber.from("1");
+
+    const mockXCallArgs = mock.entity.xcallArgs();
+    const standardXCallData: string = getConnextInterface().encodeFunctionData("xcall", [
+      mockXCallArgs.destination,
+      mockXCallArgs.to,
+      mockXCallArgs.asset,
+      mockXCallArgs.delegate,
+      mockXCallArgs.amount,
+      mockXCallArgs.slippage,
+      mockXCallArgs.callData,
+    ]);
+    const standardXCallIntoLocalData: string = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
+      mockXCallArgs.destination,
+      mockXCallArgs.to,
+      mockXCallArgs.asset,
+      mockXCallArgs.delegate,
+      mockXCallArgs.amount,
+      mockXCallArgs.slippage,
+      mockXCallArgs.callData,
+    ]);
+
+    const mockXCallRequest: providers.TransactionRequest = {
+      to: mockConnextAddress,
+      data: standardXCallData,
+      from: mock.config().signerAddress,
+      value: relayerFee,
+      chainId,
+    };
+    const mockXCallIntoLocalRequest: providers.TransactionRequest = {
+      to: mockConnextAddress,
+      data: standardXCallIntoLocalData,
+      from: mock.config().signerAddress,
+      value: relayerFee,
+      chainId,
+    };
+
+    const origin = mock.entity.callParams().originDomain;
+    const sdkXCallArgs: SdkXCallParams = {
+      ...mock.entity.xcallArgs(),
+      origin,
+      relayerFee: relayerFee.toString(),
+      receiveLocal: false,
+      wrapNativeOnOrigin: false,
+      unwrapNativeOnDestination: false,
+    };
+
+    const wrapNativeOnOriginMultisendTxs = (asset: string, amount: BigNumber) => {
+      const weth = new utils.Interface(WETHAbi);
+      const txs: MultisendTransaction[] = [
+        {
+          to: asset,
+          data: weth.encodeFunctionData("deposit"),
+          value: amount,
+        },
+        {
+          to: asset,
+          data: weth.encodeFunctionData("approve", [mockConnextAddress, amount]),
+        },
+        {
+          to: mockConnextAddress,
+          data: standardXCallData,
+          value: relayerFee,
+        },
+      ];
+      return txs;
+    };
 
     beforeEach(() => {
       getConversionRateStub = stub(SharedFns, "getConversionRate");
@@ -71,64 +139,144 @@ describe("SdkBase", () => {
     });
 
     it("happy: should work if ERC20", async () => {
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: relayerFee,
-        chainId,
-      };
-
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-        relayerFee: relayerFee.toString(),
-      };
-
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
+      const res = await sdkBase.xcall(sdkXCallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
-    it("happy: should use xCallIntoLocal if receiveLocal is used", async () => {
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
+    it("happy: should use xcallIntoLocal if receiveLocal is used", async () => {
+      const res = await sdkBase.xcall({
+        ...sdkXCallArgs,
+        receiveLocal: true,
+      });
+      expect(res).to.be.deep.eq(mockXCallIntoLocalRequest);
+    });
+
+    it("happy: if wrapNativeOnOrigin specified, should make a multisend tx for wrapping eth before xcall", async () => {
+      const { asset, amount: _amount } = sdkXCallArgs;
+      const amount = BigNumber.from(_amount);
+
+      const expectedTxRequest: providers.TransactionRequest = {
+        to: mockMultisendAddress,
+        data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(asset!, amount)),
+        from: mock.config().signerAddress,
+        // Important: must send the full amount in ETH for transfer! Not just relayerFee.
+        value: relayerFee.add(amount),
+        chainId,
+      };
+
+      const res = await sdkBase.xcall({
+        ...sdkXCallArgs,
+        wrapNativeOnOrigin: true,
+      });
+      expect(res).to.be.deep.eq(expectedTxRequest);
+    });
+
+    it("happy: wrapNativeOnOrigin && receiveLocal works", async () => {
+      const { asset, amount: _amount } = sdkXCallArgs;
+      const amount = BigNumber.from(_amount);
+      const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
+      txs[2].data = standardXCallIntoLocalData;
+
+      const expectedTxRequest: providers.TransactionRequest = {
+        to: mockMultisendAddress,
+        data: encodeMultisendCall(txs),
+        from: mock.config().signerAddress,
+        // Important: must send the full amount in ETH for transfer! Not just relayerFee.
+        value: relayerFee.add(amount),
+        chainId,
+      };
+
+      const res = await sdkBase.xcall({
+        ...sdkXCallArgs,
+        receiveLocal: true,
+        wrapNativeOnOrigin: true,
+      });
+      expect(res).to.be.deep.eq(expectedTxRequest);
+    });
+
+    it("happy: handle unwrapNativeOnDestination", async () => {
+      // Format the xcall for the unwrapNativeOnDestination case.
+      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
+        mockXCallArgs.destination,
+        // The `to` argument becomes the Unwrapper contract address.
+        mockUnwrapperAddress,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        // For the Unwrapper contract, we provide the original recipient as argument.
+        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
       ]);
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
+
+      const expectedTxRequest: providers.TransactionRequest = {
+        to: mockConnextAddress,
+        data: xcallData,
         from: mock.config().signerAddress,
         value: relayerFee,
         chainId,
       };
 
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-        relayerFee: relayerFee.toString(),
-        receiveLocal: true,
+      const res = await sdkBase.xcall({
+        ...sdkXCallArgs,
+        unwrapNativeOnDestination: true,
+      });
+      expect(res).to.be.deep.eq(expectedTxRequest);
+    });
+
+    it("happy: handle both wrapNativeOnOrigin && unwrapNativeOnDestination", async () => {
+      const { asset, amount: _amount } = sdkXCallArgs;
+      const amount = BigNumber.from(_amount);
+      const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
+
+      // Format the xcall for the unwrapNativeOnDestination case.
+      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
+        mockXCallArgs.destination,
+        // The `to` argument becomes the Unwrapper contract address.
+        mockUnwrapperAddress,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        // For the Unwrapper contract, we provide the original recipient as argument.
+        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
+      ]);
+      txs[2].data = xcallData;
+
+      const expectedTxRequest: providers.TransactionRequest = {
+        to: mockMultisendAddress,
+        data: encodeMultisendCall(txs),
+        from: mock.config().signerAddress,
+        // Important: must send the full amount in ETH for transfer! Not just relayerFee.
+        value: relayerFee.add(amount),
+        chainId,
       };
 
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
-      expect(res).to.be.deep.eq(mockXCallRequest);
+      const res = await sdkBase.xcall({
+        ...sdkXCallArgs,
+        wrapNativeOnOrigin: true,
+        unwrapNativeOnDestination: true,
+      });
+      expect(res).to.be.deep.eq(expectedTxRequest);
+    });
+
+    it("throws CannotUnwrapOnDestination if receiveLocal && unwrapNativeOnDestination", async () => {
+      await expect(
+        sdkBase.xcall({
+          ...sdkXCallArgs,
+          unwrapNativeOnDestination: true,
+          callData: "0xabcdef",
+        }),
+      ).to.be.rejectedWith(CannotUnwrapOnDestination);
+    });
+
+    it("throws CannotUnwrapOnDestination if callData specified && unwrapNativeOnDestination", async () => {
+      await expect(
+        sdkBase.xcall({
+          ...sdkXCallArgs,
+          unwrapNativeOnDestination: true,
+          receiveLocal: true,
+        }),
+      ).to.be.rejectedWith(CannotUnwrapOnDestination);
     });
 
     // TODO: Add relayer fee calculation at xcall
@@ -143,7 +291,7 @@ describe("SdkBase", () => {
         gasPriceFactor: "10000",
       });
 
-      stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
+      stub(sdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
       const mockXcallArgs = mock.entity.xcallArgs();
       const data = getConnextInterface().encodeFunctionData("xcall", [
         mockXcallArgs.destination,
@@ -156,7 +304,7 @@ describe("SdkBase", () => {
       ]);
 
       const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
+        to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
         value: BigNumber.from("50000"),
@@ -169,73 +317,19 @@ describe("SdkBase", () => {
         origin,
       };
 
-      const res = await nxtpSdkBase.xcall(sdkXcallArgs);
+      const res = await sdkBase.xcall(sdkXcallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("should error if signerAddress is undefined", async () => {
-      nxtpSdkBase.config.signerAddress = undefined;
+      sdkBase.config.signerAddress = undefined;
       const origin = mock.entity.callParams().originDomain;
       const sdkXcallArgs = {
         ...mock.entity.xcallArgs(),
         origin,
       };
 
-      await expect(nxtpSdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
-    });
-  });
-
-  describe("#wrapEthAndXCall", () => {
-    let getConversionRateStub: SinonStub;
-    let getDecimalsForAssetStub: SinonStub;
-    let getHardcodedGasLimitsStub: SinonStub;
-    let relayerFee = BigNumber.from("1");
-
-    beforeEach(() => {
-      getConversionRateStub = stub(SharedFns, "getConversionRate");
-      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
-      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
-    });
-
-    afterEach(() => {
-      restore();
-      reset();
-    });
-
-    it("happy: should work for wrap", async () => {
-      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
-      const mockXcallArgs = mock.entity.xcallArgs();
-      const mockEncodedData =
-        "0x8d80ff0a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000024b00beefbeefbeef00000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000004d0e30db000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000abcdef12300000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000abcdef1230000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001048aac16ba000000000000000000000000000000000000000000000000000000000000341a000000000000000000000000aaa0000000000000000000000000000000000000000000000000000000000000beefbeefbeef000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-
-      const mockWrapEthAndXCallRequest: providers.TransactionRequest = {
-        to: mockMultisendAddress,
-        data: mockEncodedData,
-        from: mock.config().signerAddress,
-        value: BigNumber.from(mockXcallArgs.amount).add(relayerFee),
-        chainId,
-      };
-
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        relayerFee: relayerFee.toString(),
-        origin,
-      };
-
-      const res = await nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs);
-      expect(res).to.be.deep.eq(mockWrapEthAndXCallRequest);
-    });
-
-    it("should error if signerAddress is undefined", async () => {
-      nxtpSdkBase.config.signerAddress = undefined;
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-      };
-
-      await expect(nxtpSdkBase.wrapEthAndXCall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(sdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
@@ -249,25 +343,41 @@ describe("SdkBase", () => {
     };
 
     it("should error if signerAddress is undefined", async () => {
-      (nxtpSdkBase as any).config.signerAddress = undefined;
+      (sdkBase as any).config.signerAddress = undefined;
 
-      await expect(nxtpSdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
+      await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
     });
 
     it("happy: should work", async () => {
-      nxtpSdkBase.config.signerAddress = mockConfig.signerAddress;
+      sdkBase.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
+        to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
         value: BigNumber.from(mockBumpTransferParams.relayerFee),
         chainId,
       };
 
-      const res = await nxtpSdkBase.bumpTransfer(mockBumpTransferParams);
+      const res = await sdkBase.bumpTransfer(mockBumpTransferParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
+    });
+  });
+
+  describe("#updateSlippage", () => {
+    const mockXTransfer = mock.entity.xtransfer();
+
+    const mockUpdateSlippageParams = {
+      domainId: mockXTransfer.xparams.destinationDomain,
+      transferId: mockXTransfer.transferId,
+      slippage: "100",
+    };
+
+    it("should error if signerAddress is undefined", async () => {
+      (sdkBase as any).config.signerAddress = undefined;
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(SignerAddressMissing);
     });
   });
 
@@ -282,7 +392,7 @@ describe("SdkBase", () => {
     });
     it("should return 0 if origin/destination native asset price is 0", async () => {
       calculateRelayerFeeStub.resolves(BigNumber.from(100));
-      const relayerFee = await nxtpSdkBase.estimateRelayerFee({
+      const relayerFee = await sdkBase.estimateRelayerFee({
         originDomain: mock.domain.A,
         destinationDomain: mock.domain.B,
       });

@@ -61,4 +61,4 @@ If you have issues, try running `yarn clean:all`
 
 From the root of the repo, run:
 
-`yarn workspace @connext/nxtp-sdk-server dev`
+`yarn workspace @connext/sdk-server dev`

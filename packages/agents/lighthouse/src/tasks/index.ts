@@ -1,4 +1,3 @@
-import tracer from "dd-trace";
 import { getChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
@@ -7,8 +6,6 @@ import { getConfig } from "../config";
 import { makeProver } from "./prover";
 import { makePropagate } from "./propagate";
 import { makeProcessFromRoot } from "./processFromRoot";
-
-tracer.init();
 
 export const makeLighthouse = async () => {
   const chainData = await getChainData();

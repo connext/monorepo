@@ -21,8 +21,10 @@ import {
   PropagatedRoot,
   ReceivedAggregateRoot,
   XTransferErrorStatus,
+  StableSwapPool,
+  StableSwapExchange,
 } from "../types";
-import { getNtpTimeSeconds } from "../helpers";
+import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
 
@@ -424,6 +426,40 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
+    stableSwapPool: (overrides: Partial<StableSwapPool> = {}): StableSwapPool => ({
+      key: getRandomBytes32(),
+      domain: mock.domain.A,
+      isActive: true,
+      lpToken: getRandomAddress(),
+      initialA: 200,
+      futureA: 200,
+      initialATime: 0,
+      futureATime: 0,
+      swapFee: "400000",
+      adminFee: "0",
+      pooledTokens: [getRandomAddress(), getRandomAddress()],
+      tokenPrecisionMultipliers: ["1", "1"],
+      poolTokenDecimals: [18, 18],
+      balances: ["200000", "200000"],
+      virtualPrice: "400000",
+      invariant: "0",
+      lpTokenSupply: "0",
+      ...overrides,
+    }),
+    stableSwapExchange: (overrides: Partial<StableSwapExchange> = {}): StableSwapExchange => ({
+      id: getRandomBytes32(),
+      poolId: getRandomBytes32(),
+      domain: mock.domain.A,
+      buyer: getRandomAddress(),
+      boughtId: 1,
+      soldId: 0,
+      tokensSold: Math.floor(Date.now() / 1000),
+      tokensBought: Math.floor(Date.now() / 1000),
+      blockNumber: Math.floor(Date.now() / 1000),
+      transactionHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
   },
   ethers: {
     receipt: (overrides: Partial<providers.TransactionReceipt> = {}): providers.TransactionReceipt =>
@@ -477,9 +513,21 @@ export const mock = {
           abi: "fakeAbi()",
         };
       },
-      hubConnectorts: function (_: number) {
+      hubConnector: function (_: number) {
         return {
           address: mkAddress("0x444444"),
+          abi: "fakeAbi()",
+        };
+      },
+      multisend: function (_: number) {
+        return {
+          address: mkAddress("0x555555"),
+          abi: "fakeAbi()",
+        };
+      },
+      unwrapper: function (_: number) {
+        return {
+          address: mkAddress("0x666666"),
           abi: "fakeAbi()",
         };
       },

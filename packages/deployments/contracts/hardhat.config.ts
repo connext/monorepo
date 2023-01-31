@@ -14,6 +14,7 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/addWatcher";
 import "./tasks/approveRouter";
+import "./tasks/addAdmin";
 import "./tasks/setupAsset";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";

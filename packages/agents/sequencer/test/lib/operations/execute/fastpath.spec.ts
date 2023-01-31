@@ -27,12 +27,14 @@ describe("Operations:Execute:FastPath", () => {
   // db
   let getQueuedTransfersStub: SinonStub;
   let getAuctionStub: SinonStub;
+  let pruneAuctionData: SinonStub;
   let upsertTaskStub: SinonStub;
   let upsertAuctionStub: SinonStub;
   let getStatusStub: SinonStub;
   let setStatusStub: SinonStub;
   let getTransferStub: SinonStub;
   let storeTransfersStub: SinonStub;
+  let pruneTransfersByIds: SinonStub;
   let setLiquidityStub: SinonStub;
   let getLiquidityStub: SinonStub;
   let publishStub: SinonStub;
@@ -48,6 +50,7 @@ describe("Operations:Execute:FastPath", () => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
     getAuctionStub = stub(auctions, "getAuction");
+    pruneAuctionData = stub(auctions, "pruneAuctionData").resolves();
 
     getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
     setStatusStub = stub(auctions, "setExecStatus").resolves(1);
@@ -58,6 +61,7 @@ describe("Operations:Execute:FastPath", () => {
 
     getTransferStub = stub(transfers, "getTransfer");
     storeTransfersStub = stub(transfers, "storeTransfers");
+    pruneTransfersByIds = stub(transfers, "pruneTransfersByIds").resolves();
 
     setLiquidityStub = stub(routers, "setLiquidity");
     getLiquidityStub = stub(routers, "getLiquidity");
@@ -132,7 +136,7 @@ describe("Operations:Execute:FastPath", () => {
 
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
-      getStatusStub.resolves(ExecStatus.Sent);
+      getStatusStub.resolves(ExecStatus.Completed);
       await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 

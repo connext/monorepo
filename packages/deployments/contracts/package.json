@@ -1,9 +1,9 @@
 {
-  "name": "@connext/nxtp-contracts",
-  "version": "0.2.1-rc.14",
+  "name": "@connext/smart-contracts",
+  "version": "0.2.1-rc.21",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
+    "test": "yarn forge test --no-match-contract 'LiveTest'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
@@ -38,7 +38,6 @@
   "license": "ISC",
   "devDependencies": {
     "@arbitrum/sdk": "3.0.0-beta.12",
-    "@eth-optimism/sdk": "1.6.9",
     "@matterlabs/zksync-contracts": "0.4.2",
     "@nomiclabs/hardhat-ethers": "2.2.1",
     "@nomiclabs/hardhat-etherscan": "3.1.3",
@@ -73,6 +72,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "2.1.0",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@typescript-eslint/eslint-plugin": "5.47.0",

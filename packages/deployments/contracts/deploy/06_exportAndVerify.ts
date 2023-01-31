@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 /**
- * Hardhat task defining the contract deployments for nxtp
+ * Hardhat task defining the contract deployments for Connext
  *
  * @param hre Hardhat environment to deploy to
  */

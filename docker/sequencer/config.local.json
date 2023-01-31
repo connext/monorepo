@@ -44,7 +44,9 @@
     }
   ],
   "web3SignerUrl": "http://signer-sequencer:9000",
-  "databaseUrl": "postgres://postgres:qwerty@cartographer-database:5432?sslmode=disable",
+  "database": {
+    "url": "postgres://postgres:qwerty@cartographer-database:5432?sslmode=disable"
+  },
   "messageQueue": {
     "connection": {
       "uri": "amqp://guest:guest@message-queue:5672"

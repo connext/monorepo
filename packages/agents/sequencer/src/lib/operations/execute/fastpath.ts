@@ -41,8 +41,8 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   }
 
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
+  let status = await cache.auctions.getExecStatus(transferId);
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -86,6 +86,23 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
+  const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
+  if (execStatus && execStatus.status === ExecStatus.Sent) {
+    const startTime = Number(execStatus.timestamp);
+    const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Auction merits retry", requestContext, methodContext, { transferId: transferId });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.auctions.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+      });
+      status = execStatus.status;
+    }
+  }
   if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
@@ -99,6 +116,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       routingKey: transfer.xparams!.originDomain,
       persistent: true,
     });
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
@@ -217,7 +235,7 @@ export const executeFastPathData = async (
       needed,
     });
 
-    transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+    transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
     await database.saveTransfers([transfer]);
     return { taskId };
   }
@@ -397,8 +415,15 @@ export const executeFastPathData = async (
       combinations: combinedBidsForRound,
     });
 
+    // Clean up the caches upon successful transfer through the relayer
+    await cache.transfers.pruneTransfersByIds([transferId]);
+    await cache.auctions.pruneAuctionData(transferId);
+
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId });
+    // reset error status
+    transfer.origin.errorStatus = undefined;
+    await database.saveTransfers([transfer]);
 
     return { taskId };
   }

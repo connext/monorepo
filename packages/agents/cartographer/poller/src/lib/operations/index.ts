@@ -7,4 +7,5 @@ export {
   retrieveProcessedRootMessages,
 } from "./messages";
 export { updateAggregatedRoots, updatePropagatedRoots, updateReceivedAggregateRoots } from "./roots";
+export { updateStableSwap } from "./stableswap";
 export { runMigration } from "./migrations";

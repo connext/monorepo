@@ -142,7 +142,7 @@ export const executeSlowPathData = async (
   if (!canSubmit) {
     await cache.executors.setExecStatus(transferId, ExecStatus.None);
     if (transfer.origin) {
-      transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+      transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
       await database.saveTransfers([transfer]);
     }
 
@@ -168,6 +168,11 @@ export const executeSlowPathData = async (
   if (taskId) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
     await cache.executors.upsertMetaTxTask({ transferId, taskId });
+    // reset error status
+    if (transfer.origin) {
+      transfer.origin.errorStatus = undefined;
+      await database.saveTransfers([transfer]);
+    }
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);

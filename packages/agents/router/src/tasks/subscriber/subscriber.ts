@@ -1,13 +1,8 @@
 import { Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
-import { compare } from "compare-versions";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import fetch, { Headers, Request, Response } from "node-fetch";
-
-// @ts-ignore
-// eslint-disable-next-line import/order
-import { version } from "../../../package.json";
 
 if (!(globalThis as any).fetch) {
   (globalThis as any).fetch = fetch;
@@ -84,6 +79,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     context.adapters.contracts = getContractInterfaces();
     context.adapters.mqClient = await setupMq(
       context.config.messageQueue.uri as string,
+      context.config.messageQueue.limit as number,
       context.logger,
       requestContext,
     );
@@ -96,21 +92,6 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
       context.logger.info("supportedBidVersion response received from sequencer", requestContext, methodContext, {
         response: res.data,
       });
-
-      const supportedBidVersion: string = res.data.supportedVersion;
-      // check if bid router version is compatible with hosted sequencer
-      const checkVersion = compare(version, supportedBidVersion, "<");
-      if (checkVersion) {
-        context.logger.error(
-          "Invalid Bid Version, please update router! Exiting :(",
-          requestContext,
-          methodContext,
-          undefined,
-
-          { supportedBidVersion: supportedBidVersion, routerVersion: version },
-        );
-        process.exit(1);
-      }
     } catch (e: unknown) {
       context.logger.error(
         "Ping error, could not reach sequencer. Exiting!",

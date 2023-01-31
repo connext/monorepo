@@ -14,13 +14,12 @@ locals {
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   lighthouse_env_vars = {
-    NXTP_CONFIG       = local.local_lighthouse_config,
-    ENVIRONMENT       = var.environment,
-    STAGE             = var.stage,
-    DD_LOGS_ENABLED   = true,
-    DD_ENV            = "${var.environment}-${var.stage}",
-    DD_API_KEY        = var.dd_api_key,
-    DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
+    NXTP_CONFIG     = local.local_lighthouse_config,
+    ENVIRONMENT     = var.environment,
+    STAGE           = var.stage,
+    DD_LOGS_ENABLED = true,
+    DD_ENV          = "${var.environment}-${var.stage}",
+    DD_API_KEY      = var.dd_api_key,
   }
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
@@ -79,21 +78,8 @@ locals {
 
     logLevel = "debug"
     chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
-            name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
-      }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "TEST"
@@ -105,8 +91,21 @@ locals {
           }
         ]
       }
+      "1735353714" = {
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
+          },
+          {
+            name    = "WETH"
+            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+          }
+        ]
+      }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
         assets = [
           {
             name    = "TEST"
@@ -146,7 +145,9 @@ locals {
       }
     ]
     environment = var.stage
-    databaseUrl = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+    database = {
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+    }
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -233,21 +234,8 @@ locals {
       }
     }
     chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
-            name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
-      }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "TEST"
@@ -259,8 +247,21 @@ locals {
           }
         ]
       }
+      "1735353714" = {
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
+          },
+          {
+            name    = "WETH"
+            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+          }
+        ]
+      }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
         assets = [
           {
             name    = "TEST"
@@ -273,7 +274,7 @@ locals {
         ]
       }
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}", "https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
         assets = [
           {
             name    = "TEST"
@@ -297,14 +298,14 @@ locals {
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
-      }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
@@ -323,8 +324,10 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment     = var.stage
-    databaseUrl     = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+    environment = var.stage
+    database = {
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+    }
     hubDomain       = "1735353714"
     proverBatchSize = 1
   })
@@ -339,14 +342,14 @@ locals {
     }
     logLevel = "debug"
     chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
-      }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
@@ -382,12 +385,12 @@ locals {
         ]
       }
     }
-    web3SignerUrl  = "https://${module.watcher_web3signer.service_endpoint}"
-    environment    = var.stage
-    discordHookUrl = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
-    telegramApiKey = "${var.telegram_api_key}"
-    telegramChatId = "${var.telegram_chat_id}"
-    betterUptimeApiKey = "${var.betteruptime_api_key}"
+    web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
+    environment                = var.stage
+    discordHookUrl             = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
+    telegramApiKey             = "${var.telegram_api_key}"
+    telegramChatId             = "${var.telegram_chat_id}"
+    betterUptimeApiKey         = "${var.betteruptime_api_key}"
     betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }

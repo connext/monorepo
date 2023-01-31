@@ -1,5 +1,5 @@
 import { expect, mkBytes32 } from "@connext/nxtp-utils";
-import { stub, restore, reset, SinonStub } from "sinon";
+import { stub, SinonStub } from "sinon";
 
 import { CartoApiRequestFailed } from "../../../src/errors";
 import { getReconciledTransactions, pollCartographer } from "../../../src/tasks/executor/operations/cartographer";
@@ -25,10 +25,7 @@ describe("Operations:Cartographer", () => {
     axiosGetStub = stub(Mockable, "axiosGet");
     executeStub = stub(ExecuteFns, "execute");
   });
-  afterEach(() => {
-    restore();
-    reset();
-  });
+
   describe("#pollCartographer", () => {
     it("happy: should convert db transfers into xtransfers", async () => {
       axiosGetStub.resolves({
