@@ -324,13 +324,12 @@ export class SdkShared {
     const asset = assetsData.find((assetData) => {
       return (
         domainId === assetData.domain &&
-        (utils.getAddress(assetData.local) == tokenAddress.toLowerCase() ||
-          utils.getAddress(assetData.adopted) == tokenAddress.toLowerCase())
+        (utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress)
       );
     });
 
     if (asset) {
-      return [asset.canonicalDomain, asset.canonicalId];
+      return [asset.canonical_domain, asset.canonical_id];
     }
 
     return ["0", constants.HashZero];
