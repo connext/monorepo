@@ -434,15 +434,13 @@ export class SdkPool extends SdkShared {
    */
   async getLPTokenAddress(domainId: string, tokenAddress: string): Promise<string> {
     const _tokenAddress = utils.getAddress(tokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
 
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const lpTokenAddress = await connextContract.getSwapLPToken(key);
+    if (pool) {
+      return pool.lpTokenAddress;
+    }
 
-    return lpTokenAddress;
+    return constants.AddressZero;
   }
 
   /**
