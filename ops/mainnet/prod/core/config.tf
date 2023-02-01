@@ -438,7 +438,7 @@ locals {
         }]
       },
       "1869640809" = {
-        providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://1rpc.io/op", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
+        providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
           address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
