@@ -2,17 +2,12 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { SdkConfig, SdkBase, SdkPool, SdkUtils, SdkRouter, create } from "@connext/sdk";
+import { SdkConfig, create } from "@connext/sdk";
 
 import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
-
-let sdkBaseInstance: SdkBase;
-let sdkPoolInstance: SdkPool;
-let sdkUtilsInstance: SdkUtils;
-let sdkRouterInstance: SdkRouter;
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
