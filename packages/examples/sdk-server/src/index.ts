@@ -65,11 +65,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
 
   const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
-  sdkBaseInstance = sdkBase;
-  sdkPoolInstance = sdkPool;
-  sdkUtilsInstance = sdkUtils;
-  sdkRouterInstance = sdkRouter;
-
   // Register routes
 
   server.get("/ping", async (_, reply) => {
@@ -88,10 +83,10 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
-  server.register(baseRoutes, sdkBaseInstance);
-  server.register(poolRoutes, sdkPoolInstance);
-  server.register(utilsRoutes, sdkUtilsInstance);
-  server.register(routerRoutes, sdkRouterInstance);
+  server.register(baseRoutes, sdkBase);
+  server.register(poolRoutes, sdkPool);
+  server.register(utilsRoutes, sdkUtils);
+  server.register(routerRoutes, sdkRouter);
 
   server.listen(8080, (err, address) => {
     if (err) {
