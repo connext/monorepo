@@ -218,6 +218,20 @@ describe("SdkShared", () => {
     });
   });
 
+  describe("#getCanonicalTokenId", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(mockAssetData);
+      const res = await sdkShared.getCanonicalTokenId(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(undefined);
+      const res = await sdkShared.getCanonicalTokenId(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal(["0", constants.HashZero]);
+    });
+  });
+
   describe("#changeSignerAddress", () => {
     it("happy: should work", async () => {
       const mockSignerAddress = mkAddress("0xabcdef456");
