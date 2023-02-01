@@ -46,12 +46,12 @@ export const mock = {
     A: {
       name: "TEST-A",
       symbol: "TSTA",
-      address: mkAddress("0xbeefbeefbeef"),
+      address: "0xBeEFBEEfBeEf0000000000000000000000000000",
     },
     B: {
       name: "TEST-B",
       symbol: "TSTB",
-      address: mkAddress("0x2faced"),
+      address: "0x2fAceD0000000000000000000000000000000000",
     },
   },
   chainData: () =>
@@ -62,13 +62,13 @@ export const mock = {
         domainId: mock.domain.A,
         confirmations: 1,
         assetId: {
-          "0xbeefbeefbeef0000000000000000000000000000": {
+          "0xBeEFBEEfBeEf0000000000000000000000000000": {
             name: mock.asset.A.name,
             symbol: mock.asset.A.symbol,
             mainnetEquivalent: "0x0000000000000000000000000000000000000000",
             decimals: 18,
           },
-          "0x2faced0000000000000000000000000000000000": {
+          "0x2fAceD0000000000000000000000000000000000": {
             name: mock.asset.B.name,
             symbol: mock.asset.B.symbol,
             mainnetEquivalent: "0x0000000000000000000000000000000000000000",

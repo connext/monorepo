@@ -181,6 +181,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: StableSwap_Goerli
     handler:
       graphql:
@@ -189,7 +190,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: goerli_
+          value: goerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -204,7 +205,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staginggoerli_
+          value: staginggoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -219,7 +220,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: optimismgoerli_
+          value: optimismgoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -234,7 +235,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingoptimismgoerli_
+          value: stagingoptimismgoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -249,7 +250,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: mumbai_
+          value: mumbai_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -264,7 +265,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingmumbai_
+          value: stagingmumbai_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -279,7 +280,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: arbitrumgoerli_
+          value: arbitrumgoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -294,7 +295,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingarbitrumgoerli_
+          value: stagingarbitrumgoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -414,6 +415,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: StableSwap_Optimism
     handler:
       graphql:
@@ -422,7 +424,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: optimism_
+          value: optimism_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -437,7 +439,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: polygon_
+          value: polygon_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -452,7 +454,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: arbitrumone_
+          value: arbitrumone_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -467,7 +469,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: bnb_
+          value: bnb_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -482,7 +484,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: xdai_
+          value: xdai_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
