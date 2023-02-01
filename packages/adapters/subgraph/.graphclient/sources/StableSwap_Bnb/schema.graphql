@@ -12,34 +12,34 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-scalar bnb_BigDecimal
+scalar bnb_swap_BigDecimal
 
 scalar BigInt
 
-input bnb_BlockChangedFilter {
+input bnb_swap_BlockChangedFilter {
   number_gte: Int!
 }
 
-input bnb_Block_height {
-  hash: bnb_Bytes
+input bnb_swap_Block_height {
+  hash: bnb_swap_Bytes
   number: Int
   number_gte: Int
 }
 
-scalar bnb_Bytes
+scalar bnb_swap_Bytes
 
 """Defines the order direction, either ascending or descending"""
-enum bnb_OrderDirection {
+enum bnb_swap_OrderDirection {
   asc
   desc
 }
 
-type bnb_PooledToken {
+type bnb_swap_PooledToken {
   id: ID!
-  asset: bnb_Bytes!
+  asset: bnb_swap_Bytes!
 }
 
-input bnb_PooledToken_filter {
+input bnb_swap_PooledToken_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -48,358 +48,358 @@ input bnb_PooledToken_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  asset: bnb_Bytes
-  asset_not: bnb_Bytes
-  asset_gt: bnb_Bytes
-  asset_lt: bnb_Bytes
-  asset_gte: bnb_Bytes
-  asset_lte: bnb_Bytes
-  asset_in: [bnb_Bytes!]
-  asset_not_in: [bnb_Bytes!]
-  asset_contains: bnb_Bytes
-  asset_not_contains: bnb_Bytes
+  asset: bnb_swap_Bytes
+  asset_not: bnb_swap_Bytes
+  asset_gt: bnb_swap_Bytes
+  asset_lt: bnb_swap_Bytes
+  asset_gte: bnb_swap_Bytes
+  asset_lte: bnb_swap_Bytes
+  asset_in: [bnb_swap_Bytes!]
+  asset_not_in: [bnb_swap_Bytes!]
+  asset_contains: bnb_swap_Bytes
+  asset_not_contains: bnb_swap_Bytes
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_PooledToken_orderBy {
+enum bnb_swap_PooledToken_orderBy {
   id
   asset
 }
 
 type Query {
-  bnb_systemInfo(
+  bnb_swap_systemInfo(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SystemInfo
-  bnb_systemInfos(
+  ): bnb_swap_SystemInfo
+  bnb_swap_systemInfos(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SystemInfo_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SystemInfo_filter
+    orderBy: bnb_swap_SystemInfo_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SystemInfo_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SystemInfo!]!
-  bnb_pooledToken(
+  ): [bnb_swap_SystemInfo!]!
+  bnb_swap_pooledToken(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_PooledToken
-  bnb_pooledTokens(
+  ): bnb_swap_PooledToken
+  bnb_swap_pooledTokens(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_PooledToken_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_PooledToken_filter
+    orderBy: bnb_swap_PooledToken_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_PooledToken_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_PooledToken!]!
-  bnb_stableSwap(
+  ): [bnb_swap_PooledToken!]!
+  bnb_swap_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwap
-  bnb_stableSwaps(
+  ): bnb_swap_StableSwap
+  bnb_swap_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwap_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwap_filter
+    orderBy: bnb_swap_StableSwap_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwap!]!
-  bnb_stableSwapAddLiquidityEvent(
+  ): [bnb_swap_StableSwap!]!
+  bnb_swap_stableSwapAddLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapAddLiquidityEvent
-  bnb_stableSwapAddLiquidityEvents(
+  ): bnb_swap_StableSwapAddLiquidityEvent
+  bnb_swap_stableSwapAddLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapAddLiquidityEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapAddLiquidityEvent_filter
+    orderBy: bnb_swap_StableSwapAddLiquidityEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapAddLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapAddLiquidityEvent!]!
-  bnb_stableSwapRemoveLiquidityEvent(
+  ): [bnb_swap_StableSwapAddLiquidityEvent!]!
+  bnb_swap_stableSwapRemoveLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapRemoveLiquidityEvent
-  bnb_stableSwapRemoveLiquidityEvents(
+  ): bnb_swap_StableSwapRemoveLiquidityEvent
+  bnb_swap_stableSwapRemoveLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapRemoveLiquidityEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapRemoveLiquidityEvent_filter
+    orderBy: bnb_swap_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapRemoveLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapRemoveLiquidityEvent!]!
-  bnb_stableSwapExchange(
+  ): [bnb_swap_StableSwapRemoveLiquidityEvent!]!
+  bnb_swap_stableSwapExchange(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapExchange
-  bnb_stableSwapExchanges(
+  ): bnb_swap_StableSwapExchange
+  bnb_swap_stableSwapExchanges(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapExchange_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapExchange_filter
+    orderBy: bnb_swap_StableSwapExchange_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapExchange_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapExchange!]!
-  bnb_swapDailyVolume(
+  ): [bnb_swap_StableSwapExchange!]!
+  bnb_swap_swapDailyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapDailyVolume
-  bnb_swapDailyVolumes(
+  ): bnb_swap_SwapDailyVolume
+  bnb_swap_swapDailyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapDailyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapDailyVolume_filter
+    orderBy: bnb_swap_SwapDailyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapDailyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapDailyVolume!]!
-  bnb_swapHourlyVolume(
+  ): [bnb_swap_SwapDailyVolume!]!
+  bnb_swap_swapHourlyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapHourlyVolume
-  bnb_swapHourlyVolumes(
+  ): bnb_swap_SwapHourlyVolume
+  bnb_swap_swapHourlyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapHourlyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapHourlyVolume_filter
+    orderBy: bnb_swap_SwapHourlyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapHourlyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapHourlyVolume!]!
-  bnb_swapWeeklyVolume(
+  ): [bnb_swap_SwapHourlyVolume!]!
+  bnb_swap_swapWeeklyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapWeeklyVolume
-  bnb_swapWeeklyVolumes(
+  ): bnb_swap_SwapWeeklyVolume
+  bnb_swap_swapWeeklyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapWeeklyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapWeeklyVolume_filter
+    orderBy: bnb_swap_SwapWeeklyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapWeeklyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapWeeklyVolume!]!
-  bnb_stableSwapEvent(
+  ): [bnb_swap_SwapWeeklyVolume!]!
+  bnb_swap_stableSwapEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapEvent
-  bnb_stableSwapEvents(
+  ): bnb_swap_StableSwapEvent
+  bnb_swap_stableSwapEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapEvent_filter
+    orderBy: bnb_swap_StableSwapEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapEvent!]!
-  bnb_swapTradeVolume(
+  ): [bnb_swap_StableSwapEvent!]!
+  bnb_swap_swapTradeVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapTradeVolume
-  bnb_swapTradeVolumes(
+  ): bnb_swap_SwapTradeVolume
+  bnb_swap_swapTradeVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapTradeVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapTradeVolume_filter
+    orderBy: bnb_swap_SwapTradeVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapTradeVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapTradeVolume!]!
+  ): [bnb_swap_SwapTradeVolume!]!
   """Access to subgraph metadata"""
-  bnb__meta(block: bnb_Block_height): bnb__Meta_
+  bnb_swap__meta(block: bnb_swap_Block_height): bnb_swap__Meta_
 }
 
-type bnb_StableSwap {
+type bnb_swap_StableSwap {
   id: ID!
   isActive: Boolean
-  key: bnb_Bytes!
-  canonicalId: bnb_Bytes
+  key: bnb_swap_Bytes!
+  canonicalId: bnb_swap_Bytes
   domain: BigInt
-  swapPool: bnb_Bytes
-  lpToken: bnb_Bytes
+  swapPool: bnb_swap_Bytes
+  lpToken: bnb_swap_Bytes
   initialA: BigInt
   futureA: BigInt
   initialATime: BigInt
   futureATime: BigInt
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: bnb_PooledToken_orderBy, orderDirection: bnb_OrderDirection, where: bnb_PooledToken_filter): [bnb_PooledToken!]!
+  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_PooledToken_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_PooledToken_filter): [bnb_swap_PooledToken!]!
   tokenPrecisionMultipliers: [BigInt!]!
   balances: [BigInt!]!
   adminFees: [BigInt!]!
   virtualPrice: BigInt!
   invariant: BigInt!
   lpTokenSupply: BigInt!
-  events(skip: Int = 0, first: Int = 100, orderBy: bnb_StableSwapEvent_orderBy, orderDirection: bnb_OrderDirection, where: bnb_StableSwapEvent_filter): [bnb_StableSwapEvent!]
-  exchanges(skip: Int = 0, first: Int = 100, orderBy: bnb_StableSwapExchange_orderBy, orderDirection: bnb_OrderDirection, where: bnb_StableSwapExchange_filter): [bnb_StableSwapExchange!]
-  hourlyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_SwapHourlyVolume_orderBy, orderDirection: bnb_OrderDirection, where: bnb_SwapHourlyVolume_filter): [bnb_SwapHourlyVolume!]
-  dailyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_SwapDailyVolume_orderBy, orderDirection: bnb_OrderDirection, where: bnb_SwapDailyVolume_filter): [bnb_SwapDailyVolume!]
-  weeklyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_SwapWeeklyVolume_orderBy, orderDirection: bnb_OrderDirection, where: bnb_SwapWeeklyVolume_filter): [bnb_SwapWeeklyVolume!]
+  events(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_StableSwapEvent_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_StableSwapEvent_filter): [bnb_swap_StableSwapEvent!]
+  exchanges(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_StableSwapExchange_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_StableSwapExchange_filter): [bnb_swap_StableSwapExchange!]
+  hourlyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_SwapHourlyVolume_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_SwapHourlyVolume_filter): [bnb_swap_SwapHourlyVolume!]
+  dailyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_SwapDailyVolume_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_SwapDailyVolume_filter): [bnb_swap_SwapDailyVolume!]
+  weeklyVolumes(skip: Int = 0, first: Int = 100, orderBy: bnb_swap_SwapWeeklyVolume_orderBy, orderDirection: bnb_swap_OrderDirection, where: bnb_swap_SwapWeeklyVolume_filter): [bnb_swap_SwapWeeklyVolume!]
 }
 
-type bnb_StableSwapAddLiquidityEvent implements bnb_StableSwapEvent {
+type bnb_swap_StableSwapAddLiquidityEvent implements bnb_swap_StableSwapEvent {
   id: ID!
-  stableSwap: bnb_StableSwap!
-  provider: bnb_Bytes!
+  stableSwap: bnb_swap_StableSwap!
+  provider: bnb_swap_Bytes!
   tokenAmounts: [BigInt!]!
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
   block: BigInt!
   timestamp: BigInt!
-  transaction: bnb_Bytes!
+  transaction: bnb_swap_Bytes!
 }
 
-input bnb_StableSwapAddLiquidityEvent_filter {
+input bnb_swap_StableSwapAddLiquidityEvent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -428,17 +428,17 @@ input bnb_StableSwapAddLiquidityEvent_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
-  provider: bnb_Bytes
-  provider_not: bnb_Bytes
-  provider_gt: bnb_Bytes
-  provider_lt: bnb_Bytes
-  provider_gte: bnb_Bytes
-  provider_lte: bnb_Bytes
-  provider_in: [bnb_Bytes!]
-  provider_not_in: [bnb_Bytes!]
-  provider_contains: bnb_Bytes
-  provider_not_contains: bnb_Bytes
+  stableSwap_: bnb_swap_StableSwap_filter
+  provider: bnb_swap_Bytes
+  provider_not: bnb_swap_Bytes
+  provider_gt: bnb_swap_Bytes
+  provider_lt: bnb_swap_Bytes
+  provider_gte: bnb_swap_Bytes
+  provider_lte: bnb_swap_Bytes
+  provider_in: [bnb_swap_Bytes!]
+  provider_not_in: [bnb_swap_Bytes!]
+  provider_contains: bnb_swap_Bytes
+  provider_not_contains: bnb_swap_Bytes
   tokenAmounts: [BigInt!]
   tokenAmounts_not: [BigInt!]
   tokenAmounts_contains: [BigInt!]
@@ -483,21 +483,21 @@ input bnb_StableSwapAddLiquidityEvent_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  transaction: bnb_Bytes
-  transaction_not: bnb_Bytes
-  transaction_gt: bnb_Bytes
-  transaction_lt: bnb_Bytes
-  transaction_gte: bnb_Bytes
-  transaction_lte: bnb_Bytes
-  transaction_in: [bnb_Bytes!]
-  transaction_not_in: [bnb_Bytes!]
-  transaction_contains: bnb_Bytes
-  transaction_not_contains: bnb_Bytes
+  transaction: bnb_swap_Bytes
+  transaction_not: bnb_swap_Bytes
+  transaction_gt: bnb_swap_Bytes
+  transaction_lt: bnb_swap_Bytes
+  transaction_gte: bnb_swap_Bytes
+  transaction_lte: bnb_swap_Bytes
+  transaction_in: [bnb_swap_Bytes!]
+  transaction_not_in: [bnb_swap_Bytes!]
+  transaction_contains: bnb_swap_Bytes
+  transaction_not_contains: bnb_swap_Bytes
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_StableSwapAddLiquidityEvent_orderBy {
+enum bnb_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
   provider
@@ -510,15 +510,15 @@ enum bnb_StableSwapAddLiquidityEvent_orderBy {
   transaction
 }
 
-interface bnb_StableSwapEvent {
+interface bnb_swap_StableSwapEvent {
   id: ID!
-  stableSwap: bnb_StableSwap!
+  stableSwap: bnb_swap_StableSwap!
   block: BigInt!
   timestamp: BigInt!
-  transaction: bnb_Bytes!
+  transaction: bnb_swap_Bytes!
 }
 
-input bnb_StableSwapEvent_filter {
+input bnb_swap_StableSwapEvent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -547,7 +547,7 @@ input bnb_StableSwapEvent_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
+  stableSwap_: bnb_swap_StableSwap_filter
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -564,21 +564,21 @@ input bnb_StableSwapEvent_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  transaction: bnb_Bytes
-  transaction_not: bnb_Bytes
-  transaction_gt: bnb_Bytes
-  transaction_lt: bnb_Bytes
-  transaction_gte: bnb_Bytes
-  transaction_lte: bnb_Bytes
-  transaction_in: [bnb_Bytes!]
-  transaction_not_in: [bnb_Bytes!]
-  transaction_contains: bnb_Bytes
-  transaction_not_contains: bnb_Bytes
+  transaction: bnb_swap_Bytes
+  transaction_not: bnb_swap_Bytes
+  transaction_gt: bnb_swap_Bytes
+  transaction_lt: bnb_swap_Bytes
+  transaction_gte: bnb_swap_Bytes
+  transaction_lte: bnb_swap_Bytes
+  transaction_in: [bnb_swap_Bytes!]
+  transaction_not_in: [bnb_swap_Bytes!]
+  transaction_contains: bnb_swap_Bytes
+  transaction_not_contains: bnb_swap_Bytes
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_StableSwapEvent_orderBy {
+enum bnb_swap_StableSwapEvent_orderBy {
   id
   stableSwap
   block
@@ -586,20 +586,20 @@ enum bnb_StableSwapEvent_orderBy {
   transaction
 }
 
-type bnb_StableSwapExchange {
+type bnb_swap_StableSwapExchange {
   id: ID!
-  stableSwap: bnb_StableSwap!
-  buyer: bnb_Bytes!
+  stableSwap: bnb_swap_StableSwap!
+  buyer: bnb_swap_Bytes!
   boughtId: BigInt!
   tokensBought: BigInt!
   soldId: BigInt!
   tokensSold: BigInt!
   block: BigInt!
   timestamp: BigInt!
-  transaction: bnb_Bytes!
+  transaction: bnb_swap_Bytes!
 }
 
-input bnb_StableSwapExchange_filter {
+input bnb_swap_StableSwapExchange_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -628,17 +628,17 @@ input bnb_StableSwapExchange_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
-  buyer: bnb_Bytes
-  buyer_not: bnb_Bytes
-  buyer_gt: bnb_Bytes
-  buyer_lt: bnb_Bytes
-  buyer_gte: bnb_Bytes
-  buyer_lte: bnb_Bytes
-  buyer_in: [bnb_Bytes!]
-  buyer_not_in: [bnb_Bytes!]
-  buyer_contains: bnb_Bytes
-  buyer_not_contains: bnb_Bytes
+  stableSwap_: bnb_swap_StableSwap_filter
+  buyer: bnb_swap_Bytes
+  buyer_not: bnb_swap_Bytes
+  buyer_gt: bnb_swap_Bytes
+  buyer_lt: bnb_swap_Bytes
+  buyer_gte: bnb_swap_Bytes
+  buyer_lte: bnb_swap_Bytes
+  buyer_in: [bnb_swap_Bytes!]
+  buyer_not_in: [bnb_swap_Bytes!]
+  buyer_contains: bnb_swap_Bytes
+  buyer_not_contains: bnb_swap_Bytes
   boughtId: BigInt
   boughtId_not: BigInt
   boughtId_gt: BigInt
@@ -687,21 +687,21 @@ input bnb_StableSwapExchange_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  transaction: bnb_Bytes
-  transaction_not: bnb_Bytes
-  transaction_gt: bnb_Bytes
-  transaction_lt: bnb_Bytes
-  transaction_gte: bnb_Bytes
-  transaction_lte: bnb_Bytes
-  transaction_in: [bnb_Bytes!]
-  transaction_not_in: [bnb_Bytes!]
-  transaction_contains: bnb_Bytes
-  transaction_not_contains: bnb_Bytes
+  transaction: bnb_swap_Bytes
+  transaction_not: bnb_swap_Bytes
+  transaction_gt: bnb_swap_Bytes
+  transaction_lt: bnb_swap_Bytes
+  transaction_gte: bnb_swap_Bytes
+  transaction_lte: bnb_swap_Bytes
+  transaction_in: [bnb_swap_Bytes!]
+  transaction_not_in: [bnb_swap_Bytes!]
+  transaction_contains: bnb_swap_Bytes
+  transaction_not_contains: bnb_swap_Bytes
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_StableSwapExchange_orderBy {
+enum bnb_swap_StableSwapExchange_orderBy {
   id
   stableSwap
   buyer
@@ -714,20 +714,20 @@ enum bnb_StableSwapExchange_orderBy {
   transaction
 }
 
-type bnb_StableSwapRemoveLiquidityEvent implements bnb_StableSwapEvent {
+type bnb_swap_StableSwapRemoveLiquidityEvent implements bnb_swap_StableSwapEvent {
   id: ID!
-  stableSwap: bnb_StableSwap!
-  provider: bnb_Bytes!
+  stableSwap: bnb_swap_StableSwap!
+  provider: bnb_swap_Bytes!
   tokenAmounts: [BigInt!]!
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
   block: BigInt!
   timestamp: BigInt!
-  transaction: bnb_Bytes!
+  transaction: bnb_swap_Bytes!
 }
 
-input bnb_StableSwapRemoveLiquidityEvent_filter {
+input bnb_swap_StableSwapRemoveLiquidityEvent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -756,17 +756,17 @@ input bnb_StableSwapRemoveLiquidityEvent_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
-  provider: bnb_Bytes
-  provider_not: bnb_Bytes
-  provider_gt: bnb_Bytes
-  provider_lt: bnb_Bytes
-  provider_gte: bnb_Bytes
-  provider_lte: bnb_Bytes
-  provider_in: [bnb_Bytes!]
-  provider_not_in: [bnb_Bytes!]
-  provider_contains: bnb_Bytes
-  provider_not_contains: bnb_Bytes
+  stableSwap_: bnb_swap_StableSwap_filter
+  provider: bnb_swap_Bytes
+  provider_not: bnb_swap_Bytes
+  provider_gt: bnb_swap_Bytes
+  provider_lt: bnb_swap_Bytes
+  provider_gte: bnb_swap_Bytes
+  provider_lte: bnb_swap_Bytes
+  provider_in: [bnb_swap_Bytes!]
+  provider_not_in: [bnb_swap_Bytes!]
+  provider_contains: bnb_swap_Bytes
+  provider_not_contains: bnb_swap_Bytes
   tokenAmounts: [BigInt!]
   tokenAmounts_not: [BigInt!]
   tokenAmounts_contains: [BigInt!]
@@ -811,21 +811,21 @@ input bnb_StableSwapRemoveLiquidityEvent_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  transaction: bnb_Bytes
-  transaction_not: bnb_Bytes
-  transaction_gt: bnb_Bytes
-  transaction_lt: bnb_Bytes
-  transaction_gte: bnb_Bytes
-  transaction_lte: bnb_Bytes
-  transaction_in: [bnb_Bytes!]
-  transaction_not_in: [bnb_Bytes!]
-  transaction_contains: bnb_Bytes
-  transaction_not_contains: bnb_Bytes
+  transaction: bnb_swap_Bytes
+  transaction_not: bnb_swap_Bytes
+  transaction_gt: bnb_swap_Bytes
+  transaction_lt: bnb_swap_Bytes
+  transaction_gte: bnb_swap_Bytes
+  transaction_lte: bnb_swap_Bytes
+  transaction_in: [bnb_swap_Bytes!]
+  transaction_not_in: [bnb_swap_Bytes!]
+  transaction_contains: bnb_swap_Bytes
+  transaction_not_contains: bnb_swap_Bytes
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_StableSwapRemoveLiquidityEvent_orderBy {
+enum bnb_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
   provider
@@ -838,7 +838,7 @@ enum bnb_StableSwapRemoveLiquidityEvent_orderBy {
   transaction
 }
 
-input bnb_StableSwap_filter {
+input bnb_swap_StableSwap_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -851,26 +851,26 @@ input bnb_StableSwap_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  key: bnb_Bytes
-  key_not: bnb_Bytes
-  key_gt: bnb_Bytes
-  key_lt: bnb_Bytes
-  key_gte: bnb_Bytes
-  key_lte: bnb_Bytes
-  key_in: [bnb_Bytes!]
-  key_not_in: [bnb_Bytes!]
-  key_contains: bnb_Bytes
-  key_not_contains: bnb_Bytes
-  canonicalId: bnb_Bytes
-  canonicalId_not: bnb_Bytes
-  canonicalId_gt: bnb_Bytes
-  canonicalId_lt: bnb_Bytes
-  canonicalId_gte: bnb_Bytes
-  canonicalId_lte: bnb_Bytes
-  canonicalId_in: [bnb_Bytes!]
-  canonicalId_not_in: [bnb_Bytes!]
-  canonicalId_contains: bnb_Bytes
-  canonicalId_not_contains: bnb_Bytes
+  key: bnb_swap_Bytes
+  key_not: bnb_swap_Bytes
+  key_gt: bnb_swap_Bytes
+  key_lt: bnb_swap_Bytes
+  key_gte: bnb_swap_Bytes
+  key_lte: bnb_swap_Bytes
+  key_in: [bnb_swap_Bytes!]
+  key_not_in: [bnb_swap_Bytes!]
+  key_contains: bnb_swap_Bytes
+  key_not_contains: bnb_swap_Bytes
+  canonicalId: bnb_swap_Bytes
+  canonicalId_not: bnb_swap_Bytes
+  canonicalId_gt: bnb_swap_Bytes
+  canonicalId_lt: bnb_swap_Bytes
+  canonicalId_gte: bnb_swap_Bytes
+  canonicalId_lte: bnb_swap_Bytes
+  canonicalId_in: [bnb_swap_Bytes!]
+  canonicalId_not_in: [bnb_swap_Bytes!]
+  canonicalId_contains: bnb_swap_Bytes
+  canonicalId_not_contains: bnb_swap_Bytes
   domain: BigInt
   domain_not: BigInt
   domain_gt: BigInt
@@ -879,26 +879,26 @@ input bnb_StableSwap_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
-  swapPool: bnb_Bytes
-  swapPool_not: bnb_Bytes
-  swapPool_gt: bnb_Bytes
-  swapPool_lt: bnb_Bytes
-  swapPool_gte: bnb_Bytes
-  swapPool_lte: bnb_Bytes
-  swapPool_in: [bnb_Bytes!]
-  swapPool_not_in: [bnb_Bytes!]
-  swapPool_contains: bnb_Bytes
-  swapPool_not_contains: bnb_Bytes
-  lpToken: bnb_Bytes
-  lpToken_not: bnb_Bytes
-  lpToken_gt: bnb_Bytes
-  lpToken_lt: bnb_Bytes
-  lpToken_gte: bnb_Bytes
-  lpToken_lte: bnb_Bytes
-  lpToken_in: [bnb_Bytes!]
-  lpToken_not_in: [bnb_Bytes!]
-  lpToken_contains: bnb_Bytes
-  lpToken_not_contains: bnb_Bytes
+  swapPool: bnb_swap_Bytes
+  swapPool_not: bnb_swap_Bytes
+  swapPool_gt: bnb_swap_Bytes
+  swapPool_lt: bnb_swap_Bytes
+  swapPool_gte: bnb_swap_Bytes
+  swapPool_lte: bnb_swap_Bytes
+  swapPool_in: [bnb_swap_Bytes!]
+  swapPool_not_in: [bnb_swap_Bytes!]
+  swapPool_contains: bnb_swap_Bytes
+  swapPool_not_contains: bnb_swap_Bytes
+  lpToken: bnb_swap_Bytes
+  lpToken_not: bnb_swap_Bytes
+  lpToken_gt: bnb_swap_Bytes
+  lpToken_lt: bnb_swap_Bytes
+  lpToken_gte: bnb_swap_Bytes
+  lpToken_lte: bnb_swap_Bytes
+  lpToken_in: [bnb_swap_Bytes!]
+  lpToken_not_in: [bnb_swap_Bytes!]
+  lpToken_contains: bnb_swap_Bytes
+  lpToken_not_contains: bnb_swap_Bytes
   initialA: BigInt
   initialA_not: BigInt
   initialA_gt: BigInt
@@ -953,7 +953,7 @@ input bnb_StableSwap_filter {
   pooledTokens_contains_nocase: [String!]
   pooledTokens_not_contains: [String!]
   pooledTokens_not_contains_nocase: [String!]
-  pooledTokens_: bnb_PooledToken_filter
+  pooledTokens_: bnb_swap_PooledToken_filter
   tokenPrecisionMultipliers: [BigInt!]
   tokenPrecisionMultipliers_not: [BigInt!]
   tokenPrecisionMultipliers_contains: [BigInt!]
@@ -996,16 +996,16 @@ input bnb_StableSwap_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
-  events_: bnb_StableSwapEvent_filter
-  exchanges_: bnb_StableSwapExchange_filter
-  hourlyVolumes_: bnb_SwapHourlyVolume_filter
-  dailyVolumes_: bnb_SwapDailyVolume_filter
-  weeklyVolumes_: bnb_SwapWeeklyVolume_filter
+  events_: bnb_swap_StableSwapEvent_filter
+  exchanges_: bnb_swap_StableSwapExchange_filter
+  hourlyVolumes_: bnb_swap_SwapHourlyVolume_filter
+  dailyVolumes_: bnb_swap_SwapDailyVolume_filter
+  weeklyVolumes_: bnb_swap_SwapWeeklyVolume_filter
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_StableSwap_orderBy {
+enum bnb_swap_StableSwap_orderBy {
   id
   isActive
   key
@@ -1034,304 +1034,304 @@ enum bnb_StableSwap_orderBy {
 }
 
 type Subscription {
-  bnb_systemInfo(
+  bnb_swap_systemInfo(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SystemInfo
-  bnb_systemInfos(
+  ): bnb_swap_SystemInfo
+  bnb_swap_systemInfos(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SystemInfo_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SystemInfo_filter
+    orderBy: bnb_swap_SystemInfo_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SystemInfo_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SystemInfo!]!
-  bnb_pooledToken(
+  ): [bnb_swap_SystemInfo!]!
+  bnb_swap_pooledToken(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_PooledToken
-  bnb_pooledTokens(
+  ): bnb_swap_PooledToken
+  bnb_swap_pooledTokens(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_PooledToken_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_PooledToken_filter
+    orderBy: bnb_swap_PooledToken_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_PooledToken_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_PooledToken!]!
-  bnb_stableSwap(
+  ): [bnb_swap_PooledToken!]!
+  bnb_swap_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwap
-  bnb_stableSwaps(
+  ): bnb_swap_StableSwap
+  bnb_swap_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwap_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwap_filter
+    orderBy: bnb_swap_StableSwap_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwap!]!
-  bnb_stableSwapAddLiquidityEvent(
+  ): [bnb_swap_StableSwap!]!
+  bnb_swap_stableSwapAddLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapAddLiquidityEvent
-  bnb_stableSwapAddLiquidityEvents(
+  ): bnb_swap_StableSwapAddLiquidityEvent
+  bnb_swap_stableSwapAddLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapAddLiquidityEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapAddLiquidityEvent_filter
+    orderBy: bnb_swap_StableSwapAddLiquidityEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapAddLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapAddLiquidityEvent!]!
-  bnb_stableSwapRemoveLiquidityEvent(
+  ): [bnb_swap_StableSwapAddLiquidityEvent!]!
+  bnb_swap_stableSwapRemoveLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapRemoveLiquidityEvent
-  bnb_stableSwapRemoveLiquidityEvents(
+  ): bnb_swap_StableSwapRemoveLiquidityEvent
+  bnb_swap_stableSwapRemoveLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapRemoveLiquidityEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapRemoveLiquidityEvent_filter
+    orderBy: bnb_swap_StableSwapRemoveLiquidityEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapRemoveLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapRemoveLiquidityEvent!]!
-  bnb_stableSwapExchange(
+  ): [bnb_swap_StableSwapRemoveLiquidityEvent!]!
+  bnb_swap_stableSwapExchange(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapExchange
-  bnb_stableSwapExchanges(
+  ): bnb_swap_StableSwapExchange
+  bnb_swap_stableSwapExchanges(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapExchange_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapExchange_filter
+    orderBy: bnb_swap_StableSwapExchange_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapExchange_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapExchange!]!
-  bnb_swapDailyVolume(
+  ): [bnb_swap_StableSwapExchange!]!
+  bnb_swap_swapDailyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapDailyVolume
-  bnb_swapDailyVolumes(
+  ): bnb_swap_SwapDailyVolume
+  bnb_swap_swapDailyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapDailyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapDailyVolume_filter
+    orderBy: bnb_swap_SwapDailyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapDailyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapDailyVolume!]!
-  bnb_swapHourlyVolume(
+  ): [bnb_swap_SwapDailyVolume!]!
+  bnb_swap_swapHourlyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapHourlyVolume
-  bnb_swapHourlyVolumes(
+  ): bnb_swap_SwapHourlyVolume
+  bnb_swap_swapHourlyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapHourlyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapHourlyVolume_filter
+    orderBy: bnb_swap_SwapHourlyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapHourlyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapHourlyVolume!]!
-  bnb_swapWeeklyVolume(
+  ): [bnb_swap_SwapHourlyVolume!]!
+  bnb_swap_swapWeeklyVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapWeeklyVolume
-  bnb_swapWeeklyVolumes(
+  ): bnb_swap_SwapWeeklyVolume
+  bnb_swap_swapWeeklyVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapWeeklyVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapWeeklyVolume_filter
+    orderBy: bnb_swap_SwapWeeklyVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapWeeklyVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapWeeklyVolume!]!
-  bnb_stableSwapEvent(
+  ): [bnb_swap_SwapWeeklyVolume!]!
+  bnb_swap_stableSwapEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_StableSwapEvent
-  bnb_stableSwapEvents(
+  ): bnb_swap_StableSwapEvent
+  bnb_swap_stableSwapEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_StableSwapEvent_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_StableSwapEvent_filter
+    orderBy: bnb_swap_StableSwapEvent_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_StableSwapEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_StableSwapEvent!]!
-  bnb_swapTradeVolume(
+  ): [bnb_swap_StableSwapEvent!]!
+  bnb_swap_swapTradeVolume(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_SwapTradeVolume
-  bnb_swapTradeVolumes(
+  ): bnb_swap_SwapTradeVolume
+  bnb_swap_swapTradeVolumes(
     skip: Int = 0
     first: Int = 100
-    orderBy: bnb_SwapTradeVolume_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_SwapTradeVolume_filter
+    orderBy: bnb_swap_SwapTradeVolume_orderBy
+    orderDirection: bnb_swap_OrderDirection
+    where: bnb_swap_SwapTradeVolume_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: bnb_Block_height
+    block: bnb_swap_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_SwapTradeVolume!]!
+  ): [bnb_swap_SwapTradeVolume!]!
   """Access to subgraph metadata"""
-  bnb__meta(block: bnb_Block_height): bnb__Meta_
+  bnb_swap__meta(block: bnb_swap_Block_height): bnb_swap__Meta_
 }
 
-type bnb_SwapDailyVolume implements bnb_SwapTradeVolume {
+type bnb_swap_SwapDailyVolume implements bnb_swap_SwapTradeVolume {
   id: ID!
-  stableSwap: bnb_StableSwap!
+  stableSwap: bnb_swap_StableSwap!
   timestamp: BigInt!
-  volume: bnb_BigDecimal!
+  volume: bnb_swap_BigDecimal!
 }
 
-input bnb_SwapDailyVolume_filter {
+input bnb_swap_SwapDailyVolume_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1360,7 +1360,7 @@ input bnb_SwapDailyVolume_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
+  stableSwap_: bnb_swap_StableSwap_filter
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1369,33 +1369,33 @@ input bnb_SwapDailyVolume_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  volume: bnb_BigDecimal
-  volume_not: bnb_BigDecimal
-  volume_gt: bnb_BigDecimal
-  volume_lt: bnb_BigDecimal
-  volume_gte: bnb_BigDecimal
-  volume_lte: bnb_BigDecimal
-  volume_in: [bnb_BigDecimal!]
-  volume_not_in: [bnb_BigDecimal!]
+  volume: bnb_swap_BigDecimal
+  volume_not: bnb_swap_BigDecimal
+  volume_gt: bnb_swap_BigDecimal
+  volume_lt: bnb_swap_BigDecimal
+  volume_gte: bnb_swap_BigDecimal
+  volume_lte: bnb_swap_BigDecimal
+  volume_in: [bnb_swap_BigDecimal!]
+  volume_not_in: [bnb_swap_BigDecimal!]
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_SwapDailyVolume_orderBy {
+enum bnb_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
   timestamp
   volume
 }
 
-type bnb_SwapHourlyVolume implements bnb_SwapTradeVolume {
+type bnb_swap_SwapHourlyVolume implements bnb_swap_SwapTradeVolume {
   id: ID!
-  stableSwap: bnb_StableSwap!
+  stableSwap: bnb_swap_StableSwap!
   timestamp: BigInt!
-  volume: bnb_BigDecimal!
+  volume: bnb_swap_BigDecimal!
 }
 
-input bnb_SwapHourlyVolume_filter {
+input bnb_swap_SwapHourlyVolume_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1424,7 +1424,7 @@ input bnb_SwapHourlyVolume_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
+  stableSwap_: bnb_swap_StableSwap_filter
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1433,32 +1433,32 @@ input bnb_SwapHourlyVolume_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  volume: bnb_BigDecimal
-  volume_not: bnb_BigDecimal
-  volume_gt: bnb_BigDecimal
-  volume_lt: bnb_BigDecimal
-  volume_gte: bnb_BigDecimal
-  volume_lte: bnb_BigDecimal
-  volume_in: [bnb_BigDecimal!]
-  volume_not_in: [bnb_BigDecimal!]
+  volume: bnb_swap_BigDecimal
+  volume_not: bnb_swap_BigDecimal
+  volume_gt: bnb_swap_BigDecimal
+  volume_lt: bnb_swap_BigDecimal
+  volume_gte: bnb_swap_BigDecimal
+  volume_lte: bnb_swap_BigDecimal
+  volume_in: [bnb_swap_BigDecimal!]
+  volume_not_in: [bnb_swap_BigDecimal!]
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_SwapHourlyVolume_orderBy {
+enum bnb_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
   timestamp
   volume
 }
 
-interface bnb_SwapTradeVolume {
-  stableSwap: bnb_StableSwap!
+interface bnb_swap_SwapTradeVolume {
+  stableSwap: bnb_swap_StableSwap!
   timestamp: BigInt!
-  volume: bnb_BigDecimal!
+  volume: bnb_swap_BigDecimal!
 }
 
-input bnb_SwapTradeVolume_filter {
+input bnb_swap_SwapTradeVolume_filter {
   stableSwap: String
   stableSwap_not: String
   stableSwap_gt: String
@@ -1479,7 +1479,7 @@ input bnb_SwapTradeVolume_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
+  stableSwap_: bnb_swap_StableSwap_filter
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1488,32 +1488,32 @@ input bnb_SwapTradeVolume_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  volume: bnb_BigDecimal
-  volume_not: bnb_BigDecimal
-  volume_gt: bnb_BigDecimal
-  volume_lt: bnb_BigDecimal
-  volume_gte: bnb_BigDecimal
-  volume_lte: bnb_BigDecimal
-  volume_in: [bnb_BigDecimal!]
-  volume_not_in: [bnb_BigDecimal!]
+  volume: bnb_swap_BigDecimal
+  volume_not: bnb_swap_BigDecimal
+  volume_gt: bnb_swap_BigDecimal
+  volume_lt: bnb_swap_BigDecimal
+  volume_gte: bnb_swap_BigDecimal
+  volume_lte: bnb_swap_BigDecimal
+  volume_in: [bnb_swap_BigDecimal!]
+  volume_not_in: [bnb_swap_BigDecimal!]
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_SwapTradeVolume_orderBy {
+enum bnb_swap_SwapTradeVolume_orderBy {
   stableSwap
   timestamp
   volume
 }
 
-type bnb_SwapWeeklyVolume implements bnb_SwapTradeVolume {
+type bnb_swap_SwapWeeklyVolume implements bnb_swap_SwapTradeVolume {
   id: ID!
-  stableSwap: bnb_StableSwap!
+  stableSwap: bnb_swap_StableSwap!
   timestamp: BigInt!
-  volume: bnb_BigDecimal!
+  volume: bnb_swap_BigDecimal!
 }
 
-input bnb_SwapWeeklyVolume_filter {
+input bnb_swap_SwapWeeklyVolume_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1542,7 +1542,7 @@ input bnb_SwapWeeklyVolume_filter {
   stableSwap_ends_with_nocase: String
   stableSwap_not_ends_with: String
   stableSwap_not_ends_with_nocase: String
-  stableSwap_: bnb_StableSwap_filter
+  stableSwap_: bnb_swap_StableSwap_filter
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1551,32 +1551,32 @@ input bnb_SwapWeeklyVolume_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  volume: bnb_BigDecimal
-  volume_not: bnb_BigDecimal
-  volume_gt: bnb_BigDecimal
-  volume_lt: bnb_BigDecimal
-  volume_gte: bnb_BigDecimal
-  volume_lte: bnb_BigDecimal
-  volume_in: [bnb_BigDecimal!]
-  volume_not_in: [bnb_BigDecimal!]
+  volume: bnb_swap_BigDecimal
+  volume_not: bnb_swap_BigDecimal
+  volume_gt: bnb_swap_BigDecimal
+  volume_lt: bnb_swap_BigDecimal
+  volume_gte: bnb_swap_BigDecimal
+  volume_lte: bnb_swap_BigDecimal
+  volume_in: [bnb_swap_BigDecimal!]
+  volume_not_in: [bnb_swap_BigDecimal!]
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_SwapWeeklyVolume_orderBy {
+enum bnb_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
   timestamp
   volume
 }
 
-type bnb_SystemInfo {
+type bnb_swap_SystemInfo {
   id: ID!
   exchangeCount: BigInt!
   swapCount: BigInt!
 }
 
-input bnb_SystemInfo_filter {
+input bnb_swap_SystemInfo_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1602,18 +1602,18 @@ input bnb_SystemInfo_filter {
   swapCount_in: [BigInt!]
   swapCount_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
+  _change_block: bnb_swap_BlockChangedFilter
 }
 
-enum bnb_SystemInfo_orderBy {
+enum bnb_swap_SystemInfo_orderBy {
   id
   exchangeCount
   swapCount
 }
 
-type bnb__Block_ {
+type bnb_swap__Block_ {
   """The hash of the block"""
-  hash: bnb_Bytes
+  hash: bnb_swap_Bytes
   """The block number"""
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
@@ -1621,7 +1621,7 @@ type bnb__Block_ {
 }
 
 """The type for the top-level _meta field"""
-type bnb__Meta_ {
+type bnb_swap__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
@@ -1629,7 +1629,7 @@ type bnb__Meta_ {
   and therefore asks for the latest  block
   
   """
-  block: bnb__Block_!
+  block: bnb_swap__Block_!
   """The deployment ID"""
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""

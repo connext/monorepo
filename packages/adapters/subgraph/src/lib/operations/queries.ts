@@ -873,7 +873,7 @@ export const getStableSwapPoolsQuery = (domain: string) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
   const queryString = `
-  ${prefix}_stableSwaps ( 
+  ${prefix}_swap_stableSwaps ( 
     first: 200
   ) {
     ${STABLESWAP_POOL_ENTITY}
@@ -892,7 +892,7 @@ const swapExchangeQueryString = (
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
 ) => {
-  return `${prefix}_stableSwapExchanges(
+  return `${prefix}_swap_stableSwapExchanges(
     where: {
       timestamp_gte: ${fromTimestamp},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
