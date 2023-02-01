@@ -6553,17 +6553,59 @@ declare module 'zapatos/schema' {
       */
       router_fee: string | null;
       /**
-      * **transfers_with_ttr_ttv.ttr**
+      * **transfers_with_ttr_ttv.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee: string | null;
+      /**
+      * **transfers_with_ttr_ttv.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status: string | null;
+      /**
+      * **transfers_with_ttr_ttv.backoff**
       * - `int4` in database
       * - Nullable, no default
       */
-      ttr: number | null;
+      backoff: number | null;
+      /**
+      * **transfers_with_ttr_ttv.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.ttv**
       * - `int4` in database
       * - Nullable, no default
       */
       ttv: number | null;
+      /**
+      * **transfers_with_ttr_ttv.ttr**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      ttr: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -6855,17 +6897,59 @@ declare module 'zapatos/schema' {
       */
       router_fee: string | null;
       /**
-      * **transfers_with_ttr_ttv.ttr**
+      * **transfers_with_ttr_ttv.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
+      /**
+      * **transfers_with_ttr_ttv.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee: string | null;
+      /**
+      * **transfers_with_ttr_ttv.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status: string | null;
+      /**
+      * **transfers_with_ttr_ttv.backoff**
       * - `int4` in database
       * - Nullable, no default
       */
-      ttr: number | null;
+      backoff: number | null;
+      /**
+      * **transfers_with_ttr_ttv.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp: number | null;
       /**
       * **transfers_with_ttr_ttv.ttv**
       * - `int4` in database
       * - Nullable, no default
       */
       ttv: number | null;
+      /**
+      * **transfers_with_ttr_ttv.ttr**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      ttr: number | null;
     }
     export interface Whereable {
       /**
@@ -7157,17 +7241,59 @@ declare module 'zapatos/schema' {
       */
       router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.ttr**
+      * **transfers_with_ttr_ttv.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.backoff**
       * - `int4` in database
       * - Nullable, no default
       */
-      ttr?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      backoff?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.ttv**
       * - `int4` in database
       * - Nullable, no default
       */
       ttv?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_ttr_ttv.ttr**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      ttr?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -7459,17 +7585,59 @@ declare module 'zapatos/schema' {
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.ttr**
+      * **transfers_with_ttr_ttv.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.backoff**
       * - `int4` in database
       * - Nullable, no default
       */
-      ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      backoff?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.ttv**
       * - `int4` in database
       * - Nullable, no default
       */
       ttv?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers_with_ttr_ttv.ttr**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7761,17 +7929,59 @@ declare module 'zapatos/schema' {
       */
       router_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.ttr**
+      * **transfers_with_ttr_ttv.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.relayer_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.backoff**
       * - `int4` in database
       * - Nullable, no default
       */
-      ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      backoff?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.ttv**
       * - `int4` in database
       * - Nullable, no default
       */
       ttv?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers_with_ttr_ttv.ttr**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      ttr?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = never;
     export type Column = keyof Selectable;
