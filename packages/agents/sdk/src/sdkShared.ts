@@ -116,6 +116,7 @@ export class SdkShared {
     const uri = formatUrl(baseUrl, "block");
     const chainName = this.domainToChainName(domainId);
     const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+
     return res.height;
   }
 

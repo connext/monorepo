@@ -1,23 +1,10 @@
-import {
-  createStubInstance,
-  reset,
-  restore,
-  SinonStubbedInstance,
-  stub,
-  spy,
-  SinonStub,
-  promise,
-  SinonMock,
-  mock as sinonMock,
-} from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub, spy, mock as sinonMock } from "sinon";
 import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils, Contract } from "ethers";
+import { constants, providers, Contract, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
-import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/smart-contracts";
+import { ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -28,6 +15,17 @@ const mockDeployments = mock.contracts.deployments();
 
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockAssetId = mock.asset.A.address;
+const mockAssetKey = utils.formatBytes32String("13337");
+
+const mockAssetData = {
+  local: mock.asset.A.address,
+  adopted: mock.asset.B.address,
+  canonical_id: utils.formatBytes32String("0"),
+  canonical_domain: mock.domain.A,
+  domain: mock.domain.A,
+  key: mockAssetKey,
+  id: mock.asset.A.address,
+};
 
 const chainId = 1337;
 
@@ -62,6 +60,7 @@ describe("SdkShared", () => {
       expect(sdkShared.approveIfNeeded).to.be.a("function");
       expect(sdkShared.getAssetsData).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
       expect(sdkShared.isNextAsset).to.be.a("function");
       expect(sdkShared.changeSignerAddress).to.be.a("function");
       expect(sdkShared.parseConnextTransactionReceipt).to.be.a("function");
@@ -163,6 +162,59 @@ describe("SdkShared", () => {
       await expect(sdkShared.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).to.be.rejectedWith(
         SignerAddressMissing,
       );
+    });
+  });
+
+  describe("#domainToChainName", () => {
+    it("happy: should work", async () => {
+      const chainName = SdkShared.domainToChainName("6648936");
+      expect(chainName).to.not.be.undefined;
+    });
+  });
+
+  describe("#getBlockNumberFromUnixTimestamp", () => {
+    it("happy: should work", async () => {
+      const height = 1234;
+      stub(SdkShared, "domainToChainName").resolves("mock-chain");
+      stub(SharedFns, "axiosGetRequest").resolves({ height: height });
+      const res = await SdkShared.getBlockNumberFromUnixTimestamp(mock.domain.A, 123124);
+      expect(res).to.be.equal(height);
+    });
+  });
+
+  describe("#getAssetsData", () => {
+    it("happy: should work", async () => {
+      stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsData();
+      expect(res).to.be.deep.equal([mockAssetData]);
+    });
+  });
+
+  describe("#getAssetsDataByDomainAndAddress", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal(mockAssetData);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.B, mock.asset.A.address);
+      expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#getAssetsDataByDomainAndKey", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mockAssetKey);
+      expect(res).to.be.deep.equal(mockAssetData);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.B, mockAssetKey);
+      expect(res).to.be.undefined;
     });
   });
 
