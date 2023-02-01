@@ -103,6 +103,7 @@ export const mock = {
         relayerProxyHub: relayerProxyHub as unknown as ConnextContractInterfaces["relayerProxyHub"],
         rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         unwrapper: unwrapper as unknown as ConnextContractInterfaces["unwrapper"],
+        multisend: unwrapper as unknown as ConnextContractInterfaces["multisend"],
       };
     },
     deployments: (): ConnextContractDeployments => {

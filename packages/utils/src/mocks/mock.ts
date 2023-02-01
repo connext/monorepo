@@ -61,7 +61,20 @@ export const mock = {
         chainId: parseInt(mock.chain.A),
         domainId: mock.domain.A,
         confirmations: 1,
-        assetId: {},
+        assetId: {
+          "0xbeefbeefbeef0000000000000000000000000000": {
+            name: mock.asset.A.name,
+            symbol: mock.asset.A.symbol,
+            mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+            decimals: 18,
+          },
+          "0x2faced0000000000000000000000000000000000": {
+            name: mock.asset.B.name,
+            symbol: mock.asset.B.symbol,
+            mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+            decimals: 18,
+          },
+        },
         subgraphs: {
           runtime: [{ query: "http://example.com", health: "http://example.com" }],
           analytics: [{ query: "http://example.com", health: "http://example.com" }],

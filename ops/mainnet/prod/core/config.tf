@@ -458,7 +458,7 @@ locals {
         }]
       }
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_1}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
         assets = [{
           name    = "USDC"
           address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
