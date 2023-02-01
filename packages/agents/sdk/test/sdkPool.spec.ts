@@ -656,6 +656,52 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#getPoolData", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        domainId: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with lpTokenAddress", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        lpTokenAddress: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        key: getRandomBytes32(),
+        domainId: getRandomBytes32(),
+        lpTokenAddress: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getPoolData({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
   describe("#getHourlySwapVolume", () => {
     it("happy: should work with key", async () => {
       (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
