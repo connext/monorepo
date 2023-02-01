@@ -76,5 +76,11 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 # ----- Copy files required at runtime by the app -----
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY --from=build /tmp/build ${LAMBDA_TASK_ROOT}
+COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/extensions/ /opt/extensions
 
-CMD ["packages/agents/lighthouse/dist/index.handler"]
+# This user is created in the base image with uid and gid = 1000.
+
+WORKDIR /home/node/packages/agents/lighthouse
+
+
+CMD ["node_modules/datadog-lambda-js/dist/handler.handler"]

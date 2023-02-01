@@ -66,5 +66,6 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY --from=build /tmp/build ${LAMBDA_TASK_ROOT}
 COPY --from=build /usr/local/bin/dbmate /usr/local/bin/dbmate
+COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/extensions/ /opt/extensions
 
-CMD ["packages/agents/cartographer/poller/dist/index.handler"]
+CMD ["node_modules/datadog-lambda-js/dist/handler.handler"]
