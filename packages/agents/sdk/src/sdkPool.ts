@@ -1016,8 +1016,8 @@ export class SdkPool extends SdkShared {
       const hourlyVolumes = await this.getHourlySwapVolume({
         key: pool.canonicalHash,
         domainId: pool.domainId,
-        startTimestamp: unixTimestamp,
-        endTimestamp: unixTimestamp - 86_400, // 24 hours prior
+        startTimestamp: unixTimestamp - 86_400, // 24 hours prior
+        endTimestamp: unixTimestamp,
         range: { limit: 24 },
       });
 
