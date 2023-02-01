@@ -343,7 +343,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
@@ -438,7 +438,7 @@ locals {
         }]
       },
       "1869640809" = {
-        providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://1rpc.io/op", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
+        providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
           address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
