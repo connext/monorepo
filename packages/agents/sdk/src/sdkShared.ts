@@ -116,6 +116,7 @@ export class SdkShared {
     const uri = formatUrl(baseUrl, "block");
     const chainName = this.domainToChainName(domainId);
     const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+
     return res.height;
   }
 
@@ -216,25 +217,48 @@ export class SdkShared {
 
     const supported: Map<string, ConnextSupport> = new Map();
 
-    await Promise.all(
-      data.map(async (asset) => {
-        if (supported.get(asset.domain)) {
-          const support = supported.get(asset.domain)!;
-          support.assets.push(asset.adopted);
-        } else {
-          const support: ConnextSupport = {
-            name: domainsToChainNames[asset.domain],
-            chainId: await getChainIdFromDomain(asset.domain),
-            domainId: asset.domain,
-            assets: [asset.adopted],
-          };
-          supported.set(asset.domain, support);
-        }
-      }),
-    );
+    for (const asset of data) {
+      const support = supported.get(asset.domain);
+      if (support) {
+        support.assets.push(asset.adopted);
+      } else {
+        const entry: ConnextSupport = {
+          name: domainsToChainNames[asset.domain],
+          chainId: await getChainIdFromDomain(asset.domain),
+          domainId: asset.domain,
+          assets: [asset.adopted],
+        };
+        supported.set(asset.domain, entry);
+      }
+    }
 
     const res = Array.from(supported.values());
     return res;
+  }
+
+  /**
+   * Retrieve the asset data for a specific domain and address.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The local or adopted address.
+   * @returns The object containing asset data.
+   */
+  async getAssetsDataByDomainAndAddress(domainId: string, tokenAddress: string): Promise<AssetData | undefined> {
+    const assetsData = await this.getAssetsData();
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
+      );
+    });
+
+    if (asset) {
+      return asset;
+    }
+
+    return;
   }
 
   /**
@@ -320,17 +344,10 @@ export class SdkShared {
    * @param tokenAddress The address of the token.
    */
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
-    const assetsData = await this.getAssetsData();
-    const asset = assetsData.find((assetData) => {
-      return (
-        domainId === assetData.domain &&
-        (utils.getAddress(assetData.local) == tokenAddress.toLowerCase() ||
-          utils.getAddress(assetData.adopted) == tokenAddress.toLowerCase())
-      );
-    });
+    const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
     if (asset) {
-      return [asset.canonicalDomain, asset.canonicalId];
+      return [asset.canonical_domain, asset.canonical_id];
     }
 
     return ["0", constants.HashZero];

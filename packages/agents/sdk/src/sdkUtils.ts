@@ -96,15 +96,16 @@ export class SdkUtils extends SdkShared {
   /**
    * Fetches the transfers that match filter criteria.
    *
-   * @param userAddress - (optional) The origin caller address.
-   * @param routerAddress - (optional) The router that facilitated the transfer.
-   * @param status - (optional) The xcall status.
-   * @param transferId - (optional) The unique transfer ID of the xcall.
-   * @param transactionHash - (optional) The transaction hash associated with the xcall.
-   * @param xcallCaller - (optional) The origin caller of the xcall.
-   * @param range - (optional) The object with limit and offset options.
-   * @param range.limit - (optional) The number of results to get.
-   * @param range.offset - (optional) The offset in the returned data to start from.
+   * @param params - (optional) Parameters object.
+   * @param params.userAddress - (optional) The origin caller address.
+   * @param params.routerAddress - (optional) The router that facilitated the transfer.
+   * @param params.status - (optional) The xcall status.
+   * @param params.transferId - (optional) The unique transfer ID of the xcall.
+   * @param params.transactionHash - (optional) The transaction hash associated with the xcall.
+   * @param params.xcallCaller - (optional) The origin caller of the xcall.
+   * @param params.range - (optional) The object with limit and offset options.
+   * @param params.range.limit - (optional) The number of results to get.
+   * @param params.range.offset - (optional) The offset in the returned data to start from.
    * @returns The object containing transfer data in the form of:
    *
    * ```ts

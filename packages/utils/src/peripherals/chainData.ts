@@ -41,6 +41,7 @@ export type ChainData = {
   assetId: Record<
     string,
     {
+      name: string;
       symbol: string;
       mainnetEquivalent?: string;
       decimals?: number;

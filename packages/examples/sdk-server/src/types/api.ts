@@ -258,3 +258,32 @@ export const removeRouterLiquidityForSchema = Type.Object({
     router: Type.String(),
   }),
 });
+
+export const getTokenSwapEventsSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    buyer: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getHourlySwapVolumeSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    domainId: Type.Optional(Type.String()),
+    startTimestamp: Type.Optional(Type.Number()),
+    endTimestamp: Type.Optional(Type.Number()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
