@@ -991,9 +991,9 @@ export class SdkPool extends SdkShared {
    * Calculates the fees, liquidity, and volume of a pool for the 24 hours prior to the specified unix time.
    *
    * @param domainId - The domain ID of the pool.
-   * @param tokenAddress - The address of the user to get the pools for.
+   * @param tokenAddress - The address of local or adopted token.
    * @param unixTimestamp - The unix time to look back 24 hours from.
-   * @returns Object containing fees, liquidity, and volume, formatted in the pool token's native decimal precision.
+   * @returns Object containing fees, liquidity, and volume, in 1e18 precision.
    */
   async getYieldStatsForDay(
     domainId: string,
@@ -1079,7 +1079,7 @@ export class SdkPool extends SdkShared {
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of the user to get the pools for.
    * @param days - (optional) The number of days to look back.
-   * @returns Object containing apr, apy, and volume formatted in the pool token's native decimal precision.
+   * @returns Object containing apr, apy. Also fees, liquidity, and volume in 1e18 precision.
    */
   getYieldData = memoize(
     async (
