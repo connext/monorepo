@@ -16,32 +16,32 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  staginggoerli_BigDecimal: any;
+  staginggoerli_swap_BigDecimal: any;
   BigInt: any;
-  staginggoerli_Bytes: any;
+  staginggoerli_swap_Bytes: any;
 };
 
-export type staginggoerli_BlockChangedFilter = {
+export type staginggoerli_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type staginggoerli_Block_height = {
-  hash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+export type staginggoerli_swap_Block_height = {
+  hash?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /** Defines the order direction, either ascending or descending */
-export type staginggoerli_OrderDirection =
+export type staginggoerli_swap_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type staginggoerli_PooledToken = {
+export type staginggoerli_swap_PooledToken = {
   id: Scalars['ID'];
-  asset: Scalars['staginggoerli_Bytes'];
+  asset: Scalars['staginggoerli_swap_Bytes'];
 };
 
-export type staginggoerli_PooledToken_filter = {
+export type staginggoerli_swap_PooledToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -50,350 +50,350 @@ export type staginggoerli_PooledToken_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  asset?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_PooledToken_orderBy =
+export type staginggoerli_swap_PooledToken_orderBy =
   | 'id'
   | 'asset';
 
 export type Query = {
-  staginggoerli_systemInfo?: Maybe<staginggoerli_SystemInfo>;
-  staginggoerli_systemInfos: Array<staginggoerli_SystemInfo>;
-  staginggoerli_pooledToken?: Maybe<staginggoerli_PooledToken>;
-  staginggoerli_pooledTokens: Array<staginggoerli_PooledToken>;
-  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
-  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
-  staginggoerli_stableSwapAddLiquidityEvent?: Maybe<staginggoerli_StableSwapAddLiquidityEvent>;
-  staginggoerli_stableSwapAddLiquidityEvents: Array<staginggoerli_StableSwapAddLiquidityEvent>;
-  staginggoerli_stableSwapRemoveLiquidityEvent?: Maybe<staginggoerli_StableSwapRemoveLiquidityEvent>;
-  staginggoerli_stableSwapRemoveLiquidityEvents: Array<staginggoerli_StableSwapRemoveLiquidityEvent>;
-  staginggoerli_stableSwapExchange?: Maybe<staginggoerli_StableSwapExchange>;
-  staginggoerli_stableSwapExchanges: Array<staginggoerli_StableSwapExchange>;
-  staginggoerli_swapDailyVolume?: Maybe<staginggoerli_SwapDailyVolume>;
-  staginggoerli_swapDailyVolumes: Array<staginggoerli_SwapDailyVolume>;
-  staginggoerli_swapHourlyVolume?: Maybe<staginggoerli_SwapHourlyVolume>;
-  staginggoerli_swapHourlyVolumes: Array<staginggoerli_SwapHourlyVolume>;
-  staginggoerli_swapWeeklyVolume?: Maybe<staginggoerli_SwapWeeklyVolume>;
-  staginggoerli_swapWeeklyVolumes: Array<staginggoerli_SwapWeeklyVolume>;
-  staginggoerli_stableSwapEvent?: Maybe<staginggoerli_StableSwapEvent>;
-  staginggoerli_stableSwapEvents: Array<staginggoerli_StableSwapEvent>;
-  staginggoerli_swapTradeVolume?: Maybe<staginggoerli_SwapTradeVolume>;
-  staginggoerli_swapTradeVolumes: Array<staginggoerli_SwapTradeVolume>;
+  staginggoerli_swap_systemInfo?: Maybe<staginggoerli_swap_SystemInfo>;
+  staginggoerli_swap_systemInfos: Array<staginggoerli_swap_SystemInfo>;
+  staginggoerli_swap_pooledToken?: Maybe<staginggoerli_swap_PooledToken>;
+  staginggoerli_swap_pooledTokens: Array<staginggoerli_swap_PooledToken>;
+  staginggoerli_swap_stableSwap?: Maybe<staginggoerli_swap_StableSwap>;
+  staginggoerli_swap_stableSwaps: Array<staginggoerli_swap_StableSwap>;
+  staginggoerli_swap_stableSwapAddLiquidityEvent?: Maybe<staginggoerli_swap_StableSwapAddLiquidityEvent>;
+  staginggoerli_swap_stableSwapAddLiquidityEvents: Array<staginggoerli_swap_StableSwapAddLiquidityEvent>;
+  staginggoerli_swap_stableSwapRemoveLiquidityEvent?: Maybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent>;
+  staginggoerli_swap_stableSwapRemoveLiquidityEvents: Array<staginggoerli_swap_StableSwapRemoveLiquidityEvent>;
+  staginggoerli_swap_stableSwapExchange?: Maybe<staginggoerli_swap_StableSwapExchange>;
+  staginggoerli_swap_stableSwapExchanges: Array<staginggoerli_swap_StableSwapExchange>;
+  staginggoerli_swap_swapDailyVolume?: Maybe<staginggoerli_swap_SwapDailyVolume>;
+  staginggoerli_swap_swapDailyVolumes: Array<staginggoerli_swap_SwapDailyVolume>;
+  staginggoerli_swap_swapHourlyVolume?: Maybe<staginggoerli_swap_SwapHourlyVolume>;
+  staginggoerli_swap_swapHourlyVolumes: Array<staginggoerli_swap_SwapHourlyVolume>;
+  staginggoerli_swap_swapWeeklyVolume?: Maybe<staginggoerli_swap_SwapWeeklyVolume>;
+  staginggoerli_swap_swapWeeklyVolumes: Array<staginggoerli_swap_SwapWeeklyVolume>;
+  staginggoerli_swap_stableSwapEvent?: Maybe<staginggoerli_swap_StableSwapEvent>;
+  staginggoerli_swap_stableSwapEvents: Array<staginggoerli_swap_StableSwapEvent>;
+  staginggoerli_swap_swapTradeVolume?: Maybe<staginggoerli_swap_SwapTradeVolume>;
+  staginggoerli_swap_swapTradeVolumes: Array<staginggoerli_swap_SwapTradeVolume>;
   /** Access to subgraph metadata */
-  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
+  staginggoerli_swap__meta?: Maybe<staginggoerli_swap__Meta_>;
 };
 
 
-export type Querystaginggoerli_systemInfoArgs = {
+export type Querystaginggoerli_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_systemInfosArgs = {
+export type Querystaginggoerli_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SystemInfo_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SystemInfo_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_pooledTokenArgs = {
+export type Querystaginggoerli_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_pooledTokensArgs = {
+export type Querystaginggoerli_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_PooledToken_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_PooledToken_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapArgs = {
+export type Querystaginggoerli_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapsArgs = {
+export type Querystaginggoerli_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwap_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapAddLiquidityEventArgs = {
+export type Querystaginggoerli_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapAddLiquidityEventsArgs = {
+export type Querystaginggoerli_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapRemoveLiquidityEventArgs = {
+export type Querystaginggoerli_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapRemoveLiquidityEventsArgs = {
+export type Querystaginggoerli_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapExchangeArgs = {
+export type Querystaginggoerli_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapExchangesArgs = {
+export type Querystaginggoerli_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapExchange_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapDailyVolumeArgs = {
+export type Querystaginggoerli_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapDailyVolumesArgs = {
+export type Querystaginggoerli_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapDailyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapHourlyVolumeArgs = {
+export type Querystaginggoerli_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapHourlyVolumesArgs = {
+export type Querystaginggoerli_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapHourlyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapWeeklyVolumeArgs = {
+export type Querystaginggoerli_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapWeeklyVolumesArgs = {
+export type Querystaginggoerli_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapEventArgs = {
+export type Querystaginggoerli_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_stableSwapEventsArgs = {
+export type Querystaginggoerli_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapTradeVolumeArgs = {
+export type Querystaginggoerli_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_swapTradeVolumesArgs = {
+export type Querystaginggoerli_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapTradeVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli__metaArgs = {
-  block?: InputMaybe<staginggoerli_Block_height>;
+export type Querystaginggoerli_swap__metaArgs = {
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
 };
 
-export type staginggoerli_StableSwap = {
+export type staginggoerli_swap_StableSwap = {
   id: Scalars['ID'];
   isActive?: Maybe<Scalars['Boolean']>;
-  key: Scalars['staginggoerli_Bytes'];
-  canonicalId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  key: Scalars['staginggoerli_swap_Bytes'];
+  canonicalId?: Maybe<Scalars['staginggoerli_swap_Bytes']>;
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['staginggoerli_Bytes']>;
-  lpToken?: Maybe<Scalars['staginggoerli_Bytes']>;
+  swapPool?: Maybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken?: Maybe<Scalars['staginggoerli_swap_Bytes']>;
   initialA?: Maybe<Scalars['BigInt']>;
   futureA?: Maybe<Scalars['BigInt']>;
   initialATime?: Maybe<Scalars['BigInt']>;
   futureATime?: Maybe<Scalars['BigInt']>;
   swapFee?: Maybe<Scalars['BigInt']>;
   adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<staginggoerli_PooledToken>;
+  pooledTokens: Array<staginggoerli_swap_PooledToken>;
   tokenPrecisionMultipliers: Array<Scalars['BigInt']>;
   balances: Array<Scalars['BigInt']>;
   adminFees: Array<Scalars['BigInt']>;
   virtualPrice: Scalars['BigInt'];
   invariant: Scalars['BigInt'];
   lpTokenSupply: Scalars['BigInt'];
-  events?: Maybe<Array<staginggoerli_StableSwapEvent>>;
-  exchanges?: Maybe<Array<staginggoerli_StableSwapExchange>>;
-  hourlyVolumes?: Maybe<Array<staginggoerli_SwapHourlyVolume>>;
-  dailyVolumes?: Maybe<Array<staginggoerli_SwapDailyVolume>>;
-  weeklyVolumes?: Maybe<Array<staginggoerli_SwapWeeklyVolume>>;
+  events?: Maybe<Array<staginggoerli_swap_StableSwapEvent>>;
+  exchanges?: Maybe<Array<staginggoerli_swap_StableSwapExchange>>;
+  hourlyVolumes?: Maybe<Array<staginggoerli_swap_SwapHourlyVolume>>;
+  dailyVolumes?: Maybe<Array<staginggoerli_swap_SwapDailyVolume>>;
+  weeklyVolumes?: Maybe<Array<staginggoerli_swap_SwapWeeklyVolume>>;
 };
 
 
-export type staginggoerli_StableSwappooledTokensArgs = {
+export type staginggoerli_swap_StableSwappooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_PooledToken_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_PooledToken_filter>;
 };
 
 
-export type staginggoerli_StableSwapeventsArgs = {
+export type staginggoerli_swap_StableSwapeventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapEvent_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapEvent_filter>;
 };
 
 
-export type staginggoerli_StableSwapexchangesArgs = {
+export type staginggoerli_swap_StableSwapexchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapExchange_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapExchange_filter>;
 };
 
 
-export type staginggoerli_StableSwaphourlyVolumesArgs = {
+export type staginggoerli_swap_StableSwaphourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapHourlyVolume_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_filter>;
 };
 
 
-export type staginggoerli_StableSwapdailyVolumesArgs = {
+export type staginggoerli_swap_StableSwapdailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapDailyVolume_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapDailyVolume_filter>;
 };
 
 
-export type staginggoerli_StableSwapweeklyVolumesArgs = {
+export type staginggoerli_swap_StableSwapweeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapWeeklyVolume_filter>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_filter>;
 };
 
-export type staginggoerli_StableSwapAddLiquidityEvent = staginggoerli_StableSwapEvent & {
+export type staginggoerli_swap_StableSwapAddLiquidityEvent = staginggoerli_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
-  provider: Scalars['staginggoerli_Bytes'];
+  stableSwap: staginggoerli_swap_StableSwap;
+  provider: Scalars['staginggoerli_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['staginggoerli_Bytes'];
+  transaction: Scalars['staginggoerli_swap_Bytes'];
 };
 
-export type staginggoerli_StableSwapAddLiquidityEvent_filter = {
+export type staginggoerli_swap_StableSwapAddLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -422,17 +422,17 @@ export type staginggoerli_StableSwapAddLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -477,21 +477,21 @@ export type staginggoerli_StableSwapAddLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transaction?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_StableSwapAddLiquidityEvent_orderBy =
+export type staginggoerli_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'provider'
@@ -503,15 +503,15 @@ export type staginggoerli_StableSwapAddLiquidityEvent_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type staginggoerli_StableSwapEvent = {
+export type staginggoerli_swap_StableSwapEvent = {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
+  stableSwap: staginggoerli_swap_StableSwap;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['staginggoerli_Bytes'];
+  transaction: Scalars['staginggoerli_swap_Bytes'];
 };
 
-export type staginggoerli_StableSwapEvent_filter = {
+export type staginggoerli_swap_StableSwapEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -540,7 +540,7 @@ export type staginggoerli_StableSwapEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -557,41 +557,41 @@ export type staginggoerli_StableSwapEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transaction?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_StableSwapEvent_orderBy =
+export type staginggoerli_swap_StableSwapEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'block'
   | 'timestamp'
   | 'transaction';
 
-export type staginggoerli_StableSwapExchange = {
+export type staginggoerli_swap_StableSwapExchange = {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
-  buyer: Scalars['staginggoerli_Bytes'];
+  stableSwap: staginggoerli_swap_StableSwap;
+  buyer: Scalars['staginggoerli_swap_Bytes'];
   boughtId: Scalars['BigInt'];
   tokensBought: Scalars['BigInt'];
   soldId: Scalars['BigInt'];
   tokensSold: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['staginggoerli_Bytes'];
+  transaction: Scalars['staginggoerli_swap_Bytes'];
 };
 
-export type staginggoerli_StableSwapExchange_filter = {
+export type staginggoerli_swap_StableSwapExchange_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -620,17 +620,17 @@ export type staginggoerli_StableSwapExchange_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
-  buyer?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  buyer_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  buyer_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  buyer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
+  buyer?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  buyer_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  buyer_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  buyer_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   boughtId?: InputMaybe<Scalars['BigInt']>;
   boughtId_not?: InputMaybe<Scalars['BigInt']>;
   boughtId_gt?: InputMaybe<Scalars['BigInt']>;
@@ -679,21 +679,21 @@ export type staginggoerli_StableSwapExchange_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transaction?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_StableSwapExchange_orderBy =
+export type staginggoerli_swap_StableSwapExchange_orderBy =
   | 'id'
   | 'stableSwap'
   | 'buyer'
@@ -705,20 +705,20 @@ export type staginggoerli_StableSwapExchange_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type staginggoerli_StableSwapRemoveLiquidityEvent = staginggoerli_StableSwapEvent & {
+export type staginggoerli_swap_StableSwapRemoveLiquidityEvent = staginggoerli_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
-  provider: Scalars['staginggoerli_Bytes'];
+  stableSwap: staginggoerli_swap_StableSwap;
+  provider: Scalars['staginggoerli_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['staginggoerli_Bytes'];
+  transaction: Scalars['staginggoerli_swap_Bytes'];
 };
 
-export type staginggoerli_StableSwapRemoveLiquidityEvent_filter = {
+export type staginggoerli_swap_StableSwapRemoveLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -747,17 +747,17 @@ export type staginggoerli_StableSwapRemoveLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -802,21 +802,21 @@ export type staginggoerli_StableSwapRemoveLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transaction?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_StableSwapRemoveLiquidityEvent_orderBy =
+export type staginggoerli_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'provider'
@@ -828,7 +828,7 @@ export type staginggoerli_StableSwapRemoveLiquidityEvent_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type staginggoerli_StableSwap_filter = {
+export type staginggoerli_swap_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -841,26 +841,26 @@ export type staginggoerli_StableSwap_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  key?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -869,26 +869,26 @@ export type staginggoerli_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  swapPool?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_not?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_gt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_lt?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_gte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_lte?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  lpToken_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_Bytes']>>;
+  lpToken_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
+  lpToken_not_contains?: InputMaybe<Scalars['staginggoerli_swap_Bytes']>;
   initialA?: InputMaybe<Scalars['BigInt']>;
   initialA_not?: InputMaybe<Scalars['BigInt']>;
   initialA_gt?: InputMaybe<Scalars['BigInt']>;
@@ -943,7 +943,7 @@ export type staginggoerli_StableSwap_filter = {
   pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<staginggoerli_PooledToken_filter>;
+  pooledTokens_?: InputMaybe<staginggoerli_swap_PooledToken_filter>;
   tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -986,16 +986,16 @@ export type staginggoerli_StableSwap_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  events_?: InputMaybe<staginggoerli_StableSwapEvent_filter>;
-  exchanges_?: InputMaybe<staginggoerli_StableSwapExchange_filter>;
-  hourlyVolumes_?: InputMaybe<staginggoerli_SwapHourlyVolume_filter>;
-  dailyVolumes_?: InputMaybe<staginggoerli_SwapDailyVolume_filter>;
-  weeklyVolumes_?: InputMaybe<staginggoerli_SwapWeeklyVolume_filter>;
+  events_?: InputMaybe<staginggoerli_swap_StableSwapEvent_filter>;
+  exchanges_?: InputMaybe<staginggoerli_swap_StableSwapExchange_filter>;
+  hourlyVolumes_?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_filter>;
+  dailyVolumes_?: InputMaybe<staginggoerli_swap_SwapDailyVolume_filter>;
+  weeklyVolumes_?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_StableSwap_orderBy =
+export type staginggoerli_swap_StableSwap_orderBy =
   | 'id'
   | 'isActive'
   | 'key'
@@ -1023,243 +1023,243 @@ export type staginggoerli_StableSwap_orderBy =
   | 'weeklyVolumes';
 
 export type Subscription = {
-  staginggoerli_systemInfo?: Maybe<staginggoerli_SystemInfo>;
-  staginggoerli_systemInfos: Array<staginggoerli_SystemInfo>;
-  staginggoerli_pooledToken?: Maybe<staginggoerli_PooledToken>;
-  staginggoerli_pooledTokens: Array<staginggoerli_PooledToken>;
-  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
-  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
-  staginggoerli_stableSwapAddLiquidityEvent?: Maybe<staginggoerli_StableSwapAddLiquidityEvent>;
-  staginggoerli_stableSwapAddLiquidityEvents: Array<staginggoerli_StableSwapAddLiquidityEvent>;
-  staginggoerli_stableSwapRemoveLiquidityEvent?: Maybe<staginggoerli_StableSwapRemoveLiquidityEvent>;
-  staginggoerli_stableSwapRemoveLiquidityEvents: Array<staginggoerli_StableSwapRemoveLiquidityEvent>;
-  staginggoerli_stableSwapExchange?: Maybe<staginggoerli_StableSwapExchange>;
-  staginggoerli_stableSwapExchanges: Array<staginggoerli_StableSwapExchange>;
-  staginggoerli_swapDailyVolume?: Maybe<staginggoerli_SwapDailyVolume>;
-  staginggoerli_swapDailyVolumes: Array<staginggoerli_SwapDailyVolume>;
-  staginggoerli_swapHourlyVolume?: Maybe<staginggoerli_SwapHourlyVolume>;
-  staginggoerli_swapHourlyVolumes: Array<staginggoerli_SwapHourlyVolume>;
-  staginggoerli_swapWeeklyVolume?: Maybe<staginggoerli_SwapWeeklyVolume>;
-  staginggoerli_swapWeeklyVolumes: Array<staginggoerli_SwapWeeklyVolume>;
-  staginggoerli_stableSwapEvent?: Maybe<staginggoerli_StableSwapEvent>;
-  staginggoerli_stableSwapEvents: Array<staginggoerli_StableSwapEvent>;
-  staginggoerli_swapTradeVolume?: Maybe<staginggoerli_SwapTradeVolume>;
-  staginggoerli_swapTradeVolumes: Array<staginggoerli_SwapTradeVolume>;
+  staginggoerli_swap_systemInfo?: Maybe<staginggoerli_swap_SystemInfo>;
+  staginggoerli_swap_systemInfos: Array<staginggoerli_swap_SystemInfo>;
+  staginggoerli_swap_pooledToken?: Maybe<staginggoerli_swap_PooledToken>;
+  staginggoerli_swap_pooledTokens: Array<staginggoerli_swap_PooledToken>;
+  staginggoerli_swap_stableSwap?: Maybe<staginggoerli_swap_StableSwap>;
+  staginggoerli_swap_stableSwaps: Array<staginggoerli_swap_StableSwap>;
+  staginggoerli_swap_stableSwapAddLiquidityEvent?: Maybe<staginggoerli_swap_StableSwapAddLiquidityEvent>;
+  staginggoerli_swap_stableSwapAddLiquidityEvents: Array<staginggoerli_swap_StableSwapAddLiquidityEvent>;
+  staginggoerli_swap_stableSwapRemoveLiquidityEvent?: Maybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent>;
+  staginggoerli_swap_stableSwapRemoveLiquidityEvents: Array<staginggoerli_swap_StableSwapRemoveLiquidityEvent>;
+  staginggoerli_swap_stableSwapExchange?: Maybe<staginggoerli_swap_StableSwapExchange>;
+  staginggoerli_swap_stableSwapExchanges: Array<staginggoerli_swap_StableSwapExchange>;
+  staginggoerli_swap_swapDailyVolume?: Maybe<staginggoerli_swap_SwapDailyVolume>;
+  staginggoerli_swap_swapDailyVolumes: Array<staginggoerli_swap_SwapDailyVolume>;
+  staginggoerli_swap_swapHourlyVolume?: Maybe<staginggoerli_swap_SwapHourlyVolume>;
+  staginggoerli_swap_swapHourlyVolumes: Array<staginggoerli_swap_SwapHourlyVolume>;
+  staginggoerli_swap_swapWeeklyVolume?: Maybe<staginggoerli_swap_SwapWeeklyVolume>;
+  staginggoerli_swap_swapWeeklyVolumes: Array<staginggoerli_swap_SwapWeeklyVolume>;
+  staginggoerli_swap_stableSwapEvent?: Maybe<staginggoerli_swap_StableSwapEvent>;
+  staginggoerli_swap_stableSwapEvents: Array<staginggoerli_swap_StableSwapEvent>;
+  staginggoerli_swap_swapTradeVolume?: Maybe<staginggoerli_swap_SwapTradeVolume>;
+  staginggoerli_swap_swapTradeVolumes: Array<staginggoerli_swap_SwapTradeVolume>;
   /** Access to subgraph metadata */
-  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
+  staginggoerli_swap__meta?: Maybe<staginggoerli_swap__Meta_>;
 };
 
 
-export type Subscriptionstaginggoerli_systemInfoArgs = {
+export type Subscriptionstaginggoerli_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_systemInfosArgs = {
+export type Subscriptionstaginggoerli_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SystemInfo_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SystemInfo_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_pooledTokenArgs = {
+export type Subscriptionstaginggoerli_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_pooledTokensArgs = {
+export type Subscriptionstaginggoerli_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_PooledToken_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_PooledToken_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapsArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwap_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapAddLiquidityEventArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapAddLiquidityEventsArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapRemoveLiquidityEventArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapRemoveLiquidityEventsArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapExchangeArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapExchangesArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapExchange_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapDailyVolumeArgs = {
+export type Subscriptionstaginggoerli_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapDailyVolumesArgs = {
+export type Subscriptionstaginggoerli_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapDailyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapHourlyVolumeArgs = {
+export type Subscriptionstaginggoerli_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapHourlyVolumesArgs = {
+export type Subscriptionstaginggoerli_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapHourlyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapWeeklyVolumeArgs = {
+export type Subscriptionstaginggoerli_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapWeeklyVolumesArgs = {
+export type Subscriptionstaginggoerli_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapEventArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_stableSwapEventsArgs = {
+export type Subscriptionstaginggoerli_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwapEvent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapTradeVolumeArgs = {
+export type Subscriptionstaginggoerli_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_swapTradeVolumesArgs = {
+export type Subscriptionstaginggoerli_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SwapTradeVolume_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
+  orderBy?: InputMaybe<staginggoerli_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_swap_OrderDirection>;
+  where?: InputMaybe<staginggoerli_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli__metaArgs = {
-  block?: InputMaybe<staginggoerli_Block_height>;
+export type Subscriptionstaginggoerli_swap__metaArgs = {
+  block?: InputMaybe<staginggoerli_swap_Block_height>;
 };
 
-export type staginggoerli_SwapDailyVolume = staginggoerli_SwapTradeVolume & {
+export type staginggoerli_swap_SwapDailyVolume = staginggoerli_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
+  stableSwap: staginggoerli_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['staginggoerli_BigDecimal'];
+  volume: Scalars['staginggoerli_swap_BigDecimal'];
 };
 
-export type staginggoerli_SwapDailyVolume_filter = {
+export type staginggoerli_swap_SwapDailyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1288,7 +1288,7 @@ export type staginggoerli_SwapDailyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1297,32 +1297,32 @@ export type staginggoerli_SwapDailyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_SwapDailyVolume_orderBy =
+export type staginggoerli_swap_SwapDailyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type staginggoerli_SwapHourlyVolume = staginggoerli_SwapTradeVolume & {
+export type staginggoerli_swap_SwapHourlyVolume = staginggoerli_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
+  stableSwap: staginggoerli_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['staginggoerli_BigDecimal'];
+  volume: Scalars['staginggoerli_swap_BigDecimal'];
 };
 
-export type staginggoerli_SwapHourlyVolume_filter = {
+export type staginggoerli_swap_SwapHourlyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1351,7 +1351,7 @@ export type staginggoerli_SwapHourlyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1360,31 +1360,31 @@ export type staginggoerli_SwapHourlyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_SwapHourlyVolume_orderBy =
+export type staginggoerli_swap_SwapHourlyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type staginggoerli_SwapTradeVolume = {
-  stableSwap: staginggoerli_StableSwap;
+export type staginggoerli_swap_SwapTradeVolume = {
+  stableSwap: staginggoerli_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['staginggoerli_BigDecimal'];
+  volume: Scalars['staginggoerli_swap_BigDecimal'];
 };
 
-export type staginggoerli_SwapTradeVolume_filter = {
+export type staginggoerli_swap_SwapTradeVolume_filter = {
   stableSwap?: InputMaybe<Scalars['String']>;
   stableSwap_not?: InputMaybe<Scalars['String']>;
   stableSwap_gt?: InputMaybe<Scalars['String']>;
@@ -1405,7 +1405,7 @@ export type staginggoerli_SwapTradeVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1414,31 +1414,31 @@ export type staginggoerli_SwapTradeVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_SwapTradeVolume_orderBy =
+export type staginggoerli_swap_SwapTradeVolume_orderBy =
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type staginggoerli_SwapWeeklyVolume = staginggoerli_SwapTradeVolume & {
+export type staginggoerli_swap_SwapWeeklyVolume = staginggoerli_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: staginggoerli_StableSwap;
+  stableSwap: staginggoerli_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['staginggoerli_BigDecimal'];
+  volume: Scalars['staginggoerli_swap_BigDecimal'];
 };
 
-export type staginggoerli_SwapWeeklyVolume_filter = {
+export type staginggoerli_swap_SwapWeeklyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1467,7 +1467,7 @@ export type staginggoerli_SwapWeeklyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<staginggoerli_StableSwap_filter>;
+  stableSwap_?: InputMaybe<staginggoerli_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1476,31 +1476,31 @@ export type staginggoerli_SwapWeeklyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['staginggoerli_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['staginggoerli_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_SwapWeeklyVolume_orderBy =
+export type staginggoerli_swap_SwapWeeklyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type staginggoerli_SystemInfo = {
+export type staginggoerli_swap_SystemInfo = {
   id: Scalars['ID'];
   exchangeCount: Scalars['BigInt'];
   swapCount: Scalars['BigInt'];
 };
 
-export type staginggoerli_SystemInfo_filter = {
+export type staginggoerli_swap_SystemInfo_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1526,17 +1526,17 @@ export type staginggoerli_SystemInfo_filter = {
   swapCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   swapCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<staginggoerli_swap_BlockChangedFilter>;
 };
 
-export type staginggoerli_SystemInfo_orderBy =
+export type staginggoerli_swap_SystemInfo_orderBy =
   | 'id'
   | 'exchangeCount'
   | 'swapCount';
 
-export type staginggoerli__Block_ = {
+export type staginggoerli_swap__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  hash?: Maybe<Scalars['staginggoerli_swap_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
@@ -1544,7 +1544,7 @@ export type staginggoerli__Block_ = {
 };
 
 /** The type for the top-level _meta field */
-export type staginggoerli__Meta_ = {
+export type staginggoerli_swap__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -1552,7 +1552,7 @@ export type staginggoerli__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: staginggoerli__Block_;
+  block: staginggoerli_swap__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -1567,51 +1567,51 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  staginggoerli_systemInfo: InContextSdkMethod<Query['staginggoerli_systemInfo'], Querystaginggoerli_systemInfoArgs, MeshContext>,
+  staginggoerli_swap_systemInfo: InContextSdkMethod<Query['staginggoerli_swap_systemInfo'], Querystaginggoerli_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  staginggoerli_systemInfos: InContextSdkMethod<Query['staginggoerli_systemInfos'], Querystaginggoerli_systemInfosArgs, MeshContext>,
+  staginggoerli_swap_systemInfos: InContextSdkMethod<Query['staginggoerli_swap_systemInfos'], Querystaginggoerli_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  staginggoerli_pooledToken: InContextSdkMethod<Query['staginggoerli_pooledToken'], Querystaginggoerli_pooledTokenArgs, MeshContext>,
+  staginggoerli_swap_pooledToken: InContextSdkMethod<Query['staginggoerli_swap_pooledToken'], Querystaginggoerli_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  staginggoerli_pooledTokens: InContextSdkMethod<Query['staginggoerli_pooledTokens'], Querystaginggoerli_pooledTokensArgs, MeshContext>,
+  staginggoerli_swap_pooledTokens: InContextSdkMethod<Query['staginggoerli_swap_pooledTokens'], Querystaginggoerli_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwap: InContextSdkMethod<Query['staginggoerli_stableSwap'], Querystaginggoerli_stableSwapArgs, MeshContext>,
+  staginggoerli_swap_stableSwap: InContextSdkMethod<Query['staginggoerli_swap_stableSwap'], Querystaginggoerli_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwaps: InContextSdkMethod<Query['staginggoerli_stableSwaps'], Querystaginggoerli_stableSwapsArgs, MeshContext>,
+  staginggoerli_swap_stableSwaps: InContextSdkMethod<Query['staginggoerli_swap_stableSwaps'], Querystaginggoerli_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['staginggoerli_stableSwapAddLiquidityEvent'], Querystaginggoerli_stableSwapAddLiquidityEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['staginggoerli_swap_stableSwapAddLiquidityEvent'], Querystaginggoerli_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['staginggoerli_stableSwapAddLiquidityEvents'], Querystaginggoerli_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['staginggoerli_swap_stableSwapAddLiquidityEvents'], Querystaginggoerli_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['staginggoerli_stableSwapRemoveLiquidityEvent'], Querystaginggoerli_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['staginggoerli_swap_stableSwapRemoveLiquidityEvent'], Querystaginggoerli_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['staginggoerli_stableSwapRemoveLiquidityEvents'], Querystaginggoerli_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['staginggoerli_swap_stableSwapRemoveLiquidityEvents'], Querystaginggoerli_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapExchange: InContextSdkMethod<Query['staginggoerli_stableSwapExchange'], Querystaginggoerli_stableSwapExchangeArgs, MeshContext>,
+  staginggoerli_swap_stableSwapExchange: InContextSdkMethod<Query['staginggoerli_swap_stableSwapExchange'], Querystaginggoerli_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapExchanges: InContextSdkMethod<Query['staginggoerli_stableSwapExchanges'], Querystaginggoerli_stableSwapExchangesArgs, MeshContext>,
+  staginggoerli_swap_stableSwapExchanges: InContextSdkMethod<Query['staginggoerli_swap_stableSwapExchanges'], Querystaginggoerli_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapDailyVolume: InContextSdkMethod<Query['staginggoerli_swapDailyVolume'], Querystaginggoerli_swapDailyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapDailyVolume: InContextSdkMethod<Query['staginggoerli_swap_swapDailyVolume'], Querystaginggoerli_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapDailyVolumes: InContextSdkMethod<Query['staginggoerli_swapDailyVolumes'], Querystaginggoerli_swapDailyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapDailyVolumes: InContextSdkMethod<Query['staginggoerli_swap_swapDailyVolumes'], Querystaginggoerli_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapHourlyVolume: InContextSdkMethod<Query['staginggoerli_swapHourlyVolume'], Querystaginggoerli_swapHourlyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapHourlyVolume: InContextSdkMethod<Query['staginggoerli_swap_swapHourlyVolume'], Querystaginggoerli_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapHourlyVolumes: InContextSdkMethod<Query['staginggoerli_swapHourlyVolumes'], Querystaginggoerli_swapHourlyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapHourlyVolumes: InContextSdkMethod<Query['staginggoerli_swap_swapHourlyVolumes'], Querystaginggoerli_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapWeeklyVolume: InContextSdkMethod<Query['staginggoerli_swapWeeklyVolume'], Querystaginggoerli_swapWeeklyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapWeeklyVolume: InContextSdkMethod<Query['staginggoerli_swap_swapWeeklyVolume'], Querystaginggoerli_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapWeeklyVolumes: InContextSdkMethod<Query['staginggoerli_swapWeeklyVolumes'], Querystaginggoerli_swapWeeklyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapWeeklyVolumes: InContextSdkMethod<Query['staginggoerli_swap_swapWeeklyVolumes'], Querystaginggoerli_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapEvent: InContextSdkMethod<Query['staginggoerli_stableSwapEvent'], Querystaginggoerli_stableSwapEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapEvent: InContextSdkMethod<Query['staginggoerli_swap_stableSwapEvent'], Querystaginggoerli_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapEvents: InContextSdkMethod<Query['staginggoerli_stableSwapEvents'], Querystaginggoerli_stableSwapEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapEvents: InContextSdkMethod<Query['staginggoerli_swap_stableSwapEvents'], Querystaginggoerli_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapTradeVolume: InContextSdkMethod<Query['staginggoerli_swapTradeVolume'], Querystaginggoerli_swapTradeVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapTradeVolume: InContextSdkMethod<Query['staginggoerli_swap_swapTradeVolume'], Querystaginggoerli_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapTradeVolumes: InContextSdkMethod<Query['staginggoerli_swapTradeVolumes'], Querystaginggoerli_swapTradeVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapTradeVolumes: InContextSdkMethod<Query['staginggoerli_swap_swapTradeVolumes'], Querystaginggoerli_swap_swapTradeVolumesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerli__meta: InContextSdkMethod<Query['staginggoerli__meta'], Querystaginggoerli__metaArgs, MeshContext>
+  staginggoerli_swap__meta: InContextSdkMethod<Query['staginggoerli_swap__meta'], Querystaginggoerli_swap__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -1620,51 +1620,51 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  staginggoerli_systemInfo: InContextSdkMethod<Subscription['staginggoerli_systemInfo'], Subscriptionstaginggoerli_systemInfoArgs, MeshContext>,
+  staginggoerli_swap_systemInfo: InContextSdkMethod<Subscription['staginggoerli_swap_systemInfo'], Subscriptionstaginggoerli_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  staginggoerli_systemInfos: InContextSdkMethod<Subscription['staginggoerli_systemInfos'], Subscriptionstaginggoerli_systemInfosArgs, MeshContext>,
+  staginggoerli_swap_systemInfos: InContextSdkMethod<Subscription['staginggoerli_swap_systemInfos'], Subscriptionstaginggoerli_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  staginggoerli_pooledToken: InContextSdkMethod<Subscription['staginggoerli_pooledToken'], Subscriptionstaginggoerli_pooledTokenArgs, MeshContext>,
+  staginggoerli_swap_pooledToken: InContextSdkMethod<Subscription['staginggoerli_swap_pooledToken'], Subscriptionstaginggoerli_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  staginggoerli_pooledTokens: InContextSdkMethod<Subscription['staginggoerli_pooledTokens'], Subscriptionstaginggoerli_pooledTokensArgs, MeshContext>,
+  staginggoerli_swap_pooledTokens: InContextSdkMethod<Subscription['staginggoerli_swap_pooledTokens'], Subscriptionstaginggoerli_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwap: InContextSdkMethod<Subscription['staginggoerli_stableSwap'], Subscriptionstaginggoerli_stableSwapArgs, MeshContext>,
+  staginggoerli_swap_stableSwap: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwap'], Subscriptionstaginggoerli_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwaps: InContextSdkMethod<Subscription['staginggoerli_stableSwaps'], Subscriptionstaginggoerli_stableSwapsArgs, MeshContext>,
+  staginggoerli_swap_stableSwaps: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwaps'], Subscriptionstaginggoerli_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['staginggoerli_stableSwapAddLiquidityEvent'], Subscriptionstaginggoerli_stableSwapAddLiquidityEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapAddLiquidityEvent'], Subscriptionstaginggoerli_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['staginggoerli_stableSwapAddLiquidityEvents'], Subscriptionstaginggoerli_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapAddLiquidityEvents'], Subscriptionstaginggoerli_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['staginggoerli_stableSwapRemoveLiquidityEvent'], Subscriptionstaginggoerli_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapRemoveLiquidityEvent'], Subscriptionstaginggoerli_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['staginggoerli_stableSwapRemoveLiquidityEvents'], Subscriptionstaginggoerli_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapRemoveLiquidityEvents'], Subscriptionstaginggoerli_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapExchange: InContextSdkMethod<Subscription['staginggoerli_stableSwapExchange'], Subscriptionstaginggoerli_stableSwapExchangeArgs, MeshContext>,
+  staginggoerli_swap_stableSwapExchange: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapExchange'], Subscriptionstaginggoerli_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapExchanges: InContextSdkMethod<Subscription['staginggoerli_stableSwapExchanges'], Subscriptionstaginggoerli_stableSwapExchangesArgs, MeshContext>,
+  staginggoerli_swap_stableSwapExchanges: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapExchanges'], Subscriptionstaginggoerli_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapDailyVolume: InContextSdkMethod<Subscription['staginggoerli_swapDailyVolume'], Subscriptionstaginggoerli_swapDailyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapDailyVolume: InContextSdkMethod<Subscription['staginggoerli_swap_swapDailyVolume'], Subscriptionstaginggoerli_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapDailyVolumes: InContextSdkMethod<Subscription['staginggoerli_swapDailyVolumes'], Subscriptionstaginggoerli_swapDailyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapDailyVolumes: InContextSdkMethod<Subscription['staginggoerli_swap_swapDailyVolumes'], Subscriptionstaginggoerli_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapHourlyVolume: InContextSdkMethod<Subscription['staginggoerli_swapHourlyVolume'], Subscriptionstaginggoerli_swapHourlyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapHourlyVolume: InContextSdkMethod<Subscription['staginggoerli_swap_swapHourlyVolume'], Subscriptionstaginggoerli_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapHourlyVolumes: InContextSdkMethod<Subscription['staginggoerli_swapHourlyVolumes'], Subscriptionstaginggoerli_swapHourlyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapHourlyVolumes: InContextSdkMethod<Subscription['staginggoerli_swap_swapHourlyVolumes'], Subscriptionstaginggoerli_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapWeeklyVolume: InContextSdkMethod<Subscription['staginggoerli_swapWeeklyVolume'], Subscriptionstaginggoerli_swapWeeklyVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapWeeklyVolume: InContextSdkMethod<Subscription['staginggoerli_swap_swapWeeklyVolume'], Subscriptionstaginggoerli_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapWeeklyVolumes: InContextSdkMethod<Subscription['staginggoerli_swapWeeklyVolumes'], Subscriptionstaginggoerli_swapWeeklyVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['staginggoerli_swap_swapWeeklyVolumes'], Subscriptionstaginggoerli_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapEvent: InContextSdkMethod<Subscription['staginggoerli_stableSwapEvent'], Subscriptionstaginggoerli_stableSwapEventArgs, MeshContext>,
+  staginggoerli_swap_stableSwapEvent: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapEvent'], Subscriptionstaginggoerli_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  staginggoerli_stableSwapEvents: InContextSdkMethod<Subscription['staginggoerli_stableSwapEvents'], Subscriptionstaginggoerli_stableSwapEventsArgs, MeshContext>,
+  staginggoerli_swap_stableSwapEvents: InContextSdkMethod<Subscription['staginggoerli_swap_stableSwapEvents'], Subscriptionstaginggoerli_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapTradeVolume: InContextSdkMethod<Subscription['staginggoerli_swapTradeVolume'], Subscriptionstaginggoerli_swapTradeVolumeArgs, MeshContext>,
+  staginggoerli_swap_swapTradeVolume: InContextSdkMethod<Subscription['staginggoerli_swap_swapTradeVolume'], Subscriptionstaginggoerli_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  staginggoerli_swapTradeVolumes: InContextSdkMethod<Subscription['staginggoerli_swapTradeVolumes'], Subscriptionstaginggoerli_swapTradeVolumesArgs, MeshContext>,
+  staginggoerli_swap_swapTradeVolumes: InContextSdkMethod<Subscription['staginggoerli_swap_swapTradeVolumes'], Subscriptionstaginggoerli_swap_swapTradeVolumesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  staginggoerli__meta: InContextSdkMethod<Subscription['staginggoerli__meta'], Subscriptionstaginggoerli__metaArgs, MeshContext>
+  staginggoerli_swap__meta: InContextSdkMethod<Subscription['staginggoerli_swap__meta'], Subscriptionstaginggoerli_swap__metaArgs, MeshContext>
   };
 
   export type Context = {
