@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.23
+
+- [sdk] bug fixes
+- [adapter-subgraph] fixes at graph client
+
 ## Amarok 0.2.1-rc.22
 
 - [sdk] enhancement at latency and rpc calls for stable swap data request
