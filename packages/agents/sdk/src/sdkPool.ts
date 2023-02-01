@@ -1088,6 +1088,8 @@ export class SdkPool extends SdkShared {
       days: number = 1,
     ): Promise<
       | {
+          fees: number;
+          liquidity: number;
           apr: number;
           apy: number;
           volume: BigNumber;
@@ -1106,14 +1108,16 @@ export class SdkPool extends SdkShared {
       if (yieldStats) {
         const {
           totalFeesFormatted: feesEarnedToday,
-          totalLiquidityFormatted: totalLiquidityToday,
+          totalLiquidityFormatted: totalLiquidity,
           totalVolume,
           totalVolumeFormatted,
         } = yieldStats;
 
-        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidityToday, days);
+        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidity, days);
 
         return {
+          fees: feesEarnedToday,
+          liquidity: totalLiquidity,
           apr: Math.max(apr, 0),
           apy: Math.max(apy, 0),
           volume: totalVolume,
