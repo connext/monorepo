@@ -181,7 +181,7 @@ export const gelatoSDKSend = async (
 const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
   switch (chainId) {
     case 42161: {
-      return "10000000";
+      return "20000000";
     }
     default: {
       return "6000000";
