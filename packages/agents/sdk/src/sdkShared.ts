@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  getCanonicalHash,
+  formatUrl,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
@@ -175,22 +182,37 @@ export class SdkShared {
    * Returns the transaction request for an allowance permit approval.
    *
    * @param domainId - The domain ID.
-   * @param holder - The account which allows the `connext` contract to transfer tokens from
    * @param assetId - The address of the token.
    * @param amount - The amount of the token.
    * @param deadline - The expiry time for permit approval
    * @param infiniteApprove - (optional) Whether to approve an infinite amount.
    * @returns providers.TransactionRequest object.
    */
-  async permit(
+  async generateSignatureForPermitApproval(
     domainId: string,
-    holder: string,
     assetId: string,
     amount: string,
     deadline?: number,
-    infiniteApprove = true,
+    infiniteApprove = false,
   ): Promise<providers.TransactionRequest | undefined> {
-    throw new Error("Not implemented yet");
+    const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
+
+    const signerAddress = this.config.signerAddress;
+    this.logger.info("Method start", requestContext, methodContext, {
+      domainId,
+      assetId,
+      amount,
+      deadline: deadline ?? getNtpTimeSeconds(),
+      signerAddress,
+      infiniteApprove,
+    });
+
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const connextContract = await this.getConnext(domainId);
+    const erc20Contract = await this.getERC20(domainId, assetId);
   }
 
   /**
