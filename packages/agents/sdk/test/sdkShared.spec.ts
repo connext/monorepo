@@ -16,7 +16,7 @@ import { constants, providers, BigNumber, utils, Contract } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
+import { ChainDataUndefined, ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
 import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/smart-contracts";
 
 import * as ConfigFns from "../src/config";
@@ -89,6 +89,17 @@ describe("SdkShared", () => {
       (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
       const connext = await sdkShared.getSupported();
       expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#getDeploymentAddress", () => {
+    it("happy: should work", async () => {
+      const connext = await sdkShared.getDeploymentAddress(mock.domain.A, "connext");
+      expect(connext).to.not.be.undefined;
+    });
+
+    it("failed if not exist", async () => {
+      await expect(sdkShared.getDeploymentAddress("0", "connext")).to.be.rejectedWith(ContractAddressMissing);
     });
   });
 
@@ -192,6 +203,14 @@ describe("SdkShared", () => {
       });
       const res = sdkShared.parseConnextTransactionReceipt(transactionReceipt);
       expect(res).to.not.be.undefined;
+    });
+  });
+
+  describe("#getSupported", () => {
+    it("happy: should work", async () => {
+      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
+      const connext = await sdkShared.getSupported();
+      expect(connext).to.not.be.undefined;
     });
   });
 });
