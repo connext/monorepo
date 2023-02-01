@@ -39,12 +39,34 @@ describe("SdkPool", () => {
 
   const mockPool: Pool = {
     domainId: mock.domain.A,
-    name: `TSTA-Pool`,
-    symbol: `TSTA-TSTA`,
+    name: "TSTB Pool",
+    symbol: "TSTB-TSTA",
     local: localAsset,
     adopted: adoptedAsset,
-    lpTokenAddress: utils.formatBytes32String("1337"),
+    lpTokenAddress: utils.formatBytes32String("asdf"),
     canonicalHash: utils.formatBytes32String("13337"),
+    swapFee: "4000000",
+    adminFee: "0",
+  };
+
+  const mockPoolData = {
+    key: utils.formatBytes32String("13337"),
+    domain: mock.domain.A,
+    is_active: true,
+    lp_token: utils.formatBytes32String("asdf"),
+    initial_a: 20000,
+    future_a: 20000,
+    initial_a_time: 0,
+    future_a_time: 0,
+    swap_fee: "4000000",
+    admin_fee: "0",
+    pooled_tokens: [mockPool.local.address, mockPool.adopted.address],
+    token_precision_multipliers: ["1", "1"],
+    pool_token_decimals: [18, 18],
+    balances: [BigNumber.from("100"), BigNumber.from("100")],
+    virtual_price: BigNumber.from("100"),
+    invariant: BigNumber.from("100"),
+    lp_token_supply: BigNumber.from("100"),
   };
 
   const mockAssetData = {
@@ -101,6 +123,7 @@ describe("SdkPool", () => {
       expect(sdkPool.getRepresentation).to.be.a("function");
       expect(sdkPool.getAdopted).to.be.a("function");
       expect(sdkPool.getTokenSwapEvents).to.be.a("function");
+      expect(sdkPool.getPoolData).to.be.a("function");
 
       expect(sdkPool.addLiquidity).to.be.a("function");
       expect(sdkPool.removeLiquidity).to.be.a("function");
@@ -237,29 +260,8 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work", async () => {
-      stub(sdkPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(sdkPool, "getRepresentation").resolves(mockPool.local.address);
-      stub(sdkPool, "getAdopted").resolves(mockPool.adopted.address);
-      stub(sdkPool, "getLPTokenAddress").resolves(mockPool.lpTokenAddress);
-      stub(sdkPool, "getPoolTokenBalance").resolves(localAsset.balance);
-      stub(sdkPool, "getPoolTokenIndex").resolves(0);
-
-      const provider = providers.getDefaultProvider();
-      const connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
-      const mockERC20 = {
-        symbol: function () {
-          return "TSTA";
-        },
-        name: function () {
-          return "Test A";
-        },
-        decimals: function () {
-          return 18;
-        },
-      };
-
-      stub(sdkPool, "getConnext").resolves(connextContract as Connext);
-      stub(sdkPool, "getERC20").resolves(mockERC20 as any);
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData, mockAssetData]);
+      stub(sdkPool, "getPoolData").resolves([mockPoolData]);
 
       const res = await sdkPool.getPool(mockPool.domainId, mockPool.local.address);
 
