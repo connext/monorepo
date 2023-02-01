@@ -894,7 +894,7 @@ export class SdkPool extends SdkShared {
 
       // Fetch pool data
       const poolDataResults = await this.getPoolData({ key: asset.key, domainId: domainId });
-      if (!poolDataResults) {
+      if (!poolDataResults || poolDataResults.length == 0) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
@@ -1027,7 +1027,7 @@ export class SdkPool extends SdkShared {
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
       for (const volumeData of hourlyVolumes) {
-        totalVolume = totalVolume.add(utils.parseEther(String(volumeData.volume)));
+        totalVolume = totalVolume.add(utils.parseEther(Number(volumeData.volume).toFixed(18)));
       }
       totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
 
@@ -1088,6 +1088,8 @@ export class SdkPool extends SdkShared {
       days: number = 1,
     ): Promise<
       | {
+          fees: number;
+          liquidity: number;
           apr: number;
           apy: number;
           volume: BigNumber;
@@ -1106,14 +1108,16 @@ export class SdkPool extends SdkShared {
       if (yieldStats) {
         const {
           totalFeesFormatted: feesEarnedToday,
-          totalLiquidityFormatted: totalLiquidityToday,
+          totalLiquidityFormatted: totalLiquidity,
           totalVolume,
           totalVolumeFormatted,
         } = yieldStats;
 
-        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidityToday, days);
+        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidity, days);
 
         return {
+          fees: feesEarnedToday,
+          liquidity: totalLiquidity,
           apr: Math.max(apr, 0),
           apy: Math.max(apy, 0),
           volume: totalVolume,
