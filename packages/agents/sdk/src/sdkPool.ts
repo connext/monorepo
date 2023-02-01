@@ -1027,7 +1027,7 @@ export class SdkPool extends SdkShared {
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
       for (const volumeData of hourlyVolumes) {
-        totalVolume = totalVolume.add(utils.parseEther(String(volumeData.volume)));
+        totalVolume = totalVolume.add(utils.parseEther(Number(volumeData.volume).toFixed(18)));
       }
       totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
 
