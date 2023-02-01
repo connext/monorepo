@@ -16,32 +16,32 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  xdai_BigDecimal: any;
+  xdai_swap_BigDecimal: any;
   BigInt: any;
-  xdai_Bytes: any;
+  xdai_swap_Bytes: any;
 };
 
-export type xdai_BlockChangedFilter = {
+export type xdai_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type xdai_Block_height = {
-  hash?: InputMaybe<Scalars['xdai_Bytes']>;
+export type xdai_swap_Block_height = {
+  hash?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /** Defines the order direction, either ascending or descending */
-export type xdai_OrderDirection =
+export type xdai_swap_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type xdai_PooledToken = {
+export type xdai_swap_PooledToken = {
   id: Scalars['ID'];
-  asset: Scalars['xdai_Bytes'];
+  asset: Scalars['xdai_swap_Bytes'];
 };
 
-export type xdai_PooledToken_filter = {
+export type xdai_swap_PooledToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -50,350 +50,350 @@ export type xdai_PooledToken_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_PooledToken_orderBy =
+export type xdai_swap_PooledToken_orderBy =
   | 'id'
   | 'asset';
 
 export type Query = {
-  xdai_systemInfo?: Maybe<xdai_SystemInfo>;
-  xdai_systemInfos: Array<xdai_SystemInfo>;
-  xdai_pooledToken?: Maybe<xdai_PooledToken>;
-  xdai_pooledTokens: Array<xdai_PooledToken>;
-  xdai_stableSwap?: Maybe<xdai_StableSwap>;
-  xdai_stableSwaps: Array<xdai_StableSwap>;
-  xdai_stableSwapAddLiquidityEvent?: Maybe<xdai_StableSwapAddLiquidityEvent>;
-  xdai_stableSwapAddLiquidityEvents: Array<xdai_StableSwapAddLiquidityEvent>;
-  xdai_stableSwapRemoveLiquidityEvent?: Maybe<xdai_StableSwapRemoveLiquidityEvent>;
-  xdai_stableSwapRemoveLiquidityEvents: Array<xdai_StableSwapRemoveLiquidityEvent>;
-  xdai_stableSwapExchange?: Maybe<xdai_StableSwapExchange>;
-  xdai_stableSwapExchanges: Array<xdai_StableSwapExchange>;
-  xdai_swapDailyVolume?: Maybe<xdai_SwapDailyVolume>;
-  xdai_swapDailyVolumes: Array<xdai_SwapDailyVolume>;
-  xdai_swapHourlyVolume?: Maybe<xdai_SwapHourlyVolume>;
-  xdai_swapHourlyVolumes: Array<xdai_SwapHourlyVolume>;
-  xdai_swapWeeklyVolume?: Maybe<xdai_SwapWeeklyVolume>;
-  xdai_swapWeeklyVolumes: Array<xdai_SwapWeeklyVolume>;
-  xdai_stableSwapEvent?: Maybe<xdai_StableSwapEvent>;
-  xdai_stableSwapEvents: Array<xdai_StableSwapEvent>;
-  xdai_swapTradeVolume?: Maybe<xdai_SwapTradeVolume>;
-  xdai_swapTradeVolumes: Array<xdai_SwapTradeVolume>;
+  xdai_swap_systemInfo?: Maybe<xdai_swap_SystemInfo>;
+  xdai_swap_systemInfos: Array<xdai_swap_SystemInfo>;
+  xdai_swap_pooledToken?: Maybe<xdai_swap_PooledToken>;
+  xdai_swap_pooledTokens: Array<xdai_swap_PooledToken>;
+  xdai_swap_stableSwap?: Maybe<xdai_swap_StableSwap>;
+  xdai_swap_stableSwaps: Array<xdai_swap_StableSwap>;
+  xdai_swap_stableSwapAddLiquidityEvent?: Maybe<xdai_swap_StableSwapAddLiquidityEvent>;
+  xdai_swap_stableSwapAddLiquidityEvents: Array<xdai_swap_StableSwapAddLiquidityEvent>;
+  xdai_swap_stableSwapRemoveLiquidityEvent?: Maybe<xdai_swap_StableSwapRemoveLiquidityEvent>;
+  xdai_swap_stableSwapRemoveLiquidityEvents: Array<xdai_swap_StableSwapRemoveLiquidityEvent>;
+  xdai_swap_stableSwapExchange?: Maybe<xdai_swap_StableSwapExchange>;
+  xdai_swap_stableSwapExchanges: Array<xdai_swap_StableSwapExchange>;
+  xdai_swap_swapDailyVolume?: Maybe<xdai_swap_SwapDailyVolume>;
+  xdai_swap_swapDailyVolumes: Array<xdai_swap_SwapDailyVolume>;
+  xdai_swap_swapHourlyVolume?: Maybe<xdai_swap_SwapHourlyVolume>;
+  xdai_swap_swapHourlyVolumes: Array<xdai_swap_SwapHourlyVolume>;
+  xdai_swap_swapWeeklyVolume?: Maybe<xdai_swap_SwapWeeklyVolume>;
+  xdai_swap_swapWeeklyVolumes: Array<xdai_swap_SwapWeeklyVolume>;
+  xdai_swap_stableSwapEvent?: Maybe<xdai_swap_StableSwapEvent>;
+  xdai_swap_stableSwapEvents: Array<xdai_swap_StableSwapEvent>;
+  xdai_swap_swapTradeVolume?: Maybe<xdai_swap_SwapTradeVolume>;
+  xdai_swap_swapTradeVolumes: Array<xdai_swap_SwapTradeVolume>;
   /** Access to subgraph metadata */
-  xdai__meta?: Maybe<xdai__Meta_>;
+  xdai_swap__meta?: Maybe<xdai_swap__Meta_>;
 };
 
 
-export type Queryxdai_systemInfoArgs = {
+export type Queryxdai_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_systemInfosArgs = {
+export type Queryxdai_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SystemInfo_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SystemInfo_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_pooledTokenArgs = {
+export type Queryxdai_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_pooledTokensArgs = {
+export type Queryxdai_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_PooledToken_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapArgs = {
+export type Queryxdai_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapsArgs = {
+export type Queryxdai_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwap_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwap_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapAddLiquidityEventArgs = {
+export type Queryxdai_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapAddLiquidityEventsArgs = {
+export type Queryxdai_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapRemoveLiquidityEventArgs = {
+export type Queryxdai_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapRemoveLiquidityEventsArgs = {
+export type Queryxdai_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapExchangeArgs = {
+export type Queryxdai_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapExchangesArgs = {
+export type Queryxdai_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapExchange_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapDailyVolumeArgs = {
+export type Queryxdai_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapDailyVolumesArgs = {
+export type Queryxdai_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapDailyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapHourlyVolumeArgs = {
+export type Queryxdai_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapHourlyVolumesArgs = {
+export type Queryxdai_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapHourlyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapWeeklyVolumeArgs = {
+export type Queryxdai_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapWeeklyVolumesArgs = {
+export type Queryxdai_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapEventArgs = {
+export type Queryxdai_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapEventsArgs = {
+export type Queryxdai_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapTradeVolumeArgs = {
+export type Queryxdai_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_swapTradeVolumesArgs = {
+export type Queryxdai_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapTradeVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai__metaArgs = {
-  block?: InputMaybe<xdai_Block_height>;
+export type Queryxdai_swap__metaArgs = {
+  block?: InputMaybe<xdai_swap_Block_height>;
 };
 
-export type xdai_StableSwap = {
+export type xdai_swap_StableSwap = {
   id: Scalars['ID'];
   isActive?: Maybe<Scalars['Boolean']>;
-  key: Scalars['xdai_Bytes'];
-  canonicalId?: Maybe<Scalars['xdai_Bytes']>;
+  key: Scalars['xdai_swap_Bytes'];
+  canonicalId?: Maybe<Scalars['xdai_swap_Bytes']>;
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['xdai_Bytes']>;
-  lpToken?: Maybe<Scalars['xdai_Bytes']>;
+  swapPool?: Maybe<Scalars['xdai_swap_Bytes']>;
+  lpToken?: Maybe<Scalars['xdai_swap_Bytes']>;
   initialA?: Maybe<Scalars['BigInt']>;
   futureA?: Maybe<Scalars['BigInt']>;
   initialATime?: Maybe<Scalars['BigInt']>;
   futureATime?: Maybe<Scalars['BigInt']>;
   swapFee?: Maybe<Scalars['BigInt']>;
   adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<xdai_PooledToken>;
+  pooledTokens: Array<xdai_swap_PooledToken>;
   tokenPrecisionMultipliers: Array<Scalars['BigInt']>;
   balances: Array<Scalars['BigInt']>;
   adminFees: Array<Scalars['BigInt']>;
   virtualPrice: Scalars['BigInt'];
   invariant: Scalars['BigInt'];
   lpTokenSupply: Scalars['BigInt'];
-  events?: Maybe<Array<xdai_StableSwapEvent>>;
-  exchanges?: Maybe<Array<xdai_StableSwapExchange>>;
-  hourlyVolumes?: Maybe<Array<xdai_SwapHourlyVolume>>;
-  dailyVolumes?: Maybe<Array<xdai_SwapDailyVolume>>;
-  weeklyVolumes?: Maybe<Array<xdai_SwapWeeklyVolume>>;
+  events?: Maybe<Array<xdai_swap_StableSwapEvent>>;
+  exchanges?: Maybe<Array<xdai_swap_StableSwapExchange>>;
+  hourlyVolumes?: Maybe<Array<xdai_swap_SwapHourlyVolume>>;
+  dailyVolumes?: Maybe<Array<xdai_swap_SwapDailyVolume>>;
+  weeklyVolumes?: Maybe<Array<xdai_swap_SwapWeeklyVolume>>;
 };
 
 
-export type xdai_StableSwappooledTokensArgs = {
+export type xdai_swap_StableSwappooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
+  orderBy?: InputMaybe<xdai_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_PooledToken_filter>;
 };
 
 
-export type xdai_StableSwapeventsArgs = {
+export type xdai_swap_StableSwapeventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapEvent_filter>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapEvent_filter>;
 };
 
 
-export type xdai_StableSwapexchangesArgs = {
+export type xdai_swap_StableSwapexchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapExchange_filter>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapExchange_filter>;
 };
 
 
-export type xdai_StableSwaphourlyVolumesArgs = {
+export type xdai_swap_StableSwaphourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapHourlyVolume_filter>;
+  orderBy?: InputMaybe<xdai_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapHourlyVolume_filter>;
 };
 
 
-export type xdai_StableSwapdailyVolumesArgs = {
+export type xdai_swap_StableSwapdailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapDailyVolume_filter>;
+  orderBy?: InputMaybe<xdai_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapDailyVolume_filter>;
 };
 
 
-export type xdai_StableSwapweeklyVolumesArgs = {
+export type xdai_swap_StableSwapweeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapWeeklyVolume_filter>;
+  orderBy?: InputMaybe<xdai_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapWeeklyVolume_filter>;
 };
 
-export type xdai_StableSwapAddLiquidityEvent = xdai_StableSwapEvent & {
+export type xdai_swap_StableSwapAddLiquidityEvent = xdai_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
-  provider: Scalars['xdai_Bytes'];
+  stableSwap: xdai_swap_StableSwap;
+  provider: Scalars['xdai_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['xdai_Bytes'];
+  transaction: Scalars['xdai_swap_Bytes'];
 };
 
-export type xdai_StableSwapAddLiquidityEvent_filter = {
+export type xdai_swap_StableSwapAddLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -422,17 +422,17 @@ export type xdai_StableSwapAddLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -477,21 +477,21 @@ export type xdai_StableSwapAddLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transaction?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_StableSwapAddLiquidityEvent_orderBy =
+export type xdai_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'provider'
@@ -503,15 +503,15 @@ export type xdai_StableSwapAddLiquidityEvent_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type xdai_StableSwapEvent = {
+export type xdai_swap_StableSwapEvent = {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
+  stableSwap: xdai_swap_StableSwap;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['xdai_Bytes'];
+  transaction: Scalars['xdai_swap_Bytes'];
 };
 
-export type xdai_StableSwapEvent_filter = {
+export type xdai_swap_StableSwapEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -540,7 +540,7 @@ export type xdai_StableSwapEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -557,41 +557,41 @@ export type xdai_StableSwapEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transaction?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_StableSwapEvent_orderBy =
+export type xdai_swap_StableSwapEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'block'
   | 'timestamp'
   | 'transaction';
 
-export type xdai_StableSwapExchange = {
+export type xdai_swap_StableSwapExchange = {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
-  buyer: Scalars['xdai_Bytes'];
+  stableSwap: xdai_swap_StableSwap;
+  buyer: Scalars['xdai_swap_Bytes'];
   boughtId: Scalars['BigInt'];
   tokensBought: Scalars['BigInt'];
   soldId: Scalars['BigInt'];
   tokensSold: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['xdai_Bytes'];
+  transaction: Scalars['xdai_swap_Bytes'];
 };
 
-export type xdai_StableSwapExchange_filter = {
+export type xdai_swap_StableSwapExchange_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -620,17 +620,17 @@ export type xdai_StableSwapExchange_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
-  buyer?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  buyer_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  buyer_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  buyer_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
+  buyer?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  buyer_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  buyer_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  buyer_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   boughtId?: InputMaybe<Scalars['BigInt']>;
   boughtId_not?: InputMaybe<Scalars['BigInt']>;
   boughtId_gt?: InputMaybe<Scalars['BigInt']>;
@@ -679,21 +679,21 @@ export type xdai_StableSwapExchange_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transaction?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_StableSwapExchange_orderBy =
+export type xdai_swap_StableSwapExchange_orderBy =
   | 'id'
   | 'stableSwap'
   | 'buyer'
@@ -705,20 +705,20 @@ export type xdai_StableSwapExchange_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type xdai_StableSwapRemoveLiquidityEvent = xdai_StableSwapEvent & {
+export type xdai_swap_StableSwapRemoveLiquidityEvent = xdai_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
-  provider: Scalars['xdai_Bytes'];
+  stableSwap: xdai_swap_StableSwap;
+  provider: Scalars['xdai_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['xdai_Bytes'];
+  transaction: Scalars['xdai_swap_Bytes'];
 };
 
-export type xdai_StableSwapRemoveLiquidityEvent_filter = {
+export type xdai_swap_StableSwapRemoveLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -747,17 +747,17 @@ export type xdai_StableSwapRemoveLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -802,21 +802,21 @@ export type xdai_StableSwapRemoveLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transaction?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_StableSwapRemoveLiquidityEvent_orderBy =
+export type xdai_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'provider'
@@ -828,7 +828,7 @@ export type xdai_StableSwapRemoveLiquidityEvent_orderBy =
   | 'timestamp'
   | 'transaction';
 
-export type xdai_StableSwap_filter = {
+export type xdai_swap_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -841,26 +841,26 @@ export type xdai_StableSwap_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  key?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -869,26 +869,26 @@ export type xdai_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  swapPool?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_not?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_gt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_lt?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_gte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_lte?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  lpToken_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  lpToken_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  lpToken_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   initialA?: InputMaybe<Scalars['BigInt']>;
   initialA_not?: InputMaybe<Scalars['BigInt']>;
   initialA_gt?: InputMaybe<Scalars['BigInt']>;
@@ -943,7 +943,7 @@ export type xdai_StableSwap_filter = {
   pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
   pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<xdai_PooledToken_filter>;
+  pooledTokens_?: InputMaybe<xdai_swap_PooledToken_filter>;
   tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -986,16 +986,16 @@ export type xdai_StableSwap_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  events_?: InputMaybe<xdai_StableSwapEvent_filter>;
-  exchanges_?: InputMaybe<xdai_StableSwapExchange_filter>;
-  hourlyVolumes_?: InputMaybe<xdai_SwapHourlyVolume_filter>;
-  dailyVolumes_?: InputMaybe<xdai_SwapDailyVolume_filter>;
-  weeklyVolumes_?: InputMaybe<xdai_SwapWeeklyVolume_filter>;
+  events_?: InputMaybe<xdai_swap_StableSwapEvent_filter>;
+  exchanges_?: InputMaybe<xdai_swap_StableSwapExchange_filter>;
+  hourlyVolumes_?: InputMaybe<xdai_swap_SwapHourlyVolume_filter>;
+  dailyVolumes_?: InputMaybe<xdai_swap_SwapDailyVolume_filter>;
+  weeklyVolumes_?: InputMaybe<xdai_swap_SwapWeeklyVolume_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_StableSwap_orderBy =
+export type xdai_swap_StableSwap_orderBy =
   | 'id'
   | 'isActive'
   | 'key'
@@ -1023,243 +1023,243 @@ export type xdai_StableSwap_orderBy =
   | 'weeklyVolumes';
 
 export type Subscription = {
-  xdai_systemInfo?: Maybe<xdai_SystemInfo>;
-  xdai_systemInfos: Array<xdai_SystemInfo>;
-  xdai_pooledToken?: Maybe<xdai_PooledToken>;
-  xdai_pooledTokens: Array<xdai_PooledToken>;
-  xdai_stableSwap?: Maybe<xdai_StableSwap>;
-  xdai_stableSwaps: Array<xdai_StableSwap>;
-  xdai_stableSwapAddLiquidityEvent?: Maybe<xdai_StableSwapAddLiquidityEvent>;
-  xdai_stableSwapAddLiquidityEvents: Array<xdai_StableSwapAddLiquidityEvent>;
-  xdai_stableSwapRemoveLiquidityEvent?: Maybe<xdai_StableSwapRemoveLiquidityEvent>;
-  xdai_stableSwapRemoveLiquidityEvents: Array<xdai_StableSwapRemoveLiquidityEvent>;
-  xdai_stableSwapExchange?: Maybe<xdai_StableSwapExchange>;
-  xdai_stableSwapExchanges: Array<xdai_StableSwapExchange>;
-  xdai_swapDailyVolume?: Maybe<xdai_SwapDailyVolume>;
-  xdai_swapDailyVolumes: Array<xdai_SwapDailyVolume>;
-  xdai_swapHourlyVolume?: Maybe<xdai_SwapHourlyVolume>;
-  xdai_swapHourlyVolumes: Array<xdai_SwapHourlyVolume>;
-  xdai_swapWeeklyVolume?: Maybe<xdai_SwapWeeklyVolume>;
-  xdai_swapWeeklyVolumes: Array<xdai_SwapWeeklyVolume>;
-  xdai_stableSwapEvent?: Maybe<xdai_StableSwapEvent>;
-  xdai_stableSwapEvents: Array<xdai_StableSwapEvent>;
-  xdai_swapTradeVolume?: Maybe<xdai_SwapTradeVolume>;
-  xdai_swapTradeVolumes: Array<xdai_SwapTradeVolume>;
+  xdai_swap_systemInfo?: Maybe<xdai_swap_SystemInfo>;
+  xdai_swap_systemInfos: Array<xdai_swap_SystemInfo>;
+  xdai_swap_pooledToken?: Maybe<xdai_swap_PooledToken>;
+  xdai_swap_pooledTokens: Array<xdai_swap_PooledToken>;
+  xdai_swap_stableSwap?: Maybe<xdai_swap_StableSwap>;
+  xdai_swap_stableSwaps: Array<xdai_swap_StableSwap>;
+  xdai_swap_stableSwapAddLiquidityEvent?: Maybe<xdai_swap_StableSwapAddLiquidityEvent>;
+  xdai_swap_stableSwapAddLiquidityEvents: Array<xdai_swap_StableSwapAddLiquidityEvent>;
+  xdai_swap_stableSwapRemoveLiquidityEvent?: Maybe<xdai_swap_StableSwapRemoveLiquidityEvent>;
+  xdai_swap_stableSwapRemoveLiquidityEvents: Array<xdai_swap_StableSwapRemoveLiquidityEvent>;
+  xdai_swap_stableSwapExchange?: Maybe<xdai_swap_StableSwapExchange>;
+  xdai_swap_stableSwapExchanges: Array<xdai_swap_StableSwapExchange>;
+  xdai_swap_swapDailyVolume?: Maybe<xdai_swap_SwapDailyVolume>;
+  xdai_swap_swapDailyVolumes: Array<xdai_swap_SwapDailyVolume>;
+  xdai_swap_swapHourlyVolume?: Maybe<xdai_swap_SwapHourlyVolume>;
+  xdai_swap_swapHourlyVolumes: Array<xdai_swap_SwapHourlyVolume>;
+  xdai_swap_swapWeeklyVolume?: Maybe<xdai_swap_SwapWeeklyVolume>;
+  xdai_swap_swapWeeklyVolumes: Array<xdai_swap_SwapWeeklyVolume>;
+  xdai_swap_stableSwapEvent?: Maybe<xdai_swap_StableSwapEvent>;
+  xdai_swap_stableSwapEvents: Array<xdai_swap_StableSwapEvent>;
+  xdai_swap_swapTradeVolume?: Maybe<xdai_swap_SwapTradeVolume>;
+  xdai_swap_swapTradeVolumes: Array<xdai_swap_SwapTradeVolume>;
   /** Access to subgraph metadata */
-  xdai__meta?: Maybe<xdai__Meta_>;
+  xdai_swap__meta?: Maybe<xdai_swap__Meta_>;
 };
 
 
-export type Subscriptionxdai_systemInfoArgs = {
+export type Subscriptionxdai_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_systemInfosArgs = {
+export type Subscriptionxdai_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SystemInfo_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SystemInfo_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_pooledTokenArgs = {
+export type Subscriptionxdai_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_pooledTokensArgs = {
+export type Subscriptionxdai_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_PooledToken_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapArgs = {
+export type Subscriptionxdai_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapsArgs = {
+export type Subscriptionxdai_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwap_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwap_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapAddLiquidityEventArgs = {
+export type Subscriptionxdai_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapAddLiquidityEventsArgs = {
+export type Subscriptionxdai_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapRemoveLiquidityEventArgs = {
+export type Subscriptionxdai_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapRemoveLiquidityEventsArgs = {
+export type Subscriptionxdai_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapExchangeArgs = {
+export type Subscriptionxdai_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapExchangesArgs = {
+export type Subscriptionxdai_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapExchange_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapDailyVolumeArgs = {
+export type Subscriptionxdai_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapDailyVolumesArgs = {
+export type Subscriptionxdai_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapDailyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapHourlyVolumeArgs = {
+export type Subscriptionxdai_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapHourlyVolumesArgs = {
+export type Subscriptionxdai_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapHourlyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapWeeklyVolumeArgs = {
+export type Subscriptionxdai_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapWeeklyVolumesArgs = {
+export type Subscriptionxdai_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapEventArgs = {
+export type Subscriptionxdai_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapEventsArgs = {
+export type Subscriptionxdai_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapEvent_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapTradeVolumeArgs = {
+export type Subscriptionxdai_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_swapTradeVolumesArgs = {
+export type Subscriptionxdai_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_SwapTradeVolume_filter>;
-  block?: InputMaybe<xdai_Block_height>;
+  orderBy?: InputMaybe<xdai_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
+  where?: InputMaybe<xdai_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<xdai_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai__metaArgs = {
-  block?: InputMaybe<xdai_Block_height>;
+export type Subscriptionxdai_swap__metaArgs = {
+  block?: InputMaybe<xdai_swap_Block_height>;
 };
 
-export type xdai_SwapDailyVolume = xdai_SwapTradeVolume & {
+export type xdai_swap_SwapDailyVolume = xdai_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
+  stableSwap: xdai_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['xdai_BigDecimal'];
+  volume: Scalars['xdai_swap_BigDecimal'];
 };
 
-export type xdai_SwapDailyVolume_filter = {
+export type xdai_swap_SwapDailyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1288,7 +1288,7 @@ export type xdai_SwapDailyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1297,32 +1297,32 @@ export type xdai_SwapDailyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_SwapDailyVolume_orderBy =
+export type xdai_swap_SwapDailyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type xdai_SwapHourlyVolume = xdai_SwapTradeVolume & {
+export type xdai_swap_SwapHourlyVolume = xdai_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
+  stableSwap: xdai_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['xdai_BigDecimal'];
+  volume: Scalars['xdai_swap_BigDecimal'];
 };
 
-export type xdai_SwapHourlyVolume_filter = {
+export type xdai_swap_SwapHourlyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1351,7 +1351,7 @@ export type xdai_SwapHourlyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1360,31 +1360,31 @@ export type xdai_SwapHourlyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_SwapHourlyVolume_orderBy =
+export type xdai_swap_SwapHourlyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type xdai_SwapTradeVolume = {
-  stableSwap: xdai_StableSwap;
+export type xdai_swap_SwapTradeVolume = {
+  stableSwap: xdai_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['xdai_BigDecimal'];
+  volume: Scalars['xdai_swap_BigDecimal'];
 };
 
-export type xdai_SwapTradeVolume_filter = {
+export type xdai_swap_SwapTradeVolume_filter = {
   stableSwap?: InputMaybe<Scalars['String']>;
   stableSwap_not?: InputMaybe<Scalars['String']>;
   stableSwap_gt?: InputMaybe<Scalars['String']>;
@@ -1405,7 +1405,7 @@ export type xdai_SwapTradeVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1414,31 +1414,31 @@ export type xdai_SwapTradeVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_SwapTradeVolume_orderBy =
+export type xdai_swap_SwapTradeVolume_orderBy =
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type xdai_SwapWeeklyVolume = xdai_SwapTradeVolume & {
+export type xdai_swap_SwapWeeklyVolume = xdai_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: xdai_StableSwap;
+  stableSwap: xdai_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['xdai_BigDecimal'];
+  volume: Scalars['xdai_swap_BigDecimal'];
 };
 
-export type xdai_SwapWeeklyVolume_filter = {
+export type xdai_swap_SwapWeeklyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1467,7 +1467,7 @@ export type xdai_SwapWeeklyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
+  stableSwap_?: InputMaybe<xdai_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1476,31 +1476,31 @@ export type xdai_SwapWeeklyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['xdai_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['xdai_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['xdai_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['xdai_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_SwapWeeklyVolume_orderBy =
+export type xdai_swap_SwapWeeklyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'timestamp'
   | 'volume';
 
-export type xdai_SystemInfo = {
+export type xdai_swap_SystemInfo = {
   id: Scalars['ID'];
   exchangeCount: Scalars['BigInt'];
   swapCount: Scalars['BigInt'];
 };
 
-export type xdai_SystemInfo_filter = {
+export type xdai_swap_SystemInfo_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1526,17 +1526,17 @@ export type xdai_SystemInfo_filter = {
   swapCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   swapCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
 };
 
-export type xdai_SystemInfo_orderBy =
+export type xdai_swap_SystemInfo_orderBy =
   | 'id'
   | 'exchangeCount'
   | 'swapCount';
 
-export type xdai__Block_ = {
+export type xdai_swap__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['xdai_Bytes']>;
+  hash?: Maybe<Scalars['xdai_swap_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
@@ -1544,7 +1544,7 @@ export type xdai__Block_ = {
 };
 
 /** The type for the top-level _meta field */
-export type xdai__Meta_ = {
+export type xdai_swap__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -1552,7 +1552,7 @@ export type xdai__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: xdai__Block_;
+  block: xdai_swap__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -1567,51 +1567,51 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  xdai_systemInfo: InContextSdkMethod<Query['xdai_systemInfo'], Queryxdai_systemInfoArgs, MeshContext>,
+  xdai_swap_systemInfo: InContextSdkMethod<Query['xdai_swap_systemInfo'], Queryxdai_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  xdai_systemInfos: InContextSdkMethod<Query['xdai_systemInfos'], Queryxdai_systemInfosArgs, MeshContext>,
+  xdai_swap_systemInfos: InContextSdkMethod<Query['xdai_swap_systemInfos'], Queryxdai_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  xdai_pooledToken: InContextSdkMethod<Query['xdai_pooledToken'], Queryxdai_pooledTokenArgs, MeshContext>,
+  xdai_swap_pooledToken: InContextSdkMethod<Query['xdai_swap_pooledToken'], Queryxdai_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  xdai_pooledTokens: InContextSdkMethod<Query['xdai_pooledTokens'], Queryxdai_pooledTokensArgs, MeshContext>,
+  xdai_swap_pooledTokens: InContextSdkMethod<Query['xdai_swap_pooledTokens'], Queryxdai_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  xdai_stableSwap: InContextSdkMethod<Query['xdai_stableSwap'], Queryxdai_stableSwapArgs, MeshContext>,
+  xdai_swap_stableSwap: InContextSdkMethod<Query['xdai_swap_stableSwap'], Queryxdai_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  xdai_stableSwaps: InContextSdkMethod<Query['xdai_stableSwaps'], Queryxdai_stableSwapsArgs, MeshContext>,
+  xdai_swap_stableSwaps: InContextSdkMethod<Query['xdai_swap_stableSwaps'], Queryxdai_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['xdai_stableSwapAddLiquidityEvent'], Queryxdai_stableSwapAddLiquidityEventArgs, MeshContext>,
+  xdai_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['xdai_swap_stableSwapAddLiquidityEvent'], Queryxdai_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['xdai_stableSwapAddLiquidityEvents'], Queryxdai_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  xdai_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['xdai_swap_stableSwapAddLiquidityEvents'], Queryxdai_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['xdai_stableSwapRemoveLiquidityEvent'], Queryxdai_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  xdai_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['xdai_swap_stableSwapRemoveLiquidityEvent'], Queryxdai_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['xdai_stableSwapRemoveLiquidityEvents'], Queryxdai_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  xdai_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['xdai_swap_stableSwapRemoveLiquidityEvents'], Queryxdai_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapExchange: InContextSdkMethod<Query['xdai_stableSwapExchange'], Queryxdai_stableSwapExchangeArgs, MeshContext>,
+  xdai_swap_stableSwapExchange: InContextSdkMethod<Query['xdai_swap_stableSwapExchange'], Queryxdai_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapExchanges: InContextSdkMethod<Query['xdai_stableSwapExchanges'], Queryxdai_stableSwapExchangesArgs, MeshContext>,
+  xdai_swap_stableSwapExchanges: InContextSdkMethod<Query['xdai_swap_stableSwapExchanges'], Queryxdai_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  xdai_swapDailyVolume: InContextSdkMethod<Query['xdai_swapDailyVolume'], Queryxdai_swapDailyVolumeArgs, MeshContext>,
+  xdai_swap_swapDailyVolume: InContextSdkMethod<Query['xdai_swap_swapDailyVolume'], Queryxdai_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapDailyVolumes: InContextSdkMethod<Query['xdai_swapDailyVolumes'], Queryxdai_swapDailyVolumesArgs, MeshContext>,
+  xdai_swap_swapDailyVolumes: InContextSdkMethod<Query['xdai_swap_swapDailyVolumes'], Queryxdai_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_swapHourlyVolume: InContextSdkMethod<Query['xdai_swapHourlyVolume'], Queryxdai_swapHourlyVolumeArgs, MeshContext>,
+  xdai_swap_swapHourlyVolume: InContextSdkMethod<Query['xdai_swap_swapHourlyVolume'], Queryxdai_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapHourlyVolumes: InContextSdkMethod<Query['xdai_swapHourlyVolumes'], Queryxdai_swapHourlyVolumesArgs, MeshContext>,
+  xdai_swap_swapHourlyVolumes: InContextSdkMethod<Query['xdai_swap_swapHourlyVolumes'], Queryxdai_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_swapWeeklyVolume: InContextSdkMethod<Query['xdai_swapWeeklyVolume'], Queryxdai_swapWeeklyVolumeArgs, MeshContext>,
+  xdai_swap_swapWeeklyVolume: InContextSdkMethod<Query['xdai_swap_swapWeeklyVolume'], Queryxdai_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapWeeklyVolumes: InContextSdkMethod<Query['xdai_swapWeeklyVolumes'], Queryxdai_swapWeeklyVolumesArgs, MeshContext>,
+  xdai_swap_swapWeeklyVolumes: InContextSdkMethod<Query['xdai_swap_swapWeeklyVolumes'], Queryxdai_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapEvent: InContextSdkMethod<Query['xdai_stableSwapEvent'], Queryxdai_stableSwapEventArgs, MeshContext>,
+  xdai_swap_stableSwapEvent: InContextSdkMethod<Query['xdai_swap_stableSwapEvent'], Queryxdai_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapEvents: InContextSdkMethod<Query['xdai_stableSwapEvents'], Queryxdai_stableSwapEventsArgs, MeshContext>,
+  xdai_swap_stableSwapEvents: InContextSdkMethod<Query['xdai_swap_stableSwapEvents'], Queryxdai_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  xdai_swapTradeVolume: InContextSdkMethod<Query['xdai_swapTradeVolume'], Queryxdai_swapTradeVolumeArgs, MeshContext>,
+  xdai_swap_swapTradeVolume: InContextSdkMethod<Query['xdai_swap_swapTradeVolume'], Queryxdai_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapTradeVolumes: InContextSdkMethod<Query['xdai_swapTradeVolumes'], Queryxdai_swapTradeVolumesArgs, MeshContext>,
+  xdai_swap_swapTradeVolumes: InContextSdkMethod<Query['xdai_swap_swapTradeVolumes'], Queryxdai_swap_swapTradeVolumesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  xdai__meta: InContextSdkMethod<Query['xdai__meta'], Queryxdai__metaArgs, MeshContext>
+  xdai_swap__meta: InContextSdkMethod<Query['xdai_swap__meta'], Queryxdai_swap__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -1620,51 +1620,51 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  xdai_systemInfo: InContextSdkMethod<Subscription['xdai_systemInfo'], Subscriptionxdai_systemInfoArgs, MeshContext>,
+  xdai_swap_systemInfo: InContextSdkMethod<Subscription['xdai_swap_systemInfo'], Subscriptionxdai_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  xdai_systemInfos: InContextSdkMethod<Subscription['xdai_systemInfos'], Subscriptionxdai_systemInfosArgs, MeshContext>,
+  xdai_swap_systemInfos: InContextSdkMethod<Subscription['xdai_swap_systemInfos'], Subscriptionxdai_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  xdai_pooledToken: InContextSdkMethod<Subscription['xdai_pooledToken'], Subscriptionxdai_pooledTokenArgs, MeshContext>,
+  xdai_swap_pooledToken: InContextSdkMethod<Subscription['xdai_swap_pooledToken'], Subscriptionxdai_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  xdai_pooledTokens: InContextSdkMethod<Subscription['xdai_pooledTokens'], Subscriptionxdai_pooledTokensArgs, MeshContext>,
+  xdai_swap_pooledTokens: InContextSdkMethod<Subscription['xdai_swap_pooledTokens'], Subscriptionxdai_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  xdai_stableSwap: InContextSdkMethod<Subscription['xdai_stableSwap'], Subscriptionxdai_stableSwapArgs, MeshContext>,
+  xdai_swap_stableSwap: InContextSdkMethod<Subscription['xdai_swap_stableSwap'], Subscriptionxdai_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  xdai_stableSwaps: InContextSdkMethod<Subscription['xdai_stableSwaps'], Subscriptionxdai_stableSwapsArgs, MeshContext>,
+  xdai_swap_stableSwaps: InContextSdkMethod<Subscription['xdai_swap_stableSwaps'], Subscriptionxdai_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['xdai_stableSwapAddLiquidityEvent'], Subscriptionxdai_stableSwapAddLiquidityEventArgs, MeshContext>,
+  xdai_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['xdai_swap_stableSwapAddLiquidityEvent'], Subscriptionxdai_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['xdai_stableSwapAddLiquidityEvents'], Subscriptionxdai_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  xdai_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['xdai_swap_stableSwapAddLiquidityEvents'], Subscriptionxdai_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['xdai_stableSwapRemoveLiquidityEvent'], Subscriptionxdai_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  xdai_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['xdai_swap_stableSwapRemoveLiquidityEvent'], Subscriptionxdai_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['xdai_stableSwapRemoveLiquidityEvents'], Subscriptionxdai_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  xdai_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['xdai_swap_stableSwapRemoveLiquidityEvents'], Subscriptionxdai_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapExchange: InContextSdkMethod<Subscription['xdai_stableSwapExchange'], Subscriptionxdai_stableSwapExchangeArgs, MeshContext>,
+  xdai_swap_stableSwapExchange: InContextSdkMethod<Subscription['xdai_swap_stableSwapExchange'], Subscriptionxdai_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapExchanges: InContextSdkMethod<Subscription['xdai_stableSwapExchanges'], Subscriptionxdai_stableSwapExchangesArgs, MeshContext>,
+  xdai_swap_stableSwapExchanges: InContextSdkMethod<Subscription['xdai_swap_stableSwapExchanges'], Subscriptionxdai_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  xdai_swapDailyVolume: InContextSdkMethod<Subscription['xdai_swapDailyVolume'], Subscriptionxdai_swapDailyVolumeArgs, MeshContext>,
+  xdai_swap_swapDailyVolume: InContextSdkMethod<Subscription['xdai_swap_swapDailyVolume'], Subscriptionxdai_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapDailyVolumes: InContextSdkMethod<Subscription['xdai_swapDailyVolumes'], Subscriptionxdai_swapDailyVolumesArgs, MeshContext>,
+  xdai_swap_swapDailyVolumes: InContextSdkMethod<Subscription['xdai_swap_swapDailyVolumes'], Subscriptionxdai_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_swapHourlyVolume: InContextSdkMethod<Subscription['xdai_swapHourlyVolume'], Subscriptionxdai_swapHourlyVolumeArgs, MeshContext>,
+  xdai_swap_swapHourlyVolume: InContextSdkMethod<Subscription['xdai_swap_swapHourlyVolume'], Subscriptionxdai_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapHourlyVolumes: InContextSdkMethod<Subscription['xdai_swapHourlyVolumes'], Subscriptionxdai_swapHourlyVolumesArgs, MeshContext>,
+  xdai_swap_swapHourlyVolumes: InContextSdkMethod<Subscription['xdai_swap_swapHourlyVolumes'], Subscriptionxdai_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_swapWeeklyVolume: InContextSdkMethod<Subscription['xdai_swapWeeklyVolume'], Subscriptionxdai_swapWeeklyVolumeArgs, MeshContext>,
+  xdai_swap_swapWeeklyVolume: InContextSdkMethod<Subscription['xdai_swap_swapWeeklyVolume'], Subscriptionxdai_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapWeeklyVolumes: InContextSdkMethod<Subscription['xdai_swapWeeklyVolumes'], Subscriptionxdai_swapWeeklyVolumesArgs, MeshContext>,
+  xdai_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['xdai_swap_swapWeeklyVolumes'], Subscriptionxdai_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapEvent: InContextSdkMethod<Subscription['xdai_stableSwapEvent'], Subscriptionxdai_stableSwapEventArgs, MeshContext>,
+  xdai_swap_stableSwapEvent: InContextSdkMethod<Subscription['xdai_swap_stableSwapEvent'], Subscriptionxdai_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  xdai_stableSwapEvents: InContextSdkMethod<Subscription['xdai_stableSwapEvents'], Subscriptionxdai_stableSwapEventsArgs, MeshContext>,
+  xdai_swap_stableSwapEvents: InContextSdkMethod<Subscription['xdai_swap_stableSwapEvents'], Subscriptionxdai_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  xdai_swapTradeVolume: InContextSdkMethod<Subscription['xdai_swapTradeVolume'], Subscriptionxdai_swapTradeVolumeArgs, MeshContext>,
+  xdai_swap_swapTradeVolume: InContextSdkMethod<Subscription['xdai_swap_swapTradeVolume'], Subscriptionxdai_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  xdai_swapTradeVolumes: InContextSdkMethod<Subscription['xdai_swapTradeVolumes'], Subscriptionxdai_swapTradeVolumesArgs, MeshContext>,
+  xdai_swap_swapTradeVolumes: InContextSdkMethod<Subscription['xdai_swap_swapTradeVolumes'], Subscriptionxdai_swap_swapTradeVolumesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  xdai__meta: InContextSdkMethod<Subscription['xdai__meta'], Subscriptionxdai__metaArgs, MeshContext>
+  xdai_swap__meta: InContextSdkMethod<Subscription['xdai_swap__meta'], Subscriptionxdai_swap__metaArgs, MeshContext>
   };
 
   export type Context = {
