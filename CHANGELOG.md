@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.22
+
+- [sdk] enhancement at latency and rpc calls for stable swap data request
+- [sdk] fix getSupported()
+
 ## Amarok 0.2.1-rc.21
 
 - [all] bug fixes.
