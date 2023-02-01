@@ -217,22 +217,20 @@ export class SdkShared {
 
     const supported: Map<string, ConnextSupport> = new Map();
 
-    await Promise.all(
-      data.map(async (asset) => {
-        if (supported.get(asset.domain)) {
-          const support = supported.get(asset.domain)!;
-          support.assets.push(asset.adopted);
-        } else {
-          const support: ConnextSupport = {
-            name: domainsToChainNames[asset.domain],
-            chainId: await getChainIdFromDomain(asset.domain),
-            domainId: asset.domain,
-            assets: [asset.adopted],
-          };
-          supported.set(asset.domain, support);
-        }
-      }),
-    );
+    for (const asset of data) {
+      const support = supported.get(asset.domain);
+      if (support) {
+        support.assets.push(asset.adopted);
+      } else {
+        const entry: ConnextSupport = {
+          name: domainsToChainNames[asset.domain],
+          chainId: await getChainIdFromDomain(asset.domain),
+          domainId: asset.domain,
+          assets: [asset.adopted],
+        };
+        supported.set(asset.domain, entry);
+      }
+    }
 
     const res = Array.from(supported.values());
     return res;
