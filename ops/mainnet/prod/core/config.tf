@@ -337,6 +337,7 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
+    auctionWaitTime = 15000
   })
 
   local_lighthouse_config = jsonencode({
