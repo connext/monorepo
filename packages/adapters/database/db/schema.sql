@@ -204,6 +204,39 @@ CREATE VIEW public.daily_router_tvl AS
 
 
 --
+-- Name: stableswap_exchanges; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_exchanges (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    buyer character(42) NOT NULL,
+    bought_id integer NOT NULL,
+    sold_id integer NOT NULL,
+    tokens_sold numeric NOT NULL,
+    tokens_bought numeric NOT NULL,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL
+);
+
+
+--
+-- Name: daily_swap_volume; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_swap_volume AS
+ SELECT swap.pool_id,
+    swap.domain,
+    (date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date AS swap_day,
+    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
+    count(swap.pool_id) AS swap_count
+   FROM public.stableswap_exchanges swap
+  GROUP BY swap.pool_id, swap.domain, ((date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date);
+
+
+--
 -- Name: daily_transfer_metrics; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -283,6 +316,20 @@ CREATE VIEW public.daily_transfer_volume AS
     sum((tf.origin_transacting_amount)::numeric) AS volume
    FROM public.transfers tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+
+
+--
+-- Name: hourly_swap_volume; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.hourly_swap_volume AS
+ SELECT swap.pool_id,
+    swap.domain,
+    date_trunc('hour'::text, to_timestamp((swap."timestamp")::double precision)) AS swap_hour,
+    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
+    count(swap.pool_id) AS swap_count
+   FROM public.stableswap_exchanges swap
+  GROUP BY swap.pool_id, swap.domain, (date_trunc('hour'::text, to_timestamp((swap."timestamp")::double precision)));
 
 
 --
@@ -465,6 +512,31 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: stableswap_pools; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_pools (
+    key character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    is_active boolean DEFAULT false,
+    lp_token character(42) NOT NULL,
+    initial_a integer NOT NULL,
+    future_a integer NOT NULL,
+    initial_a_time integer NOT NULL,
+    future_a_time integer NOT NULL,
+    swap_fee character varying(255) NOT NULL,
+    admin_fee character varying(255) NOT NULL,
+    pooled_tokens text[],
+    token_precision_multipliers text[],
+    pool_token_decimals integer[],
+    balances text[],
+    virtual_price character varying(255) NOT NULL,
+    invariant character varying(255) NOT NULL,
+    lp_token_supply character varying(255) NOT NULL
+);
+
+
+--
 -- Name: transfer_count; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -545,8 +617,15 @@ CREATE VIEW public.transfers_with_ttr_ttv AS
     tf.normalized_in,
     tf.canonical_id,
     tf.router_fee,
-    (tf.execute_timestamp - tf.xcall_timestamp) AS ttr,
-    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttv
+    tf.xcall_tx_origin,
+    tf.execute_tx_origin,
+    tf.reconcile_tx_origin,
+    tf.relayer_fee,
+    tf.error_status,
+    tf.backoff,
+    tf.next_execution_timestamp,
+    (tf.execute_timestamp - tf.xcall_timestamp) AS ttv,
+    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttr
    FROM public.transfers tf;
 
 
@@ -644,6 +723,30 @@ ALTER TABLE ONLY public.routers
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_exchanges
+    ADD CONSTRAINT stableswap_exchanges_id_key UNIQUE (id);
+
+
+--
+-- Name: stableswap_exchanges stableswap_exchanges_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_exchanges
+    ADD CONSTRAINT stableswap_exchanges_pkey PRIMARY KEY (domain, id);
+
+
+--
+-- Name: stableswap_pools stableswap_pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_pools
+    ADD CONSTRAINT stableswap_pools_pkey PRIMARY KEY (domain, key);
 
 
 --
@@ -750,5 +853,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230105105045'),
     ('20230105152814'),
     ('20230113140119'),
+    ('20230119130526'),
     ('20230127195903'),
-    ('20230130081731');
+    ('20230130081731'),
+    ('20230201004755');

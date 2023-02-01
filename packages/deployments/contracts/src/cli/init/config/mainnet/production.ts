@@ -160,6 +160,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x0e62f9fa1f9b3e49759dc94494f5bc37a83d1fad", // Bazilik
         "0x58507fed0cb11723dfb6848c92c59cf0bbeb9927", // Hashquark
         "0x7ce49752fFA7055622f444df3c69598748cb2E5f", // Vault Staking
+        "0x33b2ad85f7dba818e719fb52095dc768e0ed93ec", // Ethereal
       ],
     },
     sequencers: {
