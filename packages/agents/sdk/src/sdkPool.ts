@@ -901,12 +901,12 @@ export class SdkPool extends SdkShared {
       const poolData = poolDataResults[0]; // there should only be one pool
 
       // Construct pool object
-      const assetXAddress = String(poolData.pooled_tokens[0]);
-      const assetYAddress = String(poolData.pooled_tokens[1]);
+      const assetXAddress = utils.getAddress(String(poolData.pooled_tokens[0]));
+      const assetYAddress = utils.getAddress(String(poolData.pooled_tokens[1]));
       const checkSummedLocalAsset = utils.getAddress(asset.local);
 
       const assetX: PoolAsset = {
-        address: utils.getAddress(assetXAddress),
+        address: assetXAddress,
         name: this.chainData.get(domainId)?.assetId[assetXAddress].name ?? "",
         symbol: this.chainData.get(domainId)?.assetId[assetXAddress].symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
@@ -915,7 +915,7 @@ export class SdkPool extends SdkShared {
       };
 
       const assetY: PoolAsset = {
-        address: utils.getAddress(assetYAddress),
+        address: assetYAddress,
         name: this.chainData.get(domainId)?.assetId[assetYAddress].name ?? "",
         symbol: this.chainData.get(domainId)?.assetId[assetYAddress].symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
