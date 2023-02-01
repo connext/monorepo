@@ -894,7 +894,7 @@ export class SdkPool extends SdkShared {
 
       // Fetch pool data
       const poolDataResults = await this.getPoolData({ key: asset.key, domainId: domainId });
-      if (!poolDataResults) {
+      if (!poolDataResults || poolDataResults.length == 0) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
@@ -1027,7 +1027,7 @@ export class SdkPool extends SdkShared {
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
       for (const volumeData of hourlyVolumes) {
-        totalVolume = totalVolume.add(utils.parseEther(String(volumeData.volume)));
+        totalVolume = totalVolume.add(utils.parseEther(Number(volumeData.volume).toFixed(18)));
       }
       totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
 
