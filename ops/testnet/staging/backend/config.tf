@@ -7,7 +7,8 @@ locals {
     STAGE               = var.stage,
     DD_ENV              = "${var.environment}-${var.stage}",
     DD_LOGS_ENABLED     = true,
-    DD_API_KEY          = var.dd_api_key
+    DD_API_KEY          = var.dd_api_key,
+    DD_LAMBDA_HANDLER   = "packages/agents/cartographer/poller/dist/index.handler"
   }
 
   postgrest_env_vars = [
