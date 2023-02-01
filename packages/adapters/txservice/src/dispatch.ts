@@ -402,7 +402,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
             price: gasPrice,
           };
           if (this.domain === 1634886255) {
-            gas.limit = BigNumber.from(10_000_000);
+            gas.limit = BigNumber.from(20_000_000);
           }
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
