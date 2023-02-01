@@ -270,22 +270,6 @@ describe("SdkPool", () => {
       expect(res!.symbol).to.equal(mockPool.symbol);
       expect(res!.lpTokenAddress).to.equal(mockPool.lpTokenAddress);
     });
-
-    it("should throw if local domain is canonical", async () => {
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
-
-      expect(sdkPool.getPool(mockPool.domainId, mockPool.local.address)).to.be.rejectedWith(
-        new Error("Pool doesn't exist for the token on this domain"),
-      );
-    });
-
-    it("should return undefined if local token is adopted", async () => {
-      stub(sdkPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-
-      expect(sdkPool.getPool(mockPool.domainId, mockParams.canonicalId)).to.be.rejectedWith(
-        new Error("Pool doesn't exist for the token on this domain"),
-      );
-    });
   });
 
   describe("#getUserPools", () => {

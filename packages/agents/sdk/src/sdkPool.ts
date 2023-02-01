@@ -894,7 +894,7 @@ export class SdkPool extends SdkShared {
 
       // Fetch pool data
       const poolDataResults = await this.getPoolData({ key: asset.key, domainId: domainId });
-      if (!poolDataResults) {
+      if (!poolDataResults || poolDataResults.length == 0) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
