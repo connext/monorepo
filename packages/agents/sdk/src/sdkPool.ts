@@ -601,11 +601,11 @@ export class SdkPool extends SdkShared {
    * @param params - (optional) Parameters object.
    * @param params.key - (optional) Canonical hash (key) of the pool.
    * @param params.buyer - (optional) The address executing the swap transaction.
-   * @param transactionHash - (optional) The transaction hash of the swap.
+   * @param params.transactionHash - (optional) The transaction hash of the swap.
    * @param params.range - (optional) The object with limit and offset options.
    * @param params.range.limit - (optional) The number of results to get.
    * @param params.range.offset - (optional) The offset in the returned data to start from.
-   * @returns The object containing TokenSwap event data in the form of:
+   * @returns The array of objects containing TokenSwap event data in the form of:
    *
    * ```ts
    * {
@@ -654,6 +654,66 @@ export class SdkPool extends SdkShared {
       searchIdentifier + startTimestampIdentifier + endTimestampIdentifier + rangeIdentifier + orderIdentifier,
     );
     // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Fetches a list of StableSwap Pools data that match filter criteria.
+   *
+   * @param params - (optional) Parameters object.
+   * @param params.key - (optional) Canonical hash (key) of the pool.
+   * @param params.domainId - (optional) The address executing the swap transaction.
+   * @param params.lpTokenAddress - (optional) The address of the pool's LP token.
+   * @returns The array of objects containing TokenSwap event data in the form of:
+   *
+   * ```ts
+   * {
+   *   "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+   *   "domain": "9991",
+   *   "is_active": true,
+   *   "lp_token": "0x0d01021c481921cfc93959819dfe8096a46bef3c",
+   *   "initial_a": 20000,
+   *   "future_a": 20000,
+   *   "initial_a_time": 0,
+   *   "future_a_time": 0,
+   *   "swap_fee": "4000000",
+   *   "admin_fee": "0",
+   *   "pooled_tokens": [
+   *     "0x1e5341e4b7ed5d0680d9066aac0396f0b1bd1e69",
+   *     "0xfd2ab41e083c75085807c4a65c0a14fdd93d55a9"
+   *   ],
+   *   "token_precision_multipliers": [
+   *     "1",
+   *     "1"
+   *   ],
+   *   "pool_token_decimals": [
+   *     18,
+   *     18
+   *   ],
+   *   "balances": [
+   *     "32093905049107612",
+   *     "7968595774217088"
+   *   ],
+   *   "virtual_price": "1000163379884851791",
+   *   "invariant": "40006038276095726",
+   *   "lp_token_supply": "39999503161875010"
+   * }
+   * ```
+   */
+  async getPoolData(params: { key?: string; domainId?: string; lpTokenAddress?: string }): Promise<any> {
+    const { key, domainId, lpTokenAddress } = params;
+
+    const poolIdentifier = key ? `key=eq.${key}&` : "";
+    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+    const lpTokenIdentifier = lpTokenAddress ? `lp_token=eq.${lpTokenAddress}&` : "";
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "stableswap_pools?",
+      poolIdentifier + domainIdentifier + lpTokenIdentifier,
+    );
     validateUri(uri);
 
     return await axiosGetRequest(uri);
@@ -833,18 +893,12 @@ export class SdkPool extends SdkShared {
       }
 
       // Fetch pool data
-      const poolIdentifier = asset.key ? `key=eq.${asset.key}&` : "";
-      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
-
-      const uri = formatUrl(this.config.cartographerUrl!, "stableswap_pools?", poolIdentifier + domainIdentifier);
-      validateUri(uri);
-
-      const poolData = (await axiosGetRequest(uri))[0];
-
-      if (!poolData) {
+      const poolDataResults = await this.getPoolData({ key: asset.key, domainId: domainId });
+      if (!poolDataResults) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
+      const poolData = poolDataResults[0]; // there should only be one pool
 
       // Construct pool object
       const assetXAddress = utils.getAddress(String(poolData.pooled_tokens[0]));
