@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.24
+
+- [sdk] getYieldData fixes
+
 ## Amarok 0.2.1-rc.23
 
 - [sdk] bug fixes
