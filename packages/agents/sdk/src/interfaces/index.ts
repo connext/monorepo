@@ -4,8 +4,8 @@ import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
 export type Pool = {
   domainId: string;
-  // name: string;
-  // symbol: string; // in the form of <TKN>-next<TKN>
+  name: string;
+  symbol: string; // in the form of <TKN>-next<TKN>
   local: PoolAsset;
   adopted: PoolAsset;
   lpTokenAddress: string;
@@ -17,8 +17,8 @@ export type Pool = {
 
 export type PoolAsset = {
   address: string;
-  // name: string;
-  // symbol: string;
+  name: string;
+  symbol: string;
   decimals: number;
   index: number;
   balance: BigNumber;

@@ -818,11 +818,12 @@ export class SdkPool extends SdkShared {
 
       const _tokenAddress = utils.getAddress(tokenAddress);
 
+      // Fetch asset data
       const assetsData = await this.getAssetsData();
       const asset = assetsData.find((assetData) => {
         return (
           domainId === assetData.domain &&
-          (utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress)
+          (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
         );
       });
 
@@ -831,7 +832,7 @@ export class SdkPool extends SdkShared {
         return;
       }
 
-      // Fetch pool data from cartographer
+      // Fetch pool data
       const poolIdentifier = asset.key ? `key=eq.${asset.key}&` : "";
       const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
 
@@ -845,20 +846,24 @@ export class SdkPool extends SdkShared {
         return;
       }
 
-      // Construct Pool object
+      // Construct pool object
+      const assetXAddress = utils.getAddress(String(poolData.pooled_tokens[0]));
+      const assetYAddress = utils.getAddress(String(poolData.pooled_tokens[1]));
+      const checkSummedLocalAsset = utils.getAddress(asset.local);
+
       const assetX: PoolAsset = {
-        address: poolData.pooled_tokens[0],
-        // name: poolData.,
-        // symbol: poolData.,
+        address: assetXAddress,
+        name: this.chainData.get(domainId)?.assetId[assetXAddress].name ?? "",
+        symbol: this.chainData.get(domainId)?.assetId[assetXAddress].symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
       };
 
       const assetY: PoolAsset = {
-        address: poolData.pooled_tokens[1],
-        // name: poolData.,
-        // symbol: poolData.,
+        address: assetYAddress,
+        name: this.chainData.get(domainId)?.assetId[assetYAddress].name ?? "",
+        symbol: this.chainData.get(domainId)?.assetId[assetYAddress].symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
@@ -866,10 +871,13 @@ export class SdkPool extends SdkShared {
 
       const pool: Pool = {
         domainId: domainId,
-        // name: `${localSymbol}-Pool`,
-        // symbol: `${localSymbol}-${localSymbol}`,
-        local: asset.local == assetX.address ? assetX : assetY,
-        adopted: asset.local == assetX.address ? assetY : assetX,
+        name: checkSummedLocalAsset == assetX.address ? `${assetY.symbol} Pool` : `${assetX.symbol} Pool`,
+        symbol:
+          checkSummedLocalAsset == assetX.address
+            ? `${assetY.symbol}-${assetX.symbol}`
+            : `${assetX.symbol}-${assetY.symbol}`,
+        local: checkSummedLocalAsset == assetX.address ? assetX : assetY,
+        adopted: checkSummedLocalAsset == assetX.address ? assetY : assetX,
         lpTokenAddress: poolData.lp_token,
         canonicalHash: poolData.key,
         swapFee: poolData.swap_fee,
