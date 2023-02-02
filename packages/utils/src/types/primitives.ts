@@ -41,7 +41,6 @@ export const TAssetDescription = Type.Object({
 export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
