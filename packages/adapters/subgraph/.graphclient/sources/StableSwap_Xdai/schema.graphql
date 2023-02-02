@@ -372,7 +372,7 @@ type xdai_swap_StableSwap {
   futureATime: BigInt
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: xdai_swap_PooledToken_orderBy, orderDirection: xdai_swap_OrderDirection, where: xdai_swap_PooledToken_filter): [xdai_swap_PooledToken!]!
+  pooledTokens: [xdai_swap_Bytes!]!
   tokenPrecisionMultipliers: [BigInt!]!
   balances: [BigInt!]!
   adminFees: [BigInt!]!
@@ -947,13 +947,12 @@ input xdai_swap_StableSwap_filter {
   adminFee_lte: BigInt
   adminFee_in: [BigInt!]
   adminFee_not_in: [BigInt!]
-  pooledTokens: [String!]
-  pooledTokens_not: [String!]
-  pooledTokens_contains: [String!]
-  pooledTokens_contains_nocase: [String!]
-  pooledTokens_not_contains: [String!]
-  pooledTokens_not_contains_nocase: [String!]
-  pooledTokens_: xdai_swap_PooledToken_filter
+  pooledTokens: [xdai_swap_Bytes!]
+  pooledTokens_not: [xdai_swap_Bytes!]
+  pooledTokens_contains: [xdai_swap_Bytes!]
+  pooledTokens_contains_nocase: [xdai_swap_Bytes!]
+  pooledTokens_not_contains: [xdai_swap_Bytes!]
+  pooledTokens_not_contains_nocase: [xdai_swap_Bytes!]
   tokenPrecisionMultipliers: [BigInt!]
   tokenPrecisionMultipliers_not: [BigInt!]
   tokenPrecisionMultipliers_contains: [BigInt!]
