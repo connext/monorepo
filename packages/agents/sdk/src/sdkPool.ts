@@ -894,7 +894,7 @@ export class SdkPool extends SdkShared {
 
       // Fetch pool data
       const poolDataResults = await this.getPoolData({ key: asset.key, domainId: domainId });
-      if (!poolDataResults) {
+      if (!poolDataResults || poolDataResults.length == 0) {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
         return;
       }
@@ -991,9 +991,9 @@ export class SdkPool extends SdkShared {
    * Calculates the fees, liquidity, and volume of a pool for the 24 hours prior to the specified unix time.
    *
    * @param domainId - The domain ID of the pool.
-   * @param tokenAddress - The address of the user to get the pools for.
+   * @param tokenAddress - The address of local or adopted token.
    * @param unixTimestamp - The unix time to look back 24 hours from.
-   * @returns Object containing fees, liquidity, and volume, formatted in the pool token's native decimal precision.
+   * @returns Object containing fees, liquidity, and volume, in 1e18 precision.
    */
   async getYieldStatsForDay(
     domainId: string,
@@ -1027,7 +1027,7 @@ export class SdkPool extends SdkShared {
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
       for (const volumeData of hourlyVolumes) {
-        totalVolume = totalVolume.add(utils.parseEther(String(volumeData.volume)));
+        totalVolume = totalVolume.add(utils.parseEther(Number(volumeData.volume).toFixed(18)));
       }
       totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
 
@@ -1079,7 +1079,7 @@ export class SdkPool extends SdkShared {
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of the user to get the pools for.
    * @param days - (optional) The number of days to look back.
-   * @returns Object containing apr, apy, and volume formatted in the pool token's native decimal precision.
+   * @returns Object containing apr, apy. Also fees, liquidity, and volume in 1e18 precision.
    */
   getYieldData = memoize(
     async (
@@ -1088,6 +1088,8 @@ export class SdkPool extends SdkShared {
       days: number = 1,
     ): Promise<
       | {
+          fees: number;
+          liquidity: number;
           apr: number;
           apy: number;
           volume: BigNumber;
@@ -1106,14 +1108,16 @@ export class SdkPool extends SdkShared {
       if (yieldStats) {
         const {
           totalFeesFormatted: feesEarnedToday,
-          totalLiquidityFormatted: totalLiquidityToday,
+          totalLiquidityFormatted: totalLiquidity,
           totalVolume,
           totalVolumeFormatted,
         } = yieldStats;
 
-        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidityToday, days);
+        const { apr, apy } = this.calculateYield(feesEarnedToday, totalLiquidity, days);
 
         return {
+          fees: feesEarnedToday,
+          liquidity: totalLiquidity,
           apr: Math.max(apr, 0),
           apy: Math.max(apy, 0),
           volume: totalVolume,
