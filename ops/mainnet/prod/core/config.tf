@@ -358,40 +358,40 @@ locals {
         providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
-          address = "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd"
+          address = "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD"
           }, {
           name    = "WETH"
-          address = "0xbad5b3c68f855eaece68203312fd88ad3d365e50"
+          address = "0xbAD5B3c68F855EaEcE68203312Fd88AD3D365e50"
         }]
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com", "https://polygon-bor.publicnode.com", "https://rpc.ankr.com/polygon"]
         assets = [{
           name    = "USDC"
-          address = "0xf96c6d2537e1af1a9503852eb2a4af264272a5b6"
+          address = "0xF96C6d2537e1af1a9503852eB2A4AF264272a5B6"
           }, {
           name    = "WETH"
-          address = "0x4b8bac8dd1caa52e32c07755c17efaded6a0bbd0"
+          address = "0x4b8BaC8Dd1CAA52E32C07755c17eFadeD6A0bbD0"
         }]
       }
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
         assets = [{
           name    = "USDC"
-          address = "0x8c556cf37faa0eedac7ae665f1bb0fbd4b2eae36"
+          address = "0x8c556cF37faa0eeDAC7aE665f1Bb0FbD4b2eae36"
           }, {
           name    = "WETH"
-          address = "0x2983bf5c334743aa6657ad70a55041d720d225db"
+          address = "0x2983bf5c334743Aa6657AD70A55041d720d225dB"
         }]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc", "https://bsc-dataseed1.defibit.io"]
         assets = [{
           name    = "USDC"
-          address = "0x5e7d83da751f4c9694b13af351b30ac108f32c38"
+          address = "0x5e7D83dA751F4C9694b13aF351B30aC108f32C38"
           }, {
           name    = "WETH"
-          address = "0xa9cb51c666d2af451d87442be50747b31bb7d805"
+          address = "0xA9CB51C666D2AF451d87442Be50747B31BB7d805"
         }]
       }
       "6778479" = {
@@ -401,7 +401,7 @@ locals {
           address = "0x44CF74238d840a5fEBB0eAa089D05b763B73faB8"
           }, {
           name    = "WETH"
-          address = "0x538e2ddbfdf476d24ccb1477a518a82c9ea81326"
+          address = "0x538E2dDbfDf476D24cCb1477A518A82C9EA81326"
         }]
       }
     }
