@@ -312,7 +312,7 @@ export type xdai_swap_StableSwap = {
   futureATime?: Maybe<Scalars['BigInt']>;
   swapFee?: Maybe<Scalars['BigInt']>;
   adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<xdai_swap_PooledToken>;
+  pooledTokens: Array<Scalars['xdai_swap_Bytes']>;
   tokenPrecisionMultipliers: Array<Scalars['BigInt']>;
   balances: Array<Scalars['BigInt']>;
   adminFees: Array<Scalars['BigInt']>;
@@ -324,15 +324,6 @@ export type xdai_swap_StableSwap = {
   hourlyVolumes?: Maybe<Array<xdai_swap_SwapHourlyVolume>>;
   dailyVolumes?: Maybe<Array<xdai_swap_SwapDailyVolume>>;
   weeklyVolumes?: Maybe<Array<xdai_swap_SwapWeeklyVolume>>;
-};
-
-
-export type xdai_swap_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_swap_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<xdai_swap_OrderDirection>;
-  where?: InputMaybe<xdai_swap_PooledToken_filter>;
 };
 
 
@@ -937,13 +928,12 @@ export type xdai_swap_StableSwap_filter = {
   adminFee_lte?: InputMaybe<Scalars['BigInt']>;
   adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<xdai_swap_PooledToken_filter>;
+  pooledTokens?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  pooledTokens_not?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  pooledTokens_contains?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  pooledTokens_not_contains?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
+  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;

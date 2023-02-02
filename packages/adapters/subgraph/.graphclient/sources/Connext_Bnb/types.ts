@@ -71,6 +71,7 @@ export type bnb_Asset = {
   adoptedAsset?: Maybe<Scalars['bnb_Bytes']>;
   localAsset?: Maybe<Scalars['bnb_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<bnb_AssetStatus>;
 };
 
 export type bnb_AssetBalance = {
@@ -159,6 +160,32 @@ export type bnb_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
+export type bnb_AssetStatus = {
+  id: Scalars['ID'];
+  status?: Maybe<Scalars['Boolean']>;
+};
+
+export type bnb_AssetStatus_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  status?: InputMaybe<Scalars['Boolean']>;
+  status_not?: InputMaybe<Scalars['Boolean']>;
+  status_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+};
+
+export type bnb_AssetStatus_orderBy =
+  | 'id'
+  | 'status';
+
 export type bnb_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -224,6 +251,27 @@ export type bnb_Asset_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<Scalars['String']>;
+  status_not?: InputMaybe<Scalars['String']>;
+  status_gt?: InputMaybe<Scalars['String']>;
+  status_lt?: InputMaybe<Scalars['String']>;
+  status_gte?: InputMaybe<Scalars['String']>;
+  status_lte?: InputMaybe<Scalars['String']>;
+  status_in?: InputMaybe<Array<Scalars['String']>>;
+  status_not_in?: InputMaybe<Array<Scalars['String']>>;
+  status_contains?: InputMaybe<Scalars['String']>;
+  status_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_not_contains?: InputMaybe<Scalars['String']>;
+  status_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_starts_with?: InputMaybe<Scalars['String']>;
+  status_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_starts_with?: InputMaybe<Scalars['String']>;
+  status_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_ends_with?: InputMaybe<Scalars['String']>;
+  status_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']>;
+  status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_?: InputMaybe<bnb_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<bnb_BlockChangedFilter>;
 };
@@ -235,7 +283,8 @@ export type bnb_Asset_orderBy =
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'status';
 
 export type bnb_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -338,6 +387,7 @@ export type bnb_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['bnb_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['bnb_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -482,6 +532,14 @@ export type bnb_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['bnb_Bytes']>;
   originSender_not?: InputMaybe<Scalars['bnb_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['bnb_Bytes']>;
@@ -698,6 +756,7 @@ export type bnb_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
@@ -878,9 +937,9 @@ export type bnb_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['bnb_Bytes']>;
   asset?: Maybe<bnb_Asset>;
-  transacting?: Maybe<Scalars['bnb_Bytes']>;
   message?: Maybe<bnb_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['bnb_Bytes']>;
   transactionHash?: Maybe<Scalars['bnb_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1062,16 +1121,6 @@ export type bnb_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<bnb_Asset_filter>;
-  transacting?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transacting_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transacting_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  transacting_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1101,6 +1150,14 @@ export type bnb_OriginTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_not?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_gt?: InputMaybe<Scalars['bnb_Bytes']>;
@@ -1187,9 +1244,9 @@ export type bnb_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'transacting'
   | 'message'
   | 'relayerFee'
+  | 'bumpRelayerFeeCount'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1198,41 +1255,11 @@ export type bnb_OriginTransfer_orderBy =
   | 'blockNumber'
   | 'txOrigin';
 
-export type bnb_PooledToken = {
-  id: Scalars['ID'];
-  asset: Scalars['bnb_Bytes'];
-};
-
-export type bnb_PooledToken_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
-};
-
-export type bnb_PooledToken_orderBy =
-  | 'id'
-  | 'asset';
-
 export type Query = {
   bnb_asset?: Maybe<bnb_Asset>;
   bnb_assets: Array<bnb_Asset>;
+  bnb_assetStatus?: Maybe<bnb_AssetStatus>;
+  bnb_assetStatuses: Array<bnb_AssetStatus>;
   bnb_assetBalance?: Maybe<bnb_AssetBalance>;
   bnb_assetBalances: Array<bnb_AssetBalance>;
   bnb_router?: Maybe<bnb_Router>;
@@ -1241,8 +1268,6 @@ export type Query = {
   bnb_settings: Array<bnb_Setting>;
   bnb_relayer?: Maybe<bnb_Relayer>;
   bnb_relayers: Array<bnb_Relayer>;
-  bnb_transferRelayerFee?: Maybe<bnb_TransferRelayerFee>;
-  bnb_transferRelayerFees: Array<bnb_TransferRelayerFee>;
   bnb_sequencer?: Maybe<bnb_Sequencer>;
   bnb_sequencers: Array<bnb_Sequencer>;
   bnb_originTransfer?: Maybe<bnb_OriginTransfer>;
@@ -1259,12 +1284,6 @@ export type Query = {
   bnb_rootCounts: Array<bnb_RootCount>;
   bnb_rootMessageSent?: Maybe<bnb_RootMessageSent>;
   bnb_rootMessageSents: Array<bnb_RootMessageSent>;
-  bnb_stableSwap?: Maybe<bnb_StableSwap>;
-  bnb_stableSwaps: Array<bnb_StableSwap>;
-  bnb_pooledToken?: Maybe<bnb_PooledToken>;
-  bnb_pooledTokens: Array<bnb_PooledToken>;
-  bnb_stableSwapLiquidity?: Maybe<bnb_StableSwapLiquidity>;
-  bnb_stableSwapLiquidities: Array<bnb_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -1283,6 +1302,24 @@ export type Querybnb_assetsArgs = {
   orderBy?: InputMaybe<bnb_Asset_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Asset_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_AssetStatus_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1355,24 +1392,6 @@ export type Querybnb_relayersArgs = {
   orderBy?: InputMaybe<bnb_Relayer_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Relayer_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_TransferRelayerFee_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1517,60 +1536,6 @@ export type Querybnb_rootMessageSentsArgs = {
   orderBy?: InputMaybe<bnb_RootMessageSent_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_RootMessageSent_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_StableSwap_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_PooledToken_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querybnb_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_StableSwapLiquidity_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1938,286 +1903,11 @@ export type bnb_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type bnb_StableSwap = {
-  id: Scalars['ID'];
-  isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['bnb_Bytes']>;
-  canonicalId?: Maybe<Scalars['bnb_Bytes']>;
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['bnb_Bytes']>;
-  lpToken?: Maybe<Scalars['bnb_Bytes']>;
-  initialA?: Maybe<Scalars['BigInt']>;
-  futureA?: Maybe<Scalars['BigInt']>;
-  initialATime?: Maybe<Scalars['BigInt']>;
-  futureATime?: Maybe<Scalars['BigInt']>;
-  swapFee?: Maybe<Scalars['BigInt']>;
-  adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<bnb_PooledToken>;
-  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
-  balances: Array<Scalars['BigInt']>;
-  adminFees?: Maybe<Array<Scalars['BigInt']>>;
-};
-
-
-export type bnb_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_PooledToken_filter>;
-};
-
-export type bnb_StableSwapLiquidity = {
-  id: Scalars['ID'];
-  provider: Scalars['bnb_Bytes'];
-  stableSwap: bnb_StableSwap;
-  tokenAmounts: Array<Scalars['BigInt']>;
-  fees: Array<Scalars['BigInt']>;
-  invariant?: Maybe<Scalars['BigInt']>;
-  lpTokenSupply?: Maybe<Scalars['BigInt']>;
-};
-
-export type bnb_StableSwapLiquidity_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  stableSwap?: InputMaybe<Scalars['String']>;
-  stableSwap_not?: InputMaybe<Scalars['String']>;
-  stableSwap_gt?: InputMaybe<Scalars['String']>;
-  stableSwap_lt?: InputMaybe<Scalars['String']>;
-  stableSwap_gte?: InputMaybe<Scalars['String']>;
-  stableSwap_lte?: InputMaybe<Scalars['String']>;
-  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<bnb_StableSwap_filter>;
-  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant?: InputMaybe<Scalars['BigInt']>;
-  invariant_not?: InputMaybe<Scalars['BigInt']>;
-  invariant_gt?: InputMaybe<Scalars['BigInt']>;
-  invariant_lt?: InputMaybe<Scalars['BigInt']>;
-  invariant_gte?: InputMaybe<Scalars['BigInt']>;
-  invariant_lte?: InputMaybe<Scalars['BigInt']>;
-  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
-};
-
-export type bnb_StableSwapLiquidity_orderBy =
-  | 'id'
-  | 'provider'
-  | 'stableSwap'
-  | 'tokenAmounts'
-  | 'fees'
-  | 'invariant'
-  | 'lpTokenSupply';
-
-export type bnb_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  initialA?: InputMaybe<Scalars['BigInt']>;
-  initialA_not?: InputMaybe<Scalars['BigInt']>;
-  initialA_gt?: InputMaybe<Scalars['BigInt']>;
-  initialA_lt?: InputMaybe<Scalars['BigInt']>;
-  initialA_gte?: InputMaybe<Scalars['BigInt']>;
-  initialA_lte?: InputMaybe<Scalars['BigInt']>;
-  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA?: InputMaybe<Scalars['BigInt']>;
-  futureA_not?: InputMaybe<Scalars['BigInt']>;
-  futureA_gt?: InputMaybe<Scalars['BigInt']>;
-  futureA_lt?: InputMaybe<Scalars['BigInt']>;
-  futureA_gte?: InputMaybe<Scalars['BigInt']>;
-  futureA_lte?: InputMaybe<Scalars['BigInt']>;
-  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime?: InputMaybe<Scalars['BigInt']>;
-  initialATime_not?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime?: InputMaybe<Scalars['BigInt']>;
-  futureATime_not?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee?: InputMaybe<Scalars['BigInt']>;
-  swapFee_not?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee?: InputMaybe<Scalars['BigInt']>;
-  adminFee_not?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<bnb_PooledToken_filter>;
-  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
-};
-
-export type bnb_StableSwap_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'key'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool'
-  | 'lpToken'
-  | 'initialA'
-  | 'futureA'
-  | 'initialATime'
-  | 'futureATime'
-  | 'swapFee'
-  | 'adminFee'
-  | 'pooledTokens'
-  | 'tokenPrecisionMultipliers'
-  | 'balances'
-  | 'adminFees';
-
 export type Subscription = {
   bnb_asset?: Maybe<bnb_Asset>;
   bnb_assets: Array<bnb_Asset>;
+  bnb_assetStatus?: Maybe<bnb_AssetStatus>;
+  bnb_assetStatuses: Array<bnb_AssetStatus>;
   bnb_assetBalance?: Maybe<bnb_AssetBalance>;
   bnb_assetBalances: Array<bnb_AssetBalance>;
   bnb_router?: Maybe<bnb_Router>;
@@ -2226,8 +1916,6 @@ export type Subscription = {
   bnb_settings: Array<bnb_Setting>;
   bnb_relayer?: Maybe<bnb_Relayer>;
   bnb_relayers: Array<bnb_Relayer>;
-  bnb_transferRelayerFee?: Maybe<bnb_TransferRelayerFee>;
-  bnb_transferRelayerFees: Array<bnb_TransferRelayerFee>;
   bnb_sequencer?: Maybe<bnb_Sequencer>;
   bnb_sequencers: Array<bnb_Sequencer>;
   bnb_originTransfer?: Maybe<bnb_OriginTransfer>;
@@ -2244,12 +1932,6 @@ export type Subscription = {
   bnb_rootCounts: Array<bnb_RootCount>;
   bnb_rootMessageSent?: Maybe<bnb_RootMessageSent>;
   bnb_rootMessageSents: Array<bnb_RootMessageSent>;
-  bnb_stableSwap?: Maybe<bnb_StableSwap>;
-  bnb_stableSwaps: Array<bnb_StableSwap>;
-  bnb_pooledToken?: Maybe<bnb_PooledToken>;
-  bnb_pooledTokens: Array<bnb_PooledToken>;
-  bnb_stableSwapLiquidity?: Maybe<bnb_StableSwapLiquidity>;
-  bnb_stableSwapLiquidities: Array<bnb_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -2268,6 +1950,24 @@ export type Subscriptionbnb_assetsArgs = {
   orderBy?: InputMaybe<bnb_Asset_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Asset_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_AssetStatus_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2340,24 +2040,6 @@ export type Subscriptionbnb_relayersArgs = {
   orderBy?: InputMaybe<bnb_Relayer_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Relayer_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_TransferRelayerFee_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2507,105 +2189,9 @@ export type Subscriptionbnb_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionbnb_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_StableSwap_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_PooledToken_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionbnb_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<bnb_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<bnb_OrderDirection>;
-  where?: InputMaybe<bnb_StableSwapLiquidity_filter>;
-  block?: InputMaybe<bnb_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionbnb__metaArgs = {
   block?: InputMaybe<bnb_Block_height>;
 };
-
-export type bnb_TransferRelayerFee = {
-  id: Scalars['ID'];
-  transferId: Scalars['bnb_Bytes'];
-  fee?: Maybe<Scalars['BigInt']>;
-};
-
-export type bnb_TransferRelayerFee_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
-  fee?: InputMaybe<Scalars['BigInt']>;
-  fee_not?: InputMaybe<Scalars['BigInt']>;
-  fee_gt?: InputMaybe<Scalars['BigInt']>;
-  fee_lt?: InputMaybe<Scalars['BigInt']>;
-  fee_gte?: InputMaybe<Scalars['BigInt']>;
-  fee_lte?: InputMaybe<Scalars['BigInt']>;
-  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
-};
-
-export type bnb_TransferRelayerFee_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'fee';
 
 export type bnb_TransferStatus =
   | 'XCalled'
@@ -2651,6 +2237,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   bnb_assets: InContextSdkMethod<Query['bnb_assets'], Querybnb_assetsArgs, MeshContext>,
   /** null **/
+  bnb_assetStatus: InContextSdkMethod<Query['bnb_assetStatus'], Querybnb_assetStatusArgs, MeshContext>,
+  /** null **/
+  bnb_assetStatuses: InContextSdkMethod<Query['bnb_assetStatuses'], Querybnb_assetStatusesArgs, MeshContext>,
+  /** null **/
   bnb_assetBalance: InContextSdkMethod<Query['bnb_assetBalance'], Querybnb_assetBalanceArgs, MeshContext>,
   /** null **/
   bnb_assetBalances: InContextSdkMethod<Query['bnb_assetBalances'], Querybnb_assetBalancesArgs, MeshContext>,
@@ -2666,10 +2256,6 @@ export type _SubgraphErrorPolicy_ =
   bnb_relayer: InContextSdkMethod<Query['bnb_relayer'], Querybnb_relayerArgs, MeshContext>,
   /** null **/
   bnb_relayers: InContextSdkMethod<Query['bnb_relayers'], Querybnb_relayersArgs, MeshContext>,
-  /** null **/
-  bnb_transferRelayerFee: InContextSdkMethod<Query['bnb_transferRelayerFee'], Querybnb_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  bnb_transferRelayerFees: InContextSdkMethod<Query['bnb_transferRelayerFees'], Querybnb_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   bnb_sequencer: InContextSdkMethod<Query['bnb_sequencer'], Querybnb_sequencerArgs, MeshContext>,
   /** null **/
@@ -2702,18 +2288,6 @@ export type _SubgraphErrorPolicy_ =
   bnb_rootMessageSent: InContextSdkMethod<Query['bnb_rootMessageSent'], Querybnb_rootMessageSentArgs, MeshContext>,
   /** null **/
   bnb_rootMessageSents: InContextSdkMethod<Query['bnb_rootMessageSents'], Querybnb_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwap: InContextSdkMethod<Query['bnb_stableSwap'], Querybnb_stableSwapArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwaps: InContextSdkMethod<Query['bnb_stableSwaps'], Querybnb_stableSwapsArgs, MeshContext>,
-  /** null **/
-  bnb_pooledToken: InContextSdkMethod<Query['bnb_pooledToken'], Querybnb_pooledTokenArgs, MeshContext>,
-  /** null **/
-  bnb_pooledTokens: InContextSdkMethod<Query['bnb_pooledTokens'], Querybnb_pooledTokensArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwapLiquidity: InContextSdkMethod<Query['bnb_stableSwapLiquidity'], Querybnb_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwapLiquidities: InContextSdkMethod<Query['bnb_stableSwapLiquidities'], Querybnb_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Query['bnb__meta'], Querybnb__metaArgs, MeshContext>
   };
@@ -2727,6 +2301,10 @@ export type _SubgraphErrorPolicy_ =
   bnb_asset: InContextSdkMethod<Subscription['bnb_asset'], Subscriptionbnb_assetArgs, MeshContext>,
   /** null **/
   bnb_assets: InContextSdkMethod<Subscription['bnb_assets'], Subscriptionbnb_assetsArgs, MeshContext>,
+  /** null **/
+  bnb_assetStatus: InContextSdkMethod<Subscription['bnb_assetStatus'], Subscriptionbnb_assetStatusArgs, MeshContext>,
+  /** null **/
+  bnb_assetStatuses: InContextSdkMethod<Subscription['bnb_assetStatuses'], Subscriptionbnb_assetStatusesArgs, MeshContext>,
   /** null **/
   bnb_assetBalance: InContextSdkMethod<Subscription['bnb_assetBalance'], Subscriptionbnb_assetBalanceArgs, MeshContext>,
   /** null **/
@@ -2743,10 +2321,6 @@ export type _SubgraphErrorPolicy_ =
   bnb_relayer: InContextSdkMethod<Subscription['bnb_relayer'], Subscriptionbnb_relayerArgs, MeshContext>,
   /** null **/
   bnb_relayers: InContextSdkMethod<Subscription['bnb_relayers'], Subscriptionbnb_relayersArgs, MeshContext>,
-  /** null **/
-  bnb_transferRelayerFee: InContextSdkMethod<Subscription['bnb_transferRelayerFee'], Subscriptionbnb_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  bnb_transferRelayerFees: InContextSdkMethod<Subscription['bnb_transferRelayerFees'], Subscriptionbnb_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   bnb_sequencer: InContextSdkMethod<Subscription['bnb_sequencer'], Subscriptionbnb_sequencerArgs, MeshContext>,
   /** null **/
@@ -2779,18 +2353,6 @@ export type _SubgraphErrorPolicy_ =
   bnb_rootMessageSent: InContextSdkMethod<Subscription['bnb_rootMessageSent'], Subscriptionbnb_rootMessageSentArgs, MeshContext>,
   /** null **/
   bnb_rootMessageSents: InContextSdkMethod<Subscription['bnb_rootMessageSents'], Subscriptionbnb_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwap: InContextSdkMethod<Subscription['bnb_stableSwap'], Subscriptionbnb_stableSwapArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwaps: InContextSdkMethod<Subscription['bnb_stableSwaps'], Subscriptionbnb_stableSwapsArgs, MeshContext>,
-  /** null **/
-  bnb_pooledToken: InContextSdkMethod<Subscription['bnb_pooledToken'], Subscriptionbnb_pooledTokenArgs, MeshContext>,
-  /** null **/
-  bnb_pooledTokens: InContextSdkMethod<Subscription['bnb_pooledTokens'], Subscriptionbnb_pooledTokensArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwapLiquidity: InContextSdkMethod<Subscription['bnb_stableSwapLiquidity'], Subscriptionbnb_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  bnb_stableSwapLiquidities: InContextSdkMethod<Subscription['bnb_stableSwapLiquidities'], Subscriptionbnb_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Subscription['bnb__meta'], Subscriptionbnb__metaArgs, MeshContext>
   };
