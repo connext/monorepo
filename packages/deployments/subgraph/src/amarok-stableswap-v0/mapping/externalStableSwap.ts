@@ -1,5 +1,5 @@
 /* eslint-disable  */
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { decimal } from "@protofire/subgraph-toolkit";
 
 import {
@@ -50,12 +50,7 @@ export function handleSwapInitialized(event: SwapInitialized): void {
   stableSwap.swapFee = event.params.swap.swapFee;
   stableSwap.adminFee = event.params.swap.adminFee;
 
-  const num = event.params.swap.pooledTokens.length;
-  for (let i = 0; i < num; i++) {
-    let pooledToken = getOrCreatePooledToken(event.params.swap.pooledTokens[i]);
-    stableSwap.pooledTokens[i] = pooledToken.id;
-  }
-
+  stableSwap.pooledTokens = event.params.swap.pooledTokens.map<Bytes>((asset: Bytes) => asset);
   stableSwap.tokenPrecisionMultipliers = event.params.swap.tokenPrecisionMultipliers;
   stableSwap.balances = event.params.swap.balances;
   stableSwap.adminFees = event.params.swap.adminFees;

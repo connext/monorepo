@@ -63,15 +63,7 @@ export function handleInternalSwapInitialized(event: SwapInitialized): void {
   stableSwap.swapFee = event.params.swap.swapFee;
   stableSwap.adminFee = event.params.swap.adminFee;
 
-  const num = event.params.swap.pooledTokens.length;
-
-  let poolTokens: string[] = [];
-  for (let i = 0; i < num; i++) {
-    let pooledToken = getOrCreatePooledToken(event.params.swap.pooledTokens[i]);
-    poolTokens.push(pooledToken.id);
-  }
-  stableSwap.pooledTokens = poolTokens;
-
+  stableSwap.pooledTokens = event.params.swap.pooledTokens.map<Bytes>((asset: Bytes) => asset);
   stableSwap.tokenPrecisionMultipliers = event.params.swap.tokenPrecisionMultipliers;
   stableSwap.balances = event.params.swap.balances;
   stableSwap.adminFees = event.params.swap.adminFees;
