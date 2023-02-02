@@ -48,6 +48,7 @@ export const TChainConfig = Type.Object({
     connext: TAddress,
     relayerProxy: TAddress,
   }),
+  assets: Type.Optional(Type.Array(TAssetDescription)), // Assets for which the router provides liquidity on this chain.
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
