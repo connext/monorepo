@@ -233,10 +233,14 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
 
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
+    transfer.relayerFee = new BigInt(0);
+    transfer.bumpRelayerFeeCount = new BigInt(0);
   }
 
-  transfer.relayerFee = transfer.relayerFee!.plus(event.params.increase);
-  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
+  transfer.relayerFee = transfer.relayerFee ? transfer.relayerFee!.plus(event.params.increase) : transfer.relayerFee;
+  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount
+    ? transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
 }
 
@@ -250,9 +254,12 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
 
   if (transfer == null) {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
+    transfer.bumpSlippageCount = new BigInt(0);
   }
 
   transfer.slippage = event.params.slippage;
-  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount
+    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
 }
