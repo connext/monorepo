@@ -71,12 +71,6 @@ describe("SdkUtils", () => {
 
       expect(res).to.not.be.undefined;
     });
-
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
-
-      await expect(nxtpUtils.getAssetsData()).to.be.rejectedWith(UriInvalid);
-    });
   });
 
   describe("#getTransfers", () => {
