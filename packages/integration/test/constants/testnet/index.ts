@@ -186,12 +186,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: originChainData.chainId,
       config: {
         providers: [originProvider],
-        assets: [
-          {
-            name: "TEST",
-            address: originChainAsset,
-          },
-        ],
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
@@ -207,12 +201,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: destinationChainData.chainId,
       config: {
         providers: [destinationProvider],
-        assets: [
-          {
-            name: "TEST",
-            address: destinationChainAsset,
-          },
-        ],
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {

@@ -71,6 +71,7 @@ export type mainnet_Asset = {
   adoptedAsset?: Maybe<Scalars['mainnet_Bytes']>;
   localAsset?: Maybe<Scalars['mainnet_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<mainnet_AssetStatus>;
 };
 
 export type mainnet_AssetBalance = {
@@ -159,6 +160,32 @@ export type mainnet_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
+export type mainnet_AssetStatus = {
+  id: Scalars['ID'];
+  status?: Maybe<Scalars['Boolean']>;
+};
+
+export type mainnet_AssetStatus_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  status?: InputMaybe<Scalars['Boolean']>;
+  status_not?: InputMaybe<Scalars['Boolean']>;
+  status_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+};
+
+export type mainnet_AssetStatus_orderBy =
+  | 'id'
+  | 'status';
+
 export type mainnet_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -224,6 +251,27 @@ export type mainnet_Asset_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<Scalars['String']>;
+  status_not?: InputMaybe<Scalars['String']>;
+  status_gt?: InputMaybe<Scalars['String']>;
+  status_lt?: InputMaybe<Scalars['String']>;
+  status_gte?: InputMaybe<Scalars['String']>;
+  status_lte?: InputMaybe<Scalars['String']>;
+  status_in?: InputMaybe<Array<Scalars['String']>>;
+  status_not_in?: InputMaybe<Array<Scalars['String']>>;
+  status_contains?: InputMaybe<Scalars['String']>;
+  status_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_not_contains?: InputMaybe<Scalars['String']>;
+  status_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_starts_with?: InputMaybe<Scalars['String']>;
+  status_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_starts_with?: InputMaybe<Scalars['String']>;
+  status_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_ends_with?: InputMaybe<Scalars['String']>;
+  status_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']>;
+  status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_?: InputMaybe<mainnet_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
 };
@@ -235,7 +283,8 @@ export type mainnet_Asset_orderBy =
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'status';
 
 export type mainnet_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -338,6 +387,7 @@ export type mainnet_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['mainnet_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['mainnet_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -482,6 +532,14 @@ export type mainnet_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_not?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -698,6 +756,7 @@ export type mainnet_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
@@ -878,9 +937,9 @@ export type mainnet_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mainnet_Bytes']>;
   asset?: Maybe<mainnet_Asset>;
-  transacting?: Maybe<Scalars['mainnet_Bytes']>;
   message?: Maybe<mainnet_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['mainnet_Bytes']>;
   transactionHash?: Maybe<Scalars['mainnet_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1062,16 +1121,6 @@ export type mainnet_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mainnet_Asset_filter>;
-  transacting?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transacting_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transacting_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transacting_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1101,6 +1150,14 @@ export type mainnet_OriginTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1187,9 +1244,9 @@ export type mainnet_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'transacting'
   | 'message'
   | 'relayerFee'
+  | 'bumpRelayerFeeCount'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1198,41 +1255,11 @@ export type mainnet_OriginTransfer_orderBy =
   | 'blockNumber'
   | 'txOrigin';
 
-export type mainnet_PooledToken = {
-  id: Scalars['ID'];
-  asset: Scalars['mainnet_Bytes'];
-};
-
-export type mainnet_PooledToken_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-};
-
-export type mainnet_PooledToken_orderBy =
-  | 'id'
-  | 'asset';
-
 export type Query = {
   mainnet_asset?: Maybe<mainnet_Asset>;
   mainnet_assets: Array<mainnet_Asset>;
+  mainnet_assetStatus?: Maybe<mainnet_AssetStatus>;
+  mainnet_assetStatuses: Array<mainnet_AssetStatus>;
   mainnet_assetBalance?: Maybe<mainnet_AssetBalance>;
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
@@ -1241,8 +1268,6 @@ export type Query = {
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
   mainnet_relayers: Array<mainnet_Relayer>;
-  mainnet_transferRelayerFee?: Maybe<mainnet_TransferRelayerFee>;
-  mainnet_transferRelayerFees: Array<mainnet_TransferRelayerFee>;
   mainnet_sequencer?: Maybe<mainnet_Sequencer>;
   mainnet_sequencers: Array<mainnet_Sequencer>;
   mainnet_originTransfer?: Maybe<mainnet_OriginTransfer>;
@@ -1259,12 +1284,6 @@ export type Query = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
-  mainnet_stableSwap?: Maybe<mainnet_StableSwap>;
-  mainnet_stableSwaps: Array<mainnet_StableSwap>;
-  mainnet_pooledToken?: Maybe<mainnet_PooledToken>;
-  mainnet_pooledTokens: Array<mainnet_PooledToken>;
-  mainnet_stableSwapLiquidity?: Maybe<mainnet_StableSwapLiquidity>;
-  mainnet_stableSwapLiquidities: Array<mainnet_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -1283,6 +1302,24 @@ export type Querymainnet_assetsArgs = {
   orderBy?: InputMaybe<mainnet_Asset_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Asset_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_AssetStatus_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1355,24 +1392,6 @@ export type Querymainnet_relayersArgs = {
   orderBy?: InputMaybe<mainnet_Relayer_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Relayer_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_TransferRelayerFee_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1517,60 +1536,6 @@ export type Querymainnet_rootMessageSentsArgs = {
   orderBy?: InputMaybe<mainnet_RootMessageSent_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_RootMessageSent_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_StableSwap_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_PooledToken_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querymainnet_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_StableSwapLiquidity_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1938,286 +1903,11 @@ export type mainnet_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type mainnet_StableSwap = {
-  id: Scalars['ID'];
-  isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['mainnet_Bytes']>;
-  canonicalId?: Maybe<Scalars['mainnet_Bytes']>;
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['mainnet_Bytes']>;
-  lpToken?: Maybe<Scalars['mainnet_Bytes']>;
-  initialA?: Maybe<Scalars['BigInt']>;
-  futureA?: Maybe<Scalars['BigInt']>;
-  initialATime?: Maybe<Scalars['BigInt']>;
-  futureATime?: Maybe<Scalars['BigInt']>;
-  swapFee?: Maybe<Scalars['BigInt']>;
-  adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<mainnet_PooledToken>;
-  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
-  balances: Array<Scalars['BigInt']>;
-  adminFees?: Maybe<Array<Scalars['BigInt']>>;
-};
-
-
-export type mainnet_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_PooledToken_filter>;
-};
-
-export type mainnet_StableSwapLiquidity = {
-  id: Scalars['ID'];
-  provider: Scalars['mainnet_Bytes'];
-  stableSwap: mainnet_StableSwap;
-  tokenAmounts: Array<Scalars['BigInt']>;
-  fees: Array<Scalars['BigInt']>;
-  invariant?: Maybe<Scalars['BigInt']>;
-  lpTokenSupply?: Maybe<Scalars['BigInt']>;
-};
-
-export type mainnet_StableSwapLiquidity_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  stableSwap?: InputMaybe<Scalars['String']>;
-  stableSwap_not?: InputMaybe<Scalars['String']>;
-  stableSwap_gt?: InputMaybe<Scalars['String']>;
-  stableSwap_lt?: InputMaybe<Scalars['String']>;
-  stableSwap_gte?: InputMaybe<Scalars['String']>;
-  stableSwap_lte?: InputMaybe<Scalars['String']>;
-  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mainnet_StableSwap_filter>;
-  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant?: InputMaybe<Scalars['BigInt']>;
-  invariant_not?: InputMaybe<Scalars['BigInt']>;
-  invariant_gt?: InputMaybe<Scalars['BigInt']>;
-  invariant_lt?: InputMaybe<Scalars['BigInt']>;
-  invariant_gte?: InputMaybe<Scalars['BigInt']>;
-  invariant_lte?: InputMaybe<Scalars['BigInt']>;
-  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-};
-
-export type mainnet_StableSwapLiquidity_orderBy =
-  | 'id'
-  | 'provider'
-  | 'stableSwap'
-  | 'tokenAmounts'
-  | 'fees'
-  | 'invariant'
-  | 'lpTokenSupply';
-
-export type mainnet_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  initialA?: InputMaybe<Scalars['BigInt']>;
-  initialA_not?: InputMaybe<Scalars['BigInt']>;
-  initialA_gt?: InputMaybe<Scalars['BigInt']>;
-  initialA_lt?: InputMaybe<Scalars['BigInt']>;
-  initialA_gte?: InputMaybe<Scalars['BigInt']>;
-  initialA_lte?: InputMaybe<Scalars['BigInt']>;
-  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA?: InputMaybe<Scalars['BigInt']>;
-  futureA_not?: InputMaybe<Scalars['BigInt']>;
-  futureA_gt?: InputMaybe<Scalars['BigInt']>;
-  futureA_lt?: InputMaybe<Scalars['BigInt']>;
-  futureA_gte?: InputMaybe<Scalars['BigInt']>;
-  futureA_lte?: InputMaybe<Scalars['BigInt']>;
-  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime?: InputMaybe<Scalars['BigInt']>;
-  initialATime_not?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime?: InputMaybe<Scalars['BigInt']>;
-  futureATime_not?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee?: InputMaybe<Scalars['BigInt']>;
-  swapFee_not?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee?: InputMaybe<Scalars['BigInt']>;
-  adminFee_not?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<mainnet_PooledToken_filter>;
-  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-};
-
-export type mainnet_StableSwap_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'key'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool'
-  | 'lpToken'
-  | 'initialA'
-  | 'futureA'
-  | 'initialATime'
-  | 'futureATime'
-  | 'swapFee'
-  | 'adminFee'
-  | 'pooledTokens'
-  | 'tokenPrecisionMultipliers'
-  | 'balances'
-  | 'adminFees';
-
 export type Subscription = {
   mainnet_asset?: Maybe<mainnet_Asset>;
   mainnet_assets: Array<mainnet_Asset>;
+  mainnet_assetStatus?: Maybe<mainnet_AssetStatus>;
+  mainnet_assetStatuses: Array<mainnet_AssetStatus>;
   mainnet_assetBalance?: Maybe<mainnet_AssetBalance>;
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
@@ -2226,8 +1916,6 @@ export type Subscription = {
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
   mainnet_relayers: Array<mainnet_Relayer>;
-  mainnet_transferRelayerFee?: Maybe<mainnet_TransferRelayerFee>;
-  mainnet_transferRelayerFees: Array<mainnet_TransferRelayerFee>;
   mainnet_sequencer?: Maybe<mainnet_Sequencer>;
   mainnet_sequencers: Array<mainnet_Sequencer>;
   mainnet_originTransfer?: Maybe<mainnet_OriginTransfer>;
@@ -2244,12 +1932,6 @@ export type Subscription = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
-  mainnet_stableSwap?: Maybe<mainnet_StableSwap>;
-  mainnet_stableSwaps: Array<mainnet_StableSwap>;
-  mainnet_pooledToken?: Maybe<mainnet_PooledToken>;
-  mainnet_pooledTokens: Array<mainnet_PooledToken>;
-  mainnet_stableSwapLiquidity?: Maybe<mainnet_StableSwapLiquidity>;
-  mainnet_stableSwapLiquidities: Array<mainnet_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -2268,6 +1950,24 @@ export type Subscriptionmainnet_assetsArgs = {
   orderBy?: InputMaybe<mainnet_Asset_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Asset_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_AssetStatus_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2340,24 +2040,6 @@ export type Subscriptionmainnet_relayersArgs = {
   orderBy?: InputMaybe<mainnet_Relayer_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Relayer_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_TransferRelayerFee_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2507,105 +2189,9 @@ export type Subscriptionmainnet_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionmainnet_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_StableSwap_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_PooledToken_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionmainnet_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mainnet_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<mainnet_OrderDirection>;
-  where?: InputMaybe<mainnet_StableSwapLiquidity_filter>;
-  block?: InputMaybe<mainnet_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionmainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
-
-export type mainnet_TransferRelayerFee = {
-  id: Scalars['ID'];
-  transferId: Scalars['mainnet_Bytes'];
-  fee?: Maybe<Scalars['BigInt']>;
-};
-
-export type mainnet_TransferRelayerFee_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
-  fee?: InputMaybe<Scalars['BigInt']>;
-  fee_not?: InputMaybe<Scalars['BigInt']>;
-  fee_gt?: InputMaybe<Scalars['BigInt']>;
-  fee_lt?: InputMaybe<Scalars['BigInt']>;
-  fee_gte?: InputMaybe<Scalars['BigInt']>;
-  fee_lte?: InputMaybe<Scalars['BigInt']>;
-  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-};
-
-export type mainnet_TransferRelayerFee_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'fee';
 
 export type mainnet_TransferStatus =
   | 'XCalled'
@@ -2651,6 +2237,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_assets: InContextSdkMethod<Query['mainnet_assets'], Querymainnet_assetsArgs, MeshContext>,
   /** null **/
+  mainnet_assetStatus: InContextSdkMethod<Query['mainnet_assetStatus'], Querymainnet_assetStatusArgs, MeshContext>,
+  /** null **/
+  mainnet_assetStatuses: InContextSdkMethod<Query['mainnet_assetStatuses'], Querymainnet_assetStatusesArgs, MeshContext>,
+  /** null **/
   mainnet_assetBalance: InContextSdkMethod<Query['mainnet_assetBalance'], Querymainnet_assetBalanceArgs, MeshContext>,
   /** null **/
   mainnet_assetBalances: InContextSdkMethod<Query['mainnet_assetBalances'], Querymainnet_assetBalancesArgs, MeshContext>,
@@ -2666,10 +2256,6 @@ export type _SubgraphErrorPolicy_ =
   mainnet_relayer: InContextSdkMethod<Query['mainnet_relayer'], Querymainnet_relayerArgs, MeshContext>,
   /** null **/
   mainnet_relayers: InContextSdkMethod<Query['mainnet_relayers'], Querymainnet_relayersArgs, MeshContext>,
-  /** null **/
-  mainnet_transferRelayerFee: InContextSdkMethod<Query['mainnet_transferRelayerFee'], Querymainnet_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  mainnet_transferRelayerFees: InContextSdkMethod<Query['mainnet_transferRelayerFees'], Querymainnet_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   mainnet_sequencer: InContextSdkMethod<Query['mainnet_sequencer'], Querymainnet_sequencerArgs, MeshContext>,
   /** null **/
@@ -2702,18 +2288,6 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Query['mainnet_rootMessageSent'], Querymainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Query['mainnet_rootMessageSents'], Querymainnet_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwap: InContextSdkMethod<Query['mainnet_stableSwap'], Querymainnet_stableSwapArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwaps: InContextSdkMethod<Query['mainnet_stableSwaps'], Querymainnet_stableSwapsArgs, MeshContext>,
-  /** null **/
-  mainnet_pooledToken: InContextSdkMethod<Query['mainnet_pooledToken'], Querymainnet_pooledTokenArgs, MeshContext>,
-  /** null **/
-  mainnet_pooledTokens: InContextSdkMethod<Query['mainnet_pooledTokens'], Querymainnet_pooledTokensArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwapLiquidity: InContextSdkMethod<Query['mainnet_stableSwapLiquidity'], Querymainnet_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwapLiquidities: InContextSdkMethod<Query['mainnet_stableSwapLiquidities'], Querymainnet_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Query['mainnet__meta'], Querymainnet__metaArgs, MeshContext>
   };
@@ -2727,6 +2301,10 @@ export type _SubgraphErrorPolicy_ =
   mainnet_asset: InContextSdkMethod<Subscription['mainnet_asset'], Subscriptionmainnet_assetArgs, MeshContext>,
   /** null **/
   mainnet_assets: InContextSdkMethod<Subscription['mainnet_assets'], Subscriptionmainnet_assetsArgs, MeshContext>,
+  /** null **/
+  mainnet_assetStatus: InContextSdkMethod<Subscription['mainnet_assetStatus'], Subscriptionmainnet_assetStatusArgs, MeshContext>,
+  /** null **/
+  mainnet_assetStatuses: InContextSdkMethod<Subscription['mainnet_assetStatuses'], Subscriptionmainnet_assetStatusesArgs, MeshContext>,
   /** null **/
   mainnet_assetBalance: InContextSdkMethod<Subscription['mainnet_assetBalance'], Subscriptionmainnet_assetBalanceArgs, MeshContext>,
   /** null **/
@@ -2743,10 +2321,6 @@ export type _SubgraphErrorPolicy_ =
   mainnet_relayer: InContextSdkMethod<Subscription['mainnet_relayer'], Subscriptionmainnet_relayerArgs, MeshContext>,
   /** null **/
   mainnet_relayers: InContextSdkMethod<Subscription['mainnet_relayers'], Subscriptionmainnet_relayersArgs, MeshContext>,
-  /** null **/
-  mainnet_transferRelayerFee: InContextSdkMethod<Subscription['mainnet_transferRelayerFee'], Subscriptionmainnet_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  mainnet_transferRelayerFees: InContextSdkMethod<Subscription['mainnet_transferRelayerFees'], Subscriptionmainnet_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   mainnet_sequencer: InContextSdkMethod<Subscription['mainnet_sequencer'], Subscriptionmainnet_sequencerArgs, MeshContext>,
   /** null **/
@@ -2779,18 +2353,6 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Subscription['mainnet_rootMessageSent'], Subscriptionmainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Subscription['mainnet_rootMessageSents'], Subscriptionmainnet_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwap: InContextSdkMethod<Subscription['mainnet_stableSwap'], Subscriptionmainnet_stableSwapArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwaps: InContextSdkMethod<Subscription['mainnet_stableSwaps'], Subscriptionmainnet_stableSwapsArgs, MeshContext>,
-  /** null **/
-  mainnet_pooledToken: InContextSdkMethod<Subscription['mainnet_pooledToken'], Subscriptionmainnet_pooledTokenArgs, MeshContext>,
-  /** null **/
-  mainnet_pooledTokens: InContextSdkMethod<Subscription['mainnet_pooledTokens'], Subscriptionmainnet_pooledTokensArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwapLiquidity: InContextSdkMethod<Subscription['mainnet_stableSwapLiquidity'], Subscriptionmainnet_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  mainnet_stableSwapLiquidities: InContextSdkMethod<Subscription['mainnet_stableSwapLiquidities'], Subscriptionmainnet_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Subscription['mainnet__meta'], Subscriptionmainnet__metaArgs, MeshContext>
   };

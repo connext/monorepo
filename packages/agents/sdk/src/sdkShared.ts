@@ -188,13 +188,16 @@ export class SdkShared {
    * },
    * ```
    */
-  async getAssetsData(): Promise<AssetData[]> {
-    const uri = formatUrl(this.config.cartographerUrl!, "assets");
-    // Validate uri
-    validateUri(uri);
+  getAssetsData = memoize(
+    async (): Promise<AssetData[]> => {
+      const uri = formatUrl(this.config.cartographerUrl!, "assets");
+      // Validate uri
+      validateUri(uri);
 
-    return await axiosGetRequest(uri);
-  }
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   /**
    * Fetches the list of supported networks and assets.

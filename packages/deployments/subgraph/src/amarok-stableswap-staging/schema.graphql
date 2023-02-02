@@ -33,7 +33,7 @@ type StableSwap @entity {
 
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens: [PooledToken!]!
+  pooledTokens: [Bytes!]!
   tokenPrecisionMultipliers: [BigInt!]!
   balances: [BigInt!]!
   adminFees: [BigInt!]!
