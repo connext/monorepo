@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## Amarok 0.2.1-rc.28
+
 ## Amarok 0.2.1-rc.27
 
 - [graph] bug fixes
