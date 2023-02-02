@@ -358,50 +358,50 @@ locals {
         providers = ["https://endpoints.omniatech.io/v1/op/mainnet/public", "https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
         assets = [{
           name    = "USDC"
-          address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
+          address = "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd"
           }, {
           name    = "WETH"
-          address = "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9"
+          address = "0xbad5b3c68f855eaece68203312fd88ad3d365e50"
         }]
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com", "https://polygon-bor.publicnode.com", "https://rpc.ankr.com/polygon"]
         assets = [{
           name    = "USDC"
-          address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
+          address = "0xf96c6d2537e1af1a9503852eb2a4af264272a5b6"
           }, {
           name    = "WETH"
-          address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
+          address = "0x4b8bac8dd1caa52e32c07755c17efaded6a0bbd0"
         }]
       }
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
         assets = [{
           name    = "USDC"
-          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
+          address = "0x8c556cf37faa0eedac7ae665f1bb0fbd4b2eae36"
           }, {
           name    = "WETH"
-          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
+          address = "0x2983bf5c334743aa6657ad70a55041d720d225db"
         }]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc", "https://bsc-dataseed1.defibit.io"]
         assets = [{
           name    = "USDC"
-          address = "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15"
+          address = "0x5e7d83da751f4c9694b13af351b30ac108f32c38"
           }, {
           name    = "WETH"
-          address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
+          address = "0xa9cb51c666d2af451d87442be50747b31bb7d805"
         }]
       }
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis", "https://xdai-rpc.gateway.pokt.network", "https://rpc.gnosis.gateway.fm"]
         assets = [{
           name    = "USDC"
-          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
+          address = "0x44CF74238d840a5fEBB0eAa089D05b763B73faB8"
           }, {
           name    = "WETH"
-          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
+          address = "0x538e2ddbfdf476d24ccb1477a518a82c9ea81326"
         }]
       }
     }
