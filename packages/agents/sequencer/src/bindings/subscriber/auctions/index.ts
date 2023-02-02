@@ -85,6 +85,7 @@ export const bindSubscriber = async (queueName: string) => {
             }
             if (message.type === MessageType.ExecuteFast) {
               await cache.auctions.pruneAuctionData(message.transferId);
+              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
             } else {
               await cache.executors.pruneExecutorData(message.transferId);
             }
