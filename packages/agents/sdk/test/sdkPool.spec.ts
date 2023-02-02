@@ -117,6 +117,7 @@ describe("SdkPool", () => {
       expect(sdkPool.getTokenSupply).to.be.a("function");
       expect(sdkPool.getTokenUserBalance).to.be.a("function");
       expect(sdkPool.getPoolTokenIndex).to.be.a("function");
+      expect(sdkPool.getPoolTokenDecimals).to.be.a("function");
       expect(sdkPool.getPoolTokenBalance).to.be.a("function");
       expect(sdkPool.getPoolTokenAddress).to.be.a("function");
       expect(sdkPool.getVirtualPrice).to.be.a("function");

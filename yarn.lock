@@ -15207,7 +15207,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
+  checksum: 20c10d1856a091b825c3f89d5277c69673aa410776275c83116fcae5c75da6e4555e7447157bee975b78fb61c84a8db73fd844ab2f433319b684e23aebdb61bc
   languageName: node
   linkType: hard
 

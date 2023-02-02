@@ -302,19 +302,14 @@ export class SdkPool extends SdkShared {
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
 
-    const [tokenIndexFrom, tokenIndexTo] = await Promise.all([
-      connextContract.getSwapTokenIndex(key, _tokenX),
-      connextContract.getSwapTokenIndex(key, _tokenY),
+    const [tokenXIndex, tokenYIndex, tokenXDecimals, tokenYDecimals] = await Promise.all([
+      this.getPoolTokenIndex(domainId, _tokenX, _tokenX),
+      this.getPoolTokenIndex(domainId, _tokenX, _tokenY),
+      this.getPoolTokenDecimals(domainId, _tokenX, _tokenX),
+      this.getPoolTokenDecimals(domainId, _tokenX, _tokenY),
     ]);
 
-    const [tokenXContract, tokenYContract] = await Promise.all([
-      this.getERC20(domainId, _tokenX),
-      this.getERC20(domainId, _tokenY),
-    ]);
-
-    const [tokenXDecimals, tokenYDecimals] = await Promise.all([tokenXContract.decimals(), tokenYContract.decimals()]);
-
-    const amountY = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amountX);
+    const amountY = await connextContract.calculateSwap(key, tokenXIndex, tokenYIndex, amountX);
 
     return this.calculatePriceImpact(
       BigNumber.from(amountX).mul(BigNumber.from(10).pow(18 - tokenXDecimals)),
@@ -492,6 +487,27 @@ export class SdkPool extends SdkShared {
     if (pool) {
       if (pool.local.address === _poolTokenAddress) return pool.local.index;
       else if (pool.adopted.address === _poolTokenAddress) return pool.adopted.index;
+    }
+
+    return -1;
+  }
+
+  /**
+   * Reads the decimal precision of a token in a pool.
+   *
+   * @param domainId - The domain id of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param poolTokenAddress - The address of the token in the pool to get the precision for.
+   * @returns The decimal precision of the specified token in the pool or -1 if not found.
+   */
+  async getPoolTokenDecimals(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+    const _poolTokenAddress = utils.getAddress(poolTokenAddress);
+    const pool = await this.getPool(domainId, _tokenAddress);
+
+    if (pool) {
+      if (pool.local.address === _poolTokenAddress) return pool.local.decimals;
+      else if (pool.adopted.address === _poolTokenAddress) return pool.adopted.decimals;
     }
 
     return -1;
@@ -702,22 +718,25 @@ export class SdkPool extends SdkShared {
    * }
    * ```
    */
-  async getPoolData(params: { key?: string; domainId?: string; lpTokenAddress?: string }): Promise<any> {
-    const { key, domainId, lpTokenAddress } = params;
+  getPoolData = memoize(
+    async (params: { key?: string; domainId?: string; lpTokenAddress?: string }): Promise<any> => {
+      const { key, domainId, lpTokenAddress } = params;
 
-    const poolIdentifier = key ? `key=eq.${key}&` : "";
-    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
-    const lpTokenIdentifier = lpTokenAddress ? `lp_token=eq.${lpTokenAddress}&` : "";
+      const poolIdentifier = key ? `key=eq.${key}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+      const lpTokenIdentifier = lpTokenAddress ? `lp_token=eq.${lpTokenAddress}&` : "";
 
-    const uri = formatUrl(
-      this.config.cartographerUrl!,
-      "stableswap_pools?",
-      poolIdentifier + domainIdentifier + lpTokenIdentifier,
-    );
-    validateUri(uri);
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "stableswap_pools?",
+        poolIdentifier + domainIdentifier + lpTokenIdentifier,
+      );
+      validateUri(uri);
 
-    return await axiosGetRequest(uri);
-  }
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   // ------------------- Pool Operations ------------------- //
 
@@ -1181,42 +1200,45 @@ export class SdkPool extends SdkShared {
    * }
    * ```
    */
-  async getHourlySwapVolume(params: {
-    key?: string;
-    domainId?: string;
-    startTimestamp?: number;
-    endTimestamp?: number;
-    range?: { limit?: number; offset?: number };
-  }): Promise<any> {
-    const { key, domainId, startTimestamp, endTimestamp, range } = params;
+  getHourlySwapVolume = memoize(
+    async (params: {
+      key?: string;
+      domainId?: string;
+      startTimestamp?: number;
+      endTimestamp?: number;
+      range?: { limit?: number; offset?: number };
+    }): Promise<any> => {
+      const { key, domainId, startTimestamp, endTimestamp, range } = params;
 
-    const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
-    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+      const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
 
-    const limit = range?.limit ? range.limit : 10;
-    const offset = range?.offset ? range.offset : 0;
+      const limit = range?.limit ? range.limit : 10;
+      const offset = range?.offset ? range.offset : 0;
 
-    const millis = 1000;
-    const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
-    const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
-    const startTimestampIdentifier = start ? `swap_hour=gt.${start}&` : "";
-    const endTimestampIdentifier = end ? `swap_hour=lt.${end}&` : "";
+      const millis = 1000;
+      const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
+      const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
+      const startTimestampIdentifier = start ? `swap_hour=gt.${start}&` : "";
+      const endTimestampIdentifier = end ? `swap_hour=lt.${end}&` : "";
 
-    const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
-    const orderIdentifier = `order=swap_hour.desc`;
+      const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
+      const orderIdentifier = `order=swap_hour.desc`;
 
-    const uri = formatUrl(
-      this.config.cartographerUrl!,
-      "hourly_swap_volume?",
-      poolIdentifier +
-        startTimestampIdentifier +
-        endTimestampIdentifier +
-        domainIdentifier +
-        rangeIdentifier +
-        orderIdentifier,
-    );
-    validateUri(uri);
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "hourly_swap_volume?",
+        poolIdentifier +
+          startTimestampIdentifier +
+          endTimestampIdentifier +
+          domainIdentifier +
+          rangeIdentifier +
+          orderIdentifier,
+      );
+      validateUri(uri);
 
-    return await axiosGetRequest(uri);
-  }
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 }

@@ -12,9 +12,7 @@ export const getXCalls = async () => {
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
-  const destinationDomains: string[] = Object.entries(config.chains)
-    .filter(([, config]) => config.assets.length > 0)
-    .map(([chain]) => chain);
+  const destinationDomains: string[] = Object.entries(config.chains).map(([chain]) => chain);
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const allowedDomains = Object.keys(config.chains);
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);

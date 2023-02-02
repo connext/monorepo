@@ -71,6 +71,7 @@ export type arbitrumgoerli_Asset = {
   adoptedAsset?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   localAsset?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<arbitrumgoerli_AssetStatus>;
 };
 
 export type arbitrumgoerli_AssetBalance = {
@@ -159,6 +160,32 @@ export type arbitrumgoerli_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
+export type arbitrumgoerli_AssetStatus = {
+  id: Scalars['ID'];
+  status?: Maybe<Scalars['Boolean']>;
+};
+
+export type arbitrumgoerli_AssetStatus_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  status?: InputMaybe<Scalars['Boolean']>;
+  status_not?: InputMaybe<Scalars['Boolean']>;
+  status_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
+};
+
+export type arbitrumgoerli_AssetStatus_orderBy =
+  | 'id'
+  | 'status';
+
 export type arbitrumgoerli_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -224,6 +251,27 @@ export type arbitrumgoerli_Asset_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<Scalars['String']>;
+  status_not?: InputMaybe<Scalars['String']>;
+  status_gt?: InputMaybe<Scalars['String']>;
+  status_lt?: InputMaybe<Scalars['String']>;
+  status_gte?: InputMaybe<Scalars['String']>;
+  status_lte?: InputMaybe<Scalars['String']>;
+  status_in?: InputMaybe<Array<Scalars['String']>>;
+  status_not_in?: InputMaybe<Array<Scalars['String']>>;
+  status_contains?: InputMaybe<Scalars['String']>;
+  status_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_not_contains?: InputMaybe<Scalars['String']>;
+  status_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_starts_with?: InputMaybe<Scalars['String']>;
+  status_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_starts_with?: InputMaybe<Scalars['String']>;
+  status_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_ends_with?: InputMaybe<Scalars['String']>;
+  status_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']>;
+  status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_?: InputMaybe<arbitrumgoerli_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
 };
@@ -235,7 +283,8 @@ export type arbitrumgoerli_Asset_orderBy =
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'status';
 
 export type arbitrumgoerli_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -338,6 +387,7 @@ export type arbitrumgoerli_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -482,6 +532,14 @@ export type arbitrumgoerli_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   originSender_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
@@ -698,6 +756,7 @@ export type arbitrumgoerli_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
@@ -878,9 +937,9 @@ export type arbitrumgoerli_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   asset?: Maybe<arbitrumgoerli_Asset>;
-  transacting?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   message?: Maybe<arbitrumgoerli_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1062,16 +1121,6 @@ export type arbitrumgoerli_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<arbitrumgoerli_Asset_filter>;
-  transacting?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  transacting_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  transacting_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transacting_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1101,6 +1150,14 @@ export type arbitrumgoerli_OriginTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
@@ -1187,9 +1244,9 @@ export type arbitrumgoerli_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'transacting'
   | 'message'
   | 'relayerFee'
+  | 'bumpRelayerFeeCount'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1198,41 +1255,11 @@ export type arbitrumgoerli_OriginTransfer_orderBy =
   | 'blockNumber'
   | 'txOrigin';
 
-export type arbitrumgoerli_PooledToken = {
-  id: Scalars['ID'];
-  asset: Scalars['arbitrumgoerli_Bytes'];
-};
-
-export type arbitrumgoerli_PooledToken_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
-};
-
-export type arbitrumgoerli_PooledToken_orderBy =
-  | 'id'
-  | 'asset';
-
 export type Query = {
   arbitrumgoerli_asset?: Maybe<arbitrumgoerli_Asset>;
   arbitrumgoerli_assets: Array<arbitrumgoerli_Asset>;
+  arbitrumgoerli_assetStatus?: Maybe<arbitrumgoerli_AssetStatus>;
+  arbitrumgoerli_assetStatuses: Array<arbitrumgoerli_AssetStatus>;
   arbitrumgoerli_assetBalance?: Maybe<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_assetBalances: Array<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_router?: Maybe<arbitrumgoerli_Router>;
@@ -1241,8 +1268,6 @@ export type Query = {
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
   arbitrumgoerli_relayers: Array<arbitrumgoerli_Relayer>;
-  arbitrumgoerli_transferRelayerFee?: Maybe<arbitrumgoerli_TransferRelayerFee>;
-  arbitrumgoerli_transferRelayerFees: Array<arbitrumgoerli_TransferRelayerFee>;
   arbitrumgoerli_sequencer?: Maybe<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_sequencers: Array<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_originTransfer?: Maybe<arbitrumgoerli_OriginTransfer>;
@@ -1259,12 +1284,6 @@ export type Query = {
   arbitrumgoerli_rootCounts: Array<arbitrumgoerli_RootCount>;
   arbitrumgoerli_rootMessageSent?: Maybe<arbitrumgoerli_RootMessageSent>;
   arbitrumgoerli_rootMessageSents: Array<arbitrumgoerli_RootMessageSent>;
-  arbitrumgoerli_stableSwap?: Maybe<arbitrumgoerli_StableSwap>;
-  arbitrumgoerli_stableSwaps: Array<arbitrumgoerli_StableSwap>;
-  arbitrumgoerli_pooledToken?: Maybe<arbitrumgoerli_PooledToken>;
-  arbitrumgoerli_pooledTokens: Array<arbitrumgoerli_PooledToken>;
-  arbitrumgoerli_stableSwapLiquidity?: Maybe<arbitrumgoerli_StableSwapLiquidity>;
-  arbitrumgoerli_stableSwapLiquidities: Array<arbitrumgoerli_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   arbitrumgoerli__meta?: Maybe<arbitrumgoerli__Meta_>;
 };
@@ -1283,6 +1302,24 @@ export type Queryarbitrumgoerli_assetsArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Asset_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Asset_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_AssetStatus_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1355,24 +1392,6 @@ export type Queryarbitrumgoerli_relayersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Relayer_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1517,60 +1536,6 @@ export type Queryarbitrumgoerli_rootMessageSentsArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_RootMessageSent_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_RootMessageSent_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_StableSwap_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_PooledToken_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumgoerli_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_StableSwapLiquidity_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1938,286 +1903,11 @@ export type arbitrumgoerli_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type arbitrumgoerli_StableSwap = {
-  id: Scalars['ID'];
-  isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken?: Maybe<Scalars['arbitrumgoerli_Bytes']>;
-  initialA?: Maybe<Scalars['BigInt']>;
-  futureA?: Maybe<Scalars['BigInt']>;
-  initialATime?: Maybe<Scalars['BigInt']>;
-  futureATime?: Maybe<Scalars['BigInt']>;
-  swapFee?: Maybe<Scalars['BigInt']>;
-  adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<arbitrumgoerli_PooledToken>;
-  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
-  balances: Array<Scalars['BigInt']>;
-  adminFees?: Maybe<Array<Scalars['BigInt']>>;
-};
-
-
-export type arbitrumgoerli_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_PooledToken_filter>;
-};
-
-export type arbitrumgoerli_StableSwapLiquidity = {
-  id: Scalars['ID'];
-  provider: Scalars['arbitrumgoerli_Bytes'];
-  stableSwap: arbitrumgoerli_StableSwap;
-  tokenAmounts: Array<Scalars['BigInt']>;
-  fees: Array<Scalars['BigInt']>;
-  invariant?: Maybe<Scalars['BigInt']>;
-  lpTokenSupply?: Maybe<Scalars['BigInt']>;
-};
-
-export type arbitrumgoerli_StableSwapLiquidity_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  stableSwap?: InputMaybe<Scalars['String']>;
-  stableSwap_not?: InputMaybe<Scalars['String']>;
-  stableSwap_gt?: InputMaybe<Scalars['String']>;
-  stableSwap_lt?: InputMaybe<Scalars['String']>;
-  stableSwap_gte?: InputMaybe<Scalars['String']>;
-  stableSwap_lte?: InputMaybe<Scalars['String']>;
-  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<arbitrumgoerli_StableSwap_filter>;
-  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant?: InputMaybe<Scalars['BigInt']>;
-  invariant_not?: InputMaybe<Scalars['BigInt']>;
-  invariant_gt?: InputMaybe<Scalars['BigInt']>;
-  invariant_lt?: InputMaybe<Scalars['BigInt']>;
-  invariant_gte?: InputMaybe<Scalars['BigInt']>;
-  invariant_lte?: InputMaybe<Scalars['BigInt']>;
-  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
-};
-
-export type arbitrumgoerli_StableSwapLiquidity_orderBy =
-  | 'id'
-  | 'provider'
-  | 'stableSwap'
-  | 'tokenAmounts'
-  | 'fees'
-  | 'invariant'
-  | 'lpTokenSupply';
-
-export type arbitrumgoerli_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  initialA?: InputMaybe<Scalars['BigInt']>;
-  initialA_not?: InputMaybe<Scalars['BigInt']>;
-  initialA_gt?: InputMaybe<Scalars['BigInt']>;
-  initialA_lt?: InputMaybe<Scalars['BigInt']>;
-  initialA_gte?: InputMaybe<Scalars['BigInt']>;
-  initialA_lte?: InputMaybe<Scalars['BigInt']>;
-  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA?: InputMaybe<Scalars['BigInt']>;
-  futureA_not?: InputMaybe<Scalars['BigInt']>;
-  futureA_gt?: InputMaybe<Scalars['BigInt']>;
-  futureA_lt?: InputMaybe<Scalars['BigInt']>;
-  futureA_gte?: InputMaybe<Scalars['BigInt']>;
-  futureA_lte?: InputMaybe<Scalars['BigInt']>;
-  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime?: InputMaybe<Scalars['BigInt']>;
-  initialATime_not?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime?: InputMaybe<Scalars['BigInt']>;
-  futureATime_not?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee?: InputMaybe<Scalars['BigInt']>;
-  swapFee_not?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee?: InputMaybe<Scalars['BigInt']>;
-  adminFee_not?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<arbitrumgoerli_PooledToken_filter>;
-  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
-};
-
-export type arbitrumgoerli_StableSwap_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'key'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool'
-  | 'lpToken'
-  | 'initialA'
-  | 'futureA'
-  | 'initialATime'
-  | 'futureATime'
-  | 'swapFee'
-  | 'adminFee'
-  | 'pooledTokens'
-  | 'tokenPrecisionMultipliers'
-  | 'balances'
-  | 'adminFees';
-
 export type Subscription = {
   arbitrumgoerli_asset?: Maybe<arbitrumgoerli_Asset>;
   arbitrumgoerli_assets: Array<arbitrumgoerli_Asset>;
+  arbitrumgoerli_assetStatus?: Maybe<arbitrumgoerli_AssetStatus>;
+  arbitrumgoerli_assetStatuses: Array<arbitrumgoerli_AssetStatus>;
   arbitrumgoerli_assetBalance?: Maybe<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_assetBalances: Array<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_router?: Maybe<arbitrumgoerli_Router>;
@@ -2226,8 +1916,6 @@ export type Subscription = {
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
   arbitrumgoerli_relayers: Array<arbitrumgoerli_Relayer>;
-  arbitrumgoerli_transferRelayerFee?: Maybe<arbitrumgoerli_TransferRelayerFee>;
-  arbitrumgoerli_transferRelayerFees: Array<arbitrumgoerli_TransferRelayerFee>;
   arbitrumgoerli_sequencer?: Maybe<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_sequencers: Array<arbitrumgoerli_Sequencer>;
   arbitrumgoerli_originTransfer?: Maybe<arbitrumgoerli_OriginTransfer>;
@@ -2244,12 +1932,6 @@ export type Subscription = {
   arbitrumgoerli_rootCounts: Array<arbitrumgoerli_RootCount>;
   arbitrumgoerli_rootMessageSent?: Maybe<arbitrumgoerli_RootMessageSent>;
   arbitrumgoerli_rootMessageSents: Array<arbitrumgoerli_RootMessageSent>;
-  arbitrumgoerli_stableSwap?: Maybe<arbitrumgoerli_StableSwap>;
-  arbitrumgoerli_stableSwaps: Array<arbitrumgoerli_StableSwap>;
-  arbitrumgoerli_pooledToken?: Maybe<arbitrumgoerli_PooledToken>;
-  arbitrumgoerli_pooledTokens: Array<arbitrumgoerli_PooledToken>;
-  arbitrumgoerli_stableSwapLiquidity?: Maybe<arbitrumgoerli_StableSwapLiquidity>;
-  arbitrumgoerli_stableSwapLiquidities: Array<arbitrumgoerli_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   arbitrumgoerli__meta?: Maybe<arbitrumgoerli__Meta_>;
 };
@@ -2268,6 +1950,24 @@ export type Subscriptionarbitrumgoerli_assetsArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Asset_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Asset_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_AssetStatus_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2340,24 +2040,6 @@ export type Subscriptionarbitrumgoerli_relayersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Relayer_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2507,105 +2189,9 @@ export type Subscriptionarbitrumgoerli_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionarbitrumgoerli_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_StableSwap_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_PooledToken_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumgoerli_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumgoerli_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<arbitrumgoerli_StableSwapLiquidity_filter>;
-  block?: InputMaybe<arbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionarbitrumgoerli__metaArgs = {
   block?: InputMaybe<arbitrumgoerli_Block_height>;
 };
-
-export type arbitrumgoerli_TransferRelayerFee = {
-  id: Scalars['ID'];
-  transferId: Scalars['arbitrumgoerli_Bytes'];
-  fee?: Maybe<Scalars['BigInt']>;
-};
-
-export type arbitrumgoerli_TransferRelayerFee_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['arbitrumgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['arbitrumgoerli_Bytes']>;
-  fee?: InputMaybe<Scalars['BigInt']>;
-  fee_not?: InputMaybe<Scalars['BigInt']>;
-  fee_gt?: InputMaybe<Scalars['BigInt']>;
-  fee_lt?: InputMaybe<Scalars['BigInt']>;
-  fee_gte?: InputMaybe<Scalars['BigInt']>;
-  fee_lte?: InputMaybe<Scalars['BigInt']>;
-  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
-};
-
-export type arbitrumgoerli_TransferRelayerFee_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'fee';
 
 export type arbitrumgoerli_TransferStatus =
   | 'XCalled'
@@ -2651,6 +2237,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumgoerli_assets: InContextSdkMethod<Query['arbitrumgoerli_assets'], Queryarbitrumgoerli_assetsArgs, MeshContext>,
   /** null **/
+  arbitrumgoerli_assetStatus: InContextSdkMethod<Query['arbitrumgoerli_assetStatus'], Queryarbitrumgoerli_assetStatusArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_assetStatuses: InContextSdkMethod<Query['arbitrumgoerli_assetStatuses'], Queryarbitrumgoerli_assetStatusesArgs, MeshContext>,
+  /** null **/
   arbitrumgoerli_assetBalance: InContextSdkMethod<Query['arbitrumgoerli_assetBalance'], Queryarbitrumgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_assetBalances: InContextSdkMethod<Query['arbitrumgoerli_assetBalances'], Queryarbitrumgoerli_assetBalancesArgs, MeshContext>,
@@ -2666,10 +2256,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_relayer: InContextSdkMethod<Query['arbitrumgoerli_relayer'], Queryarbitrumgoerli_relayerArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_relayers: InContextSdkMethod<Query['arbitrumgoerli_relayers'], Queryarbitrumgoerli_relayersArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_transferRelayerFee: InContextSdkMethod<Query['arbitrumgoerli_transferRelayerFee'], Queryarbitrumgoerli_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_transferRelayerFees: InContextSdkMethod<Query['arbitrumgoerli_transferRelayerFees'], Queryarbitrumgoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_sequencer: InContextSdkMethod<Query['arbitrumgoerli_sequencer'], Queryarbitrumgoerli_sequencerArgs, MeshContext>,
   /** null **/
@@ -2702,18 +2288,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_rootMessageSent: InContextSdkMethod<Query['arbitrumgoerli_rootMessageSent'], Queryarbitrumgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_rootMessageSents: InContextSdkMethod<Query['arbitrumgoerli_rootMessageSents'], Queryarbitrumgoerli_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwap: InContextSdkMethod<Query['arbitrumgoerli_stableSwap'], Queryarbitrumgoerli_stableSwapArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwaps: InContextSdkMethod<Query['arbitrumgoerli_stableSwaps'], Queryarbitrumgoerli_stableSwapsArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_pooledToken: InContextSdkMethod<Query['arbitrumgoerli_pooledToken'], Queryarbitrumgoerli_pooledTokenArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_pooledTokens: InContextSdkMethod<Query['arbitrumgoerli_pooledTokens'], Queryarbitrumgoerli_pooledTokensArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwapLiquidity: InContextSdkMethod<Query['arbitrumgoerli_stableSwapLiquidity'], Queryarbitrumgoerli_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwapLiquidities: InContextSdkMethod<Query['arbitrumgoerli_stableSwapLiquidities'], Queryarbitrumgoerli_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumgoerli__meta: InContextSdkMethod<Query['arbitrumgoerli__meta'], Queryarbitrumgoerli__metaArgs, MeshContext>
   };
@@ -2727,6 +2301,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_asset: InContextSdkMethod<Subscription['arbitrumgoerli_asset'], Subscriptionarbitrumgoerli_assetArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_assets: InContextSdkMethod<Subscription['arbitrumgoerli_assets'], Subscriptionarbitrumgoerli_assetsArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_assetStatus: InContextSdkMethod<Subscription['arbitrumgoerli_assetStatus'], Subscriptionarbitrumgoerli_assetStatusArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_assetStatuses: InContextSdkMethod<Subscription['arbitrumgoerli_assetStatuses'], Subscriptionarbitrumgoerli_assetStatusesArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_assetBalance: InContextSdkMethod<Subscription['arbitrumgoerli_assetBalance'], Subscriptionarbitrumgoerli_assetBalanceArgs, MeshContext>,
   /** null **/
@@ -2743,10 +2321,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_relayer: InContextSdkMethod<Subscription['arbitrumgoerli_relayer'], Subscriptionarbitrumgoerli_relayerArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_relayers: InContextSdkMethod<Subscription['arbitrumgoerli_relayers'], Subscriptionarbitrumgoerli_relayersArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_transferRelayerFee: InContextSdkMethod<Subscription['arbitrumgoerli_transferRelayerFee'], Subscriptionarbitrumgoerli_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_transferRelayerFees: InContextSdkMethod<Subscription['arbitrumgoerli_transferRelayerFees'], Subscriptionarbitrumgoerli_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_sequencer: InContextSdkMethod<Subscription['arbitrumgoerli_sequencer'], Subscriptionarbitrumgoerli_sequencerArgs, MeshContext>,
   /** null **/
@@ -2779,18 +2353,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_rootMessageSent: InContextSdkMethod<Subscription['arbitrumgoerli_rootMessageSent'], Subscriptionarbitrumgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_rootMessageSents: InContextSdkMethod<Subscription['arbitrumgoerli_rootMessageSents'], Subscriptionarbitrumgoerli_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwap: InContextSdkMethod<Subscription['arbitrumgoerli_stableSwap'], Subscriptionarbitrumgoerli_stableSwapArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwaps: InContextSdkMethod<Subscription['arbitrumgoerli_stableSwaps'], Subscriptionarbitrumgoerli_stableSwapsArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_pooledToken: InContextSdkMethod<Subscription['arbitrumgoerli_pooledToken'], Subscriptionarbitrumgoerli_pooledTokenArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_pooledTokens: InContextSdkMethod<Subscription['arbitrumgoerli_pooledTokens'], Subscriptionarbitrumgoerli_pooledTokensArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwapLiquidity: InContextSdkMethod<Subscription['arbitrumgoerli_stableSwapLiquidity'], Subscriptionarbitrumgoerli_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  arbitrumgoerli_stableSwapLiquidities: InContextSdkMethod<Subscription['arbitrumgoerli_stableSwapLiquidities'], Subscriptionarbitrumgoerli_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumgoerli__meta: InContextSdkMethod<Subscription['arbitrumgoerli__meta'], Subscriptionarbitrumgoerli__metaArgs, MeshContext>
   };

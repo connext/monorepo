@@ -527,7 +527,7 @@ describe("Helpers:parse", () => {
         futureATime: 0,
         swapFee: "400000",
         adminFee: "0",
-        pooledTokens: [{ asset: mkAddress("0xa") }, { asset: mkAddress("0xb") }],
+        pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
         tokenPrecisionMultipliers: ["1", "1"],
         poolTokenDecimals: [18, 18],
         balances: ["200000", "200000"],

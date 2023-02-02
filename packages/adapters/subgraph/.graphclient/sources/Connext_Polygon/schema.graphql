@@ -63,6 +63,7 @@ type polygon_Asset {
   adoptedAsset: polygon_Bytes
   localAsset: polygon_Bytes
   blockNumber: BigInt
+  status: polygon_AssetStatus
 }
 
 type polygon_AssetBalance {
@@ -152,6 +153,33 @@ enum polygon_AssetBalance_orderBy {
   feesEarned
 }
 
+type polygon_AssetStatus {
+  id: ID!
+  status: Boolean
+}
+
+input polygon_AssetStatus_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  status: Boolean
+  status_not: Boolean
+  status_in: [Boolean!]
+  status_not_in: [Boolean!]
+  """Filter for the block changed event."""
+  _change_block: polygon_BlockChangedFilter
+}
+
+enum polygon_AssetStatus_orderBy {
+  id
+  status
+}
+
 input polygon_Asset_filter {
   id: ID
   id_not: ID
@@ -217,6 +245,27 @@ input polygon_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  status: String
+  status_not: String
+  status_gt: String
+  status_lt: String
+  status_gte: String
+  status_lte: String
+  status_in: [String!]
+  status_not_in: [String!]
+  status_contains: String
+  status_contains_nocase: String
+  status_not_contains: String
+  status_not_contains_nocase: String
+  status_starts_with: String
+  status_starts_with_nocase: String
+  status_not_starts_with: String
+  status_not_starts_with_nocase: String
+  status_ends_with: String
+  status_ends_with_nocase: String
+  status_not_ends_with: String
+  status_not_ends_with_nocase: String
+  status_: polygon_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
 }
@@ -229,6 +278,7 @@ enum polygon_Asset_orderBy {
   adoptedAsset
   localAsset
   blockNumber
+  status
 }
 
 scalar polygon_BigDecimal
@@ -339,6 +389,7 @@ type polygon_DestinationTransfer {
   receiveLocal: Boolean
   callData: polygon_Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: polygon_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -474,6 +525,14 @@ input polygon_DestinationTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
   originSender: polygon_Bytes
   originSender_not: polygon_Bytes
   originSender_gt: polygon_Bytes
@@ -690,6 +749,7 @@ enum polygon_DestinationTransfer_orderBy {
   receiveLocal
   callData
   slippage
+  bumpSlippageCount
   originSender
   bridgedAmt
   normalizedIn
@@ -873,9 +933,9 @@ type polygon_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: polygon_Bytes
   asset: polygon_Asset
-  transacting: polygon_Bytes
   message: polygon_OriginMessage
   relayerFee: BigInt
+  bumpRelayerFeeCount: BigInt
   caller: polygon_Bytes
   transactionHash: polygon_Bytes
   timestamp: BigInt
@@ -1057,16 +1117,6 @@ input polygon_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: polygon_Asset_filter
-  transacting: polygon_Bytes
-  transacting_not: polygon_Bytes
-  transacting_gt: polygon_Bytes
-  transacting_lt: polygon_Bytes
-  transacting_gte: polygon_Bytes
-  transacting_lte: polygon_Bytes
-  transacting_in: [polygon_Bytes!]
-  transacting_not_in: [polygon_Bytes!]
-  transacting_contains: polygon_Bytes
-  transacting_not_contains: polygon_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1096,6 +1146,14 @@ input polygon_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
+  bumpRelayerFeeCount: BigInt
+  bumpRelayerFeeCount_not: BigInt
+  bumpRelayerFeeCount_gt: BigInt
+  bumpRelayerFeeCount_lt: BigInt
+  bumpRelayerFeeCount_gte: BigInt
+  bumpRelayerFeeCount_lte: BigInt
+  bumpRelayerFeeCount_in: [BigInt!]
+  bumpRelayerFeeCount_not_in: [BigInt!]
   caller: polygon_Bytes
   caller_not: polygon_Bytes
   caller_gt: polygon_Bytes
@@ -1182,9 +1240,9 @@ enum polygon_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
-  transacting
   message
   relayerFee
+  bumpRelayerFeeCount
   caller
   transactionHash
   timestamp
@@ -1192,39 +1250,6 @@ enum polygon_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
-}
-
-type polygon_PooledToken {
-  id: ID!
-  asset: polygon_Bytes!
-}
-
-input polygon_PooledToken_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  asset: polygon_Bytes
-  asset_not: polygon_Bytes
-  asset_gt: polygon_Bytes
-  asset_lt: polygon_Bytes
-  asset_gte: polygon_Bytes
-  asset_lte: polygon_Bytes
-  asset_in: [polygon_Bytes!]
-  asset_not_in: [polygon_Bytes!]
-  asset_contains: polygon_Bytes
-  asset_not_contains: polygon_Bytes
-  """Filter for the block changed event."""
-  _change_block: polygon_BlockChangedFilter
-}
-
-enum polygon_PooledToken_orderBy {
-  id
-  asset
 }
 
 type Query {
@@ -1254,6 +1279,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Asset!]!
+  polygon_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AssetStatus
+  polygon_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AssetStatus_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AssetStatus!]!
   polygon_assetBalance(
     id: ID!
     """
@@ -1358,32 +1409,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Relayer!]!
-  polygon_transferRelayerFee(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_TransferRelayerFee
-  polygon_transferRelayerFees(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_TransferRelayerFee_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_TransferRelayerFee_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_TransferRelayerFee!]!
   polygon_sequencer(
     id: ID!
     """
@@ -1592,84 +1617,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_RootMessageSent!]!
-  polygon_stableSwap(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_StableSwap
-  polygon_stableSwaps(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_StableSwap_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_StableSwap_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_StableSwap!]!
-  polygon_pooledToken(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_PooledToken
-  polygon_pooledTokens(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_PooledToken_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_PooledToken_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_PooledToken!]!
-  polygon_stableSwapLiquidity(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_StableSwapLiquidity
-  polygon_stableSwapLiquidities(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_StableSwapLiquidity_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_StableSwapLiquidity_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_StableSwapLiquidity!]!
   """Access to subgraph metadata"""
   polygon__meta(block: polygon_Block_height): polygon__Meta_
 }
@@ -2029,276 +1976,6 @@ enum polygon_Setting_orderBy {
   caller
 }
 
-type polygon_StableSwap {
-  id: ID!
-  isActive: Boolean
-  key: polygon_Bytes
-  canonicalId: polygon_Bytes
-  domain: BigInt
-  swapPool: polygon_Bytes
-  lpToken: polygon_Bytes
-  initialA: BigInt
-  futureA: BigInt
-  initialATime: BigInt
-  futureATime: BigInt
-  swapFee: BigInt
-  adminFee: BigInt
-  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: polygon_PooledToken_orderBy, orderDirection: polygon_OrderDirection, where: polygon_PooledToken_filter): [polygon_PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
-  balances: [BigInt!]!
-  adminFees: [BigInt!]
-}
-
-type polygon_StableSwapLiquidity {
-  id: ID!
-  provider: polygon_Bytes!
-  stableSwap: polygon_StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
-}
-
-input polygon_StableSwapLiquidity_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  provider: polygon_Bytes
-  provider_not: polygon_Bytes
-  provider_gt: polygon_Bytes
-  provider_lt: polygon_Bytes
-  provider_gte: polygon_Bytes
-  provider_lte: polygon_Bytes
-  provider_in: [polygon_Bytes!]
-  provider_not_in: [polygon_Bytes!]
-  provider_contains: polygon_Bytes
-  provider_not_contains: polygon_Bytes
-  stableSwap: String
-  stableSwap_not: String
-  stableSwap_gt: String
-  stableSwap_lt: String
-  stableSwap_gte: String
-  stableSwap_lte: String
-  stableSwap_in: [String!]
-  stableSwap_not_in: [String!]
-  stableSwap_contains: String
-  stableSwap_contains_nocase: String
-  stableSwap_not_contains: String
-  stableSwap_not_contains_nocase: String
-  stableSwap_starts_with: String
-  stableSwap_starts_with_nocase: String
-  stableSwap_not_starts_with: String
-  stableSwap_not_starts_with_nocase: String
-  stableSwap_ends_with: String
-  stableSwap_ends_with_nocase: String
-  stableSwap_not_ends_with: String
-  stableSwap_not_ends_with_nocase: String
-  stableSwap_: polygon_StableSwap_filter
-  tokenAmounts: [BigInt!]
-  tokenAmounts_not: [BigInt!]
-  tokenAmounts_contains: [BigInt!]
-  tokenAmounts_contains_nocase: [BigInt!]
-  tokenAmounts_not_contains: [BigInt!]
-  tokenAmounts_not_contains_nocase: [BigInt!]
-  fees: [BigInt!]
-  fees_not: [BigInt!]
-  fees_contains: [BigInt!]
-  fees_contains_nocase: [BigInt!]
-  fees_not_contains: [BigInt!]
-  fees_not_contains_nocase: [BigInt!]
-  invariant: BigInt
-  invariant_not: BigInt
-  invariant_gt: BigInt
-  invariant_lt: BigInt
-  invariant_gte: BigInt
-  invariant_lte: BigInt
-  invariant_in: [BigInt!]
-  invariant_not_in: [BigInt!]
-  lpTokenSupply: BigInt
-  lpTokenSupply_not: BigInt
-  lpTokenSupply_gt: BigInt
-  lpTokenSupply_lt: BigInt
-  lpTokenSupply_gte: BigInt
-  lpTokenSupply_lte: BigInt
-  lpTokenSupply_in: [BigInt!]
-  lpTokenSupply_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: polygon_BlockChangedFilter
-}
-
-enum polygon_StableSwapLiquidity_orderBy {
-  id
-  provider
-  stableSwap
-  tokenAmounts
-  fees
-  invariant
-  lpTokenSupply
-}
-
-input polygon_StableSwap_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  isActive: Boolean
-  isActive_not: Boolean
-  isActive_in: [Boolean!]
-  isActive_not_in: [Boolean!]
-  key: polygon_Bytes
-  key_not: polygon_Bytes
-  key_gt: polygon_Bytes
-  key_lt: polygon_Bytes
-  key_gte: polygon_Bytes
-  key_lte: polygon_Bytes
-  key_in: [polygon_Bytes!]
-  key_not_in: [polygon_Bytes!]
-  key_contains: polygon_Bytes
-  key_not_contains: polygon_Bytes
-  canonicalId: polygon_Bytes
-  canonicalId_not: polygon_Bytes
-  canonicalId_gt: polygon_Bytes
-  canonicalId_lt: polygon_Bytes
-  canonicalId_gte: polygon_Bytes
-  canonicalId_lte: polygon_Bytes
-  canonicalId_in: [polygon_Bytes!]
-  canonicalId_not_in: [polygon_Bytes!]
-  canonicalId_contains: polygon_Bytes
-  canonicalId_not_contains: polygon_Bytes
-  domain: BigInt
-  domain_not: BigInt
-  domain_gt: BigInt
-  domain_lt: BigInt
-  domain_gte: BigInt
-  domain_lte: BigInt
-  domain_in: [BigInt!]
-  domain_not_in: [BigInt!]
-  swapPool: polygon_Bytes
-  swapPool_not: polygon_Bytes
-  swapPool_gt: polygon_Bytes
-  swapPool_lt: polygon_Bytes
-  swapPool_gte: polygon_Bytes
-  swapPool_lte: polygon_Bytes
-  swapPool_in: [polygon_Bytes!]
-  swapPool_not_in: [polygon_Bytes!]
-  swapPool_contains: polygon_Bytes
-  swapPool_not_contains: polygon_Bytes
-  lpToken: polygon_Bytes
-  lpToken_not: polygon_Bytes
-  lpToken_gt: polygon_Bytes
-  lpToken_lt: polygon_Bytes
-  lpToken_gte: polygon_Bytes
-  lpToken_lte: polygon_Bytes
-  lpToken_in: [polygon_Bytes!]
-  lpToken_not_in: [polygon_Bytes!]
-  lpToken_contains: polygon_Bytes
-  lpToken_not_contains: polygon_Bytes
-  initialA: BigInt
-  initialA_not: BigInt
-  initialA_gt: BigInt
-  initialA_lt: BigInt
-  initialA_gte: BigInt
-  initialA_lte: BigInt
-  initialA_in: [BigInt!]
-  initialA_not_in: [BigInt!]
-  futureA: BigInt
-  futureA_not: BigInt
-  futureA_gt: BigInt
-  futureA_lt: BigInt
-  futureA_gte: BigInt
-  futureA_lte: BigInt
-  futureA_in: [BigInt!]
-  futureA_not_in: [BigInt!]
-  initialATime: BigInt
-  initialATime_not: BigInt
-  initialATime_gt: BigInt
-  initialATime_lt: BigInt
-  initialATime_gte: BigInt
-  initialATime_lte: BigInt
-  initialATime_in: [BigInt!]
-  initialATime_not_in: [BigInt!]
-  futureATime: BigInt
-  futureATime_not: BigInt
-  futureATime_gt: BigInt
-  futureATime_lt: BigInt
-  futureATime_gte: BigInt
-  futureATime_lte: BigInt
-  futureATime_in: [BigInt!]
-  futureATime_not_in: [BigInt!]
-  swapFee: BigInt
-  swapFee_not: BigInt
-  swapFee_gt: BigInt
-  swapFee_lt: BigInt
-  swapFee_gte: BigInt
-  swapFee_lte: BigInt
-  swapFee_in: [BigInt!]
-  swapFee_not_in: [BigInt!]
-  adminFee: BigInt
-  adminFee_not: BigInt
-  adminFee_gt: BigInt
-  adminFee_lt: BigInt
-  adminFee_gte: BigInt
-  adminFee_lte: BigInt
-  adminFee_in: [BigInt!]
-  adminFee_not_in: [BigInt!]
-  pooledTokens: [String!]
-  pooledTokens_not: [String!]
-  pooledTokens_contains: [String!]
-  pooledTokens_contains_nocase: [String!]
-  pooledTokens_not_contains: [String!]
-  pooledTokens_not_contains_nocase: [String!]
-  pooledTokens_: polygon_PooledToken_filter
-  tokenPrecisionMultipliers: [BigInt!]
-  tokenPrecisionMultipliers_not: [BigInt!]
-  tokenPrecisionMultipliers_contains: [BigInt!]
-  tokenPrecisionMultipliers_contains_nocase: [BigInt!]
-  tokenPrecisionMultipliers_not_contains: [BigInt!]
-  tokenPrecisionMultipliers_not_contains_nocase: [BigInt!]
-  balances: [BigInt!]
-  balances_not: [BigInt!]
-  balances_contains: [BigInt!]
-  balances_contains_nocase: [BigInt!]
-  balances_not_contains: [BigInt!]
-  balances_not_contains_nocase: [BigInt!]
-  adminFees: [BigInt!]
-  adminFees_not: [BigInt!]
-  adminFees_contains: [BigInt!]
-  adminFees_contains_nocase: [BigInt!]
-  adminFees_not_contains: [BigInt!]
-  adminFees_not_contains_nocase: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: polygon_BlockChangedFilter
-}
-
-enum polygon_StableSwap_orderBy {
-  id
-  isActive
-  key
-  canonicalId
-  domain
-  swapPool
-  lpToken
-  initialA
-  futureA
-  initialATime
-  futureATime
-  swapFee
-  adminFee
-  pooledTokens
-  tokenPrecisionMultipliers
-  balances
-  adminFees
-}
-
 type Subscription {
   polygon_asset(
     id: ID!
@@ -2326,6 +2003,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Asset!]!
+  polygon_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): polygon_AssetStatus
+  polygon_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: polygon_AssetStatus_orderBy
+    orderDirection: polygon_OrderDirection
+    where: polygon_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: polygon_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [polygon_AssetStatus!]!
   polygon_assetBalance(
     id: ID!
     """
@@ -2430,32 +2133,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_Relayer!]!
-  polygon_transferRelayerFee(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_TransferRelayerFee
-  polygon_transferRelayerFees(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_TransferRelayerFee_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_TransferRelayerFee_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_TransferRelayerFee!]!
   polygon_sequencer(
     id: ID!
     """
@@ -2664,129 +2341,8 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [polygon_RootMessageSent!]!
-  polygon_stableSwap(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_StableSwap
-  polygon_stableSwaps(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_StableSwap_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_StableSwap_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_StableSwap!]!
-  polygon_pooledToken(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_PooledToken
-  polygon_pooledTokens(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_PooledToken_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_PooledToken_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_PooledToken!]!
-  polygon_stableSwapLiquidity(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): polygon_StableSwapLiquidity
-  polygon_stableSwapLiquidities(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: polygon_StableSwapLiquidity_orderBy
-    orderDirection: polygon_OrderDirection
-    where: polygon_StableSwapLiquidity_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: polygon_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [polygon_StableSwapLiquidity!]!
   """Access to subgraph metadata"""
   polygon__meta(block: polygon_Block_height): polygon__Meta_
-}
-
-type polygon_TransferRelayerFee {
-  id: ID!
-  transferId: polygon_Bytes!
-  fee: BigInt
-}
-
-input polygon_TransferRelayerFee_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  transferId: polygon_Bytes
-  transferId_not: polygon_Bytes
-  transferId_gt: polygon_Bytes
-  transferId_lt: polygon_Bytes
-  transferId_gte: polygon_Bytes
-  transferId_lte: polygon_Bytes
-  transferId_in: [polygon_Bytes!]
-  transferId_not_in: [polygon_Bytes!]
-  transferId_contains: polygon_Bytes
-  transferId_not_contains: polygon_Bytes
-  fee: BigInt
-  fee_not: BigInt
-  fee_gt: BigInt
-  fee_lt: BigInt
-  fee_gte: BigInt
-  fee_lte: BigInt
-  fee_in: [BigInt!]
-  fee_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: polygon_BlockChangedFilter
-}
-
-enum polygon_TransferRelayerFee_orderBy {
-  id
-  transferId
-  fee
 }
 
 enum polygon_TransferStatus {

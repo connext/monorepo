@@ -213,9 +213,7 @@ export const STABLESWAP_POOL_ENTITY = `
       futureATime
       swapFee
       adminFee
-      pooledTokens {
-        asset
-      }
+      pooledTokens
       tokenPrecisionMultipliers
       balances
       virtualPrice
@@ -228,9 +226,7 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       stableSwap {
         key
         tokenPrecisionMultipliers
-        pooledTokens {
-          asset
-        }
+        pooledTokens
       }
       buyer
       boughtId
