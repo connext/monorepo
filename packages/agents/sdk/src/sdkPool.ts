@@ -702,22 +702,25 @@ export class SdkPool extends SdkShared {
    * }
    * ```
    */
-  async getPoolData(params: { key?: string; domainId?: string; lpTokenAddress?: string }): Promise<any> {
-    const { key, domainId, lpTokenAddress } = params;
+  getPoolData = memoize(
+    async (params: { key?: string; domainId?: string; lpTokenAddress?: string }): Promise<any> => {
+      const { key, domainId, lpTokenAddress } = params;
 
-    const poolIdentifier = key ? `key=eq.${key}&` : "";
-    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
-    const lpTokenIdentifier = lpTokenAddress ? `lp_token=eq.${lpTokenAddress}&` : "";
+      const poolIdentifier = key ? `key=eq.${key}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+      const lpTokenIdentifier = lpTokenAddress ? `lp_token=eq.${lpTokenAddress}&` : "";
 
-    const uri = formatUrl(
-      this.config.cartographerUrl!,
-      "stableswap_pools?",
-      poolIdentifier + domainIdentifier + lpTokenIdentifier,
-    );
-    validateUri(uri);
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "stableswap_pools?",
+        poolIdentifier + domainIdentifier + lpTokenIdentifier,
+      );
+      validateUri(uri);
 
-    return await axiosGetRequest(uri);
-  }
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 
   // ------------------- Pool Operations ------------------- //
 
@@ -1181,42 +1184,45 @@ export class SdkPool extends SdkShared {
    * }
    * ```
    */
-  async getHourlySwapVolume(params: {
-    key?: string;
-    domainId?: string;
-    startTimestamp?: number;
-    endTimestamp?: number;
-    range?: { limit?: number; offset?: number };
-  }): Promise<any> {
-    const { key, domainId, startTimestamp, endTimestamp, range } = params;
+  getHourlySwapVolume = memoize(
+    async (params: {
+      key?: string;
+      domainId?: string;
+      startTimestamp?: number;
+      endTimestamp?: number;
+      range?: { limit?: number; offset?: number };
+    }): Promise<any> => {
+      const { key, domainId, startTimestamp, endTimestamp, range } = params;
 
-    const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
-    const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+      const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
 
-    const limit = range?.limit ? range.limit : 10;
-    const offset = range?.offset ? range.offset : 0;
+      const limit = range?.limit ? range.limit : 10;
+      const offset = range?.offset ? range.offset : 0;
 
-    const millis = 1000;
-    const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
-    const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
-    const startTimestampIdentifier = start ? `swap_hour=gt.${start}&` : "";
-    const endTimestampIdentifier = end ? `swap_hour=lt.${end}&` : "";
+      const millis = 1000;
+      const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
+      const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
+      const startTimestampIdentifier = start ? `swap_hour=gt.${start}&` : "";
+      const endTimestampIdentifier = end ? `swap_hour=lt.${end}&` : "";
 
-    const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
-    const orderIdentifier = `order=swap_hour.desc`;
+      const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
+      const orderIdentifier = `order=swap_hour.desc`;
 
-    const uri = formatUrl(
-      this.config.cartographerUrl!,
-      "hourly_swap_volume?",
-      poolIdentifier +
-        startTimestampIdentifier +
-        endTimestampIdentifier +
-        domainIdentifier +
-        rangeIdentifier +
-        orderIdentifier,
-    );
-    validateUri(uri);
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "hourly_swap_volume?",
+        poolIdentifier +
+          startTimestampIdentifier +
+          endTimestampIdentifier +
+          domainIdentifier +
+          rangeIdentifier +
+          orderIdentifier,
+      );
+      validateUri(uri);
 
-    return await axiosGetRequest(uri);
-  }
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
 }
