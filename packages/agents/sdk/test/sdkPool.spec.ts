@@ -132,7 +132,7 @@ describe("SdkPool", () => {
 
       expect(sdkPool.getPool).to.be.a("function");
       expect(sdkPool.getUserPools).to.be.a("function");
-      expect(sdkPool.getYieldStatsForDay).to.be.a("function");
+      expect(sdkPool.getYieldStatsForDays).to.be.a("function");
       expect(sdkPool.calculateYield).to.be.a("function");
       expect(sdkPool.getYieldData).to.be.a("function");
       expect(sdkPool.getLiquidityMiningAprPerPool).to.be.a("function");
@@ -555,7 +555,7 @@ describe("SdkPool", () => {
       stub(sdkPool, "getConnext").resolves(undefined);
       stub(sdkPool, "getCanonicalTokenId").resolves([mock.domain.A, mockParams.canonicalId]);
 
-      const result = await sdkPool.getYieldStatsForDay(mock.domain.A, constants.AddressZero, 1);
+      const result = await sdkPool.getYieldStatsForDays(mock.domain.A, constants.AddressZero, 1675394597, 1);
 
       expect(result).to.be.undefined;
     });
@@ -756,6 +756,78 @@ describe("SdkPool", () => {
       (sdkPool as any).config.cartographerUrl = "invalidUrl";
 
       await expect(sdkPool.getHourlySwapVolume({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getDailySwapVolume", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        domainId: mock.domain.A,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with startTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        startTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with endTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        endTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        key: getRandomBytes32(),
+        domainId: mock.domain.A,
+        startTimestamp: new Date().valueOf(),
+        endTimestamp: new Date().valueOf(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getDailySwapVolume({})).to.be.rejectedWith(UriInvalid);
     });
   });
 });

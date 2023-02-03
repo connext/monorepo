@@ -25,11 +25,12 @@ import {
   calculateSwapPriceImpactSchema,
   calculateAmountReceivedSchema,
   getTokenPriceSchema,
-  getYieldStatsForDaySchema,
+  getYieldStatsForDaysSchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
   getTokenSwapEventsSchema,
   getHourlySwapVolumeSchema,
+  getDailySwapVolumeSchema,
 } from "./types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
@@ -370,15 +371,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   s.get(
-    "/getYieldStatsForDay/:domainId/:tokenAddress/:unixTimestamp",
+    "/getYieldStatsForDays/:domainId/:tokenAddress/:unixTimestamp",
     {
       schema: {
-        params: getYieldStatsForDaySchema,
+        params: getYieldStatsForDaysSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, unixTimestamp } = request.params;
-      const res = await sdkPoolInstance.getYieldStatsForDay(domainId, tokenAddress, unixTimestamp);
+      const { domainId, tokenAddress, unixTimestamp, days } = request.params;
+      const res = await sdkPoolInstance.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
       reply.status(200).send(res);
     },
   );
@@ -393,6 +394,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     async (request, reply) => {
       const { domainId, tokenAddress, days } = request.params;
       const res = await sdkPoolInstance.getYieldData(domainId, tokenAddress, days);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getDailySwapVolume",
+    {
+      schema: {
+        body: getDailySwapVolumeSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkPoolInstance.getDailySwapVolume(params);
       reply.status(200).send(res);
     },
   );
