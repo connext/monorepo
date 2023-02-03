@@ -44,32 +44,27 @@ export const retryXCalls = async (): Promise<void> => {
     for (let offset = 0; offset < domainPending.length; offset += pageSize) {
       const pending = domainPending.slice(offset, pageSize);
 
-      const originTransfersFromSubgraph = await subgraph.getOriginTransfersByDomain(domain, pending);
-
-      const originTransfers = (
+      // Remove from pending xcalls that are not ready for retry
+      const ready = (
         await Promise.all(
-          originTransfersFromSubgraph.flatMap(async (transfer) => {
-            const cacheTransfer = await cache.transfers.getTransfer(transfer.transferId);
-            if (JSON.stringify(transfer) === JSON.stringify(cacheTransfer)) {
-              const bidStatus = await cache.transfers.getBidStatus(transfer.transferId);
-              // Remove from pending xcalls that are not ready for retry
-              if (bidStatus !== undefined) {
-                const startTime = Number(bidStatus.timestamp);
-                const elapsedTime = getNtpTimeSeconds() - startTime;
-                const waitTime = Math.pow(2, bidStatus.attempts);
-                if (elapsedTime > waitTime) {
-                  return transfer;
-                }
-                // Not yet ready for retry
-                return;
+          pending.flatMap(async (transferId) => {
+            const bidStatus = await cache.transfers.getBidStatus(transferId);
+            if (bidStatus !== undefined) {
+              const startTime = Number(bidStatus.timestamp);
+              const elapsedTime = getNtpTimeSeconds() - startTime;
+              const waitTime = Math.pow(2, bidStatus.attempts);
+              if (elapsedTime > waitTime) {
+                return transferId;
               }
-            } else {
-              await cache.transfers.storeTransfers([transfer], false);
             }
-            // Ready for retry
-            return transfer;
+            // First try
+            return transferId;
           }),
         )
+      ).filter((i) => !!i);
+
+      const originTransfers = (
+        await Promise.all(ready.flatMap((transferId) => cache.transfers.getTransfer(transferId)))
       ).filter((i) => !!i);
 
       const destinationTransfers = await subgraph.getDestinationTransfers(originTransfers as OriginTransfer[]);
