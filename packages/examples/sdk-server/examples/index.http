@@ -386,3 +386,17 @@ Content-Type: application/json
     "endTimestamp": 1671640192
   }
 }
+
+##############
+### GET getDailySwapVolume
+POST {{baseUrl}}/getDailySwapVolume
+Content-Type: application/json
+
+{
+  "params": {
+    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+    "domainId": "9991",
+    "startTimestamp": 1661640192,
+    "endTimestamp": 1671640192
+  }
+}

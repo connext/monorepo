@@ -99,6 +99,8 @@ export type testgoerli_AssetBalance_filter = {
   asset_?: InputMaybe<testgoerli_Asset_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_AssetBalance_filter>>>;
 };
 
 export type testgoerli_AssetBalance_orderBy =
@@ -174,6 +176,8 @@ export type testgoerli_Asset_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Asset_filter>>>;
 };
 
 export type testgoerli_Asset_orderBy =
@@ -547,6 +551,8 @@ export type testgoerli_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_DestinationTransfer_filter>>>;
 };
 
 export type testgoerli_DestinationTransfer_orderBy =
@@ -858,6 +864,8 @@ export type testgoerli_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_OriginTransfer_filter>>>;
 };
 
 export type testgoerli_OriginTransfer_orderBy =
@@ -1111,6 +1119,8 @@ export type testgoerli_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Relayer_filter>>>;
 };
 
 export type testgoerli_Relayer_orderBy =
@@ -1191,6 +1201,8 @@ export type testgoerli_Router_filter = {
   assetBalances_?: InputMaybe<testgoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Router_filter>>>;
 };
 
 export type testgoerli_Router_orderBy =
@@ -1237,6 +1249,8 @@ export type testgoerli_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Setting_filter>>>;
 };
 
 export type testgoerli_Setting_orderBy =
@@ -1270,6 +1284,8 @@ export type testgoerli_SponsorVault_filter = {
   sponsorVault_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_SponsorVault_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_SponsorVault_filter>>>;
 };
 
 export type testgoerli_SponsorVault_orderBy =
@@ -1322,6 +1338,8 @@ export type testgoerli_StableSwap_filter = {
   swapPool_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_StableSwap_filter>>>;
 };
 
 export type testgoerli_StableSwap_orderBy =

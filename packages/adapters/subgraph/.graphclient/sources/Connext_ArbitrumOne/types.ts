@@ -56,6 +56,8 @@ export type arbitrumone_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_AggregateRoot_filter>>>;
 };
 
 export type arbitrumone_AggregateRoot_orderBy =
@@ -71,6 +73,7 @@ export type arbitrumone_Asset = {
   adoptedAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
   localAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<arbitrumone_AssetStatus>;
 };
 
 export type arbitrumone_AssetBalance = {
@@ -150,6 +153,8 @@ export type arbitrumone_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_AssetBalance_filter>>>;
 };
 
 export type arbitrumone_AssetBalance_orderBy =
@@ -158,6 +163,34 @@ export type arbitrumone_AssetBalance_orderBy =
   | 'router'
   | 'asset'
   | 'feesEarned';
+
+export type arbitrumone_AssetStatus = {
+  id: Scalars['ID'];
+  status?: Maybe<Scalars['Boolean']>;
+};
+
+export type arbitrumone_AssetStatus_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  status?: InputMaybe<Scalars['Boolean']>;
+  status_not?: InputMaybe<Scalars['Boolean']>;
+  status_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_AssetStatus_filter>>>;
+};
+
+export type arbitrumone_AssetStatus_orderBy =
+  | 'id'
+  | 'status';
 
 export type arbitrumone_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -224,8 +257,31 @@ export type arbitrumone_Asset_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<Scalars['String']>;
+  status_not?: InputMaybe<Scalars['String']>;
+  status_gt?: InputMaybe<Scalars['String']>;
+  status_lt?: InputMaybe<Scalars['String']>;
+  status_gte?: InputMaybe<Scalars['String']>;
+  status_lte?: InputMaybe<Scalars['String']>;
+  status_in?: InputMaybe<Array<Scalars['String']>>;
+  status_not_in?: InputMaybe<Array<Scalars['String']>>;
+  status_contains?: InputMaybe<Scalars['String']>;
+  status_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_not_contains?: InputMaybe<Scalars['String']>;
+  status_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_starts_with?: InputMaybe<Scalars['String']>;
+  status_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_starts_with?: InputMaybe<Scalars['String']>;
+  status_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_ends_with?: InputMaybe<Scalars['String']>;
+  status_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']>;
+  status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_?: InputMaybe<arbitrumone_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_Asset_filter>>>;
 };
 
 export type arbitrumone_Asset_orderBy =
@@ -235,7 +291,8 @@ export type arbitrumone_Asset_orderBy =
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'status';
 
 export type arbitrumone_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -313,6 +370,8 @@ export type arbitrumone_ConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_ConnectorMeta_filter>>>;
 };
 
 export type arbitrumone_ConnectorMeta_orderBy =
@@ -338,6 +397,7 @@ export type arbitrumone_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['arbitrumone_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['arbitrumone_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -482,6 +542,14 @@ export type arbitrumone_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   originSender_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
@@ -681,6 +749,8 @@ export type arbitrumone_DestinationTransfer_filter = {
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_DestinationTransfer_filter>>>;
 };
 
 export type arbitrumone_DestinationTransfer_orderBy =
@@ -698,6 +768,7 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
@@ -844,6 +915,8 @@ export type arbitrumone_OriginMessage_filter = {
   rootCount_?: InputMaybe<arbitrumone_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_OriginMessage_filter>>>;
 };
 
 export type arbitrumone_OriginMessage_orderBy =
@@ -878,9 +951,9 @@ export type arbitrumone_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumone_Bytes']>;
   asset?: Maybe<arbitrumone_Asset>;
-  transacting?: Maybe<Scalars['arbitrumone_Bytes']>;
   message?: Maybe<arbitrumone_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['arbitrumone_Bytes']>;
   transactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1062,16 +1135,6 @@ export type arbitrumone_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<arbitrumone_Asset_filter>;
-  transacting?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transacting_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transacting_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transacting_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1101,6 +1164,14 @@ export type arbitrumone_OriginTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
@@ -1165,6 +1236,8 @@ export type arbitrumone_OriginTransfer_filter = {
   txOrigin_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_OriginTransfer_filter>>>;
 };
 
 export type arbitrumone_OriginTransfer_orderBy =
@@ -1187,9 +1260,9 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'transacting'
   | 'message'
   | 'relayerFee'
+  | 'bumpRelayerFeeCount'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1198,41 +1271,11 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'blockNumber'
   | 'txOrigin';
 
-export type arbitrumone_PooledToken = {
-  id: Scalars['ID'];
-  asset: Scalars['arbitrumone_Bytes'];
-};
-
-export type arbitrumone_PooledToken_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
-};
-
-export type arbitrumone_PooledToken_orderBy =
-  | 'id'
-  | 'asset';
-
 export type Query = {
   arbitrumone_asset?: Maybe<arbitrumone_Asset>;
   arbitrumone_assets: Array<arbitrumone_Asset>;
+  arbitrumone_assetStatus?: Maybe<arbitrumone_AssetStatus>;
+  arbitrumone_assetStatuses: Array<arbitrumone_AssetStatus>;
   arbitrumone_assetBalance?: Maybe<arbitrumone_AssetBalance>;
   arbitrumone_assetBalances: Array<arbitrumone_AssetBalance>;
   arbitrumone_router?: Maybe<arbitrumone_Router>;
@@ -1241,8 +1284,6 @@ export type Query = {
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
   arbitrumone_relayers: Array<arbitrumone_Relayer>;
-  arbitrumone_transferRelayerFee?: Maybe<arbitrumone_TransferRelayerFee>;
-  arbitrumone_transferRelayerFees: Array<arbitrumone_TransferRelayerFee>;
   arbitrumone_sequencer?: Maybe<arbitrumone_Sequencer>;
   arbitrumone_sequencers: Array<arbitrumone_Sequencer>;
   arbitrumone_originTransfer?: Maybe<arbitrumone_OriginTransfer>;
@@ -1259,12 +1300,6 @@ export type Query = {
   arbitrumone_rootCounts: Array<arbitrumone_RootCount>;
   arbitrumone_rootMessageSent?: Maybe<arbitrumone_RootMessageSent>;
   arbitrumone_rootMessageSents: Array<arbitrumone_RootMessageSent>;
-  arbitrumone_stableSwap?: Maybe<arbitrumone_StableSwap>;
-  arbitrumone_stableSwaps: Array<arbitrumone_StableSwap>;
-  arbitrumone_pooledToken?: Maybe<arbitrumone_PooledToken>;
-  arbitrumone_pooledTokens: Array<arbitrumone_PooledToken>;
-  arbitrumone_stableSwapLiquidity?: Maybe<arbitrumone_StableSwapLiquidity>;
-  arbitrumone_stableSwapLiquidities: Array<arbitrumone_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -1283,6 +1318,24 @@ export type Queryarbitrumone_assetsArgs = {
   orderBy?: InputMaybe<arbitrumone_Asset_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Asset_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_AssetStatus_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1355,24 +1408,6 @@ export type Queryarbitrumone_relayersArgs = {
   orderBy?: InputMaybe<arbitrumone_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Relayer_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1522,60 +1557,6 @@ export type Queryarbitrumone_rootMessageSentsArgs = {
 };
 
 
-export type Queryarbitrumone_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_StableSwap_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_PooledToken_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryarbitrumone_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_StableSwapLiquidity_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Queryarbitrumone__metaArgs = {
   block?: InputMaybe<arbitrumone_Block_height>;
 };
@@ -1611,6 +1592,8 @@ export type arbitrumone_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_Relayer_filter>>>;
 };
 
 export type arbitrumone_Relayer_orderBy =
@@ -1642,6 +1625,8 @@ export type arbitrumone_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RootCount_filter>>>;
 };
 
 export type arbitrumone_RootCount_orderBy =
@@ -1759,6 +1744,8 @@ export type arbitrumone_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RootMessageSent_filter>>>;
 };
 
 export type arbitrumone_RootMessageSent_orderBy =
@@ -1847,6 +1834,8 @@ export type arbitrumone_Router_filter = {
   assetBalances_?: InputMaybe<arbitrumone_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_Router_filter>>>;
 };
 
 export type arbitrumone_Router_orderBy =
@@ -1889,6 +1878,8 @@ export type arbitrumone_Sequencer_filter = {
   sequencer_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_Sequencer_filter>>>;
 };
 
 export type arbitrumone_Sequencer_orderBy =
@@ -1931,6 +1922,8 @@ export type arbitrumone_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_Setting_filter>>>;
 };
 
 export type arbitrumone_Setting_orderBy =
@@ -1938,286 +1931,11 @@ export type arbitrumone_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type arbitrumone_StableSwap = {
-  id: Scalars['ID'];
-  isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId?: Maybe<Scalars['arbitrumone_Bytes']>;
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['arbitrumone_Bytes']>;
-  lpToken?: Maybe<Scalars['arbitrumone_Bytes']>;
-  initialA?: Maybe<Scalars['BigInt']>;
-  futureA?: Maybe<Scalars['BigInt']>;
-  initialATime?: Maybe<Scalars['BigInt']>;
-  futureATime?: Maybe<Scalars['BigInt']>;
-  swapFee?: Maybe<Scalars['BigInt']>;
-  adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<arbitrumone_PooledToken>;
-  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
-  balances: Array<Scalars['BigInt']>;
-  adminFees?: Maybe<Array<Scalars['BigInt']>>;
-};
-
-
-export type arbitrumone_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_PooledToken_filter>;
-};
-
-export type arbitrumone_StableSwapLiquidity = {
-  id: Scalars['ID'];
-  provider: Scalars['arbitrumone_Bytes'];
-  stableSwap: arbitrumone_StableSwap;
-  tokenAmounts: Array<Scalars['BigInt']>;
-  fees: Array<Scalars['BigInt']>;
-  invariant?: Maybe<Scalars['BigInt']>;
-  lpTokenSupply?: Maybe<Scalars['BigInt']>;
-};
-
-export type arbitrumone_StableSwapLiquidity_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  stableSwap?: InputMaybe<Scalars['String']>;
-  stableSwap_not?: InputMaybe<Scalars['String']>;
-  stableSwap_gt?: InputMaybe<Scalars['String']>;
-  stableSwap_lt?: InputMaybe<Scalars['String']>;
-  stableSwap_gte?: InputMaybe<Scalars['String']>;
-  stableSwap_lte?: InputMaybe<Scalars['String']>;
-  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<arbitrumone_StableSwap_filter>;
-  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant?: InputMaybe<Scalars['BigInt']>;
-  invariant_not?: InputMaybe<Scalars['BigInt']>;
-  invariant_gt?: InputMaybe<Scalars['BigInt']>;
-  invariant_lt?: InputMaybe<Scalars['BigInt']>;
-  invariant_gte?: InputMaybe<Scalars['BigInt']>;
-  invariant_lte?: InputMaybe<Scalars['BigInt']>;
-  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
-};
-
-export type arbitrumone_StableSwapLiquidity_orderBy =
-  | 'id'
-  | 'provider'
-  | 'stableSwap'
-  | 'tokenAmounts'
-  | 'fees'
-  | 'invariant'
-  | 'lpTokenSupply';
-
-export type arbitrumone_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  initialA?: InputMaybe<Scalars['BigInt']>;
-  initialA_not?: InputMaybe<Scalars['BigInt']>;
-  initialA_gt?: InputMaybe<Scalars['BigInt']>;
-  initialA_lt?: InputMaybe<Scalars['BigInt']>;
-  initialA_gte?: InputMaybe<Scalars['BigInt']>;
-  initialA_lte?: InputMaybe<Scalars['BigInt']>;
-  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA?: InputMaybe<Scalars['BigInt']>;
-  futureA_not?: InputMaybe<Scalars['BigInt']>;
-  futureA_gt?: InputMaybe<Scalars['BigInt']>;
-  futureA_lt?: InputMaybe<Scalars['BigInt']>;
-  futureA_gte?: InputMaybe<Scalars['BigInt']>;
-  futureA_lte?: InputMaybe<Scalars['BigInt']>;
-  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime?: InputMaybe<Scalars['BigInt']>;
-  initialATime_not?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime?: InputMaybe<Scalars['BigInt']>;
-  futureATime_not?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee?: InputMaybe<Scalars['BigInt']>;
-  swapFee_not?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee?: InputMaybe<Scalars['BigInt']>;
-  adminFee_not?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<arbitrumone_PooledToken_filter>;
-  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
-};
-
-export type arbitrumone_StableSwap_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'key'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool'
-  | 'lpToken'
-  | 'initialA'
-  | 'futureA'
-  | 'initialATime'
-  | 'futureATime'
-  | 'swapFee'
-  | 'adminFee'
-  | 'pooledTokens'
-  | 'tokenPrecisionMultipliers'
-  | 'balances'
-  | 'adminFees';
-
 export type Subscription = {
   arbitrumone_asset?: Maybe<arbitrumone_Asset>;
   arbitrumone_assets: Array<arbitrumone_Asset>;
+  arbitrumone_assetStatus?: Maybe<arbitrumone_AssetStatus>;
+  arbitrumone_assetStatuses: Array<arbitrumone_AssetStatus>;
   arbitrumone_assetBalance?: Maybe<arbitrumone_AssetBalance>;
   arbitrumone_assetBalances: Array<arbitrumone_AssetBalance>;
   arbitrumone_router?: Maybe<arbitrumone_Router>;
@@ -2226,8 +1944,6 @@ export type Subscription = {
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
   arbitrumone_relayers: Array<arbitrumone_Relayer>;
-  arbitrumone_transferRelayerFee?: Maybe<arbitrumone_TransferRelayerFee>;
-  arbitrumone_transferRelayerFees: Array<arbitrumone_TransferRelayerFee>;
   arbitrumone_sequencer?: Maybe<arbitrumone_Sequencer>;
   arbitrumone_sequencers: Array<arbitrumone_Sequencer>;
   arbitrumone_originTransfer?: Maybe<arbitrumone_OriginTransfer>;
@@ -2244,12 +1960,6 @@ export type Subscription = {
   arbitrumone_rootCounts: Array<arbitrumone_RootCount>;
   arbitrumone_rootMessageSent?: Maybe<arbitrumone_RootMessageSent>;
   arbitrumone_rootMessageSents: Array<arbitrumone_RootMessageSent>;
-  arbitrumone_stableSwap?: Maybe<arbitrumone_StableSwap>;
-  arbitrumone_stableSwaps: Array<arbitrumone_StableSwap>;
-  arbitrumone_pooledToken?: Maybe<arbitrumone_PooledToken>;
-  arbitrumone_pooledTokens: Array<arbitrumone_PooledToken>;
-  arbitrumone_stableSwapLiquidity?: Maybe<arbitrumone_StableSwapLiquidity>;
-  arbitrumone_stableSwapLiquidities: Array<arbitrumone_StableSwapLiquidity>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -2268,6 +1978,24 @@ export type Subscriptionarbitrumone_assetsArgs = {
   orderBy?: InputMaybe<arbitrumone_Asset_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Asset_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_AssetStatus_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2340,24 +2068,6 @@ export type Subscriptionarbitrumone_relayersArgs = {
   orderBy?: InputMaybe<arbitrumone_Relayer_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Relayer_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_TransferRelayerFee_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2507,105 +2217,9 @@ export type Subscriptionarbitrumone_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionarbitrumone_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_StableSwap_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_pooledTokenArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_pooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_PooledToken_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionarbitrumone_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<arbitrumone_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
-  where?: InputMaybe<arbitrumone_StableSwapLiquidity_filter>;
-  block?: InputMaybe<arbitrumone_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionarbitrumone__metaArgs = {
   block?: InputMaybe<arbitrumone_Block_height>;
 };
-
-export type arbitrumone_TransferRelayerFee = {
-  id: Scalars['ID'];
-  transferId: Scalars['arbitrumone_Bytes'];
-  fee?: Maybe<Scalars['BigInt']>;
-};
-
-export type arbitrumone_TransferRelayerFee_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
-  fee?: InputMaybe<Scalars['BigInt']>;
-  fee_not?: InputMaybe<Scalars['BigInt']>;
-  fee_gt?: InputMaybe<Scalars['BigInt']>;
-  fee_lt?: InputMaybe<Scalars['BigInt']>;
-  fee_gte?: InputMaybe<Scalars['BigInt']>;
-  fee_lte?: InputMaybe<Scalars['BigInt']>;
-  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
-};
-
-export type arbitrumone_TransferRelayerFee_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'fee';
 
 export type arbitrumone_TransferStatus =
   | 'XCalled'
@@ -2651,6 +2265,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumone_assets: InContextSdkMethod<Query['arbitrumone_assets'], Queryarbitrumone_assetsArgs, MeshContext>,
   /** null **/
+  arbitrumone_assetStatus: InContextSdkMethod<Query['arbitrumone_assetStatus'], Queryarbitrumone_assetStatusArgs, MeshContext>,
+  /** null **/
+  arbitrumone_assetStatuses: InContextSdkMethod<Query['arbitrumone_assetStatuses'], Queryarbitrumone_assetStatusesArgs, MeshContext>,
+  /** null **/
   arbitrumone_assetBalance: InContextSdkMethod<Query['arbitrumone_assetBalance'], Queryarbitrumone_assetBalanceArgs, MeshContext>,
   /** null **/
   arbitrumone_assetBalances: InContextSdkMethod<Query['arbitrumone_assetBalances'], Queryarbitrumone_assetBalancesArgs, MeshContext>,
@@ -2666,10 +2284,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_relayer: InContextSdkMethod<Query['arbitrumone_relayer'], Queryarbitrumone_relayerArgs, MeshContext>,
   /** null **/
   arbitrumone_relayers: InContextSdkMethod<Query['arbitrumone_relayers'], Queryarbitrumone_relayersArgs, MeshContext>,
-  /** null **/
-  arbitrumone_transferRelayerFee: InContextSdkMethod<Query['arbitrumone_transferRelayerFee'], Queryarbitrumone_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  arbitrumone_transferRelayerFees: InContextSdkMethod<Query['arbitrumone_transferRelayerFees'], Queryarbitrumone_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumone_sequencer: InContextSdkMethod<Query['arbitrumone_sequencer'], Queryarbitrumone_sequencerArgs, MeshContext>,
   /** null **/
@@ -2702,18 +2316,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_rootMessageSent: InContextSdkMethod<Query['arbitrumone_rootMessageSent'], Queryarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumone_rootMessageSents: InContextSdkMethod<Query['arbitrumone_rootMessageSents'], Queryarbitrumone_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwap: InContextSdkMethod<Query['arbitrumone_stableSwap'], Queryarbitrumone_stableSwapArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwaps: InContextSdkMethod<Query['arbitrumone_stableSwaps'], Queryarbitrumone_stableSwapsArgs, MeshContext>,
-  /** null **/
-  arbitrumone_pooledToken: InContextSdkMethod<Query['arbitrumone_pooledToken'], Queryarbitrumone_pooledTokenArgs, MeshContext>,
-  /** null **/
-  arbitrumone_pooledTokens: InContextSdkMethod<Query['arbitrumone_pooledTokens'], Queryarbitrumone_pooledTokensArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwapLiquidity: InContextSdkMethod<Query['arbitrumone_stableSwapLiquidity'], Queryarbitrumone_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwapLiquidities: InContextSdkMethod<Query['arbitrumone_stableSwapLiquidities'], Queryarbitrumone_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Query['arbitrumone__meta'], Queryarbitrumone__metaArgs, MeshContext>
   };
@@ -2727,6 +2329,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_asset: InContextSdkMethod<Subscription['arbitrumone_asset'], Subscriptionarbitrumone_assetArgs, MeshContext>,
   /** null **/
   arbitrumone_assets: InContextSdkMethod<Subscription['arbitrumone_assets'], Subscriptionarbitrumone_assetsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_assetStatus: InContextSdkMethod<Subscription['arbitrumone_assetStatus'], Subscriptionarbitrumone_assetStatusArgs, MeshContext>,
+  /** null **/
+  arbitrumone_assetStatuses: InContextSdkMethod<Subscription['arbitrumone_assetStatuses'], Subscriptionarbitrumone_assetStatusesArgs, MeshContext>,
   /** null **/
   arbitrumone_assetBalance: InContextSdkMethod<Subscription['arbitrumone_assetBalance'], Subscriptionarbitrumone_assetBalanceArgs, MeshContext>,
   /** null **/
@@ -2743,10 +2349,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_relayer: InContextSdkMethod<Subscription['arbitrumone_relayer'], Subscriptionarbitrumone_relayerArgs, MeshContext>,
   /** null **/
   arbitrumone_relayers: InContextSdkMethod<Subscription['arbitrumone_relayers'], Subscriptionarbitrumone_relayersArgs, MeshContext>,
-  /** null **/
-  arbitrumone_transferRelayerFee: InContextSdkMethod<Subscription['arbitrumone_transferRelayerFee'], Subscriptionarbitrumone_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  arbitrumone_transferRelayerFees: InContextSdkMethod<Subscription['arbitrumone_transferRelayerFees'], Subscriptionarbitrumone_transferRelayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumone_sequencer: InContextSdkMethod<Subscription['arbitrumone_sequencer'], Subscriptionarbitrumone_sequencerArgs, MeshContext>,
   /** null **/
@@ -2779,18 +2381,6 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_rootMessageSent: InContextSdkMethod<Subscription['arbitrumone_rootMessageSent'], Subscriptionarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumone_rootMessageSents: InContextSdkMethod<Subscription['arbitrumone_rootMessageSents'], Subscriptionarbitrumone_rootMessageSentsArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwap: InContextSdkMethod<Subscription['arbitrumone_stableSwap'], Subscriptionarbitrumone_stableSwapArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwaps: InContextSdkMethod<Subscription['arbitrumone_stableSwaps'], Subscriptionarbitrumone_stableSwapsArgs, MeshContext>,
-  /** null **/
-  arbitrumone_pooledToken: InContextSdkMethod<Subscription['arbitrumone_pooledToken'], Subscriptionarbitrumone_pooledTokenArgs, MeshContext>,
-  /** null **/
-  arbitrumone_pooledTokens: InContextSdkMethod<Subscription['arbitrumone_pooledTokens'], Subscriptionarbitrumone_pooledTokensArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwapLiquidity: InContextSdkMethod<Subscription['arbitrumone_stableSwapLiquidity'], Subscriptionarbitrumone_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  arbitrumone_stableSwapLiquidities: InContextSdkMethod<Subscription['arbitrumone_stableSwapLiquidities'], Subscriptionarbitrumone_stableSwapLiquiditiesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Subscription['arbitrumone__meta'], Subscriptionarbitrumone__metaArgs, MeshContext>
   };
