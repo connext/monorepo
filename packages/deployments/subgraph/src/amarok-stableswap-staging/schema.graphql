@@ -72,6 +72,7 @@ type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
+  balances: [BigInt!]!
 
   block: BigInt!
   timestamp: BigInt!
@@ -86,6 +87,7 @@ type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
+  balances: [BigInt!]!
 
   block: BigInt!
   timestamp: BigInt!
@@ -100,6 +102,7 @@ type StableSwapExchange @entity {
   tokensBought: BigInt!
   soldId: BigInt!
   tokensSold: BigInt!
+  balances: [BigInt!]!
 
   block: BigInt!
   timestamp: BigInt!
