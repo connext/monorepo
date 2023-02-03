@@ -183,7 +183,8 @@ export default task("xcall", "Prepare a cross-chain tx")
       // Get the other params
       const receiveLocal = _receiveLocal === "true" ? true : false;
       const delegate = _delegate ?? to;
-      const slippage = _slippage ?? "5000";
+      // const slippage = _slippage ?? "5000";
+      const slippage = "0";
 
       // Run as many times as specified
       for (let i = 1; i <= runs; i++) {
