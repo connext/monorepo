@@ -8,7 +8,6 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
-  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -29,7 +28,7 @@ import { getOperations } from "./lib/operations";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
-const slippageErrorMsg = "execution reverted: dy < minDy";
+export const SlippageErrorMsg = "execution reverted: dy < minDy";
 
 /// MARK - Make Agents
 /**
@@ -137,14 +136,6 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
     await context.adapters.database.increaseBackoff(transferId);
-
-    if (errorObj.message && errorObj.message == slippageErrorMsg) {
-      const transfer = await context.adapters.cache.transfers.getTransfer(transferId);
-      if (transfer && transfer.origin) {
-        transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
-        await context.adapters.database.saveTransfers([transfer]);
-      }
-    }
 
     process.exit(1);
   }

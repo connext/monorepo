@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
-import { getContext } from "../../../sequencer";
+import { getContext, SlippageErrorMsg } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
@@ -375,11 +375,13 @@ export const executeFastPathData = async (
         // Break out from the bid selection loop.
         break;
       } catch (error: any) {
+        const jsonError = jsonifyError(error as Error);
+
         logger.error(
           "Failed to send to relayer, trying next combination if possible",
           requestContext,
           methodContext,
-          jsonifyError(error as Error),
+          jsonError,
           {
             transferId,
             round: roundIdInNum,
@@ -387,6 +389,13 @@ export const executeFastPathData = async (
             bidsCount: randomCombination.length,
           },
         );
+
+        if (jsonError.context.message && jsonError.context.message == SlippageErrorMsg) {
+          transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
+          await database.saveTransfers([transfer]);
+
+          return { taskId };
+        }
       }
     }
 

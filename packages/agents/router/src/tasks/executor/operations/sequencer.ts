@@ -11,9 +11,9 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../executor";
+import { axiosPost } from "../../../mockable";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { axiosPost } from "../../../mockable";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
