@@ -288,7 +288,7 @@ locals {
     hubDomain : "1735353714"
     chains = {
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli", "https://goerli.blockpi.network/v1/rpc/public"]
         assets = [
           {
             name    = "BigBroERC20"
@@ -297,7 +297,7 @@ locals {
         ]
       }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "BigBroERC20"
