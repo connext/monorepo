@@ -235,6 +235,11 @@ export function handleTokenSwap(event: TokenSwap): void {
     exchange.timestamp = event.block.timestamp;
     exchange.transaction = event.transaction.hash;
     exchange.save();
+  }
+  // update system
+  let system = getSystemInfo();
+  system.exchangeCount = system.exchangeCount.plus(BigInt.fromI32(1));
+  system.save();
 }
 
 export function handleRampA(event: RampA): void {
