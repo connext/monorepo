@@ -62,6 +62,8 @@ export type stagingoptimismgoerli_swap_PooledToken_filter = {
   asset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_PooledToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_PooledToken_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_PooledToken_orderBy =
@@ -480,6 +482,8 @@ export type stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_orderBy =
@@ -560,6 +564,8 @@ export type stagingoptimismgoerli_swap_StableSwapEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapEvent_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_StableSwapEvent_orderBy =
@@ -682,6 +688,8 @@ export type stagingoptimismgoerli_swap_StableSwapExchange_filter = {
   transaction_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapExchange_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapExchange_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_StableSwapExchange_orderBy =
@@ -805,6 +813,8 @@ export type stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_swap_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_orderBy =
@@ -983,6 +993,8 @@ export type stagingoptimismgoerli_swap_StableSwap_filter = {
   weeklyVolumes_?: InputMaybe<stagingoptimismgoerli_swap_SwapWeeklyVolume_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_StableSwap_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_StableSwap_orderBy =
@@ -1297,6 +1309,8 @@ export type stagingoptimismgoerli_swap_SwapDailyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapDailyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapDailyVolume_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_SwapDailyVolume_orderBy =
@@ -1360,6 +1374,8 @@ export type stagingoptimismgoerli_swap_SwapHourlyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapHourlyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapHourlyVolume_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_SwapHourlyVolume_orderBy =
@@ -1414,6 +1430,8 @@ export type stagingoptimismgoerli_swap_SwapTradeVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapTradeVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapTradeVolume_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_SwapTradeVolume_orderBy =
@@ -1476,6 +1494,8 @@ export type stagingoptimismgoerli_swap_SwapWeeklyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapWeeklyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SwapWeeklyVolume_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_SwapWeeklyVolume_orderBy =
@@ -1517,6 +1537,8 @@ export type stagingoptimismgoerli_swap_SystemInfo_filter = {
   swapCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SystemInfo_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_swap_SystemInfo_filter>>>;
 };
 
 export type stagingoptimismgoerli_swap_SystemInfo_orderBy =

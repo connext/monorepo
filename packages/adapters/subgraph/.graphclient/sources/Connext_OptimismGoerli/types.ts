@@ -56,6 +56,8 @@ export type optimismgoerli_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRoot_filter>>>;
 };
 
 export type optimismgoerli_AggregateRoot_orderBy =
@@ -151,6 +153,8 @@ export type optimismgoerli_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetBalance_filter>>>;
 };
 
 export type optimismgoerli_AssetBalance_orderBy =
@@ -180,6 +184,8 @@ export type optimismgoerli_AssetStatus_filter = {
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetStatus_filter>>>;
 };
 
 export type optimismgoerli_AssetStatus_orderBy =
@@ -274,6 +280,8 @@ export type optimismgoerli_Asset_filter = {
   status_?: InputMaybe<optimismgoerli_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Asset_filter>>>;
 };
 
 export type optimismgoerli_Asset_orderBy =
@@ -362,6 +370,8 @@ export type optimismgoerli_ConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_ConnectorMeta_filter>>>;
 };
 
 export type optimismgoerli_ConnectorMeta_orderBy =
@@ -739,6 +749,8 @@ export type optimismgoerli_DestinationTransfer_filter = {
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_DestinationTransfer_filter>>>;
 };
 
 export type optimismgoerli_DestinationTransfer_orderBy =
@@ -903,6 +915,8 @@ export type optimismgoerli_OriginMessage_filter = {
   rootCount_?: InputMaybe<optimismgoerli_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginMessage_filter>>>;
 };
 
 export type optimismgoerli_OriginMessage_orderBy =
@@ -1222,6 +1236,8 @@ export type optimismgoerli_OriginTransfer_filter = {
   txOrigin_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginTransfer_filter>>>;
 };
 
 export type optimismgoerli_OriginTransfer_orderBy =
@@ -1576,6 +1592,8 @@ export type optimismgoerli_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Relayer_filter>>>;
 };
 
 export type optimismgoerli_Relayer_orderBy =
@@ -1607,6 +1625,8 @@ export type optimismgoerli_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RootCount_filter>>>;
 };
 
 export type optimismgoerli_RootCount_orderBy =
@@ -1724,6 +1744,8 @@ export type optimismgoerli_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RootMessageSent_filter>>>;
 };
 
 export type optimismgoerli_RootMessageSent_orderBy =
@@ -1812,6 +1834,8 @@ export type optimismgoerli_Router_filter = {
   assetBalances_?: InputMaybe<optimismgoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Router_filter>>>;
 };
 
 export type optimismgoerli_Router_orderBy =
@@ -1854,6 +1878,8 @@ export type optimismgoerli_Sequencer_filter = {
   sequencer_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Sequencer_filter>>>;
 };
 
 export type optimismgoerli_Sequencer_orderBy =
@@ -1896,6 +1922,8 @@ export type optimismgoerli_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Setting_filter>>>;
 };
 
 export type optimismgoerli_Setting_orderBy =

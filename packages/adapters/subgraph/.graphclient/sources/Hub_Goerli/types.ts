@@ -65,6 +65,8 @@ export type goerli_AggregatedMessageRoot_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_AggregatedMessageRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_AggregatedMessageRoot_filter>>>;
 };
 
 export type goerli_AggregatedMessageRoot_orderBy =
@@ -139,6 +141,8 @@ export type goerli_ArbitrumConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_ArbitrumConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_ArbitrumConnectorMeta_filter>>>;
 };
 
 export type goerli_ArbitrumConnectorMeta_orderBy =
@@ -225,6 +229,8 @@ export type goerli_BnbConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_BnbConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_BnbConnectorMeta_filter>>>;
 };
 
 export type goerli_BnbConnectorMeta_orderBy =
@@ -301,6 +307,8 @@ export type goerli_GnosisConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_GnosisConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_GnosisConnectorMeta_filter>>>;
 };
 
 export type goerli_GnosisConnectorMeta_orderBy =
@@ -377,6 +385,8 @@ export type goerli_OptimismConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_OptimismConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_OptimismConnectorMeta_filter>>>;
 };
 
 export type goerli_OptimismConnectorMeta_orderBy =
@@ -458,6 +468,8 @@ export type goerli_PolygonConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_PolygonConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_PolygonConnectorMeta_filter>>>;
 };
 
 export type goerli_PolygonConnectorMeta_orderBy =
@@ -722,6 +734,8 @@ export type goerli_RootAggregated_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootAggregated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootAggregated_filter>>>;
 };
 
 export type goerli_RootAggregated_orderBy =
@@ -759,6 +773,8 @@ export type goerli_RootManagerMeta_filter = {
   connectors_not_contains_nocase?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootManagerMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootManagerMeta_filter>>>;
 };
 
 export type goerli_RootManagerMeta_orderBy =
@@ -868,6 +884,8 @@ export type goerli_RootMessageProcessed_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootMessageProcessed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootMessageProcessed_filter>>>;
 };
 
 export type goerli_RootMessageProcessed_orderBy =
@@ -928,6 +946,8 @@ export type goerli_RootPropagated_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootPropagated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootPropagated_filter>>>;
 };
 
 export type goerli_RootPropagated_orderBy =

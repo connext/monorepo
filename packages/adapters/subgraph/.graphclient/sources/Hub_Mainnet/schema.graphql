@@ -56,6 +56,8 @@ input mainnet_AggregatedMessageRoot_filter {
   domain_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AggregatedMessageRoot_filter]
+  or: [mainnet_AggregatedMessageRoot_filter]
 }
 
 enum mainnet_AggregatedMessageRoot_orderBy {
@@ -131,6 +133,8 @@ input mainnet_ArbitrumConnectorMeta_filter {
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_ArbitrumConnectorMeta_filter]
+  or: [mainnet_ArbitrumConnectorMeta_filter]
 }
 
 enum mainnet_ArbitrumConnectorMeta_orderBy {
@@ -222,6 +226,8 @@ input mainnet_BnbConnectorMeta_filter {
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_BnbConnectorMeta_filter]
+  or: [mainnet_BnbConnectorMeta_filter]
 }
 
 enum mainnet_BnbConnectorMeta_orderBy {
@@ -301,6 +307,8 @@ input mainnet_GnosisConnectorMeta_filter {
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_GnosisConnectorMeta_filter]
+  or: [mainnet_GnosisConnectorMeta_filter]
 }
 
 enum mainnet_GnosisConnectorMeta_orderBy {
@@ -378,6 +386,8 @@ input mainnet_OptimismConnectorMeta_filter {
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OptimismConnectorMeta_filter]
+  or: [mainnet_OptimismConnectorMeta_filter]
 }
 
 enum mainnet_OptimismConnectorMeta_orderBy {
@@ -461,6 +471,8 @@ input mainnet_PolygonConnectorMeta_filter {
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_PolygonConnectorMeta_filter]
+  or: [mainnet_PolygonConnectorMeta_filter]
 }
 
 enum mainnet_PolygonConnectorMeta_orderBy {
@@ -781,6 +793,8 @@ input mainnet_RootAggregated_filter {
   index_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootAggregated_filter]
+  or: [mainnet_RootAggregated_filter]
 }
 
 enum mainnet_RootAggregated_orderBy {
@@ -819,6 +833,8 @@ input mainnet_RootManagerMeta_filter {
   connectors_not_contains_nocase: [mainnet_Bytes!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootManagerMeta_filter]
+  or: [mainnet_RootManagerMeta_filter]
 }
 
 enum mainnet_RootManagerMeta_orderBy {
@@ -929,6 +945,8 @@ input mainnet_RootMessageProcessed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootMessageProcessed_filter]
+  or: [mainnet_RootMessageProcessed_filter]
 }
 
 enum mainnet_RootMessageProcessed_orderBy {
@@ -990,6 +1008,8 @@ input mainnet_RootPropagated_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootPropagated_filter]
+  or: [mainnet_RootPropagated_filter]
 }
 
 enum mainnet_RootPropagated_orderBy {
