@@ -47,6 +47,8 @@ input mumbai_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_AggregateRoot_filter]
+  or: [mumbai_AggregateRoot_filter]
 }
 
 enum mumbai_AggregateRoot_orderBy {
@@ -143,6 +145,8 @@ input mumbai_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_AssetBalance_filter]
+  or: [mumbai_AssetBalance_filter]
 }
 
 enum mumbai_AssetBalance_orderBy {
@@ -173,6 +177,8 @@ input mumbai_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_AssetStatus_filter]
+  or: [mumbai_AssetStatus_filter]
 }
 
 enum mumbai_AssetStatus_orderBy {
@@ -268,6 +274,8 @@ input mumbai_Asset_filter {
   status_: mumbai_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_Asset_filter]
+  or: [mumbai_Asset_filter]
 }
 
 enum mumbai_Asset_orderBy {
@@ -363,6 +371,8 @@ input mumbai_ConnectorMeta_filter {
   mirrorConnector_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_ConnectorMeta_filter]
+  or: [mumbai_ConnectorMeta_filter]
 }
 
 enum mumbai_ConnectorMeta_orderBy {
@@ -732,6 +742,8 @@ input mumbai_DestinationTransfer_filter {
   reconciledTxOrigin_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_DestinationTransfer_filter]
+  or: [mumbai_DestinationTransfer_filter]
 }
 
 enum mumbai_DestinationTransfer_orderBy {
@@ -898,6 +910,8 @@ input mumbai_OriginMessage_filter {
   rootCount_: mumbai_RootCount_filter
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_OriginMessage_filter]
+  or: [mumbai_OriginMessage_filter]
 }
 
 enum mumbai_OriginMessage_orderBy {
@@ -1218,6 +1232,8 @@ input mumbai_OriginTransfer_filter {
   txOrigin_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_OriginTransfer_filter]
+  or: [mumbai_OriginTransfer_filter]
 }
 
 enum mumbai_OriginTransfer_orderBy {
@@ -1652,6 +1668,8 @@ input mumbai_Relayer_filter {
   relayer_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_Relayer_filter]
+  or: [mumbai_Relayer_filter]
 }
 
 enum mumbai_Relayer_orderBy {
@@ -1684,6 +1702,8 @@ input mumbai_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_RootCount_filter]
+  or: [mumbai_RootCount_filter]
 }
 
 enum mumbai_RootCount_orderBy {
@@ -1802,6 +1822,8 @@ input mumbai_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_RootMessageSent_filter]
+  or: [mumbai_RootMessageSent_filter]
 }
 
 enum mumbai_RootMessageSent_orderBy {
@@ -1882,6 +1904,8 @@ input mumbai_Router_filter {
   assetBalances_: mumbai_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_Router_filter]
+  or: [mumbai_Router_filter]
 }
 
 enum mumbai_Router_orderBy {
@@ -1925,6 +1949,8 @@ input mumbai_Sequencer_filter {
   sequencer_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_Sequencer_filter]
+  or: [mumbai_Sequencer_filter]
 }
 
 enum mumbai_Sequencer_orderBy {
@@ -1968,6 +1994,8 @@ input mumbai_Setting_filter {
   caller_not_contains: mumbai_Bytes
   """Filter for the block changed event."""
   _change_block: mumbai_BlockChangedFilter
+  and: [mumbai_Setting_filter]
+  or: [mumbai_Setting_filter]
 }
 
 enum mumbai_Setting_orderBy {
