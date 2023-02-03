@@ -91,6 +91,9 @@ export const bindSubscriber = async (queueName: string) => {
             }
           } else {
             // No ack and requeue if child exits with error
+            if (message.type === MessageType.ExecuteFast) {
+              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
+            }
             msg.reject();
             logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
               transferId: message.transferId,
