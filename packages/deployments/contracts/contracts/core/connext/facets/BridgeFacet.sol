@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -30,6 +31,7 @@ contract BridgeFacet is BaseConnextFacet {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
+  using SafeERC20 for IERC20Metadata;
 
   // ========== Custom Errors ===========
 
@@ -313,7 +315,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, _asset, _amount, address(0), 0);
   }
 
   function xcallIntoLocal(
@@ -346,7 +348,77 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, _asset, _amount, address(0), 0);
+  }
+
+  function xcall(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) external nonXCallReentrant returns (bytes32) {
+    // NOTE: Here, we fill in as much information as we can for the TransferInfo.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
+    TransferInfo memory params = TransferInfo({
+      to: _to,
+      callData: _callData,
+      originDomain: s.domain,
+      destinationDomain: _destination,
+      delegate: _delegate,
+      // `receiveLocal: false` indicates we should always deliver the adopted asset on the
+      // destination chain, swapping from the local asset if needed.
+      receiveLocal: false,
+      slippage: _slippage,
+      originSender: msg.sender,
+      // The following values should be assigned in _xcall.
+      nonce: 0,
+      canonicalDomain: 0,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      canonicalId: bytes32(0)
+    });
+    return _xcall(params, _asset, _amount, _relayerFeeAsset, _relayerFee);
+  }
+
+  function xcallIntoLocal(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) external nonXCallReentrant returns (bytes32) {
+    // NOTE: Here, we fill in as much information as we can for the TransferInfo.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
+    TransferInfo memory params = TransferInfo({
+      to: _to,
+      callData: _callData,
+      originDomain: s.domain,
+      destinationDomain: _destination,
+      delegate: _delegate,
+      // `receiveLocal: true` indicates we should always deliver the local asset on the
+      // destination chain, and NOT swap into any adopted assets.
+      receiveLocal: true,
+      slippage: _slippage,
+      originSender: msg.sender,
+      // The following values should be assigned in _xcall.
+      nonce: 0,
+      canonicalDomain: 0,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      canonicalId: bytes32(0)
+    });
+    return _xcall(params, _asset, _amount, _relayerFeeAsset, _relayerFee);
   }
 
   /**
@@ -402,13 +474,31 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
-    _bumpTransfer(_transferId);
+    _bumpTransfer(_transferId, address(0), 0);
   }
 
-  function _bumpTransfer(bytes32 _transferId) internal {
+  function bumpTransfer(
+    bytes32 _transferId,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) external payable nonReentrant whenNotPaused {
+    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+    _bumpTransfer(_transferId, _relayerFeeAsset, _relayerFee);
+  }
+
+  function _bumpTransfer(
+    bytes32 _transferId,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) internal {
     address relayerVault = s.relayerFeeVault;
     if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
-    Address.sendValue(payable(relayerVault), msg.value);
+    if (_relayerFeeAsset == address(0)) {
+      Address.sendValue(payable(relayerVault), msg.value);
+    } else {
+      // Transfer asset to contract.
+      IERC20Metadata(_relayerFeeAsset).safeTransferFrom(msg.sender, address(this), _relayerFee);
+    }
 
     emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
@@ -481,7 +571,9 @@ contract BridgeFacet is BaseConnextFacet {
   function _xcall(
     TransferInfo memory _params,
     address _asset,
-    uint256 _amount
+    uint256 _amount,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
   ) internal whenNotPaused returns (bytes32) {
     // Sanity checks.
     bytes32 remoteInstance;
@@ -584,8 +676,8 @@ contract BridgeFacet is BaseConnextFacet {
     // Handle the relayer fee.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    if (msg.value > 0) {
-      _bumpTransfer(transferId);
+    if (msg.value > 0 || _relayerFee > 0) {
+      _bumpTransfer(transferId, _relayerFeeAsset, _relayerFee);
     }
 
     // Send the crosschain message.
