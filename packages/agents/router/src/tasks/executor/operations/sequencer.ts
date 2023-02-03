@@ -70,7 +70,7 @@ export const sendExecuteSlowToSequencer = async (
     });
   } catch (_err: unknown) {
     const err = _err as NxtpError;
-    if (isKnownRevert(err.context.message as string)) {
+    if (isKnownRevert((err.context?.message as string) ?? "")) {
       logger.warn("Failed to estimate gas", requestContext, methodContext, {
         chainId: destinationChainId,
         to: destinationConnextAddress,
