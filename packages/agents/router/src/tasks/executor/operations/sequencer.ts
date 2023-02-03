@@ -14,6 +14,7 @@ import { getContext } from "../executor";
 import { axiosPost } from "../../../mockable";
 // @ts-ignore
 import { version } from "../../../../package.json";
+import { isKnownRevert } from "../../../errors";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
@@ -67,15 +68,26 @@ export const sendExecuteSlowToSequencer = async (
       gas: gas.toString(),
       transferId: transferId,
     });
-  } catch (err: unknown) {
-    logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
+  } catch (_err: unknown) {
+    const err = _err as NxtpError;
+    if (isKnownRevert(err.context.message as string)) {
+      logger.warn("Failed to estimate gas", requestContext, methodContext, {
+        chainId: destinationChainId,
+        to: destinationConnextAddress,
+        data: encodedData,
+        from: relayerAddress,
+        transferId: transferId,
+        reason: err.context.message,
+      });
+      return;
+    }
+    logger.error("Failed to estimate gas", requestContext, methodContext, jsonifyError(err), {
       chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
       from: relayerAddress,
       transferId: transferId,
     });
-
     return;
   }
 
