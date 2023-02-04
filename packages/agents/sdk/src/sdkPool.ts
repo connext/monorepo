@@ -13,7 +13,7 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
-import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { SignerAddressMissing, ChainDataUndefined, ParamsInvalid } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
@@ -1007,17 +1007,19 @@ export class SdkPool extends SdkShared {
   }
 
   /**
-   * Calculates the fees, liquidity, and volume of a pool for the 24 hours prior to the specified unix time.
+   * Calculates the fees, liquidity, and volume of a pool for the days prior to the specified unix time.
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param unixTimestamp - The unix time to look back 24 hours from.
+   * @param unixTimestamp - The unix time to start the look back from.
+   * @param days - The number of days to look back.
    * @returns Object containing fees, liquidity, and volume, in 1e18 precision.
    */
-  async getYieldStatsForDay(
+  async getYieldStatsForDays(
     domainId: string,
     tokenAddress: string,
     unixTimestamp: number,
+    days: number,
   ): Promise<
     | {
         totalFeesFormatted: number;
@@ -1027,25 +1029,44 @@ export class SdkPool extends SdkShared {
       }
     | undefined
   > {
+    const { requestContext, methodContext } = createLoggingContext(this.getYieldStatsForDays.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, tokenAddress, days });
+    if (days <= 0) {
+      throw new ParamsInvalid({
+        paramsError: "Cannot get yield for less than 1 day",
+        days: days,
+      });
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const pool = await this.getPool(domainId, _tokenAddress);
 
     if (pool) {
-      const hourlyVolumes = await this.getHourlySwapVolume({
-        key: pool.canonicalHash,
-        domainId: pool.domainId,
-        startTimestamp: unixTimestamp - 86_400, // 24 hours prior
-        endTimestamp: unixTimestamp,
-        range: { limit: 24 },
-      });
+      let volumes;
+      if (days == 1) {
+        // Get more precise data for last 24 hrs
+        volumes = await this.getHourlySwapVolume({
+          key: pool.canonicalHash,
+          domainId: pool.domainId,
+          endTimestamp: unixTimestamp,
+          range: { limit: 24 },
+        });
+      } else {
+        volumes = await this.getDailySwapVolume({
+          key: pool.canonicalHash,
+          domainId: pool.domainId,
+          endTimestamp: unixTimestamp,
+          range: { limit: days },
+        });
+      }
 
       const basisPoints = pool.swapFee;
       const FEE_DENOMINATOR = 1e10;
 
       let totalVolume = BigNumber.from(0);
       let totalFees = BigNumber.from(0);
-      for (const volumeData of hourlyVolumes) {
+      for (const volumeData of volumes) {
         totalVolume = totalVolume.add(utils.parseEther(Number(volumeData.volume).toFixed(18)));
       }
       totalFees = totalVolume.mul(BigNumber.from(basisPoints)).div(BigNumber.from(FEE_DENOMINATOR));
@@ -1122,7 +1143,7 @@ export class SdkPool extends SdkShared {
       const block = await provider.getBlock("latest");
       const endTimestamp = block.timestamp;
 
-      const yieldStats = await this.getYieldStatsForDay(domainId, _tokenAddress, endTimestamp);
+      const yieldStats = await this.getYieldStatsForDays(domainId, _tokenAddress, endTimestamp, days);
 
       if (yieldStats) {
         const {
@@ -1146,7 +1167,7 @@ export class SdkPool extends SdkShared {
 
       return;
     },
-    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+    { promise: true, length: false, maxAge: 5 * 60 * 1000 }, // 5 min
   );
 
   /**
@@ -1228,6 +1249,71 @@ export class SdkPool extends SdkShared {
       const uri = formatUrl(
         this.config.cartographerUrl!,
         "hourly_swap_volume?",
+        poolIdentifier +
+          startTimestampIdentifier +
+          endTimestampIdentifier +
+          domainIdentifier +
+          rangeIdentifier +
+          orderIdentifier,
+      );
+      validateUri(uri);
+
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+  );
+
+  /**
+   * Fetches daily StableSwap volume.
+   *
+   * @param params - (optional) Parameters object.
+   * @param params.key - (optional) The canonical hash (key) of the pool.
+   * @param params.domainId - (optional) The domain ID.
+   * @param params.startTimestamp - (optional) The lower bound unix timestamp, inclusive.
+   * @param params.endTimestamp - (optional) The upper bound unix timestamp, inclusive.
+   * @param params.range - (optional) The object with limit and offset options.
+   * @param params.range.limit - (optional) The number of results to get.
+   * @param params.range.offset - (optional) The offset in the returned data to start from.
+   * @returns The object containing daily swap volume data, in the form of:
+   *
+   * ```ts
+   * {
+   *   "pool_id": "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a",
+   *   "domain": "1634886255",
+   *   "swap_day": "2022-12-22",
+   *   "volume": 0.05993787732028597,
+   *   "swap_count": 6
+   * }
+   * ```
+   */
+  getDailySwapVolume = memoize(
+    async (params: {
+      key?: string;
+      domainId?: string;
+      startTimestamp?: number;
+      endTimestamp?: number;
+      range?: { limit?: number; offset?: number };
+    }): Promise<any> => {
+      const { key, domainId, startTimestamp, endTimestamp, range } = params;
+
+      const poolIdentifier = key ? `pool_id=eq.${key.toLowerCase()}&` : "";
+      const domainIdentifier = domainId ? `domain=eq.${domainId}&` : "";
+
+      const limit = range?.limit ? range.limit : 10;
+      const offset = range?.offset ? range.offset : 0;
+
+      const millis = 1000;
+      const start = startTimestamp ? new Date(startTimestamp * millis).toISOString() : undefined;
+      const end = endTimestamp ? new Date(endTimestamp * millis).toISOString() : undefined;
+      const startTimestampIdentifier = start ? `swap_day=gt.${start}&` : "";
+      const endTimestampIdentifier = end ? `swap_day=lt.${end}&` : "";
+
+      const rangeIdentifier = `limit=${limit}&offset=${offset}&`;
+      const orderIdentifier = `order=swap_day.desc`;
+
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "daily_swap_volume?",
         poolIdentifier +
           startTimestampIdentifier +
           endTimestampIdentifier +

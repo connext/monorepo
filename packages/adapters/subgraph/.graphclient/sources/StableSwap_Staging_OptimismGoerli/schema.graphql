@@ -60,6 +60,8 @@ input stagingoptimismgoerli_swap_PooledToken_filter {
   asset_not_contains: stagingoptimismgoerli_swap_Bytes
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_PooledToken_filter]
+  or: [stagingoptimismgoerli_swap_PooledToken_filter]
 }
 
 enum stagingoptimismgoerli_swap_PooledToken_orderBy {
@@ -495,6 +497,8 @@ input stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter {
   transaction_not_contains: stagingoptimismgoerli_swap_Bytes
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter]
+  or: [stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter]
 }
 
 enum stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_orderBy {
@@ -576,6 +580,8 @@ input stagingoptimismgoerli_swap_StableSwapEvent_filter {
   transaction_not_contains: stagingoptimismgoerli_swap_Bytes
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_StableSwapEvent_filter]
+  or: [stagingoptimismgoerli_swap_StableSwapEvent_filter]
 }
 
 enum stagingoptimismgoerli_swap_StableSwapEvent_orderBy {
@@ -699,6 +705,8 @@ input stagingoptimismgoerli_swap_StableSwapExchange_filter {
   transaction_not_contains: stagingoptimismgoerli_swap_Bytes
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_StableSwapExchange_filter]
+  or: [stagingoptimismgoerli_swap_StableSwapExchange_filter]
 }
 
 enum stagingoptimismgoerli_swap_StableSwapExchange_orderBy {
@@ -823,6 +831,8 @@ input stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter {
   transaction_not_contains: stagingoptimismgoerli_swap_Bytes
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter]
+  or: [stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter]
 }
 
 enum stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_orderBy {
@@ -1002,6 +1012,8 @@ input stagingoptimismgoerli_swap_StableSwap_filter {
   weeklyVolumes_: stagingoptimismgoerli_swap_SwapWeeklyVolume_filter
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_StableSwap_filter]
+  or: [stagingoptimismgoerli_swap_StableSwap_filter]
 }
 
 enum stagingoptimismgoerli_swap_StableSwap_orderBy {
@@ -1378,6 +1390,8 @@ input stagingoptimismgoerli_swap_SwapDailyVolume_filter {
   volume_not_in: [stagingoptimismgoerli_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_SwapDailyVolume_filter]
+  or: [stagingoptimismgoerli_swap_SwapDailyVolume_filter]
 }
 
 enum stagingoptimismgoerli_swap_SwapDailyVolume_orderBy {
@@ -1442,6 +1456,8 @@ input stagingoptimismgoerli_swap_SwapHourlyVolume_filter {
   volume_not_in: [stagingoptimismgoerli_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_SwapHourlyVolume_filter]
+  or: [stagingoptimismgoerli_swap_SwapHourlyVolume_filter]
 }
 
 enum stagingoptimismgoerli_swap_SwapHourlyVolume_orderBy {
@@ -1497,6 +1513,8 @@ input stagingoptimismgoerli_swap_SwapTradeVolume_filter {
   volume_not_in: [stagingoptimismgoerli_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_SwapTradeVolume_filter]
+  or: [stagingoptimismgoerli_swap_SwapTradeVolume_filter]
 }
 
 enum stagingoptimismgoerli_swap_SwapTradeVolume_orderBy {
@@ -1560,6 +1578,8 @@ input stagingoptimismgoerli_swap_SwapWeeklyVolume_filter {
   volume_not_in: [stagingoptimismgoerli_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_SwapWeeklyVolume_filter]
+  or: [stagingoptimismgoerli_swap_SwapWeeklyVolume_filter]
 }
 
 enum stagingoptimismgoerli_swap_SwapWeeklyVolume_orderBy {
@@ -1602,6 +1622,8 @@ input stagingoptimismgoerli_swap_SystemInfo_filter {
   swapCount_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_swap_BlockChangedFilter
+  and: [stagingoptimismgoerli_swap_SystemInfo_filter]
+  or: [stagingoptimismgoerli_swap_SystemInfo_filter]
 }
 
 enum stagingoptimismgoerli_swap_SystemInfo_orderBy {

@@ -55,6 +55,20 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     // {
+    //   name: "fUSDCx",
+    //   canonical: {
+    //     domain: "1735353714",
+    //     address: "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a",
+    //     decimals: 18,
+    //     cap: utils.parseUnits("10000000", 18).toString(),
+    //   },
+    //   representations: {
+    //     "9991": {
+    //       adopted: "0x42bb40bF79730451B11f6De1CbA222F17b87Afd7",
+    //     },
+    //   },
+    // },
+    // {
     //   name: "KP3R",
     //   canonical: {
     //     domain: "1735353714",

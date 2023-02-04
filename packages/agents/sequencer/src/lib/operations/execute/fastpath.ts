@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
-import { getContext, SlippageErrorMsg } from "../../../sequencer";
+import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
@@ -390,7 +390,10 @@ export const executeFastPathData = async (
           },
         );
 
-        if (jsonError.context.message && jsonError.context.message == SlippageErrorMsg) {
+        if (
+          jsonError.context.message &&
+          SlippageErrorPatterns.some((i) => (jsonError.context.message as string).includes(i))
+        ) {
           transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
           await database.saveTransfers([transfer]);
 
