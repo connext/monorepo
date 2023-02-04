@@ -47,6 +47,8 @@ input goerli_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_AggregateRoot_filter]
+  or: [goerli_AggregateRoot_filter]
 }
 
 enum goerli_AggregateRoot_orderBy {
@@ -143,6 +145,8 @@ input goerli_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_AssetBalance_filter]
+  or: [goerli_AssetBalance_filter]
 }
 
 enum goerli_AssetBalance_orderBy {
@@ -173,6 +177,8 @@ input goerli_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_AssetStatus_filter]
+  or: [goerli_AssetStatus_filter]
 }
 
 enum goerli_AssetStatus_orderBy {
@@ -268,6 +274,8 @@ input goerli_Asset_filter {
   status_: goerli_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Asset_filter]
+  or: [goerli_Asset_filter]
 }
 
 enum goerli_Asset_orderBy {
@@ -363,6 +371,8 @@ input goerli_ConnectorMeta_filter {
   mirrorConnector_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_ConnectorMeta_filter]
+  or: [goerli_ConnectorMeta_filter]
 }
 
 enum goerli_ConnectorMeta_orderBy {
@@ -732,6 +742,8 @@ input goerli_DestinationTransfer_filter {
   reconciledTxOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_DestinationTransfer_filter]
+  or: [goerli_DestinationTransfer_filter]
 }
 
 enum goerli_DestinationTransfer_orderBy {
@@ -898,6 +910,8 @@ input goerli_OriginMessage_filter {
   rootCount_: goerli_RootCount_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_OriginMessage_filter]
+  or: [goerli_OriginMessage_filter]
 }
 
 enum goerli_OriginMessage_orderBy {
@@ -1218,6 +1232,8 @@ input goerli_OriginTransfer_filter {
   txOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_OriginTransfer_filter]
+  or: [goerli_OriginTransfer_filter]
 }
 
 enum goerli_OriginTransfer_orderBy {
@@ -1652,6 +1668,8 @@ input goerli_Relayer_filter {
   relayer_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Relayer_filter]
+  or: [goerli_Relayer_filter]
 }
 
 enum goerli_Relayer_orderBy {
@@ -1684,6 +1702,8 @@ input goerli_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_RootCount_filter]
+  or: [goerli_RootCount_filter]
 }
 
 enum goerli_RootCount_orderBy {
@@ -1802,6 +1822,8 @@ input goerli_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_RootMessageSent_filter]
+  or: [goerli_RootMessageSent_filter]
 }
 
 enum goerli_RootMessageSent_orderBy {
@@ -1882,6 +1904,8 @@ input goerli_Router_filter {
   assetBalances_: goerli_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Router_filter]
+  or: [goerli_Router_filter]
 }
 
 enum goerli_Router_orderBy {
@@ -1925,6 +1949,8 @@ input goerli_Sequencer_filter {
   sequencer_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Sequencer_filter]
+  or: [goerli_Sequencer_filter]
 }
 
 enum goerli_Sequencer_orderBy {
@@ -1968,6 +1994,8 @@ input goerli_Setting_filter {
   caller_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Setting_filter]
+  or: [goerli_Setting_filter]
 }
 
 enum goerli_Setting_orderBy {

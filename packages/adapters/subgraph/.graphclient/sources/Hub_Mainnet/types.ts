@@ -65,6 +65,8 @@ export type mainnet_AggregatedMessageRoot_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_AggregatedMessageRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_AggregatedMessageRoot_filter>>>;
 };
 
 export type mainnet_AggregatedMessageRoot_orderBy =
@@ -139,6 +141,8 @@ export type mainnet_ArbitrumConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_ArbitrumConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_ArbitrumConnectorMeta_filter>>>;
 };
 
 export type mainnet_ArbitrumConnectorMeta_orderBy =
@@ -225,6 +229,8 @@ export type mainnet_BnbConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_BnbConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_BnbConnectorMeta_filter>>>;
 };
 
 export type mainnet_BnbConnectorMeta_orderBy =
@@ -301,6 +307,8 @@ export type mainnet_GnosisConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_GnosisConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_GnosisConnectorMeta_filter>>>;
 };
 
 export type mainnet_GnosisConnectorMeta_orderBy =
@@ -377,6 +385,8 @@ export type mainnet_OptimismConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_OptimismConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_OptimismConnectorMeta_filter>>>;
 };
 
 export type mainnet_OptimismConnectorMeta_orderBy =
@@ -458,6 +468,8 @@ export type mainnet_PolygonConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_PolygonConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_PolygonConnectorMeta_filter>>>;
 };
 
 export type mainnet_PolygonConnectorMeta_orderBy =
@@ -722,6 +734,8 @@ export type mainnet_RootAggregated_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootAggregated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootAggregated_filter>>>;
 };
 
 export type mainnet_RootAggregated_orderBy =
@@ -759,6 +773,8 @@ export type mainnet_RootManagerMeta_filter = {
   connectors_not_contains_nocase?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMeta_filter>>>;
 };
 
 export type mainnet_RootManagerMeta_orderBy =
@@ -868,6 +884,8 @@ export type mainnet_RootMessageProcessed_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootMessageProcessed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootMessageProcessed_filter>>>;
 };
 
 export type mainnet_RootMessageProcessed_orderBy =
@@ -928,6 +946,8 @@ export type mainnet_RootPropagated_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootPropagated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootPropagated_filter>>>;
 };
 
 export type mainnet_RootPropagated_orderBy =

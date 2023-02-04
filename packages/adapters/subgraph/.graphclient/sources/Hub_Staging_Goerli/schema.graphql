@@ -56,6 +56,8 @@ input staginggoerli_AggregatedMessageRoot_filter {
   domain_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_AggregatedMessageRoot_filter]
+  or: [staginggoerli_AggregatedMessageRoot_filter]
 }
 
 enum staginggoerli_AggregatedMessageRoot_orderBy {
@@ -131,6 +133,8 @@ input staginggoerli_ArbitrumConnectorMeta_filter {
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_ArbitrumConnectorMeta_filter]
+  or: [staginggoerli_ArbitrumConnectorMeta_filter]
 }
 
 enum staginggoerli_ArbitrumConnectorMeta_orderBy {
@@ -222,6 +226,8 @@ input staginggoerli_BnbConnectorMeta_filter {
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_BnbConnectorMeta_filter]
+  or: [staginggoerli_BnbConnectorMeta_filter]
 }
 
 enum staginggoerli_BnbConnectorMeta_orderBy {
@@ -301,6 +307,8 @@ input staginggoerli_GnosisConnectorMeta_filter {
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_GnosisConnectorMeta_filter]
+  or: [staginggoerli_GnosisConnectorMeta_filter]
 }
 
 enum staginggoerli_GnosisConnectorMeta_orderBy {
@@ -378,6 +386,8 @@ input staginggoerli_OptimismConnectorMeta_filter {
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_OptimismConnectorMeta_filter]
+  or: [staginggoerli_OptimismConnectorMeta_filter]
 }
 
 enum staginggoerli_OptimismConnectorMeta_orderBy {
@@ -461,6 +471,8 @@ input staginggoerli_PolygonConnectorMeta_filter {
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_PolygonConnectorMeta_filter]
+  or: [staginggoerli_PolygonConnectorMeta_filter]
 }
 
 enum staginggoerli_PolygonConnectorMeta_orderBy {
@@ -781,6 +793,8 @@ input staginggoerli_RootAggregated_filter {
   index_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootAggregated_filter]
+  or: [staginggoerli_RootAggregated_filter]
 }
 
 enum staginggoerli_RootAggregated_orderBy {
@@ -819,6 +833,8 @@ input staginggoerli_RootManagerMeta_filter {
   connectors_not_contains_nocase: [staginggoerli_Bytes!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootManagerMeta_filter]
+  or: [staginggoerli_RootManagerMeta_filter]
 }
 
 enum staginggoerli_RootManagerMeta_orderBy {
@@ -929,6 +945,8 @@ input staginggoerli_RootMessageProcessed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootMessageProcessed_filter]
+  or: [staginggoerli_RootMessageProcessed_filter]
 }
 
 enum staginggoerli_RootMessageProcessed_orderBy {
@@ -990,6 +1008,8 @@ input staginggoerli_RootPropagated_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootPropagated_filter]
+  or: [staginggoerli_RootPropagated_filter]
 }
 
 enum staginggoerli_RootPropagated_orderBy {

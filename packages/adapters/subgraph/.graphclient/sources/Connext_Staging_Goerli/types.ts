@@ -56,6 +56,8 @@ export type staginggoerli_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRoot_filter>>>;
 };
 
 export type staginggoerli_AggregateRoot_orderBy =
@@ -150,6 +152,8 @@ export type staginggoerli_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_AssetBalance_filter>>>;
 };
 
 export type staginggoerli_AssetBalance_orderBy =
@@ -226,6 +230,8 @@ export type staginggoerli_Asset_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_Asset_filter>>>;
 };
 
 export type staginggoerli_Asset_orderBy =
@@ -313,6 +319,8 @@ export type staginggoerli_ConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_ConnectorMeta_filter>>>;
 };
 
 export type staginggoerli_ConnectorMeta_orderBy =
@@ -681,6 +689,8 @@ export type staginggoerli_DestinationTransfer_filter = {
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_DestinationTransfer_filter>>>;
 };
 
 export type staginggoerli_DestinationTransfer_orderBy =
@@ -844,6 +854,8 @@ export type staginggoerli_OriginMessage_filter = {
   rootCount_?: InputMaybe<staginggoerli_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_OriginMessage_filter>>>;
 };
 
 export type staginggoerli_OriginMessage_orderBy =
@@ -1165,6 +1177,8 @@ export type staginggoerli_OriginTransfer_filter = {
   txOrigin_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_OriginTransfer_filter>>>;
 };
 
 export type staginggoerli_OriginTransfer_orderBy =
@@ -1224,6 +1238,8 @@ export type staginggoerli_PooledToken_filter = {
   asset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_PooledToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_PooledToken_filter>>>;
 };
 
 export type staginggoerli_PooledToken_orderBy =
@@ -1751,6 +1767,8 @@ export type staginggoerli_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_Relayer_filter>>>;
 };
 
 export type staginggoerli_Relayer_orderBy =
@@ -1782,6 +1800,8 @@ export type staginggoerli_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_RootCount_filter>>>;
 };
 
 export type staginggoerli_RootCount_orderBy =
@@ -1899,6 +1919,8 @@ export type staginggoerli_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_RootMessageSent_filter>>>;
 };
 
 export type staginggoerli_RootMessageSent_orderBy =
@@ -1987,6 +2009,8 @@ export type staginggoerli_Router_filter = {
   assetBalances_?: InputMaybe<staginggoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_Router_filter>>>;
 };
 
 export type staginggoerli_Router_orderBy =
@@ -2029,6 +2053,8 @@ export type staginggoerli_Sequencer_filter = {
   sequencer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_Sequencer_filter>>>;
 };
 
 export type staginggoerli_Sequencer_orderBy =
@@ -2071,6 +2097,8 @@ export type staginggoerli_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_Setting_filter>>>;
 };
 
 export type staginggoerli_Setting_orderBy =
@@ -2218,6 +2246,8 @@ export type staginggoerli_StableSwapAddLiquidityEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapAddLiquidityEvent_filter>>>;
 };
 
 export type staginggoerli_StableSwapAddLiquidityEvent_orderBy =
@@ -2289,6 +2319,8 @@ export type staginggoerli_StableSwapEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapEvent_filter>>>;
 };
 
 export type staginggoerli_StableSwapEvent_orderBy =
@@ -2410,6 +2442,8 @@ export type staginggoerli_StableSwapExchange_filter = {
   transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapExchange_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapExchange_filter>>>;
 };
 
 export type staginggoerli_StableSwapExchange_orderBy =
@@ -2533,6 +2567,8 @@ export type staginggoerli_StableSwapRemoveLiquidityEvent_filter = {
   transaction_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwapRemoveLiquidityEvent_filter>>>;
 };
 
 export type staginggoerli_StableSwapRemoveLiquidityEvent_orderBy =
@@ -2699,6 +2735,8 @@ export type staginggoerli_StableSwap_filter = {
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_StableSwap_filter>>>;
 };
 
 export type staginggoerli_StableSwap_orderBy =
@@ -3267,6 +3305,8 @@ export type staginggoerli_SwapDailyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_SwapDailyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_SwapDailyVolume_filter>>>;
 };
 
 export type staginggoerli_SwapDailyVolume_orderBy =
@@ -3330,6 +3370,8 @@ export type staginggoerli_SwapHourlyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_SwapHourlyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_SwapHourlyVolume_filter>>>;
 };
 
 export type staginggoerli_SwapHourlyVolume_orderBy =
@@ -3384,6 +3426,8 @@ export type staginggoerli_SwapTradeVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_SwapTradeVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_SwapTradeVolume_filter>>>;
 };
 
 export type staginggoerli_SwapTradeVolume_orderBy =
@@ -3446,6 +3490,8 @@ export type staginggoerli_SwapWeeklyVolume_filter = {
   volume_not_in?: InputMaybe<Array<Scalars['staginggoerli_BigDecimal']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_SwapWeeklyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_SwapWeeklyVolume_filter>>>;
 };
 
 export type staginggoerli_SwapWeeklyVolume_orderBy =
@@ -3489,6 +3535,8 @@ export type staginggoerli_TransferRelayerFee_filter = {
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_TransferRelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_TransferRelayerFee_filter>>>;
 };
 
 export type staginggoerli_TransferRelayerFee_orderBy =
