@@ -2,6 +2,8 @@ import { Values, NxtpError } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
+import { getConnextInterface } from "./contracts";
+
 export class MaxBufferLengthError extends NxtpError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted
@@ -406,11 +408,23 @@ export const parseError = (error: any): NxtpError => {
     }
   }
 
+  // Identify the error's name given its sighash, if possible.
+  let name;
+  try {
+    const iface = getConnextInterface();
+    name = iface.getError(data)?.name ?? "n/a";
+  } catch {
+    // Will throw "no matching error" if no error matching the given sighash
+    // was found.
+    name = "n/a";
+  }
+
   // Preserve the original message before making it lower case.
   const originalMessage = message;
   message = (message || "").toLowerCase();
   const context = {
     data: data ?? "n/a",
+    name,
     message: originalMessage,
     code: error.code ?? "n/a",
     reason: error.reason ?? "n/a",
