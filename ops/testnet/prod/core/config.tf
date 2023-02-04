@@ -66,7 +66,7 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
@@ -182,7 +182,7 @@ locals {
     }
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
@@ -206,7 +206,7 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
@@ -255,7 +255,7 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
