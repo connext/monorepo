@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, OriginTransfer, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, OriginTransfer, getNtpTimeSeconds, XTransfer } from "@connext/nxtp-utils";
 
 import { MQ_EXCHANGE, XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
@@ -44,27 +44,32 @@ export const retryXCalls = async (): Promise<void> => {
     for (let offset = 0; offset < domainPending.length; offset += pageSize) {
       const pending = domainPending.slice(offset, pageSize);
 
-      // Remove from pending xcalls that are not ready for retry
-      const ready = (
-        await Promise.all(
-          pending.flatMap(async (transferId) => {
-            const bidStatus = await cache.transfers.getBidStatus(transferId);
-            if (bidStatus !== undefined) {
-              const startTime = Number(bidStatus.timestamp);
-              const elapsedTime = getNtpTimeSeconds() - startTime;
-              const waitTime = Math.pow(2, bidStatus.attempts);
-              if (elapsedTime > waitTime) {
-                return transferId;
-              }
-            }
-            // First try
-            return transferId;
-          }),
-        )
-      ).filter((i) => !!i);
+      const originTransfersFromSubgraph: XTransfer[] = await subgraph.getOriginTransfersByDomain(domain, pending);
 
       const originTransfers = (
-        await Promise.all(ready.flatMap((transferId) => cache.transfers.getTransfer(transferId)))
+        await Promise.all(
+          originTransfersFromSubgraph.flatMap(async (transfer) => {
+            const cacheTransfer = await cache.transfers.getTransfer(transfer.transferId);
+            if (JSON.stringify(transfer) === JSON.stringify(cacheTransfer)) {
+              const bidStatus = await cache.transfers.getBidStatus(transfer.transferId);
+              // Remove from pending xcalls that are not ready for retry
+              if (bidStatus !== undefined) {
+                const startTime = Number(bidStatus.timestamp);
+                const elapsedTime = getNtpTimeSeconds() - startTime;
+                const waitTime = Math.pow(2, bidStatus.attempts);
+                if (elapsedTime > waitTime) {
+                  return transfer;
+                }
+                // Not yet ready for retry
+                return;
+              }
+            } else {
+              await cache.transfers.storeTransfers([transfer], false);
+            }
+            // Ready for retry
+            return transfer;
+          }),
+        )
       ).filter((i) => !!i);
 
       const destinationTransfers = await subgraph.getDestinationTransfers(originTransfers as OriginTransfer[]);
