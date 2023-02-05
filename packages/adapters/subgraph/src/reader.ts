@@ -623,8 +623,9 @@ export class SubgraphReader {
     const prefix: string = getPrefixForDomain(domain);
 
     if (transferIds.length == 0) return [];
+    const quotedTransferIds = transferIds.map((id) => `"${id}"`);
 
-    const originTransfersQuery = getOriginTransfersByIdsQuery(prefix, transferIds);
+    const originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
     const response = await execute(originTransfersQuery);
     const _transfers: any[] = [];
     for (const key of response.keys()) {
