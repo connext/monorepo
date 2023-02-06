@@ -19,6 +19,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapChangeLiquidityEvent,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -51,6 +52,8 @@ import {
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getLiquidityAddedQuery,
+  getLiquidityRemovedQuery,
   getPropagatedRootsQuery,
   getRootManagerMetaQuery,
   getStableSwapPoolsQuery,
@@ -861,5 +864,57 @@ export class SubgraphReader {
       .map(parser.stableSwapExchange);
 
     return domainExchanges;
+  }
+
+  public async getStableSwapLiquidityAddedByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<StableSwapChangeLiquidityEvent[]> {
+    const { execute, parser } = getHelpers();
+    const addedQuery = getLiquidityAddedQuery(agents);
+    const response = await execute(addedQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const addLiquidity: StableSwapChangeLiquidityEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapLp);
+
+    return addLiquidity;
+  }
+
+  public async getStableSwapLiquidityRemovedByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<StableSwapChangeLiquidityEvent[]> {
+    const { execute, parser } = getHelpers();
+    const addedQuery = getLiquidityRemovedQuery(agents);
+    const response = await execute(addedQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const removeLiquidity: StableSwapChangeLiquidityEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapLp);
+
+    return removeLiquidity;
   }
 }

@@ -11,6 +11,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapChangeLiquidityEvent,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -523,6 +524,34 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     soldId,
     tokensSold,
     tokensBought,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapLp = (entity: any): StableSwapChangeLiquidityEvent => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError(
+      "Subgraph `stableSwapAddLiquidityEvents` entity parser: stableSwapAddLiquidityEvents, entity is `undefined`.",
+    );
+  }
+
+  for (const field of ["key", "provider", "tokenAmounts", "block", "transaction", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapAddLiquidityEvents` entity parser: Entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    domain: entity.stableSwap.domain,
+    key: entity.stableSwap.key,
+    provider: entity.provider,
+    tokenAmounts: entity.tokenAmounts,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,

@@ -238,6 +238,23 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       transaction
 `;
 
+export const STABLESWAP_LP_ENTITY = `
+      provider
+      tokenAmounts
+      timestamp
+      transaction
+      lpTokenSupply
+      invariant
+      id
+      fees
+      block
+      balances
+      stableSwap {
+        domain
+        key
+      }
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -898,6 +915,38 @@ const swapExchangeQueryString = (
   ) {${STABLESWAP_EXCHANGE_ENTITY}}`;
 };
 
+const swapAddLiquidityQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_swap_stableSwapAddLiquidityEvents(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_LP_ENTITY}}`;
+};
+
+const swapRemoveLiquidityQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_swap_stableSwapRemoveLiquidityEvents(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_LP_ENTITY}}`;
+};
+
 export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
   const { config } = getContext();
 
@@ -907,6 +956,58 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
       combinedQuery += swapExchangeQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getLiquidityAddedQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += swapAddLiquidityQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getLiquidityRemovedQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += swapRemoveLiquidityQueryString(
         prefix,
         agents.get(domain)!.fromTimestamp,
         agents.get(domain)!.maxBlockNumber,

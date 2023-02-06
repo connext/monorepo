@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TIntegerString } from "./primitives";
+import { TAddress, TIntegerString } from "./primitives";
 
 export const StableSwapPoolSchema = Type.Object({
   key: Type.String(),
@@ -37,3 +37,14 @@ export const StableSwapExchangeSchema = Type.Object({
   timestamp: Type.Number(),
 });
 export type StableSwapExchange = Static<typeof StableSwapExchangeSchema>;
+
+export const StableSwapChangeLiquidityEventSchema = Type.Object({
+  key: Type.String(),
+  domain: Type.String(),
+  provider: TAddress,
+  tokenAmounts: Type.Array(TIntegerString),
+  blockNumber: Type.Number(),
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+});
+export type StableSwapChangeLiquidityEvent = Static<typeof StableSwapChangeLiquidityEventSchema>;
