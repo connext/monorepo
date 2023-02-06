@@ -153,7 +153,7 @@ const config: HardhatUserConfig = {
     strict: false,
     filter: function (abiElement, index, fullAbi, fullyQualifiedName) {
       const contractName = fullyQualifiedName.split(":")[1];
-      if (abiElement.type === "error" && abiElement.name.includes("Facet") && !abiElement.name.includes(contractName)) {
+      if (abiElement.type === "error" && !abiElement.name.includes(contractName)) {
         return false;
       }
 
