@@ -512,6 +512,20 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: stableswap_lps; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_lps (
+    key character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    balances text[],
+    provider character(42) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: stableswap_pools; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -742,6 +756,14 @@ ALTER TABLE ONLY public.stableswap_exchanges
 
 
 --
+-- Name: stableswap_lps stableswap_lps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lps
+    ADD CONSTRAINT stableswap_lps_pkey PRIMARY KEY (key, domain, provider);
+
+
+--
 -- Name: stableswap_pools stableswap_pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -809,6 +831,14 @@ ALTER TABLE ONLY public.asset_balances
 
 
 --
+-- Name: stableswap_lps stableswap_lps_key_domain_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lps
+    ADD CONSTRAINT stableswap_lps_key_domain_fkey FOREIGN KEY (key, domain) REFERENCES public.stableswap_pools(key, domain);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -856,4 +886,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230119130526'),
     ('20230127195903'),
     ('20230130081731'),
-    ('20230201004755');
+    ('20230201004755'),
+    ('20230206111515');
