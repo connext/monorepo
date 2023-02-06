@@ -1,7 +1,7 @@
 import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
-import { StableSwapExchange, StableSwapPool } from "./stableswap";
+import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
 
 /**
@@ -359,5 +359,29 @@ export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchan
     blockNumber: exchange.blockNumber,
     transactionHash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+  };
+};
+
+/**
+ * Converts a stable swap pool events from the cartographer db through
+ * @param event - the stable swap pool event from the cartographer db as a JSON object
+ * @returns an StableSwapPoolEvent object
+ */
+export const convertFromDbStableSwapPoolEvent = (event: any): StableSwapPoolEvent => {
+  return {
+    id: event.id,
+    poolId: event.poolId,
+    domain: event.domain,
+    action: event.action as PoolActionType,
+    provider: event.buyer,
+    pooledTokens: event.pooledTokens,
+    poolTokenDecimals: event.poolTokenDecimals,
+    tokenAmounts: event.tokenAmounts,
+    balances: event.balances,
+    lpTokenSupply: event.lpTokenSupply,
+    lpTokenAmount: event.lpTokenAmount,
+    blockNumber: event.blockNumber,
+    transactionHash: event.transactionHash,
+    timestamp: event.timestamp,
   };
 };

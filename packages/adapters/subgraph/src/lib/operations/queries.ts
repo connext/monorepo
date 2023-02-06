@@ -238,6 +238,24 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       transaction
 `;
 
+export const STABLESWAP_POOL_EVENT_ENTITY = `
+      id
+      stableSwap {
+        key
+        domain
+        tokenPrecisionMultipliers
+        pooledTokens
+      }
+      provider
+      tokenAmounts
+      balances
+      lpTokenSupply
+      lpTokenAmount
+      block
+      timestamp
+      transaction
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -919,6 +937,57 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
 
   return gql`
     query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const poolEventsQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_swap_stableSwapAddLiquidityEvents(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}
+  ${prefix}_swap_stableSwapRemoveLiquidityEvents(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}
+  `;
+};
+
+export const getPoolEventsQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += poolEventsQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetPoolEvents { 
         ${combinedQuery}
       }
   `;

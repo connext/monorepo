@@ -11,6 +11,8 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapPoolEvent,
+  PoolActionType,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -523,6 +525,57 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     soldId,
     tokensSold,
     tokensBought,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: stableSwapPoolEvent, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "stableSwap",
+    "provider",
+    "tokenAmounts",
+    "balances",
+    "lpTokenSupply",
+    "lpTokenAmount",
+    "block",
+    "transaction",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const tokenDecimals = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
+  const tokenAmounts = entity.tokenAmounts.map(
+    (a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]),
+  );
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    poolId: entity.stableSwap.key,
+    provider: entity.provider,
+    action: entity.action as PoolActionType,
+    pooledTokens: entity.stableSwap.pooledTokens,
+    poolTokenDecimals: tokenDecimals,
+    tokenAmounts,
+    balances,
+    lpTokenSupply: +utils.parseEther(entity.lpTokenSupply),
+    lpTokenAmount: +utils.parseEther(entity.lpTokenAmount),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,
