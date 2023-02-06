@@ -474,33 +474,23 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
-    _bumpTransfer(_transferId, address(0), 0);
+    _bumpTransfer(_transferId, address(0), msg.value);
   }
 
+  /**
+   * @notice Anyone can call this function on the origin domain t o increase the relayer fee for
+   * a given transfer using a specific asset.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _relayerFeeAsset - The asset you are bumping fee with
+   * @param _relayerFee - The amount you want to bump transfer fee with
+   */
   function bumpTransfer(
     bytes32 _transferId,
     address _relayerFeeAsset,
     uint256 _relayerFee
-  ) external payable nonReentrant whenNotPaused {
-    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+  ) external nonReentrant whenNotPaused {
+    if (_relayerFee == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     _bumpTransfer(_transferId, _relayerFeeAsset, _relayerFee);
-  }
-
-  function _bumpTransfer(
-    bytes32 _transferId,
-    address _relayerFeeAsset,
-    uint256 _relayerFee
-  ) internal {
-    address relayerVault = s.relayerFeeVault;
-    if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
-    if (_relayerFeeAsset == address(0)) {
-      Address.sendValue(payable(relayerVault), msg.value);
-    } else {
-      // Transfer asset to contract.
-      IERC20Metadata(_relayerFeeAsset).safeTransferFrom(msg.sender, address(this), _relayerFee);
-    }
-
-    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
 
   /**
@@ -684,6 +674,34 @@ contract BridgeFacet is BaseConnextFacet {
     _sendMessageAndEmit(transferId, _params, _asset, _amount, remoteInstance, canonical, local, isCanonical);
 
     return transferId;
+  }
+
+  /**
+   * @notice An internal function to handle the bumping of transfers
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _relayerFeeAsset - The asset you are bumping fee with
+   * @param _relayerFee - The amount you want to bump transfer fee with
+   */
+  function _bumpTransfer(
+    bytes32 _transferId,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) internal {
+    address relayerVault = s.relayerFeeVault;
+    if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
+    if (_relayerFeeAsset == address(0)) {
+      Address.sendValue(payable(relayerVault), msg.value);
+    } else {
+      // Pull funds from user to this contract
+      // NOTE: could transfer to `relayerFeeVault`, but that would be unintuitive for user
+      // approvals
+      AssetLogic.handleIncomingAsset(_relayerFeeAsset, _relayerFee);
+
+      // Transfer asset to relayerVault.
+      AssetLogic.handleOutgoingAsset(_relayerFeeAsset, relayerVault, _relayerFee);
+    }
+
+    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
   }
 
   /**
