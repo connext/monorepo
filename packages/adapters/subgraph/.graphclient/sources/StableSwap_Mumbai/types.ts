@@ -381,6 +381,7 @@ export type mumbai_swap_StableSwapAddLiquidityEvent = mumbai_swap_StableSwapEven
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['mumbai_swap_Bytes'];
@@ -454,6 +455,12 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -494,6 +501,7 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'balances'
   | 'block'
   | 'timestamp'
   | 'transaction';
@@ -583,6 +591,7 @@ export type mumbai_swap_StableSwapExchange = {
   tokensBought: Scalars['BigInt'];
   soldId: Scalars['BigInt'];
   tokensSold: Scalars['BigInt'];
+  balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['mumbai_swap_Bytes'];
@@ -660,6 +669,12 @@ export type mumbai_swap_StableSwapExchange_filter = {
   tokensSold_lte?: InputMaybe<Scalars['BigInt']>;
   tokensSold_in?: InputMaybe<Array<Scalars['BigInt']>>;
   tokensSold_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -700,6 +715,7 @@ export type mumbai_swap_StableSwapExchange_orderBy =
   | 'tokensBought'
   | 'soldId'
   | 'tokensSold'
+  | 'balances'
   | 'block'
   | 'timestamp'
   | 'transaction';
@@ -712,6 +728,7 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent = mumbai_swap_StableSwapE
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['mumbai_swap_Bytes'];
@@ -785,6 +802,12 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -825,6 +848,7 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'balances'
   | 'block'
   | 'timestamp'
   | 'transaction';
