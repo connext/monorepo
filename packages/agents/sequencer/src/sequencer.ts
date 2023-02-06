@@ -28,7 +28,7 @@ import { getOperations } from "./lib/operations";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
-export const SlippageErrorMsg = "execution reverted: dy < minDy";
+export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
 /// MARK - Make Agents
 /**

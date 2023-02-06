@@ -124,15 +124,22 @@ export const sanitizeAndInit = async () => {
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
+  const privateKey = process.env.PRIVATE_KEY;
   const mnemonic = process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC || process.env.MNEMONIC;
-  if (!mnemonic) {
+  if (!mnemonic || !privateKey) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
         "or set DEPLOYER or DEPLOYER_MNEMONIC in env.",
     );
   }
   // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic);
+  let deployer;
+  if (privateKey) {
+    deployer = new Wallet(privateKey);
+  } else {
+    deployer = Wallet.fromMnemonic(mnemonic);
+  }
+  console.log("deployer: ", deployer.address);
 
   const networks: NetworkStack[] = [];
   const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(

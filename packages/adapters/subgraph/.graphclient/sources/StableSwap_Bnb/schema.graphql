@@ -396,6 +396,7 @@ type bnb_swap_StableSwapAddLiquidityEvent implements bnb_swap_StableSwapEvent {
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
+  balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
   transaction: bnb_swap_Bytes!
@@ -469,6 +470,12 @@ input bnb_swap_StableSwapAddLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  balances: [BigInt!]
+  balances_not: [BigInt!]
+  balances_contains: [BigInt!]
+  balances_contains_nocase: [BigInt!]
+  balances_not_contains: [BigInt!]
+  balances_not_contains_nocase: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -509,6 +516,7 @@ enum bnb_swap_StableSwapAddLiquidityEvent_orderBy {
   fees
   invariant
   lpTokenSupply
+  balances
   block
   timestamp
   transaction
@@ -600,6 +608,7 @@ type bnb_swap_StableSwapExchange {
   tokensBought: BigInt!
   soldId: BigInt!
   tokensSold: BigInt!
+  balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
   transaction: bnb_swap_Bytes!
@@ -677,6 +686,12 @@ input bnb_swap_StableSwapExchange_filter {
   tokensSold_lte: BigInt
   tokensSold_in: [BigInt!]
   tokensSold_not_in: [BigInt!]
+  balances: [BigInt!]
+  balances_not: [BigInt!]
+  balances_contains: [BigInt!]
+  balances_contains_nocase: [BigInt!]
+  balances_not_contains: [BigInt!]
+  balances_not_contains_nocase: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -717,6 +732,7 @@ enum bnb_swap_StableSwapExchange_orderBy {
   tokensBought
   soldId
   tokensSold
+  balances
   block
   timestamp
   transaction
@@ -730,6 +746,7 @@ type bnb_swap_StableSwapRemoveLiquidityEvent implements bnb_swap_StableSwapEvent
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
+  balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
   transaction: bnb_swap_Bytes!
@@ -803,6 +820,12 @@ input bnb_swap_StableSwapRemoveLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  balances: [BigInt!]
+  balances_not: [BigInt!]
+  balances_contains: [BigInt!]
+  balances_contains_nocase: [BigInt!]
+  balances_not_contains: [BigInt!]
+  balances_not_contains_nocase: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -843,6 +866,7 @@ enum bnb_swap_StableSwapRemoveLiquidityEvent_orderBy {
   fees
   invariant
   lpTokenSupply
+  balances
   block
   timestamp
   transaction
