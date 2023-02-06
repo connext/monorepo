@@ -17,6 +17,7 @@ export function handleMessageSent(event: MessageSent): void {
     message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain!.toString()}`);
   }
 
+  message.status = "SpokeRootSent";
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
 
@@ -60,6 +61,7 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
     aggregateRoot = new AggregateRoot(event.params.root.toHexString());
   }
 
+  message.status = "HubRootReceived";
   aggregateRoot.root = event.params.root;
   aggregateRoot.blockNumber = event.block.number;
   aggregateRoot.save();
