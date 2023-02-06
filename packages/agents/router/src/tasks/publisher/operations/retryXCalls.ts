@@ -65,6 +65,8 @@ export const retryXCalls = async (): Promise<void> => {
               }
             } else {
               await cache.transfers.storeTransfers([transfer], false);
+              // Reset bid status on change in origin transfer
+              await cache.transfers.pruneBidStatusByIds([transfer.transferId]);
             }
             // Ready for retry
             return transfer;
