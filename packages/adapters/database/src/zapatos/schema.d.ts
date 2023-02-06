@@ -19,6 +19,10 @@ declare module 'zapatos/schema' {
 
   /* --- enums --- */
 
+  export type action_type = 'Add' | 'Remove';
+  export namespace every {
+    export type action_type = ['Add', 'Remove'];
+  }
   export type transfer_status = 'CompletedFast' | 'CompletedSlow' | 'Executed' | 'Reconciled' | 'XCalled';
   export namespace every {
     export type transfer_status = ['CompletedFast', 'CompletedSlow', 'Executed', 'Reconciled', 'XCalled'];
@@ -3854,10 +3858,10 @@ declare module 'zapatos/schema' {
       provider: string;
       /**
       * **stableswap_pool_events.action**
-      * - `int4` in database
-      * - `NOT NULL`, no default
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
       */
-      action: number;
+      action: action_type;
       /**
       * **stableswap_pool_events.pooled_tokens**
       * - `_text` in database
@@ -3940,10 +3944,10 @@ declare module 'zapatos/schema' {
       provider: string;
       /**
       * **stableswap_pool_events.action**
-      * - `int4` in database
-      * - `NOT NULL`, no default
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
       */
-      action: number;
+      action: action_type;
       /**
       * **stableswap_pool_events.pooled_tokens**
       * - `_text` in database
@@ -4026,10 +4030,10 @@ declare module 'zapatos/schema' {
       provider?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pool_events.action**
-      * - `int4` in database
-      * - `NOT NULL`, no default
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
       */
-      action?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      action?: action_type | db.Parameter<action_type> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, action_type | db.Parameter<action_type> | db.SQLFragment | db.ParentColumn>;
       /**
       * **stableswap_pool_events.pooled_tokens**
       * - `_text` in database
@@ -4112,10 +4116,10 @@ declare module 'zapatos/schema' {
       provider: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **stableswap_pool_events.action**
-      * - `int4` in database
-      * - `NOT NULL`, no default
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
       */
-      action: number | db.Parameter<number> | db.SQLFragment;
+      action?: action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment;
       /**
       * **stableswap_pool_events.pooled_tokens**
       * - `_text` in database
@@ -4198,10 +4202,10 @@ declare module 'zapatos/schema' {
       provider?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **stableswap_pool_events.action**
-      * - `int4` in database
-      * - `NOT NULL`, no default
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
       */
-      action?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      action?: action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment>;
       /**
       * **stableswap_pool_events.pooled_tokens**
       * - `_text` in database
