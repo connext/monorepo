@@ -38,13 +38,10 @@ export const StableSwapExchangeSchema = Type.Object({
 });
 export type StableSwapExchange = Static<typeof StableSwapExchangeSchema>;
 
-export const StableSwapChangeLiquidityEventSchema = Type.Object({
+export const StableSwapLPSchema = Type.Object({
   key: Type.String(),
   domain: Type.String(),
   provider: TAddress,
   tokenAmounts: Type.Array(TIntegerString),
-  blockNumber: Type.Number(),
-  transactionHash: Type.String(),
-  timestamp: Type.Number(),
 });
-export type StableSwapChangeLiquidityEvent = Static<typeof StableSwapChangeLiquidityEventSchema>;
+export type StableSwapLP = Static<typeof StableSwapLPSchema>;

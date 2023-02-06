@@ -11,7 +11,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
-  StableSwapChangeLiquidityEvent,
+  StableSwapLP,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -530,7 +530,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
   };
 };
 
-export const stableSwapLp = (entity: any): StableSwapChangeLiquidityEvent => {
+export const stableSwapLp = (entity: any): StableSwapLP => {
   // Sanity checks.
   if (!entity) {
     throw new NxtpError(
@@ -552,8 +552,5 @@ export const stableSwapLp = (entity: any): StableSwapChangeLiquidityEvent => {
     key: entity.stableSwap.key,
     provider: entity.provider,
     tokenAmounts: entity.tokenAmounts,
-    blockNumber: BigNumber.from(entity.block).toNumber(),
-    timestamp: BigNumber.from(entity.timestamp).toNumber(),
-    transactionHash: entity.transaction,
   };
 };

@@ -19,7 +19,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
-  StableSwapChangeLiquidityEvent,
+  StableSwapLP,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -868,7 +868,7 @@ export class SubgraphReader {
 
   public async getStableSwapLiquidityAddedByDomainAndTimestamp(
     agents: Map<string, SubgraphQueryByTimestampMetaParams>,
-  ): Promise<StableSwapChangeLiquidityEvent[]> {
+  ): Promise<StableSwapLP[]> {
     const { execute, parser } = getHelpers();
     const addedQuery = getLiquidityAddedQuery(agents);
     const response = await execute(addedQuery);
@@ -884,7 +884,7 @@ export class SubgraphReader {
       );
     }
 
-    const addLiquidity: StableSwapChangeLiquidityEvent[] = events
+    const addLiquidity: StableSwapLP[] = events
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapLp);
@@ -894,7 +894,7 @@ export class SubgraphReader {
 
   public async getStableSwapLiquidityRemovedByDomainAndTimestamp(
     agents: Map<string, SubgraphQueryByTimestampMetaParams>,
-  ): Promise<StableSwapChangeLiquidityEvent[]> {
+  ): Promise<StableSwapLP[]> {
     const { execute, parser } = getHelpers();
     const addedQuery = getLiquidityRemovedQuery(agents);
     const response = await execute(addedQuery);
@@ -910,7 +910,7 @@ export class SubgraphReader {
       );
     }
 
-    const removeLiquidity: StableSwapChangeLiquidityEvent[] = events
+    const removeLiquidity: StableSwapLP[] = events
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapLp);

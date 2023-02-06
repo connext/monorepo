@@ -15,7 +15,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
-  StableSwapChangeLiquidityEvent,
+  StableSwapLP,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -184,7 +184,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
   };
 };
 
-const convertToDbStableSwapLp = (lp: StableSwapChangeLiquidityEvent): s.stableswap_lps.Insertable => {
+const convertToDbStableSwapLp = (lp: StableSwapLP): s.stableswap_lps.Insertable => {
   return {
     domain: lp.domain,
     key: lp.key,
@@ -771,8 +771,44 @@ export const saveStableSwapExchange = async (
   await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
 };
 
-export const saveStableSwapChangeLiquidityEvents = async (
-  lps: StableSwapChangeLiquidityEvent[],
+export const saveStableSwapLPs = async (
+  lps: StableSwapLP[],
+  addOrRemove: "add" | "remove",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const dedupedKeys = [...new Set(lps.map((lp) => lp.key))];
+  const existing = await db.select("stableswap_lps", { key: dc.isIn(dedupedKeys) }).run(poolToUse);
+  const updated: s.stableswap_lps.Insertable[] = [];
+  lps.forEach((lp) => {
+    const existingLp = existing.find((e) => e.key === lp.key && e.domain === lp.domain && e.provider === lp.provider);
+    if (existingLp) {
+      const balances = (existingLp.balances ?? []).map((b) => BigNumber.from(b));
+      lp.tokenAmounts.forEach((t, i) => {
+        if (addOrRemove === "add") {
+          balances[i] = (balances[i] ?? constants.Zero).add(t);
+        } else {
+          balances[i] = (balances[i] ?? constants.Zero).sub(t);
+        }
+      });
+      updated.push({
+        domain: lp.domain,
+        provider: lp.provider,
+        key: lp.key,
+        balances: balances.map((b) => b.toString()),
+        updated_at: new Date(),
+      });
+    } else {
+      updated.push(convertToDbStableSwapLp(lp));
+    }
+  });
+  updated.map(sanitizeNull);
+
+  await db.upsert("stableswap_lps", updated, ["domain", "key", "provider"]).run(poolToUse);
+};
+
+export const getStableSwapLPs = async (
+  lps: StableSwapLP[],
   addOrRemove: "add" | "remove",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {

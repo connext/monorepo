@@ -150,7 +150,7 @@ export const updateLps = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
-    await database.saveStableSwapChangeLiquidityEvents(addLiqEvents, "add");
+    await database.saveStableSwapLPs(addLiqEvents, "add");
     for (const checkpoint of checkpoints) {
       await database.saveCheckPoint(
         "stableswap_lp_add_liquidity_timestamp_" + checkpoint.domain,
