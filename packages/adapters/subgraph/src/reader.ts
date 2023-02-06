@@ -614,6 +614,41 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets all the origin transfers across for the given domain
+   * @param domain - The domain of the transfer IDs to be queried
+   * @param transferIds - The transfer IDs to be queried
+   * @returns OriginTransfers as XTransfers[]
+   */
+  public async getOriginTransfersByDomain(domain: string, transferIds: string[]): Promise<XTransfer[]> {
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const { config } = getContext();
+    const prefix: string = getPrefixForDomain(domain);
+
+    if (transferIds.length == 0) return [];
+    const quotedTransferIds = transferIds.map((id) => `"${id}"`);
+
+    const originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
+    const response = await execute(originTransfersQuery);
+    const _transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const domainTransfers = value?.flat();
+      _transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, originDomain: key };
+        }),
+      );
+    }
+
+    const originTransfers: OriginTransfer[] = _transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map((transfer) => parser.originTransfer(transfer, config.assetId[transfer.originDomain]));
+
+    return [...originTransfers.values()].filter((xTransfer) => !!xTransfer.origin);
+  }
+
+  /**
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
