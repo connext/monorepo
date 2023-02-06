@@ -10,6 +10,7 @@ import { constants } from "ethers";
 
 class MockJsonRpcProvider {
   public getTransactionReceipt = stub().resolves({ hello: "world" });
+  public getBlockNumber = stub().resolves(1232132);
 }
 
 let isDataAvailableStub: SinonStub<any[], any>;
