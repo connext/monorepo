@@ -15,6 +15,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapPoolEvent,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -180,6 +181,25 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+  };
+};
+
+const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswap_pool_events.Insertable => {
+  return {
+    id: event.id,
+    pool_id: event.poolId,
+    domain: event.domain,
+    action: event.action,
+    provider: event.provider,
+    pooled_tokens: event.pooledTokens,
+    pool_token_decimals: event.poolTokenDecimals,
+    token_amounts: event.tokenAmounts,
+    balances: event.balances,
+    lp_token_amount: event.lpTokenAmount,
+    lp_token_supply: event.lpTokenSupply,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
   };
 };
 
@@ -757,4 +777,16 @@ export const saveStableSwapExchange = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
+};
+
+export const saveStableSwapPoolEvent = async (
+  _poolEvents: StableSwapPoolEvent[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const poolEvents: s.stableswap_pool_events.Insertable[] = _poolEvents
+    .map((m) => convertToDbStableSwapPoolEvent(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
 };
