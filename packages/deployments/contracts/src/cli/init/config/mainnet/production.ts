@@ -163,6 +163,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x33b2ad85f7dba818e719fb52095dc768e0ed93ec", // Ethereal
         "0x048a5EcC705C280b2248aefF88fd581AbbEB8587", // Gnosis
         "0x975574980a5Da77f5C90bC92431835D91B73669e", // 01node
+        "0x6FD84ba95525c4cCd218F2f16F646A08B4b0a598", // Dokia
       ],
     },
     sequencers: {
