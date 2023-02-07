@@ -135,7 +135,9 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   } catch (error: any) {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
-    await context.adapters.database.increaseBackoff(transferId);
+    if (messageType === MessageType.ExecuteSlow) {
+      await context.adapters.database.increaseBackoff(transferId);
+    }
 
     process.exit(1);
   }
