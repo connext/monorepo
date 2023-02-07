@@ -558,7 +558,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     }
   }
 
-  const tokenDecimals = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
   const tokenAmounts = entity.tokenAmounts.map(
     (a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]),
   );
@@ -574,8 +574,8 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     poolTokenDecimals: tokenDecimals,
     tokenAmounts,
     balances,
-    lpTokenSupply: +utils.formatEther(entity.lpTokenSupply),
-    lpTokenAmount: +utils.formatEther(entity.lpTokenAmount),
+    lpTokenSupply: +utils.formatEther(String(entity.lpTokenSupply)),
+    lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,

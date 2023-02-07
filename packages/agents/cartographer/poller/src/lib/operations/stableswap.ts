@@ -1,8 +1,9 @@
-import { createLoggingContext, SubgraphQueryByTimestampMetaParams, StableSwapExchange } from "@connext/nxtp-utils";
+import { createLoggingContext, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
 const getMaxTimestamp = (items: any[]): number => {
+  // eslint-disable-next-line
   return items.length == 0 ? 0 : Math.max(...items.map((item) => item?.timestamp ?? 0));
 };
 
