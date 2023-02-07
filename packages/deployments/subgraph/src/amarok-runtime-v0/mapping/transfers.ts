@@ -238,7 +238,7 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
     transfer.bumpRelayerFeeCount = new BigInt(0);
   }
 
-  transfer.relayerFee = transfer.relayerFee ? transfer.relayerFee!.plus(event.params.increase) : transfer.relayerFee;
+  transfer.relayerFee = transfer.relayerFee ? transfer.relayerFee!.plus(event.params.increase) : event.params.increase;
   transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount
     ? transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1))
     : BigInt.fromI32(1);
