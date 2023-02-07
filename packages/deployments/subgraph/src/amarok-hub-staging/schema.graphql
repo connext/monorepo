@@ -2,8 +2,8 @@
 enum MessageStatus {
   XCalled #Xcall
   SpokeRootSent #Send Spoke Root at SpokeDomain
-  SpokeRootReceived #Receive Spoke Root at HubDomain
-  HubRootPropagate # Root propagate at HubDomain
+  SpokeRootReceivedConnector #Receive Spoke Root at HubDomain Connector
+  SpokeRootReceivedManager #Receive Spoke Root at HubDomain Root Manager
   HubRootSent #Send AggregateRoot to Spoke Domain at Hub Domain
   HubRootReceived #Received HubRoot at Destination Domain
 }

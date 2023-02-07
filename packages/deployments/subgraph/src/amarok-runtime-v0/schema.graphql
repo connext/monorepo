@@ -63,11 +63,12 @@ enum TransferStatus {
 enum MessageStatus {
   XCalled #Xcall
   SpokeRootSent #Send Spoke Root at SpokeDomain
-  SpokeRootReceived #Receive Spoke Root at HubDomain
+  SpokeRootReceivedConnector #Receive Spoke Root at HubDomain Connector
+  SpokeRootReceivedManager #Receive Spoke Root at HubDomain Root Manager
+  HubRootPropagate # Root propagate at HubDomain
   HubRootSent #Send AggregateRoot to Spoke Domain at Hub Domain
   HubRootReceived #Received HubRoot at Destination Domain
 }
-
 type OriginTransfer @entity {
   id: ID!
 
