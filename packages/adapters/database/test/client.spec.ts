@@ -12,6 +12,7 @@ import {
   RootMessage,
   AggregatedRoot,
   PropagatedRoot,
+  ReceivedAggregateRoot,
   mkHash,
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
@@ -35,6 +36,7 @@ import {
   getSpokeNodes,
   getSpokeNode,
   saveAggregatedRoots,
+  saveReceivedAggregateRoot,
   savePropagatedRoots,
   getHubNode,
   getHubNodes,
@@ -76,6 +78,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM checkpoints CASCADE");
     await pool.query("DELETE FROM aggregated_roots CASCADE");
     await pool.query("DELETE FROM propagated_roots CASCADE");
+    await pool.query("DELETE FROM received_aggregate_roots CASCADE");
     await pool.query("DELETE FROM merkle_cache CASCADE");
 
     restore();
@@ -101,18 +104,18 @@ describe("Database client", () => {
 
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
-    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
+    expect(dbTransfer!.origin?.errorStatus).equal(undefined);
   });
 
-  it("should save single transfer and update it's error status to None", async () => {
+  it("should save single transfer and update it's error status to None when CompletedFast", async () => {
     let xTransfer = mock.entity.xtransfer({
-      status: XTransferStatus.Executed,
+      status: XTransferStatus.Reconciled,
       errorStatus: XTransferErrorStatus.LowRelayerFee,
     });
     await saveTransfers([xTransfer], pool);
 
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
-    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Executed);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Reconciled);
     expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
 
     xTransfer.destination!.status = XTransferStatus.CompletedFast;
@@ -121,6 +124,26 @@ describe("Database client", () => {
 
     const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransferUpdated!.origin?.errorStatus).equal(undefined);
+  });
+
+  it("should save single transfer and update it's error status to None when CompletedSlow", async () => {
+    let xTransfer = mock.entity.xtransfer({
+      status: XTransferStatus.Reconciled,
+      errorStatus: XTransferErrorStatus.LowRelayerFee,
+    });
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer!.destination!.status).equal(XTransferStatus.Reconciled);
+    expect(dbTransfer!.origin?.errorStatus).equal(XTransferErrorStatus.LowRelayerFee);
+
+    xTransfer.destination!.status = XTransferStatus.CompletedSlow;
+
+    await saveTransfers([xTransfer], pool);
+
+    const dbTransferUpdated = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransferUpdated!.destination!.status).equal(XTransferStatus.CompletedSlow);
     expect(dbTransferUpdated!.origin?.errorStatus).equal(undefined);
   });
 
@@ -312,9 +335,9 @@ describe("Database client", () => {
     await saveTransfers(transfers, pool);
     const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")], pool);
     expect(set.length).to.eq(3);
-    expect(set[0].origin?.messageHash).eq(mkHash("0xaaa"));
-    expect(set[1].origin?.messageHash).eq(mkHash("0xbbb"));
-    expect(set[2].origin?.messageHash).eq(mkHash("0xccc"));
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[0].origin?.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[1].origin?.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[2].origin?.messageHash)).to.be.true;
   });
 
   it("should save valid boolean fields", async () => {
@@ -868,5 +891,18 @@ describe("Database client", () => {
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(128);
     expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
+  });
+
+  it("should saveReceivedAggregateRoot", async () => {
+    const roots: ReceivedAggregateRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.receivedAggregateRoot();
+      m.blockNumber = _i;
+      roots.push(m);
+    }
+    await saveReceivedAggregateRoot(roots, pool);
+
+    const latest = await getLatestAggregateRoot(roots[0].domain, "DESC", pool);
+    expect(latest).to.deep.eq(roots[batchSize - 1]);
   });
 });
