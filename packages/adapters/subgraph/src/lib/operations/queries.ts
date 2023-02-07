@@ -947,27 +947,22 @@ const poolEventsQueryString = (
   fromTimestamp: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
+  addOrRemove: "add" | "remove" = "add",
 ) => {
-  return `${prefix}_swap_stableSwapAddLiquidityEvents(
+  return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
     where: {
       timestamp_gte: ${fromTimestamp},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: timestamp,
     orderDirection: ${orderDirection}
-  ) {${STABLESWAP_POOL_EVENT_ENTITY}}
-  ${prefix}_swap_stableSwapRemoveLiquidityEvents(
-    where: {
-      timestamp_gte: ${fromTimestamp},
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
-    },
-    orderBy: timestamp,
-    orderDirection: ${orderDirection}
-  ) {${STABLESWAP_POOL_EVENT_ENTITY}}
-  `;
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
 };
 
-export const getPoolEventsQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+export const getPoolEventsQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  addOrRemove: "add" | "remove" = "add",
+): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
@@ -980,6 +975,7 @@ export const getPoolEventsQuery = (agents: Map<string, SubgraphQueryByTimestampM
         agents.get(domain)!.fromTimestamp,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
+        addOrRemove,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);

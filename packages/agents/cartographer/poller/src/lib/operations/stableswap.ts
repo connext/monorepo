@@ -96,7 +96,8 @@ export const updatePoolEvents = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("updatePoolEvents");
 
-  const subgraphQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const addQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const removeQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   await Promise.all(
@@ -115,32 +116,40 @@ export const updatePoolEvents = async () => {
         return;
       }
 
-      // Retrieve the most recent stable swap exchange event we've saved for this domain.
-      const latestTimestamp = await database.getCheckPoint("stableswap_pool_events_timestamp_" + domain);
-      subgraphQueryMetaParams.set(domain, {
+      // Retrieve the most recent stable swap add liquidity event we've saved for this domain.
+      const addLatestTimestamp = await database.getCheckPoint("stableswap_add_liquidity_timestamp_" + domain);
+      addQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber,
-        fromTimestamp: latestTimestamp,
+        fromTimestamp: addLatestTimestamp,
+        orderDirection: "asc",
+      });
+
+      // Retrieve the most recent stable swap remove liquidity event we've saved for this domain.
+      const removeLatestTimestamp = await database.getCheckPoint("stableswap_remove_liquidity_timestamp_" + domain);
+      removeQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        fromTimestamp: removeLatestTimestamp,
         orderDirection: "asc",
       });
     }),
   );
 
-  if (subgraphQueryMetaParams.size > 0) {
-    // Get stableswap pool events for all domains in the mapping.
-    const events = await subgraph.getStableSwapPoolEventsByDomainAndTimestamp(subgraphQueryMetaParams);
+  if (addQueryMetaParams.size > 0) {
+    // Get stableswap pool add liquidity events for all domains in the mapping.
+    const events = await subgraph.getStableSwapPoolEventsByDomainAndTimestamp(addQueryMetaParams, "add");
     events.forEach((event) => {
       const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
         "updatePoolEvents",
         undefined,
         event.id,
       );
-      logger.info("Retrieved stableswap pool event", _requestContext, _methodContext, { event });
+      logger.info("Retrieved stableswap add liquidity event", _requestContext, _methodContext, { event });
     });
     const checkpoints = domains
       .map((domain) => {
         const domainEvents = events.filter((event) => event.domain === domain);
         const max = getMaxTimestamp(domainEvents);
-        const latest = subgraphQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+        const latest = addQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
         if (domainEvents.length > 0 && max > latest) {
           return { domain, checkpoint: max };
         }
@@ -150,7 +159,39 @@ export const updatePoolEvents = async () => {
 
     await database.saveStableSwapPoolEvent(events);
     for (const checkpoint of checkpoints) {
-      await database.saveCheckPoint("stableswap_pool_events_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+      await database.saveCheckPoint("stableswap_add_liquidity_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+    }
+  }
+
+  if (removeQueryMetaParams.size > 0) {
+    // Get stableswap pool remove liquidity events for all domains in the mapping.
+    const events = await subgraph.getStableSwapPoolEventsByDomainAndTimestamp(removeQueryMetaParams, "remove");
+    events.forEach((event) => {
+      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+        "updatePoolEvents",
+        undefined,
+        event.id,
+      );
+      logger.info("Retrieved stableswap remove liquidity event", _requestContext, _methodContext, { event });
+    });
+    const checkpoints = domains
+      .map((domain) => {
+        const domainEvents = events.filter((event) => event.domain === domain);
+        const max = getMaxTimestamp(domainEvents);
+        const latest = addQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+        if (domainEvents.length > 0 && max > latest) {
+          return { domain, checkpoint: max };
+        }
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.saveStableSwapPoolEvent(events);
+    for (const checkpoint of checkpoints) {
+      await database.saveCheckPoint(
+        "stableswap_remove_liquidity_timestamp_" + checkpoint.domain,
+        checkpoint.checkpoint,
+      );
     }
   }
 };

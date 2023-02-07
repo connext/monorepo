@@ -902,9 +902,10 @@ export class SubgraphReader {
 
   public async getStableSwapPoolEventsByDomainAndTimestamp(
     agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+    addOrRemove: "add" | "remove" = "add",
   ): Promise<StableSwapPoolEvent[]> {
     const { execute, parser } = getHelpers();
-    const exchangeQuery = getPoolEventsQuery(agents);
+    const exchangeQuery = getPoolEventsQuery(agents, addOrRemove);
     const response = await execute(exchangeQuery);
 
     const events: any[] = [];
