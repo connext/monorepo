@@ -396,6 +396,7 @@ type polygon_swap_StableSwapAddLiquidityEvent implements polygon_swap_StableSwap
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
   balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
@@ -470,6 +471,14 @@ input polygon_swap_StableSwapAddLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  lpTokenAmount: BigInt
+  lpTokenAmount_not: BigInt
+  lpTokenAmount_gt: BigInt
+  lpTokenAmount_lt: BigInt
+  lpTokenAmount_gte: BigInt
+  lpTokenAmount_lte: BigInt
+  lpTokenAmount_in: [BigInt!]
+  lpTokenAmount_not_in: [BigInt!]
   balances: [BigInt!]
   balances_not: [BigInt!]
   balances_contains: [BigInt!]
@@ -516,6 +525,7 @@ enum polygon_swap_StableSwapAddLiquidityEvent_orderBy {
   fees
   invariant
   lpTokenSupply
+  lpTokenAmount
   balances
   block
   timestamp
@@ -746,6 +756,7 @@ type polygon_swap_StableSwapRemoveLiquidityEvent implements polygon_swap_StableS
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
   balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
@@ -820,6 +831,14 @@ input polygon_swap_StableSwapRemoveLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  lpTokenAmount: BigInt
+  lpTokenAmount_not: BigInt
+  lpTokenAmount_gt: BigInt
+  lpTokenAmount_lt: BigInt
+  lpTokenAmount_gte: BigInt
+  lpTokenAmount_lte: BigInt
+  lpTokenAmount_in: [BigInt!]
+  lpTokenAmount_not_in: [BigInt!]
   balances: [BigInt!]
   balances_not: [BigInt!]
   balances_contains: [BigInt!]
@@ -866,6 +885,7 @@ enum polygon_swap_StableSwapRemoveLiquidityEvent_orderBy {
   fees
   invariant
   lpTokenSupply
+  lpTokenAmount
   balances
   block
   timestamp

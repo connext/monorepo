@@ -381,6 +381,7 @@ export type optimismgoerli_swap_StableSwapAddLiquidityEvent = optimismgoerli_swa
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  lpTokenAmount: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
@@ -455,6 +456,14 @@ export type optimismgoerli_swap_StableSwapAddLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balances?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -501,6 +510,7 @@ export type optimismgoerli_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'lpTokenAmount'
   | 'balances'
   | 'block'
   | 'timestamp'
@@ -728,6 +738,7 @@ export type optimismgoerli_swap_StableSwapRemoveLiquidityEvent = optimismgoerli_
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  lpTokenAmount: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
@@ -802,6 +813,14 @@ export type optimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balances?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -848,6 +867,7 @@ export type optimismgoerli_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'lpTokenAmount'
   | 'balances'
   | 'block'
   | 'timestamp'
