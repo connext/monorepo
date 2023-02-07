@@ -9,7 +9,7 @@ import {
   NxtpError,
   ajv,
 } from "@connext/nxtp-utils";
-import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
@@ -41,11 +41,9 @@ import { SdkUtils } from "./sdkUtils";
  */
 export class SdkBase extends SdkShared {
   private static _instance: SdkBase;
-  private chainreader: ChainReader;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
-    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
   /**
