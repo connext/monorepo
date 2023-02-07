@@ -129,9 +129,10 @@ contract BridgeFacet is BaseConnextFacet {
    * `xcall` and `bumpTransfer`
    * @param transferId - The unique identifier of the crosschain transaction
    * @param increase - The additional amount fees increased by
+   * @param asset - The asset the fee was increased with
    * @param caller - The account that called the function
    */
-  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
+  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address asset, address caller);
 
   /**
    * @notice Emitted when `forceUpdateSlippage` is called by user-delegated EOA
@@ -690,7 +691,7 @@ contract BridgeFacet is BaseConnextFacet {
     address relayerVault = s.relayerFeeVault;
     if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
     if (_relayerFeeAsset == address(0)) {
-      Address.sendValue(payable(relayerVault), msg.value);
+      Address.sendValue(payable(relayerVault), _relayerFee);
     } else {
       // Pull funds from user to this contract
       // NOTE: could transfer to `relayerFeeVault`, but that would be unintuitive for user
@@ -701,7 +702,7 @@ contract BridgeFacet is BaseConnextFacet {
       AssetLogic.handleOutgoingAsset(_relayerFeeAsset, relayerVault, _relayerFee);
     }
 
-    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
+    emit TransferRelayerFeesIncreased(_transferId, _relayerFee, _relayerFeeAsset, msg.sender);
   }
 
   /**

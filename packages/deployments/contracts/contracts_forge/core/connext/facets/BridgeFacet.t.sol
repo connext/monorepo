@@ -410,7 +410,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // this event check wont pass :(
     // if (_relayerFee > 0) {
     //   vm.expectEmit(true, true, true, true);
-    //   emit TransferRelayerFeesIncreased(transferId, _relayerFee, params.originSender);
+    //   emit TransferRelayerFeesIncreased(transferId, _relayerFee, address(0), params.originSender);
     // }
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
