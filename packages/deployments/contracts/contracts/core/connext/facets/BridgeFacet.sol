@@ -316,7 +316,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount, address(0), 0);
+    return _xcall(params, _asset, _amount, address(0), msg.value);
   }
 
   function xcallIntoLocal(
@@ -349,7 +349,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount, address(0), 0);
+    return _xcall(params, _asset, _amount, address(0), msg.value);
   }
 
   function xcall(
@@ -360,7 +360,6 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData,
-    address _relayerFeeAsset,
     uint256 _relayerFee
   ) external nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
@@ -384,7 +383,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount, _relayerFeeAsset, _relayerFee);
+    return _xcall(params, _asset, _amount, _asset, _relayerFee);
   }
 
   function xcallIntoLocal(
@@ -395,7 +394,6 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _slippage,
     bytes calldata _callData,
-    address _relayerFeeAsset,
     uint256 _relayerFee
   ) external nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
@@ -419,7 +417,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount, _relayerFeeAsset, _relayerFee);
+    return _xcall(params, _asset, _amount, _asset, _relayerFee);
   }
 
   /**
@@ -667,7 +665,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Handle the relayer fee.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    if (msg.value > 0 || _relayerFee > 0) {
+    if (_relayerFee > 0) {
       _bumpTransfer(transferId, _relayerFeeAsset, _relayerFee);
     }
 
