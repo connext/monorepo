@@ -314,6 +314,26 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getOriginTransfersByDomain", () => {
+    it("should return the origin transfers for the domain", async () => {
+      const domain = "1111";
+      response.set(domain, [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set(domain, { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      const originTransfers = await subgraphReader.getOriginTransfers(agents);
+
+      const transferIds = originTransfers.map((transfer) => transfer.transferId);
+
+      expect(await subgraphReader.getOriginTransfersByDomain(domain, transferIds)).to.be.deep.eq(originTransfers);
+
+      const { allTxById } = await subgraphReader.getOriginXCalls(agents);
+      expect(allTxById.size).eq(transferIds.length);
+    });
+  });
+
   describe("#getOriginTransfersByNonce", () => {
     it("should return the origin transfers across the multichains", async () => {
       response.set("1111", [[mockOriginTransferEntity]]);
