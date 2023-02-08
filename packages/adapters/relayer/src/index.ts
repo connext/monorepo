@@ -72,7 +72,7 @@ export const sendWithRelayerWithBackup = async (
       return { taskId };
     } catch (err: unknown) {
       const jsonError = jsonifyError(err as NxtpError);
-      error_msg = jsonError.message;
+      error_msg = jsonError.context?.message ?? jsonError.message;
       logger.error(`Failed to send data with ${relayer.type}`, requestContext, methodContext, jsonError);
     }
   }
