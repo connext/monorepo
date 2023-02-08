@@ -736,7 +736,7 @@ export const increaseBackoff = async (
   if (!transfer) {
     return;
   }
-  const backoff = transfer.backoff * 2;
+  const backoff = Math.min(transfer.backoff * 2, 86400);
   const next_execution_timestamp = Math.floor(Date.now() / 1000) + backoff;
   await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
 };

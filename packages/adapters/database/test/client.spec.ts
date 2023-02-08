@@ -891,6 +891,14 @@ describe("Database client", () => {
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(128);
     expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
+
+    for (let i = 0; i < 32; i++) {
+      await increaseBackoff(transfer.transferId, pool);
+    }
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(86400);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
   });
 
   it("should saveReceivedAggregateRoot", async () => {
