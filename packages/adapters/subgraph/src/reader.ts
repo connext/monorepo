@@ -20,6 +20,7 @@ import {
   StableSwapPool,
   StableSwapExchange,
   RelayerFeesIncrease,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -55,6 +56,7 @@ import {
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
@@ -924,5 +926,31 @@ export class SubgraphReader {
       .map(parser.relayerFeesIncrease);
 
     return relayerFeeIncreases;
+  }
+
+  public async getSlippageUpdatesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<SlippageUpdate[]> {
+    const { execute, parser } = getHelpers();
+    const updatesQuery = getSlippageUpdatesQuery(agents);
+    const response = await execute(updatesQuery);
+
+    const updates: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _updates = value?.flat();
+      updates.push(
+        _updates?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const slippageUpdates: SlippageUpdate[] = updates
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.slippageUpdate);
+
+    return slippageUpdates;
   }
 }

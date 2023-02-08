@@ -236,5 +236,16 @@ export const RelayerFeesIncreaseSchema = Type.Object({
   id: Type.String(),
   transferId: TBytes32,
   increase: TIntegerString,
+  domain: Type.String(),
+  timestamp: TIntegerString,
 });
 export type RelayerFeesIncrease = Static<typeof RelayerFeesIncreaseSchema>;
+
+export const SlippageUpdateSchema = Type.Object({
+  id: Type.String(),
+  transferId: TBytes32,
+  slippage: TIntegerString,
+  domain: Type.String(),
+  timestamp: TIntegerString,
+});
+export type SlippageUpdate = Static<typeof SlippageUpdateSchema>;

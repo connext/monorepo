@@ -244,6 +244,16 @@ export const RELAYER_FEES_INCREASE_ENTITY = `
       transfer {
         id
       }
+      timestamp
+`;
+
+export const SLIPPAGE_UPDATE_ENTITY = `
+      id
+      transfer {
+        id
+      }
+      slippage
+      timestamp
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
@@ -922,6 +932,22 @@ const relayerFeesIncreaseQueryString = (
   ) {${RELAYER_FEES_INCREASE_ENTITY}}`;
 };
 
+const slippageUpdateQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_slippageUpdates(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${SLIPPAGE_UPDATE_ENTITY}}`;
+};
+
 export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
   const { config } = getContext();
 
@@ -969,6 +995,32 @@ export const getRelayerFeesIncreasesQuery = (agents: Map<string, SubgraphQueryBy
 
   return gql`
     query GetRelayerFeesIncreases { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getSlippageUpdatesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += slippageUpdateQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSlippageUpdates { 
         ${combinedQuery}
       }
   `;

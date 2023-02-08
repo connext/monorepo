@@ -12,6 +12,7 @@ import {
   StableSwapPool,
   StableSwapExchange,
   RelayerFeesIncrease,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -537,7 +538,7 @@ export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
   }
   for (const field of ["id", "increase"]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
+      throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -548,5 +549,30 @@ export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
     id: entity.id,
     increase: entity.increase,
     transferId: entity.transfer.id,
+    timestamp: entity.timestamp,
+    domain: entity.domain,
+  };
+};
+
+export const slippageUpdate = (entity: any): SlippageUpdate => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SlippageUpdate` entity parser: SlippageUpdate, entity is `undefined`.");
+  }
+  for (const field of ["id", "increase"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SlippageUpdate` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    slippage: entity.slippage,
+    transferId: entity.transfer.id,
+    timestamp: entity.timestamp,
+    domain: entity.domain,
   };
 };
