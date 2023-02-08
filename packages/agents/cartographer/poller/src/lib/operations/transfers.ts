@@ -215,7 +215,7 @@ export const updateBackoffs = async (): Promise<void> => {
       });
 
       const updatesTimestamp = await database.getCheckPoint("slippage_updates_timestamp_" + domain);
-      subgraphRelayerFeeQueryMetaParams.set(domain, {
+      subgraphSlippageUpdatesQueryMetaParams.set(domain, {
         fromTimestamp: updatesTimestamp,
         orderDirection: "asc",
       });

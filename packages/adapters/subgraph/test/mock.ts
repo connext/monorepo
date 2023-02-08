@@ -9,8 +9,10 @@ import {
   OriginTransfer,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  RelayerFeesIncrease,
   RootMessage,
   RouterBalance,
+  SlippageUpdate,
   StableSwapExchange,
   StableSwapPool,
   XMessage,
@@ -277,6 +279,26 @@ export const mockStableSwapExchangeResponse: StableSwapExchange[] = [
   },
 ];
 
+export const mockRelayerFeesIncreaseResponse: RelayerFeesIncrease[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    increase: "100",
+    transferId: mkBytes32("0xa"),
+    domain: "1337",
+    timestamp: "1673421076",
+  },
+];
+
+export const mockSlippageUpdateResponse: SlippageUpdate[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    slippage: "100",
+    transferId: mkBytes32("0xa"),
+    domain: "1337",
+    timestamp: "1673421076",
+  },
+];
+
 export const mockSubgraph = () =>
   createStubInstance(SubgraphReader, {
     getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
@@ -300,4 +322,6 @@ export const mockSubgraph = () =>
     }),
     getStableSwapPools: Promise.resolve(mockStableSwapPoolResponse),
     getStableSwapExchangeByDomainAndTimestamp: Promise.resolve(mockStableSwapExchangeResponse),
+    getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
+    getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
   });

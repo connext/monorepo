@@ -38,5 +38,7 @@ export const mockDatabase = (): Database => {
     saveReceivedAggregateRoot: stub().resolves(),
     saveStableSwapPool: stub().resolves(),
     saveStableSwapExchange: stub().resolves(),
+    increaseBackoff: stub().resolves(),
+    resetBackoffs: stub().resolves(),
   };
 };
