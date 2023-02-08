@@ -83,8 +83,8 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
-        excludeListFromRelayerFee = ["0xd4dfee43d46a66471a988f3785106ea87c8f9f25"]
+        providers                 = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
+        excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
