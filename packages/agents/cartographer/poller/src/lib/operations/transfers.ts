@@ -217,5 +217,8 @@ export const updateBackoffs = async (): Promise<void> => {
       count: increases.length,
     });
     await database.resetBackoffs(increases.map((increase) => increase.transferId));
+    logger.debug("Reset backoffs for transfers", requestContext, methodContext, {
+      count: increases.length,
+    });
   }
 };
