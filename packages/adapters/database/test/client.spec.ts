@@ -873,7 +873,7 @@ describe("Database client", () => {
       .rejected;
   });
 
-  it.only("should increase and reset the backoff", async () => {
+  it("should increase and reset the backoff", async () => {
     const transfer1 = mock.entity.xtransfer();
     const transfer2 = mock.entity.xtransfer();
     const transfer3 = mock.entity.xtransfer();
