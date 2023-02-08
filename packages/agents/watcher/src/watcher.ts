@@ -55,6 +55,7 @@ export const makeWatcher = async () => {
     context.logger.info("Watcher sanitized config", requestContext, methodContext, {
       address: context.adapters.wallet.address ?? (await context.adapters.wallet.getAddress()),
       chains: context.config.chains,
+      assets: context.config.assets,
       logLevel: context.config.logLevel,
       environment: context.config.environment,
       hubDomain: context.config.hubDomain,
@@ -82,7 +83,7 @@ export const makeWatcher = async () => {
     );
 
     // Get asset info from subgraph.
-    const query = context.config.chains[context.config.hubDomain].assets.map((a) => a.address.toLowerCase());
+    const query = context.config.assets.map((a) => a.address.toLowerCase());
     const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(context.config.hubDomain, query);
     if (assetInfo.length == 0) {
       context.logger.warn("No assets found in subgraph", requestContext, methodContext);

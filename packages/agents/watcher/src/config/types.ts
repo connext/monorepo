@@ -3,7 +3,6 @@ import { TAssetDescription, TLogLevel } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 
 export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String(), { minItems: 2 }),
   quorum: Type.Optional(Type.Integer({ minimum: 2 })), // Required quorum among RPC providers.
 });
@@ -11,6 +10,7 @@ export const TChainConfig = Type.Object({
 export const WatcherConfigSchema = Type.Intersect([
   Type.Object({
     chains: Type.Record(Type.String(), TChainConfig),
+    assets: Type.Array(TAssetDescription),
     logLevel: TLogLevel,
     mnemonic: Type.Optional(Type.String()),
     web3SignerUrl: Type.Optional(Type.String({ format: "uri" })),
@@ -33,10 +33,10 @@ export const WatcherDefaultConfigSchema = Type.Object({
   chains: Type.Record(
     Type.String(),
     Type.Object({
-      assets: Type.Array(TAssetDescription),
       quorum: Type.Integer({ minimum: 2 }),
     }),
   ),
+  assets: Type.Array(TAssetDescription),
   logLevel: TLogLevel,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   hubDomain: Type.String(),

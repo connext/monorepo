@@ -39,17 +39,24 @@ export const getEnvConfig = (): WatcherConfig => {
     : configFile.chains;
   // Default value enforcement.
   const chains: any = {};
-  Object.entries(parsedChains).map(([key, values]) => {
+  Object.entries(parsedChains).forEach(([key, values]) => {
     chains[key] = {
       ...DEFAULT.chains[key],
       ...values,
     };
   });
 
+  const parsedAssets = process.env.WATCHER_ASSETS
+    ? JSON.parse(process.env.WATCHER_ASSETS)
+    : configJson.assets
+    ? configJson.assets
+    : configFile.assets;
+
   const config: WatcherConfig = {
     mnemonic: process.env.WATCHER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.WATCHER_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     chains,
+    assets: parsedAssets || DEFAULT.assets,
     logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || DEFAULT.logLevel,
     environment,
     hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || DEFAULT.hubDomain,
