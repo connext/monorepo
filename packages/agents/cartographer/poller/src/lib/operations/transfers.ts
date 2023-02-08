@@ -22,6 +22,7 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
 };
 
 const getMaxTimestamp = (entities: any[]): number => {
+  // @ts-ignore
   return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
 };
 
