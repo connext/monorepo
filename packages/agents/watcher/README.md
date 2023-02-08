@@ -119,5 +119,3 @@ Watcher has the following configuration fields:
 - **telegramChatId** (optional): The chat to post to for telegram alerts. Referenced from env as `TELEGRAM_CHAT_ID`.
 - **betterUptimeApiKey** (optional): The api key for betteruptime alerts. Referenced from env as `BETTER_UPTIME_API_KEY`.
 - **betterUptimeRequesterEmail** (optional): The requester email for betteruptime alerts. Referenced from env as `BETTER_UPTIME_REQUESTER_EMAIL`.
-
-### Configuration
