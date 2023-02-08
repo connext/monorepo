@@ -62,7 +62,8 @@ Additionally, the watcher account must be whitelisted by the Connext admins to a
    ```sh
    docker pull ghcr.io/connext/watcher:sha-006433a
    ```
-4. HELP ME I ACTUALLY AM NOT SURE WHAT TO DO HERE, MAYBE WE SHOULD JUST MAKE A DOCKER COMPOSE REPO?
+4. Export the config.
+5. `docker run` the image with the exported config.
 
 ### Configuration
 
