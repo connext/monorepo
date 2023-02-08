@@ -241,9 +241,10 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
-
-  transfer.relayerFee = transfer.relayerFee!.plus(event.params.increase);
-  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
+  transfer.relayerFee = (transfer.relayerFee ? transfer.relayerFee : BigInt.fromI32(0))!.plus(event.params.increase);
+  transfer.bumpRelayerFeeCount = (
+    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
+  )!.plus(BigInt.fromI32(1));
   transfer.save();
 
   // should never be more than 1 but just in case theres somehow multiple in the same tx
@@ -260,6 +261,7 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   relayerFeesIncrease.increase = event.params.increase;
 
   // tx
+  relayerFeesIncrease.caller = event.transaction.from;
   relayerFeesIncrease.blockNumber = event.block.number;
   relayerFeesIncrease.timestamp = event.block.timestamp;
   relayerFeesIncrease.transactionHash = event.transaction.hash;
@@ -298,6 +300,7 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
   slippageUpdate.slippage = event.params.slippage;
 
   // tx
+  slippageUpdate.caller = event.transaction.from;
   slippageUpdate.blockNumber = event.block.number;
   slippageUpdate.timestamp = event.block.timestamp;
   slippageUpdate.transactionHash = event.transaction.hash;

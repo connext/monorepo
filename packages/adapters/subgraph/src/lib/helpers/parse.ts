@@ -11,6 +11,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  RelayerFeesIncrease,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -526,5 +527,26 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,
+  };
+};
+
+export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: RelayerFeesIncrease, entity is `undefined`.");
+  }
+  for (const field of ["id", "increase"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    increase: entity.increase,
+    transferId: entity.transfer.id,
   };
 };

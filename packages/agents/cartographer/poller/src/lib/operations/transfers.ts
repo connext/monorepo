@@ -190,3 +190,32 @@ export const updateTransfers = async () => {
     await database.saveTransfers(transfers as XTransfer[]);
   }
 };
+
+export const updateBackoffs = async (): Promise<void> => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("updateTransfers");
+  const subgraphRelayerFeeQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  await Promise.all(
+    domains.map(async (domain) => {
+      const reconciledTimestamp = await database.getCheckPoint("destination_reconcile_timestamp_" + domain);
+
+      subgraphRelayerFeeQueryMetaParams.set(domain, {
+        fromTimestamp: reconciledTimestamp,
+        orderDirection: "asc",
+      });
+    }),
+  );
+
+  if (subgraphRelayerFeeQueryMetaParams.size > 0) {
+    const increases = await subgraph.getRelayerFeesIncreasesByDomainAndTimestamp(subgraphRelayerFeeQueryMetaParams);
+    logger.info("Retrieved relayer fee increases", requestContext, methodContext, {
+      increases,
+      count: increases.length,
+    });
+    await database.resetBackoffs(increases.map((increase) => increase.transferId));
+  }
+};

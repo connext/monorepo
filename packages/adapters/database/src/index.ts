@@ -50,6 +50,7 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  resetBackoffs,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -172,6 +173,7 @@ export type Database = {
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   increaseBackoff: (transferId: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  resetBackoffs: (transferIds: string[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapPool: (_swapPools: StableSwapPool[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapExchange: (
     _swapExchanges: StableSwapExchange[],
@@ -225,6 +227,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getRoot,
     putRoot,
     increaseBackoff,
+    resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
   };

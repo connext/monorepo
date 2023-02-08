@@ -741,6 +741,17 @@ export const increaseBackoff = async (
   await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
 };
 
+export const resetBackoffs = async (
+  transferIds: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const backoff = 32;
+  await db
+    .update("transfers", { backoff, next_execution_timestamp: 0 }, { transfer_id: dc.isIn(transferIds) })
+    .run(poolToUse);
+};
+
 export const saveStableSwapPool = async (
   _swapPools: StableSwapPool[],
   _pool?: Pool | db.TxnClientForRepeatableRead,

@@ -54,6 +54,7 @@ import {
   transaction,
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
+  resetBackoffs,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -872,25 +873,55 @@ describe("Database client", () => {
       .rejected;
   });
 
-  it("should increase the backoff", async () => {
-    const transfer = mock.entity.xtransfer();
-    await saveTransfers([transfer], pool);
+  it.only("should increase and reset the backoff", async () => {
+    const transfer1 = mock.entity.xtransfer();
+    const transfer2 = mock.entity.xtransfer();
+    const transfer3 = mock.entity.xtransfer();
+    await saveTransfers([transfer1, transfer2, transfer3], pool);
 
-    let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(32);
     expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
 
-    await increaseBackoff(transfer.transferId, pool);
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer2.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(32);
+    expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
 
-    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    await increaseBackoff(transfer1.transferId, pool);
+    await increaseBackoff(transfer2.transferId, pool);
+    await increaseBackoff(transfer3.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
     expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
 
-    await increaseBackoff(transfer.transferId, pool);
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer2.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(64);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
 
-    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer3.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(64);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+
+    await increaseBackoff(transfer1.transferId, pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(128);
     expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
+
+    await resetBackoffs([transfer1.transferId, transfer2.transferId], pool);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(32);
+    expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer2.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(32);
+    expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
+
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer3.transferId]);
+    expect(queryRes.rows[0].backoff).to.eq(64);
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
   });
 
   it("should saveReceivedAggregateRoot", async () => {

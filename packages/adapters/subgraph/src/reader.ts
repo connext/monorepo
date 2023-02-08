@@ -19,6 +19,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  RelayerFeesIncrease,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -52,6 +53,7 @@ import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
   getPropagatedRootsQuery,
+  getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
@@ -896,5 +898,31 @@ export class SubgraphReader {
       .map(parser.stableSwapExchange);
 
     return domainExchanges;
+  }
+
+  public async getRelayerFeesIncreasesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RelayerFeesIncrease[]> {
+    const { execute, parser } = getHelpers();
+    const increasesQuery = getRelayerFeesIncreasesQuery(agents);
+    const response = await execute(increasesQuery);
+
+    const increases: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _increases = value?.flat();
+      increases.push(
+        _increases?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const relayerFeeIncreases: RelayerFeesIncrease[] = increases
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.relayerFeesIncrease);
+
+    return relayerFeeIncreases;
   }
 }
