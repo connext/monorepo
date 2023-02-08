@@ -69,10 +69,12 @@ locals {
         providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        providers                 = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        excludeListFromRelayerFee = ["0x79D5007F9782eE0407DB4C7a9fC6AE030586afac"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+        providers                 = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+        excludeListFromRelayerFee = ["0x6c461C0296eBE3715820F1Cbde856219e06ac3B8"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]

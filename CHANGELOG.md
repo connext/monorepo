@@ -2,7 +2,9 @@
 
 ## Next Release
 
-## Amarok 0.2.1-rc.28
+## Amarok 0.2.6
+
+- [all] stable release
 
 ## Amarok 0.2.1-rc.27
 

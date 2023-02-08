@@ -1,5 +1,5 @@
 import { Logger } from "@connext/nxtp-utils";
-import { BigNumber, BigNumberish, providers } from "ethers";
+import { BigNumber, BigNumberish, providers, utils } from "ethers";
 
 export type ReadTransaction = {
   domain: number;
@@ -13,6 +13,8 @@ export type WriteTransaction = {
   gasLimit?: BigNumberish;
   gasPrice?: BigNumberish;
 } & ReadTransaction;
+
+export type MultireadTransaction = Omit<ReadTransaction, "domain"> & { resultTypes: (string | utils.ParamType)[] };
 
 /// Events
 export type TxServiceSubmittedEvent = {
