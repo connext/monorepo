@@ -82,3 +82,6 @@ GET {{postgrestUrl}}/hourly_swap_volume
 
 ### GET STABLESWAP DAILY SWAP VOLUME
 GET {{postgrestUrl}}/daily_swap_volume
+
+### GET STABLESWAP ADD/REMOVE LIQUIDITY EVENTS
+GET {{postgrestUrl}}/stableswap_pool_events
