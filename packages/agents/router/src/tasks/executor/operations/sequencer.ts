@@ -75,7 +75,7 @@ export const sendExecuteSlowToSequencer = async (
       data: encodedData,
       from: relayerAddress,
       transferId: transferId,
-      reason: err.context.message,
+      reason: err.context?.message ?? err.message,
     });
   }
 
