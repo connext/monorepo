@@ -1,34 +1,8 @@
 import { existsSync, readFileSync } from "fs";
 
-import { WatcherAlertsConfigSchema } from "@connext/nxtp-adapters-watcher";
-import { ajv, TAssetDescription, TLogLevel } from "@connext/nxtp-utils";
-import { Static, Type } from "@sinclair/typebox";
+import { ajv } from "@connext/nxtp-utils";
 
-export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
-  providers: Type.Array(Type.String()),
-  quorum: Type.Optional(Type.Integer({ minimum: 2 })), // Required quorum among RPC providers.
-});
-
-export const WatcherConfigSchema = Type.Intersect([
-  Type.Object({
-    chains: Type.Record(Type.String(), TChainConfig),
-    logLevel: TLogLevel,
-    mnemonic: Type.Optional(Type.String()),
-    web3SignerUrl: Type.Optional(Type.String({ format: "uri" })),
-    environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-    hubDomain: Type.String(),
-    server: Type.Object({
-      adminToken: Type.String(),
-      port: Type.Number(),
-      host: Type.String(),
-    }),
-    interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
-  }),
-  WatcherAlertsConfigSchema,
-]);
-
-export type WatcherConfig = Static<typeof WatcherConfigSchema>;
+import { WatcherConfig, WatcherConfigSchema, TESTNET_STAGING_DEFAULT, MAINNET_PRODUCTION_DEFAULT } from "../config";
 
 export const getEnvConfig = (): WatcherConfig => {
   let configJson: Record<string, any> = {};
@@ -52,6 +26,11 @@ export const getEnvConfig = (): WatcherConfig => {
     process.exit(1);
   }
 
+  // Get the default config from environment
+  const environment =
+    process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production";
+  const DEFAULT = environment === "production" ? MAINNET_PRODUCTION_DEFAULT : TESTNET_STAGING_DEFAULT;
+
   // Take the chain config and enforce default values as needed.
   const parsedChains: object = process.env.WATCHER_CHAIN_CONFIG
     ? JSON.parse(process.env.WATCHER_CHAIN_CONFIG)
@@ -60,29 +39,33 @@ export const getEnvConfig = (): WatcherConfig => {
     : configFile.chains;
   // Default value enforcement.
   const chains: any = {};
-  Object.entries(parsedChains).map(([key, values]) => {
-    const { quorum, providers, ...rest } = values;
+  Object.entries(parsedChains).forEach(([key, values]) => {
     chains[key] = {
-      providers,
-      // should always *at least* be 2 for providers
-      quorum: quorum ?? 2,
-      ...rest,
+      ...DEFAULT.chains[key],
+      ...values,
     };
   });
+
+  const parsedAssets = process.env.WATCHER_ASSETS
+    ? JSON.parse(process.env.WATCHER_ASSETS)
+    : configJson.assets
+    ? configJson.assets
+    : configFile.assets;
 
   const config: WatcherConfig = {
     mnemonic: process.env.WATCHER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.WATCHER_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     chains,
-    logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
-    environment: process.env.WATCHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain,
+    assets: parsedAssets || DEFAULT.assets,
+    logLevel: process.env.WATCHER_LOG_LEVEL || configJson.logLevel || configFile.logLevel || DEFAULT.logLevel,
+    environment,
+    hubDomain: process.env.WATCHER_HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || DEFAULT.hubDomain,
     server: {
       adminToken: process.env.WATCHER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
-      port: process.env.WATCHER_PORT || configJson.server?.port || configFile.server?.port || 8000,
-      host: process.env.WATCHER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      port: process.env.WATCHER_PORT || configJson.server?.port || configFile.server?.port || DEFAULT.server.port,
+      host: process.env.WATCHER_HOST || configJson.server?.host || configFile.server?.host || DEFAULT.server.host,
     },
-    interval: process.env.WATCHER_INTERVAL || configJson.interval || configFile.interval || 15000,
+    interval: process.env.WATCHER_INTERVAL || configJson.interval || configFile.interval || DEFAULT.interval,
     discordHookUrl: process.env.DISCORD_HOOK_URL || configJson.discordHookUrl || configFile.discordHookUrl,
     pagerDutyRoutingKey:
       process.env.PAGERDUTY_ROUTING_KEY || configJson.pagerDutyRoutingKey || configFile.pagerDutyRoutingKey,
@@ -109,19 +92,6 @@ export const getEnvConfig = (): WatcherConfig => {
     throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
-  // enforce there are at *least* three providers
-  const invalid = Object.entries(config.chains)
-    .map(([key, value]) => {
-      if (value.providers.length < 3) {
-        return key;
-      }
-      return undefined;
-    })
-    .filter((x) => !!x);
-  if (invalid.length) {
-    throw new Error(`Need 3 providers per chain at minimum. Missing those for ${invalid.join(", ")}`);
-  }
-
   return config;
 };
 
@@ -132,7 +102,7 @@ let config: WatcherConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (): Promise<WatcherConfig> => {
+export const getConfig = (): WatcherConfig => {
   if (!config) {
     config = getEnvConfig();
   }
