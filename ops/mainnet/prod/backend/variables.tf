@@ -63,3 +63,7 @@ variable "carto_routers_heartbeat" {
 variable "carto_transfers_heartbeat" {
   type = string
 }
+
+variable "graph_api_key" {
+  type = string
+}
