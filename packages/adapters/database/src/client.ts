@@ -24,6 +24,9 @@ import { BigNumber } from "ethers";
 
 import { pool } from "./index";
 
+// Max execution time backoff for a transfer
+const maxBackoff = 86400 * 7;
+
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
     transfer_id: transfer.transferId,
@@ -736,7 +739,7 @@ export const increaseBackoff = async (
   if (!transfer) {
     return;
   }
-  const backoff = transfer.backoff * 2;
+  const backoff = Math.min(transfer.backoff * 2, maxBackoff);
   const next_execution_timestamp = Math.floor(Date.now() / 1000) + backoff;
   await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
 };
