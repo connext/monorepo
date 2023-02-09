@@ -405,6 +405,9 @@ sources:
       graphql:
         strategy: fallback
         sources:
+          - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp/graphql"
+            retry: 2
+            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
             retry: 2
             timeout: 30000 # 30 seconds
