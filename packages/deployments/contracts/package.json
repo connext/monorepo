@@ -3,7 +3,7 @@
   "version": "0.2.6",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --no-match-path '*/fork/**.sol'",
+    "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
