@@ -19,6 +19,10 @@ declare module 'zapatos/schema' {
 
   /* --- enums --- */
 
+  export type action_type = 'Add' | 'Remove';
+  export namespace every {
+    export type action_type = ['Add', 'Remove'];
+  }
   export type transfer_status = 'CompletedFast' | 'CompletedSlow' | 'Executed' | 'Reconciled' | 'XCalled';
   export namespace every {
     export type transfer_status = ['CompletedFast', 'CompletedSlow', 'Executed', 'Reconciled', 'XCalled'];
@@ -3541,6 +3545,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **stableswap_exchanges.balances**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      balances: number[];
     }
     export interface JSONSelectable {
       /**
@@ -3609,6 +3619,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **stableswap_exchanges.balances**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      balances: number[];
     }
     export interface Whereable {
       /**
@@ -3677,6 +3693,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_exchanges.balances**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -3745,6 +3767,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **stableswap_exchanges.balances**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      balances?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -3813,8 +3841,590 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **stableswap_exchanges.balances**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      balances?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'stableswap_exchanges_id_key' | 'stableswap_exchanges_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **stableswap_lp_balances**
+   * - View in database
+   */
+  export namespace stableswap_lp_balances {
+    export type Table = 'stableswap_lp_balances';
+    export interface Selectable {
+      /**
+      * **stableswap_lp_balances.pool_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      pool_id: string | null;
+      /**
+      * **stableswap_lp_balances.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain: string | null;
+      /**
+      * **stableswap_lp_balances.provider**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      provider: string | null;
+      /**
+      * **stableswap_lp_balances.balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance: number | null;
+      /**
+      * **stableswap_lp_balances.add_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      add_count: db.Int8String | null;
+      /**
+      * **stableswap_lp_balances.remove_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      remove_count: db.Int8String | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **stableswap_lp_balances.pool_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      pool_id: string | null;
+      /**
+      * **stableswap_lp_balances.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain: string | null;
+      /**
+      * **stableswap_lp_balances.provider**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      provider: string | null;
+      /**
+      * **stableswap_lp_balances.balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance: number | null;
+      /**
+      * **stableswap_lp_balances.add_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      add_count: number | null;
+      /**
+      * **stableswap_lp_balances.remove_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      remove_count: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **stableswap_lp_balances.pool_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      pool_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_lp_balances.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_lp_balances.provider**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      provider?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_lp_balances.balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_lp_balances.add_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      add_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_lp_balances.remove_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      remove_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **stableswap_pool_events**
+   * - Table in database
+   */
+  export namespace stableswap_pool_events {
+    export type Table = 'stableswap_pool_events';
+    export interface Selectable {
+      /**
+      * **stableswap_pool_events.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string;
+      /**
+      * **stableswap_pool_events.pool_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      pool_id: string;
+      /**
+      * **stableswap_pool_events.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **stableswap_pool_events.provider**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      provider: string;
+      /**
+      * **stableswap_pool_events.action**
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
+      */
+      action: action_type;
+      /**
+      * **stableswap_pool_events.pooled_tokens**
+      * - `_text` in database
+      * - Nullable, no default
+      */
+      pooled_tokens: string[] | null;
+      /**
+      * **stableswap_pool_events.pool_token_decimals**
+      * - `_int4` in database
+      * - Nullable, no default
+      */
+      pool_token_decimals: number[] | null;
+      /**
+      * **stableswap_pool_events.token_amounts**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      token_amounts: number[] | null;
+      /**
+      * **stableswap_pool_events.balances**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      balances: number[] | null;
+      /**
+      * **stableswap_pool_events.lp_token_amount**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_amount: number;
+      /**
+      * **stableswap_pool_events.lp_token_supply**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_supply: number;
+      /**
+      * **stableswap_pool_events.block_number**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      block_number: number;
+      /**
+      * **stableswap_pool_events.transaction_hash**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      transaction_hash: string;
+      /**
+      * **stableswap_pool_events.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number;
+    }
+    export interface JSONSelectable {
+      /**
+      * **stableswap_pool_events.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string;
+      /**
+      * **stableswap_pool_events.pool_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      pool_id: string;
+      /**
+      * **stableswap_pool_events.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **stableswap_pool_events.provider**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      provider: string;
+      /**
+      * **stableswap_pool_events.action**
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
+      */
+      action: action_type;
+      /**
+      * **stableswap_pool_events.pooled_tokens**
+      * - `_text` in database
+      * - Nullable, no default
+      */
+      pooled_tokens: string[] | null;
+      /**
+      * **stableswap_pool_events.pool_token_decimals**
+      * - `_int4` in database
+      * - Nullable, no default
+      */
+      pool_token_decimals: number[] | null;
+      /**
+      * **stableswap_pool_events.token_amounts**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      token_amounts: number[] | null;
+      /**
+      * **stableswap_pool_events.balances**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      balances: number[] | null;
+      /**
+      * **stableswap_pool_events.lp_token_amount**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_amount: number;
+      /**
+      * **stableswap_pool_events.lp_token_supply**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_supply: number;
+      /**
+      * **stableswap_pool_events.block_number**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      block_number: number;
+      /**
+      * **stableswap_pool_events.transaction_hash**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      transaction_hash: string;
+      /**
+      * **stableswap_pool_events.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number;
+    }
+    export interface Whereable {
+      /**
+      * **stableswap_pool_events.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.pool_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      pool_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.provider**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      provider?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.action**
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
+      */
+      action?: action_type | db.Parameter<action_type> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, action_type | db.Parameter<action_type> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.pooled_tokens**
+      * - `_text` in database
+      * - Nullable, no default
+      */
+      pooled_tokens?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.pool_token_decimals**
+      * - `_int4` in database
+      * - Nullable, no default
+      */
+      pool_token_decimals?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.token_amounts**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      token_amounts?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.balances**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.lp_token_amount**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.lp_token_supply**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_supply?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.block_number**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.transaction_hash**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **stableswap_pool_events.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.pool_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      pool_id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.provider**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      provider: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.action**
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
+      */
+      action?: action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.pooled_tokens**
+      * - `_text` in database
+      * - Nullable, no default
+      */
+      pooled_tokens?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.pool_token_decimals**
+      * - `_int4` in database
+      * - Nullable, no default
+      */
+      pool_token_decimals?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.token_amounts**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      token_amounts?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.balances**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      balances?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.lp_token_amount**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_amount: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.lp_token_supply**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_supply: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.block_number**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      block_number: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.transaction_hash**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      transaction_hash: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number | db.Parameter<number> | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **stableswap_pool_events.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.pool_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      pool_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.provider**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      provider?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.action**
+      * - `action_type` in database
+      * - `NOT NULL`, default: `'Add'::action_type`
+      */
+      action?: action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, action_type | db.Parameter<action_type> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.pooled_tokens**
+      * - `_text` in database
+      * - Nullable, no default
+      */
+      pooled_tokens?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.pool_token_decimals**
+      * - `_int4` in database
+      * - Nullable, no default
+      */
+      pool_token_decimals?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.token_amounts**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      token_amounts?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.balances**
+      * - `_numeric` in database
+      * - Nullable, no default
+      */
+      balances?: number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.lp_token_amount**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_amount?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.lp_token_supply**
+      * - `numeric` in database
+      * - `NOT NULL`, no default
+      */
+      lp_token_supply?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.block_number**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      block_number?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.transaction_hash**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'stableswap_pool_events_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -7993,20 +8603,20 @@ declare module 'zapatos/schema' {
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
-    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
-    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
-    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
-    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
-    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
-    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
-    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
+    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
+    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
+    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
+    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
+    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
+    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
+    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
+    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
   
-    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pools.Table, transfers.Table];
+    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_router_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
+    export type AllViews = [daily_router_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
+    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
   }
 
 
@@ -8055,6 +8665,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.Selectable;
     "schema_migrations": schema_migrations.Selectable;
     "stableswap_exchanges": stableswap_exchanges.Selectable;
+    "stableswap_lp_balances": stableswap_lp_balances.Selectable;
+    "stableswap_pool_events": stableswap_pool_events.Selectable;
     "stableswap_pools": stableswap_pools.Selectable;
     "transfer_count": transfer_count.Selectable;
     "transfer_volume": transfer_volume.Selectable;
@@ -8084,6 +8696,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.JSONSelectable;
     "schema_migrations": schema_migrations.JSONSelectable;
     "stableswap_exchanges": stableswap_exchanges.JSONSelectable;
+    "stableswap_lp_balances": stableswap_lp_balances.JSONSelectable;
+    "stableswap_pool_events": stableswap_pool_events.JSONSelectable;
     "stableswap_pools": stableswap_pools.JSONSelectable;
     "transfer_count": transfer_count.JSONSelectable;
     "transfer_volume": transfer_volume.JSONSelectable;
@@ -8113,6 +8727,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.Whereable;
     "schema_migrations": schema_migrations.Whereable;
     "stableswap_exchanges": stableswap_exchanges.Whereable;
+    "stableswap_lp_balances": stableswap_lp_balances.Whereable;
+    "stableswap_pool_events": stableswap_pool_events.Whereable;
     "stableswap_pools": stableswap_pools.Whereable;
     "transfer_count": transfer_count.Whereable;
     "transfer_volume": transfer_volume.Whereable;
@@ -8142,6 +8758,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.Insertable;
     "schema_migrations": schema_migrations.Insertable;
     "stableswap_exchanges": stableswap_exchanges.Insertable;
+    "stableswap_lp_balances": stableswap_lp_balances.Insertable;
+    "stableswap_pool_events": stableswap_pool_events.Insertable;
     "stableswap_pools": stableswap_pools.Insertable;
     "transfer_count": transfer_count.Insertable;
     "transfer_volume": transfer_volume.Insertable;
@@ -8171,6 +8789,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.Updatable;
     "schema_migrations": schema_migrations.Updatable;
     "stableswap_exchanges": stableswap_exchanges.Updatable;
+    "stableswap_lp_balances": stableswap_lp_balances.Updatable;
+    "stableswap_pool_events": stableswap_pool_events.Updatable;
     "stableswap_pools": stableswap_pools.Updatable;
     "transfer_count": transfer_count.Updatable;
     "transfer_volume": transfer_volume.Updatable;
@@ -8200,6 +8820,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.UniqueIndex;
     "schema_migrations": schema_migrations.UniqueIndex;
     "stableswap_exchanges": stableswap_exchanges.UniqueIndex;
+    "stableswap_lp_balances": stableswap_lp_balances.UniqueIndex;
+    "stableswap_pool_events": stableswap_pool_events.UniqueIndex;
     "stableswap_pools": stableswap_pools.UniqueIndex;
     "transfer_count": transfer_count.UniqueIndex;
     "transfer_volume": transfer_volume.UniqueIndex;
@@ -8229,6 +8851,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.Column;
     "schema_migrations": schema_migrations.Column;
     "stableswap_exchanges": stableswap_exchanges.Column;
+    "stableswap_lp_balances": stableswap_lp_balances.Column;
+    "stableswap_pool_events": stableswap_pool_events.Column;
     "stableswap_pools": stableswap_pools.Column;
     "transfer_count": transfer_count.Column;
     "transfer_volume": transfer_volume.Column;
@@ -8258,6 +8882,8 @@ declare module 'zapatos/schema' {
     "routers_with_balances": routers_with_balances.SQL;
     "schema_migrations": schema_migrations.SQL;
     "stableswap_exchanges": stableswap_exchanges.SQL;
+    "stableswap_lp_balances": stableswap_lp_balances.SQL;
+    "stableswap_pool_events": stableswap_pool_events.SQL;
     "stableswap_pools": stableswap_pools.SQL;
     "transfer_count": transfer_count.SQL;
     "transfer_volume": transfer_volume.SQL;

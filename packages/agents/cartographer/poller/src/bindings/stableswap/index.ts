@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../shared";
-import { updateStableSwap } from "../../lib/operations";
+import { updateStableSwap, updatePoolEvents } from "../../lib/operations";
 
 export const bindStableSwap = async (context: AppContext) => {
   const { logger } = context;
@@ -9,6 +9,7 @@ export const bindStableSwap = async (context: AppContext) => {
   try {
     logger.debug("Bind stableswap polling loop start", requestContext, methodContext);
     await updateStableSwap();
+    await updatePoolEvents();
     logger.debug("Bind stableswap polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
