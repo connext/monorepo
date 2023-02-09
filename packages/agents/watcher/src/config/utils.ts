@@ -102,7 +102,7 @@ let config: WatcherConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (): Promise<WatcherConfig> => {
+export const getConfig = (): WatcherConfig => {
   if (!config) {
     config = getEnvConfig();
   }
