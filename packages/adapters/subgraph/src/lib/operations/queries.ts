@@ -233,6 +233,25 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       soldId
       tokensBought
       tokensSold
+      balances
+      block
+      timestamp
+      transaction
+`;
+
+export const STABLESWAP_POOL_EVENT_ENTITY = `
+      id
+      stableSwap {
+        key
+        domain
+        tokenPrecisionMultipliers
+        pooledTokens
+      }
+      provider
+      tokenAmounts
+      balances
+      lpTokenSupply
+      lpTokenAmount
       block
       timestamp
       transaction
@@ -969,6 +988,53 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
 
   return gql`
     query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const poolEventsQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+  addOrRemove: "add" | "remove" = "add",
+) => {
+  return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
+};
+
+export const getPoolEventsQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  addOrRemove: "add" | "remove" = "add",
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += poolEventsQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+        addOrRemove,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetPoolEvents { 
         ${combinedQuery}
       }
   `;

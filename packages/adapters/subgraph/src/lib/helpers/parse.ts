@@ -13,6 +13,8 @@ import {
   StableSwapExchange,
   RelayerFeesIncrease,
   SlippageUpdate,
+  StableSwapPoolEvent,
+  PoolActionType,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -496,6 +498,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "soldId",
     "tokensSold",
     "tokensBought",
+    "balances",
     "block",
     "transaction",
     "timestamp",
@@ -510,11 +513,11 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
 
   const boughtId = BigNumber.from(entity.boughtId).toNumber();
   const soldId = BigNumber.from(entity.soldId).toNumber();
-  const soldTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[soldId]).length - 1);
-  const boughtTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[boughtId]).length - 1);
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
 
-  const tokensSold = +utils.formatUnits(String(entity.tokensSold), soldTokenDecimal);
-  const tokensBought = +utils.formatUnits(String(entity.tokensBought), boughtTokenDecimal);
+  const tokensSold = +utils.formatUnits(String(entity.tokensSold), tokenDecimals[soldId]);
+  const tokensBought = +utils.formatUnits(String(entity.tokensBought), tokenDecimals[boughtId]);
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
 
   return {
     id: entity.id,
@@ -525,6 +528,58 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     soldId,
     tokensSold,
     tokensBought,
+    balances,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: stableSwapPoolEvent, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "stableSwap",
+    "provider",
+    "tokenAmounts",
+    "balances",
+    "lpTokenSupply",
+    "lpTokenAmount",
+    "block",
+    "transaction",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
+  const tokenAmounts = entity.tokenAmounts.map(
+    (a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]),
+  );
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    poolId: entity.stableSwap.key,
+    provider: entity.provider,
+    action: entity.id.includes("add_liquidity") ? PoolActionType.Add : PoolActionType.Remove,
+    pooledTokens: entity.stableSwap.pooledTokens,
+    poolTokenDecimals: tokenDecimals,
+    tokenAmounts,
+    balances,
+    lpTokenSupply: +utils.formatEther(String(entity.lpTokenSupply)),
+    lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,
