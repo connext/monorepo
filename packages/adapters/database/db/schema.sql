@@ -10,6 +10,16 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: action_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.action_type AS ENUM (
+    'Add',
+    'Remove'
+);
+
+
+--
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -512,6 +522,56 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_pool_events (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    provider character(42) NOT NULL,
+    action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
+    pooled_tokens text[],
+    pool_token_decimals integer[],
+    token_amounts numeric[],
+    balances numeric[],
+    lp_token_amount numeric NOT NULL,
+    lp_token_supply numeric NOT NULL,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL
+);
+
+
+--
+-- Name: stableswap_lp_balances; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.stableswap_lp_balances AS
+ SELECT e.pool_id,
+    e.domain,
+    e.provider,
+    sum(
+        CASE
+            WHEN (e.action = 'Add'::public.action_type) THEN e.lp_token_amount
+            WHEN (e.action = 'Remove'::public.action_type) THEN (('-1'::integer)::numeric * e.lp_token_amount)
+            ELSE NULL::numeric
+        END) AS balance,
+    sum(
+        CASE
+            WHEN (e.action = 'Add'::public.action_type) THEN 1
+            ELSE 0
+        END) AS add_count,
+    sum(
+        CASE
+            WHEN (e.action = 'Remove'::public.action_type) THEN 1
+            ELSE 0
+        END) AS remove_count
+   FROM public.stableswap_pool_events e
+  GROUP BY e.pool_id, e.domain, e.provider;
+
+
+--
 -- Name: stableswap_pools; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -742,6 +802,14 @@ ALTER TABLE ONLY public.stableswap_exchanges
 
 
 --
+-- Name: stableswap_pool_events stableswap_pool_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_pool_events
+    ADD CONSTRAINT stableswap_pool_events_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stableswap_pools stableswap_pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -856,4 +924,8 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230119130526'),
     ('20230127195903'),
     ('20230130081731'),
-    ('20230201004755');
+    ('20230201004755'),
+    ('20230206131920'),
+    ('20230207104528'),
+    ('20230209013027'),
+    ('20230209043516');

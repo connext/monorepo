@@ -11,6 +11,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapPoolEvent,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -50,6 +51,7 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  saveStableSwapPoolEvent,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -177,6 +179,10 @@ export type Database = {
     _swapExchanges: StableSwapExchange[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  saveStableSwapPoolEvent: (
+    _poolEvents: StableSwapPoolEvent[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -227,6 +233,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     increaseBackoff,
     saveStableSwapPool,
     saveStableSwapExchange,
+    saveStableSwapPoolEvent,
   };
 };
 

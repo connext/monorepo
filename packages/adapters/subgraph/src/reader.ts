@@ -19,6 +19,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapPoolEvent,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -51,6 +52,7 @@ import {
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRootManagerMetaQuery,
   getStableSwapPoolsQuery,
@@ -896,5 +898,32 @@ export class SubgraphReader {
       .map(parser.stableSwapExchange);
 
     return domainExchanges;
+  }
+
+  public async getStableSwapPoolEventsByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+    addOrRemove: "add" | "remove" = "add",
+  ): Promise<StableSwapPoolEvent[]> {
+    const { execute, parser } = getHelpers();
+    const exchangeQuery = getPoolEventsQuery(agents, addOrRemove);
+    const response = await execute(exchangeQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapPoolEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
   }
 }
