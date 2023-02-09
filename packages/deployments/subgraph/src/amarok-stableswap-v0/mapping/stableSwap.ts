@@ -136,16 +136,15 @@ export function handleStopInternalRampA(event: RampAStopped): void {
 }
 
 export function handleInternalAddLiquidity(event: AddLiquidity): void {
-  let stableSwap = getOrCreateStableSwap(event.params.key);
+  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
 
-  addLiquidity(
-    stableSwap.key,
+  let stableSwap = addLiquidity(
+    event.params.key,
     event.params.tokenAmounts,
     event.params.fees,
     event.params.invariant,
     event.params.lpTokenSupply,
   );
-
   let log = new StableSwapAddLiquidityEvent("add_liquidity-" + event.transaction.hash.toHexString());
 
   log.stableSwap = stableSwap.id;
@@ -154,6 +153,8 @@ export function handleInternalAddLiquidity(event: AddLiquidity): void {
   log.fees = event.params.fees;
   log.invariant = event.params.invariant;
   log.lpTokenSupply = event.params.lpTokenSupply;
+  log.balances = stableSwap.balances;
+  log.lpTokenAmount = event.params.lpTokenSupply.minus(stableSwapBefore.lpTokenSupply);
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
@@ -163,16 +164,22 @@ export function handleInternalAddLiquidity(event: AddLiquidity): void {
 }
 
 export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
-  let stableSwap = getOrCreateStableSwap(event.params.key);
+  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
 
-  removeLiquidity(stableSwap.key, event.params.tokenAmounts, event.params.lpTokenSupply, event.block.timestamp);
-
+  let stableSwap = removeLiquidity(
+    event.params.key,
+    event.params.tokenAmounts,
+    event.params.lpTokenSupply,
+    event.block.timestamp,
+  );
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity-" + event.transaction.hash.toHexString());
 
   log.stableSwap = stableSwap.id;
   log.provider = event.params.provider;
   log.tokenAmounts = event.params.tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
+  log.balances = stableSwap.balances;
+  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
@@ -182,16 +189,15 @@ export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
 }
 
 export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImbalance): void {
-  let stableSwap = getOrCreateStableSwap(event.params.key);
+  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
 
-  removeLiquidityImbalance(
-    stableSwap.key,
+  let stableSwap = removeLiquidityImbalance(
+    event.params.key,
     event.params.tokenAmounts,
     event.params.fees,
     event.params.invariant,
     event.params.lpTokenSupply,
   );
-
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_imbalance-" + event.transaction.hash.toHexString());
 
   log.stableSwap = stableSwap.id;
@@ -200,6 +206,8 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
   log.fees = event.params.fees;
   log.invariant = event.params.invariant;
   log.lpTokenSupply = event.params.lpTokenSupply;
+  log.balances = stableSwap.balances;
+  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
@@ -209,17 +217,16 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
 }
 
 export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
-  let stableSwap = getOrCreateStableSwap(event.params.key);
+  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
 
-  removeLiquidityOneToken(
-    stableSwap.key,
+  let stableSwap = removeLiquidityOneToken(
+    event.params.key,
     event.params.lpTokenAmount,
     event.params.lpTokenSupply,
     event.params.boughtId,
     event.params.tokensBought,
     event.block.timestamp,
   );
-
   let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_one-" + event.transaction.hash.toHexString());
 
   let tokenAmounts: BigInt[] = [];
@@ -235,6 +242,8 @@ export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): voi
   log.provider = event.params.provider;
   log.tokenAmounts = tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
+  log.balances = stableSwap.balances;
+  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
@@ -245,25 +254,6 @@ export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): voi
 
 export function handleInternalTokenSwap(event: TokenSwap): void {
   let stableSwap = getOrCreateStableSwap(event.params.key);
-  let exchangeId =
-    event.params.key.toHexString() +
-    "-" +
-    event.transaction.hash.toHexString() +
-    "-" +
-    event.transactionLogIndex.toString();
-
-  let exchange = new StableSwapExchange(exchangeId);
-
-  exchange.stableSwap = stableSwap.id;
-  exchange.buyer = event.params.buyer;
-  exchange.soldId = event.params.soldId;
-  exchange.tokensSold = event.params.tokensSold;
-  exchange.boughtId = event.params.boughtId;
-  exchange.tokensBought = event.params.tokensBought;
-  exchange.block = event.block.number;
-  exchange.timestamp = event.block.timestamp;
-  exchange.transaction = event.transaction.hash;
-  exchange.save();
 
   // save trade volume
   let tokens = stableSwap.pooledTokens;
@@ -289,7 +279,7 @@ export function handleInternalTokenSwap(event: TokenSwap): void {
     weeklyVolume.volume = weeklyVolume.volume.plus(volume);
     weeklyVolume.save();
 
-    swap(
+    stableSwap = swap(
       stableSwap.key,
       event.params.soldId,
       event.params.boughtId,
@@ -297,6 +287,27 @@ export function handleInternalTokenSwap(event: TokenSwap): void {
       event.params.tokensBought,
       event.block.timestamp,
     );
+
+    let exchangeId =
+      event.params.key.toHexString() +
+      "-" +
+      event.transaction.hash.toHexString() +
+      "-" +
+      event.transactionLogIndex.toString();
+
+    let exchange = new StableSwapExchange(exchangeId);
+
+    exchange.stableSwap = stableSwap.id;
+    exchange.buyer = event.params.buyer;
+    exchange.soldId = event.params.soldId;
+    exchange.tokensSold = event.params.tokensSold;
+    exchange.boughtId = event.params.boughtId;
+    exchange.tokensBought = event.params.tokensBought;
+    exchange.balances = stableSwap.balances;
+    exchange.block = event.block.number;
+    exchange.timestamp = event.block.timestamp;
+    exchange.transaction = event.transaction.hash;
+    exchange.save();
   }
 
   // update system
