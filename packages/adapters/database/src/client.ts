@@ -15,6 +15,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -775,4 +776,13 @@ export const saveStableSwapExchange = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
+};
+
+export const updateErrorStatus = async (
+  transferId: string,
+  error: XTransferErrorStatus,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.update("transfers", { error_status: error }, { transfer_id: transferId }).run(poolToUse);
 };

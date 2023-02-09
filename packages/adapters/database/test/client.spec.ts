@@ -55,6 +55,7 @@ import {
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
   resetBackoffs,
+  updateErrorStatus,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -943,5 +944,15 @@ describe("Database client", () => {
 
     const latest = await getLatestAggregateRoot(roots[0].domain, "DESC", pool);
     expect(latest).to.deep.eq(roots[batchSize - 1]);
+  });
+
+  it("should update error status", async () => {
+    const transfer = mock.entity.xtransfer();
+    await saveTransfers([transfer], pool);
+    let queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].error_status).to.eq(null);
+    await updateErrorStatus(transfer.transferId, XTransferErrorStatus.LowSlippage, pool);
+    queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
+    expect(queryRes.rows[0].error_status).to.eq(XTransferErrorStatus.LowSlippage);
   });
 });
