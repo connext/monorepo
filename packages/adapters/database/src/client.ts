@@ -178,6 +178,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     sold_id: exchange.soldId,
     tokens_sold: exchange.tokensSold,
     tokens_bought: exchange.tokensBought,
+    balances: exchange.balances,
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,

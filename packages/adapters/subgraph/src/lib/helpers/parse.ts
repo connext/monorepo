@@ -496,6 +496,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "soldId",
     "tokensSold",
     "tokensBought",
+    "balances",
     "block",
     "transaction",
     "timestamp",
@@ -510,11 +511,11 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
 
   const boughtId = BigNumber.from(entity.boughtId).toNumber();
   const soldId = BigNumber.from(entity.soldId).toNumber();
-  const soldTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[soldId]).length - 1);
-  const boughtTokenDecimal = 18 - (String(entity.stableSwap.tokenPrecisionMultipliers[boughtId]).length - 1);
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
 
-  const tokensSold = +utils.formatUnits(String(entity.tokensSold), soldTokenDecimal);
-  const tokensBought = +utils.formatUnits(String(entity.tokensBought), boughtTokenDecimal);
+  const tokensSold = +utils.formatUnits(String(entity.tokensSold), tokenDecimals[soldId]);
+  const tokensBought = +utils.formatUnits(String(entity.tokensBought), tokenDecimals[boughtId]);
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
 
   return {
     id: entity.id,
@@ -525,6 +526,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     soldId,
     tokensSold,
     tokensBought,
+    balances,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,

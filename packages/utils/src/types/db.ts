@@ -356,6 +356,7 @@ export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchan
     soldId: exchange.soldId,
     tokensSold: exchange.tokensSold,
     tokensBought: exchange.tokensBought,
+    balances: exchange.balances,
     blockNumber: exchange.blockNumber,
     transactionHash: exchange.transactionHash,
     timestamp: exchange.timestamp,

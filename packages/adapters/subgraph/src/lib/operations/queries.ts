@@ -233,6 +233,7 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       soldId
       tokensBought
       tokensSold
+      balances
       block
       timestamp
       transaction

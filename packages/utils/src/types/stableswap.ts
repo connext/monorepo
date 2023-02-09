@@ -32,6 +32,7 @@ export const StableSwapExchangeSchema = Type.Object({
   soldId: Type.Number({ minimum: 0 }),
   tokensSold: Type.Number(),
   tokensBought: Type.Number(),
+  balances: Type.Array(Type.Number()),
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),

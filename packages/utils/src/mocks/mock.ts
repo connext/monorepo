@@ -469,6 +469,7 @@ export const mock = {
       soldId: 0,
       tokensSold: Math.floor(Date.now() / 1000),
       tokensBought: Math.floor(Date.now() / 1000),
+      balances: [200, 200],
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
