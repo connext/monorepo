@@ -15,6 +15,7 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  XTransferErrorStatus,
   StableSwapPoolEvent,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -765,6 +766,17 @@ export const increaseBackoff = async (
   await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
 };
 
+export const resetBackoffs = async (
+  transferIds: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const backoff = 32;
+  await db
+    .update("transfers", { backoff, next_execution_timestamp: 0 }, { transfer_id: dc.isIn(transferIds) })
+    .run(poolToUse);
+};
+
 export const saveStableSwapPool = async (
   _swapPools: StableSwapPool[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -785,6 +797,15 @@ export const saveStableSwapExchange = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
+};
+
+export const updateErrorStatus = async (
+  transferId: string,
+  error: XTransferErrorStatus,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.update("transfers", { error_status: error }, { transfer_id: transferId }).run(poolToUse);
 };
 
 export const saveStableSwapPoolEvent = async (

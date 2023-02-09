@@ -12,7 +12,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
+import { AuctionExpired, MissingXCall, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -390,14 +390,9 @@ export const executeFastPathData = async (
           },
         );
 
-        if (
-          jsonError.context.message &&
-          SlippageErrorPatterns.some((i) => (jsonError.context.message as string).includes(i))
-        ) {
-          transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
-          await database.saveTransfers([transfer]);
-
-          return { taskId };
+        const errorMessage = jsonError.context?.message ?? jsonError.message;
+        if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+          throw new SlippageToleranceExceeded({ transfer, error: jsonError });
         }
       }
     }

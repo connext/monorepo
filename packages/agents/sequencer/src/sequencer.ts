@@ -8,6 +8,8 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
+  NxtpError,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -24,6 +26,7 @@ import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
+import { NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -135,7 +138,19 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   } catch (error: any) {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
-    await context.adapters.database.increaseBackoff(transferId);
+
+    const errorName =
+      (error as NxtpError).name === SlippageToleranceExceeded.name
+        ? XTransferErrorStatus.LowSlippage
+        : (error as NxtpError).name === NotEnoughRelayerFee.name
+        ? XTransferErrorStatus.LowRelayerFee
+        : XTransferErrorStatus.ExecutionError;
+    await context.adapters.database.updateErrorStatus(transferId, errorName);
+
+    // increase backoff in case error is one of slippage or relayer fee
+    if (messageType === MessageType.ExecuteSlow) {
+      await context.adapters.database.increaseBackoff(transferId);
+    }
 
     process.exit(1);
   }
