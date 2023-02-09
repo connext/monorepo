@@ -58,12 +58,16 @@ Additionally, the watcher account must be whitelisted by the Connext admins to a
 
 1. Setup configuration (see below).
 2. Find the latest docker image [here](https://github.com/connext/monorepo/pkgs/container/watcher).
-3. Pull the docker image:
-   ```sh
-   docker pull ghcr.io/connext/watcher:sha-006433a
+3. Export the config:
    ```
-4. Export the config.
-5. `docker run` the image with the exported config.
+   # Export example WATCHER_CONFIG
+   export WATCHER_CONFIG={\"server\":{\"adminToken\":\"a\",\"port\":8080},\"logLevel\":\"debug\",\"hubDomain\":\"1337\",\"interval\":15000,\"chains\":{\"133712\":{\"providers\":[\"http://chain-1337:8545\",\"http://chain-1337:8546\",\"http://chain-1337:8547\"],\"assets\":[{\"name\":\"TEST\",\"address\":\"0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca\"}]},\"133812\":{\"providers\":[\"http://chain-1338:8545\",\"http://chain-1338:8546\",\"http://chain-1338:8547\"],\"assets\":[{\"name\":\"TEST\",\"address\":\"0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80\"}]}},\"web3SignerUrl\":\"http://signer-watcher:9000\",\"environment\":\"production\"}
+   ```
+4. `docker run` the latest image with the exported config.
+   ```
+   # Run the latest image (example: watcher:sha-c91d05e) on WATCHER_CONFIG in background with auto-restart enabled
+   docker run -e WATCHER_CONFIG --restart=always -d --name watcher ghcr.io/connext/watcher:sha-c91d05e
+   ```
 
 ### Configuration
 
