@@ -897,7 +897,7 @@ describe("Database client", () => {
     }
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
-    expect(queryRes.rows[0].backoff).to.eq(86400);
+    expect(queryRes.rows[0].backoff).to.eq(86400 * 7);
     expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
   });
 
