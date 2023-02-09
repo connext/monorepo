@@ -28,7 +28,7 @@ export const makeWatcher = async () => {
     /// MARK - Config
     context.chainData = await getChainData();
     context.adapters = {} as any;
-    context.config = await getConfig();
+    context.config = getConfig();
 
     /// MARK - Logger
     context.logger = new Logger({
