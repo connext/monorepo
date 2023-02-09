@@ -247,6 +247,6 @@ export const SlippageUpdateSchema = Type.Object({
   transferId: TBytes32,
   slippage: TIntegerString,
   domain: Type.String(),
-  timestamp: TIntegerString,
+  timestamp: Type.Number(),
 });
 export type SlippageUpdate = Static<typeof SlippageUpdateSchema>;
