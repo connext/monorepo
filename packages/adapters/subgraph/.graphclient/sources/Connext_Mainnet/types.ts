@@ -38,6 +38,10 @@ export type mainnet_AggregateRoot_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   root?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -52,6 +56,8 @@ export type mainnet_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_AggregateRoot_filter>>>;
 };
 
 export type mainnet_AggregateRoot_orderBy =
@@ -147,6 +153,8 @@ export type mainnet_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_AssetBalance_filter>>>;
 };
 
 export type mainnet_AssetBalance_orderBy =
@@ -176,6 +184,8 @@ export type mainnet_AssetStatus_filter = {
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_AssetStatus_filter>>>;
 };
 
 export type mainnet_AssetStatus_orderBy =
@@ -193,12 +203,20 @@ export type mainnet_Asset_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   key?: InputMaybe<Scalars['mainnet_Bytes']>;
   key_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  key_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  key_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  key_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  key_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   key_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   key_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   key_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -213,12 +231,20 @@ export type mainnet_Asset_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adoptedAsset?: InputMaybe<Scalars['mainnet_Bytes']>;
   adoptedAsset_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  adoptedAsset_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  adoptedAsset_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  adoptedAsset_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  adoptedAsset_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   adoptedAsset_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   localAsset?: InputMaybe<Scalars['mainnet_Bytes']>;
   localAsset_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  localAsset_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  localAsset_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  localAsset_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  localAsset_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   localAsset_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   localAsset_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   localAsset_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -254,6 +280,8 @@ export type mainnet_Asset_filter = {
   status_?: InputMaybe<mainnet_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_Asset_filter>>>;
 };
 
 export type mainnet_Asset_orderBy =
@@ -312,24 +340,38 @@ export type mainnet_ConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_ConnectorMeta_filter>>>;
 };
 
 export type mainnet_ConnectorMeta_orderBy =
@@ -407,6 +449,10 @@ export type mainnet_DestinationTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -456,12 +502,20 @@ export type mainnet_DestinationTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   to_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -472,6 +526,10 @@ export type mainnet_DestinationTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['mainnet_Bytes']>;
   callData_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -494,6 +552,10 @@ export type mainnet_DestinationTransfer_filter = {
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -516,6 +578,10 @@ export type mainnet_DestinationTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -559,12 +625,20 @@ export type mainnet_DestinationTransfer_filter = {
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedCaller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedCaller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedCaller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedCaller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedCaller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedCaller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedCaller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTransactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTransactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTransactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTransactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTransactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTransactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTransactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedTransactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedTransactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -603,18 +677,30 @@ export type mainnet_DestinationTransfer_filter = {
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxOrigin?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTxOrigin_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTxOrigin_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTxOrigin_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTxOrigin_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  executedTxOrigin_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTxOrigin_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedTxOrigin_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   executedTxOrigin_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   executedTxOrigin_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledCaller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledCaller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledCaller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledCaller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledCaller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledCaller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledCaller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTransactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTransactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTransactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTransactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTransactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTransactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTransactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledTransactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -653,12 +739,18 @@ export type mainnet_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxOrigin?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTxOrigin_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTxOrigin_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTxOrigin_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTxOrigin_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  reconciledTxOrigin_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTxOrigin_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   reconciledTxOrigin_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_DestinationTransfer_filter>>>;
 };
 
 export type mainnet_DestinationTransfer_orderBy =
@@ -728,6 +820,10 @@ export type mainnet_OriginMessage_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   transferId?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -742,6 +838,10 @@ export type mainnet_OriginMessage_filter = {
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   leaf?: InputMaybe<Scalars['mainnet_Bytes']>;
   leaf_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  leaf_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  leaf_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  leaf_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  leaf_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   leaf_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   leaf_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   leaf_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -756,18 +856,30 @@ export type mainnet_OriginMessage_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   message?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  message_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  message_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  message_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  message_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   message_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   root?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -803,6 +915,8 @@ export type mainnet_OriginMessage_filter = {
   rootCount_?: InputMaybe<mainnet_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_OriginMessage_filter>>>;
 };
 
 export type mainnet_OriginMessage_orderBy =
@@ -868,6 +982,10 @@ export type mainnet_OriginTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -886,6 +1004,10 @@ export type mainnet_OriginTransfer_filter = {
   status_not_in?: InputMaybe<Array<mainnet_TransferStatus>>;
   messageHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   messageHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  messageHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  messageHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  messageHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  messageHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   messageHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   messageHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   messageHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -916,12 +1038,20 @@ export type mainnet_OriginTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  to_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   to_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -932,6 +1062,10 @@ export type mainnet_OriginTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['mainnet_Bytes']>;
   callData_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -946,6 +1080,10 @@ export type mainnet_OriginTransfer_filter = {
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -968,6 +1106,10 @@ export type mainnet_OriginTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1032,12 +1174,20 @@ export type mainnet_OriginTransfer_filter = {
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1076,12 +1226,18 @@ export type mainnet_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txOrigin?: InputMaybe<Scalars['mainnet_Bytes']>;
   txOrigin_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  txOrigin_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  txOrigin_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  txOrigin_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  txOrigin_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   txOrigin_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   txOrigin_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   txOrigin_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   txOrigin_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_OriginTransfer_filter>>>;
 };
 
 export type mainnet_OriginTransfer_orderBy =
@@ -1144,6 +1300,10 @@ export type Query = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
+  mainnet_relayerFeesIncrease?: Maybe<mainnet_RelayerFeesIncrease>;
+  mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
+  mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
+  mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -1401,6 +1561,42 @@ export type Querymainnet_rootMessageSentsArgs = {
 };
 
 
+export type Querymainnet_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SlippageUpdate_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querymainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
@@ -1410,6 +1606,125 @@ export type mainnet_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['mainnet_Bytes']>;
 };
+
+export type mainnet_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: mainnet_OriginTransfer;
+  increase: Scalars['BigInt'];
+  caller: Scalars['mainnet_Bytes'];
+  transactionHash: Scalars['mainnet_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mainnet_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<mainnet_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RelayerFeesIncrease_filter>>>;
+};
+
+export type mainnet_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type mainnet_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1426,12 +1741,18 @@ export type mainnet_Relayer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   relayer?: InputMaybe<Scalars['mainnet_Bytes']>;
   relayer_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  relayer_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  relayer_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  relayer_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  relayer_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   relayer_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   relayer_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   relayer_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   relayer_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_Relayer_filter>>>;
 };
 
 export type mainnet_Relayer_orderBy =
@@ -1463,6 +1784,8 @@ export type mainnet_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootCount_filter>>>;
 };
 
 export type mainnet_RootCount_orderBy =
@@ -1510,6 +1833,10 @@ export type mainnet_RootMessageSent_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   root?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1524,12 +1851,20 @@ export type mainnet_RootMessageSent_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1568,6 +1903,8 @@ export type mainnet_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RootMessageSent_filter>>>;
 };
 
 export type mainnet_RootMessageSent_orderBy =
@@ -1617,18 +1954,30 @@ export type mainnet_Router_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   owner?: InputMaybe<Scalars['mainnet_Bytes']>;
   owner_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  owner_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  owner_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  owner_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  owner_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   owner_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   owner_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   owner_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   owner_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   recipient?: InputMaybe<Scalars['mainnet_Bytes']>;
   recipient_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  recipient_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  recipient_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  recipient_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  recipient_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   recipient_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   recipient_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   recipient_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   recipient_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   proposedOwner?: InputMaybe<Scalars['mainnet_Bytes']>;
   proposedOwner_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  proposedOwner_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  proposedOwner_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  proposedOwner_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  proposedOwner_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   proposedOwner_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   proposedOwner_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   proposedOwner_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1644,6 +1993,8 @@ export type mainnet_Router_filter = {
   assetBalances_?: InputMaybe<mainnet_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_Router_filter>>>;
 };
 
 export type mainnet_Router_orderBy =
@@ -1676,12 +2027,18 @@ export type mainnet_Sequencer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   sequencer?: InputMaybe<Scalars['mainnet_Bytes']>;
   sequencer_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  sequencer_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  sequencer_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  sequencer_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  sequencer_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   sequencer_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   sequencer_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   sequencer_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   sequencer_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_Sequencer_filter>>>;
 };
 
 export type mainnet_Sequencer_orderBy =
@@ -1714,18 +2071,143 @@ export type mainnet_Setting_filter = {
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_Setting_filter>>>;
 };
 
 export type mainnet_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
+
+export type mainnet_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: mainnet_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['mainnet_Bytes'];
+  transactionHash: Scalars['mainnet_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mainnet_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<mainnet_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_SlippageUpdate_filter>>>;
+};
+
+export type mainnet_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type Subscription = {
   mainnet_asset?: Maybe<mainnet_Asset>;
@@ -1756,6 +2238,10 @@ export type Subscription = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
+  mainnet_relayerFeesIncrease?: Maybe<mainnet_RelayerFeesIncrease>;
+  mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
+  mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
+  mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -2013,6 +2499,42 @@ export type Subscriptionmainnet_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionmainnet_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SlippageUpdate_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
@@ -2112,6 +2634,14 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Query['mainnet_rootMessageSent'], Querymainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Query['mainnet_rootMessageSents'], Querymainnet_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncrease: InContextSdkMethod<Query['mainnet_relayerFeesIncrease'], Querymainnet_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncreases: InContextSdkMethod<Query['mainnet_relayerFeesIncreases'], Querymainnet_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdate: InContextSdkMethod<Query['mainnet_slippageUpdate'], Querymainnet_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdates: InContextSdkMethod<Query['mainnet_slippageUpdates'], Querymainnet_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Query['mainnet__meta'], Querymainnet__metaArgs, MeshContext>
   };
@@ -2177,6 +2707,14 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Subscription['mainnet_rootMessageSent'], Subscriptionmainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Subscription['mainnet_rootMessageSents'], Subscriptionmainnet_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncrease: InContextSdkMethod<Subscription['mainnet_relayerFeesIncrease'], Subscriptionmainnet_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncreases: InContextSdkMethod<Subscription['mainnet_relayerFeesIncreases'], Subscriptionmainnet_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdate: InContextSdkMethod<Subscription['mainnet_slippageUpdate'], Subscriptionmainnet_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdates: InContextSdkMethod<Subscription['mainnet_slippageUpdates'], Subscriptionmainnet_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Subscription['mainnet__meta'], Subscriptionmainnet__metaArgs, MeshContext>
   };
