@@ -1698,7 +1698,7 @@ type arbitrumone_Relayer {
 type arbitrumone_RelayerFeesIncrease {
   id: ID!
   transfer: arbitrumone_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: arbitrumone_Bytes!
   transactionHash: arbitrumone_Bytes!
   timestamp: BigInt!
