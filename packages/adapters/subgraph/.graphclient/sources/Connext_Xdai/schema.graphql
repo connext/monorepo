@@ -29,10 +29,6 @@ input xdai_AggregateRoot_filter {
   id_not_in: [ID!]
   root: xdai_Bytes
   root_not: xdai_Bytes
-  root_gt: xdai_Bytes
-  root_lt: xdai_Bytes
-  root_gte: xdai_Bytes
-  root_lte: xdai_Bytes
   root_in: [xdai_Bytes!]
   root_not_in: [xdai_Bytes!]
   root_contains: xdai_Bytes
@@ -47,8 +43,6 @@ input xdai_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_AggregateRoot_filter]
-  or: [xdai_AggregateRoot_filter]
 }
 
 enum xdai_AggregateRoot_orderBy {
@@ -145,8 +139,6 @@ input xdai_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_AssetBalance_filter]
-  or: [xdai_AssetBalance_filter]
 }
 
 enum xdai_AssetBalance_orderBy {
@@ -177,8 +169,6 @@ input xdai_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_AssetStatus_filter]
-  or: [xdai_AssetStatus_filter]
 }
 
 enum xdai_AssetStatus_orderBy {
@@ -197,20 +187,12 @@ input xdai_Asset_filter {
   id_not_in: [ID!]
   key: xdai_Bytes
   key_not: xdai_Bytes
-  key_gt: xdai_Bytes
-  key_lt: xdai_Bytes
-  key_gte: xdai_Bytes
-  key_lte: xdai_Bytes
   key_in: [xdai_Bytes!]
   key_not_in: [xdai_Bytes!]
   key_contains: xdai_Bytes
   key_not_contains: xdai_Bytes
   canonicalId: xdai_Bytes
   canonicalId_not: xdai_Bytes
-  canonicalId_gt: xdai_Bytes
-  canonicalId_lt: xdai_Bytes
-  canonicalId_gte: xdai_Bytes
-  canonicalId_lte: xdai_Bytes
   canonicalId_in: [xdai_Bytes!]
   canonicalId_not_in: [xdai_Bytes!]
   canonicalId_contains: xdai_Bytes
@@ -225,20 +207,12 @@ input xdai_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: xdai_Bytes
   adoptedAsset_not: xdai_Bytes
-  adoptedAsset_gt: xdai_Bytes
-  adoptedAsset_lt: xdai_Bytes
-  adoptedAsset_gte: xdai_Bytes
-  adoptedAsset_lte: xdai_Bytes
   adoptedAsset_in: [xdai_Bytes!]
   adoptedAsset_not_in: [xdai_Bytes!]
   adoptedAsset_contains: xdai_Bytes
   adoptedAsset_not_contains: xdai_Bytes
   localAsset: xdai_Bytes
   localAsset_not: xdai_Bytes
-  localAsset_gt: xdai_Bytes
-  localAsset_lt: xdai_Bytes
-  localAsset_gte: xdai_Bytes
-  localAsset_lte: xdai_Bytes
   localAsset_in: [xdai_Bytes!]
   localAsset_not_in: [xdai_Bytes!]
   localAsset_contains: xdai_Bytes
@@ -274,8 +248,6 @@ input xdai_Asset_filter {
   status_: xdai_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_Asset_filter]
-  or: [xdai_Asset_filter]
 }
 
 enum xdai_Asset_orderBy {
@@ -341,38 +313,24 @@ input xdai_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: xdai_Bytes
   amb_not: xdai_Bytes
-  amb_gt: xdai_Bytes
-  amb_lt: xdai_Bytes
-  amb_gte: xdai_Bytes
-  amb_lte: xdai_Bytes
   amb_in: [xdai_Bytes!]
   amb_not_in: [xdai_Bytes!]
   amb_contains: xdai_Bytes
   amb_not_contains: xdai_Bytes
   rootManager: xdai_Bytes
   rootManager_not: xdai_Bytes
-  rootManager_gt: xdai_Bytes
-  rootManager_lt: xdai_Bytes
-  rootManager_gte: xdai_Bytes
-  rootManager_lte: xdai_Bytes
   rootManager_in: [xdai_Bytes!]
   rootManager_not_in: [xdai_Bytes!]
   rootManager_contains: xdai_Bytes
   rootManager_not_contains: xdai_Bytes
   mirrorConnector: xdai_Bytes
   mirrorConnector_not: xdai_Bytes
-  mirrorConnector_gt: xdai_Bytes
-  mirrorConnector_lt: xdai_Bytes
-  mirrorConnector_gte: xdai_Bytes
-  mirrorConnector_lte: xdai_Bytes
   mirrorConnector_in: [xdai_Bytes!]
   mirrorConnector_not_in: [xdai_Bytes!]
   mirrorConnector_contains: xdai_Bytes
   mirrorConnector_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_ConnectorMeta_filter]
-  or: [xdai_ConnectorMeta_filter]
 }
 
 enum xdai_ConnectorMeta_orderBy {
@@ -442,10 +400,6 @@ input xdai_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: xdai_Bytes
   transferId_not: xdai_Bytes
-  transferId_gt: xdai_Bytes
-  transferId_lt: xdai_Bytes
-  transferId_gte: xdai_Bytes
-  transferId_lte: xdai_Bytes
   transferId_in: [xdai_Bytes!]
   transferId_not_in: [xdai_Bytes!]
   transferId_contains: xdai_Bytes
@@ -495,20 +449,12 @@ input xdai_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: xdai_Bytes
   to_not: xdai_Bytes
-  to_gt: xdai_Bytes
-  to_lt: xdai_Bytes
-  to_gte: xdai_Bytes
-  to_lte: xdai_Bytes
   to_in: [xdai_Bytes!]
   to_not_in: [xdai_Bytes!]
   to_contains: xdai_Bytes
   to_not_contains: xdai_Bytes
   delegate: xdai_Bytes
   delegate_not: xdai_Bytes
-  delegate_gt: xdai_Bytes
-  delegate_lt: xdai_Bytes
-  delegate_gte: xdai_Bytes
-  delegate_lte: xdai_Bytes
   delegate_in: [xdai_Bytes!]
   delegate_not_in: [xdai_Bytes!]
   delegate_contains: xdai_Bytes
@@ -519,10 +465,6 @@ input xdai_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: xdai_Bytes
   callData_not: xdai_Bytes
-  callData_gt: xdai_Bytes
-  callData_lt: xdai_Bytes
-  callData_gte: xdai_Bytes
-  callData_lte: xdai_Bytes
   callData_in: [xdai_Bytes!]
   callData_not_in: [xdai_Bytes!]
   callData_contains: xdai_Bytes
@@ -545,10 +487,6 @@ input xdai_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: xdai_Bytes
   originSender_not: xdai_Bytes
-  originSender_gt: xdai_Bytes
-  originSender_lt: xdai_Bytes
-  originSender_gte: xdai_Bytes
-  originSender_lte: xdai_Bytes
   originSender_in: [xdai_Bytes!]
   originSender_not_in: [xdai_Bytes!]
   originSender_contains: xdai_Bytes
@@ -571,10 +509,6 @@ input xdai_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: xdai_Bytes
   canonicalId_not: xdai_Bytes
-  canonicalId_gt: xdai_Bytes
-  canonicalId_lt: xdai_Bytes
-  canonicalId_gte: xdai_Bytes
-  canonicalId_lte: xdai_Bytes
   canonicalId_in: [xdai_Bytes!]
   canonicalId_not_in: [xdai_Bytes!]
   canonicalId_contains: xdai_Bytes
@@ -618,20 +552,12 @@ input xdai_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: xdai_Bytes
   executedCaller_not: xdai_Bytes
-  executedCaller_gt: xdai_Bytes
-  executedCaller_lt: xdai_Bytes
-  executedCaller_gte: xdai_Bytes
-  executedCaller_lte: xdai_Bytes
   executedCaller_in: [xdai_Bytes!]
   executedCaller_not_in: [xdai_Bytes!]
   executedCaller_contains: xdai_Bytes
   executedCaller_not_contains: xdai_Bytes
   executedTransactionHash: xdai_Bytes
   executedTransactionHash_not: xdai_Bytes
-  executedTransactionHash_gt: xdai_Bytes
-  executedTransactionHash_lt: xdai_Bytes
-  executedTransactionHash_gte: xdai_Bytes
-  executedTransactionHash_lte: xdai_Bytes
   executedTransactionHash_in: [xdai_Bytes!]
   executedTransactionHash_not_in: [xdai_Bytes!]
   executedTransactionHash_contains: xdai_Bytes
@@ -670,30 +596,18 @@ input xdai_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: xdai_Bytes
   executedTxOrigin_not: xdai_Bytes
-  executedTxOrigin_gt: xdai_Bytes
-  executedTxOrigin_lt: xdai_Bytes
-  executedTxOrigin_gte: xdai_Bytes
-  executedTxOrigin_lte: xdai_Bytes
   executedTxOrigin_in: [xdai_Bytes!]
   executedTxOrigin_not_in: [xdai_Bytes!]
   executedTxOrigin_contains: xdai_Bytes
   executedTxOrigin_not_contains: xdai_Bytes
   reconciledCaller: xdai_Bytes
   reconciledCaller_not: xdai_Bytes
-  reconciledCaller_gt: xdai_Bytes
-  reconciledCaller_lt: xdai_Bytes
-  reconciledCaller_gte: xdai_Bytes
-  reconciledCaller_lte: xdai_Bytes
   reconciledCaller_in: [xdai_Bytes!]
   reconciledCaller_not_in: [xdai_Bytes!]
   reconciledCaller_contains: xdai_Bytes
   reconciledCaller_not_contains: xdai_Bytes
   reconciledTransactionHash: xdai_Bytes
   reconciledTransactionHash_not: xdai_Bytes
-  reconciledTransactionHash_gt: xdai_Bytes
-  reconciledTransactionHash_lt: xdai_Bytes
-  reconciledTransactionHash_gte: xdai_Bytes
-  reconciledTransactionHash_lte: xdai_Bytes
   reconciledTransactionHash_in: [xdai_Bytes!]
   reconciledTransactionHash_not_in: [xdai_Bytes!]
   reconciledTransactionHash_contains: xdai_Bytes
@@ -732,18 +646,12 @@ input xdai_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: xdai_Bytes
   reconciledTxOrigin_not: xdai_Bytes
-  reconciledTxOrigin_gt: xdai_Bytes
-  reconciledTxOrigin_lt: xdai_Bytes
-  reconciledTxOrigin_gte: xdai_Bytes
-  reconciledTxOrigin_lte: xdai_Bytes
   reconciledTxOrigin_in: [xdai_Bytes!]
   reconciledTxOrigin_not_in: [xdai_Bytes!]
   reconciledTxOrigin_contains: xdai_Bytes
   reconciledTxOrigin_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_DestinationTransfer_filter]
-  or: [xdai_DestinationTransfer_filter]
 }
 
 enum xdai_DestinationTransfer_orderBy {
@@ -815,10 +723,6 @@ input xdai_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: xdai_Bytes
   transferId_not: xdai_Bytes
-  transferId_gt: xdai_Bytes
-  transferId_lt: xdai_Bytes
-  transferId_gte: xdai_Bytes
-  transferId_lte: xdai_Bytes
   transferId_in: [xdai_Bytes!]
   transferId_not_in: [xdai_Bytes!]
   transferId_contains: xdai_Bytes
@@ -833,10 +737,6 @@ input xdai_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: xdai_Bytes
   leaf_not: xdai_Bytes
-  leaf_gt: xdai_Bytes
-  leaf_lt: xdai_Bytes
-  leaf_gte: xdai_Bytes
-  leaf_lte: xdai_Bytes
   leaf_in: [xdai_Bytes!]
   leaf_not_in: [xdai_Bytes!]
   leaf_contains: xdai_Bytes
@@ -851,30 +751,18 @@ input xdai_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: xdai_Bytes
   message_not: xdai_Bytes
-  message_gt: xdai_Bytes
-  message_lt: xdai_Bytes
-  message_gte: xdai_Bytes
-  message_lte: xdai_Bytes
   message_in: [xdai_Bytes!]
   message_not_in: [xdai_Bytes!]
   message_contains: xdai_Bytes
   message_not_contains: xdai_Bytes
   root: xdai_Bytes
   root_not: xdai_Bytes
-  root_gt: xdai_Bytes
-  root_lt: xdai_Bytes
-  root_gte: xdai_Bytes
-  root_lte: xdai_Bytes
   root_in: [xdai_Bytes!]
   root_not_in: [xdai_Bytes!]
   root_contains: xdai_Bytes
   root_not_contains: xdai_Bytes
   transactionHash: xdai_Bytes
   transactionHash_not: xdai_Bytes
-  transactionHash_gt: xdai_Bytes
-  transactionHash_lt: xdai_Bytes
-  transactionHash_gte: xdai_Bytes
-  transactionHash_lte: xdai_Bytes
   transactionHash_in: [xdai_Bytes!]
   transactionHash_not_in: [xdai_Bytes!]
   transactionHash_contains: xdai_Bytes
@@ -910,8 +798,6 @@ input xdai_OriginMessage_filter {
   rootCount_: xdai_RootCount_filter
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_OriginMessage_filter]
-  or: [xdai_OriginMessage_filter]
 }
 
 enum xdai_OriginMessage_orderBy {
@@ -978,10 +864,6 @@ input xdai_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: xdai_Bytes
   transferId_not: xdai_Bytes
-  transferId_gt: xdai_Bytes
-  transferId_lt: xdai_Bytes
-  transferId_gte: xdai_Bytes
-  transferId_lte: xdai_Bytes
   transferId_in: [xdai_Bytes!]
   transferId_not_in: [xdai_Bytes!]
   transferId_contains: xdai_Bytes
@@ -1000,10 +882,6 @@ input xdai_OriginTransfer_filter {
   status_not_in: [xdai_TransferStatus!]
   messageHash: xdai_Bytes
   messageHash_not: xdai_Bytes
-  messageHash_gt: xdai_Bytes
-  messageHash_lt: xdai_Bytes
-  messageHash_gte: xdai_Bytes
-  messageHash_lte: xdai_Bytes
   messageHash_in: [xdai_Bytes!]
   messageHash_not_in: [xdai_Bytes!]
   messageHash_contains: xdai_Bytes
@@ -1034,20 +912,12 @@ input xdai_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: xdai_Bytes
   to_not: xdai_Bytes
-  to_gt: xdai_Bytes
-  to_lt: xdai_Bytes
-  to_gte: xdai_Bytes
-  to_lte: xdai_Bytes
   to_in: [xdai_Bytes!]
   to_not_in: [xdai_Bytes!]
   to_contains: xdai_Bytes
   to_not_contains: xdai_Bytes
   delegate: xdai_Bytes
   delegate_not: xdai_Bytes
-  delegate_gt: xdai_Bytes
-  delegate_lt: xdai_Bytes
-  delegate_gte: xdai_Bytes
-  delegate_lte: xdai_Bytes
   delegate_in: [xdai_Bytes!]
   delegate_not_in: [xdai_Bytes!]
   delegate_contains: xdai_Bytes
@@ -1058,10 +928,6 @@ input xdai_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: xdai_Bytes
   callData_not: xdai_Bytes
-  callData_gt: xdai_Bytes
-  callData_lt: xdai_Bytes
-  callData_gte: xdai_Bytes
-  callData_lte: xdai_Bytes
   callData_in: [xdai_Bytes!]
   callData_not_in: [xdai_Bytes!]
   callData_contains: xdai_Bytes
@@ -1076,10 +942,6 @@ input xdai_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: xdai_Bytes
   originSender_not: xdai_Bytes
-  originSender_gt: xdai_Bytes
-  originSender_lt: xdai_Bytes
-  originSender_gte: xdai_Bytes
-  originSender_lte: xdai_Bytes
   originSender_in: [xdai_Bytes!]
   originSender_not_in: [xdai_Bytes!]
   originSender_contains: xdai_Bytes
@@ -1102,10 +964,6 @@ input xdai_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: xdai_Bytes
   canonicalId_not: xdai_Bytes
-  canonicalId_gt: xdai_Bytes
-  canonicalId_lt: xdai_Bytes
-  canonicalId_gte: xdai_Bytes
-  canonicalId_lte: xdai_Bytes
   canonicalId_in: [xdai_Bytes!]
   canonicalId_not_in: [xdai_Bytes!]
   canonicalId_contains: xdai_Bytes
@@ -1170,20 +1028,12 @@ input xdai_OriginTransfer_filter {
   bumpRelayerFeeCount_not_in: [BigInt!]
   caller: xdai_Bytes
   caller_not: xdai_Bytes
-  caller_gt: xdai_Bytes
-  caller_lt: xdai_Bytes
-  caller_gte: xdai_Bytes
-  caller_lte: xdai_Bytes
   caller_in: [xdai_Bytes!]
   caller_not_in: [xdai_Bytes!]
   caller_contains: xdai_Bytes
   caller_not_contains: xdai_Bytes
   transactionHash: xdai_Bytes
   transactionHash_not: xdai_Bytes
-  transactionHash_gt: xdai_Bytes
-  transactionHash_lt: xdai_Bytes
-  transactionHash_gte: xdai_Bytes
-  transactionHash_lte: xdai_Bytes
   transactionHash_in: [xdai_Bytes!]
   transactionHash_not_in: [xdai_Bytes!]
   transactionHash_contains: xdai_Bytes
@@ -1222,18 +1072,12 @@ input xdai_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: xdai_Bytes
   txOrigin_not: xdai_Bytes
-  txOrigin_gt: xdai_Bytes
-  txOrigin_lt: xdai_Bytes
-  txOrigin_gte: xdai_Bytes
-  txOrigin_lte: xdai_Bytes
   txOrigin_in: [xdai_Bytes!]
   txOrigin_not_in: [xdai_Bytes!]
   txOrigin_contains: xdai_Bytes
   txOrigin_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_OriginTransfer_filter]
-  or: [xdai_OriginTransfer_filter]
 }
 
 enum xdai_OriginTransfer_orderBy {
@@ -1658,18 +1502,12 @@ input xdai_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: xdai_Bytes
   relayer_not: xdai_Bytes
-  relayer_gt: xdai_Bytes
-  relayer_lt: xdai_Bytes
-  relayer_gte: xdai_Bytes
-  relayer_lte: xdai_Bytes
   relayer_in: [xdai_Bytes!]
   relayer_not_in: [xdai_Bytes!]
   relayer_contains: xdai_Bytes
   relayer_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_Relayer_filter]
-  or: [xdai_Relayer_filter]
 }
 
 enum xdai_Relayer_orderBy {
@@ -1702,8 +1540,6 @@ input xdai_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_RootCount_filter]
-  or: [xdai_RootCount_filter]
 }
 
 enum xdai_RootCount_orderBy {
@@ -1752,10 +1588,6 @@ input xdai_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: xdai_Bytes
   root_not: xdai_Bytes
-  root_gt: xdai_Bytes
-  root_lt: xdai_Bytes
-  root_gte: xdai_Bytes
-  root_lte: xdai_Bytes
   root_in: [xdai_Bytes!]
   root_not_in: [xdai_Bytes!]
   root_contains: xdai_Bytes
@@ -1770,20 +1602,12 @@ input xdai_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: xdai_Bytes
   caller_not: xdai_Bytes
-  caller_gt: xdai_Bytes
-  caller_lt: xdai_Bytes
-  caller_gte: xdai_Bytes
-  caller_lte: xdai_Bytes
   caller_in: [xdai_Bytes!]
   caller_not_in: [xdai_Bytes!]
   caller_contains: xdai_Bytes
   caller_not_contains: xdai_Bytes
   transactionHash: xdai_Bytes
   transactionHash_not: xdai_Bytes
-  transactionHash_gt: xdai_Bytes
-  transactionHash_lt: xdai_Bytes
-  transactionHash_gte: xdai_Bytes
-  transactionHash_lte: xdai_Bytes
   transactionHash_in: [xdai_Bytes!]
   transactionHash_not_in: [xdai_Bytes!]
   transactionHash_contains: xdai_Bytes
@@ -1822,8 +1646,6 @@ input xdai_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_RootMessageSent_filter]
-  or: [xdai_RootMessageSent_filter]
 }
 
 enum xdai_RootMessageSent_orderBy {
@@ -1865,30 +1687,18 @@ input xdai_Router_filter {
   isActive_not_in: [Boolean!]
   owner: xdai_Bytes
   owner_not: xdai_Bytes
-  owner_gt: xdai_Bytes
-  owner_lt: xdai_Bytes
-  owner_gte: xdai_Bytes
-  owner_lte: xdai_Bytes
   owner_in: [xdai_Bytes!]
   owner_not_in: [xdai_Bytes!]
   owner_contains: xdai_Bytes
   owner_not_contains: xdai_Bytes
   recipient: xdai_Bytes
   recipient_not: xdai_Bytes
-  recipient_gt: xdai_Bytes
-  recipient_lt: xdai_Bytes
-  recipient_gte: xdai_Bytes
-  recipient_lte: xdai_Bytes
   recipient_in: [xdai_Bytes!]
   recipient_not_in: [xdai_Bytes!]
   recipient_contains: xdai_Bytes
   recipient_not_contains: xdai_Bytes
   proposedOwner: xdai_Bytes
   proposedOwner_not: xdai_Bytes
-  proposedOwner_gt: xdai_Bytes
-  proposedOwner_lt: xdai_Bytes
-  proposedOwner_gte: xdai_Bytes
-  proposedOwner_lte: xdai_Bytes
   proposedOwner_in: [xdai_Bytes!]
   proposedOwner_not_in: [xdai_Bytes!]
   proposedOwner_contains: xdai_Bytes
@@ -1904,8 +1714,6 @@ input xdai_Router_filter {
   assetBalances_: xdai_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_Router_filter]
-  or: [xdai_Router_filter]
 }
 
 enum xdai_Router_orderBy {
@@ -1939,18 +1747,12 @@ input xdai_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: xdai_Bytes
   sequencer_not: xdai_Bytes
-  sequencer_gt: xdai_Bytes
-  sequencer_lt: xdai_Bytes
-  sequencer_gte: xdai_Bytes
-  sequencer_lte: xdai_Bytes
   sequencer_in: [xdai_Bytes!]
   sequencer_not_in: [xdai_Bytes!]
   sequencer_contains: xdai_Bytes
   sequencer_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_Sequencer_filter]
-  or: [xdai_Sequencer_filter]
 }
 
 enum xdai_Sequencer_orderBy {
@@ -1984,18 +1786,12 @@ input xdai_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: xdai_Bytes
   caller_not: xdai_Bytes
-  caller_gt: xdai_Bytes
-  caller_lt: xdai_Bytes
-  caller_gte: xdai_Bytes
-  caller_lte: xdai_Bytes
   caller_in: [xdai_Bytes!]
   caller_not_in: [xdai_Bytes!]
   caller_contains: xdai_Bytes
   caller_not_contains: xdai_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
-  and: [xdai_Setting_filter]
-  or: [xdai_Setting_filter]
 }
 
 enum xdai_Setting_orderBy {

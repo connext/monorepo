@@ -14,7 +14,6 @@ import { getContext } from "../executor";
 import { axiosPost } from "../../../mockable";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { isKnownRevert } from "../../../errors";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
@@ -70,25 +69,14 @@ export const sendExecuteSlowToSequencer = async (
     });
   } catch (_err: unknown) {
     const err = _err as NxtpError;
-    if (isKnownRevert((err.context?.message as string) ?? "")) {
-      logger.warn("Failed to estimate gas", requestContext, methodContext, {
-        chainId: destinationChainId,
-        to: destinationConnextAddress,
-        data: encodedData,
-        from: relayerAddress,
-        transferId: transferId,
-        reason: err.context.message,
-      });
-      return;
-    }
-    logger.error("Failed to estimate gas", requestContext, methodContext, jsonifyError(err), {
+    logger.warn("Failed to estimate gas, sending to sequencer anyways", requestContext, methodContext, {
       chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
       from: relayerAddress,
       transferId: transferId,
+      reason: err.context?.message ?? err.message,
     });
-    return;
   }
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
@@ -104,7 +92,7 @@ export const sendExecuteSlowToSequencer = async (
     const response = await axiosPost<ExecutorPostDataRequest>(url, executorRequestData);
 
     if (!response || !response.data) {
-      logger.info("Received bad response from the sequencer", requestContext, methodContext, executorRequestData);
+      logger.warn("Received bad response from the sequencer", requestContext, methodContext, executorRequestData);
     } else {
       logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
         relayer: relayerAddress,

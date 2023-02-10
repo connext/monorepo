@@ -12,13 +12,13 @@ describe("Operations:Sequencer", () => {
     axiosPostStub = stub(MockableFns, "axiosPost");
   });
   describe("#sendExecuteSlowToSequencer", () => {
-    it("should not send a meta tx if gas estimation fails", async () => {
+    it("should still send a meta tx if gas estimation fails", async () => {
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
       const encodedDataMock = "0xabcde";
       (mockExecutorContext.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).throws();
       await sendExecuteSlowToSequencer(executeArgs, encodedDataMock, transferId, requestContext);
-      expect(axiosPostStub.callCount).to.be.eq(0);
+      expect(axiosPostStub.callCount).to.be.eq(1);
     });
 
     it("should keep running even if response/response.data is empty", async () => {
