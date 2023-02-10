@@ -1698,7 +1698,7 @@ type staginggoerli_Relayer {
 type staginggoerli_RelayerFeesIncrease {
   id: ID!
   transfer: staginggoerli_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: staginggoerli_Bytes!
   transactionHash: staginggoerli_Bytes!
   timestamp: BigInt!

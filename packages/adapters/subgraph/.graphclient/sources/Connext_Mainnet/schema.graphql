@@ -1698,7 +1698,7 @@ type mainnet_Relayer {
 type mainnet_RelayerFeesIncrease {
   id: ID!
   transfer: mainnet_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: mainnet_Bytes!
   transactionHash: mainnet_Bytes!
   timestamp: BigInt!

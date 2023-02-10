@@ -1610,7 +1610,7 @@ export type optimismgoerli_Relayer = {
 export type optimismgoerli_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: optimismgoerli_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['optimismgoerli_Bytes'];
   transactionHash: Scalars['optimismgoerli_Bytes'];
   timestamp: Scalars['BigInt'];

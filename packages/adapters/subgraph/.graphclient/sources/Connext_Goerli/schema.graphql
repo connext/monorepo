@@ -1698,7 +1698,7 @@ type goerli_Relayer {
 type goerli_RelayerFeesIncrease {
   id: ID!
   transfer: goerli_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: goerli_Bytes!
   transactionHash: goerli_Bytes!
   timestamp: BigInt!
