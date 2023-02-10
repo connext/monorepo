@@ -1698,7 +1698,7 @@ type mumbai_Relayer {
 type mumbai_RelayerFeesIncrease {
   id: ID!
   transfer: mumbai_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: mumbai_Bytes!
   transactionHash: mumbai_Bytes!
   timestamp: BigInt!

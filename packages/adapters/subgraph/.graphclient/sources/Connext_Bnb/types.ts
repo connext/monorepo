@@ -1610,7 +1610,7 @@ export type bnb_Relayer = {
 export type bnb_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: bnb_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['bnb_Bytes'];
   transactionHash: Scalars['bnb_Bytes'];
   timestamp: Scalars['BigInt'];
