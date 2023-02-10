@@ -1698,7 +1698,7 @@ type bnb_Relayer {
 type bnb_RelayerFeesIncrease {
   id: ID!
   transfer: bnb_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: bnb_Bytes!
   transactionHash: bnb_Bytes!
   timestamp: BigInt!

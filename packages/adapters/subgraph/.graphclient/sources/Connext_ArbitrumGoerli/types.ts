@@ -1610,7 +1610,7 @@ export type arbitrumgoerli_Relayer = {
 export type arbitrumgoerli_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: arbitrumgoerli_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['arbitrumgoerli_Bytes'];
   transactionHash: Scalars['arbitrumgoerli_Bytes'];
   timestamp: Scalars['BigInt'];

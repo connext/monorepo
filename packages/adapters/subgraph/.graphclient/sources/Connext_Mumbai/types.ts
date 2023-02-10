@@ -1610,7 +1610,7 @@ export type mumbai_Relayer = {
 export type mumbai_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: mumbai_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['mumbai_Bytes'];
   transactionHash: Scalars['mumbai_Bytes'];
   timestamp: Scalars['BigInt'];
