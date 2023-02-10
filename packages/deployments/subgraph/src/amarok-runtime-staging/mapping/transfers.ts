@@ -8,14 +8,7 @@ import {
   TransferRelayerFeesIncreased,
   SlippageUpdated,
 } from "../../../generated/Connext/Connext";
-import {
-  Router,
-  OriginTransfer,
-  DestinationTransfer,
-  OriginMessage,
-  RelayerFeesIncrease,
-  SlippageUpdate,
-} from "../../../generated/schema";
+import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
 
 import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
 
@@ -63,6 +56,7 @@ export function handleXCalled(event: XCalled): void {
   if (message == null) {
     message = new OriginMessage(event.params.messageHash.toHex());
   }
+  message.status = "XCalled";
   message.leaf = event.params.messageHash;
   message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
@@ -240,34 +234,15 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
 
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
+    transfer.relayerFee = new BigInt(0);
+    transfer.bumpRelayerFeeCount = new BigInt(0);
   }
-  transfer.relayerFee = (transfer.relayerFee ? transfer.relayerFee : BigInt.fromI32(0))!.plus(event.params.increase);
-  transfer.bumpRelayerFeeCount = (
-    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
-  )!.plus(BigInt.fromI32(1));
+
+  transfer.relayerFee = transfer.relayerFee ? transfer.relayerFee!.plus(event.params.increase) : event.params.increase;
+  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount
+    ? transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
-
-  // should never be more than 1 but just in case theres somehow multiple in the same tx
-  let relayerFeesIncrease = RelayerFeesIncrease.load(
-    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-  );
-  if (relayerFeesIncrease == null) {
-    relayerFeesIncrease = new RelayerFeesIncrease(
-      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-    );
-  }
-
-  relayerFeesIncrease.transfer = transfer.id;
-  relayerFeesIncrease.increase = event.params.increase;
-
-  // tx
-  relayerFeesIncrease.caller = event.transaction.from;
-  relayerFeesIncrease.blockNumber = event.block.number;
-  relayerFeesIncrease.timestamp = event.block.timestamp;
-  relayerFeesIncrease.transactionHash = event.transaction.hash;
-  relayerFeesIncrease.gasLimit = event.transaction.gasLimit;
-  relayerFeesIncrease.gasPrice = event.transaction.gasPrice;
-  relayerFeesIncrease.save();
 }
 
 /**
@@ -280,31 +255,12 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
 
   if (transfer == null) {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
+    transfer.bumpSlippageCount = new BigInt(0);
   }
 
   transfer.slippage = event.params.slippage;
-  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount
+    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
-
-  // should never be more than 1 but just in case theres somehow multiple in the same tx
-  let slippageUpdate = SlippageUpdate.load(
-    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-  );
-  if (slippageUpdate == null) {
-    slippageUpdate = new SlippageUpdate(
-      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-    );
-  }
-
-  slippageUpdate.transfer = transfer.id;
-  slippageUpdate.slippage = event.params.slippage;
-
-  // tx
-  slippageUpdate.caller = event.transaction.from;
-  slippageUpdate.blockNumber = event.block.number;
-  slippageUpdate.timestamp = event.block.timestamp;
-  slippageUpdate.transactionHash = event.transaction.hash;
-  slippageUpdate.gasLimit = event.transaction.gasLimit;
-  slippageUpdate.gasPrice = event.transaction.gasPrice;
-  slippageUpdate.save();
 }
