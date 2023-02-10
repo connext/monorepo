@@ -258,7 +258,7 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   }
 
   relayerFeesIncrease.transfer = transfer.id;
-  relayerFeesIncrease.increase = event.params.increase;
+  relayerFeesIncrease.increase = transfer.relayerFee;
 
   // tx
   relayerFeesIncrease.caller = event.transaction.from;
