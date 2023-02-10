@@ -20,6 +20,8 @@ import {
   StableSwapPool,
   StableSwapExchange,
   StableSwapPoolEvent,
+  RelayerFeesIncrease,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -54,7 +56,9 @@ import {
   getAssetsByLocalsQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
+  getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
@@ -925,5 +929,57 @@ export class SubgraphReader {
       .map(parser.stableSwapPoolEvent);
 
     return domainEvents;
+  }
+
+  public async getRelayerFeesIncreasesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RelayerFeesIncrease[]> {
+    const { execute, parser } = getHelpers();
+    const increasesQuery = getRelayerFeesIncreasesQuery(agents);
+    const response = await execute(increasesQuery);
+
+    const increases: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _increases = value?.flat();
+      increases.push(
+        _increases?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const relayerFeeIncreases: RelayerFeesIncrease[] = increases
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.relayerFeesIncrease);
+
+    return relayerFeeIncreases;
+  }
+
+  public async getSlippageUpdatesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<SlippageUpdate[]> {
+    const { execute, parser } = getHelpers();
+    const updatesQuery = getSlippageUpdatesQuery(agents);
+    const response = await execute(updatesQuery);
+
+    const updates: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _updates = value?.flat();
+      updates.push(
+        _updates?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const slippageUpdates: SlippageUpdate[] = updates
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.slippageUpdate);
+
+    return slippageUpdates;
   }
 }

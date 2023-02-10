@@ -341,68 +341,26 @@ locals {
     server = {
       adminToken = var.admin_token_watcher
     }
+    environment = "production"
     logLevel = "debug"
-    hubDomain : "6648936"
     chains = {
       "6648936" = {
         providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com", "https://rpc.ankr.com/eth", "https://api.zmok.io/mainnet/oaen6dy8ff6hju9k"]
-        assets = [{
-          name    = "USDC"
-          address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-          }, {
-          name    = "WETH"
-          address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-        }]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
-        assets = [{
-          name    = "USDC"
-          address = "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD"
-          }, {
-          name    = "WETH"
-          address = "0xbAD5B3c68F855EaEcE68203312Fd88AD3D365e50"
-        }]
       },
       "1886350457" = {
         providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com", "https://polygon-bor.publicnode.com", "https://rpc.ankr.com/polygon"]
-        assets = [{
-          name    = "USDC"
-          address = "0xF96C6d2537e1af1a9503852eB2A4AF264272a5B6"
-          }, {
-          name    = "WETH"
-          address = "0x4b8BaC8Dd1CAA52E32C07755c17eFadeD6A0bbD0"
-        }]
       }
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
-        assets = [{
-          name    = "USDC"
-          address = "0x8c556cF37faa0eeDAC7aE665f1Bb0FbD4b2eae36"
-          }, {
-          name    = "WETH"
-          address = "0x2983bf5c334743Aa6657AD70A55041d720d225dB"
-        }]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc", "https://bsc-dataseed1.defibit.io"]
-        assets = [{
-          name    = "USDC"
-          address = "0x5e7D83dA751F4C9694b13aF351B30aC108f32C38"
-          }, {
-          name    = "WETH"
-          address = "0xA9CB51C666D2AF451d87442Be50747B31BB7d805"
-        }]
       }
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis", "https://xdai-rpc.gateway.pokt.network", "https://rpc.gnosis.gateway.fm"]
-        assets = [{
-          name    = "USDC"
-          address = "0x44CF74238d840a5fEBB0eAa089D05b763B73faB8"
-          }, {
-          name    = "WETH"
-          address = "0x538E2dDbfDf476D24cCb1477A518A82C9EA81326"
-        }]
       }
     }
     web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"

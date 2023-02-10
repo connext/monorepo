@@ -8,6 +8,7 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecutorDataExpired,
+  RelayerSendFailed,
 } from "../../../../src/lib/errors";
 import { executeSlowPathData, storeSlowPathData } from "../../../../src/lib/operations/execute";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
@@ -197,7 +198,6 @@ describe("Operations:Execute:SlowPath", () => {
         transferId: mockTransferId,
         encodedData: "0x22222",
       });
-      const mockTaskId = mkBytes32("0xmockTask");
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
@@ -209,7 +209,9 @@ describe("Operations:Execute:SlowPath", () => {
       setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       pruneExecutorDataStub.resolves();
-      await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
+      await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.be.rejectedWith(
+        RelayerSendFailed,
+      );
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
       expect(setExecStatusStub.callCount).to.be.eq(0);
       expect(upsertTaskStub.callCount).to.be.eq(0);

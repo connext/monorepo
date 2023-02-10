@@ -6,9 +6,10 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   XTransferErrorStatus,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 
-import { getContext } from "../../../sequencer";
+import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
   ParamsInvalid,
   ExecutorDataExpired,
@@ -17,6 +18,8 @@ import {
   MissingExecutorData,
   ExecuteSlowCompleted,
   NotEnoughRelayerFee,
+  SlippageToleranceExceeded,
+  RelayerSendFailed,
 } from "../../errors";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
@@ -154,15 +157,34 @@ export const executeSlowPathData = async (
     const result = await sendExecuteSlowToRelayer(executorData, requestContext);
     taskId = result.taskId;
   } catch (error: unknown) {
+    const jsonError = jsonifyError(error as Error);
+    const errorMessage = jsonError.context?.message ?? jsonError.message;
+    if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+      throw new SlippageToleranceExceeded({ transfer, error: jsonError });
+    }
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
     // If all of them also fail, we'll reset all the data for a given transferId
     const backupSlowTxs = await cache.executors.getBackupData(transferId);
     logger.debug("Running a fallback mechanism", requestContext, methodContext, { transferId, backupSlowTxs });
     for (const backupSlowTx of backupSlowTxs) {
-      const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
-      taskId = result.taskId;
-      if (taskId) break;
+      try {
+        const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+        taskId = result.taskId;
+        if (taskId) break;
+      } catch (error: unknown) {
+        const jsonError = jsonifyError(error as Error);
+        const errorMessage = jsonError.context?.message ?? jsonError.message;
+        // break early if we catch slippage error
+        if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+          throw new SlippageToleranceExceeded({ transfer, error: jsonError });
+        }
+        logger.warn("Failed to send a backup slow tx", requestContext, methodContext, {
+          transferId,
+          backupSlowTx,
+          error: jsonError,
+        });
+      }
     }
   }
   if (taskId) {
@@ -176,6 +198,7 @@ export const executeSlowPathData = async (
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);
+    throw new RelayerSendFailed({ transferId });
   }
 
   return { taskId };
