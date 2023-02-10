@@ -1300,6 +1300,10 @@ export type Query = {
   bnb_rootCounts: Array<bnb_RootCount>;
   bnb_rootMessageSent?: Maybe<bnb_RootMessageSent>;
   bnb_rootMessageSents: Array<bnb_RootMessageSent>;
+  bnb_relayerFeesIncrease?: Maybe<bnb_RelayerFeesIncrease>;
+  bnb_relayerFeesIncreases: Array<bnb_RelayerFeesIncrease>;
+  bnb_slippageUpdate?: Maybe<bnb_SlippageUpdate>;
+  bnb_slippageUpdates: Array<bnb_SlippageUpdate>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -1557,6 +1561,42 @@ export type Querybnb_rootMessageSentsArgs = {
 };
 
 
+export type Querybnb_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SlippageUpdate_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querybnb__metaArgs = {
   block?: InputMaybe<bnb_Block_height>;
 };
@@ -1566,6 +1606,125 @@ export type bnb_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['bnb_Bytes']>;
 };
+
+export type bnb_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: bnb_OriginTransfer;
+  increase: Scalars['BigInt'];
+  caller: Scalars['bnb_Bytes'];
+  transactionHash: Scalars['bnb_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type bnb_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<bnb_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_RelayerFeesIncrease_filter>>>;
+};
+
+export type bnb_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type bnb_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1931,6 +2090,125 @@ export type bnb_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
+export type bnb_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: bnb_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['bnb_Bytes'];
+  transactionHash: Scalars['bnb_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type bnb_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<bnb_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_SlippageUpdate_filter>>>;
+};
+
+export type bnb_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type Subscription = {
   bnb_asset?: Maybe<bnb_Asset>;
   bnb_assets: Array<bnb_Asset>;
@@ -1960,6 +2238,10 @@ export type Subscription = {
   bnb_rootCounts: Array<bnb_RootCount>;
   bnb_rootMessageSent?: Maybe<bnb_RootMessageSent>;
   bnb_rootMessageSents: Array<bnb_RootMessageSent>;
+  bnb_relayerFeesIncrease?: Maybe<bnb_RelayerFeesIncrease>;
+  bnb_relayerFeesIncreases: Array<bnb_RelayerFeesIncrease>;
+  bnb_slippageUpdate?: Maybe<bnb_SlippageUpdate>;
+  bnb_slippageUpdates: Array<bnb_SlippageUpdate>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -2217,6 +2499,42 @@ export type Subscriptionbnb_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionbnb_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SlippageUpdate_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionbnb__metaArgs = {
   block?: InputMaybe<bnb_Block_height>;
 };
@@ -2316,6 +2634,14 @@ export type _SubgraphErrorPolicy_ =
   bnb_rootMessageSent: InContextSdkMethod<Query['bnb_rootMessageSent'], Querybnb_rootMessageSentArgs, MeshContext>,
   /** null **/
   bnb_rootMessageSents: InContextSdkMethod<Query['bnb_rootMessageSents'], Querybnb_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFeesIncrease: InContextSdkMethod<Query['bnb_relayerFeesIncrease'], Querybnb_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFeesIncreases: InContextSdkMethod<Query['bnb_relayerFeesIncreases'], Querybnb_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  bnb_slippageUpdate: InContextSdkMethod<Query['bnb_slippageUpdate'], Querybnb_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  bnb_slippageUpdates: InContextSdkMethod<Query['bnb_slippageUpdates'], Querybnb_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Query['bnb__meta'], Querybnb__metaArgs, MeshContext>
   };
@@ -2381,6 +2707,14 @@ export type _SubgraphErrorPolicy_ =
   bnb_rootMessageSent: InContextSdkMethod<Subscription['bnb_rootMessageSent'], Subscriptionbnb_rootMessageSentArgs, MeshContext>,
   /** null **/
   bnb_rootMessageSents: InContextSdkMethod<Subscription['bnb_rootMessageSents'], Subscriptionbnb_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFeesIncrease: InContextSdkMethod<Subscription['bnb_relayerFeesIncrease'], Subscriptionbnb_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFeesIncreases: InContextSdkMethod<Subscription['bnb_relayerFeesIncreases'], Subscriptionbnb_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  bnb_slippageUpdate: InContextSdkMethod<Subscription['bnb_slippageUpdate'], Subscriptionbnb_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  bnb_slippageUpdates: InContextSdkMethod<Subscription['bnb_slippageUpdates'], Subscriptionbnb_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Subscription['bnb__meta'], Subscriptionbnb__metaArgs, MeshContext>
   };
