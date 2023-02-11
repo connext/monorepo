@@ -283,7 +283,9 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
   }
 
   transfer.slippage = event.params.slippage;
-  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount
+    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
 
   // should never be more than 1 but just in case theres somehow multiple in the same tx

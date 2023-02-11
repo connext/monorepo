@@ -1610,7 +1610,7 @@ export type mainnet_Relayer = {
 export type mainnet_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: mainnet_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['mainnet_Bytes'];
   transactionHash: Scalars['mainnet_Bytes'];
   timestamp: Scalars['BigInt'];

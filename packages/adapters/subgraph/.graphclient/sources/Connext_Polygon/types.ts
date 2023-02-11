@@ -1300,6 +1300,10 @@ export type Query = {
   polygon_rootCounts: Array<polygon_RootCount>;
   polygon_rootMessageSent?: Maybe<polygon_RootMessageSent>;
   polygon_rootMessageSents: Array<polygon_RootMessageSent>;
+  polygon_relayerFeesIncrease?: Maybe<polygon_RelayerFeesIncrease>;
+  polygon_relayerFeesIncreases: Array<polygon_RelayerFeesIncrease>;
+  polygon_slippageUpdate?: Maybe<polygon_SlippageUpdate>;
+  polygon_slippageUpdates: Array<polygon_SlippageUpdate>;
   /** Access to subgraph metadata */
   polygon__meta?: Maybe<polygon__Meta_>;
 };
@@ -1557,6 +1561,42 @@ export type Querypolygon_rootMessageSentsArgs = {
 };
 
 
+export type Querypolygon_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SlippageUpdate_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querypolygon__metaArgs = {
   block?: InputMaybe<polygon_Block_height>;
 };
@@ -1566,6 +1606,125 @@ export type polygon_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['polygon_Bytes']>;
 };
+
+export type polygon_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: polygon_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  caller: Scalars['polygon_Bytes'];
+  transactionHash: Scalars['polygon_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type polygon_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<polygon_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_RelayerFeesIncrease_filter>>>;
+};
+
+export type polygon_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type polygon_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1931,6 +2090,125 @@ export type polygon_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
+export type polygon_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: polygon_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['polygon_Bytes'];
+  transactionHash: Scalars['polygon_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type polygon_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<polygon_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_SlippageUpdate_filter>>>;
+};
+
+export type polygon_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type Subscription = {
   polygon_asset?: Maybe<polygon_Asset>;
   polygon_assets: Array<polygon_Asset>;
@@ -1960,6 +2238,10 @@ export type Subscription = {
   polygon_rootCounts: Array<polygon_RootCount>;
   polygon_rootMessageSent?: Maybe<polygon_RootMessageSent>;
   polygon_rootMessageSents: Array<polygon_RootMessageSent>;
+  polygon_relayerFeesIncrease?: Maybe<polygon_RelayerFeesIncrease>;
+  polygon_relayerFeesIncreases: Array<polygon_RelayerFeesIncrease>;
+  polygon_slippageUpdate?: Maybe<polygon_SlippageUpdate>;
+  polygon_slippageUpdates: Array<polygon_SlippageUpdate>;
   /** Access to subgraph metadata */
   polygon__meta?: Maybe<polygon__Meta_>;
 };
@@ -2217,6 +2499,42 @@ export type Subscriptionpolygon_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionpolygon_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SlippageUpdate_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionpolygon__metaArgs = {
   block?: InputMaybe<polygon_Block_height>;
 };
@@ -2316,6 +2634,14 @@ export type _SubgraphErrorPolicy_ =
   polygon_rootMessageSent: InContextSdkMethod<Query['polygon_rootMessageSent'], Querypolygon_rootMessageSentArgs, MeshContext>,
   /** null **/
   polygon_rootMessageSents: InContextSdkMethod<Query['polygon_rootMessageSents'], Querypolygon_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFeesIncrease: InContextSdkMethod<Query['polygon_relayerFeesIncrease'], Querypolygon_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFeesIncreases: InContextSdkMethod<Query['polygon_relayerFeesIncreases'], Querypolygon_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  polygon_slippageUpdate: InContextSdkMethod<Query['polygon_slippageUpdate'], Querypolygon_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  polygon_slippageUpdates: InContextSdkMethod<Query['polygon_slippageUpdates'], Querypolygon_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon__meta: InContextSdkMethod<Query['polygon__meta'], Querypolygon__metaArgs, MeshContext>
   };
@@ -2381,6 +2707,14 @@ export type _SubgraphErrorPolicy_ =
   polygon_rootMessageSent: InContextSdkMethod<Subscription['polygon_rootMessageSent'], Subscriptionpolygon_rootMessageSentArgs, MeshContext>,
   /** null **/
   polygon_rootMessageSents: InContextSdkMethod<Subscription['polygon_rootMessageSents'], Subscriptionpolygon_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFeesIncrease: InContextSdkMethod<Subscription['polygon_relayerFeesIncrease'], Subscriptionpolygon_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFeesIncreases: InContextSdkMethod<Subscription['polygon_relayerFeesIncreases'], Subscriptionpolygon_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  polygon_slippageUpdate: InContextSdkMethod<Subscription['polygon_slippageUpdate'], Subscriptionpolygon_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  polygon_slippageUpdates: InContextSdkMethod<Subscription['polygon_slippageUpdates'], Subscriptionpolygon_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon__meta: InContextSdkMethod<Subscription['polygon__meta'], Subscriptionpolygon__metaArgs, MeshContext>
   };

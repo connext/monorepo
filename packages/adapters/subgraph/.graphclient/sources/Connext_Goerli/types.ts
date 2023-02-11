@@ -1610,7 +1610,7 @@ export type goerli_Relayer = {
 export type goerli_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: goerli_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['goerli_Bytes'];
   transactionHash: Scalars['goerli_Bytes'];
   timestamp: Scalars['BigInt'];
