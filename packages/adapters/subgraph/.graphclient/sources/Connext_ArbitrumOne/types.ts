@@ -1300,6 +1300,10 @@ export type Query = {
   arbitrumone_rootCounts: Array<arbitrumone_RootCount>;
   arbitrumone_rootMessageSent?: Maybe<arbitrumone_RootMessageSent>;
   arbitrumone_rootMessageSents: Array<arbitrumone_RootMessageSent>;
+  arbitrumone_relayerFeesIncrease?: Maybe<arbitrumone_RelayerFeesIncrease>;
+  arbitrumone_relayerFeesIncreases: Array<arbitrumone_RelayerFeesIncrease>;
+  arbitrumone_slippageUpdate?: Maybe<arbitrumone_SlippageUpdate>;
+  arbitrumone_slippageUpdates: Array<arbitrumone_SlippageUpdate>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -1557,6 +1561,42 @@ export type Queryarbitrumone_rootMessageSentsArgs = {
 };
 
 
+export type Queryarbitrumone_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Queryarbitrumone__metaArgs = {
   block?: InputMaybe<arbitrumone_Block_height>;
 };
@@ -1566,6 +1606,125 @@ export type arbitrumone_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['arbitrumone_Bytes']>;
 };
+
+export type arbitrumone_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: arbitrumone_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  caller: Scalars['arbitrumone_Bytes'];
+  transactionHash: Scalars['arbitrumone_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type arbitrumone_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<arbitrumone_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RelayerFeesIncrease_filter>>>;
+};
+
+export type arbitrumone_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type arbitrumone_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1931,6 +2090,125 @@ export type arbitrumone_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
+export type arbitrumone_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: arbitrumone_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['arbitrumone_Bytes'];
+  transactionHash: Scalars['arbitrumone_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type arbitrumone_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<arbitrumone_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_SlippageUpdate_filter>>>;
+};
+
+export type arbitrumone_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type Subscription = {
   arbitrumone_asset?: Maybe<arbitrumone_Asset>;
   arbitrumone_assets: Array<arbitrumone_Asset>;
@@ -1960,6 +2238,10 @@ export type Subscription = {
   arbitrumone_rootCounts: Array<arbitrumone_RootCount>;
   arbitrumone_rootMessageSent?: Maybe<arbitrumone_RootMessageSent>;
   arbitrumone_rootMessageSents: Array<arbitrumone_RootMessageSent>;
+  arbitrumone_relayerFeesIncrease?: Maybe<arbitrumone_RelayerFeesIncrease>;
+  arbitrumone_relayerFeesIncreases: Array<arbitrumone_RelayerFeesIncrease>;
+  arbitrumone_slippageUpdate?: Maybe<arbitrumone_SlippageUpdate>;
+  arbitrumone_slippageUpdates: Array<arbitrumone_SlippageUpdate>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -2217,6 +2499,42 @@ export type Subscriptionarbitrumone_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionarbitrumone_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionarbitrumone__metaArgs = {
   block?: InputMaybe<arbitrumone_Block_height>;
 };
@@ -2316,6 +2634,14 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_rootMessageSent: InContextSdkMethod<Query['arbitrumone_rootMessageSent'], Queryarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumone_rootMessageSents: InContextSdkMethod<Query['arbitrumone_rootMessageSents'], Queryarbitrumone_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFeesIncrease: InContextSdkMethod<Query['arbitrumone_relayerFeesIncrease'], Queryarbitrumone_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFeesIncreases: InContextSdkMethod<Query['arbitrumone_relayerFeesIncreases'], Queryarbitrumone_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_slippageUpdate: InContextSdkMethod<Query['arbitrumone_slippageUpdate'], Queryarbitrumone_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  arbitrumone_slippageUpdates: InContextSdkMethod<Query['arbitrumone_slippageUpdates'], Queryarbitrumone_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Query['arbitrumone__meta'], Queryarbitrumone__metaArgs, MeshContext>
   };
@@ -2381,6 +2707,14 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_rootMessageSent: InContextSdkMethod<Subscription['arbitrumone_rootMessageSent'], Subscriptionarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
   arbitrumone_rootMessageSents: InContextSdkMethod<Subscription['arbitrumone_rootMessageSents'], Subscriptionarbitrumone_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFeesIncrease: InContextSdkMethod<Subscription['arbitrumone_relayerFeesIncrease'], Subscriptionarbitrumone_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFeesIncreases: InContextSdkMethod<Subscription['arbitrumone_relayerFeesIncreases'], Subscriptionarbitrumone_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_slippageUpdate: InContextSdkMethod<Subscription['arbitrumone_slippageUpdate'], Subscriptionarbitrumone_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  arbitrumone_slippageUpdates: InContextSdkMethod<Subscription['arbitrumone_slippageUpdates'], Subscriptionarbitrumone_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Subscription['arbitrumone__meta'], Subscriptionarbitrumone__metaArgs, MeshContext>
   };

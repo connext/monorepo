@@ -285,25 +285,13 @@ locals {
       adminToken = var.admin_token_watcher
     }
     logLevel = "debug"
-    hubDomain : "1735353714"
+    environment = "staging"
     chains = {
       "1735353714" = {
         providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli", "https://goerli.blockpi.network/v1/rpc/public"]
-        assets = [
-          {
-            name    = "BigBroERC20"
-            address = "0x2D4A671E49d39Fc13F9237f60B6E6FDd16d8Ad4d"
-          }
-        ]
       }
       "1735356532" = {
         providers = ["https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
-        assets = [
-          {
-            name    = "BigBroERC20"
-            address = "0xF6dbBbDa9F1F891C12FF4E0aB0FF65a228B72a94"
-          }
-        ]
       }
     }
     web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"

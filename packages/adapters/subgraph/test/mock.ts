@@ -9,10 +9,13 @@ import {
   OriginTransfer,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  RelayerFeesIncrease,
   RootMessage,
   RouterBalance,
+  SlippageUpdate,
   StableSwapExchange,
   StableSwapPool,
+  StableSwapPoolEvent,
   XMessage,
   XTransferStatus,
 } from "@connext/nxtp-utils";
@@ -277,6 +280,64 @@ export const mockStableSwapExchangeResponse: StableSwapExchange[] = [
   },
 ];
 
+export const mockStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
+  {
+    id: `add_liquidity-${mkBytes32("0xa")}`,
+    domain: "1337",
+    poolId: mkBytes32("0xa"),
+    provider: mkAddress("0xa"),
+    action: "Add",
+    pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
+    poolTokenDecimals: [18, 18],
+    balances: [200, 200],
+    tokenAmounts: [200, 200],
+    lpTokenAmount: 0.1,
+    lpTokenSupply: 0.4,
+    blockNumber: 37933815,
+    timestamp: 1673421076,
+    transactionHash: mkBytes32("0xb"),
+  },
+];
+
+export const removeStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
+  {
+    id: `remove_liquidity-${mkBytes32("0xa")}`,
+    domain: "1337",
+    poolId: mkBytes32("0xa"),
+    provider: mkAddress("0xa"),
+    action: "Remove",
+    pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
+    poolTokenDecimals: [18, 18],
+    balances: [200, 200],
+    tokenAmounts: [200, 200],
+    lpTokenAmount: 0.1,
+    lpTokenSupply: 0.4,
+    blockNumber: 37933815,
+    timestamp: 1673421076,
+    transactionHash: mkBytes32("0xb"),
+  },
+];
+
+export const mockRelayerFeesIncreaseResponse: RelayerFeesIncrease[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    increase: "100",
+    transferId: mkBytes32("0xa"),
+    domain: "1337",
+    timestamp: "1673421076",
+  },
+];
+
+export const mockSlippageUpdateResponse: SlippageUpdate[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    slippage: "100",
+    transferId: mkBytes32("0xa"),
+    domain: "1337",
+    timestamp: "1673421076",
+  },
+];
+
 export const mockSubgraph = () =>
   createStubInstance(SubgraphReader, {
     getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
@@ -300,4 +361,7 @@ export const mockSubgraph = () =>
     }),
     getStableSwapPools: Promise.resolve(mockStableSwapPoolResponse),
     getStableSwapExchangeByDomainAndTimestamp: Promise.resolve(mockStableSwapExchangeResponse),
+    getStableSwapPoolEventsByDomainAndTimestamp: Promise.resolve(mockStableSwapAddLiquidityResponse),
+    getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
+    getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
   });

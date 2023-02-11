@@ -8,6 +8,7 @@ import {
   xquery,
   stableSwapPool,
   stableSwapExchange,
+  stableSwapPoolEvent,
 } from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { mock } from "@connext/nxtp-utils";
@@ -576,6 +577,7 @@ describe("Helpers:parse", () => {
         soldId: "0",
         tokensSold: "1000000000000000000",
         tokensBought: "1000000000000000000",
+        balances: ["1000000000000000000", "1000000000000000000"],
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),
@@ -590,9 +592,66 @@ describe("Helpers:parse", () => {
           soldId: 0,
           tokensSold: 1,
           tokensBought: 1,
+          balances: [1, 1],
           blockNumber: 25792350,
           timestamp: 1672823480,
           transactionHash: mkBytes32("0xa"),
+        }),
+      );
+    });
+  });
+
+  describe("#stableSwapPoolEvent", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        stableSwapPoolEvent(entity);
+      }).to.throw("Subgraph `stableSwapPoolEvent` entity parser: stableSwapPoolEvent, entity is `undefined`.");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity = {} as any;
+
+      expect(() => {
+        stableSwapPoolEvent(entity);
+      }).to.throw("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid pool event", () => {
+      const entity = {
+        id: `add_liquidity-${mkBytes32("0xa")}`,
+        domain: "1337",
+        stableSwap: {
+          key: mkBytes32("0xa"),
+          domain: "1337",
+          tokenPrecisionMultipliers: ["1", "1"],
+          pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
+        },
+        provider: mkAddress("0xa"),
+        balances: ["200000000000000000000", "200000000000000000000"],
+        tokenAmounts: ["200000000000000000000", "200000000000000000000"],
+        lpTokenAmount: "100000000000000000",
+        lpTokenSupply: "400000000000000000",
+        block: 37933815,
+        timestamp: 1673421076,
+        transaction: mkBytes32("0xb"),
+      };
+      expect(stableSwapPoolEvent(entity)).to.be.deep.eq(
+        mock.entity.stableswapPoolEvent({
+          id: `add_liquidity-${mkBytes32("0xa")}`,
+          domain: "1337",
+          poolId: mkBytes32("0xa"),
+          provider: mkAddress("0xa"),
+          action: "Add",
+          pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
+          poolTokenDecimals: [18, 18],
+          balances: [200, 200],
+          tokenAmounts: [200, 200],
+          lpTokenAmount: 0.1,
+          lpTokenSupply: 0.4,
+          blockNumber: 37933815,
+          timestamp: 1673421076,
+          transactionHash: mkBytes32("0xb"),
         }),
       );
     });

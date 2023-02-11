@@ -5,6 +5,8 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   DestinationTransfer,
+  RelayerFeesIncrease,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
@@ -17,6 +19,10 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
   return transfers.length == 0
     ? 0
     : Math.max(...transfers.map((transfer) => transfer.destination?.reconcile?.timestamp ?? 0));
+};
+
+const getMaxTimestamp = (entities: SlippageUpdate[]): number => {
+  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
 };
 
 export const updateTransfers = async () => {
@@ -189,4 +195,89 @@ export const updateTransfers = async () => {
     });
     await database.saveTransfers(transfers as XTransfer[]);
   }
+};
+
+export const updateBackoffs = async (): Promise<void> => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("updateTransfers");
+  const subgraphRelayerFeeQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const subgraphSlippageUpdatesQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  await Promise.all(
+    domains.map(async (domain) => {
+      const increasesTimestamp = await database.getCheckPoint("relayer_fees_increases_timestamp_" + domain);
+      subgraphRelayerFeeQueryMetaParams.set(domain, {
+        fromTimestamp: increasesTimestamp,
+        orderDirection: "asc",
+      });
+
+      const updatesTimestamp = await database.getCheckPoint("slippage_updates_timestamp_" + domain);
+      subgraphSlippageUpdatesQueryMetaParams.set(domain, {
+        fromTimestamp: updatesTimestamp,
+        orderDirection: "asc",
+      });
+    }),
+  );
+
+  let increases: RelayerFeesIncrease[] = [];
+  let updates: SlippageUpdate[] = [];
+  if (subgraphRelayerFeeQueryMetaParams.size > 0) {
+    increases = await subgraph.getRelayerFeesIncreasesByDomainAndTimestamp(subgraphRelayerFeeQueryMetaParams);
+    logger.info("Retrieved relayer fee increases", requestContext, methodContext, {
+      increases,
+      count: increases.length,
+    });
+  }
+
+  if (subgraphSlippageUpdatesQueryMetaParams.size > 0) {
+    updates = await subgraph.getSlippageUpdatesByDomainAndTimestamp(subgraphSlippageUpdatesQueryMetaParams);
+    logger.info("Retrieved slippage updates", requestContext, methodContext, {
+      updates,
+      count: updates.length,
+    });
+  }
+
+  await database.resetBackoffs(
+    increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
+  );
+
+  const increaseCheckpoints = domains
+    .map((domain) => {
+      const domainUpdates = updates.filter((update) => update.domain === domain);
+      const max = getMaxTimestamp(domainUpdates);
+      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainUpdates.length > 0 && max > latest) {
+        return { domain, checkpoint: max };
+      }
+      return undefined;
+    })
+    .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  for (const checkpoint of increaseCheckpoints) {
+    await database.saveCheckPoint("relayer_fees_increases_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+  }
+
+  const updateCheckpoints = domains
+    .map((domain) => {
+      const domainUpdates = updates.filter((update) => update.domain === domain);
+      const max = getMaxTimestamp(domainUpdates);
+      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainUpdates.length > 0 && max > latest) {
+        return { domain, checkpoint: max };
+      }
+      return undefined;
+    })
+    .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  for (const checkpoint of updateCheckpoints) {
+    await database.saveCheckPoint("slippage_updates_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+  }
+
+  logger.debug("Reset backoffs", requestContext, methodContext, {
+    increases: increases.length,
+    updates: updates.length,
+  });
 };

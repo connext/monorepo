@@ -24,3 +24,6 @@ GET {{postgrestUrl}}/hourly_transfer_volume
 
 ### 6. TVL by Routers
 GET {{postgrestUrl}}/daily_router_tvl
+
+### 7. TVL by StableSwap Pools
+GET {{postgrestUrl}}/daily_swap_tvl
