@@ -115,7 +115,11 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        blockNumberRes.set(domain, Number(blockInfo.block.number));
+        if (blockInfo.block?.number) {
+          blockNumberRes.set(domain, Number(blockInfo.block.number));
+        } else {
+          console.error(`No block number found for domain ${domain}!`);
+        }
       }
     }
     return blockNumberRes;

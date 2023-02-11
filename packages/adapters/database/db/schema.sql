@@ -228,8 +228,54 @@ CREATE TABLE public.stableswap_exchanges (
     tokens_bought numeric NOT NULL,
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+);
+
+
+--
+-- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_pool_events (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    provider character(42) NOT NULL,
+    action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
+    pooled_tokens text[],
+    pool_token_decimals integer[],
+    token_amounts numeric[],
+    balances numeric[],
+    lp_token_amount numeric NOT NULL,
+    lp_token_supply numeric NOT NULL,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL
 );
+
+
+--
+-- Name: daily_swap_tvl; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_swap_tvl AS
+ SELECT e.pool_id,
+    e.domain,
+    (date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date AS day,
+    ARRAY( SELECT unnest((array_agg(e.balances ORDER BY e."timestamp" DESC))[1:1]) AS unnest) AS balances
+   FROM ( SELECT stableswap_pool_events.pool_id,
+            stableswap_pool_events.domain,
+            stableswap_pool_events.balances,
+            stableswap_pool_events."timestamp"
+           FROM public.stableswap_pool_events
+        UNION ALL
+         SELECT stableswap_exchanges.pool_id,
+            stableswap_exchanges.domain,
+            stableswap_exchanges.balances,
+            stableswap_exchanges."timestamp"
+           FROM public.stableswap_exchanges) e
+  GROUP BY e.pool_id, e.domain, ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date);
 
 
 --
@@ -518,28 +564,6 @@ CREATE VIEW public.router_tvl AS
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
-);
-
-
---
--- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.stableswap_pool_events (
-    id character varying(255) NOT NULL,
-    pool_id character(66) NOT NULL,
-    domain character varying(255) NOT NULL,
-    provider character(42) NOT NULL,
-    action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
-    pooled_tokens text[],
-    pool_token_decimals integer[],
-    token_amounts numeric[],
-    balances numeric[],
-    lp_token_amount numeric NOT NULL,
-    lp_token_supply numeric NOT NULL,
-    block_number integer NOT NULL,
-    transaction_hash character(66) NOT NULL,
-    "timestamp" integer NOT NULL
 );
 
 
