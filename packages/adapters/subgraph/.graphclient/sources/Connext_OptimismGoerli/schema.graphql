@@ -1698,7 +1698,7 @@ type optimismgoerli_Relayer {
 type optimismgoerli_RelayerFeesIncrease {
   id: ID!
   transfer: optimismgoerli_OriginTransfer!
-  increase: BigInt!
+  increase: BigInt
   caller: optimismgoerli_Bytes!
   transactionHash: optimismgoerli_Bytes!
   timestamp: BigInt!

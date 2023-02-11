@@ -1610,7 +1610,7 @@ export type arbitrumone_Relayer = {
 export type arbitrumone_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: arbitrumone_OriginTransfer;
-  increase: Scalars['BigInt'];
+  increase?: Maybe<Scalars['BigInt']>;
   caller: Scalars['arbitrumone_Bytes'];
   transactionHash: Scalars['arbitrumone_Bytes'];
   timestamp: Scalars['BigInt'];

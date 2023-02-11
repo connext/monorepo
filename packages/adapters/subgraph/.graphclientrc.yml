@@ -343,9 +343,14 @@ sources:
   - name: Connext_Optimism
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_
@@ -358,9 +363,14 @@ sources:
   - name: Connext_Polygon
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-polygon"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygon_
@@ -373,9 +383,14 @@ sources:
   - name: Connext_ArbitrumOne
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: arbitrumone_
@@ -388,9 +403,14 @@ sources:
   - name: Connext_Bnb
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-bnb"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_

@@ -1300,6 +1300,10 @@ export type Query = {
   stagingarbitrumgoerli_rootCounts: Array<stagingarbitrumgoerli_RootCount>;
   stagingarbitrumgoerli_rootMessageSent?: Maybe<stagingarbitrumgoerli_RootMessageSent>;
   stagingarbitrumgoerli_rootMessageSents: Array<stagingarbitrumgoerli_RootMessageSent>;
+  stagingarbitrumgoerli_relayerFeesIncrease?: Maybe<stagingarbitrumgoerli_RelayerFeesIncrease>;
+  stagingarbitrumgoerli_relayerFeesIncreases: Array<stagingarbitrumgoerli_RelayerFeesIncrease>;
+  stagingarbitrumgoerli_slippageUpdate?: Maybe<stagingarbitrumgoerli_SlippageUpdate>;
+  stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -1557,6 +1561,42 @@ export type Querystagingarbitrumgoerli_rootMessageSentsArgs = {
 };
 
 
+export type Querystagingarbitrumgoerli_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingarbitrumgoerli__metaArgs = {
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
 };
@@ -1566,6 +1606,125 @@ export type stagingarbitrumgoerli_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['stagingarbitrumgoerli_Bytes']>;
 };
+
+export type stagingarbitrumgoerli_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: stagingarbitrumgoerli_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  caller: Scalars['stagingarbitrumgoerli_Bytes'];
+  transactionHash: Scalars['stagingarbitrumgoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type stagingarbitrumgoerli_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingarbitrumgoerli_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_filter>>>;
+};
+
+export type stagingarbitrumgoerli_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type stagingarbitrumgoerli_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1931,6 +2090,125 @@ export type stagingarbitrumgoerli_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
+export type stagingarbitrumgoerli_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: stagingarbitrumgoerli_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['stagingarbitrumgoerli_Bytes'];
+  transactionHash: Scalars['stagingarbitrumgoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type stagingarbitrumgoerli_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingarbitrumgoerli_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SlippageUpdate_filter>>>;
+};
+
+export type stagingarbitrumgoerli_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type Subscription = {
   stagingarbitrumgoerli_asset?: Maybe<stagingarbitrumgoerli_Asset>;
   stagingarbitrumgoerli_assets: Array<stagingarbitrumgoerli_Asset>;
@@ -1960,6 +2238,10 @@ export type Subscription = {
   stagingarbitrumgoerli_rootCounts: Array<stagingarbitrumgoerli_RootCount>;
   stagingarbitrumgoerli_rootMessageSent?: Maybe<stagingarbitrumgoerli_RootMessageSent>;
   stagingarbitrumgoerli_rootMessageSents: Array<stagingarbitrumgoerli_RootMessageSent>;
+  stagingarbitrumgoerli_relayerFeesIncrease?: Maybe<stagingarbitrumgoerli_RelayerFeesIncrease>;
+  stagingarbitrumgoerli_relayerFeesIncreases: Array<stagingarbitrumgoerli_RelayerFeesIncrease>;
+  stagingarbitrumgoerli_slippageUpdate?: Maybe<stagingarbitrumgoerli_SlippageUpdate>;
+  stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -2217,6 +2499,42 @@ export type Subscriptionstagingarbitrumgoerli_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionstagingarbitrumgoerli_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingarbitrumgoerli__metaArgs = {
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
 };
@@ -2316,6 +2634,14 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_rootMessageSent: InContextSdkMethod<Query['stagingarbitrumgoerli_rootMessageSent'], Querystagingarbitrumgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_rootMessageSents: InContextSdkMethod<Query['stagingarbitrumgoerli_rootMessageSents'], Querystagingarbitrumgoerli_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_relayerFeesIncrease: InContextSdkMethod<Query['stagingarbitrumgoerli_relayerFeesIncrease'], Querystagingarbitrumgoerli_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_relayerFeesIncreases: InContextSdkMethod<Query['stagingarbitrumgoerli_relayerFeesIncreases'], Querystagingarbitrumgoerli_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_slippageUpdate: InContextSdkMethod<Query['stagingarbitrumgoerli_slippageUpdate'], Querystagingarbitrumgoerli_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_slippageUpdates: InContextSdkMethod<Query['stagingarbitrumgoerli_slippageUpdates'], Querystagingarbitrumgoerli_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Query['stagingarbitrumgoerli__meta'], Querystagingarbitrumgoerli__metaArgs, MeshContext>
   };
@@ -2381,6 +2707,14 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_rootMessageSent: InContextSdkMethod<Subscription['stagingarbitrumgoerli_rootMessageSent'], Subscriptionstagingarbitrumgoerli_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_rootMessageSents: InContextSdkMethod<Subscription['stagingarbitrumgoerli_rootMessageSents'], Subscriptionstagingarbitrumgoerli_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_relayerFeesIncrease: InContextSdkMethod<Subscription['stagingarbitrumgoerli_relayerFeesIncrease'], Subscriptionstagingarbitrumgoerli_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_relayerFeesIncreases: InContextSdkMethod<Subscription['stagingarbitrumgoerli_relayerFeesIncreases'], Subscriptionstagingarbitrumgoerli_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_slippageUpdate: InContextSdkMethod<Subscription['stagingarbitrumgoerli_slippageUpdate'], Subscriptionstagingarbitrumgoerli_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_slippageUpdates: InContextSdkMethod<Subscription['stagingarbitrumgoerli_slippageUpdates'], Subscriptionstagingarbitrumgoerli_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Subscription['stagingarbitrumgoerli__meta'], Subscriptionstagingarbitrumgoerli__metaArgs, MeshContext>
   };
