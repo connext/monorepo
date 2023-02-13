@@ -1,4 +1,11 @@
-import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  ChainData,
+  formatUrl,
+  XTransferStatus,
+  transfersCastForUrl,
+  XTransferErrorStatus,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
@@ -171,16 +178,18 @@ export class SdkUtils extends SdkShared {
     userAddress?: string;
     routerAddress?: string;
     status?: XTransferStatus;
+    errorStatus?: XTransferErrorStatus;
     transferId?: string;
     transactionHash?: string;
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller } = params;
+    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } = params;
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
     const statusIdentifier = status ? `status=eq.${status}&` : "";
+    const errorStatusIdentifier = status ? `error_status=eq.${errorStatus}&` : "";
     const transferIdIdentifier = transferId ? `transfer_id=eq.${transferId.toLowerCase()}&` : "";
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
@@ -191,6 +200,7 @@ export class SdkUtils extends SdkShared {
       userIdentifier +
       routerIdentifier +
       statusIdentifier +
+      errorStatusIdentifier +
       transferIdIdentifier +
       transactionHashIdentifier +
       xcallCallerIdentifier;
