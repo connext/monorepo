@@ -266,6 +266,9 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     blockNumber: message.block_number,
     processed: message.processed,
     count: message.leaf_count,
+    relayerType: message.relayer_type,
+    sentTaskId: message.sent_task_id,
+    sentTimestamp: message.sent_timestamp,
   };
 };
 

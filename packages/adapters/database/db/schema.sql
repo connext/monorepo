@@ -539,7 +539,7 @@ CREATE TABLE public.root_messages (
     processed boolean DEFAULT false NOT NULL,
     processed_transaction_hash character(66),
     leaf_count numeric,
-    sent_time timestamp with time zone,
+    sent_timestamp_secs integer,
     sent_task_id character(66),
     relayer_type text
 );

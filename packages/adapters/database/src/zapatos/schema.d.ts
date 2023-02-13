@@ -2798,11 +2798,11 @@ declare module 'zapatos/schema' {
       */
       leaf_count: number | null;
       /**
-      * **root_messages.sent_time**
-      * - `timestamptz` in database
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
       * - Nullable, no default
       */
-      sent_time: Date | null;
+      sent_timestamp_secs: number | null;
       /**
       * **root_messages.sent_task_id**
       * - `bpchar` in database
@@ -2896,11 +2896,11 @@ declare module 'zapatos/schema' {
       */
       leaf_count: number | null;
       /**
-      * **root_messages.sent_time**
-      * - `timestamptz` in database
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
       * - Nullable, no default
       */
-      sent_time: db.TimestampTzString | null;
+      sent_timestamp_secs: number | null;
       /**
       * **root_messages.sent_task_id**
       * - `bpchar` in database
@@ -2994,11 +2994,11 @@ declare module 'zapatos/schema' {
       */
       leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **root_messages.sent_time**
-      * - `timestamptz` in database
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
       * - Nullable, no default
       */
-      sent_time?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
+      sent_timestamp_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **root_messages.sent_task_id**
       * - `bpchar` in database
@@ -3092,11 +3092,11 @@ declare module 'zapatos/schema' {
       */
       leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **root_messages.sent_time**
-      * - `timestamptz` in database
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
       * - Nullable, no default
       */
-      sent_time?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | null | db.DefaultType | db.SQLFragment;
+      sent_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **root_messages.sent_task_id**
       * - `bpchar` in database
@@ -3190,11 +3190,11 @@ declare module 'zapatos/schema' {
       */
       leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **root_messages.sent_time**
-      * - `timestamptz` in database
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
       * - Nullable, no default
       */
-      sent_time?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | null | db.DefaultType | db.SQLFragment>;
+      sent_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **root_messages.sent_task_id**
       * - `bpchar` in database

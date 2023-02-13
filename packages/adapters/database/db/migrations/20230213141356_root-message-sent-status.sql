@@ -1,6 +1,6 @@
 -- migrate:up
 ALTER TABLE root_messages
-ADD COLUMN sent_time timestamp with time zone,
+ADD COLUMN sent_timestamp_secs integer,
   ADD COLUMN sent_task_id character(66),
   ADD COLUMN relayer_type text;
 -- migrate:down

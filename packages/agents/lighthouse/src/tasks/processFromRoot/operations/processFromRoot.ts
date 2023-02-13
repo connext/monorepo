@@ -2,8 +2,10 @@ import {
   createLoggingContext,
   createMethodContext,
   createRequestContext,
+  getNtpTimeSeconds,
   jsonifyError,
   NxtpError,
+  RelayerTaskStatus,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
@@ -122,6 +124,36 @@ export const processSingleRootMessage = async (
       hubProvider,
       hubConnector: hubConnector?.address,
     });
+  }
+
+  if (rootMessage.sentTaskId) {
+    const relayer = relayers.find((r) => r.type === rootMessage.relayerType);
+    if (!relayer) {
+      throw new Error(`Could not find relayer with type ${rootMessage.relayerType}`);
+    }
+    const status = await relayer.instance.getTaskStatus(rootMessage.sentTaskId);
+    if (status === RelayerTaskStatus.ExecSuccess) {
+      logger.info("Process from root sent successfully, waiting for subgraph update", requestContext, methodContext, {
+        rootMessage,
+      });
+      return "";
+    } else if (status === RelayerTaskStatus.ExecPending) {
+      // do nothing
+    } else {
+      // there was an error, so we want to retry
+      logger.info("Found failed status, retrying process", requestContext, methodContext, {
+        rootMessage,
+        status: status,
+      });
+      rootMessage.sentTimestamp = undefined;
+    }
+  }
+
+  if (rootMessage.sentTimestamp && getNtpTimeSeconds() > rootMessage.sentTimestamp + config.relayerWaitTime) {
+    logger.info("Process from root already sent, waiting for subgraph update", requestContext, methodContext, {
+      rootMessage,
+    });
+    return "";
   }
 
   const args = await processorConfig.getArgs({
