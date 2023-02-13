@@ -15,6 +15,7 @@ abstract contract MotherForker is ForgeHelper {
   // ============ Test set up ============
   function setUp() public {
     utils_createForks();
+    utils_assertCanSelectAllForks();
   }
 
   // ============ Utils ==================
@@ -31,5 +32,14 @@ abstract contract MotherForker is ForgeHelper {
     // testing here. Should come from config?
     // TODO: Should submit a pre-generated diamond cut proposal to the Connext Diamond, zoom forward 7 days,
     // and then accept the proposal.
+  }
+
+  function utils_assertCanSelectAllForks() public {
+    // Loop through all the created forks and ensure we can select them.
+    for (uint256 i; i < FORK_IDS.length; i++) {
+      uint256 forkId = FORK_IDS[i];
+      vm.selectFork(forkId);
+      assertEq(vm.activeFork(), forkId);
+    }
   }
 }
