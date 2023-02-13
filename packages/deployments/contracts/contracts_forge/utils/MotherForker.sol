@@ -34,7 +34,7 @@ abstract contract MotherForker is ForgeHelper {
       // Form the key we'll use to identify the env vars needed.
       string memory key = Strings.toString(block.chainid);
       // Get address of the connext diamond on the fork.
-      connextAddressByFork[forkId] = cheats.envAddress(string.concat("CONNEXT_ADDR_", key));
+      connextAddressByFork[forkId] = vm.envAddress(string.concat("CONNEXT_ADDR_", key));
     }
   }
 
