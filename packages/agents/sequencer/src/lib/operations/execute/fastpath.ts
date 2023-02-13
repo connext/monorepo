@@ -12,7 +12,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -398,19 +398,13 @@ export const executeFastPathData = async (
     }
 
     if (!taskId) {
-      logger.error(
-        `No combinations sent to relayer for the round ${roundIdInNum}`,
-        requestContext,
-        methodContext,
-        jsonifyError(new Error("No successfully sent bids")),
-        {
-          transferId,
-          origin,
-          destination,
-          round: roundIdInNum,
-          combinations: combinedBidsForRound,
-        },
-      );
+      logger.warn(`No combinations sent to relayer for the round ${roundIdInNum}`, requestContext, methodContext, {
+        transferId,
+        origin,
+        destination,
+        round: roundIdInNum,
+        combinations: combinedBidsForRound,
+      });
       continue;
     }
 
@@ -433,6 +427,11 @@ export const executeFastPathData = async (
     await database.saveTransfers([transfer]);
 
     return { taskId };
+  }
+
+  if (!taskId) {
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+    throw new NoBidsSent({ transfer });
   }
 
   return { taskId };
