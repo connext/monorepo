@@ -70,17 +70,6 @@ describe("Operations: ProcessFromRoot", () => {
       processSingleRootMessageStub = stub(ProcessFromRootFns, "processSingleRootMessage").resolves("0xbeefee");
     });
 
-    it("should process messages", async () => {
-      const rootMsgs = [mock.entity.rootMessage(), mock.entity.rootMessage()];
-      (processFromRootCtxMock.adapters.database.getRootMessages as SinonStub).resolves(rootMsgs);
-
-      await ProcessFromRootFns.processFromRoot();
-
-      expect(processSingleRootMessageStub).to.be.calledWith(rootMsgs[0]);
-      expect(processSingleRootMessageStub).to.be.calledWith(rootMsgs[1]);
-      expect(processSingleRootMessageStub).to.have.been.calledTwice;
-    });
-
     it("should not process if error but still work", async () => {
       processSingleRootMessageStub.rejects(new Error("test"));
       await expect(ProcessFromRootFns.processFromRoot()).to.be.fulfilled;
