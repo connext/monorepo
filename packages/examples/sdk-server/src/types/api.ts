@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { XTransferStatus } from "@connext/nxtp-utils";
+import { XTransferStatus, XTransferErrorStatus } from "@connext/nxtp-utils";
 
 export const getCanonicalTokenIdSchema = Type.Object({
   domainId: Type.String(),
@@ -203,6 +203,7 @@ export const getTransfersSchema = Type.Object({
     userAddress: Type.Optional(Type.String()),
     routerAddress: Type.Optional(Type.String()),
     status: Type.Optional(Type.Enum(XTransferStatus)),
+    errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
     transferId: Type.Optional(Type.String()),
     transactionHash: Type.Optional(Type.String()),
     range: Type.Optional(
