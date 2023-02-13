@@ -1,4 +1,12 @@
-import { BaseRequestContext, createRequestContext, expect, Logger, mock, RelayerType } from "@connext/nxtp-utils";
+import {
+  BaseRequestContext,
+  createRequestContext,
+  expect,
+  Logger,
+  mock,
+  RelayerType,
+  RootMessage,
+} from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import * as ProcessFromRootFns from "../../../../src/tasks/processFromRoot/operations/processFromRoot";
@@ -76,6 +84,33 @@ describe("Operations: ProcessFromRoot", () => {
     it("should not process if error but still work", async () => {
       processSingleRootMessageStub.rejects(new Error("test"));
       await expect(ProcessFromRootFns.processFromRoot()).to.be.fulfilled;
+    });
+
+    it("should only process a single root message for each domain", async () => {
+      const rootMessageA: RootMessage[] = [
+        { ...mock.entity.rootMessage(), timestamp: 1 },
+        { ...mock.entity.rootMessage(), timestamp: 2 },
+        { ...mock.entity.rootMessage(), timestamp: 3 },
+      ];
+      const rootMessageB: RootMessage[] = [
+        { ...mock.entity.rootMessage(), timestamp: 1, spokeDomain: "test2" },
+        { ...mock.entity.rootMessage(), timestamp: 2, spokeDomain: "test2" },
+      ];
+      const rootMessageC: RootMessage[] = [{ ...mock.entity.rootMessage(), spokeDomain: "test3" }];
+
+      (processFromRootCtxMock.adapters.database.getRootMessages as SinonStub).resolves(
+        rootMessageA.concat(rootMessageB).concat(rootMessageC),
+      );
+
+      await ProcessFromRootFns.processFromRoot();
+
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageA[2]);
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageB[1]);
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageC[0]);
+      expect(processSingleRootMessageStub).to.callCount(3);
+      expect(
+        processFromRootCtxMock.adapters.database.markRootMessagesProcessed as SinonStub,
+      ).to.be.calledOnceWithExactly([rootMessageA[0], rootMessageA[1], rootMessageB[0]]);
     });
   });
 });

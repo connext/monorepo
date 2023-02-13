@@ -76,7 +76,27 @@ export const processFromRoot = async () => {
     logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
   }
 
-  for (const msg of unprocessed) {
+  // get latest unprocessed for each spoke
+  const byDomain: Record<string, RootMessage[]> = {};
+  unprocessed.forEach((msg) => {
+    if (!byDomain[msg.spokeDomain]) {
+      byDomain[msg.spokeDomain] = [];
+    }
+    byDomain[msg.spokeDomain].push(msg);
+  });
+
+  const toMarkProcessed: RootMessage[] = [];
+
+  const latestUnprocessed: RootMessage[] = [];
+  Object.keys(byDomain).forEach((domain) => {
+    byDomain[domain].sort((a, b) => a.timestamp - b.timestamp);
+    latestUnprocessed.push(byDomain[domain].pop()!);
+    toMarkProcessed.push(...byDomain[domain]);
+  });
+
+  await database.markRootMessagesProcessed(toMarkProcessed);
+
+  for (const msg of latestUnprocessed) {
     const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
     logger.info("Processing root message", requestContext, methodContext, { msg });
 
