@@ -55,6 +55,7 @@ import {
   resetBackoffs,
   updateErrorStatus,
   saveStableSwapPoolEvent,
+  markRootMessagesProcessed,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -188,6 +189,7 @@ export type Database = {
     _poolEvents: StableSwapPoolEvent[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -241,6 +243,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveStableSwapExchange,
     updateErrorStatus,
     saveStableSwapPoolEvent,
+    markRootMessagesProcessed,
   };
 };
 

@@ -56,6 +56,7 @@ import {
   increaseBackoff,
   resetBackoffs,
   updateErrorStatus,
+  markRootMessagesProcessed,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -337,9 +338,9 @@ describe("Database client", () => {
     await saveTransfers(transfers, pool);
     const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")], pool);
     expect(set.length).to.eq(3);
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[0].origin?.messageHash)).to.be.true;
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[1].origin?.messageHash)).to.be.true;
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[2].origin?.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[0].origin!.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[1].origin!.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[2].origin!.messageHash)).to.be.true;
   });
 
   it("should save valid boolean fields", async () => {
@@ -954,5 +955,17 @@ describe("Database client", () => {
     await updateErrorStatus(transfer.transferId, XTransferErrorStatus.LowSlippage, pool);
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].error_status).to.eq(XTransferErrorStatus.LowSlippage);
+  });
+
+  it("should mark root messages processed", async () => {
+    const roots = [mock.entity.rootMessage(), mock.entity.rootMessage(), mock.entity.rootMessage()];
+    await saveSentRootMessages(roots, pool);
+    await markRootMessagesProcessed([roots[0], roots[1]], pool);
+    let queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[0].id]);
+    expect(queryRes.rows[0].processed).to.eq(true);
+    queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[1].id]);
+    expect(queryRes.rows[0].processed).to.eq(true);
+    queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
+    expect(queryRes.rows[0].processed).to.eq(false);
   });
 });

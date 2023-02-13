@@ -42,5 +42,6 @@ export const mockDatabase = (): Database => {
     resetBackoffs: stub().resolves(),
     saveStableSwapPoolEvent: stub().resolves(),
     updateErrorStatus: stub().resolves(),
+    markRootMessagesProcessed: stub().resolves(),
   };
 };

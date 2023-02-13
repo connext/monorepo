@@ -819,3 +819,12 @@ export const saveStableSwapPoolEvent = async (
 
   await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
 };
+
+export const markRootMessagesProcessed = async (
+  rootMessages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const rootMessageIds = rootMessages.map((m) => m.id);
+  await db.update("root_messages", { processed: true }, { id: dc.isIn(rootMessageIds) }).run(poolToUse);
+};
