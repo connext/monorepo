@@ -39,8 +39,8 @@ export const mockDatabase = (): Database => {
     increaseBackoff: stub().resolves(),
     saveStableSwapPool: stub().resolves(),
     saveStableSwapExchange: stub().resolves(),
-    increaseBackoff: stub().resolves(),
     resetBackoffs: stub().resolves(),
     saveStableSwapPoolEvent: stub().resolves(),
+    updateErrorStatus: stub().resolves(),
   };
 };
