@@ -107,6 +107,7 @@ export class SdkUtils extends SdkShared {
    * @param params.userAddress - (optional) The origin caller address.
    * @param params.routerAddress - (optional) The router that facilitated the transfer.
    * @param params.status - (optional) The xcall status.
+   * @param params.errorStatus - (optional) The xcall error status.
    * @param params.transferId - (optional) The unique transfer ID of the xcall.
    * @param params.transactionHash - (optional) The transaction hash associated with the xcall.
    * @param params.xcallCaller - (optional) The origin caller of the xcall.
@@ -170,7 +171,8 @@ export class SdkUtils extends SdkShared {
    *   "xcall_tx_origin": "0x6d2a06543d23cc6523ae5046add8bb60817e0a94",
    *   "execute_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
    *   "reconcile_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
-   *   "relayer_fee": "8424181656635272573"
+   *   "relayer_fee": "8424181656635272573",
+   *   "error_status": null
    * }
    * ```
    */
