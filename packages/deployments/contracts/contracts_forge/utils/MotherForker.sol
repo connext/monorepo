@@ -14,7 +14,12 @@ abstract contract MotherForker is ForgeHelper {
   string[2][] public NETWORKS; // [[name, rpc], [name, rpc], ...]
   uint256[] public FORK_IDS;
 
-  mapping(uint256 => address) public connextAddressByFork;
+  struct ForkInfo {
+    address connext;
+    address[] assets;
+  }
+
+  mapping(uint256 => ForkInfo) public forkInfo;
 
   // ============ Test set up ============
   function setUp() public {
@@ -34,7 +39,12 @@ abstract contract MotherForker is ForgeHelper {
       // Form the key we'll use to identify the env vars needed.
       string memory key = Strings.toString(block.chainid);
       // Get address of the connext diamond on the fork.
-      connextAddressByFork[forkId] = vm.envAddress(string.concat("CONNEXT_ADDR_", key));
+      address connext = vm.envAddress(string.concat("CONNEXT_", key));
+
+      string memory delimiter = ",";
+      address[] memory assets = vm.envAddress(string.concat("ASSETS_", key), delimiter);
+
+      forkInfo[forkId] = ForkInfo({connext: connext, assets: assets});
     }
   }
 
