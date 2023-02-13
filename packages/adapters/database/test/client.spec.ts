@@ -340,9 +340,9 @@ describe("Database client", () => {
     await saveTransfers(transfers, pool);
     const set = await getCompletedTransfersByMessageHashes([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")], pool);
     expect(set.length).to.eq(3);
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[0].origin?.messageHash)).to.be.true;
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[1].origin?.messageHash)).to.be.true;
-    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[2].origin?.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[0].origin!.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[1].origin!.messageHash)).to.be.true;
+    expect([mkHash("0xaaa"), mkHash("0xbbb"), mkHash("0xccc")].includes(set[2].origin!.messageHash)).to.be.true;
   });
 
   it("should save valid boolean fields", async () => {
