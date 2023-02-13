@@ -361,9 +361,6 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const chainId = await this.getChainId(domainId);
-    const ConnextContractAddress = (await this.getConnext(domainId)).address;
-
     // Construct the TransferInfo for this transferId
     const sdkUtils = await SdkUtils.create(this.config);
     const transfers = await sdkUtils.getTransfers({ transferId: transferId });
@@ -375,6 +372,29 @@ export class SdkBase extends SdkShared {
       });
     }
     const transfer = transfers[0];
+
+    // Check to make sure this domain is the destination
+    if (transfer.destination_domain !== domainId) {
+      throw new ParamsInvalid({
+        paramsError: "Must update slippage on destination domain",
+        domain: domainId,
+        destination: transfer.destionation_domain,
+        transferId,
+      });
+    }
+
+    // Check to make sure it is being sent from delegate
+    if (transfer.delegate.toLowerCase() !== signerAddress.toLowerCase()) {
+      throw new ParamsInvalid({
+        paramsError: "Must update slippage with delegate",
+        delegate: transfer.delegate,
+        signer: this.config.signerAddress,
+        transferId,
+      });
+    }
+
+    const chainId = await this.getChainId(domainId);
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     const transferInfo = {
       originDomain: transfer.origin_domain,
