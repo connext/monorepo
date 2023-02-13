@@ -538,7 +538,10 @@ CREATE TABLE public.root_messages (
     block_number integer,
     processed boolean DEFAULT false NOT NULL,
     processed_transaction_hash character(66),
-    leaf_count numeric
+    leaf_count numeric,
+    sent_time timestamp with time zone,
+    sent_task_id character(66),
+    relayer_type text
 );
 
 
@@ -952,4 +955,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230206131920'),
     ('20230207104528'),
     ('20230209013027'),
-    ('20230209043516');
+    ('20230209043516'),
+    ('20230213141356');
