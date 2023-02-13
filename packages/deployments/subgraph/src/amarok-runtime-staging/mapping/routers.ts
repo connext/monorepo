@@ -13,7 +13,7 @@ import {
 } from "../../../generated/Connext/Connext";
 import { Router, Setting } from "../../../generated/schema";
 
-import { getOrCreateAssetBalance } from "./helper";
+import { getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 
 /// MARK - Routers
@@ -93,6 +93,13 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
 
+  // update router tvl
+  let routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);
+  if (routerTvl) {
+    routerTvl.volume = assetBalance.amount;
+    routerTvl.save();
+  }
+
   // save
   assetBalance.save();
 }
@@ -108,6 +115,13 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
+
+  // update router tvl
+  let routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);
+  if (routerTvl) {
+    routerTvl.volume = assetBalance.amount;
+    routerTvl.save();
+  }
 
   // save
   assetBalance.save();
