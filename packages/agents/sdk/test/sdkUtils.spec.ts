@@ -1,5 +1,5 @@
 import { reset, restore, stub } from "sinon";
-import { expect, XTransferStatus, getRandomBytes32 } from "@connext/nxtp-utils";
+import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus } from "@connext/nxtp-utils";
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
@@ -96,6 +96,15 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getTransfers({
         status: XTransferStatus.XCalled,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with status", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        errorStatus: XTransferErrorStatus.ExecutionError,
       });
 
       expect(res).to.not.be.undefined;
