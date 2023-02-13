@@ -191,7 +191,8 @@ CREATE TABLE public.transfers (
     relayer_fee character varying(255),
     error_status character varying(255),
     backoff integer DEFAULT 32 NOT NULL,
-    next_execution_timestamp integer DEFAULT 0 NOT NULL
+    next_execution_timestamp integer DEFAULT 0 NOT NULL,
+    updated_slippage numeric
 );
 
 
@@ -952,4 +953,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230206131920'),
     ('20230207104528'),
     ('20230209013027'),
-    ('20230209043516');
+    ('20230209043516'),
+    ('20230213052113');
