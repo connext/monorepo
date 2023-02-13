@@ -17,7 +17,7 @@ import {
   SlippageUpdate,
 } from "../../../generated/schema";
 
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
+import { getChainId, getOrCreateAsset, getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
 
 /// MARK - Connext Bridge
 /**
@@ -123,6 +123,13 @@ export function handleExecuted(event: Executed): void {
       assetBalance.feesEarned = assetBalance.feesEarned.plus(feesTaken.div(BigInt.fromI32(num)));
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, event.params.args.routers[i], event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.volume = assetBalance.amount;
+        routerTvl.save();
+      }
     }
 
     transfer.routersFee = feesTaken;
@@ -197,6 +204,13 @@ export function handleReconciled(event: Reconciled): void {
       const assetBalance = getOrCreateAssetBalance(event.params.local, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, Address.fromString(router), event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.volume = assetBalance.amount;
+        routerTvl.save();
+      }
     }
   }
 
