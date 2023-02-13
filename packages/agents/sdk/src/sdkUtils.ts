@@ -189,7 +189,7 @@ export class SdkUtils extends SdkShared {
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
     const statusIdentifier = status ? `status=eq.${status}&` : "";
-    const errorStatusIdentifier = status ? `error_status=eq.${errorStatus}&` : "";
+    const errorStatusIdentifier = errorStatus ? `error_status=eq.${errorStatus}&` : "";
     const transferIdIdentifier = transferId ? `transfer_id=eq.${transferId.toLowerCase()}&` : "";
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
