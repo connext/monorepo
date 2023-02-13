@@ -29,7 +29,7 @@ contract BridgeFacetUpgradeTest is MotherForker {
         // TODO: deal the user the target ERC20 asset (by spoofing state?)
         // TODO: User needs to approve connext for target amount
 
-        BridgeFacet(connext).xcall{value: relayerFee}(
+        bytes32 transferId = BridgeFacet(connext).xcall{value: relayerFee}(
           // TODO: How do we pick the destination? Just choose another random fork?
           // For now, just setting this to be the hub!
           6648936, // Destination is hub, mainnet.
@@ -40,6 +40,8 @@ contract BridgeFacetUpgradeTest is MotherForker {
           300,
           bytes32("")
         );
+
+        // TODO: XCall is sent. We should switch to the other fork and `execute`.
       }
     }
   }
