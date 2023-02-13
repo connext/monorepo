@@ -15,6 +15,8 @@ import {
   ReceivedAggregateRoot,
   mkHash,
   XTransferErrorStatus,
+  SlippageUpdate,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -56,6 +58,7 @@ import {
   increaseBackoff,
   resetBackoffs,
   updateErrorStatus,
+  updateSlippage,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -954,5 +957,30 @@ describe("Database client", () => {
     await updateErrorStatus(transfer.transferId, XTransferErrorStatus.LowSlippage, pool);
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].error_status).to.eq(XTransferErrorStatus.LowSlippage);
+  });
+
+  it("should update slippage", async () => {
+    const transfers: XTransfer[] = [mock.entity.xtransfer(), mock.entity.xtransfer(), mock.entity.xtransfer()];
+    const slippageUpdates: SlippageUpdate[] = transfers.map((t, index) => {
+      return {
+        domain: t.xparams.destinationDomain,
+        id: t.transferId,
+        slippage: (index + 1).toString(),
+        timestamp: getNtpTimeSeconds(),
+        transferId: t.transferId,
+      };
+    });
+    await saveTransfers(transfers, pool);
+    let queryRes: any;
+    for (let i = 0; i < transfers.length; i++) {
+      queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfers[i].transferId]);
+      expect(queryRes.rows[0].updated_slippage).to.eq(null);
+    }
+    await updateSlippage(slippageUpdates, pool);
+
+    for (let i = 0; i < transfers.length; i++) {
+      queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfers[i].transferId]);
+      expect(queryRes.rows[0].updated_slippage).to.eq((i + 1).toString());
+    }
   });
 });
