@@ -44,6 +44,7 @@ export const transfersCastForUrl =
     "routers",
     "delegate",
     "slippage",
+    "updated_slippage",
     "destination_transacting_asset",
     "destination_transacting_amount",
     "destination_local_asset",
@@ -131,6 +132,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
               asset: transfer.destination_local_asset!,
             },
           },
+          updatedSlippage: transfer.updated_slippage,
           routers: transfer.routers || [],
           status: transfer.status === "XCalled" ? "Executed" : (transfer.status as XTransferStatus),
           execute: {

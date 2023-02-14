@@ -64,6 +64,8 @@ export const XTransferDestinationSchema = Type.Object({
   // Both Executed and Reconciled events emit `routers`.
   routers: Type.Array(TAddress),
 
+  updatedSlippage: Type.Optional(TIntegerString),
+
   // Assets
   assets: Type.Object({
     // Transacting assets only come from Executed event.

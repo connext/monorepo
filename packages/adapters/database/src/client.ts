@@ -18,6 +18,7 @@ import {
   XTransferErrorStatus,
   StableSwapPoolEvent,
   RouterDailyTVL,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -847,4 +848,18 @@ export const saveRouterDailyTVL = async (
   const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
 
   await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const updateSlippage = async (
+  _slippageUpdates: SlippageUpdate[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  // todo can this be done in a single query?
+  for (const update of _slippageUpdates) {
+    await db
+      .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
+      .run(poolToUse);
+  }
 };
