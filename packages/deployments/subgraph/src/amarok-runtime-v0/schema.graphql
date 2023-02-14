@@ -34,6 +34,14 @@ type Router @entity {
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
 
+type RouterDailyTVL @entity {
+  id: ID!
+  router: Router!
+  asset: Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
 type Setting @entity {
   id: ID!
   maxRoutersPerTransfer: BigInt!
