@@ -15,6 +15,7 @@ import {
   SlippageUpdate,
   StableSwapPoolEvent,
   PoolActionType,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -629,5 +630,29 @@ export const slippageUpdate = (entity: any): SlippageUpdate => {
     transferId: entity.transfer.id,
     timestamp: entity.timestamp,
     domain: entity.domain,
+  };
+};
+
+export const routerDailyTvl = (entity: any): RouterDailyTVL => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
+  }
+  for (const field of ["id", "asset", "router", "timestamp", "volume"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    asset: entity.asset.id,
+    router: entity.router.id,
+    domain: entity.domain,
+    timestamp: entity.timestamp,
+    volume: entity.volume,
   };
 };

@@ -275,6 +275,18 @@ export const SLIPPAGE_UPDATE_ENTITY = `
       timestamp
 `;
 
+export const ROUTER_DAILY_TVL_ENTITY = `
+      id
+      asset {
+        id
+      }
+      router {
+        id
+      }
+      timestamp
+      volume
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -967,6 +979,22 @@ const slippageUpdateQueryString = (
   ) {${SLIPPAGE_UPDATE_ENTITY}}`;
 };
 
+const routerDailyTVLQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_routerDailyTVLs(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${ROUTER_DAILY_TVL_ENTITY}}`;
+};
+
 export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
   const { config } = getContext();
 
@@ -1087,6 +1115,32 @@ export const getSlippageUpdatesQuery = (agents: Map<string, SubgraphQueryByTimes
 
   return gql`
     query GetSlippageUpdates { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRouterDailyTVLQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += routerDailyTVLQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRouterDailyTVL { 
         ${combinedQuery}
       }
   `;
