@@ -75,15 +75,14 @@ export const updateDailyRouterTvl = async () => {
   if (queryMetaParams.size > 0) {
     // Get daily router tvls for all domains in the mapping.
     const tvls = await subgraph.getRouterDailyTVLByDomainAndTimestamp(queryMetaParams);
-    console.log(tvls);
-    // tvls.forEach((tvl) => {
-    //   const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-    //     "updateDailyRouterTvl",
-    //     undefined,
-    //     tvl.id,
-    //   );
-    //   logger.info("Retrieved daily router tvl", _requestContext, _methodContext, { tvl });
-    // });
+    tvls.forEach((tvl) => {
+      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+        "updateDailyRouterTvl",
+        undefined,
+        tvl.id,
+      );
+      logger.info("Retrieved daily router tvl", _requestContext, _methodContext, { tvl });
+    });
     const checkpoints = domains
       .map((domain) => {
         const domainTvls = tvls.filter((event) => event.domain === domain);
