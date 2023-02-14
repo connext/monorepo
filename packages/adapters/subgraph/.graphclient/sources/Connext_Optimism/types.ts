@@ -1280,6 +1280,8 @@ export type Query = {
   optimism_assetBalances: Array<optimism_AssetBalance>;
   optimism_router?: Maybe<optimism_Router>;
   optimism_routers: Array<optimism_Router>;
+  optimism_routerDailyTVL?: Maybe<optimism_RouterDailyTVL>;
+  optimism_routerDailyTVLs: Array<optimism_RouterDailyTVL>;
   optimism_setting?: Maybe<optimism_Setting>;
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
@@ -1376,6 +1378,24 @@ export type Queryoptimism_routersArgs = {
   orderBy?: InputMaybe<optimism_Router_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Router_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RouterDailyTVL_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1939,6 +1959,94 @@ export type optimism_RouterassetBalancesArgs = {
   where?: InputMaybe<optimism_AssetBalance_filter>;
 };
 
+export type optimism_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: optimism_Router;
+  asset: optimism_Asset;
+  timestamp: Scalars['BigInt'];
+  volume: Scalars['BigInt'];
+};
+
+export type optimism_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<optimism_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<optimism_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  volume?: InputMaybe<Scalars['BigInt']>;
+  volume_not?: InputMaybe<Scalars['BigInt']>;
+  volume_gt?: InputMaybe<Scalars['BigInt']>;
+  volume_lt?: InputMaybe<Scalars['BigInt']>;
+  volume_gte?: InputMaybe<Scalars['BigInt']>;
+  volume_lte?: InputMaybe<Scalars['BigInt']>;
+  volume_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_RouterDailyTVL_filter>>>;
+};
+
+export type optimism_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'asset'
+  | 'timestamp'
+  | 'volume';
+
 export type optimism_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -2218,6 +2326,8 @@ export type Subscription = {
   optimism_assetBalances: Array<optimism_AssetBalance>;
   optimism_router?: Maybe<optimism_Router>;
   optimism_routers: Array<optimism_Router>;
+  optimism_routerDailyTVL?: Maybe<optimism_RouterDailyTVL>;
+  optimism_routerDailyTVLs: Array<optimism_RouterDailyTVL>;
   optimism_setting?: Maybe<optimism_Setting>;
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
@@ -2314,6 +2424,24 @@ export type Subscriptionoptimism_routersArgs = {
   orderBy?: InputMaybe<optimism_Router_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Router_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RouterDailyTVL_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2723,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimism_routers: InContextSdkMethod<Query['optimism_routers'], Queryoptimism_routersArgs, MeshContext>,
   /** null **/
+  optimism_routerDailyTVL: InContextSdkMethod<Query['optimism_routerDailyTVL'], Queryoptimism_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  optimism_routerDailyTVLs: InContextSdkMethod<Query['optimism_routerDailyTVLs'], Queryoptimism_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   optimism_setting: InContextSdkMethod<Query['optimism_setting'], Queryoptimism_settingArgs, MeshContext>,
   /** null **/
   optimism_settings: InContextSdkMethod<Query['optimism_settings'], Queryoptimism_settingsArgs, MeshContext>,
@@ -2667,6 +2799,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_router: InContextSdkMethod<Subscription['optimism_router'], Subscriptionoptimism_routerArgs, MeshContext>,
   /** null **/
   optimism_routers: InContextSdkMethod<Subscription['optimism_routers'], Subscriptionoptimism_routersArgs, MeshContext>,
+  /** null **/
+  optimism_routerDailyTVL: InContextSdkMethod<Subscription['optimism_routerDailyTVL'], Subscriptionoptimism_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  optimism_routerDailyTVLs: InContextSdkMethod<Subscription['optimism_routerDailyTVLs'], Subscriptionoptimism_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   optimism_setting: InContextSdkMethod<Subscription['optimism_setting'], Subscriptionoptimism_settingArgs, MeshContext>,
   /** null **/

@@ -261,10 +261,11 @@ Simmilar to Daily Transfer Metrics.
 
 - Aggreagtions:
 
-  - `tvl`: TVL aggregated by transfer parameters
+  - `balance`: TVL aggregated by transfer parameters
 
 - Transfer parameters:
-  - `latest_transfer_day`
+  - `day`
+  - `domain`
   - `asset`
   - `router`
 
@@ -272,10 +273,11 @@ Simmilar to Daily Transfer Metrics.
 
 ```json
 {
-  "latest_transfer_day": "2022-07-27",
+  "day": "2022-07-27",
+  "domain": "1337",
   "asset": "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9",
   "router": "0x90adf3d746e1cae02d8f9e2b62faabfb1229d9b8",
-  "tvl": 100000000000000000000000
+  "balance": 100000000000000000000000
 }
 ```
 

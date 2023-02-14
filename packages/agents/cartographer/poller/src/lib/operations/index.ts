@@ -1,5 +1,5 @@
 export { updateTransfers } from "./transfers";
-export { updateRouters } from "./routers";
+export { updateRouters, updateDailyRouterTvl } from "./routers";
 export {
   retrieveOriginMessages,
   updateMessages,
