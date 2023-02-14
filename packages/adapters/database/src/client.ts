@@ -216,7 +216,7 @@ const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Inse
     asset: tvl.asset,
     router: tvl.router,
     day: new Date(tvl.timestamp * 1000),
-    volume: tvl.volume,
+    balance: tvl.balance,
   };
 };
 

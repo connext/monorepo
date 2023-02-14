@@ -638,7 +638,7 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
   if (!entity) {
     throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
   }
-  for (const field of ["id", "asset", "router", "timestamp", "volume"]) {
+  for (const field of ["id", "asset", "router", "timestamp", "balance"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field", {
         missingField: field,
@@ -654,6 +654,6 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
     domain: entity.domain,
     timestamp: entity.timestamp,
     // TODO: why negative router balances on subgraph?
-    volume: BigNumber.from(entity.volume).isNegative() ? "0" : entity.volume,
+    balance: BigNumber.from(entity.balance).isNegative() ? "0" : entity.balance,
   };
 };

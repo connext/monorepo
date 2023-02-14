@@ -257,6 +257,6 @@ export const RouterDailyTVLSchema = Type.Object({
   router: TAddress,
   domain: Type.String(),
   timestamp: Type.Number(),
-  volume: TIntegerString,
+  balance: TIntegerString,
 });
 export type RouterDailyTVL = Static<typeof RouterDailyTVLSchema>;

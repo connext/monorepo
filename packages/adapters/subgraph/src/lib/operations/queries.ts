@@ -284,7 +284,7 @@ export const ROUTER_DAILY_TVL_ENTITY = `
         id
       }
       timestamp
-      volume
+      balance
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
