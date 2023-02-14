@@ -6,12 +6,13 @@ import {
   jsonifyError,
   NxtpError,
   RelayerTaskStatus,
+  RelayerType,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
-import { ProcessConfigNotAvailable } from "../errors";
+import { CouldNotFindRelayer, ProcessConfigNotAvailable } from "../errors";
 import {
   GetProcessArgsParams,
   getProcessFromOptimismRootArgs,
@@ -93,7 +94,7 @@ export const processFromRoot = async () => {
 export const processSingleRootMessage = async (
   rootMessage: RootMessage,
   requestContext: RequestContext,
-): Promise<string> => {
+): Promise<string | undefined> => {
   const {
     adapters: { relayers, contracts, chainreader },
     logger,
@@ -129,14 +130,17 @@ export const processSingleRootMessage = async (
   if (rootMessage.sentTaskId) {
     const relayer = relayers.find((r) => r.type === rootMessage.relayerType);
     if (!relayer) {
-      throw new Error(`Could not find relayer with type ${rootMessage.relayerType}`);
+      throw new CouldNotFindRelayer(rootMessage.relayerType as RelayerType, {
+        rootMessage,
+      });
     }
     const status = await relayer.instance.getTaskStatus(rootMessage.sentTaskId);
+    console.log("status: ", status);
     if (status === RelayerTaskStatus.ExecSuccess) {
       logger.info("Process from root sent successfully, waiting for subgraph update", requestContext, methodContext, {
         rootMessage,
       });
-      return "";
+      return undefined;
     } else if (status === RelayerTaskStatus.ExecPending) {
       // do nothing
     } else {
@@ -153,7 +157,7 @@ export const processSingleRootMessage = async (
     logger.info("Process from root already sent, waiting for subgraph update", requestContext, methodContext, {
       rootMessage,
     });
-    return "";
+    return undefined;
   }
 
   const args = await processorConfig.getArgs({

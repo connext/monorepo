@@ -186,7 +186,7 @@ export const mock = {
       };
     },
     relayers: () => [
-      { instance: mockRelayer(), type: "Mock", apiKey: "foo" } as {
+      { instance: mockRelayer(), type: RelayerType.Mock, apiKey: "foo" } as {
         instance: Relayer;
         type: RelayerType;
         apiKey: string;

@@ -11,7 +11,7 @@ import { existsSync, readFileSync } from "./mockable";
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 const DEFAULT_PROVER_BATCH_SIZE = 10;
-const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
+export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 
 dotenvConfig();
 
