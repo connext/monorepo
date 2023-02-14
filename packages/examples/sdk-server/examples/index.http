@@ -285,11 +285,11 @@ Content-Type: application/json
 
 {
   "params": {
-    "userAddress": "{{yourAddress}}",
-    "routerAddress": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c",
-    "status": "CompletedFast",
-    "transferId": "0x4a379d3367bb589ddc00dd7c2d7d6557bed75c9595e5cd6a4369d85e587ec386",
-    "transactionHash": "0xd1b4f723c1f7453bc38e8dd64f56830ed1e907b95c8b5eba55a9f1a26d867ea8"
+    "errorStatus": "ExecutionError",
+    "range": {
+      "limit": 100,
+      "offset": 0
+    }
   }
 }
 
