@@ -168,10 +168,10 @@ POST {{baseUrl}}/calculateSwapPriceImpact
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "6450786",
   "amountX": "1000000",
-  "tokenX": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "tokenY": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+  "tokenX": "0x5e7D83dA751F4C9694b13aF351B30aC108f32C38",
+  "tokenY": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
 }
 
 ##############
@@ -266,6 +266,17 @@ Content-Type: application/json
   "domainId": "1869640809",
   "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
   "relayerFee": "100000000000"
+}
+
+##############
+### POST updateSlippage 
+POST {{baseUrl}}/updateSlippage
+Content-Type: application/json
+
+{
+  "domainId": "6778479",
+  "transferId": "0x7e5f0712a2f25b9160439fdd05be3b212e65f7ae5a03980947be1ce576ae4869",
+  "slippage": "300"
 }
 
 ##############
