@@ -700,11 +700,11 @@ declare module 'zapatos/schema' {
       */
       day: Date;
       /**
-      * **daily_router_tvl.volume**
+      * **daily_router_tvl.balance**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      volume: string;
+      balance: string;
     }
     export interface JSONSelectable {
       /**
@@ -738,11 +738,11 @@ declare module 'zapatos/schema' {
       */
       day: db.DateString;
       /**
-      * **daily_router_tvl.volume**
+      * **daily_router_tvl.balance**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      volume: string;
+      balance: string;
     }
     export interface Whereable {
       /**
@@ -776,11 +776,11 @@ declare module 'zapatos/schema' {
       */
       day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_router_tvl.volume**
+      * **daily_router_tvl.balance**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      volume?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      balance?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -814,11 +814,11 @@ declare module 'zapatos/schema' {
       */
       day: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment;
       /**
-      * **daily_router_tvl.volume**
+      * **daily_router_tvl.balance**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      volume: string | db.Parameter<string> | db.SQLFragment;
+      balance: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -852,11 +852,11 @@ declare module 'zapatos/schema' {
       */
       day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment>;
       /**
-      * **daily_router_tvl.volume**
+      * **daily_router_tvl.balance**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      volume?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      balance?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
     export type UniqueIndex = 'daily_router_tvl_pkey';
     export type Column = keyof Selectable;

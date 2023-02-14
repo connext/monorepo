@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.daily_router_tvl (
     asset character(42) NOT NULL,
     router character(42) NOT NULL,
     day date NOT NULL,
-    volume character varying (255) NOT NULL,
+    balance character varying (255) NOT NULL,
     PRIMARY KEY(id)
 );
 
