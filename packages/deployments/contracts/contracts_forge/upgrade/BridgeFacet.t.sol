@@ -41,7 +41,8 @@ contract BridgeFacetUpgradeTest is MotherForker {
           bytes32("")
         );
 
-        // TODO: XCall is sent. We should switch to the other fork and `execute`.
+        // TODO: XCall is sent. Next, we should execute with a router, delivering this asset.
+        // Since we're just testing fast path, execute doesn't have to come from a real xcall.
       }
     }
   }
