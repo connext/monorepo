@@ -96,7 +96,7 @@ export const processSingleRootMessage = async (
   requestContext: RequestContext,
 ): Promise<string | undefined> => {
   const {
-    adapters: { relayers, contracts, chainreader },
+    adapters: { relayers, contracts, chainreader, database },
     logger,
     chainData,
     config,
@@ -185,7 +185,7 @@ export const processSingleRootMessage = async (
     hubChain: hubChainId,
   });
 
-  const { taskId } = await sendWithRelayerWithBackup(
+  const { taskId, relayerType } = await sendWithRelayerWithBackup(
     hubChainId,
     rootMessage.hubDomain,
     hubConnector.address,
@@ -195,6 +195,13 @@ export const processSingleRootMessage = async (
     logger,
     requestContext,
   );
+
+  // Upsert with latest task meta data
+  rootMessage.sentTaskId = taskId;
+  rootMessage.relayerType = relayerType;
+  rootMessage.sentTimestamp = getNtpTimeSeconds();
+
+  await database.saveSentRootMessages([rootMessage]);
 
   logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
   return taskId;

@@ -108,6 +108,9 @@ describe("Operations: ProcessFromRoot", () => {
       );
       await ProcessFromRootFns.processSingleRootMessage(rootMsg, requestContext);
       expect(sendWithRelayerWithBackupStub).to.have.been.calledOnce;
+      expect(processFromRootCtxMock.adapters.database.saveSentRootMessages).to.have.been.calledOnceWithExactly([
+        rootMsg,
+      ]);
     });
 
     it("should error if no config", async () => {
