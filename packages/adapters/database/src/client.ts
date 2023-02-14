@@ -839,5 +839,5 @@ export const saveRouterDailyTVL = async (
   const poolToUse = _pool ?? pool;
   const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
 
-  await db.upsert("daily_router_tvl", tvls, ["id", "domain"]).run(poolToUse);
+  await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
 };

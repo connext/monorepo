@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.daily_router_tvl (
     router character(42) NOT NULL,
     day date NOT NULL,
     volume character varying (255) NOT NULL,
-    PRIMARY KEY(id, domain)
+    PRIMARY KEY(id)
 );
 
 GRANT SELECT ON public.daily_router_tvl to query;

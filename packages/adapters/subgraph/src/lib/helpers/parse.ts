@@ -648,7 +648,7 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
   }
 
   return {
-    id: entity.id,
+    id: `${entity.domain}-${entity.id}`,
     asset: entity.asset.id,
     router: entity.router.id,
     domain: entity.domain,
