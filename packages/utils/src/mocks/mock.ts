@@ -24,7 +24,6 @@ import {
   StableSwapPool,
   StableSwapExchange,
   StableSwapPoolEvent,
-  RelayerType,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
