@@ -296,7 +296,6 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
-  transfer.slippage = event.params.slippage;
   transfer.bumpSlippageCount = transfer.bumpSlippageCount
     ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
     : BigInt.fromI32(1);

@@ -240,6 +240,9 @@ export const updateBackoffs = async (): Promise<void> => {
     });
   }
 
+  // update updated_slippage value for transfers
+  await database.updateSlippage(updates);
+
   await database.resetBackoffs(
     increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
   );
