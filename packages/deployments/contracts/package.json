@@ -61,7 +61,7 @@
     "node-fetch": "2.6.9",
     "prettier": "2.8.4",
     "prettier-plugin-solidity": "1.1.2",
-    "rimraf": "4.1.2",
+    "rimraf": "3.0.2",
     "sinclair": "0.2.0",
     "sinon": "15.0.1",
     "solhint": "3.3.7",

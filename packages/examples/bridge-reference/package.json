@@ -47,7 +47,7 @@
     "postcss": "8.4.14",
     "process": "0.11.10",
     "querystring-es3": "0.2.1",
-    "rimraf": "4.1.2",
+    "rimraf": "3.0.2",
     "stream-http": "3.2.0",
     "typescript": "4.9.5",
     "url": "0.11.0",

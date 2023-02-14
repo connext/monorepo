@@ -47,7 +47,7 @@
     "nodemon": "2.0.20",
     "nyc": "15.1.0",
     "pino-pretty": "9.2.0",
-    "rimraf": "4.1.2",
+    "rimraf": "3.0.2",
     "sinclair": "0.2.0",
     "sinon": "15.0.1",
     "ts-mocha": "10.0.0",
