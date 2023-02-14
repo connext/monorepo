@@ -1,11 +1,12 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
+import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
 import { providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";
+import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
-import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/errors";
+import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -22,6 +23,7 @@ const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
   let sdkBase: SdkBase;
+  let sdkUtils: SdkUtils;
   let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
@@ -34,6 +36,7 @@ describe("SdkBase", () => {
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
+    sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
     (sdkBase as any).chainreader = chainreader;
   });
 
@@ -373,6 +376,32 @@ describe("SdkBase", () => {
       transferId: mockXTransfer.transferId,
       slippage: "100",
     };
+
+    const mockUpdateSlippageParamsWrongDomain = {
+      domainId: mockXTransfer.xparams.originDomain,
+      transferId: mockXTransfer.transferId,
+      slippage: "100",
+    };
+
+    it("happy: should work", async () => {
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.not.be.undefined;
+    });
+
+    it("should error if not updated on destination domain", async () => {
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
+    });
+
+    it("should error if not updated by delegate", async () => {
+      (sdkBase as any).config.signerAddress = mkAddress("0xbeef");
+
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
+    });
 
     it("should error if signerAddress is undefined", async () => {
       (sdkBase as any).config.signerAddress = undefined;

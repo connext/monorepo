@@ -1,4 +1,11 @@
-import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  ChainData,
+  formatUrl,
+  XTransferStatus,
+  transfersCastForUrl,
+  XTransferErrorStatus,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
@@ -100,6 +107,7 @@ export class SdkUtils extends SdkShared {
    * @param params.userAddress - (optional) The origin caller address.
    * @param params.routerAddress - (optional) The router that facilitated the transfer.
    * @param params.status - (optional) The xcall status.
+   * @param params.errorStatus - (optional) The xcall error status.
    * @param params.transferId - (optional) The unique transfer ID of the xcall.
    * @param params.transactionHash - (optional) The transaction hash associated with the xcall.
    * @param params.xcallCaller - (optional) The origin caller of the xcall.
@@ -163,7 +171,8 @@ export class SdkUtils extends SdkShared {
    *   "xcall_tx_origin": "0x6d2a06543d23cc6523ae5046add8bb60817e0a94",
    *   "execute_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
    *   "reconcile_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
-   *   "relayer_fee": "8424181656635272573"
+   *   "relayer_fee": "8424181656635272573",
+   *   "error_status": null
    * }
    * ```
    */
@@ -171,16 +180,18 @@ export class SdkUtils extends SdkShared {
     userAddress?: string;
     routerAddress?: string;
     status?: XTransferStatus;
+    errorStatus?: XTransferErrorStatus;
     transferId?: string;
     transactionHash?: string;
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller } = params;
+    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } = params;
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
     const statusIdentifier = status ? `status=eq.${status}&` : "";
+    const errorStatusIdentifier = errorStatus ? `error_status=eq.${errorStatus}&` : "";
     const transferIdIdentifier = transferId ? `transfer_id=eq.${transferId.toLowerCase()}&` : "";
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
@@ -191,6 +202,7 @@ export class SdkUtils extends SdkShared {
       userIdentifier +
       routerIdentifier +
       statusIdentifier +
+      errorStatusIdentifier +
       transferIdIdentifier +
       transactionHashIdentifier +
       xcallCallerIdentifier;
