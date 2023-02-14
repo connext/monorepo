@@ -120,6 +120,9 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
     leaf_count: message.count,
+    sent_task_id: message.sentTaskId,
+    sent_timestamp_secs: message.sentTimestamp,
+    relayer_type: message.relayerType,
   };
 };
 
@@ -265,7 +268,11 @@ export const saveSentRootMessages = async (
     .map(sanitizeNull);
 
   // use upsert here. if the message exists, we don't want to overwrite anything, just add the sent tx hash
-  await db.upsert("root_messages", messages, ["id"], { updateColumns: ["sent_transaction_hash"] }).run(poolToUse);
+  await db
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["sent_transaction_hash", "sent_timestamp_secs", "sent_task_id", "relayer_type"],
+    })
+    .run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (
