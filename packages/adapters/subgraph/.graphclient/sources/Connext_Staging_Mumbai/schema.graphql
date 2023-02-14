@@ -2053,7 +2053,7 @@ type stagingmumbai_RouterDailyTVL {
   router: stagingmumbai_Router!
   asset: stagingmumbai_Asset!
   timestamp: BigInt!
-  volume: BigInt!
+  balance: BigInt!
 }
 
 input stagingmumbai_RouterDailyTVL_filter {
@@ -2115,14 +2115,14 @@ input stagingmumbai_RouterDailyTVL_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  volume: BigInt
-  volume_not: BigInt
-  volume_gt: BigInt
-  volume_lt: BigInt
-  volume_gte: BigInt
-  volume_lte: BigInt
-  volume_in: [BigInt!]
-  volume_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
   and: [stagingmumbai_RouterDailyTVL_filter]
@@ -2134,7 +2134,7 @@ enum stagingmumbai_RouterDailyTVL_orderBy {
   router
   asset
   timestamp
-  volume
+  balance
 }
 
 input stagingmumbai_Router_filter {
