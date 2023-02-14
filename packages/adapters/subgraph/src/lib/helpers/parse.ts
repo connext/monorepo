@@ -653,6 +653,7 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
     router: entity.router.id,
     domain: entity.domain,
     timestamp: entity.timestamp,
-    volume: entity.volume,
+    // TODO: why negative router balances on subgraph?
+    volume: BigNumber.from(entity.volume).isNegative() ? "0" : entity.volume,
   };
 };
