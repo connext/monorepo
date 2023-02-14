@@ -17,6 +17,7 @@ import {
   StableSwapExchange,
   XTransferErrorStatus,
   StableSwapPoolEvent,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -208,6 +209,17 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+  };
+};
+
+const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Insertable => {
+  return {
+    id: tvl.id,
+    domain: tvl.domain,
+    asset: tvl.asset,
+    router: tvl.router,
+    day: new Date(tvl.timestamp * 1000),
+    balance: tvl.balance,
   };
 };
 
@@ -825,4 +837,14 @@ export const saveStableSwapPoolEvent = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveRouterDailyTVL = async (
+  _tvls: RouterDailyTVL[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
+
+  await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
 };

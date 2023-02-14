@@ -664,95 +664,201 @@ declare module 'zapatos/schema' {
 
   /**
    * **daily_router_tvl**
-   * - View in database
+   * - Table in database
    */
   export namespace daily_router_tvl {
     export type Table = 'daily_router_tvl';
     export interface Selectable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
+      * **daily_router_tvl.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
       */
-      latest_transfer_day: Date | null;
+      id: string;
+      /**
+      * **daily_router_tvl.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
       /**
       * **daily_router_tvl.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      asset: string | null;
+      asset: string;
       /**
       * **daily_router_tvl.router**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      router: string | null;
+      router: string;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
+      * **daily_router_tvl.day**
+      * - `date` in database
+      * - `NOT NULL`, no default
       */
-      tvl: number | null;
+      day: Date;
+      /**
+      * **daily_router_tvl.balance**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      balance: string;
     }
     export interface JSONSelectable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
+      * **daily_router_tvl.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
       */
-      latest_transfer_day: db.DateString | null;
+      id: string;
+      /**
+      * **daily_router_tvl.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
       /**
       * **daily_router_tvl.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      asset: string | null;
+      asset: string;
       /**
       * **daily_router_tvl.router**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      router: string | null;
+      router: string;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
+      * **daily_router_tvl.day**
+      * - `date` in database
+      * - `NOT NULL`, no default
       */
-      tvl: number | null;
+      day: db.DateString;
+      /**
+      * **daily_router_tvl.balance**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      balance: string;
     }
     export interface Whereable {
       /**
-      * **daily_router_tvl.latest_transfer_day**
-      * - `date` in database
-      * - Nullable, no default
+      * **daily_router_tvl.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
       */
-      latest_transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_router_tvl.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_router_tvl.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
       asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_router_tvl.router**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
       router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_router_tvl.tvl**
-      * - `numeric` in database
-      * - Nullable, no default
+      * **daily_router_tvl.day**
+      * - `date` in database
+      * - `NOT NULL`, no default
       */
-      tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_router_tvl.balance**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      balance?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
-      [key: string]: never;
+      /**
+      * **daily_router_tvl.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **daily_router_tvl.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **daily_router_tvl.asset**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      asset: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **daily_router_tvl.router**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **daily_router_tvl.day**
+      * - `date` in database
+      * - `NOT NULL`, no default
+      */
+      day: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment;
+      /**
+      * **daily_router_tvl.balance**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      balance: string | db.Parameter<string> | db.SQLFragment;
     }
     export interface Updatable {
-      [key: string]: never;
+      /**
+      * **daily_router_tvl.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **daily_router_tvl.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **daily_router_tvl.asset**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      asset?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **daily_router_tvl.router**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **daily_router_tvl.day**
+      * - `date` in database
+      * - `NOT NULL`, no default
+      */
+      day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment>;
+      /**
+      * **daily_router_tvl.balance**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      balance?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
-    export type UniqueIndex = never;
+    export type UniqueIndex = 'daily_router_tvl_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -8799,9 +8905,9 @@ declare module 'zapatos/schema' {
     export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
     export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
   
-    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
+    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
+    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
     export type AllMaterializedViews = [];
     export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
   }

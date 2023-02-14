@@ -101,116 +101,17 @@ CREATE TABLE public.checkpoints (
 
 
 --
--- Name: routers; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_router_tvl; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.routers (
-    address character(42) NOT NULL
+CREATE TABLE public.daily_router_tvl (
+    id character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL,
+    asset character(42) NOT NULL,
+    router character(42) NOT NULL,
+    day date NOT NULL,
+    balance character varying(255) NOT NULL
 );
-
-
---
--- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.routers_with_balances AS
- SELECT routers.address,
-    asset_balances.asset_canonical_id,
-    asset_balances.asset_domain,
-    asset_balances.router_address,
-    asset_balances.balance,
-    assets.local,
-    assets.adopted,
-    assets.canonical_id,
-    assets.canonical_domain,
-    assets.domain,
-    assets.key,
-    assets.id,
-    asset_balances.fees_earned
-   FROM ((public.routers
-     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
-
-
---
--- Name: transfers; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.transfers (
-    transfer_id character(66) NOT NULL,
-    nonce bigint,
-    "to" character(42),
-    call_data text,
-    origin_domain character varying(255) NOT NULL,
-    destination_domain character varying(255),
-    receive_local boolean,
-    origin_chain character varying(255),
-    origin_transacting_asset character(42),
-    origin_transacting_amount character varying(255),
-    origin_bridged_asset character(42),
-    origin_bridged_amount character varying(255),
-    xcall_caller character(42),
-    xcall_transaction_hash character(66),
-    xcall_timestamp integer,
-    xcall_gas_price character varying(255),
-    xcall_gas_limit character varying(255),
-    xcall_block_number integer,
-    destination_chain character varying(255),
-    status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
-    routers character(42)[],
-    destination_transacting_asset character(42),
-    destination_transacting_amount character varying(255),
-    destination_local_asset character(42),
-    destination_local_amount character varying(255),
-    execute_caller character(42),
-    execute_transaction_hash character(66),
-    execute_timestamp integer,
-    execute_gas_price character varying(255),
-    execute_gas_limit character varying(255),
-    execute_block_number integer,
-    execute_origin_sender character(42),
-    reconcile_caller character(42),
-    reconcile_transaction_hash character(66),
-    reconcile_timestamp integer,
-    reconcile_gas_price character varying(255),
-    reconcile_gas_limit character varying(255),
-    reconcile_block_number integer,
-    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    delegate character(42),
-    message_hash character(66),
-    canonical_domain character varying(255),
-    slippage numeric,
-    origin_sender character(42),
-    bridged_amt character varying(255),
-    normalized_in character varying(255),
-    canonical_id character(66),
-    router_fee character varying(255),
-    xcall_tx_origin character(42),
-    execute_tx_origin character(42),
-    reconcile_tx_origin character(42),
-    relayer_fee character varying(255),
-    error_status character varying(255),
-    backoff integer DEFAULT 32 NOT NULL,
-    next_execution_timestamp integer DEFAULT 0 NOT NULL
-);
-
-
---
--- Name: daily_router_tvl; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.daily_router_tvl AS
- SELECT latest_transfer.latest_transfer_day,
-    router_tvl.asset,
-    router_tvl.router_address AS router,
-    router_tvl.tvl
-   FROM (( SELECT rb.local AS asset,
-            rb.router_address,
-            sum(rb.balance) AS tvl
-           FROM public.routers_with_balances rb
-          GROUP BY rb.local, rb.router_address) router_tvl
-     CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
-           FROM public.transfers tf) latest_transfer);
 
 
 --
@@ -290,6 +191,69 @@ CREATE VIEW public.daily_swap_volume AS
     count(swap.pool_id) AS swap_count
    FROM public.stableswap_exchanges swap
   GROUP BY swap.pool_id, swap.domain, ((date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date);
+
+
+--
+-- Name: transfers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.transfers (
+    transfer_id character(66) NOT NULL,
+    nonce bigint,
+    "to" character(42),
+    call_data text,
+    origin_domain character varying(255) NOT NULL,
+    destination_domain character varying(255),
+    receive_local boolean,
+    origin_chain character varying(255),
+    origin_transacting_asset character(42),
+    origin_transacting_amount character varying(255),
+    origin_bridged_asset character(42),
+    origin_bridged_amount character varying(255),
+    xcall_caller character(42),
+    xcall_transaction_hash character(66),
+    xcall_timestamp integer,
+    xcall_gas_price character varying(255),
+    xcall_gas_limit character varying(255),
+    xcall_block_number integer,
+    destination_chain character varying(255),
+    status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
+    routers character(42)[],
+    destination_transacting_asset character(42),
+    destination_transacting_amount character varying(255),
+    destination_local_asset character(42),
+    destination_local_amount character varying(255),
+    execute_caller character(42),
+    execute_transaction_hash character(66),
+    execute_timestamp integer,
+    execute_gas_price character varying(255),
+    execute_gas_limit character varying(255),
+    execute_block_number integer,
+    execute_origin_sender character(42),
+    reconcile_caller character(42),
+    reconcile_transaction_hash character(66),
+    reconcile_timestamp integer,
+    reconcile_gas_price character varying(255),
+    reconcile_gas_limit character varying(255),
+    reconcile_block_number integer,
+    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    delegate character(42),
+    message_hash character(66),
+    canonical_domain character varying(255),
+    slippage numeric,
+    origin_sender character(42),
+    bridged_amt character varying(255),
+    normalized_in character varying(255),
+    canonical_id character(66),
+    router_fee character varying(255),
+    xcall_tx_origin character(42),
+    execute_tx_origin character(42),
+    reconcile_tx_origin character(42),
+    relayer_fee character varying(255),
+    error_status character varying(255),
+    backoff integer DEFAULT 32 NOT NULL,
+    next_execution_timestamp integer DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -546,6 +510,38 @@ CREATE TABLE public.root_messages (
 
 
 --
+-- Name: routers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.routers (
+    address character(42) NOT NULL
+);
+
+
+--
+-- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.routers_with_balances AS
+ SELECT routers.address,
+    asset_balances.asset_canonical_id,
+    asset_balances.asset_domain,
+    asset_balances.router_address,
+    asset_balances.balance,
+    assets.local,
+    assets.adopted,
+    assets.canonical_id,
+    assets.canonical_domain,
+    assets.domain,
+    assets.key,
+    assets.id,
+    asset_balances.fees_earned
+   FROM ((public.routers
+     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -746,6 +742,14 @@ ALTER TABLE ONLY public.assets
 
 ALTER TABLE ONLY public.checkpoints
     ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
+
+
+--
+-- Name: daily_router_tvl daily_router_tvl_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.daily_router_tvl
+    ADD CONSTRAINT daily_router_tvl_pkey PRIMARY KEY (id);
 
 
 --
@@ -956,4 +960,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230207104528'),
     ('20230209013027'),
     ('20230209043516'),
-    ('20230213141356');
+    ('20230213141356'),
+    ('20230214014310');
