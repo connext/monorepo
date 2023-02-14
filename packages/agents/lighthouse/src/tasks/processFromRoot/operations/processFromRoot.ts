@@ -149,7 +149,7 @@ export const processSingleRootMessage = async (
     }
   }
 
-  if (rootMessage.sentTimestamp && getNtpTimeSeconds() > rootMessage.sentTimestamp + config.relayerWaitTime) {
+  if (rootMessage.sentTimestamp && getNtpTimeSeconds() < rootMessage.sentTimestamp + config.relayerWaitTime) {
     logger.info("Process from root already sent, waiting for subgraph update", requestContext, methodContext, {
       rootMessage,
     });
