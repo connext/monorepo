@@ -114,7 +114,7 @@ export function getRouterDailyTVL(local: Address, routerAddress: Address, timest
     tvl.router = router.id;
     tvl.asset = asset.id;
     tvl.timestamp = day;
-    tvl.volume = new BigInt(0);
+    tvl.balance = new BigInt(0);
   }
 
   return tvl;

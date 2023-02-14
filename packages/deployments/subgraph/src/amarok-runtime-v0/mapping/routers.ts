@@ -96,7 +96,7 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
   // update router tvl
   const routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);
   if (routerTvl) {
-    routerTvl.volume = assetBalance.amount;
+    routerTvl.balance = assetBalance.amount;
     routerTvl.save();
   }
 
@@ -119,7 +119,7 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
   // update router tvl
   const routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);
   if (routerTvl) {
-    routerTvl.volume = assetBalance.amount;
+    routerTvl.balance = assetBalance.amount;
     routerTvl.save();
   }
 

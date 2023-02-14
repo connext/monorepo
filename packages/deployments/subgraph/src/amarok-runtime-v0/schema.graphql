@@ -39,7 +39,7 @@ type RouterDailyTVL @entity {
   router: Router!
   asset: Asset!
   timestamp: BigInt!
-  volume: BigInt!
+  balance: BigInt!
 }
 
 type Setting @entity {

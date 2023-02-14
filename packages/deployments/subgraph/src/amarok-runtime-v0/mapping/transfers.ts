@@ -127,7 +127,7 @@ export function handleExecuted(event: Executed): void {
       // update router tvl
       const routerTvl = getRouterDailyTVL(event.params.local, event.params.args.routers[i], event.block.timestamp);
       if (routerTvl) {
-        routerTvl.volume = assetBalance.amount;
+        routerTvl.balance = assetBalance.amount;
         routerTvl.save();
       }
     }
@@ -208,7 +208,7 @@ export function handleReconciled(event: Reconciled): void {
       // update router tvl
       const routerTvl = getRouterDailyTVL(event.params.local, Address.fromString(router), event.block.timestamp);
       if (routerTvl) {
-        routerTvl.volume = assetBalance.amount;
+        routerTvl.balance = assetBalance.amount;
         routerTvl.save();
       }
     }
