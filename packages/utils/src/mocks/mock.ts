@@ -418,9 +418,6 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       processed: false,
       count: Math.floor(Date.now() / 1000),
-      relayerType: RelayerType.Gelato,
-      sentTaskId: getRandomBytes32(),
-      sentTimestamp: getNtpTimeSeconds(),
       ...overrides,
     }),
     aggregatedRoot: (overrides: Partial<AggregatedRoot> = {}): AggregatedRoot => ({
