@@ -239,6 +239,11 @@ export const updateBackoffs = async (): Promise<void> => {
       count: updates.length,
     });
   }
+  
+  await database.updateSlippage(updates);
+  logger.debug("Updated slippage", requestContext, methodContext, {
+    updates: updates.length,
+  });
 
   await database.resetBackoffs(
     increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
