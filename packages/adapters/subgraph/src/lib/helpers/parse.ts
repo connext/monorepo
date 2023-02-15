@@ -615,7 +615,7 @@ export const slippageUpdate = (entity: any): SlippageUpdate => {
   if (!entity) {
     throw new NxtpError("Subgraph `SlippageUpdate` entity parser: SlippageUpdate, entity is `undefined`.");
   }
-  for (const field of ["id", "increase"]) {
+  for (const field of ["id", "slippage"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `SlippageUpdate` entity parser: Message entity missing required field", {
         missingField: field,
