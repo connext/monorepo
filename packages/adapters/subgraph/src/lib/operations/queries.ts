@@ -121,6 +121,10 @@ export const DESTINATION_TRANSFER_ENTITY = `
         ${ASSET_ENTITY}
       }
 
+      # Slippage bumps by user
+      updatedSlippage
+      bumpSlippageCount
+
       # Executed Transaction
       executedCaller
       executedTransactionHash

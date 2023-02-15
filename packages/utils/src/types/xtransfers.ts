@@ -10,14 +10,14 @@ export const XTransferStatus = {
   CompletedFast: "CompletedFast",
   CompletedSlow: "CompletedSlow",
 } as const;
-export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
+export type XTransferStatus = (typeof XTransferStatus)[keyof typeof XTransferStatus];
 
 export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
   LowRelayerFee: "LowRelayerFee",
   ExecutionError: "ExecutionError",
 } as const;
-export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
+export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -159,6 +159,7 @@ export const DestinationTransferSchema = Type.Intersect([
       nonce: Type.Optional(Type.Number()),
       canonicalId: Type.String(),
     }),
+    updatedSlippage: Type.Optional(TIntegerString),
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),

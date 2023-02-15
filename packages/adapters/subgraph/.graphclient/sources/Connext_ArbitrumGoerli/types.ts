@@ -1964,7 +1964,7 @@ export type arbitrumgoerli_RouterDailyTVL = {
   router: arbitrumgoerli_Router;
   asset: arbitrumgoerli_Asset;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
 };
 
 export type arbitrumgoerli_RouterDailyTVL_filter = {
@@ -2026,14 +2026,14 @@ export type arbitrumgoerli_RouterDailyTVL_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['BigInt']>;
-  volume_not?: InputMaybe<Scalars['BigInt']>;
-  volume_gt?: InputMaybe<Scalars['BigInt']>;
-  volume_lt?: InputMaybe<Scalars['BigInt']>;
-  volume_gte?: InputMaybe<Scalars['BigInt']>;
-  volume_lte?: InputMaybe<Scalars['BigInt']>;
-  volume_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<arbitrumgoerli_RouterDailyTVL_filter>>>;
@@ -2045,7 +2045,7 @@ export type arbitrumgoerli_RouterDailyTVL_orderBy =
   | 'router'
   | 'asset'
   | 'timestamp'
-  | 'volume';
+  | 'balance';
 
 export type arbitrumgoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;

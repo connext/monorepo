@@ -297,8 +297,10 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
   }
 
   transfer.bumpSlippageCount = transfer.bumpSlippageCount
-    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
     : BigInt.fromI32(1);
+  transfer.updatedSlippage = event.params.slippage;
   transfer.save();
 
   // should never be more than 1 but just in case theres somehow multiple in the same tx

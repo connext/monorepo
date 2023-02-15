@@ -131,7 +131,6 @@ type DestinationTransfer @entity {
   receiveLocal: Boolean
   callData: Bytes
   slippage: BigInt
-  bumpSlippageCount: BigInt
   originSender: Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -143,6 +142,10 @@ type DestinationTransfer @entity {
 
   # calculated
   routersFee: BigInt
+
+  # Slippage bumps by user
+  updatedSlippage: BigInt
+  bumpSlippageCount: BigInt
 
   # Executed Transaction
   executedCaller: Bytes

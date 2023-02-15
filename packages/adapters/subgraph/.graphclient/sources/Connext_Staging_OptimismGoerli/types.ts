@@ -397,7 +397,6 @@ export type stagingoptimismgoerli_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -405,6 +404,8 @@ export type stagingoptimismgoerli_DestinationTransfer = {
   asset?: Maybe<stagingoptimismgoerli_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
+  updatedSlippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
@@ -542,14 +543,6 @@ export type stagingoptimismgoerli_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   originSender_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -623,6 +616,22 @@ export type stagingoptimismgoerli_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  updatedSlippage?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_not?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_gt?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_lt?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_gte?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_lte?: InputMaybe<Scalars['BigInt']>;
+  updatedSlippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  updatedSlippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   executedCaller_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -768,7 +777,6 @@ export type stagingoptimismgoerli_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
-  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
@@ -776,6 +784,8 @@ export type stagingoptimismgoerli_DestinationTransfer_orderBy =
   | 'asset'
   | 'amount'
   | 'routersFee'
+  | 'updatedSlippage'
+  | 'bumpSlippageCount'
   | 'executedCaller'
   | 'executedTransactionHash'
   | 'executedTimestamp'
