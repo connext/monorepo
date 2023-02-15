@@ -27663,7 +27663,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume"
+            "value": "balance"
           },
           "arguments": [],
           "type": {
@@ -28611,7 +28611,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume"
+            "value": "balance"
           },
           "type": {
             "kind": "NamedType",
@@ -28626,7 +28626,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_not"
+            "value": "balance_not"
           },
           "type": {
             "kind": "NamedType",
@@ -28641,7 +28641,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_gt"
+            "value": "balance_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -28656,7 +28656,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_lt"
+            "value": "balance_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -28671,7 +28671,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_gte"
+            "value": "balance_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -28686,7 +28686,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_lte"
+            "value": "balance_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -28701,7 +28701,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_in"
+            "value": "balance_in"
           },
           "type": {
             "kind": "ListType",
@@ -28722,7 +28722,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume_not_in"
+            "value": "balance_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -28841,7 +28841,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "volume"
+            "value": "balance"
           },
           "directives": []
         }
