@@ -107,8 +107,8 @@ export const updateTransfers = async () => {
         undefined,
         transfer.transferId,
       );
-      logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
     });
+    logger.info("Retrieved origin transfers", requestContext, methodContext, { count: transfers.length });
     const checkpoints = domains
       .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
