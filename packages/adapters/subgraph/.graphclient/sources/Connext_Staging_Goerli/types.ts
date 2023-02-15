@@ -1280,6 +1280,8 @@ export type Query = {
   staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
   staginggoerli_router?: Maybe<staginggoerli_Router>;
   staginggoerli_routers: Array<staginggoerli_Router>;
+  staginggoerli_routerDailyTVL?: Maybe<staginggoerli_RouterDailyTVL>;
+  staginggoerli_routerDailyTVLs: Array<staginggoerli_RouterDailyTVL>;
   staginggoerli_setting?: Maybe<staginggoerli_Setting>;
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
@@ -1376,6 +1378,24 @@ export type Querystaginggoerli_routersArgs = {
   orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_Router_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1939,6 +1959,94 @@ export type staginggoerli_RouterassetBalancesArgs = {
   where?: InputMaybe<staginggoerli_AssetBalance_filter>;
 };
 
+export type staginggoerli_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: staginggoerli_Router;
+  asset: staginggoerli_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type staginggoerli_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<staginggoerli_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<staginggoerli_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_RouterDailyTVL_filter>>>;
+};
+
+export type staginggoerli_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'asset'
+  | 'timestamp'
+  | 'balance';
+
 export type staginggoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -2218,6 +2326,8 @@ export type Subscription = {
   staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
   staginggoerli_router?: Maybe<staginggoerli_Router>;
   staginggoerli_routers: Array<staginggoerli_Router>;
+  staginggoerli_routerDailyTVL?: Maybe<staginggoerli_RouterDailyTVL>;
+  staginggoerli_routerDailyTVLs: Array<staginggoerli_RouterDailyTVL>;
   staginggoerli_setting?: Maybe<staginggoerli_Setting>;
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
@@ -2314,6 +2424,24 @@ export type Subscriptionstaginggoerli_routersArgs = {
   orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_Router_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2723,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   staginggoerli_routers: InContextSdkMethod<Query['staginggoerli_routers'], Querystaginggoerli_routersArgs, MeshContext>,
   /** null **/
+  staginggoerli_routerDailyTVL: InContextSdkMethod<Query['staginggoerli_routerDailyTVL'], Querystaginggoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerDailyTVLs: InContextSdkMethod<Query['staginggoerli_routerDailyTVLs'], Querystaginggoerli_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   staginggoerli_setting: InContextSdkMethod<Query['staginggoerli_setting'], Querystaginggoerli_settingArgs, MeshContext>,
   /** null **/
   staginggoerli_settings: InContextSdkMethod<Query['staginggoerli_settings'], Querystaginggoerli_settingsArgs, MeshContext>,
@@ -2667,6 +2799,10 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_router: InContextSdkMethod<Subscription['staginggoerli_router'], Subscriptionstaginggoerli_routerArgs, MeshContext>,
   /** null **/
   staginggoerli_routers: InContextSdkMethod<Subscription['staginggoerli_routers'], Subscriptionstaginggoerli_routersArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerDailyTVL: InContextSdkMethod<Subscription['staginggoerli_routerDailyTVL'], Subscriptionstaginggoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerDailyTVLs: InContextSdkMethod<Subscription['staginggoerli_routerDailyTVLs'], Subscriptionstaginggoerli_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   staginggoerli_setting: InContextSdkMethod<Subscription['staginggoerli_setting'], Subscriptionstaginggoerli_settingArgs, MeshContext>,
   /** null **/

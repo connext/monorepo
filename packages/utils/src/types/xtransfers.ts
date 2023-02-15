@@ -64,6 +64,8 @@ export const XTransferDestinationSchema = Type.Object({
   // Both Executed and Reconciled events emit `routers`.
   routers: Type.Array(TAddress),
 
+  updatedSlippage: Type.Optional(TIntegerString),
+
   // Assets
   assets: Type.Object({
     // Transacting assets only come from Executed event.
@@ -250,3 +252,13 @@ export const SlippageUpdateSchema = Type.Object({
   timestamp: Type.Number(),
 });
 export type SlippageUpdate = Static<typeof SlippageUpdateSchema>;
+
+export const RouterDailyTVLSchema = Type.Object({
+  id: Type.String(),
+  asset: TAddress,
+  router: TAddress,
+  domain: Type.String(),
+  timestamp: Type.Number(),
+  balance: TIntegerString,
+});
+export type RouterDailyTVL = Static<typeof RouterDailyTVLSchema>;
