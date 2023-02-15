@@ -43,5 +43,6 @@ export const mockDatabase = (): Database => {
     saveStableSwapPoolEvent: stub().resolves(),
     updateErrorStatus: stub().resolves(),
     updateSlippage: stub().resolves(),
+    saveRouterDailyTVL: stub().resolves(),
   };
 };
