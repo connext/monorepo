@@ -1280,6 +1280,8 @@ export type Query = {
   arbitrumgoerli_assetBalances: Array<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_router?: Maybe<arbitrumgoerli_Router>;
   arbitrumgoerli_routers: Array<arbitrumgoerli_Router>;
+  arbitrumgoerli_routerDailyTVL?: Maybe<arbitrumgoerli_RouterDailyTVL>;
+  arbitrumgoerli_routerDailyTVLs: Array<arbitrumgoerli_RouterDailyTVL>;
   arbitrumgoerli_setting?: Maybe<arbitrumgoerli_Setting>;
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
@@ -1376,6 +1378,24 @@ export type Queryarbitrumgoerli_routersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Router_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Router_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumgoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1939,6 +1959,94 @@ export type arbitrumgoerli_RouterassetBalancesArgs = {
   where?: InputMaybe<arbitrumgoerli_AssetBalance_filter>;
 };
 
+export type arbitrumgoerli_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: arbitrumgoerli_Router;
+  asset: arbitrumgoerli_Asset;
+  timestamp: Scalars['BigInt'];
+  volume: Scalars['BigInt'];
+};
+
+export type arbitrumgoerli_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<arbitrumgoerli_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<arbitrumgoerli_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  volume?: InputMaybe<Scalars['BigInt']>;
+  volume_not?: InputMaybe<Scalars['BigInt']>;
+  volume_gt?: InputMaybe<Scalars['BigInt']>;
+  volume_lt?: InputMaybe<Scalars['BigInt']>;
+  volume_gte?: InputMaybe<Scalars['BigInt']>;
+  volume_lte?: InputMaybe<Scalars['BigInt']>;
+  volume_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumgoerli_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumgoerli_RouterDailyTVL_filter>>>;
+};
+
+export type arbitrumgoerli_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'asset'
+  | 'timestamp'
+  | 'volume';
+
 export type arbitrumgoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -2218,6 +2326,8 @@ export type Subscription = {
   arbitrumgoerli_assetBalances: Array<arbitrumgoerli_AssetBalance>;
   arbitrumgoerli_router?: Maybe<arbitrumgoerli_Router>;
   arbitrumgoerli_routers: Array<arbitrumgoerli_Router>;
+  arbitrumgoerli_routerDailyTVL?: Maybe<arbitrumgoerli_RouterDailyTVL>;
+  arbitrumgoerli_routerDailyTVLs: Array<arbitrumgoerli_RouterDailyTVL>;
   arbitrumgoerli_setting?: Maybe<arbitrumgoerli_Setting>;
   arbitrumgoerli_settings: Array<arbitrumgoerli_Setting>;
   arbitrumgoerli_relayer?: Maybe<arbitrumgoerli_Relayer>;
@@ -2314,6 +2424,24 @@ export type Subscriptionarbitrumgoerli_routersArgs = {
   orderBy?: InputMaybe<arbitrumgoerli_Router_orderBy>;
   orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
   where?: InputMaybe<arbitrumgoerli_Router_filter>;
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumgoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumgoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<arbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<arbitrumgoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<arbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2723,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumgoerli_routers: InContextSdkMethod<Query['arbitrumgoerli_routers'], Queryarbitrumgoerli_routersArgs, MeshContext>,
   /** null **/
+  arbitrumgoerli_routerDailyTVL: InContextSdkMethod<Query['arbitrumgoerli_routerDailyTVL'], Queryarbitrumgoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_routerDailyTVLs: InContextSdkMethod<Query['arbitrumgoerli_routerDailyTVLs'], Queryarbitrumgoerli_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   arbitrumgoerli_setting: InContextSdkMethod<Query['arbitrumgoerli_setting'], Queryarbitrumgoerli_settingArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_settings: InContextSdkMethod<Query['arbitrumgoerli_settings'], Queryarbitrumgoerli_settingsArgs, MeshContext>,
@@ -2667,6 +2799,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumgoerli_router: InContextSdkMethod<Subscription['arbitrumgoerli_router'], Subscriptionarbitrumgoerli_routerArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_routers: InContextSdkMethod<Subscription['arbitrumgoerli_routers'], Subscriptionarbitrumgoerli_routersArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_routerDailyTVL: InContextSdkMethod<Subscription['arbitrumgoerli_routerDailyTVL'], Subscriptionarbitrumgoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  arbitrumgoerli_routerDailyTVLs: InContextSdkMethod<Subscription['arbitrumgoerli_routerDailyTVLs'], Subscriptionarbitrumgoerli_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   arbitrumgoerli_setting: InContextSdkMethod<Subscription['arbitrumgoerli_setting'], Subscriptionarbitrumgoerli_settingArgs, MeshContext>,
   /** null **/

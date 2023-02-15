@@ -140,9 +140,9 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
 
     const errorName =
-      (error as NxtpError).name === SlippageToleranceExceeded.name
+      (error as NxtpError).type === SlippageToleranceExceeded.name
         ? XTransferErrorStatus.LowSlippage
-        : (error as NxtpError).name === NotEnoughRelayerFee.name
+        : (error as NxtpError).type === NotEnoughRelayerFee.name
         ? XTransferErrorStatus.LowRelayerFee
         : XTransferErrorStatus.ExecutionError;
     await context.adapters.database.updateErrorStatus(transferId, errorName);

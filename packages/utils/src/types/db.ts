@@ -4,6 +4,10 @@ import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregat
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
 
+export const sanitizeNull = (obj: { [s: string]: any }): any => {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+};
+
 /**
  * This is required to make sure numbers do not lose precision because of Javascript limitations.
  * All BigNumbers are selected as text into JS.
@@ -40,6 +44,7 @@ export const transfersCastForUrl =
     "routers",
     "delegate",
     "slippage",
+    "updated_slippage",
     "destination_transacting_asset",
     "destination_transacting_amount",
     "destination_local_asset",
@@ -127,6 +132,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
               asset: transfer.destination_local_asset!,
             },
           },
+          updatedSlippage: transfer.updated_slippage,
           routers: transfer.routers || [],
           status: transfer.status === "XCalled" ? "Executed" : (transfer.status as XTransferStatus),
           execute: {
@@ -253,7 +259,7 @@ export const convertFromDbMessage = (message: any): XMessage => {
  * @returns an RootMessage object
  */
 export const convertFromDbRootMessage = (message: any): RootMessage => {
-  return {
+  const obj = {
     id: message.id,
     spokeDomain: message.spoke_domain,
     hubDomain: message.hub_domain,
@@ -266,7 +272,11 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     blockNumber: message.block_number,
     processed: message.processed,
     count: message.leaf_count,
+    relayerType: message.relayer_type ?? undefined,
+    sentTaskId: message.sent_task_id ?? undefined,
+    sentTimestamp: message.sent_timestamp_secs ?? undefined,
   };
+  return sanitizeNull(obj);
 };
 
 /**

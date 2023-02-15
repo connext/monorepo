@@ -107,8 +107,8 @@ export const updateTransfers = async () => {
         undefined,
         transfer.transferId,
       );
-      logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
     });
+    logger.info("Retrieved origin transfers", requestContext, methodContext, { count: transfers.length });
     const checkpoints = domains
       .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
@@ -239,6 +239,9 @@ export const updateBackoffs = async (): Promise<void> => {
       count: updates.length,
     });
   }
+
+  // update updated_slippage value for transfers
+  await database.updateSlippage(updates);
 
   await database.resetBackoffs(
     increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
