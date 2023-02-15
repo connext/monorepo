@@ -4,6 +4,7 @@ import {
   StableSwapExchange,
   StableSwapPoolEvent,
 } from "@connext/nxtp-utils";
+
 import { getContext } from "../../shared";
 
 const getMaxTimestamp = (items: StableSwapExchange[] | StableSwapPoolEvent[]): number => {

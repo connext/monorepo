@@ -15,6 +15,7 @@ import {
   ReceivedAggregateRoot,
   mkHash,
   XTransferErrorStatus,
+  RelayerType,
   SlippageUpdate,
   getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
@@ -609,6 +610,25 @@ describe("Database client", () => {
     }
     await saveSentRootMessages(messages, pool);
     const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
+  });
+
+  it("should upsert multiple sent root messages with relayer data", async () => {
+    const messages: RootMessage[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.rootMessage());
+    }
+    await saveSentRootMessages(messages, pool);
+    let _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
+
+    for (let _i = 0; _i < 5; _i++) {
+      messages[_i].relayerType = RelayerType.Connext;
+      messages[_i].sentTaskId = mkBytes32("0x1234");
+      messages[_i].sentTimestamp = getNtpTimeSeconds();
+    }
+    await saveSentRootMessages(messages, pool);
+    _messages = await getRootMessages(undefined, 100, "ASC", pool);
     expect(_messages).to.deep.eq(messages);
   });
 

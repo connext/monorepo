@@ -2903,6 +2903,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       leaf_count: number | null;
+      /**
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      sent_timestamp_secs: number | null;
+      /**
+      * **root_messages.sent_task_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      sent_task_id: string | null;
+      /**
+      * **root_messages.relayer_type**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      relayer_type: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -2983,6 +3001,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       leaf_count: number | null;
+      /**
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      sent_timestamp_secs: number | null;
+      /**
+      * **root_messages.sent_task_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      sent_task_id: string | null;
+      /**
+      * **root_messages.relayer_type**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      relayer_type: string | null;
     }
     export interface Whereable {
       /**
@@ -3063,6 +3099,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       leaf_count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      sent_timestamp_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **root_messages.sent_task_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      sent_task_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **root_messages.relayer_type**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      relayer_type?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -3143,6 +3197,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      sent_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **root_messages.sent_task_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      sent_task_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **root_messages.relayer_type**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      relayer_type?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -3223,6 +3295,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       leaf_count?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **root_messages.sent_timestamp_secs**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      sent_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **root_messages.sent_task_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      sent_task_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **root_messages.relayer_type**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      relayer_type?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'root_messages_pkey';
     export type Column = keyof Selectable;
