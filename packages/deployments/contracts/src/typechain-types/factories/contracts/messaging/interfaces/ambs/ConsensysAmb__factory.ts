@@ -175,7 +175,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
 
 export class ConsensysAmb__factory {
   static readonly abi = _abi;
