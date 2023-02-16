@@ -15,6 +15,7 @@ import {
   SlippageUpdate,
   StableSwapPoolEvent,
   PoolActionType,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -614,7 +615,7 @@ export const slippageUpdate = (entity: any): SlippageUpdate => {
   if (!entity) {
     throw new NxtpError("Subgraph `SlippageUpdate` entity parser: SlippageUpdate, entity is `undefined`.");
   }
-  for (const field of ["id", "increase"]) {
+  for (const field of ["id", "slippage"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `SlippageUpdate` entity parser: Message entity missing required field", {
         missingField: field,
@@ -629,5 +630,30 @@ export const slippageUpdate = (entity: any): SlippageUpdate => {
     transferId: entity.transfer.id,
     timestamp: entity.timestamp,
     domain: entity.domain,
+  };
+};
+
+export const routerDailyTvl = (entity: any): RouterDailyTVL => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
+  }
+  for (const field of ["id", "asset", "router", "timestamp", "balance"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: `${entity.domain}-${entity.id}`,
+    asset: entity.asset.id,
+    router: entity.router.id,
+    domain: entity.domain,
+    timestamp: entity.timestamp,
+    // TODO: why negative router balances on subgraph?
+    balance: BigNumber.from(entity.balance).isNegative() ? "0" : entity.balance,
   };
 };

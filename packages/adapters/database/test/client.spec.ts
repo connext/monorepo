@@ -15,6 +15,9 @@ import {
   ReceivedAggregateRoot,
   mkHash,
   XTransferErrorStatus,
+  RelayerType,
+  SlippageUpdate,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -57,6 +60,7 @@ import {
   resetBackoffs,
   updateErrorStatus,
   markRootMessagesProcessed,
+  updateSlippage,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -610,6 +614,25 @@ describe("Database client", () => {
     expect(_messages).to.deep.eq(messages);
   });
 
+  it("should upsert multiple sent root messages with relayer data", async () => {
+    const messages: RootMessage[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.rootMessage());
+    }
+    await saveSentRootMessages(messages, pool);
+    let _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
+
+    for (let _i = 0; _i < 5; _i++) {
+      messages[_i].relayerType = RelayerType.Connext;
+      messages[_i].sentTaskId = mkBytes32("0x1234");
+      messages[_i].sentTimestamp = getNtpTimeSeconds();
+    }
+    await saveSentRootMessages(messages, pool);
+    _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
+  });
+
   it("should upsert multiple processed messages on top of sent messages and set processed = true", async () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
@@ -956,6 +979,32 @@ describe("Database client", () => {
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer.transferId]);
     expect(queryRes.rows[0].error_status).to.eq(XTransferErrorStatus.LowSlippage);
   });
+
+  it("should update slippage", async () => {
+    const transfers: XTransfer[] = [mock.entity.xtransfer(), mock.entity.xtransfer(), mock.entity.xtransfer()];
+    const slippageUpdates: SlippageUpdate[] = transfers.map((t, index) => {
+      return {
+        domain: t.xparams.destinationDomain,
+        id: t.transferId,
+        slippage: (index + 1).toString(),
+        timestamp: getNtpTimeSeconds(),
+        transferId: t.transferId,
+      };
+    });
+    await saveTransfers(transfers, pool);
+    let queryRes: any;
+    for (let i = 0; i < transfers.length; i++) {
+      queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfers[i].transferId]);
+      expect(queryRes.rows[0].updated_slippage).to.eq(null);
+    }
+    await updateSlippage(slippageUpdates, pool);
+
+    for (let i = 0; i < transfers.length; i++) {
+      queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfers[i].transferId]);
+      expect(queryRes.rows[0].updated_slippage).to.eq((i + 1).toString());
+    }
+  });
+});
 
   it("should mark root messages processed", async () => {
     const roots = [mock.entity.rootMessage(), mock.entity.rootMessage(), mock.entity.rootMessage()];
