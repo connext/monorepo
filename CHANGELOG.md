@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.7-alpha.1
+
+- [sequencer] extra errors
+- [db] updated slippage field
+
 ## Amarok 0.2.6
 
 - [all] stable release
