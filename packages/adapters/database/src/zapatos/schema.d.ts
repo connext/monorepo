@@ -896,6 +896,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances: number[] | null;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee: number | null;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol: number | null;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -922,6 +940,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances: number[] | null;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee: number | null;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol: number | null;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl: number | null;
     }
     export interface Whereable {
       /**
@@ -948,6 +984,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
