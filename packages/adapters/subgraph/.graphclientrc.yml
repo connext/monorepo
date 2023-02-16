@@ -323,8 +323,6 @@ sources:
   - name: Connext_Mainnet
     handler:
       graphql:
-        retry: 5
-        timeout: 30000 # 30 seconds
         strategy: highestValue
         strategyConfig:
           selectionSet: |
