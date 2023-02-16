@@ -101,13 +101,6 @@ export const updateTransfers = async () => {
   if (subgraphOriginQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfersByNonce(subgraphOriginQueryMetaParams);
-    transfers.forEach((transfer) => {
-      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-        "updateTransfers",
-        undefined,
-        transfer.transferId,
-      );
-    });
     logger.info("Retrieved origin transfers", requestContext, methodContext, { count: transfers.length });
     const checkpoints = domains
       .map((domain) => {

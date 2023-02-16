@@ -27,3 +27,9 @@ export class RoundInvalid extends NxtpError {
     super(`Rounds invalid`, context, RoundInvalid.name);
   }
 }
+
+export class NoBidsSent extends NxtpError {
+  constructor(context: any = {}) {
+    super(`No bids sent for transfer`, context, NoBidsSent.name);
+  }
+}

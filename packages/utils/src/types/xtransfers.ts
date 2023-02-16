@@ -16,6 +16,7 @@ export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
   LowRelayerFee: "LowRelayerFee",
   ExecutionError: "ExecutionError",
+  NoBidsReceived: "NoBidsReceived",
 } as const;
 export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
 
