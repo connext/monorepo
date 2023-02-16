@@ -55,6 +55,20 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     // {
+    //   name: "fUSDCx",
+    //   canonical: {
+    //     domain: "1735353714",
+    //     address: "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a",
+    //     decimals: 18,
+    //     cap: utils.parseUnits("10000000", 18).toString(),
+    //   },
+    //   representations: {
+    //     "9991": {
+    //       adopted: "0x42bb40bF79730451B11f6De1CbA222F17b87Afd7",
+    //     },
+    //   },
+    // },
+    // {
     //   name: "KP3R",
     //   canonical: {
     //     domain: "1735353714",
@@ -110,6 +124,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0xD2aD711861ab345977B7379c81165708C8717fF1", // connext
         "0xE879261F44041E030404Ac9847f0cEE2591F62F5", // bware
         "0x12060Ec432a76Fe35851Ae9e656b4fbb9C8ac842", // p2p
+        "0x13751dc2749a3fc61f4b2ca5f5c09bd31062ef0a", // <JustDark/>#8259
       ],
     },
     sequencers: {

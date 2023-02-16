@@ -25,6 +25,29 @@ const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
+// Sequencer and Cartographer default urls
+const SEQUENCER_URLS: Record<string, any> = {
+  testnet: {
+    staging: "https://sequencer-publisher.testnet.staging.connext.ninja",
+    production: "https://sequencer.testnet.connext.ninja",
+  },
+  mainnet: {
+    staging: "",
+    production: "https://sequencer.mainnet.connext.ninja",
+  },
+};
+
+const CARTOGRAPHER_URLS: Record<string, any> = {
+  testnet: {
+    staging: "https://postgrest.testnet.staging.connext.ninja",
+    production: "https://postgrest.testnet.connext.ninja",
+  },
+  mainnet: {
+    staging: "",
+    production: "https://postgrest.mainnet.connext.ninja",
+  },
+};
+
 dotenvConfig();
 
 export const TModeConfig = Type.Object({
@@ -40,7 +63,10 @@ export const TPollingConfig = Type.Object({
 });
 
 export const NxtpRouterConfigSchema = Type.Object({
-  chains: Type.Record(Type.String(), TChainConfig),
+  chains: Type.Record(
+    Type.String(),
+    Type.Intersect([TChainConfig, Type.Object({ startNonce: Type.Optional(Type.Integer({ minimum: 0 })) })]),
+  ),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),
@@ -107,6 +133,9 @@ export const getEnvConfig = (
   }
   // return configFile;
 
+  const network = process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet";
+  const environment = process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production";
+
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
@@ -120,7 +149,7 @@ export const getEnvConfig = (
       ? configJson.chains
       : configFile.chains,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
-    network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
+    network: network,
     server: {
       pub: {
         port: process.env.NXTP_SERVER_PUB_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8091,
@@ -156,8 +185,16 @@ export const getEnvConfig = (
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     slippage: process.env.NXTP_SLIPPAGE || configJson.slippage || configFile.slippage || DEFAULT_SLIPPAGE,
-    sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
-    cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
+    sequencerUrl:
+      process.env.NXTP_SEQUENCER ||
+      configJson.sequencerUrl ||
+      configFile.sequencerUrl ||
+      SEQUENCER_URLS[network][environment],
+    cartographerUrl:
+      process.env.NXTP_CARTOGRAPHER ||
+      configJson.cartographerUrl ||
+      configFile.cartographerUrl ||
+      CARTOGRAPHER_URLS[network][environment],
     polling: {
       subgraph:
         process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
@@ -184,13 +221,14 @@ export const getEnvConfig = (
       configFile.auctionRoundDepth ||
       DEFAULT_AUCTION_ROUND_DEPTH,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    environment: environment,
     messageQueue: {
       uri:
         process.env.NXTP_MESSAGE_QUEUE_URI ||
         configJson.messageQueue?.uri ||
         configFile.messageQueue?.uri ||
-        "amqp://guest@guestlocalhost:5672",
+        "amqp://guest:guest@localhost:5672",
+      limit: process.env.MESSAGE_QUEUE_LIMIT || configJson.messageQueue?.limit || configFile.messageQueue?.limit || 25,
     },
   };
 

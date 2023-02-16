@@ -1,5 +1,6 @@
 import {
   createLoggingContext,
+  createRequestContext,
   delay,
   ERC20Abi,
   jsonifyError,
@@ -8,6 +9,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -25,6 +27,7 @@ import {
   OnchainTransaction,
   StallTimeout,
   WriteTransaction,
+  QuorumNotMet,
 } from "./shared";
 import { axiosGet } from "./mockable";
 
@@ -69,7 +72,7 @@ export class RpcProviderAggregator {
    *
    * @param logger - Logger used for logging.
    * @param signer - Signer instance or private key used for signing transactions.
-   * @param chainId - The ID of the chain for which this class's providers will be servicing.
+   * @param domain - The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig - Configuration for this specified chain, including the providers we'll
    * be using for it.
    * @param config - The shared TransactionServiceConfig with general configuration.
@@ -79,7 +82,7 @@ export class RpcProviderAggregator {
    */
   constructor(
     protected readonly logger: Logger,
-    public readonly chainId: number,
+    public readonly domain: number,
     protected readonly config: ChainConfig,
     signer?: string | Signer,
   ) {
@@ -106,7 +109,7 @@ export class RpcProviderAggregator {
             user: config.user,
             password: config.password,
           },
-          this.chainId,
+          this.domain,
           config.stallTimeout,
           this.config.debug_logRpcCalls,
         ),
@@ -114,7 +117,7 @@ export class RpcProviderAggregator {
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      this.fallbackProvider = new FallbackProvider(hydratedConfigs, 1);
+      this.fallbackProvider = new FallbackProvider(hydratedConfigs, config.quorum);
       this.providers = hydratedConfigs.map((p) => p.provider);
     } else {
       // Not enough valid providers were found in configuration.
@@ -128,7 +131,7 @@ export class RpcProviderAggregator {
           },
         ],
         {
-          chainId,
+          domain,
         },
       );
     }
@@ -278,12 +281,18 @@ export class RpcProviderAggregator {
    * to read from chain.
    */
   public async readContract(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
+    // get formatted transaction
+    const { domain, ...toCall } = tx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
-          return await this.signer.connect(provider).call(tx, blockTag);
+          return await this.signer.connect(provider).call(formatted, blockTag);
         } else {
-          return await provider.call(tx, blockTag);
+          return await provider.call(formatted, blockTag);
         }
       } catch (error: unknown) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
@@ -374,7 +383,7 @@ export class RpcProviderAggregator {
     const hardcoded = this.config.hardcodedGasPrice;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         hardcoded,
       });
       return BigNumber.from(hardcoded);
@@ -436,7 +445,7 @@ export class RpcProviderAggregator {
       const curbedPrice = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
       if (gasPrice.gt(curbedPrice)) {
         this.logger.debug("Hit the gas price curbed maximum.", requestContext, methodContext, {
-          chainId: this.chainId,
+          domain: this.domain,
           gasPrice: utils.formatUnits(gasPrice, "gwei"),
           curbedPrice: utils.formatUnits(curbedPrice, "gwei"),
           gasPriceMaxIncreaseScalar,
@@ -454,11 +463,11 @@ export class RpcProviderAggregator {
     const max = BigNumber.from(gasPriceMaximum);
     // TODO: Could use a more sustainable method of separating out gas price abs min for certain
     // chains (such as arbitrum here) in particular:
-    if (gasPrice.lt(min) && this.chainId !== 42161) {
+    if (gasPrice.lt(min) && this.domain !== 1634886255) {
       gasPrice = min;
     } else if (gasPrice.gte(max)) {
       this.logger.warn("Hit the gas price absolute maximum.", requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         gasPrice: utils.formatUnits(gasPrice, "gwei"),
         absoluteMax: utils.formatUnits(max, "gwei"),
       });
@@ -604,15 +613,20 @@ export class RpcProviderAggregator {
   /**
    * Checks estimate for gas limit for given transaction on given chain.
    *
-   * @param chainId - chain on which the transaction is intended to be executed.
    * @param tx - transaction to check gas limit for.
    *
    * @returns BigNumber representing the estimated gas limit in gas units.
    * @throws Error if the transaction is invalid, or would be reverted onchain.
    */
   public async getGasEstimate(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
+    // get formatted transaction
+    const { domain, ...toCall } = tx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
-      return await provider.estimateGas(tx);
+      return await provider.estimateGas(formatted);
     });
   }
 
@@ -666,25 +680,93 @@ export class RpcProviderAggregator {
     if (needsSigner) {
       this.checkSigner();
     }
+
     const errors: NxtpError[] = [];
-    const shuffledProviders = this.shuffleSyncedProviders();
-    for (const provider of shuffledProviders) {
-      try {
-        return await method(provider);
-      } catch (e: unknown) {
-        // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
-        // however, as it will return instantly if the error is already a NxtpError.
-        const error = parseError(e);
-        if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
-          // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not
-          // the call - so we'll retry the call with a different provider (if available).
-          errors.push(error);
-        } else {
-          // e.g. a TransactionReverted, TransactionReplaced, etc.
-          throw error;
+    const handleError = (e: unknown) => {
+      // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
+      // however, as it will return instantly if the error is already a NxtpError.
+      const error = parseError(e);
+      if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
+        // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not
+        // the call - so we'll retry the call with a different provider (if available).
+        errors.push(error);
+      } else {
+        // e.g. a TransactionReverted, TransactionReplaced, etc.
+        throw error;
+      }
+    };
+
+    const quorum = this.config.quorum ?? 1;
+    if (quorum > 1) {
+      // Consult ALL providers.
+      const results: (T | undefined)[] = await Promise.all(
+        this.providers.map(async (provider) => {
+          try {
+            return await method(provider);
+          } catch (e: unknown) {
+            handleError(e);
+            return undefined;
+          }
+        }),
+      );
+      // Filter out undefined results.
+      // NOTE: If there aren't any defined results, we'll proceed out of this code block and throw the
+      // RpcError at the end of this method.
+      const filteredResults: T[] = results.filter((item) => item !== undefined) as T[];
+      if (filteredResults.length > 0) {
+        // Pick the most common answer.
+        let counts: Map<string, number> = new Map();
+        counts = filteredResults.reduce((counts, item) => {
+          // Stringify the key. We'll convert it back before returning.
+          const key = JSON.stringify(item);
+          counts.set(key, (counts.get(key) ?? 0) + 1);
+          return counts;
+        }, counts);
+        const maxCount = Math.max(...Array.from(counts.values()));
+        if (maxCount < quorum) {
+          // Quorum is not met: we should toss this response as it could be unreliable.
+          throw new QuorumNotMet(maxCount, quorum, {
+            errors,
+            providersCount: this.providers.length,
+            responsesCount: filteredResults.length,
+          });
+        }
+        // Technically it could be multiple top responses...
+        const topResponses = Array.from(counts.keys()).filter((k) => counts.get(k)! === maxCount);
+        if (topResponses.length > 0) {
+          // Did we get multiple conflicting top responses? Worth logging.
+          this.logger.info(
+            "Received conflicting top responses from RPC providers.",
+            createRequestContext(this.execute.name),
+            undefined,
+            {
+              topResponses,
+              providersCount: this.providers.length,
+              responsesCount: filteredResults.length,
+              requiredQuorum: quorum,
+            },
+          );
+        }
+        // We've been using string keys and need to convert back to the OG item type T.
+        const stringifiedTopResponse = topResponses[0];
+        for (const item of filteredResults) {
+          if (JSON.stringify(item) === stringifiedTopResponse) {
+            return item;
+          }
+        }
+      }
+    } else {
+      // Shuffle the providers (with weighting towards better ones) and pick from the top.
+      const shuffledProviders = this.shuffleSyncedProviders();
+      for (const provider of shuffledProviders) {
+        try {
+          return await method(provider);
+        } catch (e: unknown) {
+          handleError(e);
         }
       }
     }
+
     throw new RpcError(RpcError.reasons.FailedToSend, { errors });
   }
 
@@ -807,7 +889,7 @@ export class RpcProviderAggregator {
     } catch (error: unknown) {
       // If we can't get the block period, we'll just use a default value.
       this.logger.warn("Could not get block period time, using default.", undefined, undefined, {
-        chainId: this.chainId,
+        domain: this.domain,
         error,
         default: DEFAULT_BLOCK_PERIOD,
       });

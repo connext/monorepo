@@ -1,5 +1,5 @@
 export { updateTransfers } from "./transfers";
-export { updateRouters } from "./routers";
+export { updateRouters, updateDailyRouterTvl } from "./routers";
 export {
   retrieveOriginMessages,
   updateMessages,
@@ -7,4 +7,5 @@ export {
   retrieveProcessedRootMessages,
 } from "./messages";
 export { updateAggregatedRoots, updatePropagatedRoots, updateReceivedAggregateRoots } from "./roots";
+export { updateStableSwap, updatePoolEvents } from "./stableswap";
 export { runMigration } from "./migrations";

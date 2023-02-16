@@ -9,11 +9,11 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
-import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, RouterVersionInvalid } from "../../errors";
-import { getContext } from "../../../sequencer";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
@@ -40,18 +40,9 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
-  // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<");
-  if (checkVersion) {
-    throw new RouterVersionInvalid({
-      supportedVersion: config.supportedVersion,
-      bid,
-    });
-  }
-
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
+  let status = await cache.auctions.getExecStatus(transferId);
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -60,21 +51,18 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // TODO: Check that a relayer is configured/approved for this chain (?).
 
-  // Check to see if we have the XCall data saved locally for this.
-  let transfer = await cache.transfers.getTransfer(transferId);
+  // Get the XCall from the subgraph for this transfer.
+  const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
-    // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getOriginTransferById(origin, transferId);
-    if (!transfer || !transfer.origin) {
-      // Router shouldn't be bidding on a transfer that doesn't exist.
-      throw new MissingXCall(origin, transferId, {
-        bid,
-      });
-    }
-    // Store the transfer locally. We will use this as a reference later when we execute this transfer
-    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
-    await cache.transfers.storeTransfers([transfer]);
+    // Router shouldn't be bidding on a transfer that doesn't exist.
+    throw new MissingXCall(origin, transferId, {
+      bid,
+    });
   }
+
+  // Store the transfer locally. We will use this as a reference later when we execute this transfer
+  // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+  await cache.transfers.storeTransfers([transfer]);
 
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
@@ -98,6 +86,23 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
+  const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
+  if (execStatus && execStatus.status === ExecStatus.Sent) {
+    const startTime = Number(execStatus.timestamp);
+    const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Auction merits retry", requestContext, methodContext, { transferId: transferId });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.auctions.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+      });
+      status = execStatus.status;
+    }
+  }
   if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
@@ -111,6 +116,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       routingKey: transfer.xparams!.originDomain,
       persistent: true,
     });
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
@@ -131,7 +137,7 @@ export const executeFastPathData = async (
   const {
     config,
     logger,
-    adapters: { cache, subgraph },
+    adapters: { cache, subgraph, database },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
@@ -140,6 +146,7 @@ export const executeFastPathData = async (
   let taskId: string | undefined;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
+    relayerfee: { canSubmitToRelayer },
   } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeFastPathData.name, _requestContext);
   logger.debug(`Method start: ${executeFastPathData.name}`, requestContext, methodContext);
@@ -150,7 +157,7 @@ export const executeFastPathData = async (
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
-  const auction = await cache.auctions.getAuction(transferId);
+  let auction = await cache.auctions.getAuction(transferId);
   if (auction) {
     const startTime = Number(auction.timestamp);
     const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
@@ -162,8 +169,10 @@ export const executeFastPathData = async (
         waitTime: config.auctionWaitTime,
       });
       const remainingTime = config.auctionWaitTime - elapsed;
-      // if (remainingTime > 0) setTimeout(() => {}, remainingTime);
-      if (remainingTime > 0) await new Promise((f) => setTimeout(f, remainingTime));
+      if (remainingTime > 0) {
+        await new Promise((f) => setTimeout(f, remainingTime));
+        auction = await cache.auctions.getAuction(transferId);
+      }
     }
   } else {
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
@@ -176,7 +185,7 @@ export const executeFastPathData = async (
   // for the fact that one transfer's auction might affect another. For instance, a router might have
   // 100 tokens to LP, but bid on 2 100-token transfers. We shouldn't send both of those bids.
 
-  const { bids, origin, destination } = auction;
+  const { bids, origin, destination } = auction!;
   logger.info("Started selecting bids", requestContext, methodContext, {
     bids,
     origin,
@@ -217,6 +226,23 @@ export const executeFastPathData = async (
     await cache.auctions.setExecStatus(transferId, ExecStatus.Completed);
     return { taskId };
   }
+
+  const { canSubmit, needed } = await canSubmitToRelayer(transfer);
+  if (!canSubmit) {
+    logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
+      transferId,
+      relayerFee: transfer.origin.relayerFee,
+      needed,
+    });
+
+    transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
+    await database.saveTransfers([transfer]);
+    return { taskId };
+  }
+
+  // TODO: Enforce relayer fee
+  // At the time of sequencer relayer submission, check the amount that the user sent as relayer fee against the SDK-determined relayer fee.
+  // If it is not enough (within a certain tolerance), sequencer should error and refuse to submit the tx, and drop the message.
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
@@ -349,11 +375,13 @@ export const executeFastPathData = async (
         // Break out from the bid selection loop.
         break;
       } catch (error: any) {
+        const jsonError = jsonifyError(error as Error);
+
         logger.error(
           "Failed to send to relayer, trying next combination if possible",
           requestContext,
           methodContext,
-          jsonifyError(error as Error),
+          jsonError,
           {
             transferId,
             round: roundIdInNum,
@@ -361,23 +389,22 @@ export const executeFastPathData = async (
             bidsCount: randomCombination.length,
           },
         );
+
+        const errorMessage = jsonError.context?.message ?? jsonError.message;
+        if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+          throw new SlippageToleranceExceeded({ transfer, error: jsonError });
+        }
       }
     }
 
     if (!taskId) {
-      logger.error(
-        `No combinations sent to relayer for the round ${roundIdInNum}`,
-        requestContext,
-        methodContext,
-        jsonifyError(new Error("No successfully sent bids")),
-        {
-          transferId,
-          origin,
-          destination,
-          round: roundIdInNum,
-          combinations: combinedBidsForRound,
-        },
-      );
+      logger.warn(`No combinations sent to relayer for the round ${roundIdInNum}`, requestContext, methodContext, {
+        transferId,
+        origin,
+        destination,
+        round: roundIdInNum,
+        combinations: combinedBidsForRound,
+      });
       continue;
     }
 
@@ -389,10 +416,22 @@ export const executeFastPathData = async (
       combinations: combinedBidsForRound,
     });
 
+    // Clean up the caches upon successful transfer through the relayer
+    await cache.transfers.pruneTransfersByIds([transferId]);
+    await cache.auctions.pruneAuctionData(transferId);
+
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId });
+    // reset error status
+    transfer.origin.errorStatus = undefined;
+    await database.saveTransfers([transfer]);
 
     return { taskId };
+  }
+
+  if (!taskId) {
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+    throw new NoBidsSent({ transfer });
   }
 
   return { taskId };

@@ -1,4 +1,3 @@
-import { constants } from "ethers";
 import {
   RequestContext,
   createLoggingContext,
@@ -8,12 +7,13 @@ import {
   formatUrl,
   getChainIdFromDomain,
   ExecutorPostDataRequest,
+  ExecutorData,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../executor";
+import { axiosPost } from "../../../mockable";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { axiosPost } from "../../../mockable";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
@@ -26,6 +26,7 @@ export const sendExecuteSlowToSequencer = async (
     chainData,
     config,
     adapters: { chainreader },
+    routerAddress,
   } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToSequencer.name, _requestContext);
@@ -33,12 +34,6 @@ export const sendExecuteSlowToSequencer = async (
 
   const destinationChainId = await getChainIdFromDomain(args.params.destinationDomain, chainData);
   const destinationConnextAddress = config.chains[args.params.destinationDomain].deployments.connext;
-
-  const relayerFee = {
-    amount: "0",
-    // TODO: should handle relayer fee paid in alternative assets once that is implemented.
-    asset: constants.AddressZero,
-  };
 
   // Validate the bid's fulfill call will succeed on chain.
   // note: using gelato's relayer address since it will be whitelisted everywhere
@@ -58,8 +53,8 @@ export const sendExecuteSlowToSequencer = async (
   });
 
   try {
-    const gas = await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
-      chainId: destinationChainId,
+    const gas = await chainreader.getGasEstimateWithRevertCode({
+      domain: +args.params.destinationDomain,
       to: destinationConnextAddress,
       data: encodedData,
       from: relayerAddress,
@@ -70,41 +65,39 @@ export const sendExecuteSlowToSequencer = async (
       connext: destinationConnextAddress,
       domain: args.params.destinationDomain,
       gas: gas.toString(),
-      relayerFee,
       transferId: transferId,
     });
-  } catch (err: unknown) {
-    logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
+  } catch (_err: unknown) {
+    const err = _err as NxtpError;
+    logger.warn("Failed to estimate gas, sending to sequencer anyways", requestContext, methodContext, {
       chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
       from: relayerAddress,
       transferId: transferId,
+      reason: err.context?.message ?? err.message,
     });
-
-    return;
   }
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
-  const executorRequestData = {
+  const executorRequestData: ExecutorData = {
     executorVersion: version,
     transferId,
     origin: args.params.originDomain,
-    relayerFee,
     encodedData,
+    routerAddress,
   };
 
   try {
     const response = await axiosPost<ExecutorPostDataRequest>(url, executorRequestData);
 
     if (!response || !response.data) {
-      logger.info("Received bad response from the sequencer", requestContext, methodContext, executorRequestData);
+      logger.warn("Received bad response from the sequencer", requestContext, methodContext, executorRequestData);
     } else {
       logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
         relayer: relayerAddress,
         connext: destinationConnextAddress,
         domain: args.params.destinationDomain,
-        relayerFee,
         result: response.data,
         transferId: transferId,
       });

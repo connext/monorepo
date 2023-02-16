@@ -70,3 +70,18 @@ GET {{postgrestUrl}}/messages
 
 ### GET ASSETS
 GET {{postgrestUrl}}/assets
+
+### GET STABLESWAP EXCHANGES (swap events)
+GET {{postgrestUrl}}/stableswap_exchanges
+
+### GET STABLESWAP POOLS
+GET {{postgrestUrl}}/stableswap_pools
+
+### GET STABLESWAP HOURLY SWAP VOLUME
+GET {{postgrestUrl}}/hourly_swap_volume
+
+### GET STABLESWAP DAILY SWAP VOLUME
+GET {{postgrestUrl}}/daily_swap_volume
+
+### GET STABLESWAP ADD/REMOVE LIQUIDITY EVENTS
+GET {{postgrestUrl}}/stableswap_pool_events

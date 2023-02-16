@@ -263,7 +263,7 @@ module "lighthouse_prover_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(30 minutes)"
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -274,7 +274,7 @@ module "lighthouse_process_from_root_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(30 minutes)"
 }
 
 
@@ -286,7 +286,7 @@ module "lighthouse_propagate_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(30 minutes)"
 }
 
 
@@ -349,6 +349,67 @@ module "relayer_web3signer" {
   cert_arn                 = var.certificate_arn
   container_env_vars       = local.relayer_web3signer_env_vars
 }
+
+module "watcher" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  docker_image             = var.full_image_name_watcher
+  container_family         = "watcher"
+  health_check_path        = "/ping"
+  container_port           = 8080
+  loadbalancer_port        = 80
+  cpu                      = 1024
+  memory                   = 2048
+  instance_count           = 1
+  timeout                  = 180
+  internal_lb              = false
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn
+  container_env_vars       = local.watcher_env_vars
+}
+
+module "watcher_web3signer" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  docker_image             = "ghcr.io/connext/web3signer:latest"
+  container_family         = "watcher-web3signer"
+  health_check_path        = "/upcheck"
+  container_port           = 9000
+  loadbalancer_port        = 80
+  cpu                      = 256
+  memory                   = 512
+  instance_count           = 1
+  timeout                  = 180
+  internal_lb              = true
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn
+  container_env_vars       = local.watcher_web3signer_env_vars
+}
+
 
 module "network" {
   source      = "../../../modules/networking"

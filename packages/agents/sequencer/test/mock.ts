@@ -3,15 +3,17 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
-import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
-import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
+import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/nxtp-utils";
+import { ConnextInterface } from "@connext/smart-contracts/typechain-types/Connext";
+import { ConnextPriceOracleInterface } from "@connext/smart-contracts/typechain-types/ConnextPriceOracle";
+import { StableSwapInterface } from "@connext/smart-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
+export const mockExcludeAddress = mkAddress("0xmockExcludeAddr");
 export const mock = {
   ..._mock,
   context: (): AppContext => {
@@ -24,6 +26,7 @@ export const mock = {
         relayers: mock.adapters.relayers(),
         mqClient: mock.adapters.mqClient() as any,
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
+        database: mockDatabase(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -37,14 +40,18 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
       [mock.domain.B]: {
         confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
+          relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
     },
     logLevel: "info",
@@ -62,6 +69,7 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    executionWaitTime: 300_000,
     auctionRoundDepth: 4,
     mode: {
       cleanup: false,
@@ -86,6 +94,10 @@ export const mock = {
         url: "http://example.com",
       },
     ],
+    relayerFeeTolerance: 20,
+    database: {
+      url: "http://example.com",
+    },
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -124,33 +136,21 @@ export const mock = {
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
       connext.decodeFunctionData.returns([BigNumber.from(1000)]);
 
-      const priceOracle = createStubInstance(utils.Interface);
-      priceOracle.encodeFunctionData.returns(encodedDataMock);
-      priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const stableSwap = createStubInstance(utils.Interface);
-      stableSwap.encodeFunctionData.returns(encodedDataMock);
-      stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const erc20 = createStubInstance(utils.Interface);
-      erc20.encodeFunctionData.returns(encodedDataMock);
-      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const spokeConnector = createStubInstance(utils.Interface);
-      spokeConnector.encodeFunctionData.returns(encodedDataMock);
-      spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
-
-      const relayerProxy = createStubInstance(utils.Interface);
-      relayerProxy.encodeFunctionData.returns(encodedDataMock);
-      relayerProxy.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      const genericStubInterface = createStubInstance(utils.Interface);
+      genericStubInterface.encodeFunctionData.returns(encodedDataMock);
+      genericStubInterface.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
-        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
-        stableSwap: stableSwap as unknown as StableSwapInterface,
-        relayerProxy: relayerProxy as any,
-        spokeConnector: spokeConnector as any,
+        erc20: genericStubInterface as any,
+        priceOracle: genericStubInterface as unknown as ConnextPriceOracleInterface,
+        stableSwap: genericStubInterface as unknown as StableSwapInterface,
+        rootManager: genericStubInterface as any,
+        relayerProxy: genericStubInterface as any,
+        relayerProxyHub: genericStubInterface as any,
+        spokeConnector: genericStubInterface as any,
+        multisend: genericStubInterface as any,
+        unwrapper: genericStubInterface as any,
       };
     },
     relayers: () => [
@@ -158,6 +158,7 @@ export const mock = {
         instance: mockRelayer(),
         apiKey: "foo",
         url: "http://localhost:8080",
+        type: RelayerType.Connext,
       },
     ],
     mqClient: () => {

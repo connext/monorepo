@@ -47,6 +47,10 @@ export type goerli_AggregatedMessageRoot_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   receivedRoot?: InputMaybe<Scalars['goerli_Bytes']>;
   receivedRoot_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   receivedRoot_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   receivedRoot_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   receivedRoot_contains?: InputMaybe<Scalars['goerli_Bytes']>;
@@ -61,6 +65,8 @@ export type goerli_AggregatedMessageRoot_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_AggregatedMessageRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_AggregatedMessageRoot_filter>>>;
 };
 
 export type goerli_AggregatedMessageRoot_orderBy =
@@ -105,24 +111,38 @@ export type goerli_ArbitrumConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_ArbitrumConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_ArbitrumConnectorMeta_filter>>>;
 };
 
 export type goerli_ArbitrumConnectorMeta_orderBy =
@@ -179,24 +199,38 @@ export type goerli_BnbConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_BnbConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_BnbConnectorMeta_filter>>>;
 };
 
 export type goerli_BnbConnectorMeta_orderBy =
@@ -243,24 +277,38 @@ export type goerli_GnosisConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_GnosisConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_GnosisConnectorMeta_filter>>>;
 };
 
 export type goerli_GnosisConnectorMeta_orderBy =
@@ -307,24 +355,38 @@ export type goerli_OptimismConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_OptimismConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_OptimismConnectorMeta_filter>>>;
 };
 
 export type goerli_OptimismConnectorMeta_orderBy =
@@ -376,24 +438,38 @@ export type goerli_PolygonConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_PolygonConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_PolygonConnectorMeta_filter>>>;
 };
 
 export type goerli_PolygonConnectorMeta_orderBy =
@@ -640,6 +716,10 @@ export type goerli_RootAggregated_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   receivedRoot?: InputMaybe<Scalars['goerli_Bytes']>;
   receivedRoot_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  receivedRoot_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   receivedRoot_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   receivedRoot_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   receivedRoot_contains?: InputMaybe<Scalars['goerli_Bytes']>;
@@ -654,6 +734,8 @@ export type goerli_RootAggregated_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootAggregated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootAggregated_filter>>>;
 };
 
 export type goerli_RootAggregated_orderBy =
@@ -691,6 +773,8 @@ export type goerli_RootManagerMeta_filter = {
   connectors_not_contains_nocase?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootManagerMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootManagerMeta_filter>>>;
 };
 
 export type goerli_RootManagerMeta_orderBy =
@@ -738,18 +822,30 @@ export type goerli_RootMessageProcessed_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   root?: InputMaybe<Scalars['goerli_Bytes']>;
   root_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  root_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   root_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   caller?: InputMaybe<Scalars['goerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
@@ -788,6 +884,8 @@ export type goerli_RootMessageProcessed_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootMessageProcessed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootMessageProcessed_filter>>>;
 };
 
 export type goerli_RootMessageProcessed_orderBy =
@@ -820,12 +918,20 @@ export type goerli_RootPropagated_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   aggregate?: InputMaybe<Scalars['goerli_Bytes']>;
   aggregate_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  aggregate_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  aggregate_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  aggregate_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  aggregate_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   aggregate_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   aggregate_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   aggregate_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   aggregate_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   domainsHash?: InputMaybe<Scalars['goerli_Bytes']>;
   domainsHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  domainsHash_gt?: InputMaybe<Scalars['goerli_Bytes']>;
+  domainsHash_lt?: InputMaybe<Scalars['goerli_Bytes']>;
+  domainsHash_gte?: InputMaybe<Scalars['goerli_Bytes']>;
+  domainsHash_lte?: InputMaybe<Scalars['goerli_Bytes']>;
   domainsHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   domainsHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   domainsHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
@@ -840,6 +946,8 @@ export type goerli_RootPropagated_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<goerli_RootPropagated_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<goerli_RootPropagated_filter>>>;
 };
 
 export type goerli_RootPropagated_orderBy =

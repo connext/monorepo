@@ -1,16 +1,13 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TIntegerString } from "./primitives";
+import { TAddress, TBytes32 } from "./primitives";
 
 export const ExecutorDataSchema = Type.Object({
   executorVersion: Type.String(),
-  transferId: Type.String(),
+  transferId: TBytes32,
   origin: Type.String(),
-  relayerFee: Type.Object({
-    amount: TIntegerString,
-    asset: Type.String(),
-  }),
   encodedData: Type.String(),
+  routerAddress: TAddress,
 });
 
 export type ExecutorData = Static<typeof ExecutorDataSchema>;

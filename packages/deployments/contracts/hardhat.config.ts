@@ -13,7 +13,8 @@ import "hardhat-abi-exporter";
 import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/addWatcher";
-import "./tasks/setupRouter";
+import "./tasks/approveRouter";
+import "./tasks/addAdmin";
 import "./tasks/setupAsset";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";
@@ -54,6 +55,7 @@ import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
 import "./tasks/pause";
 import "./tasks/unpause";
+import "./tasks/bumpTransfer";
 import { hardhatNetworks } from "./src/config";
 
 envConfig();
@@ -151,7 +153,7 @@ const config: HardhatUserConfig = {
     strict: false,
     filter: function (abiElement, index, fullAbi, fullyQualifiedName) {
       const contractName = fullyQualifiedName.split(":")[1];
-      if (abiElement.type === "error" && abiElement.name.includes("Facet") && !abiElement.name.includes(contractName)) {
+      if (abiElement.type === "error" && !abiElement.name.includes(contractName)) {
         return false;
       }
 

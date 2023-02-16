@@ -1,11 +1,11 @@
-import { NxtpSdkPool, NxtpSdkShared } from "@connext/nxtp-sdk";
+import { SdkPool, SdkShared } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { getCanonicalHash } from "@connext/nxtp-utils";
 
 import {
   getLPTokenAddressSchema,
-  getLPTokenSupplySchema,
+  getTokenSupplySchema,
   getTokenUserBalanceSchema,
   getPoolTokenIndexSchema,
   getPoolTokenBalanceSchema,
@@ -25,12 +25,15 @@ import {
   calculateSwapPriceImpactSchema,
   calculateAmountReceivedSchema,
   getTokenPriceSchema,
-  getYieldStatsForDaySchema,
+  getYieldStatsForDaysSchema,
   getYieldDataSchema,
   getBlockNumberFromUnixTimestampSchema,
+  getTokenSwapEventsSchema,
+  getHourlySwapVolumeSchema,
+  getDailySwapVolumeSchema,
 } from "./types/api";
 
-export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
+export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
   // ------------------- Read Operations ------------------- //
@@ -50,15 +53,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
   );
 
   s.get(
-    "/getLPTokenSupply/:domainId/:lpTokenAddress",
+    "/getTokenSupply/:domainId/:lpTokenAddress",
     {
       schema: {
-        params: getLPTokenSupplySchema,
+        params: getTokenSupplySchema,
       },
     },
     async (request, reply) => {
-      const { domainId, lpTokenAddress } = request.params;
-      const res = await sdkPoolInstance.getLPTokenSupply(domainId, lpTokenAddress);
+      const { domainId, tokenAddress } = request.params;
+      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
@@ -251,6 +254,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     },
   );
 
+  s.post(
+    "/getTokenSwapEvents",
+    {
+      schema: {
+        body: getTokenSwapEventsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkPoolInstance.getTokenSwapEvents(params);
+      reply.status(200).send(res);
+    },
+  );
+
   // ------------------- Pool Operations ------------------- //
 
   s.post(
@@ -348,21 +365,21 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     },
     async (request, reply) => {
       const { domainId, unixTimestamp } = request.params;
-      const res = await NxtpSdkShared.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
+      const res = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
       reply.status(200).send(res);
     },
   );
 
   s.get(
-    "/getYieldStatsForDay/:domainId/:tokenAddress/:unixTimestamp",
+    "/getYieldStatsForDays/:domainId/:tokenAddress/:unixTimestamp",
     {
       schema: {
-        params: getYieldStatsForDaySchema,
+        params: getYieldStatsForDaysSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, unixTimestamp } = request.params;
-      const res = await sdkPoolInstance.getYieldStatsForDay(domainId, tokenAddress, unixTimestamp);
+      const { domainId, tokenAddress, unixTimestamp, days } = request.params;
+      const res = await sdkPoolInstance.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
       reply.status(200).send(res);
     },
   );
@@ -377,6 +394,34 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress, days } = request.params;
       const res = await sdkPoolInstance.getYieldData(domainId, tokenAddress, days);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getDailySwapVolume",
+    {
+      schema: {
+        body: getDailySwapVolumeSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkPoolInstance.getDailySwapVolume(params);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getHourlySwapVolume",
+    {
+      schema: {
+        body: getHourlySwapVolumeSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkPoolInstance.getHourlySwapVolume(params);
       reply.status(200).send(res);
     },
   );

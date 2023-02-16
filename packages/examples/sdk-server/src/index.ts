@@ -2,17 +2,12 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, NxtpSdkUtils, NxtpSdkRouter, create } from "@connext/nxtp-sdk";
+import { SdkConfig, create } from "@connext/sdk";
 
 import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
-
-let sdkBaseInstance: NxtpSdkBase;
-let sdkPoolInstance: NxtpSdkPool;
-let sdkUtilsInstance: NxtpSdkUtils;
-let sdkRouterInstance: NxtpSdkRouter;
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -54,7 +49,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     configuredProviders[key] = provider;
   }
 
-  const nxtpConfig: NxtpSdkConfig = {
+  const nxtpConfig: SdkConfig = {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
@@ -63,14 +58,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { nxtpSdkBase, nxtpSdkPool, nxtpSdkUtils, nxtpSdkRouter } = await create(nxtpConfig);
-
-  sdkBaseInstance = nxtpSdkBase;
-  sdkPoolInstance = nxtpSdkPool;
-  sdkUtilsInstance = nxtpSdkUtils;
-  sdkRouterInstance = nxtpSdkRouter;
-  console.log(`Initialized SDK with config:`);
-  console.log(nxtpConfig);
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
   // Register routes
 
@@ -90,10 +78,10 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
-  server.register(baseRoutes, sdkBaseInstance);
-  server.register(poolRoutes, sdkPoolInstance);
-  server.register(utilsRoutes, sdkUtilsInstance);
-  server.register(routerRoutes, sdkRouterInstance);
+  server.register(baseRoutes, sdkBase);
+  server.register(poolRoutes, sdkPool);
+  server.register(utilsRoutes, sdkUtils);
+  server.register(routerRoutes, sdkRouter);
 
   server.listen(8080, (err, address) => {
     if (err) {

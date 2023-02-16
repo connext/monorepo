@@ -1,10 +1,23 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
-import { XCalled, Executed, Reconciled } from "../../../generated/Connext/Connext";
-import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
+import {
+  XCalled,
+  Executed,
+  Reconciled,
+  TransferRelayerFeesIncreased,
+  SlippageUpdated,
+} from "../../../generated/Connext/Connext";
+import {
+  Router,
+  OriginTransfer,
+  DestinationTransfer,
+  OriginMessage,
+  RelayerFeesIncrease,
+  SlippageUpdate,
+} from "../../../generated/schema";
 
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
+import { getChainId, getOrCreateAsset, getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
 
 /// MARK - Connext Bridge
 /**
@@ -110,6 +123,13 @@ export function handleExecuted(event: Executed): void {
       assetBalance.feesEarned = assetBalance.feesEarned.plus(feesTaken.div(BigInt.fromI32(num)));
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, event.params.args.routers[i], event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.balance = assetBalance.amount;
+        routerTvl.save();
+      }
     }
 
     transfer.routersFee = feesTaken;
@@ -184,6 +204,13 @@ export function handleReconciled(event: Reconciled): void {
       const assetBalance = getOrCreateAssetBalance(event.params.local, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, Address.fromString(router), event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.balance = assetBalance.amount;
+        routerTvl.save();
+      }
     }
   }
 
@@ -215,4 +242,84 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledTxOrigin = event.transaction.from;
 
   transfer.save();
+}
+
+/**
+ * Updates subgraph records when TransferRelayerFeesIncreased events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased): void {
+  let transfer = OriginTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new OriginTransfer(event.params.transferId.toHexString());
+  }
+  transfer.relayerFee = (transfer.relayerFee ? transfer.relayerFee : BigInt.fromI32(0))!.plus(event.params.increase);
+  transfer.bumpRelayerFeeCount = (
+    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
+  )!.plus(BigInt.fromI32(1));
+  transfer.save();
+
+  // should never be more than 1 but just in case theres somehow multiple in the same tx
+  let relayerFeesIncrease = RelayerFeesIncrease.load(
+    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+  );
+  if (relayerFeesIncrease == null) {
+    relayerFeesIncrease = new RelayerFeesIncrease(
+      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+    );
+  }
+
+  relayerFeesIncrease.transfer = transfer.id;
+  relayerFeesIncrease.increase = event.params.increase;
+
+  // tx
+  relayerFeesIncrease.caller = event.transaction.from;
+  relayerFeesIncrease.blockNumber = event.block.number;
+  relayerFeesIncrease.timestamp = event.block.timestamp;
+  relayerFeesIncrease.transactionHash = event.transaction.hash;
+  relayerFeesIncrease.gasLimit = event.transaction.gasLimit;
+  relayerFeesIncrease.gasPrice = event.transaction.gasPrice;
+  relayerFeesIncrease.save();
+}
+
+/**
+ * Updates subgraph records when SlippageUpdated events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
+export function handleSlippageUpdated(event: SlippageUpdated): void {
+  let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new DestinationTransfer(event.params.transferId.toHexString());
+  }
+
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount
+    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
+  transfer.save();
+
+  // should never be more than 1 but just in case theres somehow multiple in the same tx
+  let slippageUpdate = SlippageUpdate.load(
+    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+  );
+  if (slippageUpdate == null) {
+    slippageUpdate = new SlippageUpdate(
+      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+    );
+  }
+
+  slippageUpdate.transfer = transfer.id;
+  slippageUpdate.slippage = event.params.slippage;
+
+  // tx
+  slippageUpdate.caller = event.transaction.from;
+  slippageUpdate.blockNumber = event.block.number;
+  slippageUpdate.timestamp = event.block.timestamp;
+  slippageUpdate.transactionHash = event.transaction.hash;
+  slippageUpdate.gasLimit = event.transaction.gasLimit;
+  slippageUpdate.gasPrice = event.transaction.gasPrice;
+  slippageUpdate.save();
 }

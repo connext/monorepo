@@ -1173,7 +1173,7 @@ const _abi = [
     stateMutability: "payable",
     type: "receive",
   },
-];
+] as const;
 
 export class SpokeConnector__factory {
   static readonly abi = _abi;

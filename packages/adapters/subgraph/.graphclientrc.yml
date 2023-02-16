@@ -182,6 +182,127 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
+  - name: StableSwap_Goerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: goerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_Goerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staginggoerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_OptimismGoerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-opt-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: optimismgoerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_OptimismGoerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-opt-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingoptimismgoerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Mumbai
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-mumbai
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mumbai_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_Mumbai
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-mumbai
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingmumbai_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_ArbitrumGoerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arb-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: arbitrumgoerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_ArbitrumGoerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-arb-goerli
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingarbitrumgoerli_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   #####################################################
   # MAINNETS
   - name: Hub_Mainnet
@@ -205,6 +326,14 @@ sources:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet
         retry: 5
         timeout: 30000 # 30 seconds
+        # strategy: fallback
+        # sources:
+        #   - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DfD1tZSmDtjCGC2LeYEQbVzj9j8kNqKAQEsYL27Vg6Sw"
+        #     retry: 2
+        #     timeout: 30000 # 30 seconds
+        #   - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet
+        #     retry: 5
+        #     timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mainnet_
@@ -217,9 +346,14 @@ sources:
   - name: Connext_Optimism
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_
@@ -232,9 +366,14 @@ sources:
   - name: Connext_Polygon
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-polygon"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygon_
@@ -247,9 +386,14 @@ sources:
   - name: Connext_ArbitrumOne
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: arbitrumone_
@@ -262,9 +406,14 @@ sources:
   - name: Connext_Bnb
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-bnb"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_
@@ -279,10 +428,13 @@ sources:
       graphql:
         strategy: fallback
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
-            retry: 2
+          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+            retry: 5
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis
+          - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -294,6 +446,83 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
+  - name: StableSwap_Optimism
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-optimism
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: optimism_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Polygon
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-polygon
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: polygon_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_ArbitrumOne
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arbitrum-one
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: arbitrumone_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Bnb
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-bnb
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: bnb_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Xdai
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: xdai_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   #####################################################
   # LOCAL
   - name: Connext_Local1337

@@ -14,12 +14,12 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/1869640809
+POST {{baseUrl}}/sendTransaction/1735353714
 Content-Type: application/json
 
 {
-  "data": "0xff126de96d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001858b33ccd7",
-  "to": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA"
+  "data": "0xfd5bd5fe00000000000000000000000000000000000000000000000000000000676f65720000000000000000000000007ea6ea49b0b0ae9c5db7907d139d9cd3439862a10000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1",
+  "to": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649"
 }
 
 ##############
@@ -57,20 +57,30 @@ Content-Type: application/json
 }
 
 ##############
+### POST Estimate Relayer Fee
+POST {{baseUrl}}/estimateRelayerFee
+Content-Type: application/json
+
+{
+  "origin": "1735353714",
+  "destination": "9991"
+}
+
+##############
 ### GET getCanonicalTokenId
-GET {{baseUrl}}/getCanonicalTokenId/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+GET {{baseUrl}}/getCanonicalTokenId/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
 
 ##############
 ### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
-### GET getLPTokenSupply
-GET {{baseUrl}}/getLPTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+### GET getTokenSupply
+GET {{baseUrl}}/getTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
 ### GET calculateCanonicalKey
-GET {{baseUrl}}/calculateCanonicalKey/6648936/0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
 ##############
 
 ### GET getLPTokenUserBalance
@@ -158,10 +168,10 @@ POST {{baseUrl}}/calculateSwapPriceImpact
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "6450786",
   "amountX": "1000000",
-  "tokenX": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "tokenY": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+  "tokenX": "0x5e7D83dA751F4C9694b13aF351B30aC108f32C38",
+  "tokenY": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
 }
 
 ##############
@@ -187,8 +197,8 @@ POST {{baseUrl}}/getPool
 Content-Type: application/json
 
 {
-  "domainId": "1886350457",
-  "tokenAddress": "0xF96C6d2537e1af1a9503852eB2A4AF264272a5B6"
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -248,6 +258,28 @@ Content-Type: application/json
 }
 
 ##############
+### POST bumpTransfer 
+POST {{baseUrl}}/bumpTransfer
+Content-Type: application/json
+
+{
+  "domainId": "1869640809",
+  "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
+  "relayerFee": "100000000000"
+}
+
+##############
+### POST updateSlippage 
+POST {{baseUrl}}/updateSlippage
+Content-Type: application/json
+
+{
+  "domainId": "6778479",
+  "transferId": "0x7e5f0712a2f25b9160439fdd05be3b212e65f7ae5a03980947be1ce576ae4869",
+  "slippage": "300"
+}
+
+##############
 ### POST calculateCanonicalHash 
 POST {{baseUrl}}/calculateCanonicalHash
 Content-Type: application/json
@@ -258,63 +290,18 @@ Content-Type: application/json
 }
 
 ##############
-### POST getTransfersByUser 
-POST {{baseUrl}}/getTransfersByUser
-Content-Type: application/json
-
-{
-  "params": {
-    "userAddress": "{{yourAddress}}"
-  }
-}
-
-##############
-### POST getTransfersByStatus 
-POST {{baseUrl}}/getTransfersByStatus
-Content-Type: application/json
-
-{
-  "params": {
-    "status": "XCalled"
-  }
-}
-
-##############
-### POST getTransfersByRouter 
-POST {{baseUrl}}/getTransfersByRouter
-Content-Type: application/json
-
-{
-  "params": {
-    "routerAddress": "0xd2ad711861ab345977b7379c81165708c8717ff1"
-  }
-}
-
-##############
-### POST getTransferById
-POST {{baseUrl}}/getTransferById
-Content-Type: application/json
-
-{
-  "transferId": "0x6a0f389957407ee08acd911577cee33c608ba02b5c6879400bf66a98a6c86d82"
-}
-
-##############
-### POST getTransferByTransactionHash
-POST {{baseUrl}}/getTransferByTransactionHash
-Content-Type: application/json
-
-{
-  "transactionHash": "0xb51cd9fbd5939ebf51b49970d2b2766738a7cc3fdb698c947d95751efb32caee"
-}
-
-##############
 ### POST getTransfers
 POST {{baseUrl}}/getTransfers
 Content-Type: application/json
 
 {
-  "params": {}
+  "params": {
+    "errorStatus": "ExecutionError",
+    "range": {
+      "limit": 100,
+      "offset": 0
+    }
+  }
 }
 
 ##############
@@ -327,11 +314,11 @@ GET {{baseUrl}}/getBlockNumberFromUnixTimestamp/6648936/1658171864
 
 ##############
 ### GET getYieldStatsForDay
-GET {{baseUrl}}/getYieldStatsForDay/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD/1669746799
+GET {{baseUrl}}/getYieldStatsForDay/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/1669746799
 
 ##############
 ### GET getYieldData
-GET {{baseUrl}}/getYieldData/6450786/0x2170Ed0880ac9A755fd29B2688956BD959F933F8/1
+GET {{baseUrl}}/getYieldData/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD/1
 
 ##############
 ### POST addLiquidityForRouter
@@ -362,5 +349,65 @@ Content-Type: application/json
 }
 
 ##############
+### POST removeRouterLiquidityFor
+POST {{baseUrl}}/removeRouterLiquidityFor
+Content-Type: application/json
+
+{
+  "params": {
+    "domainId": "1735353714",
+    "amount": "1000000000000000000",
+    "tokenAddress": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+    "recipient": "0xd2ad711861ab345977b7379c81165708c8717ff1",
+    "router": "0xd2ad711861ab345977b7379c81165708c8717ff1"
+  }
+}
+
+##############
 ### GET getAssetsData
 GET {{baseUrl}}/getAssetsData
+
+##############
+### GET getSupported
+GET {{baseUrl}}/getSupported
+
+##############
+### GET getTokenSwapEvents
+POST {{baseUrl}}/getTokenSwapEvents
+Content-Type: application/json
+
+{
+  "params": {
+    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+    "buyer": "0xba05138df56ea700435448fba4a8cf9a716ed252",
+    "transactionHash": "0x5f9c237682049e4efe7f4bc4bfb9bd5174fccb9e86241254ea3e369515943e59"
+  }
+}
+
+##############
+### GET getHourlySwapVolume
+POST {{baseUrl}}/getHourlySwapVolume
+Content-Type: application/json
+
+{
+  "params": {
+    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+    "domainId": "9991",
+    "startTimestamp": 1661640192,
+    "endTimestamp": 1671640192
+  }
+}
+
+##############
+### GET getDailySwapVolume
+POST {{baseUrl}}/getDailySwapVolume
+Content-Type: application/json
+
+{
+  "params": {
+    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+    "domainId": "9991",
+    "startTimestamp": 1661640192,
+    "endTimestamp": 1671640192
+  }
+}

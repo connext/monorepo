@@ -286,7 +286,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IBridgeToken__factory {
   static readonly abi = _abi;

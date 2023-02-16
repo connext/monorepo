@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress } from "@connext/nxtp-utils";
+import { TAddress, TDatabaseConfig } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -8,6 +8,7 @@ export const TChainConfig = Type.Object({
     connext: TAddress,
     relayerProxy: TAddress,
   }),
+  excludeListFromRelayerFee: Type.Array(Type.String()),
 });
 
 export const TMQConnectionConfig = Type.Object({
@@ -106,6 +107,7 @@ export const SequencerConfigSchema = Type.Object({
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
+  executionWaitTime: Type.Number({ minimum: 1000, maximum: 10_000_000 }),
   supportedVersion: Type.Optional(Type.String()),
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),
@@ -118,6 +120,8 @@ export const SequencerConfigSchema = Type.Object({
       apiKey: Type.String(),
     }),
   ),
+  database: TDatabaseConfig,
+  relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

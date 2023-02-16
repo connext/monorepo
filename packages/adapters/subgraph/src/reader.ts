@@ -17,6 +17,12 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
+  StableSwapPoolEvent,
+  RelayerFeesIncrease,
+  SlippageUpdate,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -44,12 +50,18 @@ import {
   getConnectorMetaQuery,
   getProcessedRootMessagesByDomainAndBlockQuery,
   getReceivedAggregatedRootsByDomainQuery,
+  getSwapExchangesQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getPoolEventsQuery,
   getPropagatedRootsQuery,
+  getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getRouterDailyTVLQuery,
+  getSlippageUpdatesQuery,
+  getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
 
@@ -105,7 +117,11 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        blockNumberRes.set(domain, Number(blockInfo.block.number));
+        if (blockInfo.block?.number) {
+          blockNumberRes.set(domain, Number(blockInfo.block.number));
+        } else {
+          console.error(`No block number found for domain ${domain}!`);
+        }
       }
     }
     return blockNumberRes;
@@ -351,7 +367,6 @@ export class SubgraphReader {
     const { config } = getContext();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);
-
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
@@ -609,6 +624,41 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets all the origin transfers across for the given domain
+   * @param domain - The domain of the transfer IDs to be queried
+   * @param transferIds - The transfer IDs to be queried
+   * @returns OriginTransfers as XTransfers[]
+   */
+  public async getOriginTransfersByDomain(domain: string, transferIds: string[]): Promise<XTransfer[]> {
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const { config } = getContext();
+    const prefix: string = getPrefixForDomain(domain);
+
+    if (transferIds.length == 0) return [];
+    const quotedTransferIds = transferIds.map((id) => `"${id}"`);
+
+    const originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
+    const response = await execute(originTransfersQuery);
+    const _transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const domainTransfers = value?.flat();
+      _transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, originDomain: key };
+        }),
+      );
+    }
+
+    const originTransfers: OriginTransfer[] = _transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map((transfer) => parser.originTransfer(transfer, config.assetId[transfer.originDomain]));
+
+    return [...originTransfers.values()].filter((xTransfer) => !!xTransfer.origin);
+  }
+
+  /**
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
@@ -804,5 +854,164 @@ export class SubgraphReader {
       .map(parser.receivedAggregateRoot);
 
     return receivedRoots;
+  }
+
+  /**
+   * Gets all stable swap pools for a given domain
+   * @param domain - The domain
+   * @returns - The array of `StableSwapPool`
+   */
+  public async getStableSwapPools(domain: string): Promise<StableSwapPool[]> {
+    const { execute, parser } = getHelpers();
+    const poolXQuery = getStableSwapPoolsQuery(domain);
+    const response = await execute(poolXQuery);
+
+    const _pools: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+
+      const flatten = value?.flat();
+      _pools.push(
+        flatten?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+    const pools: StableSwapPool[] = _pools
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapPool);
+    return pools;
+  }
+
+  public async getStableSwapExchangeByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<StableSwapExchange[]> {
+    const { execute, parser } = getHelpers();
+    const exchangeQuery = getSwapExchangesQuery(agents);
+    const response = await execute(exchangeQuery);
+
+    const exchanges: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _exchanges = value?.flat();
+      exchanges.push(
+        _exchanges?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainExchanges: StableSwapExchange[] = exchanges
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapExchange);
+
+    return domainExchanges;
+  }
+
+  public async getStableSwapPoolEventsByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+    addOrRemove: "add" | "remove" = "add",
+  ): Promise<StableSwapPoolEvent[]> {
+    const { execute, parser } = getHelpers();
+    const exchangeQuery = getPoolEventsQuery(agents, addOrRemove);
+    const response = await execute(exchangeQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapPoolEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
+  }
+
+  public async getRelayerFeesIncreasesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RelayerFeesIncrease[]> {
+    const { execute, parser } = getHelpers();
+    const increasesQuery = getRelayerFeesIncreasesQuery(agents);
+    const response = await execute(increasesQuery);
+
+    const increases: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _increases = value?.flat();
+      increases.push(
+        _increases?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const relayerFeeIncreases: RelayerFeesIncrease[] = increases
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.relayerFeesIncrease);
+
+    return relayerFeeIncreases;
+  }
+
+  public async getSlippageUpdatesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<SlippageUpdate[]> {
+    const { execute, parser } = getHelpers();
+    const updatesQuery = getSlippageUpdatesQuery(agents);
+    const response = await execute(updatesQuery);
+
+    const updates: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _updates = value?.flat();
+      updates.push(
+        _updates?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const slippageUpdates: SlippageUpdate[] = updates
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.slippageUpdate);
+
+    return slippageUpdates;
+  }
+
+  public async getRouterDailyTVLByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RouterDailyTVL[]> {
+    const { execute, parser } = getHelpers();
+    const tvlsQuery = getRouterDailyTVLQuery(agents);
+    const response = await execute(tvlsQuery);
+
+    const tvls: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _tvls = value?.flat();
+      tvls.push(
+        _tvls?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const routerTVLs: RouterDailyTVL[] = tvls
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.routerDailyTvl);
+
+    return routerTVLs;
   }
 }

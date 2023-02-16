@@ -153,7 +153,18 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
-      allowlist: ["0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"],
+      allowlist: [
+        "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c", // Connext
+        "0x97b9dcB1AA34fE5F12b728D9166ae353d1e7f5C4", // P2P
+        "0x8cb19ce8eedf740389d428879a876a3b030b9170", // BWare
+        "0x0e62f9fa1f9b3e49759dc94494f5bc37a83d1fad", // Bazilik
+        "0x58507fed0cb11723dfb6848c92c59cf0bbeb9927", // Hashquark
+        "0x7ce49752fFA7055622f444df3c69598748cb2E5f", // Vault Staking
+        "0x33b2ad85f7dba818e719fb52095dc768e0ed93ec", // Ethereal
+        "0x048a5EcC705C280b2248aefF88fd581AbbEB8587", // Gnosis
+        "0x975574980a5Da77f5C90bC92431835D91B73669e", // 01node
+        "0x6892d4D1f73A65B03063B7d78174dC6350Fcc406", // Unagii
+      ],
     },
     sequencers: {
       allowlist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
@@ -162,6 +173,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       allowlist: [
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
         "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
+        "0x43100a190c3feae37cb1f5d880e8fa8d81be5cb9", // gelato arbitrum
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
         "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007", // gelato mainnet
         "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE", // gelato polygon

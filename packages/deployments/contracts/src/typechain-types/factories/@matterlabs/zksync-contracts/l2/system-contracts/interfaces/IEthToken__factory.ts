@@ -52,7 +52,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IEthToken__factory {
   static readonly abi = _abi;

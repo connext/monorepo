@@ -2,6 +2,76 @@
 
 ## Next Release
 
+## Amarok 0.2.7-alpha.1
+
+- [sequencer] extra errors
+- [db] updated slippage field
+
+## Amarok 0.2.6
+
+- [all] stable release
+
+## Amarok 0.2.1-rc.27
+
+- [graph] bug fixes
+- [ops] config update
+
+## Amarok 0.2.1-rc.26
+
+- [sdk] bug fixes
+
+## Amarok 0.2.1-rc.25
+
+- [sdk] more getYieldData fixes
+
+## Amarok 0.2.1-rc.24
+
+- [sdk] getYieldData fixes
+
+## Amarok 0.2.1-rc.23
+
+- [sdk] bug fixes
+- [adapter-subgraph] fixes at graph client
+
+## Amarok 0.2.1-rc.22
+
+- [sdk] enhancement at latency and rpc calls for stable swap data request
+- [sdk] fix getSupported()
+
+## Amarok 0.2.1-rc.21
+
+- [all] bug fixes.
+
+## Amarok 0.2.1-rc.20
+
+- [sdk] Fix config default for cartographer uri, testnet relayerFee estimates.
+
+## Amarok 0.2.1-rc.19
+
+- [sdk] Allow `getTransfers` query to filter by xcall caller.
+
+## Amarok 0.2.1-rc.18
+
+- [contracts] NPM package name update (@connext/contracts -> @connext/smart-contracts)
+
+## Amarok 0.2.1-rc.17
+
+- [contracts] NPM package name update (@connext/nxtp-contracts -> @connext/contracts)
+- [sdk] NPM package name update (@connext/nxtp-sdk -> @connext/sdk)
+
+## Amarok 0.2.1-rc.16
+
+- [contracts] Added Unwrapper contract to deliver native tokens on destination
+- [sdk] Updated annotations and error handling, added UpdateSlippage, added removeRouterLiquidityFor
+
+## Amarok 0.2.1-rc.14
+
+- [all] updates
+
+## Amarok 0.2.1-rc.13
+
+- [sdk] updates for pools, price impact calculation
+
 ## Amarok 0.2.1-rc.12
 
 - [sdk] updates for pools and relayer estimates

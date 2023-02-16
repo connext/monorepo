@@ -32,8 +32,10 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
   [59140, 0x636f6e74], // Consensys zkEvm test (cont interpreted as int) 1668247156
   // local
-  [1337, 1337],
-  [1338, 1338],
+  [1337, 133712],
+  [1338, 133812],
+  [13337, 13337],
+  [13338, 13338],
 ]);
 
 /**

@@ -11,7 +11,8 @@ import {
   Logger,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { Wallet } from "ethers";
+import { utils, Wallet } from "ethers";
+import { domainToChainId } from "@connext/smart-contracts";
 
 import { bindServer, bindInterval } from "./bindings";
 import { getConfig } from "./config";
@@ -27,7 +28,7 @@ export const makeWatcher = async () => {
     /// MARK - Config
     context.chainData = await getChainData();
     context.adapters = {} as any;
-    context.config = await getConfig();
+    context.config = getConfig();
 
     /// MARK - Logger
     context.logger = new Logger({
@@ -54,6 +55,7 @@ export const makeWatcher = async () => {
     context.logger.info("Watcher sanitized config", requestContext, methodContext, {
       address: context.adapters.wallet.address ?? (await context.adapters.wallet.getAddress()),
       chains: context.config.chains,
+      assets: context.config.assets,
       logLevel: context.config.logLevel,
       environment: context.config.environment,
       hubDomain: context.config.hubDomain,
@@ -81,14 +83,54 @@ export const makeWatcher = async () => {
     );
 
     // Get asset info from subgraph.
-    const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(
-      context.config.hubDomain,
-      context.config.chains[context.config.hubDomain].assets.map((a) => a.address),
-    );
+    const query = context.config.assets.map((a) => a.address.toLowerCase());
+    const assetInfo: Asset[] = await context.adapters.subgraph.getAssetsByLocals(context.config.hubDomain, query);
     if (assetInfo.length == 0) {
       context.logger.warn("No assets found in subgraph", requestContext, methodContext);
     }
+    if (query.length !== assetInfo.length) {
+      context.logger.warn("Not all configured assets found in subgraph", requestContext, methodContext, {
+        configured: query,
+        found: assetInfo,
+      });
+    }
     context.logger.info("Got asset info from subgraph", requestContext, methodContext, { assetInfo });
+
+    // Get asset symbols (for logging)
+    const assets = await Promise.all(
+      assetInfo.map(async (a) => {
+        const { id: address, canonicalDomain, canonicalId } = a;
+        const chain = domainToChainId(+canonicalDomain);
+        const entry = context.chainData.get(chain.toString());
+        if (!entry) {
+          context.logger.warn("Could not find entry in chaindata", requestContext, methodContext, { asset: a, chain });
+          return {
+            address,
+            canonicalDomain,
+            canonicalId,
+            symbol: "N/A",
+          };
+        }
+        let symbol =
+          entry.assetId[address.toLowerCase()]?.symbol ??
+          entry.assetId[address].symbol ??
+          entry.assetId[utils.getAddress(address)].symbol ??
+          entry.assetId[address.toUpperCase()].symbol;
+        if (!symbol) {
+          context.logger.warn("Could not find symbol in chaindata", requestContext, methodContext, {
+            address,
+            assets: entry.assetId,
+          });
+          symbol = "N/A";
+        }
+        return {
+          address,
+          canonicalDomain,
+          canonicalId,
+          symbol,
+        };
+      }),
+    );
 
     /// MARK - Watcher Adapter
     // NOTE: TxService is not added to context directly; we only use it for initializing WatcherAdapter.
@@ -105,9 +147,7 @@ export const makeWatcher = async () => {
         txservice,
         isStaging: context.config.environment === "staging",
       },
-      assetInfo.map((a) => {
-        return { address: a.id, canonicalDomain: a.canonicalDomain, canonicalId: a.canonicalId };
-      }),
+      assets,
     );
 
     /// MARK - Bindings

@@ -260,7 +260,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IDiamondCut__factory {
   static readonly abi = _abi;

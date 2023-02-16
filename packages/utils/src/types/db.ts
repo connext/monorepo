@@ -1,7 +1,12 @@
 import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
-import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
+import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
+import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
+
+export const sanitizeNull = (obj: { [s: string]: any }): any => {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+};
 
 /**
  * This is required to make sure numbers do not lose precision because of Javascript limitations.
@@ -39,6 +44,7 @@ export const transfersCastForUrl =
     "routers",
     "delegate",
     "slippage",
+    "updated_slippage",
     "destination_transacting_asset",
     "destination_transacting_amount",
     "destination_local_asset",
@@ -58,6 +64,8 @@ export const transfersCastForUrl =
     "reconcile_gas_limit",
     "reconcile_block_number",
     "reconcile_tx_origin",
+    "relayer_fee",
+    "error_status",
   ].join(",");
 
 /**
@@ -87,6 +95,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       ? {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
+          relayerFee: BigNumber.from(transfer.relayer_fee ?? "0").toString(),
+          errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),
@@ -122,6 +132,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
               asset: transfer.destination_local_asset!,
             },
           },
+          updatedSlippage: transfer.updated_slippage,
           routers: transfer.routers || [],
           status: transfer.status === "XCalled" ? "Executed" : (transfer.status as XTransferStatus),
           execute: {
@@ -248,7 +259,7 @@ export const convertFromDbMessage = (message: any): XMessage => {
  * @returns an RootMessage object
  */
 export const convertFromDbRootMessage = (message: any): RootMessage => {
-  return {
+  const obj = {
     id: message.id,
     spokeDomain: message.spoke_domain,
     hubDomain: message.hub_domain,
@@ -261,7 +272,11 @@ export const convertFromDbRootMessage = (message: any): RootMessage => {
     blockNumber: message.block_number,
     processed: message.processed,
     count: message.leaf_count,
+    relayerType: message.relayer_type ?? undefined,
+    sentTaskId: message.sent_task_id ?? undefined,
+    sentTimestamp: message.sent_timestamp_secs ?? undefined,
   };
+  return sanitizeNull(obj);
 };
 
 /**
@@ -306,5 +321,78 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
     root: message.root,
     domain: message.domain,
     blockNumber: message.block_number,
+  };
+};
+
+/**
+ * Converts a stable swap pool from the cartographer db through
+ * @param pool - the stable swap pool from the cartographer db as a JSON object
+ * @returns an StableSwapPool object
+ */
+export const convertFromDbStableSwapPool = (pool: any): StableSwapPool => {
+  return {
+    key: pool.key,
+    domain: pool.domain,
+    isActive: pool.isActive,
+    lpToken: pool.lpToken,
+    initialA: pool.initialA,
+    futureA: pool.futureA,
+    initialATime: pool.initialATime,
+    futureATime: pool.futureATime,
+    swapFee: pool.swapFee,
+    adminFee: pool.adminFee,
+    pooledTokens: pool.pooledTokens,
+    tokenPrecisionMultipliers: pool.tokenPrecisionMultipliers,
+    poolTokenDecimals: pool.poolTokenDecimals,
+    balances: pool.balances,
+    virtualPrice: pool.virtualPrice,
+    invariant: pool.invariant,
+    lpTokenSupply: pool.lpTokenSupply,
+  };
+};
+
+/**
+ * Converts a stable swap exchanges from the cartographer db through
+ * @param exchange - the stable swap exchange event from the cartographer db as a JSON object
+ * @returns an StableSwapExchange object
+ */
+export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchange => {
+  return {
+    id: exchange.id,
+    poolId: exchange.poolId,
+    domain: exchange.domain,
+    buyer: exchange.buyer,
+    boughtId: exchange.boughtId,
+    soldId: exchange.soldId,
+    tokensSold: exchange.tokensSold,
+    tokensBought: exchange.tokensBought,
+    balances: exchange.balances,
+    blockNumber: exchange.blockNumber,
+    transactionHash: exchange.transactionHash,
+    timestamp: exchange.timestamp,
+  };
+};
+
+/**
+ * Converts a stable swap pool events from the cartographer db through
+ * @param event - the stable swap pool event from the cartographer db as a JSON object
+ * @returns an StableSwapPoolEvent object
+ */
+export const convertFromDbStableSwapPoolEvent = (event: any): StableSwapPoolEvent => {
+  return {
+    id: event.id,
+    poolId: event.poolId,
+    domain: event.domain,
+    action: event.action as PoolActionType,
+    provider: event.buyer,
+    pooledTokens: event.pooledTokens,
+    poolTokenDecimals: event.poolTokenDecimals,
+    tokenAmounts: event.tokenAmounts,
+    balances: event.balances,
+    lpTokenSupply: event.lpTokenSupply,
+    lpTokenAmount: event.lpTokenAmount,
+    blockNumber: event.blockNumber,
+    transactionHash: event.transactionHash,
+    timestamp: event.timestamp,
   };
 };

@@ -9,6 +9,13 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
+  RelayerFeesIncrease,
+  SlippageUpdate,
+  StableSwapPoolEvent,
+  PoolActionType,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -88,6 +95,8 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
 
       // Event Data
       messageHash: entity.messageHash,
+
+      relayerFee: entity.relayerFee ?? "0",
 
       // Assets
       // FIXME: https://github.com/connext/nxtp/issues/2862
@@ -424,5 +433,227 @@ export const receivedAggregateRoot = (entity: any): ReceivedAggregateRoot => {
     root: entity.root,
     domain: entity.domain,
     blockNumber: entity.blockNumber,
+  };
+};
+
+export const stableSwapPool = (entity: any): StableSwapPool => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `StableSwapPool` entity parser: StableSwapPool, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "key",
+    "domain",
+    "isActive",
+    "lpToken",
+    "balances",
+    "pooledTokens",
+    "tokenPrecisionMultipliers",
+    "swapFee",
+    "adminFee",
+    "virtualPrice",
+    "invariant",
+    "lpTokenSupply",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `StableSwapPool` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    key: entity.key,
+    domain: entity.domain,
+    isActive: entity.isActive,
+    lpToken: entity.lpToken,
+    initialA: BigNumber.from(entity.initialA ?? "0").toNumber(),
+    futureA: BigNumber.from(entity.futureA ?? "0").toNumber(),
+    initialATime: BigNumber.from(entity.initialATime ?? "0").toNumber(),
+    futureATime: BigNumber.from(entity.futureATime ?? "0").toNumber(),
+    swapFee: entity.swapFee,
+    adminFee: entity.adminFee,
+    pooledTokens: entity.pooledTokens,
+    tokenPrecisionMultipliers: entity.tokenPrecisionMultipliers,
+    poolTokenDecimals: entity.tokenPrecisionMultipliers.map((m: string) => 18 - m.length + 1),
+    balances: entity.balances,
+    virtualPrice: entity.virtualPrice,
+    invariant: entity.invariant,
+    lpTokenSupply: entity.lpTokenSupply,
+  };
+};
+
+export const stableSwapExchange = (entity: any): StableSwapExchange => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapExchange` entity parser: stableSwapExchange, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "buyer",
+    "boughtId",
+    "soldId",
+    "tokensSold",
+    "tokensBought",
+    "balances",
+    "block",
+    "transaction",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const boughtId = BigNumber.from(entity.boughtId).toNumber();
+  const soldId = BigNumber.from(entity.soldId).toNumber();
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
+
+  const tokensSold = +utils.formatUnits(String(entity.tokensSold), tokenDecimals[soldId]);
+  const tokensBought = +utils.formatUnits(String(entity.tokensBought), tokenDecimals[boughtId]);
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    poolId: entity.stableSwap.key,
+    buyer: entity.buyer,
+    boughtId,
+    soldId,
+    tokensSold,
+    tokensBought,
+    balances,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: stableSwapPoolEvent, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "stableSwap",
+    "provider",
+    "tokenAmounts",
+    "balances",
+    "lpTokenSupply",
+    "lpTokenAmount",
+    "block",
+    "transaction",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const tokenDecimals: number[] = entity.stableSwap.tokenPrecisionMultipliers.map((m: string) => 18 - (m.length - 1));
+  const tokenAmounts = entity.tokenAmounts.map(
+    (a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]),
+  );
+  const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    poolId: entity.stableSwap.key,
+    provider: entity.provider,
+    action: entity.id.includes("add_liquidity") ? PoolActionType.Add : PoolActionType.Remove,
+    pooledTokens: entity.stableSwap.pooledTokens,
+    poolTokenDecimals: tokenDecimals,
+    tokenAmounts,
+    balances,
+    lpTokenSupply: +utils.formatEther(String(entity.lpTokenSupply)),
+    lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: RelayerFeesIncrease, entity is `undefined`.");
+  }
+  for (const field of ["id", "increase"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    increase: entity.increase,
+    transferId: entity.transfer.id,
+    timestamp: entity.timestamp,
+    domain: entity.domain,
+  };
+};
+
+export const slippageUpdate = (entity: any): SlippageUpdate => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SlippageUpdate` entity parser: SlippageUpdate, entity is `undefined`.");
+  }
+  for (const field of ["id", "slippage"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SlippageUpdate` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    slippage: entity.slippage,
+    transferId: entity.transfer.id,
+    timestamp: entity.timestamp,
+    domain: entity.domain,
+  };
+};
+
+export const routerDailyTvl = (entity: any): RouterDailyTVL => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
+  }
+  for (const field of ["id", "asset", "router", "timestamp", "balance"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: `${entity.domain}-${entity.id}`,
+    asset: entity.asset.id,
+    router: entity.router.id,
+    domain: entity.domain,
+    timestamp: entity.timestamp,
+    // TODO: why negative router balances on subgraph?
+    balance: BigNumber.from(entity.balance).isNegative() ? "0" : entity.balance,
   };
 };

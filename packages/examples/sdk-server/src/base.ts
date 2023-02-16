@@ -1,18 +1,32 @@
 import { FastifyInstance } from "fastify";
+import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { SdkServerApiXCallSchema, SdkServerApiXCall } from "@connext/nxtp-utils";
+import {
+  SdkBase,
+  SdkXCallParamsSchema,
+  SdkXCallParams,
+  SdkBumpTransferParamsSchema,
+  SdkUpdateSlippageSchema,
+} from "@connext/sdk";
+import { TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 
-export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
+const EstimateRelayerFeeSchema = Type.Object({
+  origin: TIntegerString,
+  destination: TIntegerString,
+});
+
+export type EstimateRelayerFee = Static<typeof EstimateRelayerFeeSchema>;
+
+export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.post<{ Body: SdkServerApiXCall }>(
+  s.post<{ Body: SdkXCallParams }>(
     "/xcall",
     {
       schema: {
-        body: SdkServerApiXCallSchema,
+        body: SdkXCallParamsSchema,
       },
     },
     async (request, reply) => {
@@ -21,15 +35,16 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     },
   );
 
-  s.post<{ Body: SdkServerApiXCall }>(
-    "/wrapEthAndXCall",
+  s.post<{ Body: EstimateRelayerFee }>(
+    "/estimateRelayerFee",
     {
       schema: {
-        body: SdkServerApiXCallSchema,
+        body: EstimateRelayerFeeSchema,
       },
     },
     async (request, reply) => {
-      const txReq = await sdkBaseInstance.wrapEthAndXCall(request.body);
+      const { origin, destination } = request.body;
+      const txReq = await sdkBaseInstance.estimateRelayerFee({ originDomain: origin, destinationDomain: destination });
       reply.status(200).send(txReq);
     },
   );
@@ -44,6 +59,32 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpS
     async (request, reply) => {
       const { domainId, assetId, amount, infiniteApprove } = request.body;
       const txReq = await sdkBaseInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post(
+    "/bumpTransfer",
+    {
+      schema: {
+        body: SdkBumpTransferParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.bumpTransfer(request.body);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post(
+    "/updateSlippage",
+    {
+      schema: {
+        body: SdkUpdateSlippageSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.updateSlippage(request.body);
       reply.status(200).send(txReq);
     },
   );

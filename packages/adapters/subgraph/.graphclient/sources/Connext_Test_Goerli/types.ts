@@ -99,6 +99,8 @@ export type testgoerli_AssetBalance_filter = {
   asset_?: InputMaybe<testgoerli_Asset_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_AssetBalance_filter>>>;
 };
 
 export type testgoerli_AssetBalance_orderBy =
@@ -118,24 +120,40 @@ export type testgoerli_Asset_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   key?: InputMaybe<Scalars['testgoerli_Bytes']>;
   key_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  key_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  key_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  key_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  key_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   key_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   key_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   key_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   local?: InputMaybe<Scalars['testgoerli_Bytes']>;
   local_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  local_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  local_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  local_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  local_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   local_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   local_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   local_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   local_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   adoptedAsset?: InputMaybe<Scalars['testgoerli_Bytes']>;
   adoptedAsset_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  adoptedAsset_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  adoptedAsset_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  adoptedAsset_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  adoptedAsset_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   adoptedAsset_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   canonicalId?: InputMaybe<Scalars['testgoerli_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -158,6 +176,8 @@ export type testgoerli_Asset_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Asset_filter>>>;
 };
 
 export type testgoerli_Asset_orderBy =
@@ -246,6 +266,10 @@ export type testgoerli_DestinationTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transferId_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -260,12 +284,20 @@ export type testgoerli_DestinationTransfer_filter = {
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   to_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -288,12 +320,20 @@ export type testgoerli_DestinationTransfer_filter = {
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   agent?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   agent_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   agent_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recovery_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recovery_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -308,6 +348,10 @@ export type testgoerli_DestinationTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callback?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callback_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callback_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callback_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callback_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -349,12 +393,20 @@ export type testgoerli_DestinationTransfer_filter = {
   routers_?: InputMaybe<testgoerli_Router_filter>;
   originSender?: InputMaybe<Scalars['testgoerli_Bytes']>;
   originSender_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   originSender_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactingAsset?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactingAsset_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactingAsset_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactingAsset_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactingAsset_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -369,6 +421,10 @@ export type testgoerli_DestinationTransfer_filter = {
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   localAsset?: InputMaybe<Scalars['testgoerli_Bytes']>;
   localAsset_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  localAsset_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  localAsset_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  localAsset_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  localAsset_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   localAsset_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   localAsset_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   localAsset_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -391,12 +447,20 @@ export type testgoerli_DestinationTransfer_filter = {
   sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedCaller_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedCaller_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedCaller_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedCaller_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   executedCaller_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   executedCaller_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedCaller_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedTransactionHash?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedTransactionHash_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedTransactionHash_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedTransactionHash_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedTransactionHash_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  executedTransactionHash_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   executedTransactionHash_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   executedTransactionHash_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   executedTransactionHash_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -435,12 +499,20 @@ export type testgoerli_DestinationTransfer_filter = {
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledCaller?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledCaller_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledCaller_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledCaller_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledCaller_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   reconciledCaller_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   reconciledCaller_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledCaller_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledTransactionHash?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledTransactionHash_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledTransactionHash_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledTransactionHash_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledTransactionHash_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  reconciledTransactionHash_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   reconciledTransactionHash_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   reconciledTransactionHash_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -479,6 +551,8 @@ export type testgoerli_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_DestinationTransfer_filter>>>;
 };
 
 export type testgoerli_DestinationTransfer_orderBy =
@@ -574,6 +648,10 @@ export type testgoerli_OriginTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transferId_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -588,12 +666,20 @@ export type testgoerli_OriginTransfer_filter = {
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  to_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   to_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -616,12 +702,20 @@ export type testgoerli_OriginTransfer_filter = {
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   agent?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  agent_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   agent_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   agent_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   agent_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recovery_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recovery_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recovery_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recovery_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -636,6 +730,10 @@ export type testgoerli_OriginTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callback?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callback_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  callback_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   callback_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callback_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   callback_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -678,6 +776,10 @@ export type testgoerli_OriginTransfer_filter = {
   originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAsset?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactingAsset_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactingAsset_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactingAsset_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactingAsset_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -692,6 +794,10 @@ export type testgoerli_OriginTransfer_filter = {
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bridgedAsset?: InputMaybe<Scalars['testgoerli_Bytes']>;
   bridgedAsset_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  bridgedAsset_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  bridgedAsset_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  bridgedAsset_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  bridgedAsset_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   bridgedAsset_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   bridgedAsset_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   bridgedAsset_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -706,12 +812,20 @@ export type testgoerli_OriginTransfer_filter = {
   bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactionHash?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -750,6 +864,8 @@ export type testgoerli_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_OriginTransfer_filter>>>;
 };
 
 export type testgoerli_OriginTransfer_orderBy =
@@ -993,12 +1109,18 @@ export type testgoerli_Relayer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   relayer?: InputMaybe<Scalars['testgoerli_Bytes']>;
   relayer_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  relayer_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  relayer_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  relayer_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  relayer_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   relayer_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   relayer_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   relayer_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   relayer_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Relayer_filter>>>;
 };
 
 export type testgoerli_Relayer_orderBy =
@@ -1040,18 +1162,30 @@ export type testgoerli_Router_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   owner?: InputMaybe<Scalars['testgoerli_Bytes']>;
   owner_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  owner_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  owner_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  owner_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  owner_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   owner_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   owner_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   owner_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   owner_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recipient?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recipient_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recipient_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recipient_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recipient_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  recipient_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recipient_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recipient_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   recipient_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   recipient_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   proposedOwner?: InputMaybe<Scalars['testgoerli_Bytes']>;
   proposedOwner_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  proposedOwner_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  proposedOwner_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  proposedOwner_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  proposedOwner_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   proposedOwner_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   proposedOwner_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   proposedOwner_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -1067,6 +1201,8 @@ export type testgoerli_Router_filter = {
   assetBalances_?: InputMaybe<testgoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Router_filter>>>;
 };
 
 export type testgoerli_Router_orderBy =
@@ -1103,12 +1239,18 @@ export type testgoerli_Setting_filter = {
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_Setting_filter>>>;
 };
 
 export type testgoerli_Setting_orderBy =
@@ -1132,12 +1274,18 @@ export type testgoerli_SponsorVault_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   sponsorVault?: InputMaybe<Scalars['testgoerli_Bytes']>;
   sponsorVault_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  sponsorVault_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  sponsorVault_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  sponsorVault_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  sponsorVault_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   sponsorVault_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   sponsorVault_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   sponsorVault_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   sponsorVault_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_SponsorVault_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_SponsorVault_filter>>>;
 };
 
 export type testgoerli_SponsorVault_orderBy =
@@ -1162,6 +1310,10 @@ export type testgoerli_StableSwap_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   canonicalId?: InputMaybe<Scalars['testgoerli_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
@@ -1176,12 +1328,18 @@ export type testgoerli_StableSwap_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   swapPool?: InputMaybe<Scalars['testgoerli_Bytes']>;
   swapPool_not?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  swapPool_gt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  swapPool_lt?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  swapPool_gte?: InputMaybe<Scalars['testgoerli_Bytes']>;
+  swapPool_lte?: InputMaybe<Scalars['testgoerli_Bytes']>;
   swapPool_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   swapPool_not_in?: InputMaybe<Array<Scalars['testgoerli_Bytes']>>;
   swapPool_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   swapPool_not_contains?: InputMaybe<Scalars['testgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testgoerli_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testgoerli_StableSwap_filter>>>;
 };
 
 export type testgoerli_StableSwap_orderBy =

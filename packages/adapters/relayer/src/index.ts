@@ -47,9 +47,10 @@ export const sendWithRelayerWithBackup = async (
   chainReader: ChainReader,
   logger: Logger,
   _requestContext: RequestContext,
-): Promise<{ taskId: string }> => {
+): Promise<{ taskId: string; relayerType: RelayerType }> => {
   const { methodContext, requestContext } = createLoggingContext(sendWithRelayerWithBackup.name, _requestContext);
 
+  let error_msg = "";
   for (const relayer of relayers) {
     logger.info(`Sending tx with ${relayer.type} relayer`, requestContext, methodContext, {
       chainId,
@@ -68,20 +69,18 @@ export const sendWithRelayerWithBackup = async (
         logger,
         requestContext,
       );
-      return { taskId };
+      return { taskId, relayerType: relayer.type };
     } catch (err: unknown) {
-      logger.error(
-        `Failed to sent data with ${relayer.type}`,
-        requestContext,
-        methodContext,
-        jsonifyError(err as NxtpError),
-      );
+      const jsonError = jsonifyError(err as NxtpError);
+      error_msg = jsonError.context?.message ?? jsonError.message;
+      logger.error(`Failed to send data with ${relayer.type}`, requestContext, methodContext, jsonError);
     }
   }
 
   throw new RelayerSendFailed({
     requestContext,
     methodContext,
+    message: error_msg,
     chainId,
     domain,
     data,

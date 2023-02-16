@@ -1,4 +1,4 @@
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { ChainData } from "@connext/nxtp-utils";
 
 import { canonizeId } from "../../../domain";
@@ -50,7 +50,7 @@ export const setupAsset = async (args: {
   const tokenName = `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
-  if (+home.chain === 1 && +(asset.canonical.cap ?? 0) === 0) {
+  if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
   }
 
@@ -67,7 +67,7 @@ export const setupAsset = async (args: {
         tokenSymbol,
         asset.canonical.address,
         constants.AddressZero,
-        0,
+        asset.canonical.cap,
       ],
     },
   });
@@ -139,7 +139,7 @@ export const setupAsset = async (args: {
               tokenSymbol,
               desiredAdopted,
               stableswapPool,
-              asset.canonical.cap ?? 0,
+              0, // caps are not set on non-canonical domains
             ],
           },
         });

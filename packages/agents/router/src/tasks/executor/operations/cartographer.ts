@@ -6,6 +6,7 @@ import {
   formatUrl,
   convertFromDbTransfer,
   transfersCastForUrl,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
@@ -71,9 +72,11 @@ export const getReconciledTransactions = async (param: {
   let nextPage = true;
   let data: any[] = [];
 
-  const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
+  const statusIdentifier = `status=eq.Reconciled`;
+  // query executable transfers based on exponentially backed off execution time
+  const timeIdentifier = `&${transfersCastForUrl}&next_execution_timestamp=lt.${getNtpTimeSeconds()}`;
   const rangeIdentifier = `&limit=${pageSize}&offset=${offset}`;
-  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + rangeIdentifier);
+  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + timeIdentifier + rangeIdentifier);
   logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
     const response = await axiosGet(uri);

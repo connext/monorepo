@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, getChainData } from "@connext/nxtp-utils";
+import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId, domainToChainId } from "../../domain";
@@ -124,15 +124,22 @@ export const sanitizeAndInit = async () => {
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
+  const privateKey = process.env.PRIVATE_KEY;
   const mnemonic = process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC || process.env.MNEMONIC;
-  if (!mnemonic) {
+  if (!mnemonic && !privateKey) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
         "or set DEPLOYER or DEPLOYER_MNEMONIC in env.",
     );
   }
   // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic);
+  let deployer;
+  if (privateKey) {
+    deployer = new Wallet(privateKey);
+  } else {
+    deployer = Wallet.fromMnemonic(mnemonic!);
+  }
+  console.log("deployer: ", deployer.address);
 
   const networks: NetworkStack[] = [];
   const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
@@ -388,6 +395,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             write: { method: "addRelayer", args: [relayerProxyAddress] },
             chainData,
           });
+
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: GELATO_RELAYER_ADDRESS,
+            read: { method: "gelatoRelayer" },
+            write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
+            chainData,
+          });
+
+          const feeCollector = network.relayerFeeVault;
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: feeCollector,
+            read: { method: "feeCollector" },
+            write: { method: "setFeeCollector", args: [feeCollector] },
+            chainData,
+          });
         }
 
         // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
@@ -397,6 +421,15 @@ export const initProtocol = async (protocol: ProtocolStack) => {
               deployment: network.deployments.messaging.RelayerProxy,
               desired: true,
               read: { method: "allowedRelayer", args: [relayer] },
+              write: { method: "addRelayer", args: [relayer] },
+              chainData,
+            });
+
+            // also add relayers to the base connext contract
+            await updateIfNeeded({
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedRelayers", args: [relayer] },
               write: { method: "addRelayer", args: [relayer] },
               chainData,
             });

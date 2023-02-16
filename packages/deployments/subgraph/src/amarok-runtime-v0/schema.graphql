@@ -6,6 +6,13 @@ type Asset @entity {
   adoptedAsset: Bytes
   localAsset: Bytes
   blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
+  # status
+  status: AssetStatus
+}
+
+type AssetStatus @entity {
+  id: ID! # key
+  status: Boolean
 }
 
 type AssetBalance @entity {
@@ -25,6 +32,14 @@ type Router @entity {
   proposedOwner: Bytes
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+}
+
+type RouterDailyTVL @entity {
+  id: ID!
+  router: Router!
+  asset: Asset!
+  timestamp: BigInt!
+  balance: BigInt!
 }
 
 type Setting @entity {
@@ -83,6 +98,10 @@ type OriginTransfer @entity {
   # Message
   message: OriginMessage
 
+  # Relayer Fee paid by user
+  relayerFee: BigInt
+  bumpRelayerFeeCount: BigInt
+
   # XCalled Transaction
   caller: Bytes
   transactionHash: Bytes
@@ -112,6 +131,7 @@ type DestinationTransfer @entity {
   receiveLocal: Boolean
   callData: Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -200,46 +220,32 @@ type RootMessageSent @entity {
   blockNumber: BigInt
 }
 
-### STABLE SWAP
-type StableSwap @entity {
+type RelayerFeesIncrease @entity {
   id: ID!
 
-  isActive: Boolean
+  transfer: OriginTransfer!
+  increase: BigInt
 
-  # StableSwapAdded
-  key: Bytes
-  canonicalId: Bytes
-  domain: BigInt
-  swapPool: Bytes
-
-  # SwapInitialized
-  lpToken: Bytes
-
-  initialA: BigInt
-  futureA: BigInt
-
-  initialATime: BigInt
-  futureATime: BigInt
-
-  swapFee: BigInt
-  adminFee: BigInt
-  pooledTokens: [PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
-  balances: [BigInt!]!
-  adminFees: [BigInt!]
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }
 
-type PooledToken @entity {
+type SlippageUpdate @entity {
   id: ID!
-  asset: Bytes!
-}
 
-type StableSwapLiquidity @entity {
-  id: ID!
-  provider: Bytes!
-  stableSwap: StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
+  transfer: DestinationTransfer!
+  slippage: BigInt!
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }

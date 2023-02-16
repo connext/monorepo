@@ -314,6 +314,26 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getOriginTransfersByDomain", () => {
+    it("should return the origin transfers for the domain", async () => {
+      const domain = "1111";
+      response.set(domain, [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set(domain, { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      const originTransfers = await subgraphReader.getOriginTransfers(agents);
+
+      const transferIds = originTransfers.map((transfer) => transfer.transferId);
+
+      expect(await subgraphReader.getOriginTransfersByDomain(domain, transferIds)).to.be.deep.eq(originTransfers);
+
+      const { allTxById } = await subgraphReader.getOriginXCalls(agents);
+      expect(allTxById.size).eq(transferIds.length);
+    });
+  });
+
   describe("#getOriginTransfersByNonce", () => {
     it("should return the origin transfers across the multichains", async () => {
       response.set("1111", [[mockOriginTransferEntity]]);
@@ -521,10 +541,40 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getSentRootMessagesByDomain", () => {
+    it("should return the sent root message by domain", async () => {
+      const messages = [mock.entity.rootMessage()];
+      response.set("1111", messages);
+      executeStub.resolves(response);
+
+      const sentMessages = await subgraphReader.getSentRootMessagesByDomain([
+        { domain: "1111", offset: 0, limit: 100 },
+      ]);
+      expect(sentMessages).to.be.deep.eq(messages);
+    });
+  });
+
+  describe("#getOriginMessagesByDomain", () => {
+    it("should return the origin message by domain", async () => {
+      const messages = [mock.entity.originMessage()];
+      response.set("1111", messages);
+      executeStub.resolves(response);
+
+      const originMessages = await subgraphReader.getOriginMessagesByDomain([
+        { domain: "1111", offset: 0, limit: 100 },
+      ]);
+      expect(originMessages).to.be.deep.eq(
+        messages.map((r) => {
+          return { ...r, domain: "1111" };
+        }),
+      );
+    });
+  });
+
   describe("#getGetAggregatedRootsByDomain", () => {
-    it("should return the aggregated roots", async () => {
-      const roots = [mock.entity.aggregatedRoot(), mock.entity.aggregatedRoot()];
-      response.set("1111", [roots]);
+    it("should return the aggregated root by domain", async () => {
+      const roots = [mock.entity.aggregatedRoot()];
+      response.set("1111", roots);
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
@@ -612,6 +662,81 @@ describe("SubgraphReader", () => {
           return { ...r, domain: "1111" };
         }),
       );
+    });
+  });
+
+  describe("#getRootManagerMeta", () => {
+    it("should return the root manager meta", async () => {
+      const root = {
+        domains: [mock.domain.A, mock.domain.B],
+        connectors: [mkAddress("0x1"), mkAddress("0x2")],
+        id: "ROOT_MANAGER_META_ID",
+      };
+      response.set("1111", [root]);
+      executeStub.resolves(response);
+
+      const rootManagerMeta = await subgraphReader.getRootManagerMeta("1111");
+      expect(rootManagerMeta).to.be.deep.eq(root);
+    });
+  });
+
+  describe("#getStableSwapPools", () => {
+    it("should return the stable swap pools", async () => {
+      const pool = {
+        key: mkBytes32("0xa"),
+        domain: "1111",
+        isActive: true,
+        lpToken: mkAddress("0xa"),
+        initialA: 200,
+        futureA: 200,
+        initialATime: 0,
+        futureATime: 0,
+        swapFee: "400000",
+        adminFee: "0",
+        pooledTokens: [{ asset: mkAddress("0xa") }, { asset: mkAddress("0xb") }],
+        tokenPrecisionMultipliers: ["1", "1"],
+        poolTokenDecimals: [18, 18],
+        balances: ["200000", "200000"],
+        virtualPrice: "400000",
+        invariant: "0",
+        lpTokenSupply: "0",
+      };
+      response.set("1111", [pool]);
+      executeStub.resolves(response);
+
+      const swapPool = await subgraphReader.getStableSwapPools("1111");
+      expect(swapPool).to.be.deep.eq([ParserFns.stableSwapPool(pool)]);
+    });
+  });
+
+  describe("#getStableSwapExchanges", () => {
+    it("should return the stable swap exchange", async () => {
+      const exchange = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        stableSwap: {
+          key: mkBytes32("0xa"),
+          domain: "1111",
+          tokenPrecisionMultipliers: ["1", "1"],
+        },
+        buyer: mkAddress("0xb"),
+        boughtId: "1",
+        soldId: "0",
+        tokensSold: "100000",
+        tokensBought: "100000",
+        balances: ["100000", "100000"],
+        block: "25792350",
+        timestamp: "1672823480",
+        transaction: mkBytes32("0xa"),
+      };
+      response.set("1111", [exchange]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+
+      const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndTimestamp(agents);
+      expect(swapExchange).to.be.deep.eq([ParserFns.stableSwapExchange(exchange)]);
     });
   });
 });

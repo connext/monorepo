@@ -1,6 +1,7 @@
 import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
 import { stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
+import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromArbitrumRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
@@ -9,6 +10,7 @@ import { constants } from "ethers";
 
 class MockJsonRpcProvider {
   public getTransactionReceipt = stub().resolves({ hello: "world" });
+  public getBlockNumber = stub().resolves(1232132);
 }
 
 let isDataAvailableStub: SinonStub<any[], any>;
@@ -39,14 +41,25 @@ describe("Helpers: Arbitrum", () => {
         blockNumber: constants.One,
         nodeNum: constants.One,
         sendRoot: mkHash("0x123"),
+        sendCount: constants.One,
+        hash: mkHash("0x456"),
+      } as any),
+      getBlockFromNodeNum: Promise.resolve({
+        blockNumber: constants.One,
+        nodeNum: constants.One,
+        sendRoot: mkHash("0x123"),
+        sendCount: constants.One,
         hash: mkHash("0x456"),
       } as any),
     } as any);
-    (l2ToL1MessageReader as any).event = { position: { nodeNum: constants.One }, ethBlockNum: constants.One };
+    (l2ToL1MessageReader as any).event = { position: constants.One, ethBlockNum: constants.One };
     stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);
     stub(MockableFns, "Outbox__factory").value(mockOutboxFactory);
+    stub(NodeInterface__factory, "connect").callsFake((address: string, signerOrProvider) => {
+      return { constructOutboxProof: stub().resolves({ proof: ["hello", "world"] }) } as any;
+    });
     confirmData = stub().returns([
       { confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34" },
     ]);
@@ -55,6 +68,10 @@ describe("Helpers: Arbitrum", () => {
         encodeFunctionData: stub().returns("0x123"),
         decodeFunctionResult: confirmData,
       }),
+      getContract: stub().returns({
+        connect: stub().returns(undefined),
+        calcSrcFees: stub().resolves(constants.One),
+      } as any),
     });
   });
 

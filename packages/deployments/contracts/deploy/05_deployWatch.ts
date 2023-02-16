@@ -6,7 +6,7 @@ import { SKIP_SETUP } from "../src/constants";
 import { chainIdToDomain } from "../src";
 
 /**
- * Hardhat task defining the contract deployments for nxtp
+ * Hardhat task defining the contract deployments for Connext
  *
  * @param hre Hardhat environment to deploy to
  */

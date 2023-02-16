@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { XTransferStatus } from "@connext/nxtp-utils";
+import { XTransferStatus, XTransferErrorStatus } from "@connext/nxtp-utils";
 
 export const getCanonicalTokenIdSchema = Type.Object({
   domainId: Type.String(),
@@ -16,9 +16,9 @@ export const getLPTokenAddressSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
-export const getLPTokenSupplySchema = Type.Object({
+export const getTokenSupplySchema = Type.Object({
   domainId: Type.String(),
-  lpTokenAddress: Type.String(),
+  tokenAddress: Type.String(),
 });
 
 export const getTokenUserBalanceSchema = Type.Object({
@@ -200,6 +200,12 @@ export const getTransfersByTransactionHashSchema = Type.Object({
 
 export const getTransfersSchema = Type.Object({
   params: Type.Object({
+    userAddress: Type.Optional(Type.String()),
+    routerAddress: Type.Optional(Type.String()),
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+    errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
+    transferId: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
     range: Type.Optional(
       Type.Object({
         limit: Type.Optional(Type.Number()),
@@ -214,10 +220,11 @@ export const getBlockNumberFromUnixTimestampSchema = Type.Object({
   unixTimestamp: Type.Number(),
 });
 
-export const getYieldStatsForDaySchema = Type.Object({
+export const getYieldStatsForDaysSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   unixTimestamp: Type.Number(),
+  days: Type.Number(),
 });
 
 export const getYieldDataSchema = Type.Object({
@@ -241,5 +248,59 @@ export const removeRouterLiquiditySchema = Type.Object({
     amount: Type.String(),
     tokenAddress: Type.String(),
     recipient: Type.String(),
+  }),
+});
+
+export const removeRouterLiquidityForSchema = Type.Object({
+  params: Type.Object({
+    domainId: Type.String(),
+    amount: Type.String(),
+    tokenAddress: Type.String(),
+    recipient: Type.String(),
+    router: Type.String(),
+  }),
+});
+
+export const getTokenSwapEventsSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    buyer: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getHourlySwapVolumeSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    domainId: Type.Optional(Type.String()),
+    startTimestamp: Type.Optional(Type.Number()),
+    endTimestamp: Type.Optional(Type.Number()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getDailySwapVolumeSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    domainId: Type.Optional(Type.String()),
+    startTimestamp: Type.Optional(Type.Number()),
+    endTimestamp: Type.Optional(Type.Number()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
   }),
 });
