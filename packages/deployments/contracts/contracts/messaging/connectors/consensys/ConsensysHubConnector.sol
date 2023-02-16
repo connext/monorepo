@@ -41,7 +41,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
     ConsensysAmb(AMB).dispatchMessage(
       mirrorConnector,
       msg.value, // fee is the passed in value
-      block.timestamp + 1 days, // deadline to 1 day from now
+      block.timestamp + 7 days, // deadline to 7 days from now
       abi.encodeWithSelector(Connector.processMessage.selector, _data)
     );
   }
