@@ -38,10 +38,10 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
     require(_encodedData.length == 0, "!data length");
 
     // send message via AMB, should call "processMessage" which will update aggregate root
-    ConsensysAmb(AMB).dispatchMessage(
+    ConsensysAmb(AMB).dispatchMessage{value: msg.value}(
       mirrorConnector,
       msg.value, // fee is the passed in value
-      block.timestamp + 7 days, // deadline to 7 days from now
+      block.timestamp + 7 days + 1 seconds, // deadline to 7 days from now
       abi.encodeWithSelector(Connector.processMessage.selector, _data)
     );
   }

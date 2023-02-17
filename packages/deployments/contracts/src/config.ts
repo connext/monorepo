@@ -207,6 +207,7 @@ export const hardhatNetworks = {
   consensys: {
     accounts: { mnemonic },
     chainId: 59140,
+    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
     url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
     companionNetworks: {
       hub: "goerli",
