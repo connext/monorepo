@@ -29,10 +29,6 @@ input bnb_AggregateRoot_filter {
   id_not_in: [ID!]
   root: bnb_Bytes
   root_not: bnb_Bytes
-  root_gt: bnb_Bytes
-  root_lt: bnb_Bytes
-  root_gte: bnb_Bytes
-  root_lte: bnb_Bytes
   root_in: [bnb_Bytes!]
   root_not_in: [bnb_Bytes!]
   root_contains: bnb_Bytes
@@ -47,8 +43,6 @@ input bnb_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_AggregateRoot_filter]
-  or: [bnb_AggregateRoot_filter]
 }
 
 enum bnb_AggregateRoot_orderBy {
@@ -145,28 +139,13 @@ input bnb_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_AssetBalance_filter]
-  or: [bnb_AssetBalance_filter]
 }
 
 enum bnb_AssetBalance_orderBy {
   id
   amount
   router
-  router__id
-  router__isActive
-  router__owner
-  router__recipient
-  router__proposedOwner
-  router__proposedTimestamp
   asset
-  asset__id
-  asset__key
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
   feesEarned
 }
 
@@ -190,8 +169,6 @@ input bnb_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_AssetStatus_filter]
-  or: [bnb_AssetStatus_filter]
 }
 
 enum bnb_AssetStatus_orderBy {
@@ -210,20 +187,12 @@ input bnb_Asset_filter {
   id_not_in: [ID!]
   key: bnb_Bytes
   key_not: bnb_Bytes
-  key_gt: bnb_Bytes
-  key_lt: bnb_Bytes
-  key_gte: bnb_Bytes
-  key_lte: bnb_Bytes
   key_in: [bnb_Bytes!]
   key_not_in: [bnb_Bytes!]
   key_contains: bnb_Bytes
   key_not_contains: bnb_Bytes
   canonicalId: bnb_Bytes
   canonicalId_not: bnb_Bytes
-  canonicalId_gt: bnb_Bytes
-  canonicalId_lt: bnb_Bytes
-  canonicalId_gte: bnb_Bytes
-  canonicalId_lte: bnb_Bytes
   canonicalId_in: [bnb_Bytes!]
   canonicalId_not_in: [bnb_Bytes!]
   canonicalId_contains: bnb_Bytes
@@ -238,20 +207,12 @@ input bnb_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: bnb_Bytes
   adoptedAsset_not: bnb_Bytes
-  adoptedAsset_gt: bnb_Bytes
-  adoptedAsset_lt: bnb_Bytes
-  adoptedAsset_gte: bnb_Bytes
-  adoptedAsset_lte: bnb_Bytes
   adoptedAsset_in: [bnb_Bytes!]
   adoptedAsset_not_in: [bnb_Bytes!]
   adoptedAsset_contains: bnb_Bytes
   adoptedAsset_not_contains: bnb_Bytes
   localAsset: bnb_Bytes
   localAsset_not: bnb_Bytes
-  localAsset_gt: bnb_Bytes
-  localAsset_lt: bnb_Bytes
-  localAsset_gte: bnb_Bytes
-  localAsset_lte: bnb_Bytes
   localAsset_in: [bnb_Bytes!]
   localAsset_not_in: [bnb_Bytes!]
   localAsset_contains: bnb_Bytes
@@ -287,8 +248,6 @@ input bnb_Asset_filter {
   status_: bnb_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_Asset_filter]
-  or: [bnb_Asset_filter]
 }
 
 enum bnb_Asset_orderBy {
@@ -300,8 +259,6 @@ enum bnb_Asset_orderBy {
   localAsset
   blockNumber
   status
-  status__id
-  status__status
 }
 
 scalar bnb_BigDecimal
@@ -356,38 +313,24 @@ input bnb_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: bnb_Bytes
   amb_not: bnb_Bytes
-  amb_gt: bnb_Bytes
-  amb_lt: bnb_Bytes
-  amb_gte: bnb_Bytes
-  amb_lte: bnb_Bytes
   amb_in: [bnb_Bytes!]
   amb_not_in: [bnb_Bytes!]
   amb_contains: bnb_Bytes
   amb_not_contains: bnb_Bytes
   rootManager: bnb_Bytes
   rootManager_not: bnb_Bytes
-  rootManager_gt: bnb_Bytes
-  rootManager_lt: bnb_Bytes
-  rootManager_gte: bnb_Bytes
-  rootManager_lte: bnb_Bytes
   rootManager_in: [bnb_Bytes!]
   rootManager_not_in: [bnb_Bytes!]
   rootManager_contains: bnb_Bytes
   rootManager_not_contains: bnb_Bytes
   mirrorConnector: bnb_Bytes
   mirrorConnector_not: bnb_Bytes
-  mirrorConnector_gt: bnb_Bytes
-  mirrorConnector_lt: bnb_Bytes
-  mirrorConnector_gte: bnb_Bytes
-  mirrorConnector_lte: bnb_Bytes
   mirrorConnector_in: [bnb_Bytes!]
   mirrorConnector_not_in: [bnb_Bytes!]
   mirrorConnector_contains: bnb_Bytes
   mirrorConnector_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_ConnectorMeta_filter]
-  or: [bnb_ConnectorMeta_filter]
 }
 
 enum bnb_ConnectorMeta_orderBy {
@@ -414,6 +357,7 @@ type bnb_DestinationTransfer {
   receiveLocal: Boolean
   callData: bnb_Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: bnb_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -421,8 +365,6 @@ type bnb_DestinationTransfer {
   asset: bnb_Asset
   amount: BigInt
   routersFee: BigInt
-  updatedSlippage: BigInt
-  bumpSlippageCount: BigInt
   executedCaller: bnb_Bytes
   executedTransactionHash: bnb_Bytes
   executedTimestamp: BigInt
@@ -458,10 +400,6 @@ input bnb_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: bnb_Bytes
   transferId_not: bnb_Bytes
-  transferId_gt: bnb_Bytes
-  transferId_lt: bnb_Bytes
-  transferId_gte: bnb_Bytes
-  transferId_lte: bnb_Bytes
   transferId_in: [bnb_Bytes!]
   transferId_not_in: [bnb_Bytes!]
   transferId_contains: bnb_Bytes
@@ -511,20 +449,12 @@ input bnb_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: bnb_Bytes
   to_not: bnb_Bytes
-  to_gt: bnb_Bytes
-  to_lt: bnb_Bytes
-  to_gte: bnb_Bytes
-  to_lte: bnb_Bytes
   to_in: [bnb_Bytes!]
   to_not_in: [bnb_Bytes!]
   to_contains: bnb_Bytes
   to_not_contains: bnb_Bytes
   delegate: bnb_Bytes
   delegate_not: bnb_Bytes
-  delegate_gt: bnb_Bytes
-  delegate_lt: bnb_Bytes
-  delegate_gte: bnb_Bytes
-  delegate_lte: bnb_Bytes
   delegate_in: [bnb_Bytes!]
   delegate_not_in: [bnb_Bytes!]
   delegate_contains: bnb_Bytes
@@ -535,10 +465,6 @@ input bnb_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: bnb_Bytes
   callData_not: bnb_Bytes
-  callData_gt: bnb_Bytes
-  callData_lt: bnb_Bytes
-  callData_gte: bnb_Bytes
-  callData_lte: bnb_Bytes
   callData_in: [bnb_Bytes!]
   callData_not_in: [bnb_Bytes!]
   callData_contains: bnb_Bytes
@@ -551,12 +477,16 @@ input bnb_DestinationTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
   originSender: bnb_Bytes
   originSender_not: bnb_Bytes
-  originSender_gt: bnb_Bytes
-  originSender_lt: bnb_Bytes
-  originSender_gte: bnb_Bytes
-  originSender_lte: bnb_Bytes
   originSender_in: [bnb_Bytes!]
   originSender_not_in: [bnb_Bytes!]
   originSender_contains: bnb_Bytes
@@ -579,10 +509,6 @@ input bnb_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: bnb_Bytes
   canonicalId_not: bnb_Bytes
-  canonicalId_gt: bnb_Bytes
-  canonicalId_lt: bnb_Bytes
-  canonicalId_gte: bnb_Bytes
-  canonicalId_lte: bnb_Bytes
   canonicalId_in: [bnb_Bytes!]
   canonicalId_not_in: [bnb_Bytes!]
   canonicalId_contains: bnb_Bytes
@@ -624,38 +550,14 @@ input bnb_DestinationTransfer_filter {
   routersFee_lte: BigInt
   routersFee_in: [BigInt!]
   routersFee_not_in: [BigInt!]
-  updatedSlippage: BigInt
-  updatedSlippage_not: BigInt
-  updatedSlippage_gt: BigInt
-  updatedSlippage_lt: BigInt
-  updatedSlippage_gte: BigInt
-  updatedSlippage_lte: BigInt
-  updatedSlippage_in: [BigInt!]
-  updatedSlippage_not_in: [BigInt!]
-  bumpSlippageCount: BigInt
-  bumpSlippageCount_not: BigInt
-  bumpSlippageCount_gt: BigInt
-  bumpSlippageCount_lt: BigInt
-  bumpSlippageCount_gte: BigInt
-  bumpSlippageCount_lte: BigInt
-  bumpSlippageCount_in: [BigInt!]
-  bumpSlippageCount_not_in: [BigInt!]
   executedCaller: bnb_Bytes
   executedCaller_not: bnb_Bytes
-  executedCaller_gt: bnb_Bytes
-  executedCaller_lt: bnb_Bytes
-  executedCaller_gte: bnb_Bytes
-  executedCaller_lte: bnb_Bytes
   executedCaller_in: [bnb_Bytes!]
   executedCaller_not_in: [bnb_Bytes!]
   executedCaller_contains: bnb_Bytes
   executedCaller_not_contains: bnb_Bytes
   executedTransactionHash: bnb_Bytes
   executedTransactionHash_not: bnb_Bytes
-  executedTransactionHash_gt: bnb_Bytes
-  executedTransactionHash_lt: bnb_Bytes
-  executedTransactionHash_gte: bnb_Bytes
-  executedTransactionHash_lte: bnb_Bytes
   executedTransactionHash_in: [bnb_Bytes!]
   executedTransactionHash_not_in: [bnb_Bytes!]
   executedTransactionHash_contains: bnb_Bytes
@@ -694,30 +596,18 @@ input bnb_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: bnb_Bytes
   executedTxOrigin_not: bnb_Bytes
-  executedTxOrigin_gt: bnb_Bytes
-  executedTxOrigin_lt: bnb_Bytes
-  executedTxOrigin_gte: bnb_Bytes
-  executedTxOrigin_lte: bnb_Bytes
   executedTxOrigin_in: [bnb_Bytes!]
   executedTxOrigin_not_in: [bnb_Bytes!]
   executedTxOrigin_contains: bnb_Bytes
   executedTxOrigin_not_contains: bnb_Bytes
   reconciledCaller: bnb_Bytes
   reconciledCaller_not: bnb_Bytes
-  reconciledCaller_gt: bnb_Bytes
-  reconciledCaller_lt: bnb_Bytes
-  reconciledCaller_gte: bnb_Bytes
-  reconciledCaller_lte: bnb_Bytes
   reconciledCaller_in: [bnb_Bytes!]
   reconciledCaller_not_in: [bnb_Bytes!]
   reconciledCaller_contains: bnb_Bytes
   reconciledCaller_not_contains: bnb_Bytes
   reconciledTransactionHash: bnb_Bytes
   reconciledTransactionHash_not: bnb_Bytes
-  reconciledTransactionHash_gt: bnb_Bytes
-  reconciledTransactionHash_lt: bnb_Bytes
-  reconciledTransactionHash_gte: bnb_Bytes
-  reconciledTransactionHash_lte: bnb_Bytes
   reconciledTransactionHash_in: [bnb_Bytes!]
   reconciledTransactionHash_not_in: [bnb_Bytes!]
   reconciledTransactionHash_contains: bnb_Bytes
@@ -756,18 +646,12 @@ input bnb_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: bnb_Bytes
   reconciledTxOrigin_not: bnb_Bytes
-  reconciledTxOrigin_gt: bnb_Bytes
-  reconciledTxOrigin_lt: bnb_Bytes
-  reconciledTxOrigin_gte: bnb_Bytes
-  reconciledTxOrigin_lte: bnb_Bytes
   reconciledTxOrigin_in: [bnb_Bytes!]
   reconciledTxOrigin_not_in: [bnb_Bytes!]
   reconciledTxOrigin_contains: bnb_Bytes
   reconciledTxOrigin_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_DestinationTransfer_filter]
-  or: [bnb_DestinationTransfer_filter]
 }
 
 enum bnb_DestinationTransfer_orderBy {
@@ -785,22 +669,14 @@ enum bnb_DestinationTransfer_orderBy {
   receiveLocal
   callData
   slippage
+  bumpSlippageCount
   originSender
   bridgedAmt
   normalizedIn
   canonicalId
   asset
-  asset__id
-  asset__key
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
   amount
   routersFee
-  updatedSlippage
-  bumpSlippageCount
   executedCaller
   executedTransactionHash
   executedTimestamp
@@ -847,10 +723,6 @@ input bnb_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: bnb_Bytes
   transferId_not: bnb_Bytes
-  transferId_gt: bnb_Bytes
-  transferId_lt: bnb_Bytes
-  transferId_gte: bnb_Bytes
-  transferId_lte: bnb_Bytes
   transferId_in: [bnb_Bytes!]
   transferId_not_in: [bnb_Bytes!]
   transferId_contains: bnb_Bytes
@@ -865,10 +737,6 @@ input bnb_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: bnb_Bytes
   leaf_not: bnb_Bytes
-  leaf_gt: bnb_Bytes
-  leaf_lt: bnb_Bytes
-  leaf_gte: bnb_Bytes
-  leaf_lte: bnb_Bytes
   leaf_in: [bnb_Bytes!]
   leaf_not_in: [bnb_Bytes!]
   leaf_contains: bnb_Bytes
@@ -883,30 +751,18 @@ input bnb_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: bnb_Bytes
   message_not: bnb_Bytes
-  message_gt: bnb_Bytes
-  message_lt: bnb_Bytes
-  message_gte: bnb_Bytes
-  message_lte: bnb_Bytes
   message_in: [bnb_Bytes!]
   message_not_in: [bnb_Bytes!]
   message_contains: bnb_Bytes
   message_not_contains: bnb_Bytes
   root: bnb_Bytes
   root_not: bnb_Bytes
-  root_gt: bnb_Bytes
-  root_lt: bnb_Bytes
-  root_gte: bnb_Bytes
-  root_lte: bnb_Bytes
   root_in: [bnb_Bytes!]
   root_not_in: [bnb_Bytes!]
   root_contains: bnb_Bytes
   root_not_contains: bnb_Bytes
   transactionHash: bnb_Bytes
   transactionHash_not: bnb_Bytes
-  transactionHash_gt: bnb_Bytes
-  transactionHash_lt: bnb_Bytes
-  transactionHash_gte: bnb_Bytes
-  transactionHash_lte: bnb_Bytes
   transactionHash_in: [bnb_Bytes!]
   transactionHash_not_in: [bnb_Bytes!]
   transactionHash_contains: bnb_Bytes
@@ -942,8 +798,6 @@ input bnb_OriginMessage_filter {
   rootCount_: bnb_RootCount_filter
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_OriginMessage_filter]
-  or: [bnb_OriginMessage_filter]
 }
 
 enum bnb_OriginMessage_orderBy {
@@ -957,8 +811,6 @@ enum bnb_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
-  rootCount__id
-  rootCount__count
 }
 
 type bnb_OriginTransfer {
@@ -1012,10 +864,6 @@ input bnb_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: bnb_Bytes
   transferId_not: bnb_Bytes
-  transferId_gt: bnb_Bytes
-  transferId_lt: bnb_Bytes
-  transferId_gte: bnb_Bytes
-  transferId_lte: bnb_Bytes
   transferId_in: [bnb_Bytes!]
   transferId_not_in: [bnb_Bytes!]
   transferId_contains: bnb_Bytes
@@ -1034,10 +882,6 @@ input bnb_OriginTransfer_filter {
   status_not_in: [bnb_TransferStatus!]
   messageHash: bnb_Bytes
   messageHash_not: bnb_Bytes
-  messageHash_gt: bnb_Bytes
-  messageHash_lt: bnb_Bytes
-  messageHash_gte: bnb_Bytes
-  messageHash_lte: bnb_Bytes
   messageHash_in: [bnb_Bytes!]
   messageHash_not_in: [bnb_Bytes!]
   messageHash_contains: bnb_Bytes
@@ -1068,20 +912,12 @@ input bnb_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: bnb_Bytes
   to_not: bnb_Bytes
-  to_gt: bnb_Bytes
-  to_lt: bnb_Bytes
-  to_gte: bnb_Bytes
-  to_lte: bnb_Bytes
   to_in: [bnb_Bytes!]
   to_not_in: [bnb_Bytes!]
   to_contains: bnb_Bytes
   to_not_contains: bnb_Bytes
   delegate: bnb_Bytes
   delegate_not: bnb_Bytes
-  delegate_gt: bnb_Bytes
-  delegate_lt: bnb_Bytes
-  delegate_gte: bnb_Bytes
-  delegate_lte: bnb_Bytes
   delegate_in: [bnb_Bytes!]
   delegate_not_in: [bnb_Bytes!]
   delegate_contains: bnb_Bytes
@@ -1092,10 +928,6 @@ input bnb_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: bnb_Bytes
   callData_not: bnb_Bytes
-  callData_gt: bnb_Bytes
-  callData_lt: bnb_Bytes
-  callData_gte: bnb_Bytes
-  callData_lte: bnb_Bytes
   callData_in: [bnb_Bytes!]
   callData_not_in: [bnb_Bytes!]
   callData_contains: bnb_Bytes
@@ -1110,10 +942,6 @@ input bnb_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: bnb_Bytes
   originSender_not: bnb_Bytes
-  originSender_gt: bnb_Bytes
-  originSender_lt: bnb_Bytes
-  originSender_gte: bnb_Bytes
-  originSender_lte: bnb_Bytes
   originSender_in: [bnb_Bytes!]
   originSender_not_in: [bnb_Bytes!]
   originSender_contains: bnb_Bytes
@@ -1136,10 +964,6 @@ input bnb_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: bnb_Bytes
   canonicalId_not: bnb_Bytes
-  canonicalId_gt: bnb_Bytes
-  canonicalId_lt: bnb_Bytes
-  canonicalId_gte: bnb_Bytes
-  canonicalId_lte: bnb_Bytes
   canonicalId_in: [bnb_Bytes!]
   canonicalId_not_in: [bnb_Bytes!]
   canonicalId_contains: bnb_Bytes
@@ -1204,20 +1028,12 @@ input bnb_OriginTransfer_filter {
   bumpRelayerFeeCount_not_in: [BigInt!]
   caller: bnb_Bytes
   caller_not: bnb_Bytes
-  caller_gt: bnb_Bytes
-  caller_lt: bnb_Bytes
-  caller_gte: bnb_Bytes
-  caller_lte: bnb_Bytes
   caller_in: [bnb_Bytes!]
   caller_not_in: [bnb_Bytes!]
   caller_contains: bnb_Bytes
   caller_not_contains: bnb_Bytes
   transactionHash: bnb_Bytes
   transactionHash_not: bnb_Bytes
-  transactionHash_gt: bnb_Bytes
-  transactionHash_lt: bnb_Bytes
-  transactionHash_gte: bnb_Bytes
-  transactionHash_lte: bnb_Bytes
   transactionHash_in: [bnb_Bytes!]
   transactionHash_not_in: [bnb_Bytes!]
   transactionHash_contains: bnb_Bytes
@@ -1256,18 +1072,12 @@ input bnb_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: bnb_Bytes
   txOrigin_not: bnb_Bytes
-  txOrigin_gt: bnb_Bytes
-  txOrigin_lt: bnb_Bytes
-  txOrigin_gte: bnb_Bytes
-  txOrigin_lte: bnb_Bytes
   txOrigin_in: [bnb_Bytes!]
   txOrigin_not_in: [bnb_Bytes!]
   txOrigin_contains: bnb_Bytes
   txOrigin_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_OriginTransfer_filter]
-  or: [bnb_OriginTransfer_filter]
 }
 
 enum bnb_OriginTransfer_orderBy {
@@ -1290,23 +1100,7 @@ enum bnb_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
-  asset__id
-  asset__key
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
   message
-  message__id
-  message__transferId
-  message__destinationDomain
-  message__leaf
-  message__index
-  message__message
-  message__root
-  message__transactionHash
-  message__blockNumber
   relayerFee
   bumpRelayerFeeCount
   caller
@@ -1423,32 +1217,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [bnb_Router!]!
-  bnb_routerDailyTVL(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: bnb_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_RouterDailyTVL
-  bnb_routerDailyTVLs(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: bnb_RouterDailyTVL_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_RouterDailyTVL_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: bnb_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_RouterDailyTVL!]!
   bnb_setting(
     id: ID!
     """
@@ -1823,20 +1591,12 @@ input bnb_RelayerFeesIncrease_filter {
   increase_not_in: [BigInt!]
   caller: bnb_Bytes
   caller_not: bnb_Bytes
-  caller_gt: bnb_Bytes
-  caller_lt: bnb_Bytes
-  caller_gte: bnb_Bytes
-  caller_lte: bnb_Bytes
   caller_in: [bnb_Bytes!]
   caller_not_in: [bnb_Bytes!]
   caller_contains: bnb_Bytes
   caller_not_contains: bnb_Bytes
   transactionHash: bnb_Bytes
   transactionHash_not: bnb_Bytes
-  transactionHash_gt: bnb_Bytes
-  transactionHash_lt: bnb_Bytes
-  transactionHash_gte: bnb_Bytes
-  transactionHash_lte: bnb_Bytes
   transactionHash_in: [bnb_Bytes!]
   transactionHash_not_in: [bnb_Bytes!]
   transactionHash_contains: bnb_Bytes
@@ -1875,40 +1635,11 @@ input bnb_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_RelayerFeesIncrease_filter]
-  or: [bnb_RelayerFeesIncrease_filter]
 }
 
 enum bnb_RelayerFeesIncrease_orderBy {
   id
   transfer
-  transfer__id
-  transfer__chainId
-  transfer__transferId
-  transfer__nonce
-  transfer__status
-  transfer__messageHash
-  transfer__originDomain
-  transfer__destinationDomain
-  transfer__canonicalDomain
-  transfer__to
-  transfer__delegate
-  transfer__receiveLocal
-  transfer__callData
-  transfer__slippage
-  transfer__originSender
-  transfer__bridgedAmt
-  transfer__normalizedIn
-  transfer__canonicalId
-  transfer__relayerFee
-  transfer__bumpRelayerFeeCount
-  transfer__caller
-  transfer__transactionHash
-  transfer__timestamp
-  transfer__gasPrice
-  transfer__gasLimit
-  transfer__blockNumber
-  transfer__txOrigin
   increase
   caller
   transactionHash
@@ -1933,18 +1664,12 @@ input bnb_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: bnb_Bytes
   relayer_not: bnb_Bytes
-  relayer_gt: bnb_Bytes
-  relayer_lt: bnb_Bytes
-  relayer_gte: bnb_Bytes
-  relayer_lte: bnb_Bytes
   relayer_in: [bnb_Bytes!]
   relayer_not_in: [bnb_Bytes!]
   relayer_contains: bnb_Bytes
   relayer_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_Relayer_filter]
-  or: [bnb_Relayer_filter]
 }
 
 enum bnb_Relayer_orderBy {
@@ -1977,8 +1702,6 @@ input bnb_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_RootCount_filter]
-  or: [bnb_RootCount_filter]
 }
 
 enum bnb_RootCount_orderBy {
@@ -2027,10 +1750,6 @@ input bnb_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: bnb_Bytes
   root_not: bnb_Bytes
-  root_gt: bnb_Bytes
-  root_lt: bnb_Bytes
-  root_gte: bnb_Bytes
-  root_lte: bnb_Bytes
   root_in: [bnb_Bytes!]
   root_not_in: [bnb_Bytes!]
   root_contains: bnb_Bytes
@@ -2045,20 +1764,12 @@ input bnb_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: bnb_Bytes
   caller_not: bnb_Bytes
-  caller_gt: bnb_Bytes
-  caller_lt: bnb_Bytes
-  caller_gte: bnb_Bytes
-  caller_lte: bnb_Bytes
   caller_in: [bnb_Bytes!]
   caller_not_in: [bnb_Bytes!]
   caller_contains: bnb_Bytes
   caller_not_contains: bnb_Bytes
   transactionHash: bnb_Bytes
   transactionHash_not: bnb_Bytes
-  transactionHash_gt: bnb_Bytes
-  transactionHash_lt: bnb_Bytes
-  transactionHash_gte: bnb_Bytes
-  transactionHash_lte: bnb_Bytes
   transactionHash_in: [bnb_Bytes!]
   transactionHash_not_in: [bnb_Bytes!]
   transactionHash_contains: bnb_Bytes
@@ -2097,8 +1808,6 @@ input bnb_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_RootMessageSent_filter]
-  or: [bnb_RootMessageSent_filter]
 }
 
 enum bnb_RootMessageSent_orderBy {
@@ -2125,108 +1834,6 @@ type bnb_Router {
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: bnb_AssetBalance_orderBy, orderDirection: bnb_OrderDirection, where: bnb_AssetBalance_filter): [bnb_AssetBalance!]!
 }
 
-type bnb_RouterDailyTVL {
-  id: ID!
-  router: bnb_Router!
-  asset: bnb_Asset!
-  timestamp: BigInt!
-  balance: BigInt!
-}
-
-input bnb_RouterDailyTVL_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
-  router_: bnb_Router_filter
-  asset: String
-  asset_not: String
-  asset_gt: String
-  asset_lt: String
-  asset_gte: String
-  asset_lte: String
-  asset_in: [String!]
-  asset_not_in: [String!]
-  asset_contains: String
-  asset_contains_nocase: String
-  asset_not_contains: String
-  asset_not_contains_nocase: String
-  asset_starts_with: String
-  asset_starts_with_nocase: String
-  asset_not_starts_with: String
-  asset_not_starts_with_nocase: String
-  asset_ends_with: String
-  asset_ends_with_nocase: String
-  asset_not_ends_with: String
-  asset_not_ends_with_nocase: String
-  asset_: bnb_Asset_filter
-  timestamp: BigInt
-  timestamp_not: BigInt
-  timestamp_gt: BigInt
-  timestamp_lt: BigInt
-  timestamp_gte: BigInt
-  timestamp_lte: BigInt
-  timestamp_in: [BigInt!]
-  timestamp_not_in: [BigInt!]
-  balance: BigInt
-  balance_not: BigInt
-  balance_gt: BigInt
-  balance_lt: BigInt
-  balance_gte: BigInt
-  balance_lte: BigInt
-  balance_in: [BigInt!]
-  balance_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: bnb_BlockChangedFilter
-  and: [bnb_RouterDailyTVL_filter]
-  or: [bnb_RouterDailyTVL_filter]
-}
-
-enum bnb_RouterDailyTVL_orderBy {
-  id
-  router
-  router__id
-  router__isActive
-  router__owner
-  router__recipient
-  router__proposedOwner
-  router__proposedTimestamp
-  asset
-  asset__id
-  asset__key
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
-  timestamp
-  balance
-}
-
 input bnb_Router_filter {
   id: ID
   id_not: ID
@@ -2242,30 +1849,18 @@ input bnb_Router_filter {
   isActive_not_in: [Boolean!]
   owner: bnb_Bytes
   owner_not: bnb_Bytes
-  owner_gt: bnb_Bytes
-  owner_lt: bnb_Bytes
-  owner_gte: bnb_Bytes
-  owner_lte: bnb_Bytes
   owner_in: [bnb_Bytes!]
   owner_not_in: [bnb_Bytes!]
   owner_contains: bnb_Bytes
   owner_not_contains: bnb_Bytes
   recipient: bnb_Bytes
   recipient_not: bnb_Bytes
-  recipient_gt: bnb_Bytes
-  recipient_lt: bnb_Bytes
-  recipient_gte: bnb_Bytes
-  recipient_lte: bnb_Bytes
   recipient_in: [bnb_Bytes!]
   recipient_not_in: [bnb_Bytes!]
   recipient_contains: bnb_Bytes
   recipient_not_contains: bnb_Bytes
   proposedOwner: bnb_Bytes
   proposedOwner_not: bnb_Bytes
-  proposedOwner_gt: bnb_Bytes
-  proposedOwner_lt: bnb_Bytes
-  proposedOwner_gte: bnb_Bytes
-  proposedOwner_lte: bnb_Bytes
   proposedOwner_in: [bnb_Bytes!]
   proposedOwner_not_in: [bnb_Bytes!]
   proposedOwner_contains: bnb_Bytes
@@ -2281,8 +1876,6 @@ input bnb_Router_filter {
   assetBalances_: bnb_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_Router_filter]
-  or: [bnb_Router_filter]
 }
 
 enum bnb_Router_orderBy {
@@ -2316,18 +1909,12 @@ input bnb_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: bnb_Bytes
   sequencer_not: bnb_Bytes
-  sequencer_gt: bnb_Bytes
-  sequencer_lt: bnb_Bytes
-  sequencer_gte: bnb_Bytes
-  sequencer_lte: bnb_Bytes
   sequencer_in: [bnb_Bytes!]
   sequencer_not_in: [bnb_Bytes!]
   sequencer_contains: bnb_Bytes
   sequencer_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_Sequencer_filter]
-  or: [bnb_Sequencer_filter]
 }
 
 enum bnb_Sequencer_orderBy {
@@ -2361,18 +1948,12 @@ input bnb_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: bnb_Bytes
   caller_not: bnb_Bytes
-  caller_gt: bnb_Bytes
-  caller_lt: bnb_Bytes
-  caller_gte: bnb_Bytes
-  caller_lte: bnb_Bytes
   caller_in: [bnb_Bytes!]
   caller_not_in: [bnb_Bytes!]
   caller_contains: bnb_Bytes
   caller_not_contains: bnb_Bytes
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_Setting_filter]
-  or: [bnb_Setting_filter]
 }
 
 enum bnb_Setting_orderBy {
@@ -2433,20 +2014,12 @@ input bnb_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: bnb_Bytes
   caller_not: bnb_Bytes
-  caller_gt: bnb_Bytes
-  caller_lt: bnb_Bytes
-  caller_gte: bnb_Bytes
-  caller_lte: bnb_Bytes
   caller_in: [bnb_Bytes!]
   caller_not_in: [bnb_Bytes!]
   caller_contains: bnb_Bytes
   caller_not_contains: bnb_Bytes
   transactionHash: bnb_Bytes
   transactionHash_not: bnb_Bytes
-  transactionHash_gt: bnb_Bytes
-  transactionHash_lt: bnb_Bytes
-  transactionHash_gte: bnb_Bytes
-  transactionHash_lte: bnb_Bytes
   transactionHash_in: [bnb_Bytes!]
   transactionHash_not_in: [bnb_Bytes!]
   transactionHash_contains: bnb_Bytes
@@ -2485,48 +2058,11 @@ input bnb_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: bnb_BlockChangedFilter
-  and: [bnb_SlippageUpdate_filter]
-  or: [bnb_SlippageUpdate_filter]
 }
 
 enum bnb_SlippageUpdate_orderBy {
   id
   transfer
-  transfer__id
-  transfer__chainId
-  transfer__transferId
-  transfer__nonce
-  transfer__status
-  transfer__originDomain
-  transfer__destinationDomain
-  transfer__canonicalDomain
-  transfer__to
-  transfer__delegate
-  transfer__receiveLocal
-  transfer__callData
-  transfer__slippage
-  transfer__originSender
-  transfer__bridgedAmt
-  transfer__normalizedIn
-  transfer__canonicalId
-  transfer__amount
-  transfer__routersFee
-  transfer__updatedSlippage
-  transfer__bumpSlippageCount
-  transfer__executedCaller
-  transfer__executedTransactionHash
-  transfer__executedTimestamp
-  transfer__executedGasPrice
-  transfer__executedGasLimit
-  transfer__executedBlockNumber
-  transfer__executedTxOrigin
-  transfer__reconciledCaller
-  transfer__reconciledTransactionHash
-  transfer__reconciledTimestamp
-  transfer__reconciledGasPrice
-  transfer__reconciledGasLimit
-  transfer__reconciledBlockNumber
-  transfer__reconciledTxOrigin
   slippage
   caller
   transactionHash
@@ -2641,32 +2177,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [bnb_Router!]!
-  bnb_routerDailyTVL(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: bnb_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): bnb_RouterDailyTVL
-  bnb_routerDailyTVLs(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: bnb_RouterDailyTVL_orderBy
-    orderDirection: bnb_OrderDirection
-    where: bnb_RouterDailyTVL_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: bnb_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [bnb_RouterDailyTVL!]!
   bnb_setting(
     id: ID!
     """
@@ -2996,8 +2506,6 @@ type bnb__Block_ {
   hash: bnb_Bytes
   """The block number"""
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
-  timestamp: Int
 }
 
 """The type for the top-level _meta field"""

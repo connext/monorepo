@@ -38,10 +38,6 @@ export type optimism_AggregateRoot_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   root?: InputMaybe<Scalars['optimism_Bytes']>;
   root_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -56,8 +52,6 @@ export type optimism_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_AggregateRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_AggregateRoot_filter>>>;
 };
 
 export type optimism_AggregateRoot_orderBy =
@@ -153,28 +147,13 @@ export type optimism_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_AssetBalance_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_AssetBalance_filter>>>;
 };
 
 export type optimism_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
-  | 'router__id'
-  | 'router__isActive'
-  | 'router__owner'
-  | 'router__recipient'
-  | 'router__proposedOwner'
-  | 'router__proposedTimestamp'
   | 'asset'
-  | 'asset__id'
-  | 'asset__key'
-  | 'asset__canonicalId'
-  | 'asset__canonicalDomain'
-  | 'asset__adoptedAsset'
-  | 'asset__localAsset'
-  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type optimism_AssetStatus = {
@@ -197,8 +176,6 @@ export type optimism_AssetStatus_filter = {
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_AssetStatus_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_AssetStatus_filter>>>;
 };
 
 export type optimism_AssetStatus_orderBy =
@@ -216,20 +193,12 @@ export type optimism_Asset_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   key?: InputMaybe<Scalars['optimism_Bytes']>;
   key_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  key_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  key_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  key_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  key_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   key_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   key_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   key_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -244,20 +213,12 @@ export type optimism_Asset_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adoptedAsset?: InputMaybe<Scalars['optimism_Bytes']>;
   adoptedAsset_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  adoptedAsset_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  adoptedAsset_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  adoptedAsset_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  adoptedAsset_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   adoptedAsset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   localAsset?: InputMaybe<Scalars['optimism_Bytes']>;
   localAsset_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  localAsset_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  localAsset_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  localAsset_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  localAsset_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   localAsset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   localAsset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   localAsset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -293,8 +254,6 @@ export type optimism_Asset_filter = {
   status_?: InputMaybe<optimism_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_Asset_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_Asset_filter>>>;
 };
 
 export type optimism_Asset_orderBy =
@@ -305,9 +264,7 @@ export type optimism_Asset_orderBy =
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status'
-  | 'status__id'
-  | 'status__status';
+  | 'status';
 
 export type optimism_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -355,38 +312,24 @@ export type optimism_ConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['optimism_Bytes']>;
   amb_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   rootManager?: InputMaybe<Scalars['optimism_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['optimism_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_ConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_ConnectorMeta_filter>>>;
 };
 
 export type optimism_ConnectorMeta_orderBy =
@@ -412,6 +355,7 @@ export type optimism_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['optimism_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['optimism_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -419,8 +363,6 @@ export type optimism_DestinationTransfer = {
   asset?: Maybe<optimism_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  updatedSlippage?: Maybe<Scalars['BigInt']>;
-  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['optimism_Bytes']>;
   executedTransactionHash?: Maybe<Scalars['optimism_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
@@ -465,10 +407,6 @@ export type optimism_DestinationTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -518,20 +456,12 @@ export type optimism_DestinationTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['optimism_Bytes']>;
   to_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   to_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -542,10 +472,6 @@ export type optimism_DestinationTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['optimism_Bytes']>;
   callData_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -558,12 +484,16 @@ export type optimism_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['optimism_Bytes']>;
   originSender_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -586,10 +516,6 @@ export type optimism_DestinationTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -631,38 +557,14 @@ export type optimism_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  updatedSlippage?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_not?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_gt?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_lt?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_gte?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_lte?: InputMaybe<Scalars['BigInt']>;
-  updatedSlippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  updatedSlippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
-  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['optimism_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedCaller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedCaller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedCaller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedCaller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedCaller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedCaller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   executedCaller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTransactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTransactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTransactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTransactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTransactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTransactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTransactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedTransactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedTransactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -701,30 +603,18 @@ export type optimism_DestinationTransfer_filter = {
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxOrigin?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTxOrigin_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTxOrigin_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTxOrigin_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTxOrigin_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  executedTxOrigin_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTxOrigin_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedTxOrigin_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   executedTxOrigin_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   executedTxOrigin_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledCaller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledCaller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledCaller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledCaller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledCaller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledCaller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledCaller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTransactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTransactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTransactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTransactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTransactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTransactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTransactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledTransactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -763,18 +653,12 @@ export type optimism_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxOrigin?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTxOrigin_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTxOrigin_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTxOrigin_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTxOrigin_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  reconciledTxOrigin_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTxOrigin_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   reconciledTxOrigin_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_DestinationTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_DestinationTransfer_filter>>>;
 };
 
 export type optimism_DestinationTransfer_orderBy =
@@ -792,22 +676,14 @@ export type optimism_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'asset__id'
-  | 'asset__key'
-  | 'asset__canonicalId'
-  | 'asset__canonicalDomain'
-  | 'asset__adoptedAsset'
-  | 'asset__localAsset'
-  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
-  | 'updatedSlippage'
-  | 'bumpSlippageCount'
   | 'executedCaller'
   | 'executedTransactionHash'
   | 'executedTimestamp'
@@ -852,10 +728,6 @@ export type optimism_OriginMessage_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   transferId?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -870,10 +742,6 @@ export type optimism_OriginMessage_filter = {
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   leaf?: InputMaybe<Scalars['optimism_Bytes']>;
   leaf_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  leaf_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   leaf_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   leaf_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   leaf_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -888,30 +756,18 @@ export type optimism_OriginMessage_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   message?: InputMaybe<Scalars['optimism_Bytes']>;
   message_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  message_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  message_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  message_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  message_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   message_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   root?: InputMaybe<Scalars['optimism_Bytes']>;
   root_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -947,8 +803,6 @@ export type optimism_OriginMessage_filter = {
   rootCount_?: InputMaybe<optimism_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_OriginMessage_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_OriginMessage_filter>>>;
 };
 
 export type optimism_OriginMessage_orderBy =
@@ -961,9 +815,7 @@ export type optimism_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount'
-  | 'rootCount__id'
-  | 'rootCount__count';
+  | 'rootCount';
 
 export type optimism_OriginTransfer = {
   id: Scalars['ID'];
@@ -1016,10 +868,6 @@ export type optimism_OriginTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1038,10 +886,6 @@ export type optimism_OriginTransfer_filter = {
   status_not_in?: InputMaybe<Array<optimism_TransferStatus>>;
   messageHash?: InputMaybe<Scalars['optimism_Bytes']>;
   messageHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  messageHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  messageHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  messageHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  messageHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   messageHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   messageHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   messageHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1072,20 +916,12 @@ export type optimism_OriginTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['optimism_Bytes']>;
   to_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  to_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   to_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1096,10 +932,6 @@ export type optimism_OriginTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['optimism_Bytes']>;
   callData_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1114,10 +946,6 @@ export type optimism_OriginTransfer_filter = {
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['optimism_Bytes']>;
   originSender_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1140,10 +968,6 @@ export type optimism_OriginTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1208,20 +1032,12 @@ export type optimism_OriginTransfer_filter = {
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1260,18 +1076,12 @@ export type optimism_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txOrigin?: InputMaybe<Scalars['optimism_Bytes']>;
   txOrigin_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  txOrigin_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  txOrigin_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  txOrigin_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  txOrigin_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   txOrigin_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   txOrigin_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   txOrigin_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   txOrigin_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_OriginTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_OriginTransfer_filter>>>;
 };
 
 export type optimism_OriginTransfer_orderBy =
@@ -1294,23 +1104,7 @@ export type optimism_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'asset__id'
-  | 'asset__key'
-  | 'asset__canonicalId'
-  | 'asset__canonicalDomain'
-  | 'asset__adoptedAsset'
-  | 'asset__localAsset'
-  | 'asset__blockNumber'
   | 'message'
-  | 'message__id'
-  | 'message__transferId'
-  | 'message__destinationDomain'
-  | 'message__leaf'
-  | 'message__index'
-  | 'message__message'
-  | 'message__root'
-  | 'message__transactionHash'
-  | 'message__blockNumber'
   | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
@@ -1330,8 +1124,6 @@ export type Query = {
   optimism_assetBalances: Array<optimism_AssetBalance>;
   optimism_router?: Maybe<optimism_Router>;
   optimism_routers: Array<optimism_Router>;
-  optimism_routerDailyTVL?: Maybe<optimism_RouterDailyTVL>;
-  optimism_routerDailyTVLs: Array<optimism_RouterDailyTVL>;
   optimism_setting?: Maybe<optimism_Setting>;
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
@@ -1428,24 +1220,6 @@ export type Queryoptimism_routersArgs = {
   orderBy?: InputMaybe<optimism_Router_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Router_filter>;
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryoptimism_routerDailyTVLArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryoptimism_routerDailyTVLsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimism_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<optimism_OrderDirection>;
-  where?: InputMaybe<optimism_RouterDailyTVL_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1729,20 +1503,12 @@ export type optimism_RelayerFeesIncrease_filter = {
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1781,40 +1547,11 @@ export type optimism_RelayerFeesIncrease_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_RelayerFeesIncrease_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_RelayerFeesIncrease_filter>>>;
 };
 
 export type optimism_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
-  | 'transfer__id'
-  | 'transfer__chainId'
-  | 'transfer__transferId'
-  | 'transfer__nonce'
-  | 'transfer__status'
-  | 'transfer__messageHash'
-  | 'transfer__originDomain'
-  | 'transfer__destinationDomain'
-  | 'transfer__canonicalDomain'
-  | 'transfer__to'
-  | 'transfer__delegate'
-  | 'transfer__receiveLocal'
-  | 'transfer__callData'
-  | 'transfer__slippage'
-  | 'transfer__originSender'
-  | 'transfer__bridgedAmt'
-  | 'transfer__normalizedIn'
-  | 'transfer__canonicalId'
-  | 'transfer__relayerFee'
-  | 'transfer__bumpRelayerFeeCount'
-  | 'transfer__caller'
-  | 'transfer__transactionHash'
-  | 'transfer__timestamp'
-  | 'transfer__gasPrice'
-  | 'transfer__gasLimit'
-  | 'transfer__blockNumber'
-  | 'transfer__txOrigin'
   | 'increase'
   | 'caller'
   | 'transactionHash'
@@ -1838,18 +1575,12 @@ export type optimism_Relayer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   relayer?: InputMaybe<Scalars['optimism_Bytes']>;
   relayer_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  relayer_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  relayer_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  relayer_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  relayer_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   relayer_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   relayer_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   relayer_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   relayer_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_Relayer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_Relayer_filter>>>;
 };
 
 export type optimism_Relayer_orderBy =
@@ -1881,8 +1612,6 @@ export type optimism_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_RootCount_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_RootCount_filter>>>;
 };
 
 export type optimism_RootCount_orderBy =
@@ -1930,10 +1659,6 @@ export type optimism_RootMessageSent_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   root?: InputMaybe<Scalars['optimism_Bytes']>;
   root_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   root_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1948,20 +1673,12 @@ export type optimism_RootMessageSent_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -2000,8 +1717,6 @@ export type optimism_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_RootMessageSent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_RootMessageSent_filter>>>;
 };
 
 export type optimism_RootMessageSent_orderBy =
@@ -2036,107 +1751,6 @@ export type optimism_RouterassetBalancesArgs = {
   where?: InputMaybe<optimism_AssetBalance_filter>;
 };
 
-export type optimism_RouterDailyTVL = {
-  id: Scalars['ID'];
-  router: optimism_Router;
-  asset: optimism_Asset;
-  timestamp: Scalars['BigInt'];
-  balance: Scalars['BigInt'];
-};
-
-export type optimism_RouterDailyTVL_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<optimism_Router_filter>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimism_Asset_filter>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  balance?: InputMaybe<Scalars['BigInt']>;
-  balance_not?: InputMaybe<Scalars['BigInt']>;
-  balance_gt?: InputMaybe<Scalars['BigInt']>;
-  balance_lt?: InputMaybe<Scalars['BigInt']>;
-  balance_gte?: InputMaybe<Scalars['BigInt']>;
-  balance_lte?: InputMaybe<Scalars['BigInt']>;
-  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_RouterDailyTVL_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_RouterDailyTVL_filter>>>;
-};
-
-export type optimism_RouterDailyTVL_orderBy =
-  | 'id'
-  | 'router'
-  | 'router__id'
-  | 'router__isActive'
-  | 'router__owner'
-  | 'router__recipient'
-  | 'router__proposedOwner'
-  | 'router__proposedTimestamp'
-  | 'asset'
-  | 'asset__id'
-  | 'asset__key'
-  | 'asset__canonicalId'
-  | 'asset__canonicalDomain'
-  | 'asset__adoptedAsset'
-  | 'asset__localAsset'
-  | 'asset__blockNumber'
-  | 'timestamp'
-  | 'balance';
-
 export type optimism_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -2152,30 +1766,18 @@ export type optimism_Router_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   owner?: InputMaybe<Scalars['optimism_Bytes']>;
   owner_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  owner_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  owner_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  owner_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  owner_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   owner_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   owner_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   owner_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   owner_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   recipient?: InputMaybe<Scalars['optimism_Bytes']>;
   recipient_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  recipient_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  recipient_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  recipient_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  recipient_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   recipient_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   recipient_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   recipient_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   recipient_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   proposedOwner?: InputMaybe<Scalars['optimism_Bytes']>;
   proposedOwner_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  proposedOwner_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  proposedOwner_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  proposedOwner_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  proposedOwner_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   proposedOwner_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   proposedOwner_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   proposedOwner_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -2191,8 +1793,6 @@ export type optimism_Router_filter = {
   assetBalances_?: InputMaybe<optimism_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_Router_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_Router_filter>>>;
 };
 
 export type optimism_Router_orderBy =
@@ -2225,18 +1825,12 @@ export type optimism_Sequencer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   sequencer?: InputMaybe<Scalars['optimism_Bytes']>;
   sequencer_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  sequencer_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  sequencer_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  sequencer_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  sequencer_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   sequencer_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   sequencer_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   sequencer_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   sequencer_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_Sequencer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_Sequencer_filter>>>;
 };
 
 export type optimism_Sequencer_orderBy =
@@ -2269,18 +1863,12 @@ export type optimism_Setting_filter = {
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_Setting_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_Setting_filter>>>;
 };
 
 export type optimism_Setting_orderBy =
@@ -2340,20 +1928,12 @@ export type optimism_SlippageUpdate_filter = {
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimism_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimism_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -2392,48 +1972,11 @@ export type optimism_SlippageUpdate_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimism_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimism_SlippageUpdate_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimism_SlippageUpdate_filter>>>;
 };
 
 export type optimism_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
-  | 'transfer__id'
-  | 'transfer__chainId'
-  | 'transfer__transferId'
-  | 'transfer__nonce'
-  | 'transfer__status'
-  | 'transfer__originDomain'
-  | 'transfer__destinationDomain'
-  | 'transfer__canonicalDomain'
-  | 'transfer__to'
-  | 'transfer__delegate'
-  | 'transfer__receiveLocal'
-  | 'transfer__callData'
-  | 'transfer__slippage'
-  | 'transfer__originSender'
-  | 'transfer__bridgedAmt'
-  | 'transfer__normalizedIn'
-  | 'transfer__canonicalId'
-  | 'transfer__amount'
-  | 'transfer__routersFee'
-  | 'transfer__updatedSlippage'
-  | 'transfer__bumpSlippageCount'
-  | 'transfer__executedCaller'
-  | 'transfer__executedTransactionHash'
-  | 'transfer__executedTimestamp'
-  | 'transfer__executedGasPrice'
-  | 'transfer__executedGasLimit'
-  | 'transfer__executedBlockNumber'
-  | 'transfer__executedTxOrigin'
-  | 'transfer__reconciledCaller'
-  | 'transfer__reconciledTransactionHash'
-  | 'transfer__reconciledTimestamp'
-  | 'transfer__reconciledGasPrice'
-  | 'transfer__reconciledGasLimit'
-  | 'transfer__reconciledBlockNumber'
-  | 'transfer__reconciledTxOrigin'
   | 'slippage'
   | 'caller'
   | 'transactionHash'
@@ -2451,8 +1994,6 @@ export type Subscription = {
   optimism_assetBalances: Array<optimism_AssetBalance>;
   optimism_router?: Maybe<optimism_Router>;
   optimism_routers: Array<optimism_Router>;
-  optimism_routerDailyTVL?: Maybe<optimism_RouterDailyTVL>;
-  optimism_routerDailyTVLs: Array<optimism_RouterDailyTVL>;
   optimism_setting?: Maybe<optimism_Setting>;
   optimism_settings: Array<optimism_Setting>;
   optimism_relayer?: Maybe<optimism_Relayer>;
@@ -2549,24 +2090,6 @@ export type Subscriptionoptimism_routersArgs = {
   orderBy?: InputMaybe<optimism_Router_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Router_filter>;
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionoptimism_routerDailyTVLArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<optimism_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionoptimism_routerDailyTVLsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimism_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<optimism_OrderDirection>;
-  where?: InputMaybe<optimism_RouterDailyTVL_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2804,8 +2327,6 @@ export type optimism__Block_ = {
   hash?: Maybe<Scalars['optimism_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
-  /** Integer representation of the timestamp stored in blocks for the chain */
-  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */
@@ -2847,10 +2368,6 @@ export type _SubgraphErrorPolicy_ =
   optimism_router: InContextSdkMethod<Query['optimism_router'], Queryoptimism_routerArgs, MeshContext>,
   /** null **/
   optimism_routers: InContextSdkMethod<Query['optimism_routers'], Queryoptimism_routersArgs, MeshContext>,
-  /** null **/
-  optimism_routerDailyTVL: InContextSdkMethod<Query['optimism_routerDailyTVL'], Queryoptimism_routerDailyTVLArgs, MeshContext>,
-  /** null **/
-  optimism_routerDailyTVLs: InContextSdkMethod<Query['optimism_routerDailyTVLs'], Queryoptimism_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   optimism_setting: InContextSdkMethod<Query['optimism_setting'], Queryoptimism_settingArgs, MeshContext>,
   /** null **/
@@ -2924,10 +2441,6 @@ export type _SubgraphErrorPolicy_ =
   optimism_router: InContextSdkMethod<Subscription['optimism_router'], Subscriptionoptimism_routerArgs, MeshContext>,
   /** null **/
   optimism_routers: InContextSdkMethod<Subscription['optimism_routers'], Subscriptionoptimism_routersArgs, MeshContext>,
-  /** null **/
-  optimism_routerDailyTVL: InContextSdkMethod<Subscription['optimism_routerDailyTVL'], Subscriptionoptimism_routerDailyTVLArgs, MeshContext>,
-  /** null **/
-  optimism_routerDailyTVLs: InContextSdkMethod<Subscription['optimism_routerDailyTVLs'], Subscriptionoptimism_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   optimism_setting: InContextSdkMethod<Subscription['optimism_setting'], Subscriptionoptimism_settingArgs, MeshContext>,
   /** null **/
