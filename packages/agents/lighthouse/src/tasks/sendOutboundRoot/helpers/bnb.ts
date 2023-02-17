@@ -1,9 +1,9 @@
 import { createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
-import { utils } from "ethers";
 
 import { getContext } from "../sendOutboundRoot";
 import { ExtraSendOutboundRootParam } from "../operations/sendOutboundRoot";
 import { NoProviderForDomain, NoSpokeConnector } from "../../propagate/errors";
+import { getInterface } from "../../../mockable";
 
 export const getSendOutboundRootParams = async (l2domain: string): Promise<ExtraSendOutboundRootParam> => {
   const {
@@ -40,7 +40,7 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
   );
   const [ambAddress] = contracts.spokeConnector.decodeFunctionResult("AMB", encoded);
 
-  const ambInterface = new utils.Interface(ambs.bnb);
+  const ambInterface = getInterface(ambs.bnb);
   encodedData = ambInterface.encodeFunctionData("calcSrcFees", ["", l2ChainId, 32]);
   encoded = await chainreader.readTx({ data: encodedData, domain: Number(l2domain), to: ambAddress }, encodedData);
   const [_fee] = ambInterface.decodeFunctionResult("calcSrcFees", encoded);
