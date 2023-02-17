@@ -520,6 +520,22 @@ input stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_filter {
 enum stagingoptimismgoerli_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -605,6 +621,22 @@ input stagingoptimismgoerli_swap_StableSwapEvent_filter {
 enum stagingoptimismgoerli_swap_StableSwapEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -746,6 +778,22 @@ input stagingoptimismgoerli_swap_StableSwapExchange_filter {
 enum stagingoptimismgoerli_swap_StableSwapExchange_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
@@ -890,6 +938,22 @@ input stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_filter {
 enum stagingoptimismgoerli_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -1451,6 +1515,22 @@ input stagingoptimismgoerli_swap_SwapDailyVolume_filter {
 enum stagingoptimismgoerli_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1517,6 +1597,22 @@ input stagingoptimismgoerli_swap_SwapHourlyVolume_filter {
 enum stagingoptimismgoerli_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1573,6 +1669,22 @@ input stagingoptimismgoerli_swap_SwapTradeVolume_filter {
 
 enum stagingoptimismgoerli_swap_SwapTradeVolume_orderBy {
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1639,6 +1751,22 @@ input stagingoptimismgoerli_swap_SwapWeeklyVolume_filter {
 enum stagingoptimismgoerli_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
