@@ -27,11 +27,13 @@ contract PolygonZkHubConnector is HubConnector, BasePolygonZk {
   /**
    * @dev Handles an incoming `outboundRoot`
    */
-  function _processMessageFrom(address sender, bytes memory _data) internal override(BasePolygonZk) {
+  function _processMessageFrom(address sender, bytes memory message) internal override(BasePolygonZk) {
     require(_verifySender(sender), "!l2Connector");
 
     // set the outbound root for mirror domain
-    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(message));
+
+    emit MessageProcessed(message, msg.sender);
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {

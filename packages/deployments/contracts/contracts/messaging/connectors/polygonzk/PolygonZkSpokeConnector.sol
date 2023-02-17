@@ -48,11 +48,13 @@ contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _processMessageFrom(address sender, bytes memory _data) internal override(BasePolygonZk) {
+  function _processMessageFrom(address sender, bytes memory message) internal override(BasePolygonZk) {
     require(_verifySender(sender), "!l2Connector");
 
     // set the aggregate root
-    receiveAggregateRoot(bytes32(_data));
+    receiveAggregateRoot(bytes32(message));
+
+    emit MessageProcessed(message, msg.sender);
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
