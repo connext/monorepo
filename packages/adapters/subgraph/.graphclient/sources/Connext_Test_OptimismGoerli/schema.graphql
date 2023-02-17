@@ -98,7 +98,20 @@ enum testoptimismgoerli_AssetBalance_orderBy {
   id
   amount
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__local
+  asset__adoptedAsset
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__blockNumber
 }
 
 input testoptimismgoerli_Asset_filter {
