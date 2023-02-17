@@ -166,4 +166,6 @@ contract SpokeConnectorTest is ForgeHelper {
     proofs[0] = SpokeConnector.Proof(message, proof, 0);
     spokeConnector.proveAndProcess(proofs, bytes32(""), proof, 0);
   }
+
+  function test_SpokeConnector__proveAndProcess_shouldWork() public {}
 }
