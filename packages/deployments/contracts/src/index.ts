@@ -5,3 +5,4 @@ export { Deployments } from "./deployments";
 export * from "./abi";
 export * from "./contracts";
 export * from "./abis";
+export * from "./upgrade";
