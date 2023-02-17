@@ -226,6 +226,12 @@ export type { ICheckpointManager } from "./contracts/messaging/connectors/polygo
 export { ICheckpointManager__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/ICheckpointManager__factory";
 export type { IFxStateSender } from "./contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender";
 export { IFxStateSender__factory } from "./factories/contracts/messaging/connectors/polygon/tunnel/FxBaseRootTunnel.sol/IFxStateSender__factory";
+export type { BasePolygonZk } from "./contracts/messaging/connectors/polygonzk/BasePolygonZk";
+export { BasePolygonZk__factory } from "./factories/contracts/messaging/connectors/polygonzk/BasePolygonZk__factory";
+export type { PolygonZkHubConnector } from "./contracts/messaging/connectors/polygonzk/PolygonZkHubConnector";
+export { PolygonZkHubConnector__factory } from "./factories/contracts/messaging/connectors/polygonzk/PolygonZkHubConnector__factory";
+export type { PolygonZkSpokeConnector } from "./contracts/messaging/connectors/polygonzk/PolygonZkSpokeConnector";
+export { PolygonZkSpokeConnector__factory } from "./factories/contracts/messaging/connectors/polygonzk/PolygonZkSpokeConnector__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
 export type { ZkSyncHubConnector } from "./contracts/messaging/connectors/zksync/ZkSyncHubConnector";
@@ -248,6 +254,10 @@ export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/amb
 export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain__factory";
 export type { OptimismAmb } from "./contracts/messaging/interfaces/ambs/optimism/OptimismAmb";
 export { OptimismAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/OptimismAmb__factory";
+export type { IBridgeMessageReceiver } from "./contracts/messaging/interfaces/ambs/polygonzk/IBridgeMessageReceiver";
+export { IBridgeMessageReceiver__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IBridgeMessageReceiver__factory";
+export type { IPolygonZkEVMBridge } from "./contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge";
+export { IPolygonZkEVMBridge__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge__factory";
 export type { IConnector } from "./contracts/messaging/interfaces/IConnector";
 export { IConnector__factory } from "./factories/contracts/messaging/interfaces/IConnector__factory";
 export type { IConnectorManager } from "./contracts/messaging/interfaces/IConnectorManager";

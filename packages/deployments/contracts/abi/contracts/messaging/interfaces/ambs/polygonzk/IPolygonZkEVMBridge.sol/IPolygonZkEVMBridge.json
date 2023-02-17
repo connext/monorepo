@@ -1,0 +1,8 @@
+[
+  "function activateEmergencyState()",
+  "function bridgeAsset(address,uint32,address,uint256,bytes) payable",
+  "function bridgeMessage(uint32,address,bytes) payable",
+  "function claimAsset(bytes32[],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+  "function claimMessage(bytes32[],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+  "function deactivateEmergencyState()"
+]
