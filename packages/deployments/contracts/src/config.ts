@@ -283,4 +283,18 @@ export const hardhatNetworks = {
       },
     },
   },
+  "polygonzk-testnet": {
+    accounts: { mnemonic },
+    chainId: 1422,
+    url: urlOverride || process.env.POLYGONZK_TESTNET_PROVIDER_URL || "https://rpc.public.zkevm-test.net",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://explorer.public.zkevm-test.net/api",
+      },
+    },
+  },
 };
