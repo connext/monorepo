@@ -25,48 +25,46 @@ export const sendOutboundRoot = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(sendOutboundRoot.name);
   logger.info("Starting send outbound root operation", requestContext, methodContext);
-  await Promise.all(
-    Object.keys(config.chains).map(async (domain) => {
-      const relayerProxyAddress = config.chains[domain].deployments.relayerProxy;
+  for (const domain of Object.keys(config.chains)) {
+    const relayerProxyAddress = config.chains[domain].deployments.relayerProxy;
 
-      logger.info("Getting params for domain", requestContext, methodContext, { domain, relayerProxyAddress });
-      let encodedData = "0x";
-      let fee = "0 ";
-      if (Object.keys(getParamsForDomainFn).includes(domain)) {
-        const getParamsForDomain = getParamsForDomainFn[domain];
-        const { _encodedData, _fee } = await getParamsForDomain(domain);
-        encodedData = _encodedData;
-        fee = _fee;
-      }
-      logger.info("Got params for domain", requestContext, methodContext, {
-        domain,
+    logger.info("Getting params for domain", requestContext, methodContext, { domain, relayerProxyAddress });
+    let encodedData = "0x";
+    let fee = "0";
+    if (Object.keys(getParamsForDomainFn).includes(domain)) {
+      const getParamsForDomain = getParamsForDomainFn[domain];
+      const { _encodedData, _fee } = await getParamsForDomain(domain);
+      encodedData = _encodedData;
+      fee = _fee;
+    }
+    logger.info("Got params for domain", requestContext, methodContext, {
+      domain,
+      relayerProxyAddress,
+      encodedData,
+      fee,
+    });
+
+    const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("send", [encodedData, fee, "0"]);
+
+    const chainId = await getChainIdFromDomain(domain, chainData);
+    try {
+      const { taskId } = await sendWithRelayerWithBackup(
+        chainId,
+        config.hubDomain,
         relayerProxyAddress,
-        encodedData,
-        fee,
+        encodedDataForRelayer,
+        relayers,
+        chainreader,
+        logger,
+        requestContext,
+      );
+      logger.info("Send Outbound Root tx sent", requestContext, methodContext, { taskId });
+    } catch (e: unknown) {
+      logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
+        chainId,
+        relayerProxyAddress,
+        encodedDataForRelayer,
       });
-
-      const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("send", [encodedData, fee, "0"]);
-
-      const chainId = await getChainIdFromDomain(domain, chainData);
-      try {
-        const { taskId } = await sendWithRelayerWithBackup(
-          chainId,
-          config.hubDomain,
-          relayerProxyAddress,
-          encodedDataForRelayer,
-          relayers,
-          chainreader,
-          logger,
-          requestContext,
-        );
-        logger.info("Send Outbound Root tx sent", requestContext, methodContext, { taskId });
-      } catch (e: unknown) {
-        logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
-          chainId,
-          relayerProxyAddress,
-          encodedDataForRelayer,
-        });
-      }
-    }),
-  );
+    }
+  }
 };

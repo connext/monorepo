@@ -6,6 +6,7 @@ import { getConfig } from "../config";
 import { makeProver } from "./prover";
 import { makePropagate } from "./propagate";
 import { makeProcessFromRoot } from "./processFromRoot";
+import { makeSendOutboundRoot } from "./sendOutboundRoot";
 
 export const makeLighthouse = async () => {
   const chainData = await getChainData();
@@ -13,6 +14,7 @@ export const makeLighthouse = async () => {
     throw new Error("Could not get chain data");
   }
   const config = await getConfig(chainData, contractDeployments);
+  console.log("process.env.LIGHTHOUSE_SERVICE: ", process.env.LIGHTHOUSE_SERVICE);
   switch (process.env.LIGHTHOUSE_SERVICE) {
     case "prover":
       await makeProver(config, chainData);
@@ -22,6 +24,9 @@ export const makeLighthouse = async () => {
       break;
     case "process":
       await makeProcessFromRoot(config, chainData);
+      break;
+    case "sendoutboundroot":
+      await makeSendOutboundRoot(config, chainData);
       break;
   }
 };
