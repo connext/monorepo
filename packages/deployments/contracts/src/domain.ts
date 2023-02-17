@@ -29,7 +29,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
-  [1422, 0x707a6b65], // polygon-zkevm (pzkevm interperted as int) 1887071077
+  [1422, 0x707a6b74], // polygon-zkevm (pzkt interperted as int) 1887071092
   // local
   [1337, 133712],
   [1338, 133812],
