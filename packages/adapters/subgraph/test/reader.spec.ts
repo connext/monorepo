@@ -725,6 +725,7 @@ describe("SubgraphReader", () => {
         tokensSold: "100000",
         tokensBought: "100000",
         balances: ["100000", "100000"],
+        fee: "10000",
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),

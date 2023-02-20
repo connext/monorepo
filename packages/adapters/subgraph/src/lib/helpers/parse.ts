@@ -500,6 +500,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "tokensSold",
     "tokensBought",
     "balances",
+    "fee",
     "block",
     "transaction",
     "timestamp",
@@ -519,6 +520,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
   const tokensSold = +utils.formatUnits(String(entity.tokensSold), tokenDecimals[soldId]);
   const tokensBought = +utils.formatUnits(String(entity.tokensBought), tokenDecimals[boughtId]);
   const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+  const fee = +utils.formatUnits(String(entity.fee), tokenDecimals[boughtId]);
 
   return {
     id: entity.id,
@@ -530,6 +532,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     tokensSold,
     tokensBought,
     balances,
+    fee,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
     transactionHash: entity.transaction,
@@ -568,6 +571,9 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     (a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]),
   );
   const balances = entity.balances.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
+  const fees = !entity.fees
+    ? new Array(entity.tokenAmounts.length).fill(0)
+    : entity.fees.map((a: string, index: number) => +utils.formatUnits(a, tokenDecimals[index]));
 
   return {
     id: entity.id,
@@ -579,6 +585,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     poolTokenDecimals: tokenDecimals,
     tokenAmounts,
     balances,
+    fees,
     lpTokenSupply: +utils.formatEther(String(entity.lpTokenSupply)),
     lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),

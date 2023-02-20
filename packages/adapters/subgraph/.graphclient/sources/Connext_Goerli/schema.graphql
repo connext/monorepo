@@ -414,6 +414,7 @@ type goerli_DestinationTransfer {
   receiveLocal: Boolean
   callData: goerli_Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: goerli_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -421,8 +422,6 @@ type goerli_DestinationTransfer {
   asset: goerli_Asset
   amount: BigInt
   routersFee: BigInt
-  updatedSlippage: BigInt
-  bumpSlippageCount: BigInt
   executedCaller: goerli_Bytes
   executedTransactionHash: goerli_Bytes
   executedTimestamp: BigInt
@@ -551,6 +550,14 @@ input goerli_DestinationTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
   originSender: goerli_Bytes
   originSender_not: goerli_Bytes
   originSender_gt: goerli_Bytes
@@ -624,22 +631,6 @@ input goerli_DestinationTransfer_filter {
   routersFee_lte: BigInt
   routersFee_in: [BigInt!]
   routersFee_not_in: [BigInt!]
-  updatedSlippage: BigInt
-  updatedSlippage_not: BigInt
-  updatedSlippage_gt: BigInt
-  updatedSlippage_lt: BigInt
-  updatedSlippage_gte: BigInt
-  updatedSlippage_lte: BigInt
-  updatedSlippage_in: [BigInt!]
-  updatedSlippage_not_in: [BigInt!]
-  bumpSlippageCount: BigInt
-  bumpSlippageCount_not: BigInt
-  bumpSlippageCount_gt: BigInt
-  bumpSlippageCount_lt: BigInt
-  bumpSlippageCount_gte: BigInt
-  bumpSlippageCount_lte: BigInt
-  bumpSlippageCount_in: [BigInt!]
-  bumpSlippageCount_not_in: [BigInt!]
   executedCaller: goerli_Bytes
   executedCaller_not: goerli_Bytes
   executedCaller_gt: goerli_Bytes
@@ -785,6 +776,7 @@ enum goerli_DestinationTransfer_orderBy {
   receiveLocal
   callData
   slippage
+  bumpSlippageCount
   originSender
   bridgedAmt
   normalizedIn
@@ -799,8 +791,6 @@ enum goerli_DestinationTransfer_orderBy {
   asset__blockNumber
   amount
   routersFee
-  updatedSlippage
-  bumpSlippageCount
   executedCaller
   executedTransactionHash
   executedTimestamp
@@ -2505,14 +2495,13 @@ enum goerli_SlippageUpdate_orderBy {
   transfer__receiveLocal
   transfer__callData
   transfer__slippage
+  transfer__bumpSlippageCount
   transfer__originSender
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
   transfer__amount
   transfer__routersFee
-  transfer__updatedSlippage
-  transfer__bumpSlippageCount
   transfer__executedCaller
   transfer__executedTransactionHash
   transfer__executedTimestamp
