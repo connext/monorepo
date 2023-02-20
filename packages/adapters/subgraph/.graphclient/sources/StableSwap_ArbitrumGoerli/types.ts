@@ -634,6 +634,7 @@ export type arbitrumgoerli_swap_StableSwapExchange = {
   soldId: Scalars['BigInt'];
   tokensSold: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
+  fee: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['arbitrumgoerli_swap_Bytes'];
@@ -717,6 +718,14 @@ export type arbitrumgoerli_swap_StableSwapExchange_filter = {
   balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -774,6 +783,7 @@ export type arbitrumgoerli_swap_StableSwapExchange_orderBy =
   | 'soldId'
   | 'tokensSold'
   | 'balances'
+  | 'fee'
   | 'block'
   | 'timestamp'
   | 'transaction';
