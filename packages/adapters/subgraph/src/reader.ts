@@ -22,6 +22,7 @@ import {
   StableSwapPoolEvent,
   RelayerFeesIncrease,
   SlippageUpdate,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -58,6 +59,7 @@ import {
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getRouterDailyTVLQuery,
   getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
@@ -115,7 +117,11 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        blockNumberRes.set(domain, Number(blockInfo.block.number));
+        if (blockInfo.block?.number) {
+          blockNumberRes.set(domain, Number(blockInfo.block.number));
+        } else {
+          console.error(`No block number found for domain ${domain}!`);
+        }
       }
     }
     return blockNumberRes;
@@ -981,5 +987,31 @@ export class SubgraphReader {
       .map(parser.slippageUpdate);
 
     return slippageUpdates;
+  }
+
+  public async getRouterDailyTVLByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RouterDailyTVL[]> {
+    const { execute, parser } = getHelpers();
+    const tvlsQuery = getRouterDailyTVLQuery(agents);
+    const response = await execute(tvlsQuery);
+
+    const tvls: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _tvls = value?.flat();
+      tvls.push(
+        _tvls?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const routerTVLs: RouterDailyTVL[] = tvls
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.routerDailyTvl);
+
+    return routerTVLs;
   }
 }

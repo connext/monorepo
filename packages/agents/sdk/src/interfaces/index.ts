@@ -61,6 +61,14 @@ export const SdkBumpTransferParamsSchema = Type.Object({
 
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
+export const SdkUpdateSlippageSchema = Type.Object({
+  domainId: TIntegerString,
+  transferId: Type.String(),
+  slippage: TIntegerString,
+});
+
+export type SdkUpdateSlippage = Static<typeof SdkUpdateSlippageSchema>;
+
 export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,

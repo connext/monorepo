@@ -161,7 +161,20 @@ export type optimismgoerli_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type optimismgoerli_AssetStatus = {
@@ -292,7 +305,9 @@ export type optimismgoerli_Asset_orderBy =
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status';
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type optimismgoerli_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -774,6 +789,13 @@ export type optimismgoerli_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -929,7 +951,9 @@ export type optimismgoerli_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type optimismgoerli_OriginTransfer = {
   id: Scalars['ID'];
@@ -1260,7 +1284,23 @@ export type optimismgoerli_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'message'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
   | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
@@ -1280,6 +1320,8 @@ export type Query = {
   optimismgoerli_assetBalances: Array<optimismgoerli_AssetBalance>;
   optimismgoerli_router?: Maybe<optimismgoerli_Router>;
   optimismgoerli_routers: Array<optimismgoerli_Router>;
+  optimismgoerli_routerDailyTVL?: Maybe<optimismgoerli_RouterDailyTVL>;
+  optimismgoerli_routerDailyTVLs: Array<optimismgoerli_RouterDailyTVL>;
   optimismgoerli_setting?: Maybe<optimismgoerli_Setting>;
   optimismgoerli_settings: Array<optimismgoerli_Setting>;
   optimismgoerli_relayer?: Maybe<optimismgoerli_Relayer>;
@@ -1376,6 +1418,24 @@ export type Queryoptimismgoerli_routersArgs = {
   orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
   orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
   where?: InputMaybe<optimismgoerli_Router_filter>;
+  block?: InputMaybe<optimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimismgoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimismgoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimismgoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
+  where?: InputMaybe<optimismgoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<optimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1718,6 +1778,33 @@ export type optimismgoerli_RelayerFeesIncrease_filter = {
 export type optimismgoerli_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__relayerFee'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
   | 'increase'
   | 'caller'
   | 'transactionHash'
@@ -1938,6 +2025,107 @@ export type optimismgoerli_RouterassetBalancesArgs = {
   orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
   where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
 };
+
+export type optimismgoerli_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: optimismgoerli_Router;
+  asset: optimismgoerli_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type optimismgoerli_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<optimismgoerli_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterDailyTVL_filter>>>;
+};
+
+export type optimismgoerli_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
 
 export type optimismgoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -2201,6 +2389,40 @@ export type optimismgoerli_SlippageUpdate_filter = {
 export type optimismgoerli_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
   | 'slippage'
   | 'caller'
   | 'transactionHash'
@@ -2218,6 +2440,8 @@ export type Subscription = {
   optimismgoerli_assetBalances: Array<optimismgoerli_AssetBalance>;
   optimismgoerli_router?: Maybe<optimismgoerli_Router>;
   optimismgoerli_routers: Array<optimismgoerli_Router>;
+  optimismgoerli_routerDailyTVL?: Maybe<optimismgoerli_RouterDailyTVL>;
+  optimismgoerli_routerDailyTVLs: Array<optimismgoerli_RouterDailyTVL>;
   optimismgoerli_setting?: Maybe<optimismgoerli_Setting>;
   optimismgoerli_settings: Array<optimismgoerli_Setting>;
   optimismgoerli_relayer?: Maybe<optimismgoerli_Relayer>;
@@ -2314,6 +2538,24 @@ export type Subscriptionoptimismgoerli_routersArgs = {
   orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
   orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
   where?: InputMaybe<optimismgoerli_Router_filter>;
+  block?: InputMaybe<optimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimismgoerli_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimismgoerli_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimismgoerli_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
+  where?: InputMaybe<optimismgoerli_RouterDailyTVL_filter>;
   block?: InputMaybe<optimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2837,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimismgoerli_routers: InContextSdkMethod<Query['optimismgoerli_routers'], Queryoptimismgoerli_routersArgs, MeshContext>,
   /** null **/
+  optimismgoerli_routerDailyTVL: InContextSdkMethod<Query['optimismgoerli_routerDailyTVL'], Queryoptimismgoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  optimismgoerli_routerDailyTVLs: InContextSdkMethod<Query['optimismgoerli_routerDailyTVLs'], Queryoptimismgoerli_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   optimismgoerli_setting: InContextSdkMethod<Query['optimismgoerli_setting'], Queryoptimismgoerli_settingArgs, MeshContext>,
   /** null **/
   optimismgoerli_settings: InContextSdkMethod<Query['optimismgoerli_settings'], Queryoptimismgoerli_settingsArgs, MeshContext>,
@@ -2667,6 +2913,10 @@ export type _SubgraphErrorPolicy_ =
   optimismgoerli_router: InContextSdkMethod<Subscription['optimismgoerli_router'], Subscriptionoptimismgoerli_routerArgs, MeshContext>,
   /** null **/
   optimismgoerli_routers: InContextSdkMethod<Subscription['optimismgoerli_routers'], Subscriptionoptimismgoerli_routersArgs, MeshContext>,
+  /** null **/
+  optimismgoerli_routerDailyTVL: InContextSdkMethod<Subscription['optimismgoerli_routerDailyTVL'], Subscriptionoptimismgoerli_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  optimismgoerli_routerDailyTVLs: InContextSdkMethod<Subscription['optimismgoerli_routerDailyTVLs'], Subscriptionoptimismgoerli_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   optimismgoerli_setting: InContextSdkMethod<Subscription['optimismgoerli_setting'], Subscriptionoptimismgoerli_settingArgs, MeshContext>,
   /** null **/

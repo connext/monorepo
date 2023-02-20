@@ -101,35 +101,96 @@ CREATE TABLE public.checkpoints (
 
 
 --
--- Name: routers; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_router_tvl; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.routers (
-    address character(42) NOT NULL
+CREATE TABLE public.daily_router_tvl (
+    id character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL,
+    asset character(42) NOT NULL,
+    router character(42) NOT NULL,
+    day date NOT NULL,
+    balance character varying(255) NOT NULL
 );
 
 
 --
--- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
+-- Name: stableswap_exchanges; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE VIEW public.routers_with_balances AS
- SELECT routers.address,
-    asset_balances.asset_canonical_id,
-    asset_balances.asset_domain,
-    asset_balances.router_address,
-    asset_balances.balance,
-    assets.local,
-    assets.adopted,
-    assets.canonical_id,
-    assets.canonical_domain,
-    assets.domain,
-    assets.key,
-    assets.id,
-    asset_balances.fees_earned
-   FROM ((public.routers
-     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+CREATE TABLE public.stableswap_exchanges (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    buyer character(42) NOT NULL,
+    bought_id integer NOT NULL,
+    sold_id integer NOT NULL,
+    tokens_sold numeric NOT NULL,
+    tokens_bought numeric NOT NULL,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+);
+
+
+--
+-- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_pool_events (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    provider character(42) NOT NULL,
+    action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
+    pooled_tokens text[],
+    pool_token_decimals integer[],
+    token_amounts numeric[],
+    balances numeric[],
+    lp_token_amount numeric NOT NULL,
+    lp_token_supply numeric NOT NULL,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL
+);
+
+
+--
+-- Name: daily_swap_tvl; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_swap_tvl AS
+ SELECT e.pool_id,
+    e.domain,
+    (date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date AS day,
+    ARRAY( SELECT unnest((array_agg(e.balances ORDER BY e."timestamp" DESC))[1:1]) AS unnest) AS balances
+   FROM ( SELECT stableswap_pool_events.pool_id,
+            stableswap_pool_events.domain,
+            stableswap_pool_events.balances,
+            stableswap_pool_events."timestamp"
+           FROM public.stableswap_pool_events
+        UNION ALL
+         SELECT stableswap_exchanges.pool_id,
+            stableswap_exchanges.domain,
+            stableswap_exchanges.balances,
+            stableswap_exchanges."timestamp"
+           FROM public.stableswap_exchanges) e
+  GROUP BY e.pool_id, e.domain, ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date);
+
+
+--
+-- Name: daily_swap_volume; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_swap_volume AS
+ SELECT swap.pool_id,
+    swap.domain,
+    (date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date AS swap_day,
+    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
+    count(swap.pool_id) AS swap_count
+   FROM public.stableswap_exchanges swap
+  GROUP BY swap.pool_id, swap.domain, ((date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date);
 
 
 --
@@ -191,59 +252,9 @@ CREATE TABLE public.transfers (
     relayer_fee character varying(255),
     error_status character varying(255),
     backoff integer DEFAULT 32 NOT NULL,
-    next_execution_timestamp integer DEFAULT 0 NOT NULL
+    next_execution_timestamp integer DEFAULT 0 NOT NULL,
+    updated_slippage numeric
 );
-
-
---
--- Name: daily_router_tvl; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.daily_router_tvl AS
- SELECT latest_transfer.latest_transfer_day,
-    router_tvl.asset,
-    router_tvl.router_address AS router,
-    router_tvl.tvl
-   FROM (( SELECT rb.local AS asset,
-            rb.router_address,
-            sum(rb.balance) AS tvl
-           FROM public.routers_with_balances rb
-          GROUP BY rb.local, rb.router_address) router_tvl
-     CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
-           FROM public.transfers tf) latest_transfer);
-
-
---
--- Name: stableswap_exchanges; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.stableswap_exchanges (
-    id character varying(255) NOT NULL,
-    pool_id character(66) NOT NULL,
-    domain character varying(255) NOT NULL,
-    buyer character(42) NOT NULL,
-    bought_id integer NOT NULL,
-    sold_id integer NOT NULL,
-    tokens_sold numeric NOT NULL,
-    tokens_bought numeric NOT NULL,
-    block_number integer NOT NULL,
-    transaction_hash character(66) NOT NULL,
-    "timestamp" integer NOT NULL
-);
-
-
---
--- Name: daily_swap_volume; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.daily_swap_volume AS
- SELECT swap.pool_id,
-    swap.domain,
-    (date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date AS swap_day,
-    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
-    count(swap.pool_id) AS swap_count
-   FROM public.stableswap_exchanges swap
-  GROUP BY swap.pool_id, swap.domain, ((date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date);
 
 
 --
@@ -492,8 +503,43 @@ CREATE TABLE public.root_messages (
     block_number integer,
     processed boolean DEFAULT false NOT NULL,
     processed_transaction_hash character(66),
-    leaf_count numeric
+    leaf_count numeric,
+    sent_timestamp_secs integer,
+    sent_task_id character(66),
+    relayer_type text
 );
+
+
+--
+-- Name: routers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.routers (
+    address character(42) NOT NULL
+);
+
+
+--
+-- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.routers_with_balances AS
+ SELECT routers.address,
+    asset_balances.asset_canonical_id,
+    asset_balances.asset_domain,
+    asset_balances.router_address,
+    asset_balances.balance,
+    assets.local,
+    assets.adopted,
+    assets.canonical_id,
+    assets.canonical_domain,
+    assets.domain,
+    assets.key,
+    assets.id,
+    asset_balances.fees_earned
+   FROM ((public.routers
+     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
 
 
 --
@@ -518,28 +564,6 @@ CREATE VIEW public.router_tvl AS
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
-);
-
-
---
--- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.stableswap_pool_events (
-    id character varying(255) NOT NULL,
-    pool_id character(66) NOT NULL,
-    domain character varying(255) NOT NULL,
-    provider character(42) NOT NULL,
-    action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
-    pooled_tokens text[],
-    pool_token_decimals integer[],
-    token_amounts numeric[],
-    balances numeric[],
-    lp_token_amount numeric NOT NULL,
-    lp_token_supply numeric NOT NULL,
-    block_number integer NOT NULL,
-    transaction_hash character(66) NOT NULL,
-    "timestamp" integer NOT NULL
 );
 
 
@@ -719,6 +743,14 @@ ALTER TABLE ONLY public.assets
 
 ALTER TABLE ONLY public.checkpoints
     ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
+
+
+--
+-- Name: daily_router_tvl daily_router_tvl_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.daily_router_tvl
+    ADD CONSTRAINT daily_router_tvl_pkey PRIMARY KEY (id);
 
 
 --
@@ -928,4 +960,8 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230206131920'),
     ('20230207104528'),
     ('20230209013027'),
-    ('20230209043516');
+    ('20230209043516'),
+    ('20230213052113'),
+    ('20230213141356'),
+    ('20230214014310'),
+    ('20230215142524');

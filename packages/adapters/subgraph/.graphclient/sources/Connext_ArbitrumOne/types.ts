@@ -161,7 +161,20 @@ export type arbitrumone_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type arbitrumone_AssetStatus = {
@@ -292,7 +305,9 @@ export type arbitrumone_Asset_orderBy =
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status';
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type arbitrumone_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -774,6 +789,13 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -929,7 +951,9 @@ export type arbitrumone_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type arbitrumone_OriginTransfer = {
   id: Scalars['ID'];
@@ -1260,7 +1284,23 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'message'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
   | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
@@ -1280,6 +1320,8 @@ export type Query = {
   arbitrumone_assetBalances: Array<arbitrumone_AssetBalance>;
   arbitrumone_router?: Maybe<arbitrumone_Router>;
   arbitrumone_routers: Array<arbitrumone_Router>;
+  arbitrumone_routerDailyTVL?: Maybe<arbitrumone_RouterDailyTVL>;
+  arbitrumone_routerDailyTVLs: Array<arbitrumone_RouterDailyTVL>;
   arbitrumone_setting?: Maybe<arbitrumone_Setting>;
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
@@ -1376,6 +1418,24 @@ export type Queryarbitrumone_routersArgs = {
   orderBy?: InputMaybe<arbitrumone_Router_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Router_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RouterDailyTVL_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1718,6 +1778,33 @@ export type arbitrumone_RelayerFeesIncrease_filter = {
 export type arbitrumone_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__relayerFee'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
   | 'increase'
   | 'caller'
   | 'transactionHash'
@@ -1938,6 +2025,107 @@ export type arbitrumone_RouterassetBalancesArgs = {
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_AssetBalance_filter>;
 };
+
+export type arbitrumone_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: arbitrumone_Router;
+  asset: arbitrumone_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type arbitrumone_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<arbitrumone_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<arbitrumone_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RouterDailyTVL_filter>>>;
+};
+
+export type arbitrumone_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
 
 export type arbitrumone_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -2201,6 +2389,40 @@ export type arbitrumone_SlippageUpdate_filter = {
 export type arbitrumone_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
   | 'slippage'
   | 'caller'
   | 'transactionHash'
@@ -2218,6 +2440,8 @@ export type Subscription = {
   arbitrumone_assetBalances: Array<arbitrumone_AssetBalance>;
   arbitrumone_router?: Maybe<arbitrumone_Router>;
   arbitrumone_routers: Array<arbitrumone_Router>;
+  arbitrumone_routerDailyTVL?: Maybe<arbitrumone_RouterDailyTVL>;
+  arbitrumone_routerDailyTVLs: Array<arbitrumone_RouterDailyTVL>;
   arbitrumone_setting?: Maybe<arbitrumone_Setting>;
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
@@ -2314,6 +2538,24 @@ export type Subscriptionarbitrumone_routersArgs = {
   orderBy?: InputMaybe<arbitrumone_Router_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Router_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RouterDailyTVL_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2837,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumone_routers: InContextSdkMethod<Query['arbitrumone_routers'], Queryarbitrumone_routersArgs, MeshContext>,
   /** null **/
+  arbitrumone_routerDailyTVL: InContextSdkMethod<Query['arbitrumone_routerDailyTVL'], Queryarbitrumone_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerDailyTVLs: InContextSdkMethod<Query['arbitrumone_routerDailyTVLs'], Queryarbitrumone_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   arbitrumone_setting: InContextSdkMethod<Query['arbitrumone_setting'], Queryarbitrumone_settingArgs, MeshContext>,
   /** null **/
   arbitrumone_settings: InContextSdkMethod<Query['arbitrumone_settings'], Queryarbitrumone_settingsArgs, MeshContext>,
@@ -2667,6 +2913,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_router: InContextSdkMethod<Subscription['arbitrumone_router'], Subscriptionarbitrumone_routerArgs, MeshContext>,
   /** null **/
   arbitrumone_routers: InContextSdkMethod<Subscription['arbitrumone_routers'], Subscriptionarbitrumone_routersArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerDailyTVL: InContextSdkMethod<Subscription['arbitrumone_routerDailyTVL'], Subscriptionarbitrumone_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerDailyTVLs: InContextSdkMethod<Subscription['arbitrumone_routerDailyTVLs'], Subscriptionarbitrumone_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   arbitrumone_setting: InContextSdkMethod<Subscription['arbitrumone_setting'], Subscriptionarbitrumone_settingArgs, MeshContext>,
   /** null **/

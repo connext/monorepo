@@ -17,7 +17,7 @@ import Broker from "foo-foo-mq";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid } from "../../../../src/lib/errors";
 import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
@@ -654,7 +654,7 @@ describe("Operations:Execute:FastPath", () => {
 
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(BigNumber.from("1"));
 
-      await executeFastPathData(mkBytes32(), requestContext);
+      await expect(executeFastPathData(mkBytes32(), requestContext)).to.be.rejectedWith(NoBidsSent);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);

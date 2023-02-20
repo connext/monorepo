@@ -161,7 +161,20 @@ export type mainnet_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type mainnet_AssetStatus = {
@@ -292,7 +305,9 @@ export type mainnet_Asset_orderBy =
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status';
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type mainnet_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -774,6 +789,13 @@ export type mainnet_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -929,7 +951,9 @@ export type mainnet_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type mainnet_OriginTransfer = {
   id: Scalars['ID'];
@@ -1260,7 +1284,23 @@ export type mainnet_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'message'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
   | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
@@ -1280,6 +1320,8 @@ export type Query = {
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
   mainnet_routers: Array<mainnet_Router>;
+  mainnet_routerDailyTVL?: Maybe<mainnet_RouterDailyTVL>;
+  mainnet_routerDailyTVLs: Array<mainnet_RouterDailyTVL>;
   mainnet_setting?: Maybe<mainnet_Setting>;
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
@@ -1376,6 +1418,24 @@ export type Querymainnet_routersArgs = {
   orderBy?: InputMaybe<mainnet_Router_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Router_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RouterDailyTVL_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1718,6 +1778,33 @@ export type mainnet_RelayerFeesIncrease_filter = {
 export type mainnet_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__relayerFee'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
   | 'increase'
   | 'caller'
   | 'transactionHash'
@@ -1938,6 +2025,107 @@ export type mainnet_RouterassetBalancesArgs = {
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_AssetBalance_filter>;
 };
+
+export type mainnet_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: mainnet_Router;
+  asset: mainnet_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type mainnet_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<mainnet_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<mainnet_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RouterDailyTVL_filter>>>;
+};
+
+export type mainnet_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
 
 export type mainnet_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -2201,6 +2389,40 @@ export type mainnet_SlippageUpdate_filter = {
 export type mainnet_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
   | 'slippage'
   | 'caller'
   | 'transactionHash'
@@ -2218,6 +2440,8 @@ export type Subscription = {
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
   mainnet_routers: Array<mainnet_Router>;
+  mainnet_routerDailyTVL?: Maybe<mainnet_RouterDailyTVL>;
+  mainnet_routerDailyTVLs: Array<mainnet_RouterDailyTVL>;
   mainnet_setting?: Maybe<mainnet_Setting>;
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
@@ -2314,6 +2538,24 @@ export type Subscriptionmainnet_routersArgs = {
   orderBy?: InputMaybe<mainnet_Router_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Router_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RouterDailyTVL_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2595,6 +2837,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_routers: InContextSdkMethod<Query['mainnet_routers'], Querymainnet_routersArgs, MeshContext>,
   /** null **/
+  mainnet_routerDailyTVL: InContextSdkMethod<Query['mainnet_routerDailyTVL'], Querymainnet_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVLs: InContextSdkMethod<Query['mainnet_routerDailyTVLs'], Querymainnet_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   mainnet_setting: InContextSdkMethod<Query['mainnet_setting'], Querymainnet_settingArgs, MeshContext>,
   /** null **/
   mainnet_settings: InContextSdkMethod<Query['mainnet_settings'], Querymainnet_settingsArgs, MeshContext>,
@@ -2667,6 +2913,10 @@ export type _SubgraphErrorPolicy_ =
   mainnet_router: InContextSdkMethod<Subscription['mainnet_router'], Subscriptionmainnet_routerArgs, MeshContext>,
   /** null **/
   mainnet_routers: InContextSdkMethod<Subscription['mainnet_routers'], Subscriptionmainnet_routersArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVL: InContextSdkMethod<Subscription['mainnet_routerDailyTVL'], Subscriptionmainnet_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVLs: InContextSdkMethod<Subscription['mainnet_routerDailyTVLs'], Subscriptionmainnet_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   mainnet_setting: InContextSdkMethod<Subscription['mainnet_setting'], Subscriptionmainnet_settingArgs, MeshContext>,
   /** null **/

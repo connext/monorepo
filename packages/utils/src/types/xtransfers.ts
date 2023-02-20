@@ -16,6 +16,7 @@ export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
   LowRelayerFee: "LowRelayerFee",
   ExecutionError: "ExecutionError",
+  NoBidsReceived: "NoBidsReceived",
 } as const;
 export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
 
@@ -63,6 +64,8 @@ export const XTransferDestinationSchema = Type.Object({
   status: Type.Enum(XTransferStatus),
   // Both Executed and Reconciled events emit `routers`.
   routers: Type.Array(TAddress),
+
+  updatedSlippage: Type.Optional(TIntegerString),
 
   // Assets
   assets: Type.Object({
@@ -250,3 +253,13 @@ export const SlippageUpdateSchema = Type.Object({
   timestamp: Type.Number(),
 });
 export type SlippageUpdate = Static<typeof SlippageUpdateSchema>;
+
+export const RouterDailyTVLSchema = Type.Object({
+  id: Type.String(),
+  asset: TAddress,
+  router: TAddress,
+  domain: Type.String(),
+  timestamp: Type.Number(),
+  balance: TIntegerString,
+});
+export type RouterDailyTVL = Static<typeof RouterDailyTVLSchema>;

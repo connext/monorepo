@@ -17,6 +17,8 @@ import {
   StableSwapExchange,
   XTransferErrorStatus,
   StableSwapPoolEvent,
+  RouterDailyTVL,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -120,6 +122,9 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
     leaf_count: message.count,
+    sent_task_id: message.sentTaskId,
+    sent_timestamp_secs: message.sentTimestamp,
+    relayer_type: message.relayerType,
   };
 };
 
@@ -183,6 +188,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     tokens_sold: exchange.tokensSold,
     tokens_bought: exchange.tokensBought,
     balances: exchange.balances,
+    fee: exchange.fee,
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
@@ -200,11 +206,23 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     pool_token_decimals: event.poolTokenDecimals,
     token_amounts: event.tokenAmounts,
     balances: event.balances,
+    fees: event.fees,
     lp_token_amount: event.lpTokenAmount,
     lp_token_supply: event.lpTokenSupply,
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+  };
+};
+
+const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Insertable => {
+  return {
+    id: tvl.id,
+    domain: tvl.domain,
+    asset: tvl.asset,
+    router: tvl.router,
+    day: new Date(tvl.timestamp * 1000),
+    balance: tvl.balance,
   };
 };
 
@@ -265,7 +283,11 @@ export const saveSentRootMessages = async (
     .map(sanitizeNull);
 
   // use upsert here. if the message exists, we don't want to overwrite anything, just add the sent tx hash
-  await db.upsert("root_messages", messages, ["id"], { updateColumns: ["sent_transaction_hash"] }).run(poolToUse);
+  await db
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["sent_transaction_hash", "sent_timestamp_secs", "sent_task_id", "relayer_type"],
+    })
+    .run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (
@@ -818,4 +840,28 @@ export const saveStableSwapPoolEvent = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveRouterDailyTVL = async (
+  _tvls: RouterDailyTVL[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
+
+  await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const updateSlippage = async (
+  _slippageUpdates: SlippageUpdate[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  // todo can this be done in a single query?
+  for (const update of _slippageUpdates) {
+    await db
+      .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
+      .run(poolToUse);
+  }
 };
