@@ -73,21 +73,14 @@ export async function getParams() {
   await harbor.authenticate();
   if (typeof testnetName === "string") {
     testnet = await harbor.testnet(testnetName);
-    const chains = testnet.chains();
-    chains.forEach((chain) => { 
-      if (chain.chain == "ethereum") {
-        params.A.RPC = [chain.endpoint];
-      }
-      if (chain.chain == "polygon") { 
-        params.B.RPC = [chain.endpoint];
-      }
-    });
+    if(testnet.ethereum){
+      params.A.RPC = [testnet.ethereum.endpoint];
+    }
+    if(testnet.polygon){
+      params.B.RPC = [testnet.polygon.endpoint];
+    }
     const offChainActors = testnet.offChainActors();
-    offChainActors.forEach((actor) => {
-      if (actor.name == "cartographerApi") {
-        params.AGENTS.CARTOGRAPHER.url = "http://" + actor.endpoint + ":" + actor.ports()[0];
-      }
-    });
+    params.AGENTS.CARTOGRAPHER.url = "http://" + offChainActors.cartographerApi.endpoint + ":" + offChainActors.cartographerApi.ports()[0];
   }
   return params;
 };
