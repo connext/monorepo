@@ -20,6 +20,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [137, 0x706f6c79], // Polygon (poly interpreted as int) 1886350457
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int) 1650811245
   [42161, 0x6172626f], // Arbitrum One ('arbo interpreted as int) 1634886255
+  [324, 0x7a6b7363], // zkSync2 Mainnet ('zksc interpreted as int) 2053862243
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
@@ -29,6 +30,7 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
+  [280, 0x7a6b7374], // zkSync2 Testnet (zkst interpreted as int) 2053862260
   // local
   [1337, 133712],
   [1338, 133812],

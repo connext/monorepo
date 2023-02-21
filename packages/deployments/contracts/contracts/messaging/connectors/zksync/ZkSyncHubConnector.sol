@@ -26,7 +26,6 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    address _stateCommitmentChain,
     uint256 _gasCap
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GasCap(_gasCap) {}
 

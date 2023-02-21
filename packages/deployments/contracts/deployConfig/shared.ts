@@ -327,6 +327,25 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      280: {
+        prefix: "ZkSync",
+        ambs: {
+          // zkSync Diamond on goerli
+          // https://goerli.etherscan.io/address/0x1908e2bf4a88f91e4ef0dc72f02b8ea36bea2319
+          hub: "0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319",
+          // zkSync on testnet
+          // https://goerli.explorer.zksync.io/address/0x00ff932A6d70E2B8f1Eb4919e1e09C1923E7e57b
+          spoke: "0x00ff932A6d70E2B8f1Eb4919e1e09C1923E7e57b",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
       // 97: {
       //   prefix: "Multichain",
       //   networkName: "Chapel",
