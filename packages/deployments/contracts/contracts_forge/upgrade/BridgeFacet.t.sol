@@ -13,7 +13,7 @@ contract BridgeFacetUpgradeTest is MotherForker {
     vm.deal(USER, 10000 ether);
   }
 
-  function test_fastPath() public {
+  function test_xcall() public {
     // Loop through all forks as sending chains.
     for (uint256 i; i < FORK_IDS.length; i++) {
       uint256 forkId = FORK_IDS[i];
@@ -24,7 +24,7 @@ contract BridgeFacetUpgradeTest is MotherForker {
       ForkInfo memory info = forkInfo[forkId];
       address connext = info.connext;
 
-      // We need to test bridging every single asset listed.
+      // We need to test bridging `xcall` on every fork.
       for (uint256 j; j < info.assets.length; j++) {
         // TODO: deal the user the target ERC20 asset (by spoofing state?)
         // TODO: User needs to approve connext for target amount
