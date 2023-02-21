@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.7-alpha.2
+
+- [sdk] optimisation for fee caclulation
+
 ## Amarok 0.2.7-alpha.1
 
 - [sequencer] extra errors
