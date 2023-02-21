@@ -37,26 +37,29 @@ export const setupAsset = async (
       const CanonicalErc20 = new utils.Interface(ERC20Abi);
       let canonicalName;
       let canonicalSymbol;
+      console.log("____", { domain });
       // Get canonical name.
       {
         const readData = CanonicalErc20.encodeFunctionData("name");
-        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.adopted });
+        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.local });
         [canonicalName] = CanonicalErc20.decodeFunctionResult("name", encoded);
       }
       // Get canonical symbol.
       {
         const readData = CanonicalErc20.encodeFunctionData("symbol");
-        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.adopted });
+        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.local });
         [canonicalSymbol] = CanonicalErc20.decodeFunctionResult("symbol", encoded);
       }
 
       // @ts-ignore
-      if (canonical.domain === +domain.domain) {
+      console.log("VALUES", { canonical, domain });
+      if (canonical.domain == domain.domain) {
+        console.log("XXXXX");
         const data = ConnextInterface.encodeFunctionData("setupAsset", [
           [canonical.domain, canonicalId],
           `next${canonicalName}`,
           `next${canonicalSymbol}`,
-          domain.adopted,
+          constants.AddressZero,
           domain.pool ?? constants.AddressZero,
           domain.cap ?? "0",
         ]);
@@ -66,6 +69,7 @@ export const setupAsset = async (
           requestContext,
         );
       } else {
+        console.log("YYYY");
         const data = ConnextInterface.encodeFunctionData("setupAssetWithDeployedRepresentation", [
           [canonical.domain, canonicalId],
           domain.local,
