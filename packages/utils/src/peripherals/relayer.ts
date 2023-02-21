@@ -72,13 +72,18 @@ export const calculateRelayerFee = async (
   if (destinationChainId == 10) {
     // consider l1gas for optimism network
     if (logger) {
-      logger.info("Adding l1Gas", requestContext, methodContext, { executeGasAmount, executeL1GasAmount });
       const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
         1,
         constants.AddressZero,
         Number(executeL1GasAmount),
         isHighPriority,
       );
+
+      logger.info("Adding l1Gas", requestContext, methodContext, {
+        executeGasAmount,
+        executeL1GasAmount,
+        l1EstimatedRelayerFee: l1EstimatedRelayerFee.toString(),
+      });
 
       estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
     }
