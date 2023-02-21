@@ -2,6 +2,7 @@ import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { canonizeId, ConnextInterface } from "@connext/nxtp-contracts";
 import { constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
+import { ERC20Abi } from "@connext/nxtp-utils";
 
 export const setupAsset = async (
   canonical: { tokenAddress: string; domain: string },
@@ -32,13 +33,29 @@ export const setupAsset = async (
     // Check if Canonical
 
     if (needsSetup) {
+      // Get name and symbol for canonical asset.
+      const CanonicalErc20 = new utils.Interface(ERC20Abi);
+      let canonicalName;
+      let canonicalSymbol;
+      // Get canonical name.
+      {
+        const readData = CanonicalErc20.encodeFunctionData("name");
+        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.adopted });
+        [canonicalName] = CanonicalErc20.decodeFunctionResult("name", encoded);
+      }
+      // Get canonical symbol.
+      {
+        const readData = CanonicalErc20.encodeFunctionData("symbol");
+        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.adopted });
+        [canonicalSymbol] = CanonicalErc20.decodeFunctionResult("symbol", encoded);
+      }
+
       // @ts-ignore
       if (canonical.domain === +domain.domain) {
-        //TODO: Get representation
-
         const data = ConnextInterface.encodeFunctionData("setupAsset", [
           [canonical.domain, canonicalId],
-          domain.local,
+          `next${canonicalName}`,
+          `next${canonicalSymbol}`,
           domain.adopted,
           domain.pool ?? constants.AddressZero,
           domain.cap ?? "0",
