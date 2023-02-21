@@ -19,32 +19,48 @@ export const setupAsset = async (
   for (const domain of domains) {
     logger.info("setupAsset", requestContext, methodContext, { domain });
     const readData = ConnextInterface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]);
-    const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.Connext });
-    const [adopted] = ConnextInterface.decodeFunctionResult("canonicalToAdopted(bytes32)", encoded);
+    let needsSetup = false;
+    try {
+      const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.Connext });
+      const [adopted] = ConnextInterface.decodeFunctionResult("canonicalToAdopted(bytes32)", encoded);
+      needsSetup = adopted !== domain.adopted;
+    } catch {
+      //Needs to setup the asset from scratch
+      needsSetup = true;
+    }
+    // const [adopted] = ConnextInterface.decodeFunctionResult("canonicalToAdopted(bytes32)", encoded);
+    // Check if Canonical
 
-    if (adopted !== domain.adopted) {
+    if (needsSetup) {
       // @ts-ignore
-      const data = ConnextInterface.encodeFunctionData("setupAssetWithDeployedRepresentation", [
-        [canonical.domain, canonicalId],
-        domain.local,
-        domain.adopted,
-        domain.pool ?? constants.AddressZero,
-        domain.cap ?? "0",
-      ]);
-      // tx = await connext.setupAsset(
-      //   canonicalTokenId,
-      //   decimals,
-      //   representationName,
-      //   representationSymbol,
-      //   adopted,
-      //   pool,
-      //   cap,
-      // );
+      if (canonical.domain === +domain.domain) {
+        //TODO: Get representation
 
-      await txService.sendTx(
-        { to: domain.Connext, data, value: constants.Zero, chainId: +domain.domain },
-        requestContext,
-      );
+        const data = ConnextInterface.encodeFunctionData("setupAsset", [
+          [canonical.domain, canonicalId],
+          domain.local,
+          domain.adopted,
+          domain.pool ?? constants.AddressZero,
+          domain.cap ?? "0",
+        ]);
+
+        await txService.sendTx(
+          { to: domain.Connext, data, value: constants.Zero, chainId: +domain.domain },
+          requestContext,
+        );
+      } else {
+        const data = ConnextInterface.encodeFunctionData("setupAssetWithDeployedRepresentation", [
+          [canonical.domain, canonicalId],
+          domain.local,
+          domain.adopted,
+          domain.pool ?? constants.AddressZero,
+        ]);
+
+        await txService.sendTx(
+          { to: domain.Connext, data, value: constants.Zero, chainId: +domain.domain },
+          requestContext,
+        );
+      }
     }
   }
 };
