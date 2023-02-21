@@ -14,11 +14,11 @@ export type GasEstimates = {
 };
 
 export const getHardcodedGasLimits = async (
-  chainId: number,
+  domainId: string,
   chainData?: Map<string, ChainData>,
 ): Promise<GasEstimates> => {
   const chaindata = chainData ?? (await getChainData());
-  const chainInfo = chaindata?.get(chainId.toString()) ?? chainData?.get("0");
+  const chainInfo = chaindata?.get(domainId) ?? chainData?.get("0");
   if (!chainInfo) return DEFAULT_GAS_ESTIMATES;
 
   const execute = chainInfo.gasEstimates?.execute ?? DEFAULT_GAS_ESTIMATES.execute;
