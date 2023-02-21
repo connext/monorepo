@@ -4,7 +4,7 @@
 
 ## Amarok 0.2.7-alpha.2
 
-- [sdk] optimisation for fee caclulation
+- [sdk] optimisation for fee caclulation on optimism
 
 ## Amarok 0.2.7-alpha.1
 
