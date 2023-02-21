@@ -64,21 +64,23 @@ export const PARAMETERS = {
 
 export async function getParams() {
   let testnet: Testnet;
-  const testnetName = await getTestnetName();
+  // const testnetName = await getTestnetName();
+  // const testnetName = "connext-demo";
+  const testnetName = "few-house";
   const params = PARAMETERS;
   const harbor = new Harbor({
     userKey: "66t1DdSLuFnoAuVccZEkoN",
-    projectKey: "xkfSjdSLuFnoAuVccX7j22"
+    projectKey: "xkfSjdSLuFnoAuVccX7j22",
   });
   await harbor.authenticate();
   if (typeof testnetName === "string") {
     testnet = await harbor.testnet(testnetName);
     const chains = testnet.chains();
-    chains.forEach((chain) => { 
+    chains.forEach((chain) => {
       if (chain.chain == "ethereum") {
         params.A.RPC = [chain.endpoint];
       }
-      if (chain.chain == "polygon") { 
+      if (chain.chain == "polygon") {
         params.B.RPC = [chain.endpoint];
       }
     });
@@ -90,4 +92,4 @@ export async function getParams() {
     });
   }
   return params;
-};
+}

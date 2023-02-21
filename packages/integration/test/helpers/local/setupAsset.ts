@@ -31,6 +31,15 @@ export const setupAsset = async (
         domain.pool ?? constants.AddressZero,
         domain.cap ?? "0",
       ]);
+      // tx = await connext.setupAsset(
+      //   canonicalTokenId,
+      //   decimals,
+      //   representationName,
+      //   representationSymbol,
+      //   adopted,
+      //   pool,
+      //   cap,
+      // );
 
       await txService.sendTx(
         { to: domain.Connext, data, value: constants.Zero, chainId: +domain.domain },

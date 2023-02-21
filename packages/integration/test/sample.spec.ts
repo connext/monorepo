@@ -1,7 +1,7 @@
-import Harbor from '@harbor-xyz/harbor';
-import { Testnet } from '@harbor-xyz/harbor/dist/harbor_sdk/types';
+import Harbor from "@harbor-xyz/harbor";
+import { Testnet } from "@harbor-xyz/harbor/dist/harbor_sdk/types";
 import { expect } from "chai";
-import { getLastCommit } from 'git-last-commit';
+import { getLastCommit } from "git-last-commit";
 // import { providers, Contract } from "ethers";
 
 export default function getTestnetName() {
@@ -18,24 +18,24 @@ export default function getTestnetName() {
 }
 
 describe("Harbor Test E2E", function () {
-
   let harbor: Harbor;
   let testnetName: unknown;
   let testnet: Testnet;
 
   before(async () => {
-    testnetName = await getTestnetName();
-    // testnetName = "sha-b0c3e99";
+    // testnetName = await getTestnetName();
+    testnetName = "connext-demo";
 
     harbor = new Harbor({
       userKey: "66t1DdSLuFnoAuVccZEkoN",
-      projectKey: "xkfSjdSLuFnoAuVccX7j22"
+      projectKey: "xkfSjdSLuFnoAuVccX7j22",
     });
     await harbor.authenticate();
     if (typeof testnetName === "string") {
       testnet = await harbor.testnet(testnetName);
-    // testnet = harbor.clone("sha-b0c3e99", "new-testnet");
-    // testnet = harbor.apply(configPath, "new-testnet");
+      // testnet = harbor.clone("sha-b0c3e99", "new-testnet");
+      // const configPath = "/Users/preetham/connext/repo/harbor/ci-cd/monorepo/harbor.config.json";
+      // testnet = await harbor.apply(configPath, testnetName);
     }
   });
 
@@ -57,7 +57,7 @@ describe("Harbor Test E2E", function () {
     });
   });
 
-  it('Checks if the Offchain actors exists', async function () {
+  it("Checks if the Offchain actors exists", async function () {
     const offChainActors = testnet.offChainActors();
     console.log(`\n\n==========offChainActors(${offChainActors.length})==========`);
     console.log(offChainActors);
@@ -67,7 +67,7 @@ describe("Harbor Test E2E", function () {
     });
   });
 
-  it('Restart router-cache', async function () {
+  it("Restart router-cache", async function () {
     console.log("Stopping router-cache");
     testnet = await harbor.stop(testnet.name, "routerCache");
     let offChainActors = testnet.offChainActors();
@@ -113,4 +113,3 @@ describe("Harbor Test E2E", function () {
   //   harbor.stop(testnetName);
   // });
 });
-
