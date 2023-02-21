@@ -1,6 +1,6 @@
 import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { canonizeId, ConnextInterface } from "@connext/nxtp-contracts";
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
@@ -37,6 +37,7 @@ export const setupAsset = async (
       const CanonicalErc20 = new utils.Interface(ERC20Abi);
       let canonicalName;
       let canonicalSymbol;
+      let canonicalDecimals;
       console.log("____", { domain });
       // Get canonical name.
       {
@@ -50,6 +51,12 @@ export const setupAsset = async (
         const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.local });
         [canonicalSymbol] = CanonicalErc20.decodeFunctionResult("symbol", encoded);
       }
+      // Get canonical decimals.
+      {
+        const readData = CanonicalErc20.encodeFunctionData("decimals");
+        const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.local });
+        [canonicalDecimals] = CanonicalErc20.decodeFunctionResult("decimals", encoded);
+      }
 
       // @ts-ignore
       console.log("VALUES", { canonical, domain });
@@ -57,6 +64,7 @@ export const setupAsset = async (
         console.log("XXXXX");
         const data = ConnextInterface.encodeFunctionData("setupAsset", [
           [canonical.domain, canonicalId],
+          BigNumber.from(canonicalDecimals),
           `next${canonicalName}`,
           `next${canonicalSymbol}`,
           constants.AddressZero,
