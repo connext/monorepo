@@ -106,45 +106,26 @@ describe("Harbor Test E2E", function () {
     }
   });
 
-  it.only('Quick test on Account Balances and ABIs', async function () {
-    const chainOne = testnet.ethereum;
-    const wallets = await chainOne.wallets();
-    console.log(`\n\n==========wallets(${wallets.length})==========`);
-    console.log(wallets);
-    const contracts = await chainOne.contracts();
-    console.log(`\n\n==========contracts(${Object.keys(contracts).length})==========`);
-    // console.log(contracts);
-    const connext_contract = contracts.Connext;
-    const address = connext_contract.address;
-    console.log(address);
-    console.log(connext_contract.balances);
-    const abis = connext_contract.abi;
-    const provider = new providers.JsonRpcProvider(chainOne.endpoint);
-    if (abis && abis.length > 0) {
-      console.log(`\n\n==========ABIs(${abis.length})==========`);
-      const addContract = new Contract(address, abis, provider);
-      console.log(addContract);
-    }
-
-
-    
-    // accounts.forEach((account) => {
-    //   // console.log(account);
-    //   if (account.type === "contract" && account.name === "Connext") {
-    //     const address = account.address;
-    //     const provider = new providers.JsonRpcProvider(chainOne.endpoint);
-    //     // console.log(`\n\naddress: (${address})`);
-    //     console.log(account.balances);
-    //     expect(account.balances[0].symbol).to.equal("ETH");
-    //     const abis = account.abi;
-    //     if (abis && abis.length > 0) {
-    //       console.log(`\n\n==========ABIs(${abis.length})==========`);
-    //       const addContract = new Contract(address, abis, provider);
-    //       console.log(addContract);
-    //     }
-    //   }
-    // });
-  });
+  // it('Quick test on Account Balances and ABIs', async function () {
+  //   const chainOne = testnet.ethereum;
+  //   const wallets = await chainOne.wallets();
+  //   console.log(`\n\n==========wallets(${wallets.length})==========`);
+  //   console.log(wallets);
+  //   const contracts = await chainOne.contracts();
+  //   console.log(`\n\n==========contracts(${Object.keys(contracts).length})==========`);
+  //   // console.log(contracts);
+  //   const connext_contract = contracts.Connext;
+  //   const address = connext_contract.address;
+  //   console.log(address);
+  //   console.log(connext_contract.balances);
+  //   const abis = connext_contract.abi;
+  //   const provider = new providers.JsonRpcProvider(chainOne.endpoint);
+  //   if (abis && abis.length > 0) {
+  //     console.log(`\n\n==========ABIs(${abis.length})==========`);
+  //     const addContract = new Contract(address, abis, provider);
+  //     console.log(addContract);
+  //   }
+  // });
 
   // after(async () => {
   //   harbor.stop(testnetName);
