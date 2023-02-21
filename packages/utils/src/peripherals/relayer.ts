@@ -50,7 +50,7 @@ export const calculateRelayerFee = async (
     execute: executeGasAmount,
     executeL1: executeL1GasAmount,
     gasPriceFactor,
-  } = await getHardcodedGasLimits(originChainId, chainData);
+  } = await getHardcodedGasLimits(destinationDomain, chainData);
   if (logger) {
     logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
