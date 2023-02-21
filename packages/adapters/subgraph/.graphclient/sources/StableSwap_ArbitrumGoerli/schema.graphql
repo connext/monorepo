@@ -651,6 +651,7 @@ type arbitrumgoerli_swap_StableSwapExchange {
   soldId: BigInt!
   tokensSold: BigInt!
   balances: [BigInt!]!
+  fee: BigInt!
   block: BigInt!
   timestamp: BigInt!
   transaction: arbitrumgoerli_swap_Bytes!
@@ -734,6 +735,14 @@ input arbitrumgoerli_swap_StableSwapExchange_filter {
   balances_contains_nocase: [BigInt!]
   balances_not_contains: [BigInt!]
   balances_not_contains_nocase: [BigInt!]
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -791,6 +800,7 @@ enum arbitrumgoerli_swap_StableSwapExchange_orderBy {
   soldId
   tokensSold
   balances
+  fee
   block
   timestamp
   transaction
