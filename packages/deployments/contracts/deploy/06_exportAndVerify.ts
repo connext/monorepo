@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { getDomainFromString } from "../src";
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -8,7 +7,6 @@ import { getDomainFromString } from "../src";
  * @param hre Hardhat environment to deploy to
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
-  console.log(getDomainFromString("zksc"));
   console.log("\n============================= Exporting + Verifying Deployments ===============================");
   await hre.run("export", {
     exportAll: "./deployments.json",
@@ -21,4 +19,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 func.tags = ["ExportAndVerify", "prod"];
-//func.dependencies = ["Connext"];
+func.dependencies = ["Connext"];
