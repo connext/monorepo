@@ -286,7 +286,7 @@ export const hardhatNetworks = {
   "zksync2-testnet": {
     accounts: { mnemonic },
     chainId: 280,
-    url: urlOverride || process.env.GNOSIS_TESTNET_PROVIDER_URL || "https://zksync2-testnet.zksync.dev",
+    url: process.env.ZKSYNC2_TESTNET_PROVIDER_URL || "https://zksync2-testnet.zksync.dev",
     companionNetworks: {
       hub: "goerli",
     },
