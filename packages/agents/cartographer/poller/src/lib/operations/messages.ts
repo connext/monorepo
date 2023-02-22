@@ -10,6 +10,7 @@ export const retrieveOriginMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveOriginMessages.name);
 
+  console.log("domains: ", domains);
   for (const domain of domains) {
     const offset = await database.getCheckPoint("message_" + domain);
     const limit = 100;

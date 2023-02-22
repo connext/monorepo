@@ -603,6 +603,7 @@ export class SubgraphReader {
   ): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
+    console.log("originMessageQuery: ", originMessageQuery);
     const response = await execute(originMessageQuery);
     const _messages: any[] = [];
     for (const key of response.keys()) {
