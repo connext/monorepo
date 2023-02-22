@@ -2500,6 +2500,7 @@ __metadata:
     ts-node: 10.9.1
     typechain: 8.1.1
     typescript: 4.9.5
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -28844,6 +28845,15 @@ __metadata:
   bin:
     zapatos: dist/generate/cli.js
   checksum: b28f53bc040127b357b9fe54947694d6ffe0201e79198e0f5666bb9f97c5d29d55287dff6efd58a1676d7c990a115019d4bc1b8cf8a44b5994525bfca24be105
+  languageName: node
+  linkType: hard
+
+"zksync-web3@npm:^0.13.0":
+  version: 0.13.4
+  resolution: "zksync-web3@npm:0.13.4"
+  peerDependencies:
+    ethers: ^5.7.0
+  checksum: 628d91a2c699d8977ba560f271d1f78692f3b65e9fd2aa2fd568460040c4dc4cf230aba6382283f5d8d7f3f0b796ebf5ea09d39b78be1d869702dea1a45baf40
   languageName: node
   linkType: hard
 

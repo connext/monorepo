@@ -86,7 +86,8 @@
     "hardhat-deploy": "0.11.23",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
-    "typechain": "8.1.1"
+    "typechain": "8.1.1",
+    "zksync-web3": "^0.13.0"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"
