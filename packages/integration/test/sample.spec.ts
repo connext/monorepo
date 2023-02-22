@@ -25,7 +25,7 @@ describe("Harbor Test E2E", function () {
 
   before(async () => {
     //testnetName = await getTestnetName();
-    testnetName = "sha-b0c3e99";
+    testnetName = "connext-23-feb";
 
     harbor = new Harbor({
       userKey: "66t1DdSLuFnoAuVccZEkoN",

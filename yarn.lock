@@ -2148,7 +2148,7 @@ __metadata:
     "@connext/sdk": "workspace:*"
     "@connext/smart-contracts": "workspace:*"
     "@types/chai": 4.3.4
-    "@harbor-xyz/harbor": ^0.4.5
+    "@harbor-xyz/harbor": ^0.4.9
     "@types/chai-as-promised": 7.1.5
     "@types/chai-subset": 1.3.3
     "@types/mocha": 10.0.1
@@ -5001,23 +5001,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@harbor-xyz/harbor-cli@npm:^0.4.5":
-  version: 0.4.5
-  resolution: "@harbor-xyz/harbor-cli@npm:0.4.5"
+"@harbor-xyz/harbor-cli@npm:^0.4.8":
+  version: 0.4.8
+  resolution: "@harbor-xyz/harbor-cli@npm:0.4.8"
   dependencies:
     mkdirp: ^1.0.4
-  checksum: ce938895c2c02dcb08c609235fa24bd5f6948861b9f31dc5f60708b775e4cf5dbd0221dd500c48351fd4df1d5c1af6baabf34516fa68ba101a01b719972b5d56
+  checksum: 1cd48e0ca45fc51132cdd5a7281dd26b845825cb118a0c11f534dd0b10c322a82d435a9ccccc8923aec042684d74b80c422ab67c98fa5beca3edf73cb838fb67
   languageName: node
   linkType: hard
 
-"@harbor-xyz/harbor@npm:^0.4.5":
-  version: 0.4.5
-  resolution: "@harbor-xyz/harbor@npm:0.4.5"
+"@harbor-xyz/harbor@npm:^0.4.9":
+  version: 0.4.9
+  resolution: "@harbor-xyz/harbor@npm:0.4.9"
   dependencies:
-    "@harbor-xyz/harbor-cli": ^0.4.5
+    "@harbor-xyz/harbor-cli": ^0.4.8
     isomorphic-unfetch: ^3.1.0
     project-bin-path: ^2.0.0
-  checksum: 17d8fe83b1dc23a238fed00388b7a3dbd66a279fe31bcd6747a771bb5840299327116c68e84e263c658af0b39a9fa3d919551fa39a5c1b8a436f2c6425530cc6
+  checksum: 9f57efd26baf1d0a0ad3efec2a3bfb54abe65d1be41801e9f266689eb531f6360c770668c2b4554017b9a92862590f3bb4b8c8db2534c5664e6f1ba4c3aa862f
   languageName: node
   linkType: hard
 

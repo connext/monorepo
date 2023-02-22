@@ -262,7 +262,7 @@
             ],
             "tag": "$tag_default"
         },
-        {
+                {
             "name": "sequencerPublisher",
             "image": "ghcr.io/connext/sequencer-publisher:$sha_default",
             "ports": [
@@ -297,7 +297,7 @@
             "tag": "$tag_default"
         },
         {
-            "name": "cartographerDatabase",
+            "name": "cartographerDB",
             "image": "postgres",
             "ports": [
                 5432
@@ -315,17 +315,17 @@
                 3000
             ],
             "environment": {
-                "PGRST_DB_URI": "postgres://reader:3eadooor@$cartographerDatabase_hburl:5432/connext",
+                "PGRST_DB_URI": "postgres://reader:3eadooor@$cartographerDB_hburl:5432/connext",
                 "PGRST_DB_SCHEMA": "public",
                 "PGRST_DB_ANON_ROLE": "query"
             },
             "depends_on": [
-                "cartographerDatabase"
+                "cartographerDB"
             ],
             "tag": "v1"
         },
         {
-            "name": "cartographerTransfers",
+            "name": "cartographerTrnsfrs",
             "image": "ghcr.io/connext/cartographer-transfers:$sha_default",
             "ports": [
                 8080
@@ -334,7 +334,7 @@
             "environment": {
                 "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
                 "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
-                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDatabase_hburl:5432/connext?sslmode=disable",
+                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDB_hburl:5432/connext?sslmode=disable",
                 "CARTOGRAPHER_CONFIG": "{\"logLevel\": \"debug\",\"chains\": {\"1337\": { \"providers\": [\"http://$ethereum_hburl\"] },\"1338\": { \"providers\": [\"http://$polygon_hburl\"] }},\"environment\": \"production\"}"
             },
             "tag": "$tag_default"
@@ -349,7 +349,7 @@
             "environment": {
                 "GRAPH_1337_ENDPOINT": "http://$graphNode1337_hburl:8000/subgraphs/name/connext/nxtp",
                 "GRAPH_1338_ENDPOINT": "http://$graphNode1338_hburl:8000/subgraphs/name/connext/nxtp",
-                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDatabase_hburl:5432/connext?sslmode=disable",
+                "DATABASE_URL": "postgres://postgres:qwerty@$cartographerDB_hburl:5432/connext?sslmode=disable",
                 "CARTOGRAPHER_CONFIG": "{\"logLevel\": \"debug\",\"chains\": {\"1337\": { \"providers\": [\"http://$ethereum_hburl\"] },\"1338\": { \"providers\": [\"http://$polygon_hburl\"] }},\"environment\": \"production\"}"
             },
             "tag": "$tag_default"
@@ -386,7 +386,9 @@
             "depends_on": [
                 "messageQueue",
                 "signerRouter",
-                "routerCache"
+                "routerCache",
+                "sequencerPublisher",
+                "cartographerApi"
             ],
             "tag": "$tag_default"
         },
