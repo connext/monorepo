@@ -16,7 +16,7 @@ type staginggoerli_AggregatedMessageRoot {
   id: ID!
   index: BigInt!
   receivedRoot: staginggoerli_Bytes!
-  domain: BigInt!
+  domain: BigInt
 }
 
 input staginggoerli_AggregatedMessageRoot_filter {
@@ -38,6 +38,10 @@ input staginggoerli_AggregatedMessageRoot_filter {
   index_not_in: [BigInt!]
   receivedRoot: staginggoerli_Bytes
   receivedRoot_not: staginggoerli_Bytes
+  receivedRoot_gt: staginggoerli_Bytes
+  receivedRoot_lt: staginggoerli_Bytes
+  receivedRoot_gte: staginggoerli_Bytes
+  receivedRoot_lte: staginggoerli_Bytes
   receivedRoot_in: [staginggoerli_Bytes!]
   receivedRoot_not_in: [staginggoerli_Bytes!]
   receivedRoot_contains: staginggoerli_Bytes
@@ -52,6 +56,8 @@ input staginggoerli_AggregatedMessageRoot_filter {
   domain_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_AggregatedMessageRoot_filter]
+  or: [staginggoerli_AggregatedMessageRoot_filter]
 }
 
 enum staginggoerli_AggregatedMessageRoot_orderBy {
@@ -97,24 +103,38 @@ input staginggoerli_ArbitrumConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: staginggoerli_Bytes
   amb_not: staginggoerli_Bytes
+  amb_gt: staginggoerli_Bytes
+  amb_lt: staginggoerli_Bytes
+  amb_gte: staginggoerli_Bytes
+  amb_lte: staginggoerli_Bytes
   amb_in: [staginggoerli_Bytes!]
   amb_not_in: [staginggoerli_Bytes!]
   amb_contains: staginggoerli_Bytes
   amb_not_contains: staginggoerli_Bytes
   rootManager: staginggoerli_Bytes
   rootManager_not: staginggoerli_Bytes
+  rootManager_gt: staginggoerli_Bytes
+  rootManager_lt: staginggoerli_Bytes
+  rootManager_gte: staginggoerli_Bytes
+  rootManager_lte: staginggoerli_Bytes
   rootManager_in: [staginggoerli_Bytes!]
   rootManager_not_in: [staginggoerli_Bytes!]
   rootManager_contains: staginggoerli_Bytes
   rootManager_not_contains: staginggoerli_Bytes
   mirrorConnector: staginggoerli_Bytes
   mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_gt: staginggoerli_Bytes
+  mirrorConnector_lt: staginggoerli_Bytes
+  mirrorConnector_gte: staginggoerli_Bytes
+  mirrorConnector_lte: staginggoerli_Bytes
   mirrorConnector_in: [staginggoerli_Bytes!]
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_ArbitrumConnectorMeta_filter]
+  or: [staginggoerli_ArbitrumConnectorMeta_filter]
 }
 
 enum staginggoerli_ArbitrumConnectorMeta_orderBy {
@@ -176,24 +196,38 @@ input staginggoerli_BnbConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: staginggoerli_Bytes
   amb_not: staginggoerli_Bytes
+  amb_gt: staginggoerli_Bytes
+  amb_lt: staginggoerli_Bytes
+  amb_gte: staginggoerli_Bytes
+  amb_lte: staginggoerli_Bytes
   amb_in: [staginggoerli_Bytes!]
   amb_not_in: [staginggoerli_Bytes!]
   amb_contains: staginggoerli_Bytes
   amb_not_contains: staginggoerli_Bytes
   rootManager: staginggoerli_Bytes
   rootManager_not: staginggoerli_Bytes
+  rootManager_gt: staginggoerli_Bytes
+  rootManager_lt: staginggoerli_Bytes
+  rootManager_gte: staginggoerli_Bytes
+  rootManager_lte: staginggoerli_Bytes
   rootManager_in: [staginggoerli_Bytes!]
   rootManager_not_in: [staginggoerli_Bytes!]
   rootManager_contains: staginggoerli_Bytes
   rootManager_not_contains: staginggoerli_Bytes
   mirrorConnector: staginggoerli_Bytes
   mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_gt: staginggoerli_Bytes
+  mirrorConnector_lt: staginggoerli_Bytes
+  mirrorConnector_gte: staginggoerli_Bytes
+  mirrorConnector_lte: staginggoerli_Bytes
   mirrorConnector_in: [staginggoerli_Bytes!]
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_BnbConnectorMeta_filter]
+  or: [staginggoerli_BnbConnectorMeta_filter]
 }
 
 enum staginggoerli_BnbConnectorMeta_orderBy {
@@ -243,24 +277,38 @@ input staginggoerli_GnosisConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: staginggoerli_Bytes
   amb_not: staginggoerli_Bytes
+  amb_gt: staginggoerli_Bytes
+  amb_lt: staginggoerli_Bytes
+  amb_gte: staginggoerli_Bytes
+  amb_lte: staginggoerli_Bytes
   amb_in: [staginggoerli_Bytes!]
   amb_not_in: [staginggoerli_Bytes!]
   amb_contains: staginggoerli_Bytes
   amb_not_contains: staginggoerli_Bytes
   rootManager: staginggoerli_Bytes
   rootManager_not: staginggoerli_Bytes
+  rootManager_gt: staginggoerli_Bytes
+  rootManager_lt: staginggoerli_Bytes
+  rootManager_gte: staginggoerli_Bytes
+  rootManager_lte: staginggoerli_Bytes
   rootManager_in: [staginggoerli_Bytes!]
   rootManager_not_in: [staginggoerli_Bytes!]
   rootManager_contains: staginggoerli_Bytes
   rootManager_not_contains: staginggoerli_Bytes
   mirrorConnector: staginggoerli_Bytes
   mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_gt: staginggoerli_Bytes
+  mirrorConnector_lt: staginggoerli_Bytes
+  mirrorConnector_gte: staginggoerli_Bytes
+  mirrorConnector_lte: staginggoerli_Bytes
   mirrorConnector_in: [staginggoerli_Bytes!]
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_GnosisConnectorMeta_filter]
+  or: [staginggoerli_GnosisConnectorMeta_filter]
 }
 
 enum staginggoerli_GnosisConnectorMeta_orderBy {
@@ -308,24 +356,38 @@ input staginggoerli_OptimismConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: staginggoerli_Bytes
   amb_not: staginggoerli_Bytes
+  amb_gt: staginggoerli_Bytes
+  amb_lt: staginggoerli_Bytes
+  amb_gte: staginggoerli_Bytes
+  amb_lte: staginggoerli_Bytes
   amb_in: [staginggoerli_Bytes!]
   amb_not_in: [staginggoerli_Bytes!]
   amb_contains: staginggoerli_Bytes
   amb_not_contains: staginggoerli_Bytes
   rootManager: staginggoerli_Bytes
   rootManager_not: staginggoerli_Bytes
+  rootManager_gt: staginggoerli_Bytes
+  rootManager_lt: staginggoerli_Bytes
+  rootManager_gte: staginggoerli_Bytes
+  rootManager_lte: staginggoerli_Bytes
   rootManager_in: [staginggoerli_Bytes!]
   rootManager_not_in: [staginggoerli_Bytes!]
   rootManager_contains: staginggoerli_Bytes
   rootManager_not_contains: staginggoerli_Bytes
   mirrorConnector: staginggoerli_Bytes
   mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_gt: staginggoerli_Bytes
+  mirrorConnector_lt: staginggoerli_Bytes
+  mirrorConnector_gte: staginggoerli_Bytes
+  mirrorConnector_lte: staginggoerli_Bytes
   mirrorConnector_in: [staginggoerli_Bytes!]
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_OptimismConnectorMeta_filter]
+  or: [staginggoerli_OptimismConnectorMeta_filter]
 }
 
 enum staginggoerli_OptimismConnectorMeta_orderBy {
@@ -379,24 +441,38 @@ input staginggoerli_PolygonConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: staginggoerli_Bytes
   amb_not: staginggoerli_Bytes
+  amb_gt: staginggoerli_Bytes
+  amb_lt: staginggoerli_Bytes
+  amb_gte: staginggoerli_Bytes
+  amb_lte: staginggoerli_Bytes
   amb_in: [staginggoerli_Bytes!]
   amb_not_in: [staginggoerli_Bytes!]
   amb_contains: staginggoerli_Bytes
   amb_not_contains: staginggoerli_Bytes
   rootManager: staginggoerli_Bytes
   rootManager_not: staginggoerli_Bytes
+  rootManager_gt: staginggoerli_Bytes
+  rootManager_lt: staginggoerli_Bytes
+  rootManager_gte: staginggoerli_Bytes
+  rootManager_lte: staginggoerli_Bytes
   rootManager_in: [staginggoerli_Bytes!]
   rootManager_not_in: [staginggoerli_Bytes!]
   rootManager_contains: staginggoerli_Bytes
   rootManager_not_contains: staginggoerli_Bytes
   mirrorConnector: staginggoerli_Bytes
   mirrorConnector_not: staginggoerli_Bytes
+  mirrorConnector_gt: staginggoerli_Bytes
+  mirrorConnector_lt: staginggoerli_Bytes
+  mirrorConnector_gte: staginggoerli_Bytes
+  mirrorConnector_lte: staginggoerli_Bytes
   mirrorConnector_in: [staginggoerli_Bytes!]
   mirrorConnector_not_in: [staginggoerli_Bytes!]
   mirrorConnector_contains: staginggoerli_Bytes
   mirrorConnector_not_contains: staginggoerli_Bytes
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_PolygonConnectorMeta_filter]
+  or: [staginggoerli_PolygonConnectorMeta_filter]
 }
 
 enum staginggoerli_PolygonConnectorMeta_orderBy {
@@ -699,6 +775,10 @@ input staginggoerli_RootAggregated_filter {
   domain_not_in: [BigInt!]
   receivedRoot: staginggoerli_Bytes
   receivedRoot_not: staginggoerli_Bytes
+  receivedRoot_gt: staginggoerli_Bytes
+  receivedRoot_lt: staginggoerli_Bytes
+  receivedRoot_gte: staginggoerli_Bytes
+  receivedRoot_lte: staginggoerli_Bytes
   receivedRoot_in: [staginggoerli_Bytes!]
   receivedRoot_not_in: [staginggoerli_Bytes!]
   receivedRoot_contains: staginggoerli_Bytes
@@ -713,6 +793,8 @@ input staginggoerli_RootAggregated_filter {
   index_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootAggregated_filter]
+  or: [staginggoerli_RootAggregated_filter]
 }
 
 enum staginggoerli_RootAggregated_orderBy {
@@ -751,6 +833,8 @@ input staginggoerli_RootManagerMeta_filter {
   connectors_not_contains_nocase: [staginggoerli_Bytes!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootManagerMeta_filter]
+  or: [staginggoerli_RootManagerMeta_filter]
 }
 
 enum staginggoerli_RootManagerMeta_orderBy {
@@ -799,18 +883,30 @@ input staginggoerli_RootMessageProcessed_filter {
   hubDomain_not_in: [BigInt!]
   root: staginggoerli_Bytes
   root_not: staginggoerli_Bytes
+  root_gt: staginggoerli_Bytes
+  root_lt: staginggoerli_Bytes
+  root_gte: staginggoerli_Bytes
+  root_lte: staginggoerli_Bytes
   root_in: [staginggoerli_Bytes!]
   root_not_in: [staginggoerli_Bytes!]
   root_contains: staginggoerli_Bytes
   root_not_contains: staginggoerli_Bytes
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
+  caller_gt: staginggoerli_Bytes
+  caller_lt: staginggoerli_Bytes
+  caller_gte: staginggoerli_Bytes
+  caller_lte: staginggoerli_Bytes
   caller_in: [staginggoerli_Bytes!]
   caller_not_in: [staginggoerli_Bytes!]
   caller_contains: staginggoerli_Bytes
   caller_not_contains: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   transactionHash_not: staginggoerli_Bytes
+  transactionHash_gt: staginggoerli_Bytes
+  transactionHash_lt: staginggoerli_Bytes
+  transactionHash_gte: staginggoerli_Bytes
+  transactionHash_lte: staginggoerli_Bytes
   transactionHash_in: [staginggoerli_Bytes!]
   transactionHash_not_in: [staginggoerli_Bytes!]
   transactionHash_contains: staginggoerli_Bytes
@@ -849,6 +945,8 @@ input staginggoerli_RootMessageProcessed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootMessageProcessed_filter]
+  or: [staginggoerli_RootMessageProcessed_filter]
 }
 
 enum staginggoerli_RootMessageProcessed_orderBy {
@@ -882,12 +980,20 @@ input staginggoerli_RootPropagated_filter {
   id_not_in: [ID!]
   aggregate: staginggoerli_Bytes
   aggregate_not: staginggoerli_Bytes
+  aggregate_gt: staginggoerli_Bytes
+  aggregate_lt: staginggoerli_Bytes
+  aggregate_gte: staginggoerli_Bytes
+  aggregate_lte: staginggoerli_Bytes
   aggregate_in: [staginggoerli_Bytes!]
   aggregate_not_in: [staginggoerli_Bytes!]
   aggregate_contains: staginggoerli_Bytes
   aggregate_not_contains: staginggoerli_Bytes
   domainsHash: staginggoerli_Bytes
   domainsHash_not: staginggoerli_Bytes
+  domainsHash_gt: staginggoerli_Bytes
+  domainsHash_lt: staginggoerli_Bytes
+  domainsHash_gte: staginggoerli_Bytes
+  domainsHash_lte: staginggoerli_Bytes
   domainsHash_in: [staginggoerli_Bytes!]
   domainsHash_not_in: [staginggoerli_Bytes!]
   domainsHash_contains: staginggoerli_Bytes
@@ -902,6 +1008,8 @@ input staginggoerli_RootPropagated_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RootPropagated_filter]
+  or: [staginggoerli_RootPropagated_filter]
 }
 
 enum staginggoerli_RootPropagated_orderBy {

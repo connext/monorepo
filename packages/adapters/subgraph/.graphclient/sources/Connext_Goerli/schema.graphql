@@ -29,6 +29,10 @@ input goerli_AggregateRoot_filter {
   id_not_in: [ID!]
   root: goerli_Bytes
   root_not: goerli_Bytes
+  root_gt: goerli_Bytes
+  root_lt: goerli_Bytes
+  root_gte: goerli_Bytes
+  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
@@ -43,6 +47,8 @@ input goerli_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_AggregateRoot_filter]
+  or: [goerli_AggregateRoot_filter]
 }
 
 enum goerli_AggregateRoot_orderBy {
@@ -59,6 +65,7 @@ type goerli_Asset {
   adoptedAsset: goerli_Bytes
   localAsset: goerli_Bytes
   blockNumber: BigInt
+  status: goerli_AssetStatus
 }
 
 type goerli_AssetBalance {
@@ -138,14 +145,58 @@ input goerli_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_AssetBalance_filter]
+  or: [goerli_AssetBalance_filter]
 }
 
 enum goerli_AssetBalance_orderBy {
   id
   amount
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
+}
+
+type goerli_AssetStatus {
+  id: ID!
+  status: Boolean
+}
+
+input goerli_AssetStatus_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  status: Boolean
+  status_not: Boolean
+  status_in: [Boolean!]
+  status_not_in: [Boolean!]
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+  and: [goerli_AssetStatus_filter]
+  or: [goerli_AssetStatus_filter]
+}
+
+enum goerli_AssetStatus_orderBy {
+  id
+  status
 }
 
 input goerli_Asset_filter {
@@ -159,12 +210,20 @@ input goerli_Asset_filter {
   id_not_in: [ID!]
   key: goerli_Bytes
   key_not: goerli_Bytes
+  key_gt: goerli_Bytes
+  key_lt: goerli_Bytes
+  key_gte: goerli_Bytes
+  key_lte: goerli_Bytes
   key_in: [goerli_Bytes!]
   key_not_in: [goerli_Bytes!]
   key_contains: goerli_Bytes
   key_not_contains: goerli_Bytes
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
+  canonicalId_gt: goerli_Bytes
+  canonicalId_lt: goerli_Bytes
+  canonicalId_gte: goerli_Bytes
+  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -179,12 +238,20 @@ input goerli_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: goerli_Bytes
   adoptedAsset_not: goerli_Bytes
+  adoptedAsset_gt: goerli_Bytes
+  adoptedAsset_lt: goerli_Bytes
+  adoptedAsset_gte: goerli_Bytes
+  adoptedAsset_lte: goerli_Bytes
   adoptedAsset_in: [goerli_Bytes!]
   adoptedAsset_not_in: [goerli_Bytes!]
   adoptedAsset_contains: goerli_Bytes
   adoptedAsset_not_contains: goerli_Bytes
   localAsset: goerli_Bytes
   localAsset_not: goerli_Bytes
+  localAsset_gt: goerli_Bytes
+  localAsset_lt: goerli_Bytes
+  localAsset_gte: goerli_Bytes
+  localAsset_lte: goerli_Bytes
   localAsset_in: [goerli_Bytes!]
   localAsset_not_in: [goerli_Bytes!]
   localAsset_contains: goerli_Bytes
@@ -197,8 +264,31 @@ input goerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  status: String
+  status_not: String
+  status_gt: String
+  status_lt: String
+  status_gte: String
+  status_lte: String
+  status_in: [String!]
+  status_not_in: [String!]
+  status_contains: String
+  status_contains_nocase: String
+  status_not_contains: String
+  status_not_contains_nocase: String
+  status_starts_with: String
+  status_starts_with_nocase: String
+  status_not_starts_with: String
+  status_not_starts_with_nocase: String
+  status_ends_with: String
+  status_ends_with_nocase: String
+  status_not_ends_with: String
+  status_not_ends_with_nocase: String
+  status_: goerli_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Asset_filter]
+  or: [goerli_Asset_filter]
 }
 
 enum goerli_Asset_orderBy {
@@ -209,6 +299,9 @@ enum goerli_Asset_orderBy {
   adoptedAsset
   localAsset
   blockNumber
+  status
+  status__id
+  status__status
 }
 
 scalar goerli_BigDecimal
@@ -263,24 +356,38 @@ input goerli_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: goerli_Bytes
   amb_not: goerli_Bytes
+  amb_gt: goerli_Bytes
+  amb_lt: goerli_Bytes
+  amb_gte: goerli_Bytes
+  amb_lte: goerli_Bytes
   amb_in: [goerli_Bytes!]
   amb_not_in: [goerli_Bytes!]
   amb_contains: goerli_Bytes
   amb_not_contains: goerli_Bytes
   rootManager: goerli_Bytes
   rootManager_not: goerli_Bytes
+  rootManager_gt: goerli_Bytes
+  rootManager_lt: goerli_Bytes
+  rootManager_gte: goerli_Bytes
+  rootManager_lte: goerli_Bytes
   rootManager_in: [goerli_Bytes!]
   rootManager_not_in: [goerli_Bytes!]
   rootManager_contains: goerli_Bytes
   rootManager_not_contains: goerli_Bytes
   mirrorConnector: goerli_Bytes
   mirrorConnector_not: goerli_Bytes
+  mirrorConnector_gt: goerli_Bytes
+  mirrorConnector_lt: goerli_Bytes
+  mirrorConnector_gte: goerli_Bytes
+  mirrorConnector_lte: goerli_Bytes
   mirrorConnector_in: [goerli_Bytes!]
   mirrorConnector_not_in: [goerli_Bytes!]
   mirrorConnector_contains: goerli_Bytes
   mirrorConnector_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_ConnectorMeta_filter]
+  or: [goerli_ConnectorMeta_filter]
 }
 
 enum goerli_ConnectorMeta_orderBy {
@@ -290,73 +397,6 @@ enum goerli_ConnectorMeta_orderBy {
   amb
   rootManager
   mirrorConnector
-}
-
-type goerli_DestinationMessage {
-  id: ID!
-  leaf: goerli_Bytes
-  processed: Boolean
-  returnData: goerli_Bytes
-  success: Boolean
-  transactionHash: goerli_Bytes
-  blockNumber: BigInt
-}
-
-input goerli_DestinationMessage_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  leaf: goerli_Bytes
-  leaf_not: goerli_Bytes
-  leaf_in: [goerli_Bytes!]
-  leaf_not_in: [goerli_Bytes!]
-  leaf_contains: goerli_Bytes
-  leaf_not_contains: goerli_Bytes
-  processed: Boolean
-  processed_not: Boolean
-  processed_in: [Boolean!]
-  processed_not_in: [Boolean!]
-  returnData: goerli_Bytes
-  returnData_not: goerli_Bytes
-  returnData_in: [goerli_Bytes!]
-  returnData_not_in: [goerli_Bytes!]
-  returnData_contains: goerli_Bytes
-  returnData_not_contains: goerli_Bytes
-  success: Boolean
-  success_not: Boolean
-  success_in: [Boolean!]
-  success_not_in: [Boolean!]
-  transactionHash: goerli_Bytes
-  transactionHash_not: goerli_Bytes
-  transactionHash_in: [goerli_Bytes!]
-  transactionHash_not_in: [goerli_Bytes!]
-  transactionHash_contains: goerli_Bytes
-  transactionHash_not_contains: goerli_Bytes
-  blockNumber: BigInt
-  blockNumber_not: BigInt
-  blockNumber_gt: BigInt
-  blockNumber_lt: BigInt
-  blockNumber_gte: BigInt
-  blockNumber_lte: BigInt
-  blockNumber_in: [BigInt!]
-  blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: goerli_BlockChangedFilter
-}
-
-enum goerli_DestinationMessage_orderBy {
-  id
-  leaf
-  processed
-  returnData
-  success
-  transactionHash
-  blockNumber
 }
 
 type goerli_DestinationTransfer {
@@ -374,11 +414,13 @@ type goerli_DestinationTransfer {
   receiveLocal: Boolean
   callData: goerli_Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: goerli_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
   canonicalId: goerli_Bytes
   asset: goerli_Asset
+  amount: BigInt
   routersFee: BigInt
   executedCaller: goerli_Bytes
   executedTransactionHash: goerli_Bytes
@@ -386,12 +428,14 @@ type goerli_DestinationTransfer {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: goerli_Bytes
   reconciledCaller: goerli_Bytes
   reconciledTransactionHash: goerli_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: goerli_Bytes
 }
 
 input goerli_DestinationTransfer_filter {
@@ -413,6 +457,10 @@ input goerli_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
+  transferId_gt: goerli_Bytes
+  transferId_lt: goerli_Bytes
+  transferId_gte: goerli_Bytes
+  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -462,12 +510,20 @@ input goerli_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: goerli_Bytes
   to_not: goerli_Bytes
+  to_gt: goerli_Bytes
+  to_lt: goerli_Bytes
+  to_gte: goerli_Bytes
+  to_lte: goerli_Bytes
   to_in: [goerli_Bytes!]
   to_not_in: [goerli_Bytes!]
   to_contains: goerli_Bytes
   to_not_contains: goerli_Bytes
   delegate: goerli_Bytes
   delegate_not: goerli_Bytes
+  delegate_gt: goerli_Bytes
+  delegate_lt: goerli_Bytes
+  delegate_gte: goerli_Bytes
+  delegate_lte: goerli_Bytes
   delegate_in: [goerli_Bytes!]
   delegate_not_in: [goerli_Bytes!]
   delegate_contains: goerli_Bytes
@@ -478,6 +534,10 @@ input goerli_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: goerli_Bytes
   callData_not: goerli_Bytes
+  callData_gt: goerli_Bytes
+  callData_lt: goerli_Bytes
+  callData_gte: goerli_Bytes
+  callData_lte: goerli_Bytes
   callData_in: [goerli_Bytes!]
   callData_not_in: [goerli_Bytes!]
   callData_contains: goerli_Bytes
@@ -490,8 +550,20 @@ input goerli_DestinationTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
   originSender: goerli_Bytes
   originSender_not: goerli_Bytes
+  originSender_gt: goerli_Bytes
+  originSender_lt: goerli_Bytes
+  originSender_gte: goerli_Bytes
+  originSender_lte: goerli_Bytes
   originSender_in: [goerli_Bytes!]
   originSender_not_in: [goerli_Bytes!]
   originSender_contains: goerli_Bytes
@@ -514,6 +586,10 @@ input goerli_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
+  canonicalId_gt: goerli_Bytes
+  canonicalId_lt: goerli_Bytes
+  canonicalId_gte: goerli_Bytes
+  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -539,6 +615,14 @@ input goerli_DestinationTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: goerli_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
   routersFee: BigInt
   routersFee_not: BigInt
   routersFee_gt: BigInt
@@ -549,12 +633,20 @@ input goerli_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: goerli_Bytes
   executedCaller_not: goerli_Bytes
+  executedCaller_gt: goerli_Bytes
+  executedCaller_lt: goerli_Bytes
+  executedCaller_gte: goerli_Bytes
+  executedCaller_lte: goerli_Bytes
   executedCaller_in: [goerli_Bytes!]
   executedCaller_not_in: [goerli_Bytes!]
   executedCaller_contains: goerli_Bytes
   executedCaller_not_contains: goerli_Bytes
   executedTransactionHash: goerli_Bytes
   executedTransactionHash_not: goerli_Bytes
+  executedTransactionHash_gt: goerli_Bytes
+  executedTransactionHash_lt: goerli_Bytes
+  executedTransactionHash_gte: goerli_Bytes
+  executedTransactionHash_lte: goerli_Bytes
   executedTransactionHash_in: [goerli_Bytes!]
   executedTransactionHash_not_in: [goerli_Bytes!]
   executedTransactionHash_contains: goerli_Bytes
@@ -591,14 +683,32 @@ input goerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: goerli_Bytes
+  executedTxOrigin_not: goerli_Bytes
+  executedTxOrigin_gt: goerli_Bytes
+  executedTxOrigin_lt: goerli_Bytes
+  executedTxOrigin_gte: goerli_Bytes
+  executedTxOrigin_lte: goerli_Bytes
+  executedTxOrigin_in: [goerli_Bytes!]
+  executedTxOrigin_not_in: [goerli_Bytes!]
+  executedTxOrigin_contains: goerli_Bytes
+  executedTxOrigin_not_contains: goerli_Bytes
   reconciledCaller: goerli_Bytes
   reconciledCaller_not: goerli_Bytes
+  reconciledCaller_gt: goerli_Bytes
+  reconciledCaller_lt: goerli_Bytes
+  reconciledCaller_gte: goerli_Bytes
+  reconciledCaller_lte: goerli_Bytes
   reconciledCaller_in: [goerli_Bytes!]
   reconciledCaller_not_in: [goerli_Bytes!]
   reconciledCaller_contains: goerli_Bytes
   reconciledCaller_not_contains: goerli_Bytes
   reconciledTransactionHash: goerli_Bytes
   reconciledTransactionHash_not: goerli_Bytes
+  reconciledTransactionHash_gt: goerli_Bytes
+  reconciledTransactionHash_lt: goerli_Bytes
+  reconciledTransactionHash_gte: goerli_Bytes
+  reconciledTransactionHash_lte: goerli_Bytes
   reconciledTransactionHash_in: [goerli_Bytes!]
   reconciledTransactionHash_not_in: [goerli_Bytes!]
   reconciledTransactionHash_contains: goerli_Bytes
@@ -635,8 +745,20 @@ input goerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: goerli_Bytes
+  reconciledTxOrigin_not: goerli_Bytes
+  reconciledTxOrigin_gt: goerli_Bytes
+  reconciledTxOrigin_lt: goerli_Bytes
+  reconciledTxOrigin_gte: goerli_Bytes
+  reconciledTxOrigin_lte: goerli_Bytes
+  reconciledTxOrigin_in: [goerli_Bytes!]
+  reconciledTxOrigin_not_in: [goerli_Bytes!]
+  reconciledTxOrigin_contains: goerli_Bytes
+  reconciledTxOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_DestinationTransfer_filter]
+  or: [goerli_DestinationTransfer_filter]
 }
 
 enum goerli_DestinationTransfer_orderBy {
@@ -654,11 +776,20 @@ enum goerli_DestinationTransfer_orderBy {
   receiveLocal
   callData
   slippage
+  bumpSlippageCount
   originSender
   bridgedAmt
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  amount
   routersFee
   executedCaller
   executedTransactionHash
@@ -666,12 +797,14 @@ enum goerli_DestinationTransfer_orderBy {
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -686,8 +819,8 @@ type goerli_OriginMessage {
   destinationDomain: BigInt
   leaf: goerli_Bytes
   index: BigInt
-  root: goerli_Bytes
   message: goerli_Bytes
+  root: goerli_Bytes
   transactionHash: goerli_Bytes
   blockNumber: BigInt
   rootCount: goerli_RootCount
@@ -704,6 +837,10 @@ input goerli_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
+  transferId_gt: goerli_Bytes
+  transferId_lt: goerli_Bytes
+  transferId_gte: goerli_Bytes
+  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -718,6 +855,10 @@ input goerli_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: goerli_Bytes
   leaf_not: goerli_Bytes
+  leaf_gt: goerli_Bytes
+  leaf_lt: goerli_Bytes
+  leaf_gte: goerli_Bytes
+  leaf_lte: goerli_Bytes
   leaf_in: [goerli_Bytes!]
   leaf_not_in: [goerli_Bytes!]
   leaf_contains: goerli_Bytes
@@ -730,20 +871,32 @@ input goerli_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  root: goerli_Bytes
-  root_not: goerli_Bytes
-  root_in: [goerli_Bytes!]
-  root_not_in: [goerli_Bytes!]
-  root_contains: goerli_Bytes
-  root_not_contains: goerli_Bytes
   message: goerli_Bytes
   message_not: goerli_Bytes
+  message_gt: goerli_Bytes
+  message_lt: goerli_Bytes
+  message_gte: goerli_Bytes
+  message_lte: goerli_Bytes
   message_in: [goerli_Bytes!]
   message_not_in: [goerli_Bytes!]
   message_contains: goerli_Bytes
   message_not_contains: goerli_Bytes
+  root: goerli_Bytes
+  root_not: goerli_Bytes
+  root_gt: goerli_Bytes
+  root_lt: goerli_Bytes
+  root_gte: goerli_Bytes
+  root_lte: goerli_Bytes
+  root_in: [goerli_Bytes!]
+  root_not_in: [goerli_Bytes!]
+  root_contains: goerli_Bytes
+  root_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -779,6 +932,8 @@ input goerli_OriginMessage_filter {
   rootCount_: goerli_RootCount_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_OriginMessage_filter]
+  or: [goerli_OriginMessage_filter]
 }
 
 enum goerli_OriginMessage_orderBy {
@@ -787,11 +942,13 @@ enum goerli_OriginMessage_orderBy {
   destinationDomain
   leaf
   index
-  root
   message
+  root
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type goerli_OriginTransfer {
@@ -815,12 +972,15 @@ type goerli_OriginTransfer {
   canonicalId: goerli_Bytes
   asset: goerli_Asset
   message: goerli_OriginMessage
+  relayerFee: BigInt
+  bumpRelayerFeeCount: BigInt
   caller: goerli_Bytes
   transactionHash: goerli_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: goerli_Bytes
 }
 
 input goerli_OriginTransfer_filter {
@@ -842,6 +1002,10 @@ input goerli_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: goerli_Bytes
   transferId_not: goerli_Bytes
+  transferId_gt: goerli_Bytes
+  transferId_lt: goerli_Bytes
+  transferId_gte: goerli_Bytes
+  transferId_lte: goerli_Bytes
   transferId_in: [goerli_Bytes!]
   transferId_not_in: [goerli_Bytes!]
   transferId_contains: goerli_Bytes
@@ -860,6 +1024,10 @@ input goerli_OriginTransfer_filter {
   status_not_in: [goerli_TransferStatus!]
   messageHash: goerli_Bytes
   messageHash_not: goerli_Bytes
+  messageHash_gt: goerli_Bytes
+  messageHash_lt: goerli_Bytes
+  messageHash_gte: goerli_Bytes
+  messageHash_lte: goerli_Bytes
   messageHash_in: [goerli_Bytes!]
   messageHash_not_in: [goerli_Bytes!]
   messageHash_contains: goerli_Bytes
@@ -890,12 +1058,20 @@ input goerli_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: goerli_Bytes
   to_not: goerli_Bytes
+  to_gt: goerli_Bytes
+  to_lt: goerli_Bytes
+  to_gte: goerli_Bytes
+  to_lte: goerli_Bytes
   to_in: [goerli_Bytes!]
   to_not_in: [goerli_Bytes!]
   to_contains: goerli_Bytes
   to_not_contains: goerli_Bytes
   delegate: goerli_Bytes
   delegate_not: goerli_Bytes
+  delegate_gt: goerli_Bytes
+  delegate_lt: goerli_Bytes
+  delegate_gte: goerli_Bytes
+  delegate_lte: goerli_Bytes
   delegate_in: [goerli_Bytes!]
   delegate_not_in: [goerli_Bytes!]
   delegate_contains: goerli_Bytes
@@ -906,6 +1082,10 @@ input goerli_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: goerli_Bytes
   callData_not: goerli_Bytes
+  callData_gt: goerli_Bytes
+  callData_lt: goerli_Bytes
+  callData_gte: goerli_Bytes
+  callData_lte: goerli_Bytes
   callData_in: [goerli_Bytes!]
   callData_not_in: [goerli_Bytes!]
   callData_contains: goerli_Bytes
@@ -920,6 +1100,10 @@ input goerli_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: goerli_Bytes
   originSender_not: goerli_Bytes
+  originSender_gt: goerli_Bytes
+  originSender_lt: goerli_Bytes
+  originSender_gte: goerli_Bytes
+  originSender_lte: goerli_Bytes
   originSender_in: [goerli_Bytes!]
   originSender_not_in: [goerli_Bytes!]
   originSender_contains: goerli_Bytes
@@ -942,6 +1126,10 @@ input goerli_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
+  canonicalId_gt: goerli_Bytes
+  canonicalId_lt: goerli_Bytes
+  canonicalId_gte: goerli_Bytes
+  canonicalId_lte: goerli_Bytes
   canonicalId_in: [goerli_Bytes!]
   canonicalId_not_in: [goerli_Bytes!]
   canonicalId_contains: goerli_Bytes
@@ -988,14 +1176,38 @@ input goerli_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: goerli_OriginMessage_filter
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  bumpRelayerFeeCount: BigInt
+  bumpRelayerFeeCount_not: BigInt
+  bumpRelayerFeeCount_gt: BigInt
+  bumpRelayerFeeCount_lt: BigInt
+  bumpRelayerFeeCount_gte: BigInt
+  bumpRelayerFeeCount_lte: BigInt
+  bumpRelayerFeeCount_in: [BigInt!]
+  bumpRelayerFeeCount_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -1032,8 +1244,20 @@ input goerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  txOrigin: goerli_Bytes
+  txOrigin_not: goerli_Bytes
+  txOrigin_gt: goerli_Bytes
+  txOrigin_lt: goerli_Bytes
+  txOrigin_gte: goerli_Bytes
+  txOrigin_lte: goerli_Bytes
+  txOrigin_in: [goerli_Bytes!]
+  txOrigin_not_in: [goerli_Bytes!]
+  txOrigin_contains: goerli_Bytes
+  txOrigin_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_OriginTransfer_filter]
+  or: [goerli_OriginTransfer_filter]
 }
 
 enum goerli_OriginTransfer_orderBy {
@@ -1056,42 +1280,32 @@ enum goerli_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
+  relayerFee
+  bumpRelayerFeeCount
   caller
   transactionHash
   timestamp
   gasPrice
   gasLimit
   blockNumber
-}
-
-type goerli_PooledToken {
-  id: ID!
-  asset: goerli_Bytes!
-}
-
-input goerli_PooledToken_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  asset: goerli_Bytes
-  asset_not: goerli_Bytes
-  asset_in: [goerli_Bytes!]
-  asset_not_in: [goerli_Bytes!]
-  asset_contains: goerli_Bytes
-  asset_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
-  _change_block: goerli_BlockChangedFilter
-}
-
-enum goerli_PooledToken_orderBy {
-  id
-  asset
+  txOrigin
 }
 
 type Query {
@@ -1121,6 +1335,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_Asset!]!
+  goerli_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_AssetStatus
+  goerli_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_AssetStatus_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_AssetStatus!]!
   goerli_assetBalance(
     id: ID!
     """
@@ -1173,6 +1413,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_Router!]!
+  goerli_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_RouterDailyTVL
+  goerli_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_RouterDailyTVL_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_RouterDailyTVL!]!
   goerli_setting(
     id: ID!
     """
@@ -1329,32 +1595,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_OriginMessage!]!
-  goerli_destinationMessage(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_DestinationMessage
-  goerli_destinationMessages(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: goerli_DestinationMessage_orderBy
-    orderDirection: goerli_OrderDirection
-    where: goerli_DestinationMessage_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_DestinationMessage!]!
   goerli_aggregateRoot(
     id: ID!
     """
@@ -1459,7 +1699,7 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageSent!]!
-  goerli_stableSwap(
+  goerli_relayerFeesIncrease(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1469,13 +1709,13 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_StableSwap
-  goerli_stableSwaps(
+  ): goerli_RelayerFeesIncrease
+  goerli_relayerFeesIncreases(
     skip: Int = 0
     first: Int = 100
-    orderBy: goerli_StableSwap_orderBy
+    orderBy: goerli_RelayerFeesIncrease_orderBy
     orderDirection: goerli_OrderDirection
-    where: goerli_StableSwap_filter
+    where: goerli_RelayerFeesIncrease_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1484,8 +1724,8 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_StableSwap!]!
-  goerli_pooledToken(
+  ): [goerli_RelayerFeesIncrease!]!
+  goerli_slippageUpdate(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1495,13 +1735,13 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_PooledToken
-  goerli_pooledTokens(
+  ): goerli_SlippageUpdate
+  goerli_slippageUpdates(
     skip: Int = 0
     first: Int = 100
-    orderBy: goerli_PooledToken_orderBy
+    orderBy: goerli_SlippageUpdate_orderBy
     orderDirection: goerli_OrderDirection
-    where: goerli_PooledToken_filter
+    where: goerli_SlippageUpdate_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1510,33 +1750,7 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_PooledToken!]!
-  goerli_stableSwapLiquidity(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_StableSwapLiquidity
-  goerli_stableSwapLiquidities(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: goerli_StableSwapLiquidity_orderBy
-    orderDirection: goerli_OrderDirection
-    where: goerli_StableSwapLiquidity_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_StableSwapLiquidity!]!
+  ): [goerli_SlippageUpdate!]!
   """Access to subgraph metadata"""
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }
@@ -1545,6 +1759,153 @@ type goerli_Relayer {
   id: ID!
   isActive: Boolean!
   relayer: goerli_Bytes
+}
+
+type goerli_RelayerFeesIncrease {
+  id: ID!
+  transfer: goerli_OriginTransfer!
+  increase: BigInt
+  caller: goerli_Bytes!
+  transactionHash: goerli_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+input goerli_RelayerFeesIncrease_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: goerli_OriginTransfer_filter
+  increase: BigInt
+  increase_not: BigInt
+  increase_gt: BigInt
+  increase_lt: BigInt
+  increase_gte: BigInt
+  increase_lte: BigInt
+  increase_in: [BigInt!]
+  increase_not_in: [BigInt!]
+  caller: goerli_Bytes
+  caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
+  caller_in: [goerli_Bytes!]
+  caller_not_in: [goerli_Bytes!]
+  caller_contains: goerli_Bytes
+  caller_not_contains: goerli_Bytes
+  transactionHash: goerli_Bytes
+  transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
+  transactionHash_in: [goerli_Bytes!]
+  transactionHash_not_in: [goerli_Bytes!]
+  transactionHash_contains: goerli_Bytes
+  transactionHash_not_contains: goerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+  and: [goerli_RelayerFeesIncrease_filter]
+  or: [goerli_RelayerFeesIncrease_filter]
+}
+
+enum goerli_RelayerFeesIncrease_orderBy {
+  id
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__relayerFee
+  transfer__bumpRelayerFeeCount
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  increase
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
 }
 
 input goerli_Relayer_filter {
@@ -1562,12 +1923,18 @@ input goerli_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: goerli_Bytes
   relayer_not: goerli_Bytes
+  relayer_gt: goerli_Bytes
+  relayer_lt: goerli_Bytes
+  relayer_gte: goerli_Bytes
+  relayer_lte: goerli_Bytes
   relayer_in: [goerli_Bytes!]
   relayer_not_in: [goerli_Bytes!]
   relayer_contains: goerli_Bytes
   relayer_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Relayer_filter]
+  or: [goerli_Relayer_filter]
 }
 
 enum goerli_Relayer_orderBy {
@@ -1600,6 +1967,8 @@ input goerli_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_RootCount_filter]
+  or: [goerli_RootCount_filter]
 }
 
 enum goerli_RootCount_orderBy {
@@ -1648,6 +2017,10 @@ input goerli_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: goerli_Bytes
   root_not: goerli_Bytes
+  root_gt: goerli_Bytes
+  root_lt: goerli_Bytes
+  root_gte: goerli_Bytes
+  root_lte: goerli_Bytes
   root_in: [goerli_Bytes!]
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
@@ -1662,12 +2035,20 @@ input goerli_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   transactionHash: goerli_Bytes
   transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
   transactionHash_in: [goerli_Bytes!]
   transactionHash_not_in: [goerli_Bytes!]
   transactionHash_contains: goerli_Bytes
@@ -1706,6 +2087,8 @@ input goerli_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_RootMessageSent_filter]
+  or: [goerli_RootMessageSent_filter]
 }
 
 enum goerli_RootMessageSent_orderBy {
@@ -1732,6 +2115,108 @@ type goerli_Router {
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: goerli_AssetBalance_orderBy, orderDirection: goerli_OrderDirection, where: goerli_AssetBalance_filter): [goerli_AssetBalance!]!
 }
 
+type goerli_RouterDailyTVL {
+  id: ID!
+  router: goerli_Router!
+  asset: goerli_Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
+input goerli_RouterDailyTVL_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: goerli_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: goerli_Asset_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: goerli_BlockChangedFilter
+  and: [goerli_RouterDailyTVL_filter]
+  or: [goerli_RouterDailyTVL_filter]
+}
+
+enum goerli_RouterDailyTVL_orderBy {
+  id
+  router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
+  asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  timestamp
+  balance
+}
+
 input goerli_Router_filter {
   id: ID
   id_not: ID
@@ -1747,18 +2232,30 @@ input goerli_Router_filter {
   isActive_not_in: [Boolean!]
   owner: goerli_Bytes
   owner_not: goerli_Bytes
+  owner_gt: goerli_Bytes
+  owner_lt: goerli_Bytes
+  owner_gte: goerli_Bytes
+  owner_lte: goerli_Bytes
   owner_in: [goerli_Bytes!]
   owner_not_in: [goerli_Bytes!]
   owner_contains: goerli_Bytes
   owner_not_contains: goerli_Bytes
   recipient: goerli_Bytes
   recipient_not: goerli_Bytes
+  recipient_gt: goerli_Bytes
+  recipient_lt: goerli_Bytes
+  recipient_gte: goerli_Bytes
+  recipient_lte: goerli_Bytes
   recipient_in: [goerli_Bytes!]
   recipient_not_in: [goerli_Bytes!]
   recipient_contains: goerli_Bytes
   recipient_not_contains: goerli_Bytes
   proposedOwner: goerli_Bytes
   proposedOwner_not: goerli_Bytes
+  proposedOwner_gt: goerli_Bytes
+  proposedOwner_lt: goerli_Bytes
+  proposedOwner_gte: goerli_Bytes
+  proposedOwner_lte: goerli_Bytes
   proposedOwner_in: [goerli_Bytes!]
   proposedOwner_not_in: [goerli_Bytes!]
   proposedOwner_contains: goerli_Bytes
@@ -1774,6 +2271,8 @@ input goerli_Router_filter {
   assetBalances_: goerli_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Router_filter]
+  or: [goerli_Router_filter]
 }
 
 enum goerli_Router_orderBy {
@@ -1807,12 +2306,18 @@ input goerli_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: goerli_Bytes
   sequencer_not: goerli_Bytes
+  sequencer_gt: goerli_Bytes
+  sequencer_lt: goerli_Bytes
+  sequencer_gte: goerli_Bytes
+  sequencer_lte: goerli_Bytes
   sequencer_in: [goerli_Bytes!]
   sequencer_not_in: [goerli_Bytes!]
   sequencer_contains: goerli_Bytes
   sequencer_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Sequencer_filter]
+  or: [goerli_Sequencer_filter]
 }
 
 enum goerli_Sequencer_orderBy {
@@ -1846,12 +2351,18 @@ input goerli_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: goerli_Bytes
   caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
   caller_in: [goerli_Bytes!]
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_Setting_filter]
+  or: [goerli_Setting_filter]
 }
 
 enum goerli_Setting_orderBy {
@@ -1860,37 +2371,19 @@ enum goerli_Setting_orderBy {
   caller
 }
 
-type goerli_StableSwap {
+type goerli_SlippageUpdate {
   id: ID!
-  isActive: Boolean
-  key: goerli_Bytes
-  canonicalId: goerli_Bytes
-  domain: BigInt
-  swapPool: goerli_Bytes
-  lpToken: goerli_Bytes
-  initialA: BigInt
-  futureA: BigInt
-  initialATime: BigInt
-  futureATime: BigInt
-  swapFee: BigInt
-  adminFee: BigInt
-  pooledTokens(skip: Int = 0, first: Int = 100, orderBy: goerli_PooledToken_orderBy, orderDirection: goerli_OrderDirection, where: goerli_PooledToken_filter): [goerli_PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
-  balances: [BigInt!]!
-  adminFees: [BigInt!]
+  transfer: goerli_DestinationTransfer!
+  slippage: BigInt!
+  caller: goerli_Bytes!
+  transactionHash: goerli_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }
 
-type goerli_StableSwapLiquidity {
-  id: ID!
-  provider: goerli_Bytes!
-  stableSwap: goerli_StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
-}
-
-input goerli_StableSwapLiquidity_filter {
+input goerli_SlippageUpdate_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1899,215 +2392,137 @@ input goerli_StableSwapLiquidity_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  provider: goerli_Bytes
-  provider_not: goerli_Bytes
-  provider_in: [goerli_Bytes!]
-  provider_not_in: [goerli_Bytes!]
-  provider_contains: goerli_Bytes
-  provider_not_contains: goerli_Bytes
-  stableSwap: String
-  stableSwap_not: String
-  stableSwap_gt: String
-  stableSwap_lt: String
-  stableSwap_gte: String
-  stableSwap_lte: String
-  stableSwap_in: [String!]
-  stableSwap_not_in: [String!]
-  stableSwap_contains: String
-  stableSwap_contains_nocase: String
-  stableSwap_not_contains: String
-  stableSwap_not_contains_nocase: String
-  stableSwap_starts_with: String
-  stableSwap_starts_with_nocase: String
-  stableSwap_not_starts_with: String
-  stableSwap_not_starts_with_nocase: String
-  stableSwap_ends_with: String
-  stableSwap_ends_with_nocase: String
-  stableSwap_not_ends_with: String
-  stableSwap_not_ends_with_nocase: String
-  stableSwap_: goerli_StableSwap_filter
-  tokenAmounts: [BigInt!]
-  tokenAmounts_not: [BigInt!]
-  tokenAmounts_contains: [BigInt!]
-  tokenAmounts_contains_nocase: [BigInt!]
-  tokenAmounts_not_contains: [BigInt!]
-  tokenAmounts_not_contains_nocase: [BigInt!]
-  fees: [BigInt!]
-  fees_not: [BigInt!]
-  fees_contains: [BigInt!]
-  fees_contains_nocase: [BigInt!]
-  fees_not_contains: [BigInt!]
-  fees_not_contains_nocase: [BigInt!]
-  invariant: BigInt
-  invariant_not: BigInt
-  invariant_gt: BigInt
-  invariant_lt: BigInt
-  invariant_gte: BigInt
-  invariant_lte: BigInt
-  invariant_in: [BigInt!]
-  invariant_not_in: [BigInt!]
-  lpTokenSupply: BigInt
-  lpTokenSupply_not: BigInt
-  lpTokenSupply_gt: BigInt
-  lpTokenSupply_lt: BigInt
-  lpTokenSupply_gte: BigInt
-  lpTokenSupply_lte: BigInt
-  lpTokenSupply_in: [BigInt!]
-  lpTokenSupply_not_in: [BigInt!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: goerli_DestinationTransfer_filter
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  caller: goerli_Bytes
+  caller_not: goerli_Bytes
+  caller_gt: goerli_Bytes
+  caller_lt: goerli_Bytes
+  caller_gte: goerli_Bytes
+  caller_lte: goerli_Bytes
+  caller_in: [goerli_Bytes!]
+  caller_not_in: [goerli_Bytes!]
+  caller_contains: goerli_Bytes
+  caller_not_contains: goerli_Bytes
+  transactionHash: goerli_Bytes
+  transactionHash_not: goerli_Bytes
+  transactionHash_gt: goerli_Bytes
+  transactionHash_lt: goerli_Bytes
+  transactionHash_gte: goerli_Bytes
+  transactionHash_lte: goerli_Bytes
+  transactionHash_in: [goerli_Bytes!]
+  transactionHash_not_in: [goerli_Bytes!]
+  transactionHash_contains: goerli_Bytes
+  transactionHash_not_contains: goerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: goerli_BlockChangedFilter
+  and: [goerli_SlippageUpdate_filter]
+  or: [goerli_SlippageUpdate_filter]
 }
 
-enum goerli_StableSwapLiquidity_orderBy {
+enum goerli_SlippageUpdate_orderBy {
   id
-  provider
-  stableSwap
-  tokenAmounts
-  fees
-  invariant
-  lpTokenSupply
-}
-
-input goerli_StableSwap_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  isActive: Boolean
-  isActive_not: Boolean
-  isActive_in: [Boolean!]
-  isActive_not_in: [Boolean!]
-  key: goerli_Bytes
-  key_not: goerli_Bytes
-  key_in: [goerli_Bytes!]
-  key_not_in: [goerli_Bytes!]
-  key_contains: goerli_Bytes
-  key_not_contains: goerli_Bytes
-  canonicalId: goerli_Bytes
-  canonicalId_not: goerli_Bytes
-  canonicalId_in: [goerli_Bytes!]
-  canonicalId_not_in: [goerli_Bytes!]
-  canonicalId_contains: goerli_Bytes
-  canonicalId_not_contains: goerli_Bytes
-  domain: BigInt
-  domain_not: BigInt
-  domain_gt: BigInt
-  domain_lt: BigInt
-  domain_gte: BigInt
-  domain_lte: BigInt
-  domain_in: [BigInt!]
-  domain_not_in: [BigInt!]
-  swapPool: goerli_Bytes
-  swapPool_not: goerli_Bytes
-  swapPool_in: [goerli_Bytes!]
-  swapPool_not_in: [goerli_Bytes!]
-  swapPool_contains: goerli_Bytes
-  swapPool_not_contains: goerli_Bytes
-  lpToken: goerli_Bytes
-  lpToken_not: goerli_Bytes
-  lpToken_in: [goerli_Bytes!]
-  lpToken_not_in: [goerli_Bytes!]
-  lpToken_contains: goerli_Bytes
-  lpToken_not_contains: goerli_Bytes
-  initialA: BigInt
-  initialA_not: BigInt
-  initialA_gt: BigInt
-  initialA_lt: BigInt
-  initialA_gte: BigInt
-  initialA_lte: BigInt
-  initialA_in: [BigInt!]
-  initialA_not_in: [BigInt!]
-  futureA: BigInt
-  futureA_not: BigInt
-  futureA_gt: BigInt
-  futureA_lt: BigInt
-  futureA_gte: BigInt
-  futureA_lte: BigInt
-  futureA_in: [BigInt!]
-  futureA_not_in: [BigInt!]
-  initialATime: BigInt
-  initialATime_not: BigInt
-  initialATime_gt: BigInt
-  initialATime_lt: BigInt
-  initialATime_gte: BigInt
-  initialATime_lte: BigInt
-  initialATime_in: [BigInt!]
-  initialATime_not_in: [BigInt!]
-  futureATime: BigInt
-  futureATime_not: BigInt
-  futureATime_gt: BigInt
-  futureATime_lt: BigInt
-  futureATime_gte: BigInt
-  futureATime_lte: BigInt
-  futureATime_in: [BigInt!]
-  futureATime_not_in: [BigInt!]
-  swapFee: BigInt
-  swapFee_not: BigInt
-  swapFee_gt: BigInt
-  swapFee_lt: BigInt
-  swapFee_gte: BigInt
-  swapFee_lte: BigInt
-  swapFee_in: [BigInt!]
-  swapFee_not_in: [BigInt!]
-  adminFee: BigInt
-  adminFee_not: BigInt
-  adminFee_gt: BigInt
-  adminFee_lt: BigInt
-  adminFee_gte: BigInt
-  adminFee_lte: BigInt
-  adminFee_in: [BigInt!]
-  adminFee_not_in: [BigInt!]
-  pooledTokens: [String!]
-  pooledTokens_not: [String!]
-  pooledTokens_contains: [String!]
-  pooledTokens_contains_nocase: [String!]
-  pooledTokens_not_contains: [String!]
-  pooledTokens_not_contains_nocase: [String!]
-  pooledTokens_: goerli_PooledToken_filter
-  tokenPrecisionMultipliers: [BigInt!]
-  tokenPrecisionMultipliers_not: [BigInt!]
-  tokenPrecisionMultipliers_contains: [BigInt!]
-  tokenPrecisionMultipliers_contains_nocase: [BigInt!]
-  tokenPrecisionMultipliers_not_contains: [BigInt!]
-  tokenPrecisionMultipliers_not_contains_nocase: [BigInt!]
-  balances: [BigInt!]
-  balances_not: [BigInt!]
-  balances_contains: [BigInt!]
-  balances_contains_nocase: [BigInt!]
-  balances_not_contains: [BigInt!]
-  balances_not_contains_nocase: [BigInt!]
-  adminFees: [BigInt!]
-  adminFees_not: [BigInt!]
-  adminFees_contains: [BigInt!]
-  adminFees_contains_nocase: [BigInt!]
-  adminFees_not_contains: [BigInt!]
-  adminFees_not_contains_nocase: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: goerli_BlockChangedFilter
-}
-
-enum goerli_StableSwap_orderBy {
-  id
-  isActive
-  key
-  canonicalId
-  domain
-  swapPool
-  lpToken
-  initialA
-  futureA
-  initialATime
-  futureATime
-  swapFee
-  adminFee
-  pooledTokens
-  tokenPrecisionMultipliers
-  balances
-  adminFees
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  slippage
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
 }
 
 type Subscription {
@@ -2137,6 +2552,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_Asset!]!
+  goerli_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_AssetStatus
+  goerli_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_AssetStatus_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_AssetStatus!]!
   goerli_assetBalance(
     id: ID!
     """
@@ -2189,6 +2630,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_Router!]!
+  goerli_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): goerli_RouterDailyTVL
+  goerli_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_RouterDailyTVL_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: goerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [goerli_RouterDailyTVL!]!
   goerli_setting(
     id: ID!
     """
@@ -2345,32 +2812,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_OriginMessage!]!
-  goerli_destinationMessage(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_DestinationMessage
-  goerli_destinationMessages(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: goerli_DestinationMessage_orderBy
-    orderDirection: goerli_OrderDirection
-    where: goerli_DestinationMessage_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_DestinationMessage!]!
   goerli_aggregateRoot(
     id: ID!
     """
@@ -2475,7 +2916,7 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessageSent!]!
-  goerli_stableSwap(
+  goerli_relayerFeesIncrease(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -2485,13 +2926,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_StableSwap
-  goerli_stableSwaps(
+  ): goerli_RelayerFeesIncrease
+  goerli_relayerFeesIncreases(
     skip: Int = 0
     first: Int = 100
-    orderBy: goerli_StableSwap_orderBy
+    orderBy: goerli_RelayerFeesIncrease_orderBy
     orderDirection: goerli_OrderDirection
-    where: goerli_StableSwap_filter
+    where: goerli_RelayerFeesIncrease_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -2500,8 +2941,8 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_StableSwap!]!
-  goerli_pooledToken(
+  ): [goerli_RelayerFeesIncrease!]!
+  goerli_slippageUpdate(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -2511,13 +2952,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_PooledToken
-  goerli_pooledTokens(
+  ): goerli_SlippageUpdate
+  goerli_slippageUpdates(
     skip: Int = 0
     first: Int = 100
-    orderBy: goerli_PooledToken_orderBy
+    orderBy: goerli_SlippageUpdate_orderBy
     orderDirection: goerli_OrderDirection
-    where: goerli_PooledToken_filter
+    where: goerli_SlippageUpdate_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -2526,33 +2967,7 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_PooledToken!]!
-  goerli_stableSwapLiquidity(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): goerli_StableSwapLiquidity
-  goerli_stableSwapLiquidities(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: goerli_StableSwapLiquidity_orderBy
-    orderDirection: goerli_OrderDirection
-    where: goerli_StableSwapLiquidity_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: goerli_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [goerli_StableSwapLiquidity!]!
+  ): [goerli_SlippageUpdate!]!
   """Access to subgraph metadata"""
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }

@@ -274,6 +274,36 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Connext_Test_Mainnet
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-test-mainnet
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: testmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Test_Optimism
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-test-optimism
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: testoptimism_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
   #####################################################
   # LOCAL
   - name: Connext_Local1337
