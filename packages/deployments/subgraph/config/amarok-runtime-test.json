@@ -1,14 +1,34 @@
 [
   {
-    "subgraphName": "connext/runtime-v0-opt-goerli-test",
-    "network": "optimism-goerli",
-    "address": "0xB7CF5324641bD9F82903504c56c9DE2193B4822F",
-    "startBlock": 492235
+    "subgraphName": "connext/amarok-runtime-test-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x2b501381c6d6aFf9238526352b1c7560Aa35A7C5",
+        "startBlock": 16168415
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xcD9467562892031d01d1AA568686E143155ABbeC",
+        "startBlock": 16168730
+      }
+    ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-test-goerli",
-    "network": "goerli",
-    "address": "0x8664bE4C5C12c718838b5dCd8748B66F3A0f6A18",
-    "startBlock": 7426310
+    "subgraphName": "connext/amarok-runtime-test-optimism",
+    "network": "optimism",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x1BCDbF11F9eB8Ddac1725Bb346890E45F14DCbd5",
+        "startBlock": 48439553
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x200fdcf7ED3d856a70380D1d88778EBCA9EC6959",
+        "startBlock": 48439154
+      }
+    ]
   }
 ]
