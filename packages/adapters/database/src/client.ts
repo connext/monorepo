@@ -244,6 +244,9 @@ export const saveTransfers = async (
 
   transfers = transfers.map((_transfer) => {
     const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+
+    _transfer.receive_local = dbTransfer?.receive_local;
+
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
     } else if (
