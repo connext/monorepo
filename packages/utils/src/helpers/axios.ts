@@ -14,7 +14,7 @@ export const axiosPost = async <T = any, R = AxiosResponse<T>, D = any>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>,
-  numAttempts = 5,
+  numAttempts = 30,
   retryDelay = 2000,
 ): Promise<R> => {
   let error;
