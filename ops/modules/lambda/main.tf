@@ -47,7 +47,7 @@ resource "aws_lambda_function" "executable" {
   role          = aws_iam_role.lambda.arn
   architectures = ["x86_64"]
   timeout       = 500
-  memory_size   = 1024
+  memory_size   = 2048
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }
