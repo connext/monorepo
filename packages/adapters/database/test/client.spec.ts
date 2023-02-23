@@ -348,12 +348,11 @@ describe("Database client", () => {
 
   it("should save valid boolean fields", async () => {
     let xTransferLocal = mock.entity.xtransfer();
-    const originReceiveLocal = xTransferLocal.xparams.receiveLocal;
-    xTransferLocal.xparams.receiveLocal = !originReceiveLocal;
+    xTransferLocal.xparams.receiveLocal = true;
     await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
-    expect(dbTransfer!.xparams!.receiveLocal).equal(originReceiveLocal);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(true);
   });
 
   it("should save missing boolean fields with defaults", async () => {
