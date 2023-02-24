@@ -52,8 +52,13 @@ export const getDiamondUpgradeProposal = async () => {
     });
 
     // get the proposed cut
-    const cuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
-    chainCuts[chain] = cuts;
+    const namedCuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
+    // write to file without `name` field (matching contract call)
+    chainCuts[chain] = namedCuts.map((cut) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { name, ...rest } = cut;
+      return rest;
+    });
   }
 
   // write output to json file
