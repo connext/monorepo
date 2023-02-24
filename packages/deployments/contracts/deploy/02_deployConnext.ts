@@ -47,12 +47,14 @@ const proposeDiamondUpgrade = async (
   let abi: any[] = diamondArtifact.abi.concat([]);
 
   // Add DiamondLoupeFacet
-  facets.push({
-    name: "_DefaultDiamondLoupeFacet",
-    contract: "DiamondLoupeFacet",
-    args: [],
-    deterministic: !zksync,
-  });
+  if (!zksync) {
+    facets.push({
+      name: "_DefaultDiamondLoupeFacet",
+      contract: "DiamondLoupeFacet",
+      args: [],
+      deterministic: !zksync,
+    });
+  }
 
   let changesDetected = false;
 
@@ -245,6 +247,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [], deterministic: !zksync },
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [], deterministic: !zksync },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("DiamondLoupeFacet"), contract: "DiamondLoupeFacet", args: [], deterministic: !zksync },
     { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [], deterministic: !zksync },
   ];
   let connext;
