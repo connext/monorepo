@@ -10,7 +10,7 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xcD9467562892031d01d1AA568686E143155ABbeC",
+        "address": "0x9868a20e30216639b0a1b8a426ee873984f6384d",
         "startBlock": 16168730
       }
     ]
@@ -26,7 +26,7 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x200fdcf7ED3d856a70380D1d88778EBCA9EC6959",
+        "address": "0x729a17a6802a7348eebefbe54146eda98b121656",
         "startBlock": 48439154
       }
     ]
