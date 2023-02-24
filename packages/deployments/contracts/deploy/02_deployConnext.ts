@@ -247,9 +247,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [], deterministic: !zksync },
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [], deterministic: !zksync },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("DiamondLoupeFacet"), contract: "DiamondLoupeFacet", args: [], deterministic: !zksync },
+
     { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [], deterministic: !zksync },
   ];
+
+  if (zksync) {
+    facets.push({
+      name: getDeploymentName("DiamondLoupeFacet"),
+      contract: "DiamondLoupeFacet",
+      args: [],
+      deterministic: !zksync,
+    });
+  }
   let connext;
   if (isDiamondUpgrade) {
     console.log("proposing upgrade...");
@@ -378,4 +387,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-func.dependencies = ["Messaging"];
+//func.dependencies = ["Messaging"];

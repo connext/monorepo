@@ -1,4 +1,5 @@
 import { Contract, ethers, Wallet } from "ethers";
+import * as zk from "zksync-web3";
 
 import _Deployments from "../../../../deployments.json";
 import { getContract } from "../../helpers";
@@ -9,8 +10,8 @@ import { DomainDeployments } from "./types";
 const Deployments = _Deployments as any;
 
 export const getDeployments = (args: {
-  deployer: Wallet;
-  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider };
+  deployer: Wallet | zk.Wallet;
+  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider | zk.Provider; zksync: boolean };
   isHub: boolean;
   useStaging: boolean;
 }): DomainDeployments => {
@@ -26,7 +27,12 @@ export const getDeployments = (args: {
   }
   const env = useStaging ? "Staging" : "";
 
-  const deployer = _deployer.connect(chainInfo.rpc);
+  let deployer;
+  if (chainInfo.zksync) {
+    deployer = (_deployer as zk.Wallet).connect(chainInfo.rpc as zk.Provider);
+  } else {
+    deployer = (_deployer as Wallet).connect(chainInfo.rpc as ethers.providers.JsonRpcProvider);
+  }
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];
@@ -55,7 +61,9 @@ export const getDeployments = (args: {
           name: key,
           address: contract.address,
           abi: contract.abi,
-          contract: new Contract(contract.address as string, contract.abi as any[], deployer),
+          contract: chainInfo.zksync
+            ? new zk.Contract(contract.address as string, contract.abi as any[], deployer)
+            : new Contract(contract.address as string, contract.abi as any[], deployer),
         });
       }
     }

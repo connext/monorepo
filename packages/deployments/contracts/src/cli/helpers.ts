@@ -1,4 +1,5 @@
 import { Contract, Wallet } from "ethers";
+import * as zk from "zksync-web3";
 
 import _Deployments from "../../deployments.json";
 import { ConnextInterface } from "../contracts";
@@ -8,7 +9,12 @@ import { Deployment } from "./types";
 const Deployments = _Deployments as any;
 
 // Custom function to format lookup by env and double check that the contract retrieved is not null.
-export const getContract = (name: string, chain: string, useStaging: boolean, wallet?: Wallet): Deployment => {
+export const getContract = (
+  name: string,
+  chain: string,
+  useStaging: boolean,
+  wallet?: Wallet | zk.Wallet,
+): Deployment => {
   const deployments = Deployments[chain];
   if (!deployments) {
     throw new Error(`No deployments found for chain ${chain}!`);
