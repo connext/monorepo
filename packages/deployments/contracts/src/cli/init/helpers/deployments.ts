@@ -1,12 +1,9 @@
 import { ethers, Wallet } from "ethers";
 
-import _Deployments from "../../../../deployments.json";
 import { getContract, getHubConnectors, getSpokeConnector } from "../../helpers";
 import { Deployment } from "../../types";
 
 import { DomainDeployments } from "./types";
-
-const Deployments = _Deployments as any;
 
 export const getDeployments = (args: {
   deployer: Wallet;
@@ -16,14 +13,6 @@ export const getDeployments = (args: {
 }): DomainDeployments => {
   const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
   const chain = chainInfo.chain;
-  const deployments = Deployments[chain];
-  if (!deployments) {
-    throw new Error(`No deployments found for chain ${chain}!`);
-  }
-  const contracts = deployments[0]["contracts"] as { [contract: string]: any };
-  if (!contracts) {
-    throw new Error(`No contracts found under deployments for chain ${chain}!`);
-  }
 
   const deployer = _deployer.connect(chainInfo.rpc);
 
