@@ -236,14 +236,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   const chainData = await getChainData(true);
 
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
-  }
-
   /// ********************* Messaging **********************
   /// MARK - Messaging
   await setupMessaging(protocol);
