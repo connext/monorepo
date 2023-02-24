@@ -35,6 +35,7 @@ export const getProposedFacetCuts = async (
   for (const oldFacet of oldFacets) {
     for (const selector of oldFacet.functionSelectors) {
       oldSelectors.push(selector);
+      // console.log(`existing facet address:`, oldFacet.facetAddress);
       oldSelectorsFacetAddress[selector] = oldFacet.facetAddress;
     }
   }
@@ -71,11 +72,6 @@ export const getProposedFacetCuts = async (
     for (const selector of newFacet.functionSelectors) {
       if (oldSelectors.indexOf(selector) >= 0) {
         if (oldSelectorsFacetAddress[selector].toLowerCase() !== newFacet.facetAddress.toLowerCase()) {
-          console.log(
-            `!!! selector updating because facet address changed:`,
-            newFacet.facetAddress,
-            oldSelectorsFacetAddress[selector],
-          );
           selectorsToReplace.push(selector);
         }
       } else {
@@ -142,7 +138,7 @@ export const getProposedFacetCuts = async (
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
   const acceptanceTime = await current.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
-    // console.log(`cut has already been proposed:`, facetCuts);
+    // console.log(`cut has already been proposed`);
     return []; // already proposed, nothing to do
   }
   // console.log("calling propose with", facetCuts);
