@@ -94,6 +94,7 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
+  transactingAsset: Bytes
 
   # Message
   message: OriginMessage
