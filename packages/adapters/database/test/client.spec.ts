@@ -348,11 +348,61 @@ describe("Database client", () => {
 
   it("should save valid boolean fields", async () => {
     let xTransferLocal = mock.entity.xtransfer();
-    xTransferLocal.xparams.receiveLocal = true;
     await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(xTransferLocal.xparams.receiveLocal);
+  });
+
+  it("should save receiveLocal when not already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
     expect(dbTransfer!.xparams!.receiveLocal).equal(true);
+  });
+
+  it("should not save receiveLocal=false  when true already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(true);
+
+    // Reconciled only destination transfers has receiveLocal = false
+    xTransferLocal.xparams.receiveLocal = false;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransferUpsert = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransferUpsert!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransferUpsert!.xparams!.receiveLocal).equal(true);
+  });
+
+  it("should save receiveLocal=true when false already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = false;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(false);
+
+    // Reconciled only destination transfers has receiveLocal = false
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransferUpsert = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransferUpsert!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransferUpsert!.xparams!.receiveLocal).equal(true);
   });
 
   it("should save missing boolean fields with defaults", async () => {
