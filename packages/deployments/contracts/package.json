@@ -23,6 +23,7 @@
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
+    "propose": "ts-node ./src/cli/upgrade/main.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",

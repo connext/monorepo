@@ -81,7 +81,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       name: "_DefaultDiamondLoupeFacet",
       contract: "DiamondLoupeFacet",
       args: [],
-      deterministic: true,
     },
     { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
     { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },

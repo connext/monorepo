@@ -12,6 +12,7 @@ export type FacetCut = Facet & {
 };
 
 export type Facet = {
+  name: string;
   facetAddress: string;
   functionSelectors: string[];
 };
@@ -48,10 +49,13 @@ export const getProposedFacetCuts = async (
     // NOTE: update if linkedData / libraries / facetArgs are included in deploy script
 
     // Update selectors and snapshot
-    const functionSelectors = facet.contract.interface.fragments.map((fragment) =>
-      facet.contract.interface.getSighash(fragment.format()),
-    );
+    const functionSelectors = Object.values(facet.contract.interface.functions)
+      .map((fragment) => {
+        return facet.contract.interface.getSighash(fragment.format());
+      })
+      .filter((x) => !!x);
     facetSnapshot.push({
+      name: facet.name,
       facetAddress: facet.contract.address,
       functionSelectors,
     });
@@ -67,6 +71,11 @@ export const getProposedFacetCuts = async (
     for (const selector of newFacet.functionSelectors) {
       if (oldSelectors.indexOf(selector) >= 0) {
         if (oldSelectorsFacetAddress[selector].toLowerCase() !== newFacet.facetAddress.toLowerCase()) {
+          console.log(
+            `!!! selector updating because facet address changed:`,
+            newFacet.facetAddress,
+            oldSelectorsFacetAddress[selector],
+          );
           selectorsToReplace.push(selector);
         }
       } else {
@@ -77,6 +86,7 @@ export const getProposedFacetCuts = async (
     if (selectorsToReplace.length > 0) {
       changesDetected = true;
       facetCuts.push({
+        name: newFacet.name,
         facetAddress: newFacet.facetAddress,
         functionSelectors: selectorsToReplace,
         action: FacetCutAction.Replace,
@@ -86,14 +96,20 @@ export const getProposedFacetCuts = async (
     if (selectorsToAdd.length > 0) {
       changesDetected = true;
       facetCuts.push({
+        name: newFacet.name,
         facetAddress: newFacet.facetAddress,
         functionSelectors: selectorsToAdd,
         action: FacetCutAction.Add,
       });
     }
 
-    console.log("trying to add:", selectorsToAdd);
-    console.log("trying to replace:", selectorsToReplace);
+    if (selectorsToAdd.length > 0) {
+      console.log("trying to add:", selectorsToAdd);
+    }
+
+    if (selectorsToReplace.length > 0) {
+      console.log("trying to replace:", selectorsToReplace);
+    }
   }
 
   // Get facet selectors to delete
@@ -104,10 +120,13 @@ export const getProposedFacetCuts = async (
     }
   }
 
-  console.log("trying to remove:", selectorsToDelete);
+  if (selectorsToDelete.length > 0) {
+    console.log("trying to remove:", selectorsToDelete);
+  }
   if (selectorsToDelete.length > 0) {
     changesDetected = true;
     facetCuts.unshift({
+      name: "unknown",
       facetAddress: "0x0000000000000000000000000000000000000000",
       functionSelectors: selectorsToDelete,
       action: FacetCutAction.Remove,
@@ -116,17 +135,17 @@ export const getProposedFacetCuts = async (
 
   // If no changes detected, do nothing
   if (!changesDetected || facetCuts.length === 0) {
-    console.log(`no diamond upgrade proposal needed`);
+    // console.log(`no diamond upgrade proposal needed`);
     return []; // no cuts to propose
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
   const acceptanceTime = await current.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
-    console.log(`cut has already been proposed:`, facetCuts);
+    // console.log(`cut has already been proposed:`, facetCuts);
     return []; // already proposed, nothing to do
   }
-  console.log("calling propose with", facetCuts);
+  // console.log("calling propose with", facetCuts);
 
   // Propose facet cut
   return facetCuts;
