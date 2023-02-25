@@ -12,6 +12,7 @@ import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
+import { RouterBalance } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
@@ -73,6 +74,10 @@ export class SdkUtils extends SdkShared {
   /**
    * Fetches a list of router liquidity data.
    *
+   * @param params - (optional) Parameters object.
+   * @param params.order - (optional) The object with orderBy and ascOrDesc options.
+   * @param params.order.orderBy - (optional) Field to order by.
+   * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
    * @returns Array of objects containing the router address and liquidity information, in the form of:
    * ```ts
    * {
@@ -92,8 +97,16 @@ export class SdkUtils extends SdkShared {
    *}
    * ```
    */
-  async getRoutersData(): Promise<any> {
-    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
+  async getRoutersData(params?: {
+    order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+  }): Promise<RouterBalance[]> {
+    const { order } = params ?? {};
+
+    const orderBy = order?.orderBy ? order.orderBy : "";
+    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
+    const orderIdentifier = orderBy ? `&order=${orderBy}${ascOrDesc}` : "";
+
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
     // Validate uri
     validateUri(uri);
 
