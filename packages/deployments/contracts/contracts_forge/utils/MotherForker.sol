@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ForgeHelper} from "../utils/ForgeHelper.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
 
 import "forge-std/console.sol";
 import "forge-std/stdJson.sol";
@@ -24,7 +25,8 @@ abstract contract MotherForker is ForgeHelper {
   // Hardcode the path to the file
   string public PROPOSAL_FILE_PATH = "/cuts.json";
   // Hardcode the chains to fork based on env
-  mapping(uint256 => bool) public isForkedChain;
+  // key is keccak of chain id as string
+  mapping(bytes32 => bool) public isForkedChain;
 
   mapping(uint256 => uint256) public forkIdsByChain;
   mapping(uint256 => uint256) public chainsByForkId;
@@ -37,24 +39,34 @@ abstract contract MotherForker is ForgeHelper {
   mapping(uint256 => ForkInfo) public forkInfo;
 
   // ============ Utils ==================
-  // Create a fork for each network.
-  function utils_createForks() internal {
+  /**
+   * @notice Create a fork for each network.
+   */
+  function utils_createForks() private {
     NETWORKS = vm.rpcUrls();
+    // get the block for the fork
+    string memory json = utils_readProposalJson();
     for (uint256 i; i < NETWORKS.length; i++) {
-      uint256 forkId = vm.createSelectFork(NETWORKS[i][1]);
-      // ignore fork if configured in env but no generated cuts
-      if (!isForkedChain[block.chainid]) {
+      // before creating a fork, check if it is whitelisted
+      bytes32 key = keccak256(abi.encode(NETWORKS[i][0]));
+      if (!isForkedChain[key]) {
         continue;
       }
+      // get the block to fork from
+      string memory blockKey = string.concat(".", NETWORKS[i][0], ".forkBlock");
+      uint256 start = json.readUint(blockKey);
+      uint256 forkId = vm.createSelectFork(NETWORKS[i][1], start);
       // update the mappings
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;
     }
   }
 
-  function utils_generateProposalFile() internal {
-    // generate the diamond cut proposal by running `propose` via cli:
-    // yarn workspace @connext/smart-contracts propose
+  /**
+   * @notice Generate the diamond cut proposal by running `propose` via cli:
+   *     `ywc propose`
+   */
+  function utils_generateProposalFile() private {
     string[] memory args = new string[](4);
     args[0] = "yarn";
     args[1] = "workspace";
@@ -68,19 +80,26 @@ abstract contract MotherForker is ForgeHelper {
     FORKED_CHAIN_IDS = new uint256[](chains.length);
     for (uint256 i; i < chains.length; i++) {
       FORKED_CHAIN_IDS[i] = chains[i];
-      isForkedChain[chains[i]] = true;
+      bytes32 key = keccak256(abi.encode(chains[i].toString()));
+      isForkedChain[key] = true;
     }
   }
 
-  function utils_readProposalJson() internal returns (string memory) {
+  /**
+   * @notice Read the proposal json file and return the string contents
+   */
+  function utils_readProposalJson() private view returns (string memory) {
     string memory root = vm.projectRoot();
     string memory path = string.concat(root, PROPOSAL_FILE_PATH);
     string memory json = vm.readFile(path);
     return json;
   }
 
-  // should be called after utils_generateProposalFile + utils_createForks
-  function utils_loadForkInfo() internal {
+  /**
+   * @notice Loads the forkInfo (connext address and proposed cuts) from the proposal file
+   * @dev Should be called after utils_generateProposalFile + utils_createForks
+   */
+  function utils_loadForkInfo() private {
     string memory json = utils_readProposalJson();
 
     for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
@@ -134,6 +153,10 @@ abstract contract MotherForker is ForgeHelper {
     }
   }
 
+  /**
+   * @notice Sets up the forks, runs the proposal script to generate cuts to perform, and
+   * loads the fork info into the contract.
+   */
   function utils_setupForkingEnv() internal {
     // make sure the proposal file is generated (will also determine chains to fork)
     utils_generateProposalFile();
@@ -143,10 +166,43 @@ abstract contract MotherForker is ForgeHelper {
     utils_loadForkInfo();
   }
 
-  function utils_upgradeDiamond(address diamond) internal {
-    // TODO: Need a pre-generated diamond cut proposal - one that will be different than on-chain - that we're
-    // testing here. Should come from config?
-    // TODO: Should submit a pre-generated diamond cut proposal to the Connext Diamond, zoom forward 7 days,
-    // and then accept the proposal.
+  /**
+   * @notice This function applies the upgrades to all Connext instances across all forks
+   */
+  function utils_upgradeDiamonds() internal {
+    for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
+      uint256 forkId = forkIdsByChain[FORKED_CHAIN_IDS[i]];
+      vm.selectFork(forkId);
+      utils_upgradeDiamond();
+    }
+  }
+
+  /**
+   * @notice This function applies the upgrades to a single Connext instance
+   */
+  function utils_upgradeDiamond() private {
+    uint256 forkId = vm.activeFork();
+    ForkInfo storage info = forkInfo[forkId];
+    IConnext connext = IConnext(info.connext);
+    if (info.encodedCuts.length == 0) {
+      console.log("No cuts to apply for", info.connext, "on", block.chainid);
+      return;
+    }
+    IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](info.encodedCuts.length);
+    for (uint256 i; i < info.encodedCuts.length; i++) {
+      cuts[i] = abi.decode(info.encodedCuts[i], (IDiamondCut.FacetCut));
+    }
+
+    // propose upgrade
+    vm.prank(connext.owner());
+    connext.proposeDiamondCut(cuts, address(0), bytes(""));
+
+    // roll forward and accept
+    uint256 acceptance = connext.getAcceptanceTime(cuts, address(0), bytes(""));
+    while (block.timestamp < acceptance) {
+      vm.rollFork(forkId, 43200 + block.number);
+    }
+    vm.prank(connext.owner());
+    connext.diamondCut(cuts, address(0), bytes(""));
   }
 }

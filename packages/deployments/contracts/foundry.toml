@@ -9,19 +9,19 @@ fs_permissions = [{ access = "read", path = "./"}]
 
 
 [rpc_endpoints]
-mainnet = "https://cloudflare-eth.com"
-goerli = "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+1 = "https://cloudflare-eth.com"
+5 = "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-optimism = "https://mainnet.optimism.io"
-optimism_goerli = "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+10 = "https://mainnet.optimism.io"
+420 = "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-arbitrum_one = "https://arb1.arbitrum.io/rpc"
-arbitrum_one_goerli = "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+42161 = "https://arb1.arbitrum.io/rpc"
+421613 = "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-polygon = "https://1rpc.io/matic"
-polygon_mumbai = "https://rpc.ankr.com/polygon_mumbai"
+137 = "https://1rpc.io/matic"
+80001 = "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-bnb_smart_chain = "https://bsc-dataseed.binance.org/"
-bnb_smart_chain_testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+56 = "https://bsc-dataseed.binance.org/"
+97 = "https://data-seed-prebsc-1-s1.binance.org:8545/"
 
-gnosis_chain = "https://rpc.gnosischain.com/"
+100 = "https://rpc.gnosischain.com/"

@@ -42,7 +42,10 @@ export const getDiamondUpgradeProposal = async () => {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  const chainCuts: Record<number, { proposal: FacetCut[]; connext: string; numberOfCuts: number }> & {
+  const chainCuts: Record<
+    number,
+    { proposal: FacetCut[]; connext: string; numberOfCuts: number; forkBlock: number }
+  > & {
     chains: number[];
   } = { chains };
   for (const chain of chains) {
@@ -65,10 +68,15 @@ export const getDiamondUpgradeProposal = async () => {
       };
     });
 
+    // get the fork block (block used to create fork in fork tests)
+    const current = await provider.getBlockNumber();
+    const toDeduct = (21 * 24 * 60 * 60) / 15; // 21 days in blocks w/15s blocks
+
     // get the proposed cut
     const namedCuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
     // write to file without `name` field (matching contract call)
     chainCuts[chain] = {
+      forkBlock: current - toDeduct,
       numberOfCuts: namedCuts.length,
       connext: Connext.address,
       proposal: namedCuts.map((cut) => {
