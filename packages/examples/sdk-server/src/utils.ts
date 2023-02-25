@@ -2,7 +2,7 @@ import { SdkUtils } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
-import { getTransfersSchema } from "./types/api";
+import { getTransfersSchema, getRoutersDataSchema } from "./types/api";
 
 export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: SdkUtils): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
@@ -17,6 +17,20 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Sdk
     async (request, reply) => {
       const { params } = request.body;
       const res = await sdkUtilsInstance.getTransfers(params);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getRoutersData",
+    {
+      schema: {
+        body: getRoutersDataSchema,
+      },
+    },
+    async (request, reply) => {
+      const { params } = request.body;
+      const res = await sdkUtilsInstance.getRoutersData(params);
       reply.status(200).send(res);
     },
   );

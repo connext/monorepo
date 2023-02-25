@@ -305,8 +305,18 @@ Content-Type: application/json
 }
 
 ##############
-### GET getRoutersData
-GET {{baseUrl}}/getRoutersData
+### POST getRoutersData
+POST {{baseUrl}}/getRoutersData
+Content-Type: application/json
+
+{
+  "params": {
+    "order": {
+      "orderBy": "balance",
+      "ascOrDesc": "desc"
+    }
+  }
+}
 
 ##############
 ### GET getBlockNumberFromUnixTimestamp

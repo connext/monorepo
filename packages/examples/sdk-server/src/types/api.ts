@@ -199,20 +199,37 @@ export const getTransfersByTransactionHashSchema = Type.Object({
 });
 
 export const getTransfersSchema = Type.Object({
-  params: Type.Object({
-    userAddress: Type.Optional(Type.String()),
-    routerAddress: Type.Optional(Type.String()),
-    status: Type.Optional(Type.Enum(XTransferStatus)),
-    errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
-    transferId: Type.Optional(Type.String()),
-    transactionHash: Type.Optional(Type.String()),
-    range: Type.Optional(
-      Type.Object({
-        limit: Type.Optional(Type.Number()),
-        offset: Type.Optional(Type.Number()),
-      }),
-    ),
-  }),
+  params: Type.Optional(
+    Type.Object({
+      userAddress: Type.Optional(Type.String()),
+      routerAddress: Type.Optional(Type.String()),
+      status: Type.Optional(Type.Enum(XTransferStatus)),
+      errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
+      transferId: Type.Optional(Type.String()),
+      transactionHash: Type.Optional(Type.String()),
+      range: Type.Optional(
+        Type.Object({
+          limit: Type.Optional(Type.Number()),
+          offset: Type.Optional(Type.Number()),
+        }),
+      ),
+    }),
+  ),
+});
+
+export const TSortOrder = Type.Union([Type.Literal("asc"), Type.Literal("desc")]);
+
+export const getRoutersDataSchema = Type.Object({
+  params: Type.Optional(
+    Type.Object({
+      order: Type.Optional(
+        Type.Object({
+          orderBy: Type.Optional(Type.String()),
+          ascOrDesc: Type.Optional(TSortOrder),
+        }),
+      ),
+    }),
+  ),
 });
 
 export const getBlockNumberFromUnixTimestampSchema = Type.Object({
