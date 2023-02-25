@@ -57,6 +57,18 @@ describe("SdkUtils", () => {
       expect(res).to.not.be.undefined;
     });
 
+    it("happy: should work with order", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getRoutersData({
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
     it("should error if validateUri fails", async () => {
       (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 

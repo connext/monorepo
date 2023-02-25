@@ -104,7 +104,7 @@ export class SdkUtils extends SdkShared {
 
     const orderBy = order?.orderBy ? order.orderBy : "";
     const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
-    const orderIdentifier = orderBy ? `&order=${orderBy}${ascOrDesc}` : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
 
     const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
     // Validate uri
