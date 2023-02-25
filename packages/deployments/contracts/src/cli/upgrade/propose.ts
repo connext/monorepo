@@ -8,10 +8,11 @@ import { getProposedFacetCuts } from "../../getProposedFacetCuts";
 import { Env } from "../../utils";
 import { hardhatNetworks } from "../../config";
 
-import { getDeployments } from "./helpers";
+import { getDeployments, SUPPORTED_CHAINS } from "./helpers";
 
 export const optionDefinitions = [
-  { name: "env", type: String },
+  { name: "env", type: String, defaultValue: "staging" },
+  { name: "network", type: String, defaultValue: "testnet" },
   { name: "chains", type: Number, multiple: true },
 ];
 
@@ -25,12 +26,21 @@ export const getDiamondUpgradeProposal = async () => {
 
   // Validate command line arguments
   // const chains = [1, 10, 56, 100, 137, 42161];
-  const { env, chains } = cmdArgs;
+  const { env, chains: _chains, network: _network } = cmdArgs;
+  const network = _network as "testnet" | "mainnet";
+  if (!["testnet", "mainnet"].includes(network as string)) {
+    throw new Error(`Environment should be either staging or production, env: ${env}`);
+  }
+
+  const chains = _chains ?? SUPPORTED_CHAINS[network];
+
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  const chainCuts: Record<number, FacetCut[]> = {};
+  const chainCuts: Record<number, { proposal: FacetCut[]; connext: string; numberOfCuts: number }> & {
+    chains: number[];
+  } = { chains };
   for (const chain of chains) {
     // get the hardhat config
     const config: any = Object.values(hardhatNetworks).find((c: any) => c.chainId === chain);
@@ -54,13 +64,17 @@ export const getDiamondUpgradeProposal = async () => {
     // get the proposed cut
     const namedCuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
     // write to file without `name` field (matching contract call)
-    chainCuts[chain] = namedCuts.map((cut) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { name, ...rest } = cut;
-      return rest;
-    });
+    chainCuts[chain] = {
+      numberOfCuts: namedCuts.length,
+      connext: Connext.address,
+      proposal: namedCuts.map((cut) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { name, ...rest } = cut;
+        return rest;
+      }),
+    };
   }
 
-  // write output to json file
+  // write cuts output to json file
   writeFileSync("cuts.json", JSON.stringify(chainCuts), { encoding: "utf-8" });
 };

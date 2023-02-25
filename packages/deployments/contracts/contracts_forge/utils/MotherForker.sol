@@ -3,20 +3,35 @@ pragma solidity 0.8.17;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ForgeHelper} from "../utils/ForgeHelper.sol";
+import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+
+import "forge-std/console.sol";
+import "forge-std/stdJson.sol";
 
 /**
- * @notice A 'ForkHelper' used to initialize all the applicable forks (found in foundry.toml).
+ * @notice A 'ForkHelper' used to initialize all the applicable forks (foun`d in foundry.toml).
  * @dev Should be inherited and used in the `upgrade` suite of tests to basically test upgradability
  * of live contracts.
  */
 abstract contract MotherForker is ForgeHelper {
-  // Hardcode the networks to participate in (should match foundry.toml)
+  using stdJson for string;
+  using Strings for string;
+  using Strings for uint256;
+
   string[2][] public NETWORKS; // [[name, rpc], [name, rpc], ...]
-  uint256[] public FORK_IDS;
+  uint256[] public FORKED_CHAIN_IDS;
+
+  // Hardcode the path to the file
+  string public PROPOSAL_FILE_PATH = "/cuts.json";
+  // Hardcode the chains to fork based on env
+  mapping(uint256 => bool) public isForkedChain;
+
+  mapping(uint256 => uint256) public forkIdsByChain;
+  mapping(uint256 => uint256) public chainsByForkId;
 
   struct ForkInfo {
     address connext;
-    address[] assets;
+    bytes[] encodedCuts; // an array of all facet cuts to propose
   }
 
   mapping(uint256 => ForkInfo) public forkInfo;
@@ -24,46 +39,110 @@ abstract contract MotherForker is ForgeHelper {
   // ============ Utils ==================
   // Create a fork for each network.
   function utils_createForks() internal {
-    // TODO: .rpcUrls() is not working
-    // NETWORKS = vm.rpcUrls();
-    // for (uint256 i; i < NETWORKS.length; i++) {
-    //   uint256 forkId = vm.createSelectFork(NETWORKS[i][1]);
-    //   FORK_IDS[i] = forkId;
-    //   // Assert that the fork is selectable (has been selected above).
-    //   assertEq(vm.activeFork(), forkId);
-    //   // Form the key we'll use to identify the env vars needed.
-    //   string memory key = Strings.toString(block.chainid);
-    //   // Get address of the connext diamond on the fork.
-    //   address connext = vm.envAddress(string.concat("CONNEXT_", key));
-    //   string memory delimiter = ",";
-    //   address[] memory assets = vm.envAddress(string.concat("ASSETS_", key), delimiter);
-    //   forkInfo[forkId] = ForkInfo({connext: connext, assets: assets});
-    // }
+    NETWORKS = vm.rpcUrls();
+    for (uint256 i; i < NETWORKS.length; i++) {
+      uint256 forkId = vm.createSelectFork(NETWORKS[i][1]);
+      // ignore fork if configured in env but no generated cuts
+      if (!isForkedChain[block.chainid]) {
+        continue;
+      }
+      // update the mappings
+      forkIdsByChain[block.chainid] = forkId;
+      chainsByForkId[forkId] = block.chainid;
+    }
   }
 
   function utils_generateProposalFile() internal {
     // generate the diamond cut proposal by running `propose` via cli:
-    // yarn workspace @connext/smart-contracts propose --env "production" --chains 1 10 56 100 137 42161
-    string[] memory args = new string[](18);
+    // yarn workspace @connext/smart-contracts propose --env "production"
+    string[] memory args = new string[](6);
     args[0] = "yarn";
     args[1] = "workspace";
     args[2] = "@connext/smart-contracts";
     args[3] = "propose";
     args[4] = "--env";
     args[5] = "production";
-    args[6] = "--chains";
-    args[7] = "1";
-    args[8] = "--chains";
-    args[9] = "10";
-    args[10] = "--chains";
-    args[11] = "56";
-    args[12] = "--chains";
-    args[13] = "100";
-    args[14] = "--chains";
-    args[15] = "137";
-    args[16] = "--chains";
-    args[17] = "42161";
     vm.ffi(args);
+
+    // load the supported chains based on output
+    string memory json = utils_readProposalJson();
+    uint256[] memory chains = json.readUintArray(".chains");
+    FORKED_CHAIN_IDS = new uint256[](chains.length);
+    for (uint256 i; i < chains.length; i++) {
+      FORKED_CHAIN_IDS[i] = chains[i];
+      isForkedChain[chains[i]] = true;
+    }
+  }
+
+  function utils_readProposalJson() internal returns (string memory) {
+    string memory root = vm.projectRoot();
+    string memory path = string.concat(root, PROPOSAL_FILE_PATH);
+    string memory json = vm.readFile(path);
+    return json;
+  }
+
+  // should be called after utils_generateProposalFile + utils_createForks
+  function utils_loadForkInfo() internal {
+    string memory json = utils_readProposalJson();
+
+    for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
+      uint256 chainId = FORKED_CHAIN_IDS[i];
+      uint256 forkId = forkIdsByChain[chainId];
+
+      // update connext address
+      string memory connextKey = string.concat(".", chainId.toString(), ".connext");
+      forkInfo[forkId].connext = json.readAddress(connextKey);
+
+      // get number of facet cuts to parse
+      string memory numberOfCutsKey = string.concat(".", chainId.toString(), ".numberOfCuts");
+      uint256 numberOfCuts = json.readUint(numberOfCutsKey);
+
+      // parse the cuts
+      forkInfo[forkId].encodedCuts = new bytes[](numberOfCuts);
+      for (uint256 j; j < numberOfCuts; j++) {
+        IDiamondCut.FacetCut memory cut;
+        string memory cutsKey = string.concat(".", chainId.toString(), ".proposal[", j.toString(), "]");
+
+        // TODO: fix the decoding here to simplify parsing. Must define `JsonFacetCut` struct
+        // bytes memory encoded = json.parseRaw(cutsKey);
+        // JsonFacetCut memory decoded = abi.decode(encoded, (JsonFacetCut));
+        // console.log("decoded via parseRaw", decoded.facetAddress, decoded.action, decoded.functionSelectors.length);
+
+        // get facet address
+        cut.facetAddress = json.readAddress(string.concat(cutsKey, ".facetAddress"));
+
+        // get action
+        uint256 actionUint = json.readUint(string.concat(cutsKey, ".action"));
+        if (actionUint == 0) {
+          cut.action = IDiamondCut.FacetCutAction.Add;
+        } else if (actionUint == 1) {
+          cut.action = IDiamondCut.FacetCutAction.Replace;
+        } else if (actionUint == 2) {
+          cut.action = IDiamondCut.FacetCutAction.Remove;
+        } else {
+          revert("invalid action");
+        }
+
+        // get selectors
+        bytes[] memory selectors = json.readBytesArray(string.concat(cutsKey, ".functionSelectors"));
+        cut.functionSelectors = new bytes4[](selectors.length);
+        for (uint256 k; k < selectors.length; k++) {
+          cut.functionSelectors[k] = bytes4(selectors[k]);
+        }
+
+        // encode the cut and store
+        forkInfo[forkId].encodedCuts[j] = abi.encode(cut);
+      }
+    }
+  }
+
+  function utils_setupForkingEnv() internal {
+    // make sure the proposal file is generated (will also determine chains to fork)
+    utils_generateProposalFile();
+    // make sure the forks are created
+    utils_createForks();
+    // load the fork info into
+    utils_loadForkInfo();
   }
 
   function utils_upgradeDiamond(address diamond) internal {

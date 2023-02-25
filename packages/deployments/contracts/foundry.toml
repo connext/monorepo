@@ -4,6 +4,7 @@ out = 'artifacts_forge'
 libs = ["node_modules", "lib"]
 block_timestamp = 1648744712
 solc_version = '0.8.17'
+fs_permissions = [{ access = "read", path = "./"}]
 # See more config options https://github.com/gakonst/foundry/tree/master/config
 
 
