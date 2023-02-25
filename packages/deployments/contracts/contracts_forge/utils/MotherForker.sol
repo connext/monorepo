@@ -54,14 +54,12 @@ abstract contract MotherForker is ForgeHelper {
 
   function utils_generateProposalFile() internal {
     // generate the diamond cut proposal by running `propose` via cli:
-    // yarn workspace @connext/smart-contracts propose --env "production"
-    string[] memory args = new string[](6);
+    // yarn workspace @connext/smart-contracts propose
+    string[] memory args = new string[](4);
     args[0] = "yarn";
     args[1] = "workspace";
     args[2] = "@connext/smart-contracts";
     args[3] = "propose";
-    args[4] = "--env";
-    args[5] = "production";
     vm.ffi(args);
 
     // load the supported chains based on output

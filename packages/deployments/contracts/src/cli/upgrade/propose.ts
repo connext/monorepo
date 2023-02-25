@@ -1,5 +1,6 @@
 import { writeFileSync } from "fs";
 
+import { config } from "dotenv";
 import { Contract, providers } from "ethers";
 import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
@@ -9,6 +10,8 @@ import { Env } from "../../utils";
 import { hardhatNetworks } from "../../config";
 
 import { getDeployments, SUPPORTED_CHAINS } from "./helpers";
+
+config();
 
 export const optionDefinitions = [
   { name: "env", type: String, defaultValue: "staging" },
@@ -26,8 +29,9 @@ export const getDiamondUpgradeProposal = async () => {
 
   // Validate command line arguments
   // const chains = [1, 10, 56, 100, 137, 42161];
-  const { env, chains: _chains, network: _network } = cmdArgs;
+  const { env: _env, chains: _chains, network: _network } = cmdArgs;
   const network = _network as "testnet" | "mainnet";
+  const env = _env ?? process.env.ENV ?? "staging";
   if (!["testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
