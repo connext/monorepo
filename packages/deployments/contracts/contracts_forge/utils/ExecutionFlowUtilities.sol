@@ -123,12 +123,10 @@ contract ExecutionFlowUtilities is ForgeHelper {
   // ============ Payable ============
   receive() external payable {}
 
-  // ============ Utils ============
-
-  // ============ Setup helpers
+  // ============ Setup helpers ============
 
   // Use if testing enrolling fresh assets
-  function utils_deployFreshAssets() public {
+  function utils_deployFreshAssets() internal {
     // deploy tokens
     _canonical = address(new TestERC20("Test Token", "TEST"));
     _originLocal = address(new TestERC20("Test Token", "TEST"));
@@ -143,7 +141,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     uint32 domain,
     bytes32 canonicalKey,
     uint256 amount
-  ) public {
+  ) internal {
     // assert assets are set
     assertTrue(_originLocal != address(0), "origin local not set");
     assertTrue(_destinationLocal != address(0), "destination local not set");
@@ -207,12 +205,96 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
   }
 
+  // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
+  // are freshly deployed assets being used in tests
+  function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
+    _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    uint256 originCap;
+    uint256 destinationCap;
+    if (_origin == canonicalDomain) {
+      // The canonical domain is the origin, meaning any local
+      // assets on the origin should be the canonical
+      _originAdopted = _canonical;
+      _originLocal = _canonical;
+      originCap = 10_000 ether;
+    } else if (_destination == canonicalDomain) {
+      _destinationAdopted = _canonical;
+      _destinationLocal = _canonical;
+      destinationCap = 10_000 ether;
+    } // otherwise, could be anything
+
+    // Handle origin
+    // Set up asset allowlist
+    if (_origin == canonicalDomain) {
+      console.log("setting up canonical asset on origin");
+      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
+    } else {
+      console.log("setting up asset on origin");
+      _originConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _originLocal,
+        localIsAdopted ? address(0) : _originAdopted,
+        address(0)
+      );
+    }
+
+    // Set up asset allowlist
+    if (_destination == canonicalDomain) {
+      console.log("setting up canonical asset on destination");
+      _destinationConnext.setupAsset(
+        TokenId(canonicalDomain, canonicalId),
+        18,
+        "",
+        "",
+        address(0),
+        address(0),
+        destinationCap
+      );
+    } else {
+      console.log("setting up asset on destination");
+      _destinationConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _destinationLocal,
+        localIsAdopted ? address(0) : _destinationAdopted,
+        address(0)
+      );
+    }
+
+    if (localIsAdopted) {
+      _originAdopted = _originLocal;
+      _destinationAdopted = _destinationLocal;
+    }
+
+    // mint the asset
+    uint256 toMint = 10_000 ether;
+    TestERC20(_originLocal).mint(address(this), toMint);
+    TestERC20(_destinationLocal).mint(address(this), toMint);
+    TestERC20(_originAdopted).mint(address(this), toMint);
+    TestERC20(_destinationAdopted).mint(address(this), toMint);
+    TestERC20(_canonical).mint(address(this), toMint);
+
+    // setup + fund the pools if needed
+    console.log("_originLocal", _originLocal);
+    console.log("_originAdopted", _originAdopted);
+    if (_originLocal != _originAdopted) {
+      console.log("setting up origin swap");
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
+    }
+
+    if (_destinationLocal != _destinationAdopted) {
+      utils_setupPool(_destination, _canonicalKey, 100 ether);
+    }
+  }
+
   // Used to generate transfer info struct.
   function utils_createTransferIdInformation(
     uint32 destination,
     uint256 amount,
     uint256 bridgedAmount
-  ) public returns (TransferInfo memory) {
+  ) internal returns (TransferInfo memory) {
     bool sendToDest = destination == _destination;
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     return
@@ -236,8 +318,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
       });
   }
 
-  // ============ XCall helpers
-  function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
+  // ============ XCall helpers ============
+  function utils_getXCallBalances(address transacting, address bridge) internal returns (XCallBalances memory) {
     // assert assets are set
     assertTrue(_originLocal != address(0), "origin local not set");
     assertTrue(_destinationLocal != address(0), "destination local not set");
@@ -258,7 +340,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     address asset, // input asset
     uint256 amount, // input amount
     uint256 relayerFee
-  ) public returns (bytes32) {
+  ) internal returns (bytes32) {
     XCallBalances memory initial;
     if (asset != address(0)) {
       // Approve the bridge to spend the input tokens.
@@ -325,13 +407,13 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return ret;
   }
 
-  // ============ Execute helpers
+  // ============ Execute helpers ============
 
   function utils_createRouters(
     uint256 num,
     bytes32 transferId,
     uint256 liquidity
-  ) public returns (address[] memory, bytes[] memory) {
+  ) internal returns (address[] memory, bytes[] memory) {
     // Ensure config set properly
     assertTrue(_destinationLocal != address(0), "destination local not set");
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
@@ -373,7 +455,10 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return (routers, signatures);
   }
 
-  function utils_createSequencer(bytes32 transferId, address[] memory routers) public returns (address, bytes memory) {
+  function utils_createSequencer(bytes32 transferId, address[] memory routers)
+    internal
+    returns (address, bytes memory)
+  {
     assertTrue(address(_originConnext) != address(0), "origin connext not set");
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256 key = 0xA11CE;
@@ -392,7 +477,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     bytes32 transferId,
     uint256 pathLen,
     uint256 liquidity
-  ) public returns (ExecuteArgs memory) {
+  ) internal returns (ExecuteArgs memory) {
     (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
     (address sequencer, bytes memory sequencerSignature) = utils_createSequencer(transferId, routers);
     return
@@ -405,12 +490,12 @@ contract ExecutionFlowUtilities is ForgeHelper {
       );
   }
 
-  function utils_createExecuteArgs(TransferInfo memory params, uint256 pathLen) public returns (ExecuteArgs memory) {
+  function utils_createExecuteArgs(TransferInfo memory params, uint256 pathLen) internal returns (ExecuteArgs memory) {
     bytes32 transferId = keccak256(abi.encode(params));
     return utils_createExecuteArgs(params, transferId, pathLen, 20 ether);
   }
 
-  function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
+  function utils_getFastTransferAmount(uint256 amount) internal returns (uint256) {
     return (amount * 9995) / 10000;
   }
 
@@ -420,7 +505,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     address bridge,
     address recipient,
     address[] memory routers
-  ) public returns (ExecuteBalances memory) {
+  ) internal returns (ExecuteBalances memory) {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256[] memory routerBalances = new uint256[](routers.length);
     for (uint256 i; i < routers.length; ) {
@@ -444,7 +529,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     uint256 bridgeOut,
     uint256 vaultOut,
     bool usesPortals
-  ) public {
+  ) internal {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     assertTrue(address(_destinationLocal) != address(0), "destination local not set");
 
@@ -546,13 +631,13 @@ contract ExecutionFlowUtilities is ForgeHelper {
     ExecuteArgs memory args,
     bytes32 transferId,
     uint256 bridgeOut
-  ) public {
+  ) internal {
     utils_executeAndAssert(args, transferId, bridgeOut, 0, false);
   }
 
-  // ============ Reconcile helpers
+  // ============ Reconcile helpers ============
   function utils_getReconcileBalances(bytes32 transferId, address[] memory routers)
-    public
+    internal
     returns (ReconcileBalances memory)
   {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
@@ -572,7 +657,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     TransferInfo memory params,
     bytes32 transferId,
     address[] memory routers
-  ) public {
+  ) internal {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     assertTrue(address(_destinationLocal) != address(0), "destination local not set");
 
@@ -620,5 +705,60 @@ contract ExecutionFlowUtilities is ForgeHelper {
       ? DestinationTransferStatus.Completed
       : DestinationTransferStatus.Reconciled;
     assertTrue(_destinationConnext.transferStatus(transferId) == expected);
+  }
+
+  // ============ Test logic helpers ============
+  // Performs a fast transfer without any portals
+  function utils_performFastExecutionTest(
+    TransferInfo memory params,
+    address transactingAsset,
+    uint256 relayerFee,
+    uint256 amount, // amount sent in
+    uint256 amountReceived, // amount received on destination
+    uint256 pathLen,
+    uint256 routerLiquidity
+  ) internal {
+    // 1. `xcall` on the origin
+    bytes32 transferId = utils_xcallAndAssert(params, transactingAsset, amount, relayerFee);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(
+      params,
+      transferId,
+      pathLen,
+      routerLiquidity // liquidity router has at start
+    );
+    utils_executeAndAssert(execute, transferId, amountReceived);
+
+    // 3. call `handle` on the destination
+    utils_reconcileAndAssert(params, transferId, execute.routers);
+  }
+
+  // Performs a slow transfer
+  function utils_performSlowExecutionTest(
+    TransferInfo memory params,
+    address transactingAsset,
+    uint256 relayerFee,
+    uint256 amount, // amount sent in
+    uint256 amountReceived, // amount received on destination
+    uint256 pathLen,
+    uint256 routerLiquidity
+  ) internal {
+    // 1. `xcall` on the origin
+    bytes32 transferId = utils_xcallAndAssert(params, transactingAsset, amount, relayerFee);
+
+    // create execute args
+    ExecuteArgs memory execute = utils_createExecuteArgs(
+      params,
+      transferId,
+      pathLen,
+      routerLiquidity // liquidity router has at start
+    );
+
+    // 2. reconcile on the destination
+    utils_reconcileAndAssert(params, transferId, execute.routers);
+
+    // 3. execute
+    utils_executeAndAssert(execute, transferId, amountReceived);
   }
 }

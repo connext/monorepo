@@ -89,104 +89,15 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     _destinationConnext.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originConnext)));
   }
 
-  function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
-    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
-    _canonicalDomain = canonicalDomain;
-    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
-
-    uint256 originCap;
-    uint256 destinationCap;
-    if (_origin == canonicalDomain) {
-      // The canonical domain is the origin, meaning any local
-      // assets on the origin should be the canonical
-      _originAdopted = _canonical;
-      _originLocal = _canonical;
-      originCap = 10_000 ether;
-    } else if (_destination == canonicalDomain) {
-      _destinationAdopted = _canonical;
-      _destinationLocal = _canonical;
-      destinationCap = 10_000 ether;
-    } // otherwise, could be anything
-
-    // Handle origin
-    // Set up asset allowlist
-    if (_origin == canonicalDomain) {
-      console.log("setting up canonical asset on origin");
-      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
-    } else {
-      console.log("setting up asset on origin");
-      _originConnext.setupAssetWithDeployedRepresentation(
-        TokenId(canonicalDomain, canonicalId),
-        _originLocal,
-        localIsAdopted ? address(0) : _originAdopted,
-        address(0)
-      );
-    }
-
-    // Set up asset allowlist
-    if (_destination == canonicalDomain) {
-      console.log("setting up canonical asset on destination");
-      _destinationConnext.setupAsset(
-        TokenId(canonicalDomain, canonicalId),
-        18,
-        "",
-        "",
-        address(0),
-        address(0),
-        destinationCap
-      );
-    } else {
-      console.log("setting up asset on destination");
-      _destinationConnext.setupAssetWithDeployedRepresentation(
-        TokenId(canonicalDomain, canonicalId),
-        _destinationLocal,
-        localIsAdopted ? address(0) : _destinationAdopted,
-        address(0)
-      );
-    }
-
-    if (localIsAdopted) {
-      _originAdopted = _originLocal;
-      _destinationAdopted = _destinationLocal;
-    }
-
-    // mint the asset
-    uint256 toMint = 10_000 ether;
-    TestERC20(_originLocal).mint(address(this), toMint);
-    TestERC20(_destinationLocal).mint(address(this), toMint);
-    TestERC20(_originAdopted).mint(address(this), toMint);
-    TestERC20(_destinationAdopted).mint(address(this), toMint);
-    TestERC20(_canonical).mint(address(this), toMint);
-
-    // setup + fund the pools if needed
-    console.log("_originLocal", _originLocal);
-    console.log("_originAdopted", _originAdopted);
-    if (_originLocal != _originAdopted) {
-      console.log("setting up origin swap");
-      utils_setupPool(_origin, _canonicalKey, 100 ether);
-    }
-
-    if (_destinationLocal != _destinationAdopted) {
-      utils_setupPool(_destination, _canonicalKey, 100 ether);
-    }
-  }
-
   // ============ Testing scenarios ============
   // you should be able to create a 0-value transfer (even with asset being defined)
   function test_Connext__zeroValueTransferShouldWork() public {
     // 0. setup contracts
     utils_setupAssets(_origin, true);
 
-    // 1. `xcall` on the origin
+    // perform test
     TransferInfo memory params = utils_createTransferIdInformation(_destination, 0, 0);
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, 0, 0);
-
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 0);
-    utils_executeAndAssert(execute, transferId, 0);
-
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
+    utils_performFastExecutionTest(params, _originLocal, 0, 0, 0, 1, 0);
   }
 
   // call a 0-value transfer with address(0) as asset
@@ -194,19 +105,13 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     // 0. setup contracts
     utils_setupAssets(_origin, true);
 
-    // 1. `xcall` on the origin
+    // generate params
     TransferInfo memory params = utils_createTransferIdInformation(_destination, 0, 0);
     params.slippage = 0;
     params.canonicalId = bytes32("");
     params.canonicalDomain = uint32(0);
-    bytes32 transferId = utils_xcallAndAssert(params, address(0), 0, 0);
-
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 10 ether);
-    utils_executeAndAssert(execute, transferId, 0, 0, false);
-
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
+    // perform test
+    utils_performFastExecutionTest(params, address(0), 0, 0, 0, 1, 0);
   }
 
   // you should be able to bridge local/representative tokens (local == adopted)
@@ -214,27 +119,20 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     // 0. setup contracts
     utils_setupAssets(_origin, true);
 
-    // 1. `xcall` on the origin
+    // generate params
     uint256 amount = 1 ether;
-    uint256 bridgedAmount = amount;
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, amount);
 
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, 10 ether);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(bridgedAmount));
-
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
+    // perform test
+    utils_performFastExecutionTest(params, _originLocal, 0, amount, utils_getFastTransferAmount(amount), 2, 10 ether);
   }
 
   // you should be able to bridge adopted tokens (local != adopted)
   function test_Connext__bridgeFastAdoptedShouldWork() public {
     // 0. setup contracts
     utils_setupAssets(_other, false);
-    console.log("setup assets");
 
-    // 1. `xcall` on the origin
+    // generate transfer params
     uint256 amount = 1 ether;
     uint256 bridgedAmount = _originConnext.calculateSwap(
       _canonicalKey,
@@ -242,21 +140,17 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
       1, // adopted idx always 1
       amount // no min
     );
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
-    bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amount, 0);
 
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, bridgedAmount);
+    // get expected amount out
     uint256 bridgedOut = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(bridgedAmount)
     );
-    utils_executeAndAssert(execute, transferId, bridgedOut);
 
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    utils_performFastExecutionTest(params, _originAdopted, 0, amount, bridgedOut, 1, bridgedAmount);
   }
 
   // you should be able to bridge local asset on origin to adopted asset on destination
@@ -264,24 +158,20 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     // 0. setup contracts
     utils_setupAssets(_other, false);
 
-    // 1. `xcall` on the origin
+    // generate transfer params
     uint256 amount = 1 ether;
-    uint256 bridgedAmount = amount;
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, amount);
 
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, bridgedAmount);
+    // get bridged out amount
     uint256 bridgedOut = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
-      utils_getFastTransferAmount(bridgedAmount)
+      utils_getFastTransferAmount(amount)
     );
-    utils_executeAndAssert(execute, transferId, bridgedOut);
 
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
+    // perform test
+    utils_performFastExecutionTest(params, _originLocal, 0, amount, bridgedOut, 2, amount);
   }
 
   // you should be able to use the slow path
@@ -289,20 +179,12 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     // 0. setup contracts
     utils_setupAssets(_other, true); // local is adopted
 
-    // 1. `xcall` on the origin
+    // generate transfer params
     uint256 amount = 1 ether;
-    uint256 bridgedAmount = amount;
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, amount);
 
-    // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
-
-    // 2. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
-
-    // 3. call `execute` on the destination
-    utils_executeAndAssert(execute, transferId, bridgedAmount);
+    // perform test
+    utils_performSlowExecutionTest(params, _originLocal, 0, amount, amount, 0, amount);
   }
 
   // you should be able to execute unpermissioned external call data
@@ -312,18 +194,14 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     MockXApp callTo = new MockXApp();
     bytes memory callData = bytes("calling cool stuff");
 
-    // 1. xcall
+    // generate transfer params
     uint256 amount = 1 ether;
-    uint256 bridgedAmount = amount;
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, amount);
     params.to = address(callTo);
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, bridgedAmount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(bridgedAmount));
-    // NOTE: execute only passes if external call passes because of balance assertions on `to`
+    // perform test
+    utils_performFastExecutionTest(params, _originLocal, 0, amount, utils_getFastTransferAmount(amount), 2, amount);
   }
 
   // you should be able to execute permissioned external call data
@@ -334,23 +212,14 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     callTo.setPermissions(address(this), _origin);
     bytes memory callData = bytes("calling cool stuff");
 
-    // 1. xcall
+    // generate transfer params
     uint256 amount = 1 ether;
-    uint256 bridgedAmount = amount;
-    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, amount);
     params.to = address(callTo);
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
-    // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
-
-    // 2. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, execute.routers);
-
-    // 3. call `execute` on the destination
-    utils_executeAndAssert(execute, transferId, bridgedAmount);
-    // NOTE: execute only passes if external call passes because of balance assertions on `to`
+    // perform the test
+    utils_performSlowExecutionTest(params, _originLocal, 0, amount, amount, 0, amount);
   }
 
   // you should be able to use a portal
