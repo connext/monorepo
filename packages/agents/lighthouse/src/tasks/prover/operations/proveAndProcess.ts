@@ -62,84 +62,91 @@ export const proveAndProcess = async () => {
         });
 
         await Promise.all(
-          domains.map(async (originDomain) => {
-            try {
-              const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
-                originDomain,
-                curDestAggRoot.root,
-              );
-              if (!latestMessageRoot) {
-                throw new NoTargetMessageRoot(originDomain);
-              }
-              // Paginate through all unprocessed messages from the domain
-              let offset = 0;
-              let end = false;
-              while (!end) {
-                logger.info(
-                  "Getting unprocessed messages for origin and destination pair",
-                  requestContext,
-                  methodContext,
-                  { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
-                );
-                const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+          domains
+            .filter((domain) => domain != destinationDomain)
+            .map(async (originDomain) => {
+              try {
+                const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
                   originDomain,
-                  destinationDomain,
-                  latestMessageRoot.count,
-                  offset,
-                  config.proverBatchSize,
+                  curDestAggRoot.root,
                 );
-                const subContext = createRequestContext(
-                  "processUnprocessedMessages",
-                  `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
-                );
-                if (unprocessed.length > 0) {
-                  logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                    unprocessed,
-                    originDomain,
-                    destinationDomain,
-                    offset,
-                  });
-                  // Batch process messages from the same origin domain
-                  await processMessages(
-                    unprocessed,
-                    originDomain,
-                    destinationDomain,
-                    latestMessageRoot.root,
-                    subContext,
-                  );
-                  offset += unprocessed.length;
+                if (!latestMessageRoot) {
+                  throw new NoTargetMessageRoot(originDomain);
+                }
+                // Paginate through all unprocessed messages from the domain
+                let offset = 0;
+                let end = false;
+                while (!end) {
                   logger.info(
-                    "Processed unprocessed messages for origin and destination pair",
-                    subContext,
+                    "Getting unprocessed messages for origin and destination pair",
+                    requestContext,
                     methodContext,
-                    {
+                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+                  );
+                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                    originDomain,
+                    destinationDomain,
+                    latestMessageRoot.count,
+                    offset,
+                    config.proverBatchSize,
+                  );
+                  const subContext = createRequestContext(
+                    "processUnprocessedMessages",
+                    `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
+                  );
+                  if (unprocessed.length > 0) {
+                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
                       unprocessed,
                       originDomain,
                       destinationDomain,
                       offset,
-                    },
-                  );
-                } else {
-                  // End the loop if no more messages are found
-                  end = true;
-                  if (offset === 0) {
+                    });
+                    // Batch process messages from the same origin domain
+                    await processMessages(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      latestMessageRoot.root,
+                      subContext,
+                    );
+                    offset += unprocessed.length;
                     logger.info(
-                      "Reached end of unprocessed messages for origin and destination pair",
+                      "Processed unprocessed messages for origin and destination pair",
                       subContext,
                       methodContext,
                       {
+                        unprocessed,
                         originDomain,
                         destinationDomain,
                         offset,
                       },
                     );
+                  } else {
+                    // End the loop if no more messages are found
+                    end = true;
+                    if (offset === 0) {
+                      logger.info(
+                        "Reached end of unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
                   }
                 }
+              } catch (err: unknown) {
+                logger.error(
+                  "Error processing messages",
+                  requestContext,
+                  methodContext,
+                  jsonifyError(err as NxtpError),
+                );
               }
-            } catch (err: unknown) {
-              logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
-            }
-          }),
+            }),
         );
       } catch (err: unknown) {
         logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));

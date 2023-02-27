@@ -520,6 +520,22 @@ input stagingmumbai_swap_StableSwapAddLiquidityEvent_filter {
 enum stagingmumbai_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -605,6 +621,22 @@ input stagingmumbai_swap_StableSwapEvent_filter {
 enum stagingmumbai_swap_StableSwapEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -619,6 +651,7 @@ type stagingmumbai_swap_StableSwapExchange {
   soldId: BigInt!
   tokensSold: BigInt!
   balances: [BigInt!]!
+  fee: BigInt!
   block: BigInt!
   timestamp: BigInt!
   transaction: stagingmumbai_swap_Bytes!
@@ -702,6 +735,14 @@ input stagingmumbai_swap_StableSwapExchange_filter {
   balances_contains_nocase: [BigInt!]
   balances_not_contains: [BigInt!]
   balances_not_contains_nocase: [BigInt!]
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -737,12 +778,29 @@ input stagingmumbai_swap_StableSwapExchange_filter {
 enum stagingmumbai_swap_StableSwapExchange_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
   soldId
   tokensSold
   balances
+  fee
   block
   timestamp
   transaction
@@ -880,6 +938,22 @@ input stagingmumbai_swap_StableSwapRemoveLiquidityEvent_filter {
 enum stagingmumbai_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -1441,6 +1515,22 @@ input stagingmumbai_swap_SwapDailyVolume_filter {
 enum stagingmumbai_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1507,6 +1597,22 @@ input stagingmumbai_swap_SwapHourlyVolume_filter {
 enum stagingmumbai_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1563,6 +1669,22 @@ input stagingmumbai_swap_SwapTradeVolume_filter {
 
 enum stagingmumbai_swap_SwapTradeVolume_orderBy {
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1629,6 +1751,22 @@ input stagingmumbai_swap_SwapWeeklyVolume_filter {
 enum stagingmumbai_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }

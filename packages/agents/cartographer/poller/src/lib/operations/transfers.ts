@@ -240,9 +240,13 @@ export const updateBackoffs = async (): Promise<void> => {
     increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
   );
 
+  // filter by domain
+  const increasesByDomain: Record<string, string[]> = {};
+
   const increaseCheckpoints = domains
     .map((domain) => {
       const domainUpdates = updates.filter((update) => update.domain === domain);
+      increasesByDomain[domain] = domainUpdates.map((update) => update.transferId);
       const max = getMaxTimestamp(domainUpdates);
       const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
       if (domainUpdates.length > 0 && max > latest) {
@@ -251,6 +255,13 @@ export const updateBackoffs = async (): Promise<void> => {
       return undefined;
     })
     .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  // update transfers with relayer fee bumps
+  // query subgraphs to avoid recalculating relayer fee based on increases
+  for (const domain of Object.keys(increasesByDomain)) {
+    const transfers = await subgraph.getOriginTransfersByDomain(domain, increasesByDomain[domain]);
+    await database.saveTransfers(transfers);
+  }
 
   for (const checkpoint of increaseCheckpoints) {
     await database.saveCheckPoint("relayer_fees_increases_timestamp_" + checkpoint.domain, checkpoint.checkpoint);

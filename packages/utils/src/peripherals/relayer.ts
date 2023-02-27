@@ -2,6 +2,7 @@ import { BigNumber, constants } from "ethers";
 import { ChainReader } from "@connext/nxtp-txservice";
 
 import { getHardcodedGasLimits } from "../constants";
+import { NxtpError } from "../types";
 import { getChainIdFromDomain, getDecimalsForAsset } from "../helpers";
 import { Logger, createLoggingContext, RequestContext } from "../logging";
 
@@ -52,7 +53,7 @@ export const calculateRelayerFee = async (
     execute: executeGasAmount,
     executeL1: executeL1GasAmount,
     gasPriceFactor,
-  } = await getHardcodedGasLimits(originChainId, chainData);
+  } = await getHardcodedGasLimits(destinationDomain, chainData);
   if (logger) {
     logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
@@ -75,6 +76,7 @@ export const calculateRelayerFee = async (
     let gasPrice = BigNumber.from(0);
     try {
       gasPrice = await chainreader!.getGasPrice(Number(params.destinationDomain), requestContext);
+      estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice);
     } catch (e: unknown) {
       if (logger) {
         logger.warn("Error getting GasPrice", requestContext, methodContext, {
@@ -84,12 +86,25 @@ export const calculateRelayerFee = async (
         return BigNumber.from(0);
       }
     }
-    estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice);
+  }
+
+  if (destinationChainId == 10) {
+    // consider l1gas for optimism network
     if (logger) {
-      logger.info("Used GasPrice to EstimateRelayerFee", requestContext, methodContext, {
-        estimatedRelayerFee,
-        gasPrice,
+      const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
+        1,
+        constants.AddressZero,
+        Number(executeL1GasAmount),
+        isHighPriority,
+      );
+
+      logger.info("Adding l1Gas", requestContext, methodContext, {
+        executeGasAmount,
+        executeL1GasAmount,
+        l1EstimatedRelayerFee: l1EstimatedRelayerFee.toString(),
       });
+
+      estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
     }
   }
 
