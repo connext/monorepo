@@ -1,4 +1,4 @@
-import { XTransfer, NxtpError, createLoggingContext } from "@connext/nxtp-utils";
+import { XTransfer, createLoggingContext } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { calculateRelayerFee } from "../../mockable";
@@ -9,7 +9,7 @@ import { getContext } from "../../sequencer";
  * @param transfer - The origin transfer entity
  */
 export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubmit: boolean; needed: string }> => {
-  const { requestContext, methodContext } = createLoggingContext(canSubmitToRelayer.name);
+  const { requestContext } = createLoggingContext(canSubmitToRelayer.name);
   const {
     logger,
     chainData,

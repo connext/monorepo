@@ -7,7 +7,6 @@ import {
   MultisendTransaction,
   encodeMultisendCall,
   ajv,
-  RequestContext,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
