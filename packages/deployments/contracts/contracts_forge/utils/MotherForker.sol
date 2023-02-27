@@ -15,9 +15,12 @@ import "forge-std/StdJson.sol";
  * of live contracts.
  */
 abstract contract MotherForker is ForgeHelper {
+  // ============ Libraries ============
   using stdJson for string;
   using Strings for string;
   using Strings for uint256;
+
+  // ============ Storage ============
 
   string[2][] public NETWORKS; // [[name, rpc], [name, rpc], ...]
   uint256[] public FORKED_CHAIN_IDS;
@@ -60,6 +63,15 @@ abstract contract MotherForker is ForgeHelper {
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;
     }
+  }
+
+  /**
+   * @notice Selects a fork given a chain
+   */
+  function utils_selectFork(uint256 chain) internal returns (uint256 forkId) {
+    // activate the fork
+    forkId = forkIdsByChain[chain];
+    vm.selectFork(forkId);
   }
 
   /**

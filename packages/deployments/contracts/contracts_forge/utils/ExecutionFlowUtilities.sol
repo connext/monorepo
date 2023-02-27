@@ -143,29 +143,26 @@ contract ExecutionFlowUtilities is ForgeHelper {
     uint256 amount
   ) internal {
     // assert assets are set
-    assertTrue(_originLocal != address(0), "origin local not set");
-    assertTrue(_destinationLocal != address(0), "destination local not set");
-    assertTrue(_originAdopted != address(0), "destination adopted not set");
-    assertTrue(_destinationAdopted != address(0), "destination adopted not set");
-
+    bool isOrigin = domain == _origin;
+    address local = isOrigin ? _originLocal : _destinationLocal;
+    address adopted = isOrigin ? _originAdopted : _destinationAdopted;
+    address connext = isOrigin ? address(_originConnext) : address(_destinationConnext);
+    assertTrue(local != address(0), "local not set");
+    assertTrue(adopted != address(0), "adopted not set");
     // assert connext instances are set
-    assertTrue(address(_originConnext) != address(0), "origin connext not set");
-    assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
+    assertTrue(connext != address(0), "connext not set");
 
     // begin setup
 
-    bool isOrigin = domain == _origin;
     // get tokens
     IERC20[] memory pooledTokens = new IERC20[](2);
-    pooledTokens[0] = IERC20(isOrigin ? _originLocal : _destinationLocal);
-    pooledTokens[1] = IERC20(isOrigin ? _originAdopted : _destinationAdopted);
+    pooledTokens[0] = IERC20(local);
+    pooledTokens[1] = IERC20(adopted);
 
     // get decimals
     uint8[] memory decimals = new uint8[](2);
     decimals[0] = 18;
     decimals[1] = 18;
-
-    IConnext connext = isOrigin ? _originConnext : _destinationConnext;
 
     {
       console.log("initializing swap between:");
@@ -176,8 +173,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
       string memory LP_TOKEN_SYMBOL = "TESTLP";
 
       // initialize pool
-      vm.prank(connext.owner());
-      connext.initializeSwap(
+      vm.prank(IConnext(connext).owner());
+      IConnext(connext).initializeSwap(
         canonicalKey, // canonicalkey
         pooledTokens, // pooled
         decimals, // decimals
@@ -197,37 +194,33 @@ contract ExecutionFlowUtilities is ForgeHelper {
       amounts[0] = amount;
       amounts[1] = amount;
 
-      pooledTokens[0].approve(address(connext), amount);
-      pooledTokens[1].approve(address(connext), amount);
+      pooledTokens[0].approve(connext, amount);
+      pooledTokens[1].approve(connext, amount);
 
-      connext.addSwapLiquidity(canonicalKey, amounts, 0, block.timestamp + 60);
-      assertTrue(connext.getSwapVirtualPrice(canonicalKey) != 0);
+      IConnext(connext).addSwapLiquidity(canonicalKey, amounts, 0, block.timestamp + 60);
+      assertTrue(IConnext(connext).getSwapVirtualPrice(canonicalKey) != 0);
     }
   }
 
   // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
-  // are freshly deployed assets being used in tests
-  function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+  // are freshly deployed assets being used in tests. Used in fork tests
+  function utils_setupOriginAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
     uint256 originCap;
-    uint256 destinationCap;
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
       _originAdopted = _canonical;
       _originLocal = _canonical;
       originCap = 10_000 ether;
-    } else if (_destination == canonicalDomain) {
-      _destinationAdopted = _canonical;
-      _destinationLocal = _canonical;
-      destinationCap = 10_000 ether;
     } // otherwise, could be anything
 
     // Handle origin
     // Set up asset allowlist
+    vm.prank(_originConnext.owner());
     if (_origin == canonicalDomain) {
       console.log("setting up canonical asset on origin");
       _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
@@ -240,8 +233,39 @@ contract ExecutionFlowUtilities is ForgeHelper {
         address(0)
       );
     }
+    console.log("done setting up origin asset");
 
-    // Set up asset allowlist
+    if (localIsAdopted) {
+      _originAdopted = _originLocal;
+    }
+
+    // mint the asset
+    uint256 toMint = 10_000 ether;
+    TestERC20(_originLocal).mint(address(this), toMint);
+    TestERC20(_originAdopted).mint(address(this), toMint);
+
+    // setup + fund the pools if needed
+    if (_originLocal != _originAdopted) {
+      console.log("setting up origin swap");
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
+    }
+  }
+
+  // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
+  // are freshly deployed assets being used in tests. Used in fork tests
+  function utils_setupDestinationAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
+    _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
+
+    uint256 destinationCap;
+    if (_destination == canonicalDomain) {
+      _destinationAdopted = _canonical;
+      _destinationLocal = _canonical;
+      destinationCap = 10_000 ether;
+    } // otherwise, could be anything
+
+    vm.prank(_destinationConnext.owner());
     if (_destination == canonicalDomain) {
       console.log("setting up canonical asset on destination");
       _destinationConnext.setupAsset(
@@ -264,29 +288,25 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
 
     if (localIsAdopted) {
-      _originAdopted = _originLocal;
       _destinationAdopted = _destinationLocal;
     }
 
     // mint the asset
     uint256 toMint = 10_000 ether;
-    TestERC20(_originLocal).mint(address(this), toMint);
     TestERC20(_destinationLocal).mint(address(this), toMint);
-    TestERC20(_originAdopted).mint(address(this), toMint);
     TestERC20(_destinationAdopted).mint(address(this), toMint);
-    TestERC20(_canonical).mint(address(this), toMint);
 
-    // setup + fund the pools if needed
-    console.log("_originLocal", _originLocal);
-    console.log("_originAdopted", _originAdopted);
-    if (_originLocal != _originAdopted) {
-      console.log("setting up origin swap");
-      utils_setupPool(_origin, _canonicalKey, 100 ether);
-    }
-
+    // setup pool if needed
     if (_destinationLocal != _destinationAdopted) {
       utils_setupPool(_destination, _canonicalKey, 100 ether);
     }
+  }
+
+  // Combines both setup assets into a single call when running integration tests that are not
+  // on forks
+  function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+    utils_setupOriginAssets(canonicalDomain, localIsAdopted);
+    utils_setupDestinationAssets(canonicalDomain, localIsAdopted);
   }
 
   // Used to generate transfer info struct.
@@ -350,18 +370,24 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
 
     {
-      // TODO: fix message hash and message body assertions
       // Expect an XCalled event.
+      bytes memory messageBody = MessagingUtils.formatDispatchedTransferMessage(
+        params,
+        address(_originConnext),
+        address(_destinationConnext),
+        IOutbox(address(IConnectorManager(address(_originManager)).home())).nonces(params.destinationDomain)
+      );
+      bytes32 messageHash = keccak256(messageBody);
       vm.expectEmit(true, true, true, true);
       emit XCalled(
         keccak256(abi.encode(params)),
         params.nonce,
-        MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
+        keccak256(messageBody),
         params,
         asset,
         amount,
         (params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0)) ? address(0) : _originLocal,
-        MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_BODY()
+        messageBody
       );
     }
 
@@ -686,7 +712,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
       _origin,
       0,
       TypeCasts.addressToBytes32(address(_originConnext)),
-      MessagingUtils.formatMessage(params, _destinationLocal, _canonicalDomain == _destination)
+      MessagingUtils.formatTransferMessage(params)
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
