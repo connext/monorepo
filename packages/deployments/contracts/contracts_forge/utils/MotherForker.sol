@@ -7,7 +7,7 @@ import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.s
 import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
 
 import "forge-std/console.sol";
-import "forge-std/stdJson.sol";
+import "forge-std/StdJson.sol";
 
 /**
  * @notice A 'ForkHelper' used to initialize all the applicable forks (foun`d in foundry.toml).
