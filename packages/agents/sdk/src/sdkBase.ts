@@ -6,8 +6,8 @@ import {
   WETHAbi,
   MultisendTransaction,
   encodeMultisendCall,
-  NxtpError,
   ajv,
+  RequestContext,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
@@ -532,18 +532,12 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    // let gasPrice;
-    // try {
-    //   gasPrice = await this.chainreader.getGasPrice(Number(params.destinationDomain), requestContext);
-    // } catch (e: unknown) {
-    //   this.logger.warn("Error getting GasPrice", requestContext, methodContext, {
-    //     error: e as NxtpError,
-    //     domain: params.destinationDomain,
-    //   });
-    // }
-
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
-      { ...params, chainreader: this.chainReader },
+      {
+        ...params,
+        getGasPriceCallback: (domain: number, requestContext: RequestContext) =>
+          this.chainreader.getGasPrice(domain, requestContext),
+      },
       this.chainData,
       this.logger,
       requestContext,
