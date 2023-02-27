@@ -12,11 +12,11 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
-import "./utils/ExecutionFlowTest.sol";
+import "./utils/ExecutionFlowUtilities.sol";
 
 import "forge-std/console.sol";
 
-contract ConnextTest is ExecutionFlowTest, Deployer {
+contract ConnextTest is ExecutionFlowUtilities, Deployer {
   // ============ Test set up ============
   function setUp() public {
     // set all the constants
