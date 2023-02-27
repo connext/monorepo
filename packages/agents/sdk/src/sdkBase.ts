@@ -535,8 +535,7 @@ export class SdkBase extends SdkShared {
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
       {
         ...params,
-        getGasPriceCallback: (domain: number, requestContext: RequestContext) =>
-          this.chainreader.getGasPrice(domain, requestContext),
+        getGasPriceCallback: (domain: number) => this.chainreader.getGasPrice(domain, requestContext),
       },
       this.chainData,
       this.logger,
