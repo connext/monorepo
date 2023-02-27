@@ -81,6 +81,17 @@ type GnosisConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# ZKSYNC
+type ZkSyncConnectorMeta @entity {
+  id: ID! # "ZkSyncConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
