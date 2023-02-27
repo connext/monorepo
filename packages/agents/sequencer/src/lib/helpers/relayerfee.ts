@@ -33,23 +33,13 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     return { canSubmit: false, needed: "0" };
   }
 
-  let gasPrice;
-  try {
-    gasPrice = await chainreader.getGasPrice(Number(destinationDomain), requestContext);
-  } catch (e: unknown) {
-    logger.warn("Error getting GasPrice", requestContext, methodContext, {
-      error: e as NxtpError,
-      domain: destinationDomain,
-    });
-  }
-
   const estimatedRelayerFee = await calculateRelayerFee(
     {
       originDomain,
       destinationDomain,
       originNativeToken: constants.AddressZero,
       destinationNativeToken: constants.AddressZero,
-      gasPrice: gasPrice,
+      getGasPriceCallback: (domain: number) => chainreader.getGasPrice(domain, requestContext),
     },
     chainData,
     logger,
