@@ -44,5 +44,6 @@ export const mockDatabase = (): Database => {
     updateErrorStatus: stub().resolves(),
     updateSlippage: stub().resolves(),
     saveRouterDailyTVL: stub().resolves(),
+    updateExecuteSimulationData: stub().resolves(),
   };
 };
