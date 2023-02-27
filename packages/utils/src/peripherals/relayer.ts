@@ -18,8 +18,7 @@ export const calculateRelayerFee = async (
     destinationNativeToken?: string;
     callDataGasAmount?: number;
     isHighPriority?: boolean;
-    gasPrice?: BigNumber;
-    getGasPriceCallback?: (domain: number, requestContext: RequestContext) => Promise<BigNumber>;
+    getGasPriceCallback?: (domain: number) => Promise<BigNumber>;
   },
   chainData: Map<string, ChainData>,
   logger?: Logger,
@@ -28,7 +27,7 @@ export const calculateRelayerFee = async (
   const { requestContext, methodContext } = createLoggingContext(calculateRelayerFee.name, _requestContext);
 
   if (logger) {
-    logger.info("Method Start", requestContext, methodContext, { params, gasPrice: params.gasPrice?.toString() });
+    logger.info("Method Start", requestContext, methodContext, { params });
   }
   const {
     originDomain,
@@ -74,7 +73,7 @@ export const calculateRelayerFee = async (
   if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && getGasPriceCallback)) {
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await getGasPriceCallback!(Number(params.destinationDomain), requestContext);
+      gasPrice = await getGasPriceCallback!(Number(params.destinationDomain));
       estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice);
     } catch (e: unknown) {
       if (logger) {
