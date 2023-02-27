@@ -871,3 +871,27 @@ export const updateSlippage = async (
       .run(poolToUse);
   }
 };
+
+export const updateExecuteSimulationData = async (
+  transferId: string,
+  executeSimulationInput: string,
+  executeSimulationFrom: string,
+  executeSimulationTo: string,
+  executeSimulationNetwork: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await db
+    .update(
+      "transfers",
+      {
+        execute_simulation_input: executeSimulationInput,
+        execute_simulation_from: executeSimulationFrom,
+        execute_simulation_to: executeSimulationTo,
+        execute_simulation_network: executeSimulationNetwork,
+      },
+      { transfer_id: transferId },
+    )
+    .run(poolToUse);
+};
