@@ -1,5 +1,4 @@
 import { BigNumber, constants } from "ethers";
-import { ChainReader } from "@connext/nxtp-txservice";
 
 import { getHardcodedGasLimits } from "../constants";
 import { NxtpError } from "../types";
@@ -20,7 +19,7 @@ export const calculateRelayerFee = async (
     callDataGasAmount?: number;
     isHighPriority?: boolean;
     gasPrice?: BigNumber;
-    chainreader?: ChainReader;
+    getGasPriceCallback?: (domain: number, requestContext: RequestContext) => Promise<BigNumber>;
   },
   chainData: Map<string, ChainData>,
   logger?: Logger,
@@ -38,7 +37,7 @@ export const calculateRelayerFee = async (
     originNativeToken: _originNativeToken,
     destinationNativeToken: _destinationNativeToken,
     isHighPriority: _isHighPriority,
-    chainreader,
+    getGasPriceCallback,
   } = params;
 
   const originNativeToken = _originNativeToken ?? constants.AddressZero;
@@ -72,10 +71,10 @@ export const calculateRelayerFee = async (
     isHighPriority,
   );
 
-  if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && chainreader)) {
+  if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && getGasPriceCallback)) {
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await chainreader!.getGasPrice(Number(params.destinationDomain), requestContext);
+      gasPrice = await getGasPriceCallback!(Number(params.destinationDomain), requestContext);
       estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice);
     } catch (e: unknown) {
       if (logger) {
