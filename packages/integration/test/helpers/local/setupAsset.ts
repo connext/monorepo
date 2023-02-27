@@ -24,7 +24,7 @@ export const setupAsset = async (
     try {
       const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.Connext });
       const [adopted] = ConnextInterface.decodeFunctionResult("canonicalToAdopted(bytes32)", encoded);
-      needsSetup = adopted !== domain.adopted;
+      needsSetup = adopted !== domain.local;
     } catch {
       //Needs to setup the asset from scratch
       needsSetup = true;
@@ -38,7 +38,6 @@ export const setupAsset = async (
       let canonicalName;
       let canonicalSymbol;
       let canonicalDecimals;
-      console.log("____", { domain });
       // Get canonical name.
       {
         const readData = CanonicalErc20.encodeFunctionData("name");
