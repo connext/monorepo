@@ -50,7 +50,7 @@ export const calculateRelayerFee = async (
     execute: executeGasAmount,
     executeL1: executeL1GasAmount,
     gasPriceFactor,
-  } = await getHardcodedGasLimits(originChainId, chainData);
+  } = await getHardcodedGasLimits(destinationDomain, chainData);
   if (logger) {
     logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
@@ -68,6 +68,26 @@ export const calculateRelayerFee = async (
     Number(totalGasAmount),
     isHighPriority,
   );
+
+  if (destinationChainId == 10) {
+    // consider l1gas for optimism network
+    if (logger) {
+      const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
+        1,
+        constants.AddressZero,
+        Number(executeL1GasAmount),
+        isHighPriority,
+      );
+
+      logger.info("Adding l1Gas", requestContext, methodContext, {
+        executeGasAmount,
+        executeL1GasAmount,
+        l1EstimatedRelayerFee: l1EstimatedRelayerFee.toString(),
+      });
+
+      estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
+    }
+  }
 
   if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && gasPrice)) {
     estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice!);

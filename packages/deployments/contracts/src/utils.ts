@@ -7,6 +7,7 @@ import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
 config();
 
@@ -261,7 +262,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment & { deployments: DeploymentsExtension; ethers: any },
   implementationArgs: any[] = [],
   deployName?: string,
 ): Promise<T> => {

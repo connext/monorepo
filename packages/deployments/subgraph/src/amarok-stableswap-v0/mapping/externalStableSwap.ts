@@ -234,6 +234,10 @@ export function handleTokenSwap(event: TokenSwap): void {
     exchange.boughtId = event.params.boughtId;
     exchange.tokensBought = event.params.tokensBought;
     exchange.balances = stableSwap.balances;
+    exchange.fee = event.params.tokensBought
+      .times(stableSwap.swapFee === null ? BigInt.zero() : stableSwap.swapFee!)
+      .div(BigInt.fromI32(10).pow(10));
+
     exchange.block = event.block.number;
     exchange.timestamp = event.block.timestamp;
     exchange.transaction = event.transaction.hash;
