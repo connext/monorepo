@@ -971,6 +971,7 @@ type optimismgoerli_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: optimismgoerli_Bytes
   asset: optimismgoerli_Asset
+  transactingAsset: optimismgoerli_Bytes
   message: optimismgoerli_OriginMessage
   relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
@@ -1155,6 +1156,16 @@ input optimismgoerli_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: optimismgoerli_Asset_filter
+  transactingAsset: optimismgoerli_Bytes
+  transactingAsset_not: optimismgoerli_Bytes
+  transactingAsset_gt: optimismgoerli_Bytes
+  transactingAsset_lt: optimismgoerli_Bytes
+  transactingAsset_gte: optimismgoerli_Bytes
+  transactingAsset_lte: optimismgoerli_Bytes
+  transactingAsset_in: [optimismgoerli_Bytes!]
+  transactingAsset_not_in: [optimismgoerli_Bytes!]
+  transactingAsset_contains: optimismgoerli_Bytes
+  transactingAsset_not_contains: optimismgoerli_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1287,6 +1298,7 @@ enum optimismgoerli_OriginTransfer_orderBy {
   asset__adoptedAsset
   asset__localAsset
   asset__blockNumber
+  transactingAsset
   message
   message__id
   message__transferId
@@ -1890,6 +1902,7 @@ enum optimismgoerli_RelayerFeesIncrease_orderBy {
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
+  transfer__transactingAsset
   transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller

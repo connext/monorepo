@@ -971,6 +971,7 @@ type local1337_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: local1337_Bytes
   asset: local1337_Asset
+  transactingAsset: local1337_Bytes
   message: local1337_OriginMessage
   relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
@@ -1155,6 +1156,16 @@ input local1337_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: local1337_Asset_filter
+  transactingAsset: local1337_Bytes
+  transactingAsset_not: local1337_Bytes
+  transactingAsset_gt: local1337_Bytes
+  transactingAsset_lt: local1337_Bytes
+  transactingAsset_gte: local1337_Bytes
+  transactingAsset_lte: local1337_Bytes
+  transactingAsset_in: [local1337_Bytes!]
+  transactingAsset_not_in: [local1337_Bytes!]
+  transactingAsset_contains: local1337_Bytes
+  transactingAsset_not_contains: local1337_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1287,6 +1298,7 @@ enum local1337_OriginTransfer_orderBy {
   asset__adoptedAsset
   asset__localAsset
   asset__blockNumber
+  transactingAsset
   message
   message__id
   message__transferId
@@ -1890,6 +1902,7 @@ enum local1337_RelayerFeesIncrease_orderBy {
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
+  transfer__transactingAsset
   transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
