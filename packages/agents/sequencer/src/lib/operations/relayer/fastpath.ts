@@ -15,7 +15,7 @@ export const sendExecuteFastToRelayer = async (
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayers },
+    adapters: { chainreader, relayers, database },
   } = getContext();
   const {
     auctions: { encodeExecuteFromBids },
@@ -29,6 +29,17 @@ export const sendExecuteFastToRelayer = async (
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
   const executeEncodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
+
+  // Simulation data for Execute transfer
+  const relayerFrom = await relayers[0].instance.getRelayerAddress(destinationChainId);
+
+  await database.updateExecuteSimulationData(
+    transfer.transferId,
+    executeEncodedData,
+    relayerFrom,
+    destinationConnextAddress,
+    String(destinationChainId),
+  );
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
