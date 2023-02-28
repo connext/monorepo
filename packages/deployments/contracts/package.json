@@ -22,6 +22,7 @@
     "hardhat": "hardhat",
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
+    "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "version": "yarn version"
   },

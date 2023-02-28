@@ -975,6 +975,7 @@ export type stagingoptimismgoerli_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   asset?: Maybe<stagingoptimismgoerli_Asset>;
+  transactingAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: Maybe<stagingoptimismgoerli_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
@@ -1159,6 +1160,16 @@ export type stagingoptimismgoerli_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<stagingoptimismgoerli_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1291,6 +1302,7 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'asset__adoptedAsset'
   | 'asset__localAsset'
   | 'asset__blockNumber'
+  | 'transactingAsset'
   | 'message'
   | 'message__id'
   | 'message__transferId'
@@ -1796,6 +1808,7 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__bridgedAmt'
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
   | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
   | 'transfer__caller'
