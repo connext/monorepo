@@ -18,7 +18,6 @@ abstract contract PriceOracle {
 
 // File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 // CAUTION
 // This version of SafeMath should only be used with Solidity 0.8 or later,
@@ -245,7 +244,6 @@ library SafeMath {
 
 // File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -327,7 +325,6 @@ interface IERC20 {
 
 // File @openzeppelin/contracts/utils/Address.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Collection of functions related to the address type
@@ -538,7 +535,6 @@ library Address {
 
 // File @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @title SafeERC20
@@ -633,7 +629,6 @@ library SafeERC20 {
 }
 
 // File contracts/interfaces/IERC20Extended.sol
-pragma solidity ^0.8.4;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -734,7 +729,6 @@ interface IERC20Extended {
 }
 
 // File contracts/interfaces/IPriceOracle.sol
-pragma solidity ^0.8.4;
 
 interface IPriceOracle {
   /**
@@ -747,7 +741,6 @@ interface IPriceOracle {
 }
 
 // File contracts/ConnextPriceOracle.sol
-pragma solidity ^0.8.4;
 
 interface AggregatorV3Interface {
   function decimals() external view returns (uint8);
@@ -921,7 +914,6 @@ contract ConnextPriceOracle is PriceOracle {
 }
 
 // File contracts/interfaces/IFulfillInterpreter.sol
-pragma solidity 0.8.4;
 
 interface IFulfillInterpreter {
   event Executed(
@@ -956,7 +948,6 @@ interface IFulfillInterpreter {
 }
 
 // File contracts/lib/LibAsset.sol
-pragma solidity 0.8.4;
 
 /**
  * @title LibAsset
@@ -1081,7 +1072,6 @@ library LibAsset {
 
 // File @openzeppelin/contracts/utils/Context.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -1105,7 +1095,6 @@ abstract contract Context {
 
 // File @openzeppelin/contracts/access/Ownable.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -1175,7 +1164,6 @@ abstract contract Ownable is Context {
 
 // File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
@@ -1237,7 +1225,6 @@ abstract contract ReentrancyGuard {
 }
 
 // File contracts/interpreters/FulfillInterpreter.sol
-pragma solidity 0.8.4;
 
 /**
  * @title FulfillInterpreter
@@ -1339,7 +1326,6 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 }
 
 // File contracts/interfaces/ITransactionManager.sol
-pragma solidity 0.8.4;
 
 interface ITransactionManager {
   // Structs
@@ -1566,7 +1552,6 @@ interface ITransactionManager {
 
 // File @openzeppelin/contracts/utils/cryptography/ECDSA.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
@@ -1705,7 +1690,6 @@ library ECDSA {
 }
 
 // File contracts/Router.sol
-pragma solidity ^0.8.4;
 
 contract Router is Ownable {
   address public immutable routerFactory;
@@ -1959,7 +1943,6 @@ contract Router is Ownable {
 
 // File @openzeppelin/contracts/utils/Create2.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -2023,7 +2006,6 @@ library Create2 {
 }
 
 // File contracts/interfaces/IRouterFactory.sol
-pragma solidity ^0.8.4;
 
 interface IRouterFactory {
   event RouterCreated(address router, address routerSigner, address recipient, address transactionManager);
@@ -2034,7 +2016,6 @@ interface IRouterFactory {
 }
 
 // File contracts/RouterFactory.sol
-pragma solidity ^0.8.4;
 
 contract RouterFactory is IRouterFactory, Ownable {
   /**
@@ -2107,7 +2088,6 @@ contract RouterFactory is IRouterFactory, Ownable {
 }
 
 // File contracts/test/Counter.sol
-pragma solidity 0.8.4;
 
 contract Counter {
   bool public shouldRevert;
@@ -2144,7 +2124,6 @@ contract Counter {
 }
 
 // File contracts/interfaces/IERC20Minimal.sol
-pragma solidity >=0.5.0;
 
 /// @title Minimal ERC20 interface for Uniswap
 /// @notice Contains a subset of the full ERC20 interface that is used in Uniswap V3
@@ -2198,7 +2177,6 @@ interface IERC20Minimal {
 
 // File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Interface for the optional metadata functions from the ERC20 standard.
@@ -2224,7 +2202,6 @@ interface IERC20Metadata is IERC20 {
 
 // File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.2.0
 
-pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -2574,7 +2551,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 }
 
 // File contracts/test/FeeERC20.sol
-pragma solidity 0.8.4;
 
 /* This token is ONLY useful for testing
  * Anybody can mint as many tokens as they like
@@ -2618,7 +2594,6 @@ contract FeeERC20 is ERC20 {
 }
 
 // File contracts/test/LibAssetTest.sol
-pragma solidity 0.8.4;
 
 /// @title LibAssetTest
 /// @author Connext
@@ -2680,7 +2655,6 @@ contract LibAssetTest {
 }
 
 // File contracts/test/RevertableERC20.sol
-pragma solidity 0.8.4;
 
 /* This token is ONLY useful for testing
  * Anybody can mint as many tokens as they like
@@ -2720,7 +2694,6 @@ contract RevertableERC20 is ERC20 {
 }
 
 // File contracts/test/TestERC20.sol
-pragma solidity 0.8.4;
 
 /* This token is ONLY useful for testing
  * Anybody can mint as many tokens as they like
@@ -2741,7 +2714,6 @@ contract TestERC20 is ERC20 {
 }
 
 // File contracts/ProposedOwnable.sol
-pragma solidity 0.8.4;
 
 /**
  * @title ProposedOwnable
@@ -3033,7 +3005,6 @@ abstract contract ProposedOwnable {
 }
 
 // File contracts/TransactionManager.sol
-pragma solidity 0.8.4;
 
 /**
  *
@@ -3873,7 +3844,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 }
 
 // File contracts/Multicall.sol
-pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 /// @title Multicall - Aggregate results from multiple read-only function calls
@@ -3896,7 +3866,6 @@ contract Multicall {
 }
 
 // File contracts/test/TestAggregator.sol
-pragma solidity 0.8.4;
 
 /*
  * This aggregator is ONLY useful for testing
