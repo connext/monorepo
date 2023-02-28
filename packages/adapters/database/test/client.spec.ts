@@ -1059,7 +1059,6 @@ describe("Database client", () => {
       expect(queryRes.rows[0].updated_slippage).to.eq((i + 1).toString());
     }
   });
-});
 
   it("should mark root messages processed", async () => {
     const roots = [mock.entity.rootMessage(), mock.entity.rootMessage(), mock.entity.rootMessage()];

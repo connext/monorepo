@@ -312,7 +312,7 @@ export const saveProcessedRootMessages = async (
     })
     .run(poolToUse);
 
-  // update `processed` to true for old root messages.
+  // update `processed` to true for previous root messages.
   for (const message of _messages) {
     const spoke_domain = message.spokeDomain;
     await db
