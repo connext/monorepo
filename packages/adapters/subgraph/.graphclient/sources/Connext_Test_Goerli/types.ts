@@ -107,7 +107,20 @@ export type testgoerli_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
-  | 'asset';
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__local'
+  | 'asset__adoptedAsset'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__blockNumber';
 
 export type testgoerli_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;

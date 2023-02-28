@@ -349,11 +349,61 @@ describe("Database client", () => {
 
   it("should save valid boolean fields", async () => {
     let xTransferLocal = mock.entity.xtransfer();
-    xTransferLocal.xparams.receiveLocal = true;
     await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(xTransferLocal.xparams.receiveLocal);
+  });
+
+  it("should save receiveLocal when not already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
     expect(dbTransfer!.xparams!.receiveLocal).equal(true);
+  });
+
+  it("should not save receiveLocal=false  when true already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(true);
+
+    // Reconciled only destination transfers has receiveLocal = false
+    xTransferLocal.xparams.receiveLocal = false;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransferUpsert = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransferUpsert!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransferUpsert!.xparams!.receiveLocal).equal(true);
+  });
+
+  it("should save receiveLocal=true when false already in db", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.receiveLocal = false;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.receiveLocal).equal(false);
+
+    // Reconciled only destination transfers has receiveLocal = false
+    xTransferLocal.xparams.receiveLocal = true;
+
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransferUpsert = await getTransferByTransferId(xTransferLocal.transferId, pool);
+
+    expect(dbTransferUpsert!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransferUpsert!.xparams!.receiveLocal).equal(true);
   });
 
   it("should save missing boolean fields with defaults", async () => {
@@ -912,27 +962,31 @@ describe("Database client", () => {
     expect(queryRes.rows[0].backoff).to.eq(32);
     expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
 
+    let timestamp1 = Math.floor(Date.now() / 1000);
     await increaseBackoff(transfer1.transferId, pool);
+    let timestamp2 = Math.floor(Date.now() / 1000);
     await increaseBackoff(transfer2.transferId, pool);
+    let timestamp3 = Math.floor(Date.now() / 1000);
     await increaseBackoff(transfer3.transferId, pool);
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp1 + 63); // because of rounding
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer2.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp2 + 63); // because of rounding
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer3.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp3 + 63); // because of rounding
 
+    timestamp1 = Math.floor(Date.now() / 1000);
     await increaseBackoff(transfer1.transferId, pool);
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(128);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp1 + 127); // because of rounding
 
     await resetBackoffs([transfer1.transferId, transfer2.transferId], pool);
 
@@ -946,15 +1000,16 @@ describe("Database client", () => {
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer3.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 63); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp3 + 63); // because of rounding
 
     for (let i = 0; i < 32; i++) {
+      timestamp1 = Math.floor(Date.now() / 1000);
       await increaseBackoff(transfer1.transferId, pool);
     }
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(86400 * 7);
-    expect(queryRes.rows[0].next_execution_timestamp).to.gte(Date.now() / 1000 + 127); // because of rounding
+    expect(queryRes.rows[0].next_execution_timestamp).to.gte(timestamp1 + 127); // because of rounding
   });
 
   it("should saveReceivedAggregateRoot", async () => {

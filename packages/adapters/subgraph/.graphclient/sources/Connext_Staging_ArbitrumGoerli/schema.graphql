@@ -153,7 +153,20 @@ enum stagingarbitrumgoerli_AssetBalance_orderBy {
   id
   amount
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -287,6 +300,8 @@ enum stagingarbitrumgoerli_Asset_orderBy {
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar stagingarbitrumgoerli_BigDecimal
@@ -767,6 +782,13 @@ enum stagingarbitrumgoerli_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -925,6 +947,8 @@ enum stagingarbitrumgoerli_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type stagingarbitrumgoerli_OriginTransfer {
@@ -947,6 +971,7 @@ type stagingarbitrumgoerli_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: stagingarbitrumgoerli_Bytes
   asset: stagingarbitrumgoerli_Asset
+  transactingAsset: stagingarbitrumgoerli_Bytes
   message: stagingarbitrumgoerli_OriginMessage
   relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
@@ -1131,6 +1156,16 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: stagingarbitrumgoerli_Asset_filter
+  transactingAsset: stagingarbitrumgoerli_Bytes
+  transactingAsset_not: stagingarbitrumgoerli_Bytes
+  transactingAsset_gt: stagingarbitrumgoerli_Bytes
+  transactingAsset_lt: stagingarbitrumgoerli_Bytes
+  transactingAsset_gte: stagingarbitrumgoerli_Bytes
+  transactingAsset_lte: stagingarbitrumgoerli_Bytes
+  transactingAsset_in: [stagingarbitrumgoerli_Bytes!]
+  transactingAsset_not_in: [stagingarbitrumgoerli_Bytes!]
+  transactingAsset_contains: stagingarbitrumgoerli_Bytes
+  transactingAsset_not_contains: stagingarbitrumgoerli_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1256,7 +1291,24 @@ enum stagingarbitrumgoerli_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  transactingAsset
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   relayerFee
   bumpRelayerFeeCount
   caller
@@ -1832,6 +1884,34 @@ input stagingarbitrumgoerli_RelayerFeesIncrease_filter {
 enum stagingarbitrumgoerli_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__relayerFee
+  transfer__bumpRelayerFeeCount
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
   increase
   caller
   transactionHash
@@ -2132,7 +2212,20 @@ input stagingarbitrumgoerli_RouterDailyTVL_filter {
 enum stagingarbitrumgoerli_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
 }
@@ -2402,6 +2495,40 @@ input stagingarbitrumgoerli_SlippageUpdate_filter {
 enum stagingarbitrumgoerli_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
   slippage
   caller
   transactionHash
