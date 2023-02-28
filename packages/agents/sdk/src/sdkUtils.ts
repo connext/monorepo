@@ -1,3 +1,4 @@
+import { utils } from "ethers";
 import {
   Logger,
   ChainData,
@@ -79,6 +80,7 @@ export class SdkUtils extends SdkShared {
    * @param params.order.orderBy - (optional) Field to order by.
    * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
    * @returns Array of objects containing the router address and liquidity information, in the form of:
+   *
    * ```ts
    * {
    *   "address": "0xf26c772c0ff3a6036bddabdaba22cf65eca9f97c",
@@ -236,5 +238,28 @@ export class SdkUtils extends SdkShared {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Checks available router liquidity for a specific asset.
+   *
+   * @param domainId - The domain ID where the asset exists.
+   * @param asset - The address of the asset.
+   * @param topN - The top N routers by liquidity, should match the auction round depth (N = 2^(depth-1).
+   * @returns The total router liquidity available for the asset.
+   *
+   */
+  async checkRouterLiquidity(domainId: string, asset: string, topN?: number) {
+    const _asset = utils.getAddress(asset);
+    const _topN = topN ?? 4;
+
+    const routersByLargestBalance = await this.getRoutersData({ order: { orderBy: "balance", ascOrDesc: "desc" } });
+
+    const eligibleRouters = Array.from(routersByLargestBalance).filter(
+      (routerBalance: RouterBalance) =>
+        routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset,
+    );
+
+    return eligibleRouters.slice(0, _topN).reduce((acc, router) => acc + router.balance, 0);
   }
 }
