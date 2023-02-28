@@ -155,30 +155,24 @@ describe("Operations: ProcessFromRoot", () => {
     });
 
     it("should only process a single root message for each domain", async () => {
-      const rootMessageA: RootMessage[] = [
-        { ...mock.entity.rootMessage(), timestamp: 1 },
-        { ...mock.entity.rootMessage(), timestamp: 2 },
-        { ...mock.entity.rootMessage(), timestamp: 3 },
-      ];
-      const rootMessageB: RootMessage[] = [
+      processSingleRootMessageStub.resolves(mkBytes32());
+      const rootMessages: RootMessage[] = [
+        { ...mock.entity.rootMessage(), timestamp: 1, spokeDomain: "test1" },
+        { ...mock.entity.rootMessage(), timestamp: 2, spokeDomain: "test1" },
         { ...mock.entity.rootMessage(), timestamp: 1, spokeDomain: "test2" },
         { ...mock.entity.rootMessage(), timestamp: 2, spokeDomain: "test2" },
+        { ...mock.entity.rootMessage(), timestamp: 1, spokeDomain: "test3" },
+        { ...mock.entity.rootMessage(), timestamp: 2, spokeDomain: "test3" },
       ];
-      const rootMessageC: RootMessage[] = [{ ...mock.entity.rootMessage(), spokeDomain: "test3" }];
 
-      (processFromRootCtxMock.adapters.database.getRootMessages as SinonStub).resolves(
-        rootMessageA.concat(rootMessageB).concat(rootMessageC),
-      );
+      (processFromRootCtxMock.adapters.database.getRootMessages as SinonStub).resolves(rootMessages);
 
       await ProcessFromRootFns.processFromRoot();
 
-      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageA[2]);
-      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageB[1]);
-      expect(processSingleRootMessageStub).to.be.calledWith(rootMessageC[0]);
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessages[1]);
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessages[3]);
+      expect(processSingleRootMessageStub).to.be.calledWith(rootMessages[5]);
       expect(processSingleRootMessageStub).to.callCount(3);
-      expect(
-        processFromRootCtxMock.adapters.database.markRootMessagesProcessed as SinonStub,
-      ).to.be.calledOnceWithExactly([rootMessageA[0], rootMessageA[1], rootMessageB[0]]);
     });
   });
 });
