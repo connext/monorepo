@@ -104,20 +104,20 @@ contract MerkleTreeManagerTest is ForgeHelper {
     // NOTE: Following sample branch was generated outside the code being tested here in order
     // to enforce consistent/expected behavior:
     // The following leaf, index, and branch (proof) should result in this expected root.
-    bytes32 expectedRoot = hex"313d09fa506d908e499f982b2f36d31dfe8f55cf5b604e96ee0b7823becfac6e";
-    bytes32 leaf = hex"c98148260b72a096264f7fe953ec94ca9f1139407ba1d7f850d3c82fd01b10ab";
-    uint256 index = 573;
+    bytes32 expectedRoot = hex"1aff1261ed3f132ee86bf6d1ddd4baa2ff556cc4a485fb7694e3fd3026148a9a";
+    bytes32 leaf = hex"0c04867203222fd5ba75fa10231bedaa8cea649d0370e0342b815db95fd81d86";
+    uint256 index = 37;
     bytes32[32] memory branch = [
-      bytes32(hex"23c18f8d2de39087df146ebf4e875ce363a212557683bbfe6906c4decc50d089"),
-      bytes32(hex"5b9362c5490d97cac09343b5990736eb69e5c5ae86e9c2138e202af58fa33bea"),
-      bytes32(hex"108ac4cbea0e196607583fe4919f575cb508f9efd919b0b8dfa4156cfcc05e60"),
-      bytes32(hex"f1a0a937ed31215d0d55b1b50b4087a234098b540cae718de489e378d23d6fcf"),
-      bytes32(hex"c2340c0195f630111ba6e6b337641d4c104d53c46200c25fc61eacfb9c032ec2"),
-      bytes32(hex"66563cb38f7b43050976dd586df5a306bd20daf73c0c148521a7e439be7bf2ff"),
-      bytes32(hex"1605f3992bd41d1123207fa1000bb9a4f722c15f5c224b9ed5cb085411ee5b36"),
-      bytes32(hex"ea8d0c60c7cfc387cf3510908485e958f486fac243e304083decad06302226d6"),
-      bytes32(hex"3da96acb985916b44fe588e1f1e9df816258ef3559d1fbad33e69059fd65aedc"),
-      bytes32(hex"242e829dbfc623373cbbb193e665038a2b3f9bc298452d8d107df3d252115b1a"),
+      bytes32(hex"05e2c3b8bc990c9a4ac0fd933de2a543fe9365d5e2e5bf861a45fe5db12c9d0d"),
+      bytes32(hex"ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"),
+      bytes32(hex"09b719abd348fe8d2d42e16e15666188213cc09f59250ad7ffc9d651fbd3307b"),
+      bytes32(hex"21ddb9a356815c3fac1026b6dec5df3124afbadb485c9ba5a3e3398a04b7ba85"),
+      bytes32(hex"e58769b32a1beaf1ea27375a44095a0d1fb664ce2dd358e7fcbfb78c26a19344"),
+      bytes32(hex"d59a648df140a1cd8e1ae6a6b641e8cbc01a802ba80b827d45676d13715f624f"),
+      bytes32(hex"887c22bd8750d34016ac3c66b5ff102dacdd73f6b014e710b51e8022af9a1968"),
+      bytes32(hex"ffd70157e48063fc33c97a050f7f640233bf646cc98d9524c6b92bcf3ab56f83"),
+      bytes32(hex"9867cc5f7f196b93bae1e27e6320742445d290f2263827498b54fec539f756af"),
+      bytes32(hex"cefad4e508c098b9a7e1d8feb19955fb02ba9675585078710969d3440f5054e0"),
       bytes32(hex"f9dc3e7fe016e050eff260334f18a5d4fe391d82092319f5964f2e2eb7c1c3a5"),
       bytes32(hex"f8b13a49e282f609c317a833fb8d976d11517c571d1221a265d25af778ecf892"),
       bytes32(hex"3490c6ceeb450aecdc82e28293031d10c7d73bf85e57bf041a97360aa2c5d99c"),

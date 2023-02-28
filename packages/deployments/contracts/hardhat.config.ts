@@ -51,6 +51,7 @@ import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
+import "./tasks/executeSlow";
 import { hardhatNetworks } from "./src/config";
 
 envConfig();
