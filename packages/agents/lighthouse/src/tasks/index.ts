@@ -14,7 +14,6 @@ export const makeLighthouse = async () => {
     throw new Error("Could not get chain data");
   }
   const config = await getConfig(chainData, contractDeployments);
-  console.log("process.env.LIGHTHOUSE_SERVICE: ", process.env.LIGHTHOUSE_SERVICE);
   switch (process.env.LIGHTHOUSE_SERVICE) {
     case "prover":
       await makeProver(config, chainData);
