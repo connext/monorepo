@@ -464,6 +464,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
       signatures[i] = abi.encodePacked(r, _s, v);
 
       // allowlist all routers
+      vm.prank(_destinationConnext.owner());
       _destinationConnext.approveRouter(routers[i]);
       vm.prank(routers[i]);
       _destinationConnext.initializeRouter(address(0), address(0));
@@ -489,7 +490,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256 key = 0xA11CE;
     address sequencer = vm.addr(key);
-    _originConnext.addSequencer(sequencer);
+    vm.prank(_destinationConnext.owner());
     _destinationConnext.addSequencer(sequencer);
 
     bytes32 preImage = keccak256(abi.encode(transferId, routers));
@@ -688,7 +689,6 @@ contract ExecutionFlowUtilities is ForgeHelper {
     assertTrue(address(_destinationLocal) != address(0), "destination local not set");
 
     uint256 bridgedAmt = params.bridgedAmt;
-    uint256 nonce = params.nonce;
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
     // when `reconcile` is called. Mint funds to the contract to mock
@@ -705,15 +705,13 @@ contract ExecutionFlowUtilities is ForgeHelper {
       params.canonicalId == bytes32("") && params.canonicalDomain == uint32(0) ? address(0) : _destinationLocal,
       routers,
       bridgedAmt,
-      address(this)
+      address(_destinationManager)
     );
 
-    _destinationConnext.handle(
-      _origin,
-      0,
-      TypeCasts.addressToBytes32(address(_originConnext)),
-      MessagingUtils.formatTransferMessage(params)
-    );
+    bytes32 remoteSender = TypeCasts.addressToBytes32(address(_originConnext));
+    bytes memory message = MessagingUtils.formatTransferMessage(params);
+    vm.prank(address(_destinationManager));
+    _destinationConnext.handle(_origin, 0, remoteSender, message);
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
     // assert router liquidity balance

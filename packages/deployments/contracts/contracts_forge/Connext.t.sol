@@ -87,6 +87,10 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
     // set remote routers
     _originConnext.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationConnext)));
     _destinationConnext.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originConnext)));
+
+    // enroll replicas on manager to call `handle` directly
+    MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(_destinationManager));
+    MockXAppConnectionManager(address(_originManager)).enrollInbox(address(_originManager));
   }
 
   // ============ Testing scenarios ============

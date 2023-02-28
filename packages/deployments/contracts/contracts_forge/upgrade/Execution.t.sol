@@ -51,6 +51,10 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     // setup the origin assets with the canonical domain as mainnet
     // domain and the adopted != local
     utils_setupOriginAssets(MAINNET_DOMAIN, false);
+
+    // add this contract as an approved relayer
+    vm.prank(_originConnext.owner());
+    _originConnext.addRelayer(address(this));
   }
 
   function utils_primeDestinationFork(uint256 chainId) internal {
@@ -82,6 +86,10 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     // setup the origin assets with the canonical domain as mainnet
     // domain and the adopted != local
     utils_setupDestinationAssets(MAINNET_DOMAIN, false);
+
+    // add this contract as an approved relayer
+    vm.prank(_destinationConnext.owner());
+    _destinationConnext.addRelayer(address(this));
   }
 
   // ============ Tests ==================
@@ -112,9 +120,27 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     );
     uint256 relayerFee = 0;
 
-    // select the origin fork and xcall
+    // 1. xcall
     TransferInfo memory params = utils_createTransferIdInformation(_destination, amountIn, bridgedAmount);
-    utils_xcallAndAssert(params, _originAdopted, amountIn, relayerFee);
+    bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amountIn, relayerFee);
+
+    // select the destination fork and execute
+    utils_selectFork(destinationChain);
+
+    // calculate the amount received
+    uint256 bridgedOut = _destinationConnext.calculateSwap(
+      _canonicalKey,
+      1, // adopted idx always 1
+      0, // local idx always 0
+      utils_getFastTransferAmount(bridgedAmount)
+    );
+
+    // 2. execute
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 10 ether);
+    utils_executeAndAssert(execute, transferId, bridgedOut);
+
+    // 3. reconcile
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
   function test_slowPathWithSwap() public {}
