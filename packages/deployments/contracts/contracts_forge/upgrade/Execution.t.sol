@@ -143,5 +143,51 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
-  function test_slowPathWithSwap() public {}
+  function test_ExecutionUpgrade__slowPathWithSwap() public {
+    // select the origin and destination chains
+    uint256 originChain = FORKED_CHAIN_IDS[0];
+    uint256 destinationChain = FORKED_CHAIN_IDS[1];
+
+    // prime the origin fork
+    utils_primeOriginFork(originChain);
+    // prime the destination fork
+    utils_primeDestinationFork(destinationChain);
+
+    // select origin chain fork
+    utils_selectFork(originChain);
+
+    // set test constants
+    uint256 amountIn = 1 ether;
+    uint256 bridgedAmount = _originConnext.calculateSwap(
+      _canonicalKey,
+      0, // local idx always 0
+      1, // adopted idx always 1
+      amountIn // no min
+    );
+    uint256 relayerFee = 0;
+
+    // 1. xcall
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amountIn, bridgedAmount);
+    bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amountIn, relayerFee);
+
+    // select the destination fork and execute
+    utils_selectFork(destinationChain);
+
+    // get execute args
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, 0);
+
+    // 2. reconcile
+    utils_reconcileAndAssert(params, transferId, execute.routers);
+
+    // calculate the amount received
+    uint256 bridgedOut = _destinationConnext.calculateSwap(
+      _canonicalKey,
+      1, // adopted idx always 1
+      0, // local idx always 0
+      bridgedAmount
+    );
+
+    // 3. execute
+    utils_executeAndAssert(execute, transferId, bridgedOut);
+  }
 }
