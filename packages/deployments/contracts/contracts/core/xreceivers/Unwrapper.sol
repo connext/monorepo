@@ -111,11 +111,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    * @param asset The asset to send from the contract to recipient
    * @param amount Amount of asset to sweep from contract
    */
-  function sweep(
-    address recipient,
-    address asset,
-    uint256 amount
-  ) public onlyOwner {
+  function sweep(address recipient, address asset, uint256 amount) public onlyOwner {
     // Sanity check: amount is non-zero (otherwise, what are we unwrapping?).
     require(amount != 0, "sweep: !amount");
 
@@ -215,11 +211,7 @@ contract Unwrapper is ProposedOwnable, IXReceiver {
    * @param asset The asset (or address(0) for native) to send from the contract to recipient
    * @param amount Amount of asset to sweep from contract
    */
-  function _sweep(
-    address recipient,
-    address asset,
-    uint256 amount
-  ) internal {
+  function _sweep(address recipient, address asset, uint256 amount) internal {
     if (asset == address(0)) {
       Address.sendValue(payable(recipient), amount);
     } else {

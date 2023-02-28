@@ -62,23 +62,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function updateLiquidityCap(TokenId calldata _canonical, uint256 _updated) external;
 
-  function removeAssetId(
-    bytes32 _key,
-    address _adoptedAssetId,
-    address _representation
-  ) external;
+  function removeAssetId(bytes32 _key, address _adoptedAssetId, address _representation) external;
 
-  function removeAssetId(
-    TokenId calldata _canonical,
-    address _adoptedAssetId,
-    address _representation
-  ) external;
+  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId, address _representation) external;
 
-  function updateDetails(
-    TokenId calldata _canonical,
-    string memory _name,
-    string memory _symbol
-  ) external;
+  function updateDetails(TokenId calldata _canonical, string memory _name, string memory _symbol) external;
 
   // BaseConnextFacet
 
@@ -135,20 +123,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external;
 
-  function enrollCustom(
-    uint32 _domain,
-    bytes32 _id,
-    address _custom
-  ) external;
+  function enrollCustom(uint32 _domain, bytes32 _id, address _custom) external;
 
   // InboxFacet
 
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external;
+  function handle(uint32 _origin, uint32 _nonce, bytes32 _sender, bytes memory _message) external;
 
   // ProposedOwnableFacet
 
@@ -210,11 +189,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function getRouterApprovalForPortal(address _router) external view returns (bool);
 
-  function approveRouter(address router) external;
+  function approveRouter(address _router) external;
 
-  function initializeRouter(address owner, address recipient) external;
+  function initializeRouter(address _owner, address _recipient) external;
 
-  function unapproveRouter(address router) external;
+  function unapproveRouter(address _router) external;
 
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external;
 
@@ -224,32 +203,24 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function unapproveRouterForPortal(address _router) external;
 
-  function setRouterRecipient(address router, address recipient) external;
+  function setRouterRecipient(address _router, address _recipient) external;
 
-  function proposeRouterOwner(address router, address proposed) external;
+  function proposeRouterOwner(address _router, address _proposed) external;
 
-  function acceptProposedRouterOwner(address router) external;
+  function acceptProposedRouterOwner(address _router) external;
 
-  function addRouterLiquidityFor(
-    uint256 _amount,
-    address _local,
-    address _router
-  ) external payable;
+  function addRouterLiquidityFor(uint256 _amount, address _local, address _router) external payable;
 
   function addRouterLiquidity(uint256 _amount, address _local) external payable;
 
   function removeRouterLiquidityFor(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to,
     address _router
   ) external;
 
-  function removeRouterLiquidity(
-    uint256 _amount,
-    address _local,
-    address payable _to
-  ) external;
+  function removeRouterLiquidity(TokenId memory _canonical, uint256 _amount, address payable _to) external;
 
   // PortalFacet
   function getAavePortalDebt(bytes32 _transferId) external view returns (uint256);
@@ -271,11 +242,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
     uint256 _maxIn
   ) external;
 
-  function repayAavePortalFor(
-    TransferInfo calldata _params,
-    uint256 _backingAmount,
-    uint256 _feeAmount
-  ) external;
+  function repayAavePortalFor(TransferInfo calldata _params, uint256 _backingAmount, uint256 _feeAmount) external;
 
   // StableSwapFacet
   function getSwapStorage(bytes32 canonicalId) external view returns (SwapUtils.Swap memory);
@@ -392,11 +359,7 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function setSwapFee(bytes32 canonicalId, uint256 newSwapFee) external;
 
-  function rampA(
-    bytes32 canonicalId,
-    uint256 futureA,
-    uint256 futureTime
-  ) external;
+  function rampA(bytes32 canonicalId, uint256 futureA, uint256 futureTime) external;
 
   function stopRampA(bytes32 canonicalId) external;
 
