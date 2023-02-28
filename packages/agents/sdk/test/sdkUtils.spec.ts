@@ -76,6 +76,15 @@ describe("SdkUtils", () => {
     });
   });
 
+  describe("#checkRouterLiquidity", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.checkRouterLiquidity(mock.domain.A, mock.asset.A.address);
+
+      expect(res).to.not.be.undefined;
+    });
+  });
+
   describe("#getAssetsData", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
