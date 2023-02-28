@@ -284,7 +284,7 @@ export const hardhatNetworks = {
     },
   },
   "zksync2-testnet": {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 280,
     url: process.env.ZKSYNC2_TESTNET_PROVIDER_URL || "https://zksync2-testnet.zksync.dev",
     companionNetworks: {
