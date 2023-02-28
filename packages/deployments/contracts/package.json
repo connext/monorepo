@@ -84,7 +84,7 @@
     "ajv": "8.12.0",
     "dotenv": "16.0.3",
     "eslint": "8.34.0",
-    "hardhat-deploy": "0.11.23",
+    "hardhat-deploy": "0.11.24",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
     "typechain": "8.1.1",
