@@ -971,6 +971,7 @@ type stagingarbitrumgoerli_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: stagingarbitrumgoerli_Bytes
   asset: stagingarbitrumgoerli_Asset
+  transactingAsset: stagingarbitrumgoerli_Bytes
   message: stagingarbitrumgoerli_OriginMessage
   relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
@@ -1155,6 +1156,16 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: stagingarbitrumgoerli_Asset_filter
+  transactingAsset: stagingarbitrumgoerli_Bytes
+  transactingAsset_not: stagingarbitrumgoerli_Bytes
+  transactingAsset_gt: stagingarbitrumgoerli_Bytes
+  transactingAsset_lt: stagingarbitrumgoerli_Bytes
+  transactingAsset_gte: stagingarbitrumgoerli_Bytes
+  transactingAsset_lte: stagingarbitrumgoerli_Bytes
+  transactingAsset_in: [stagingarbitrumgoerli_Bytes!]
+  transactingAsset_not_in: [stagingarbitrumgoerli_Bytes!]
+  transactingAsset_contains: stagingarbitrumgoerli_Bytes
+  transactingAsset_not_contains: stagingarbitrumgoerli_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1287,6 +1298,7 @@ enum stagingarbitrumgoerli_OriginTransfer_orderBy {
   asset__adoptedAsset
   asset__localAsset
   asset__blockNumber
+  transactingAsset
   message
   message__id
   message__transferId
@@ -1890,6 +1902,7 @@ enum stagingarbitrumgoerli_RelayerFeesIncrease_orderBy {
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
+  transfer__transactingAsset
   transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
