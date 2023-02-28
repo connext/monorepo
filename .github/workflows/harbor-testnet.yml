@@ -64,16 +64,13 @@ jobs:
       - name: Configure Harbor
         run: /root/go/bin/harbor configure keys --user-key ${{ secrets.HARBOR_USER_KEY }} --project-key ${{ secrets.HARBOR_PROJECT_KEY }}
 
-      - name: Compile code and other dependencies
-        run: yarn workspaces focus @connext/nxtp-contracts && yarn workspace @connext/nxtp-contracts build
-
-      - name: Build and Run Testnet
-        run: /root/go/bin/harbor apply ${{ needs.init.outputs.short-sha }} --placeholder-map sha_default=${{ needs.init.outputs.short-sha }},tag_default=${{ needs.init.outputs.short-sha }} --no-wait true
-
       - name: yarn && yarn build:all
         run: |
           export NODE_OPTIONS="--max-old-space-size=4096" 
           yarn && yarn build:all
+
+      - name: Build and Run Testnet
+        run: /root/go/bin/harbor apply ${{ needs.init.outputs.short-sha }} --placeholder-map sha_default=${{ needs.init.outputs.short-sha }},tag_default=${{ needs.init.outputs.short-sha }} --no-wait true
 
       - name: Poll until testnet running
         run: sh /root/describe.sh ${{ needs.init.outputs.short-sha }}
@@ -102,10 +99,10 @@ jobs:
           IPFS_URL="${IPFS_URL%%:*}" GRAPH_URL_1337="${GRAPH_URL_1337%%:*}" GRAPH_URL_1338="${GRAPH_URL_1338%%:*}" sh setup_subgraph.sh
       
       - name: Run Harbor Tests
-        run:  yarn workspace @connext/nxtp-integration run test:sample
+        run:  yarn workspace @connext/smart-contracts run test:sample
 
       - name: Run Tests
-        run: yarn workspace @connext/nxtp-integration run test:harbor
+        run: yarn workspace @connext/smart-contracts run test:harbor
 
       - name: Kill Testnet 
         if: always()

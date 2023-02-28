@@ -3,7 +3,7 @@ import {
   Logger,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, NxtpSdkUtils } from "@connext/sdk";
 import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
@@ -17,11 +17,11 @@ import { expect } from "chai";
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
 // Local 1338 deployment imports:
-import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/cicdResources/deployments/local_1338/Connext_DiamondProxy.json";
-import TestERC20_1338 from "@connext/nxtp-contracts/cicdResources/deployments/local_1338/TestERC20.json";
+import Connext_DiamondProxy_1338 from "@connext/smart-contracts/cicdResources/deployments/local_1338/Connext_DiamondProxy.json";
+import TestERC20_1338 from "@connext/smart-contracts/cicdResources/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
-import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/cicdResources/deployments/local_1337/Connext_DiamondProxy.json";
-import TestERC20_1337 from "@connext/nxtp-contracts/cicdResources/deployments/local_1337/TestERC20.json";
+import Connext_DiamondProxy_1337 from "@connext/smart-contracts/cicdResources/deployments/local_1337/Connext_DiamondProxy.json";
+import TestERC20_1337 from "@connext/smart-contracts/cicdResources/deployments/local_1337/TestERC20.json";
 
 import { DEPLOYER_WALLET, getParams, PARAMETERS as _PARAMETERS } from "./constants/local";
 

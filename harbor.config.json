@@ -38,7 +38,10 @@
                     "MNEMONIC": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
                     "CHAIN_ID": "1337",
                     "ENV": "production",
-                    "ETH_PROVIDER_URL": "http://localhost:4000"
+                    "ETH_PROVIDER_URL": "http://localhost:4000",
+                    "POSTGRES_USER": "chain-node",
+                    "POSTGRES_PASSWORD": "let-me-in",
+                    "POSTGRES_DB": "chain-node"
                 }
             },
             "tag": "$tag_default"
