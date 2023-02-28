@@ -63,6 +63,11 @@
         "name": "ArbitrumHubConnector",
         "address": "0x58d3464e5AAb9c598A7059d182720a04aD59b01F",
         "startBlock": 8173347
+      },
+      {
+        "name": "ZkSyncHubConnector",
+        "address": "0x541f3D4cA30B4C5162eb1C3A39e138f72219EdC1",
+        "startBlock": 8531169
       }
     ]
   }

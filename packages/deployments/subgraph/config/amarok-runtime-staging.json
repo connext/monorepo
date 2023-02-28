@@ -82,26 +82,5 @@
         "startBlock": 3161606
       }
     ]
-  },
-  {
-    "subgraphName": "connext/runtime-staging-zksync-testnet",
-    "network": "zkSync2-testnet",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0xf118754C4472D6a67118663Aec7a5F9fd8bFdc61",
-        "startBlock": 843135
-      },
-      {
-        "name": "Connector",
-        "address": "0x766FA060fD6cAEa4a886309d20e7d598c5412681",
-        "startBlock": 823236
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x85Db0e42147999C3a8a71586e6a0A1B9d34AdcA5",
-        "startBlock": 823231
-      }
-    ]
   }
 ]
