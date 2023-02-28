@@ -208,5 +208,26 @@
         "startBlock": 3268960
       }
     ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-consensys-test",
+    "network": "consensys-test",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xfdb6B853C1945Dbffe78A3091BeBB9A928234fA3",
+        "startBlock": 88565
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x8ab0903e4E6aE8BD82FB88D409A8d9d940299bb5",
+        "startBlock": 88564
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
+        "startBlock": 88563
+      }
+    ]
   }
 ]

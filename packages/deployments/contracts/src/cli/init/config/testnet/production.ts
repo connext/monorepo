@@ -7,6 +7,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
+    "1668247156", /// CONSENSYS-ZKEVM-TEST
   ],
   assets: [
     {
@@ -30,6 +31,11 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
           adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
         },
+        /// CONSENSYS-ZKEVM-TEST
+        "1668247156": {
+          local: "0xB706319D37b945727E71ae0d4353699d19112576",
+          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
+        },
       },
     },
     {
@@ -52,68 +58,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1734439522": {
           adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
         },
+        /// CONSENSYS-ZKEVM-TEST
+        "1668247156": {
+          local: "0xB706319D37b945727E71ae0d4353699d19112576",
+          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
+        },
       },
     },
-    // {
-    //   name: "fUSDCx",
-    //   canonical: {
-    //     domain: "1735353714",
-    //     address: "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a",
-    //     decimals: 18,
-    //     cap: utils.parseUnits("10000000", 18).toString(),
-    //   },
-    //   representations: {
-    //     "9991": {
-    //       adopted: "0x42bb40bF79730451B11f6De1CbA222F17b87Afd7",
-    //     },
-    //   },
-    // },
-    // {
-    //   name: "KP3R",
-    //   canonical: {
-    //     domain: "1735353714",
-    //     address: "0x16F63C5036d3F48A239358656a8f123eCE85789C",
-    //     decimals: 18,
-    //   },
-    //   representations: {
-    //     "1735356532": {
-    //       local: "0x3Db593146464816F10d4eBA4743C76A5A4D08425",
-    //       adopted: "0x3Db593146464816F10d4eBA4743C76A5A4D08425",
-    //     },
-    //     "9991": {
-    //       local: "0xEa6943C4f6467C4E5faC8f5824C515abdeA1af3B",
-    //       adopted: "0xEa6943C4f6467C4E5faC8f5824C515abdeA1af3B",
-    //     },
-    //     // TODO: once testnet prod contracts are deployed for chapel
-    //     // "1667785072": {
-    //     //   local: "",
-    //     //   adopted: "",
-    //     // },
-    //   },
-    // },
-    // {
-    //   name: "kLP",
-    //   canonical: {
-    //     domain: "1735353714",
-    //     address: "0xb4A7137B024d4C0531b0164fCb6E8fc20e6777Ae",
-    //     decimals: 18,
-    //   },
-    //   representations: {
-    //     "1735356532": {
-    //       local: "0xA437aC90d360c7645f25f30ddE201a94fe137Af5",
-    //       adopted: "0xA437aC90d360c7645f25f30ddE201a94fe137Af5",
-    //     },
-    //     "9991": {
-    //       local: "0xCE6a21d1110876cF0C72061a24cC7d9EAB7265c9",
-    //       adopted: "0xCE6a21d1110876cF0C72061a24cC7d9EAB7265c9",
-    //     },
-    //     // TODO: once testnet prod contracts are deployed for chapel
-    //     // "1667785072": {
-    //     //   local: "",
-    //     //   adopted: "",
-    //     // },
-    //   },
-    // },
   ],
   agents: {
     watchers: {

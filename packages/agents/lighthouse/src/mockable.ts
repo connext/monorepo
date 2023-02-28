@@ -60,6 +60,7 @@ export const getL1ToL2MessageGasEstimator = (l2Provider: providers.JsonRpcProvid
 
 export const getContract = (address: string, abi: ContractInterface, provider?: providers.JsonRpcProvider) =>
   new Contract(address, abi, provider);
+
 export const getInterface = (abi: any[]) => new ethers.utils.Interface(abi);
 
 export const getBaseFee = _getBaseFee;
