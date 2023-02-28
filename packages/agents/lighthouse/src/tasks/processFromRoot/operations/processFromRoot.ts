@@ -88,25 +88,20 @@ export const processFromRoot = async () => {
     byDomain[msg.spokeDomain].push(msg);
   });
 
-  const toMarkProcessed: RootMessage[] = [];
-
-  const latestUnprocessed: RootMessage[] = [];
   Object.keys(byDomain).forEach((domain) => {
-    byDomain[domain].sort((a, b) => a.timestamp - b.timestamp);
-    latestUnprocessed.push(byDomain[domain].pop()!);
-    toMarkProcessed.push(...byDomain[domain]);
+    byDomain[domain].sort((a, b) => b.timestamp - a.timestamp);
   });
 
-  await database.markRootMessagesProcessed(toMarkProcessed);
+  for (const domain of Object.keys(byDomain)) {
+    for (const msg of byDomain[domain]) {
+      const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
+      logger.info("Processing root message", requestContext, methodContext, { msg });
 
-  for (const msg of latestUnprocessed) {
-    const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
-    logger.info("Processing root message", requestContext, methodContext, { msg });
-
-    try {
-      await processSingleRootMessage(msg, requestContext);
-    } catch (err: unknown) {
-      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+      try {
+        await processSingleRootMessage(msg, requestContext);
+      } catch (err: unknown) {
+        logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+      }
     }
   }
 };
