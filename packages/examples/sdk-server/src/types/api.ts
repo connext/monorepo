@@ -232,6 +232,12 @@ export const getRoutersDataSchema = Type.Object({
   ),
 });
 
+export const checkRouterLiquiditySchema = Type.Object({
+  domainId: Type.String(),
+  asset: Type.String(),
+  topN: Type.Optional(Type.Number()),
+});
+
 export const getBlockNumberFromUnixTimestampSchema = Type.Object({
   domainId: Type.String(),
   unixTimestamp: Type.Number(),
