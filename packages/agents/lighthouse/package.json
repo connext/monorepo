@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.7-alpha.3",
+  "version": "0.2.7-alpha.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,6 +12,7 @@
     "start:prover": "LIGHTHOUSE_SERVICE=prover node --enable-source-maps dist/tasks/run.js",
     "start:process": "LIGHTHOUSE_SERVICE=process node --enable-source-maps dist/tasks/run.js",
     "start:propagate": "LIGHTHOUSE_SERVICE=propagate node --enable-source-maps dist/tasks/run.js",
+    "start:sendoutboundroot": "LIGHTHOUSE_SERVICE=sendoutboundroot node --enable-source-maps dist/tasks/run.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",

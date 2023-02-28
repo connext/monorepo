@@ -110,6 +110,7 @@ const config: HardhatUserConfig = {
       "gnosis-testnet": process.env.GNOSISSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
       chapel: process.env.BNBSCAN_API_KEY!,
+      consensys: "abc",
       // mainnets
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
@@ -133,6 +134,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://blockscout.chiadochain.net/api",
           browserURL: "https://blockscout.chiadochain.net",
+        },
+      },
+      {
+        network: "consensys",
+        chainId: 59140,
+        urls: {
+          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
+          browserURL: "https://explorer.goerli.zkevm.consensys.net",
         },
       },
     ],

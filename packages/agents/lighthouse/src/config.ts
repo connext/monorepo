@@ -57,11 +57,17 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       prover: Type.String({ format: "uri" }),
       processor: Type.String({ format: "uri" }),
       propagate: Type.String({ format: "uri" }),
+      sendOutboundRoot: Type.String({ format: "uri" }),
     }),
   ),
   proverBatchSize: Type.Integer({ minimum: 1, maximum: 1000 }),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
-  service: Type.Union([Type.Literal("prover"), Type.Literal("propagate"), Type.Literal("process")]),
+  service: Type.Union([
+    Type.Literal("prover"),
+    Type.Literal("propagate"),
+    Type.Literal("process"),
+    Type.Literal("sendoutboundroot"),
+  ]),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -74,6 +80,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "9991": "Polygon",
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
+  "1668247156": "Consensys",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
