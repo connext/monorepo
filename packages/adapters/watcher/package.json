@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-watcher",
-  "version": "0.2.7-alpha.4",
+  "version": "0.2.7",
   "description": "adapter for watcher related calls, monitoring, and functionality",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
