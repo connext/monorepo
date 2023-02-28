@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.7
+
+- [all] stable release
+
 ## Amarok 0.2.7-alpha.4
 
 - [sdk] optimise relayer fee calculations
