@@ -2009,6 +2009,7 @@ __metadata:
     ts-mocha: 10.0.0
     typescript: 4.9.5
     zapatos: 6.1.4
+    zksync-web3: ^0.13.4
   languageName: unknown
   linkType: soft
 
@@ -2485,7 +2486,7 @@ __metadata:
     hardhat: 2.12.7
     hardhat-abi-exporter: 2.10.1
     hardhat-contract-sizer: 2.8.0
-    hardhat-deploy: 0.11.23
+    hardhat-deploy: 0.11.24
     hardhat-diamond-abi: 3.0.1
     hardhat-gas-reporter: 1.0.9
     node-fetch: 2.6.9
@@ -15584,9 +15585,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:0.11.23":
-  version: 0.11.23
-  resolution: "hardhat-deploy@npm:0.11.23"
+"hardhat-deploy@npm:0.11.24":
+  version: 0.11.24
+  resolution: "hardhat-deploy@npm:0.11.24"
   dependencies:
     "@types/qs": ^6.9.7
     axios: ^0.21.1
@@ -15601,7 +15602,7 @@ __metadata:
     murmur-128: ^0.2.1
     qs: ^6.9.4
     zksync-web3: ^0.8.1
-  checksum: 447457fafb56484676651029b1a9404df27592035199805159aeedd509854e22e6bd21763c8bf219f432b83d46a87edd2a32a8a0ae0658e8c5257d54fdf44a8b
+  checksum: b7c0076889d8f775c8bdd7ae00c14f6eae9032979dd88bb4b95511af9e928f2006606fd7e179281b84543383853b26b075bc2a65254143cada7b060177d8eb1a
   languageName: node
   linkType: hard
 
@@ -28848,7 +28849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.13.0":
+"zksync-web3@npm:^0.13.0, zksync-web3@npm:^0.13.4":
   version: 0.13.4
   resolution: "zksync-web3@npm:0.13.4"
   peerDependencies:
