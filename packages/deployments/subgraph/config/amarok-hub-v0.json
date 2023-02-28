@@ -66,8 +66,8 @@
       },
       {
         "name": "ZkSyncHubConnector",
-        "address": "0x541f3D4cA30B4C5162eb1C3A39e138f72219EdC1",
-        "startBlock": 8531169
+        "address": "0x143e3816EFC63C9caF0f9A6daFa750Ee2aD96441",
+        "startBlock": 8572477
       }
     ]
   }
