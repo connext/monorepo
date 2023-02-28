@@ -311,6 +311,18 @@ export const saveProcessedRootMessages = async (
       updateColumns: ["processed_transaction_hash", "processed"],
     })
     .run(poolToUse);
+
+  // update `processed` to true for old root messages.
+  for (const message of _messages) {
+    const spoke_domain = message.spokeDomain;
+    await db
+      .update(
+        "root_messages",
+        { processed: true },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+      )
+      .run(poolToUse);
+  }
 };
 
 export const getRootMessages = async (
