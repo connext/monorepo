@@ -1,4 +1,4 @@
-import { XTransfer, NxtpError, createLoggingContext } from "@connext/nxtp-utils";
+import { XTransfer, createLoggingContext } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { calculateRelayerFee } from "../../mockable";
@@ -9,7 +9,7 @@ import { getContext } from "../../sequencer";
  * @param transfer - The origin transfer entity
  */
 export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubmit: boolean; needed: string }> => {
-  const { requestContext, methodContext } = createLoggingContext(canSubmitToRelayer.name);
+  const { requestContext } = createLoggingContext(canSubmitToRelayer.name);
   const {
     logger,
     chainData,
@@ -33,23 +33,13 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     return { canSubmit: false, needed: "0" };
   }
 
-  let gasPrice;
-  try {
-    gasPrice = await chainreader.getGasPrice(Number(destinationDomain), requestContext);
-  } catch (e: unknown) {
-    logger.warn("Error getting GasPrice", requestContext, methodContext, {
-      error: e as NxtpError,
-      domain: destinationDomain,
-    });
-  }
-
   const estimatedRelayerFee = await calculateRelayerFee(
     {
       originDomain,
       destinationDomain,
       originNativeToken: constants.AddressZero,
       destinationNativeToken: constants.AddressZero,
-      gasPrice: gasPrice,
+      getGasPriceCallback: (domain: number) => chainreader.getGasPrice(domain, requestContext),
     },
     chainData,
     logger,
