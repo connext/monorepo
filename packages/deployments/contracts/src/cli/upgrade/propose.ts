@@ -68,15 +68,22 @@ export const getDiamondUpgradeProposal = async () => {
       };
     });
 
-    // get the fork block (block used to create fork in fork tests)
-    const current = await provider.getBlockNumber();
-    const toDeduct = (21 * 24 * 60 * 60) / 15; // 21 days in blocks w/15s blocks
+    const connext = new Contract(Connext.address, Connext.abi, provider);
+
+    // get the block from the latest DiamondCut event
+    const [latest] = (await connext.queryFilter(connext.filters.DiamondCut())).sort(
+      (a, b) => b.blockNumber - a.blockNumber,
+    );
+    if (!latest) {
+      throw new Error(`Could not find DiamondCut event for chain: ${chain}`);
+    }
 
     // get the proposed cut
-    const namedCuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
+    const namedCuts = await getProposedFacetCuts(facetOptions, connext);
     // write to file without `name` field (matching contract call)
     chainCuts[chain] = {
-      forkBlock: current - toDeduct,
+      // default 1000 blocks into cut
+      forkBlock: latest.blockNumber + 1000,
       numberOfCuts: namedCuts.length,
       connext: Connext.address,
       proposal: namedCuts.map((cut) => {
