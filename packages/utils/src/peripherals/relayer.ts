@@ -70,7 +70,6 @@ export const calculateRelayerFee = async (
     isHighPriority,
   );
 
-  estimatedRelayerFee = BigNumber.from("0");
   const shouldFallback = estimatedRelayerFee.eq("0") && getGasPriceCallback;
   if (shouldFallback) {
     let gasPrice = BigNumber.from(0);
