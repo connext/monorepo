@@ -219,7 +219,7 @@
         "startBlock": 1166677
       },
       {
-        "name": "Connector",
+        "name": "SpokeConnector",
         "address": "0x57a18F908fb91919f34252595a83A33d74BbF68D",
         "startBlock": 1253176
       },

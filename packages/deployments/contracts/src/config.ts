@@ -56,7 +56,7 @@ export const hardhatNetworks = {
       urlOverride ||
       process.env.GOERLI_ETH_PROVIDER_URL ||
       "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    gasPrice: utils.parseUnits("50", "gwei").toNumber(),
+    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },

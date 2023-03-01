@@ -209,7 +209,7 @@ export default task("xcall", "Prepare a cross-chain tx")
               .connect(sender)
               .functions[functionName](destinationDomain, to, asset, delegate, amount, slippage, callData, {
                 from: sender.address,
-                gasLimit: 2_000_000,
+                gasLimit: originDomain === 2053862260 ? 50_000_000 : 2_000_000,
                 value: relayerFee,
               });
 
