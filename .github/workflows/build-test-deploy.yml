@@ -92,12 +92,21 @@ jobs:
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          yarn workspace @connext/nxtp-txservice npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          yarn workspace @connext/nxtp-adapters-cache npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          yarn workspace @connext/sdk npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+          if [[ "${{ steps.version_type.outputs.tag }}" ]]; then
+            yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+            yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+            yarn workspace @connext/nxtp-txservice npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+            yarn workspace @connext/nxtp-adapters-cache npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+            yarn workspace @connext/sdk npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+          else
+            yarn workspace @connext/nxtp-utils npm publish --access public
+            yarn workspace @connext/smart-contracts npm publish --access public
+            yarn workspace @connext/nxtp-txservice npm publish --access public
+            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
+            yarn workspace @connext/nxtp-adapters-cache npm publish --access public
+            yarn workspace @connext/sdk npm publish --access public
+          fi
 
   build-and-push-router-publisher-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
