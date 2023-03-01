@@ -220,13 +220,13 @@
       },
       {
         "name": "Connector",
-        "address": "0x985c881e458aB58053236CFf13C8E47686ECcd94",
-        "startBlock": 1154477
+        "address": "0x57a18F908fb91919f34252595a83A33d74BbF68D",
+        "startBlock": 1253176
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x38e91CD2ed6E985cE7d5853f77aD53e11D933Eba",
-        "startBlock": 1154472
+        "address": "0xD9cEE6032096A053075F5764ef6e1B0D5191b949",
+        "startBlock": 1253169
       }
     ]
   },
