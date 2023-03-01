@@ -56,6 +56,7 @@ contract ZkSyncSpokeConnector is SpokeConnector {
     require(_encodedData.length == 0, "!data length");
 
     // Dispatch message through zkSync AMB
+    // https://era.zksync.io/docs/dev/developer-guides/bridging/l2-l1.html#structure
     /// https://github.com/matter-labs/era-system-contracts/blob/main/contracts/interfaces/IL1Messenger.sol
     IL1Messenger(AMB).sendToL1(_data);
   }
