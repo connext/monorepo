@@ -90,6 +90,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
   );
 
   // ============ Storage ============
+  uint256 immutable MIN_BALANCE = 100 ether;
+  // ============ Constants
   // ============ Config
   uint32 _origin;
   uint32 _destination;
@@ -165,10 +167,6 @@ contract ExecutionFlowUtilities is ForgeHelper {
     decimals[1] = 18;
 
     {
-      console.log("initializing swap between:");
-      console.log("- ", address(pooledTokens[0]));
-      console.log("- ", address(pooledTokens[1]));
-
       string memory LP_TOKEN_NAME = "Test LP Token Name";
       string memory LP_TOKEN_SYMBOL = "TESTLP";
 
@@ -202,30 +200,50 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
   }
 
+  function utils_mintIfNeeded(TestERC20 asset, address mintTo) internal {
+    if (asset.balanceOf(mintTo) < MIN_BALANCE) {
+      asset.mint(mintTo, 10_000 ether);
+    }
+  }
+
+  function utils_mintIfNeeded(TestERC20 asset) internal {
+    utils_mintIfNeeded(asset, address(this));
+  }
+
   // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
   // are freshly deployed assets being used in tests. Used in fork tests
-  function utils_setupOriginAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+  function utils_setupOriginAssets(
+    uint32 canonicalDomain,
+    bool localIsAdopted,
+    uint256 cap
+  ) internal {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
-    uint256 originCap;
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
       // assets on the origin should be the canonical
       _originAdopted = _canonical;
       _originLocal = _canonical;
-      originCap = 10_000 ether;
-    } // otherwise, could be anything
+    } else {
+      // otherwise, could be anything but cap should always be 0
+      cap = 0;
+    }
 
-    // Handle origin
+    if (localIsAdopted) {
+      _originAdopted = _originLocal;
+    }
+
+    // mint the asset
+    utils_mintIfNeeded(TestERC20(_originLocal));
+    utils_mintIfNeeded(TestERC20(_originAdopted));
+
     // Set up asset allowlist
     vm.prank(_originConnext.owner());
     if (_origin == canonicalDomain) {
-      console.log("setting up canonical asset on origin");
-      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), originCap);
+      _originConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), cap);
     } else {
-      console.log("setting up asset on origin");
       _originConnext.setupAssetWithDeployedRepresentation(
         TokenId(canonicalDomain, canonicalId),
         _originLocal,
@@ -233,58 +251,30 @@ contract ExecutionFlowUtilities is ForgeHelper {
         address(0)
       );
     }
-    console.log("done setting up origin asset");
-
-    if (localIsAdopted) {
-      _originAdopted = _originLocal;
-    }
-
-    // mint the asset
-    uint256 toMint = 10_000 ether;
-    TestERC20(_originLocal).mint(address(this), toMint);
-    TestERC20(_originAdopted).mint(address(this), toMint);
 
     // setup + fund the pools if needed
     if (_originLocal != _originAdopted) {
-      console.log("setting up origin swap");
       utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
   }
 
   // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
   // are freshly deployed assets being used in tests. Used in fork tests
-  function utils_setupDestinationAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
+  function utils_setupDestinationAssets(
+    uint32 canonicalDomain,
+    bool localIsAdopted,
+    uint256 cap
+  ) internal {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
-    uint256 destinationCap;
     if (_destination == canonicalDomain) {
       _destinationAdopted = _canonical;
       _destinationLocal = _canonical;
-      destinationCap = 10_000 ether;
-    } // otherwise, could be anything
-
-    vm.prank(_destinationConnext.owner());
-    if (_destination == canonicalDomain) {
-      console.log("setting up canonical asset on destination");
-      _destinationConnext.setupAsset(
-        TokenId(canonicalDomain, canonicalId),
-        18,
-        "",
-        "",
-        address(0),
-        address(0),
-        destinationCap
-      );
     } else {
-      console.log("setting up asset on destination");
-      _destinationConnext.setupAssetWithDeployedRepresentation(
-        TokenId(canonicalDomain, canonicalId),
-        _destinationLocal,
-        localIsAdopted ? address(0) : _destinationAdopted,
-        address(0)
-      );
+      // otherwise, could be anything but cap should always be 0
+      cap = 0;
     }
 
     if (localIsAdopted) {
@@ -292,9 +282,23 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
 
     // mint the asset
-    uint256 toMint = 10_000 ether;
-    TestERC20(_destinationLocal).mint(address(this), toMint);
-    TestERC20(_destinationAdopted).mint(address(this), toMint);
+    utils_mintIfNeeded(TestERC20(_destinationLocal));
+    utils_mintIfNeeded(TestERC20(_destinationAdopted));
+
+    if (_destination == canonicalDomain) {
+      // on canonical destination domain, make sure the asset is custodied
+      utils_mintIfNeeded(TestERC20(_destinationLocal), address(_destinationConnext));
+      vm.prank(_destinationConnext.owner());
+      _destinationConnext.setupAsset(TokenId(canonicalDomain, canonicalId), 18, "", "", address(0), address(0), cap);
+    } else {
+      vm.prank(_destinationConnext.owner());
+      _destinationConnext.setupAssetWithDeployedRepresentation(
+        TokenId(canonicalDomain, canonicalId),
+        _destinationLocal,
+        localIsAdopted ? address(0) : _destinationAdopted,
+        address(0)
+      );
+    }
 
     // setup pool if needed
     if (_destinationLocal != _destinationAdopted) {
@@ -305,8 +309,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
   // Combines both setup assets into a single call when running integration tests that are not
   // on forks
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) internal {
-    utils_setupOriginAssets(canonicalDomain, localIsAdopted);
-    utils_setupDestinationAssets(canonicalDomain, localIsAdopted);
+    utils_setupOriginAssets(canonicalDomain, localIsAdopted, 10_000 ether);
+    utils_setupDestinationAssets(canonicalDomain, localIsAdopted, 10_000 ether);
   }
 
   // Used to generate transfer info struct.
@@ -314,7 +318,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     uint32 destination,
     uint256 amount,
     uint256 bridgedAmount
-  ) internal returns (TransferInfo memory) {
+  ) internal view returns (TransferInfo memory) {
     bool sendToDest = destination == _destination;
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     return
@@ -464,10 +468,12 @@ contract ExecutionFlowUtilities is ForgeHelper {
       signatures[i] = abi.encodePacked(r, _s, v);
 
       // allowlist all routers
-      vm.prank(_destinationConnext.owner());
-      _destinationConnext.approveRouter(routers[i]);
-      vm.prank(routers[i]);
-      _destinationConnext.initializeRouter(address(0), address(0));
+      if (!_destinationConnext.getRouterApproval(routers[i])) {
+        vm.prank(_destinationConnext.owner());
+        _destinationConnext.approveRouter(routers[i]);
+        vm.prank(routers[i]);
+        _destinationConnext.initializeRouter(address(0), address(0));
+      }
 
       // add liquidity for all routers
       if (liquidity != 0) {
@@ -490,8 +496,10 @@ contract ExecutionFlowUtilities is ForgeHelper {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256 key = 0xA11CE;
     address sequencer = vm.addr(key);
-    vm.prank(_destinationConnext.owner());
-    _destinationConnext.addSequencer(sequencer);
+    if (!_destinationConnext.approvedSequencers(sequencer)) {
+      vm.prank(_destinationConnext.owner());
+      _destinationConnext.addSequencer(sequencer);
+    }
 
     bytes32 preImage = keccak256(abi.encode(transferId, routers));
     bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
@@ -522,7 +530,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return utils_createExecuteArgs(params, transferId, pathLen, 20 ether);
   }
 
-  function utils_getFastTransferAmount(uint256 amount) internal returns (uint256) {
+  function utils_getFastTransferAmount(uint256 amount) internal pure returns (uint256) {
     return (amount * 9995) / 10000;
   }
 
@@ -597,60 +605,61 @@ contract ExecutionFlowUtilities is ForgeHelper {
     uint256 pathLen = args.routers.length;
     bool isFast = pathLen != 0;
     // Assert updated balances, if applicable.
-    if (!zeroAmountTransfer) {
-      ExecuteBalances memory end = utils_getExecuteBalances(
-        _destinationLocal,
-        receiving,
-        address(_destinationConnext),
-        args.params.to,
-        args.routers
-      );
-
-      // You are using internal swaps, so the amount of the local asset on the bridge
-      // should *not* change iff you are using adopted assets. However, the router liquidity
-      // and bridge adopted balance should drop
-      if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
-        assertEq(end.bridgeLocal, initial.bridgeLocal);
-      } // else, local checked in receiving
-      assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
-
-      // router loses the liquidity it provides (local)
-      uint256 debited = isFast ? (utils_getFastTransferAmount(args.params.bridgedAmt)) / pathLen : 0;
-      address[] memory stored = _destinationConnext.routedTransfers(transferId);
-      if (isFast) {
-        for (uint256 i; i <= pathLen - 1; i++) {
-          assertEq(stored[i], args.routers[i]);
-          assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
-        }
-
-        uint256 sweep = isFast ? debited + (args.params.bridgedAmt % pathLen) : 0;
-        assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
-        assertEq(
-          end.liquidity[pathLen - 1],
-          usesPortals ? initial.liquidity[pathLen - 1] : initial.liquidity[pathLen - 1] - sweep
-        );
-      } else {
-        assertEq(stored.length, 0);
-      }
-
-      // recipient gains (adopted/specified)
-      assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
-
-      // status updated
-      assertEq(
-        uint256(_destinationConnext.transferStatus(transferId)),
-        isFast ? uint256(DestinationTransferStatus.Executed) : uint256(DestinationTransferStatus.Completed)
-      );
-
-      if (!usesPortals) {
-        return;
-      }
-      assertEq(_destinationConnext.getAavePortalDebt(transferId), bridgeOut);
-      assertEq(
-        _destinationConnext.getAavePortalFeeDebt(transferId),
-        (bridgeOut * _destinationConnext.aavePortalFee()) / 10000
-      );
+    if (zeroAmountTransfer) {
+      return;
     }
+    ExecuteBalances memory end = utils_getExecuteBalances(
+      _destinationLocal,
+      receiving,
+      address(_destinationConnext),
+      args.params.to,
+      args.routers
+    );
+
+    // You are using internal swaps, so the amount of the local asset on the bridge
+    // should *not* change iff you are using adopted assets. However, the router liquidity
+    // and bridge adopted balance should drop
+    if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
+      assertEq(end.bridgeLocal, initial.bridgeLocal);
+    } // else, local checked in receiving
+    assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
+
+    // router loses the liquidity it provides (local)
+    uint256 debited = isFast ? (utils_getFastTransferAmount(args.params.bridgedAmt)) / pathLen : 0;
+    address[] memory stored = _destinationConnext.routedTransfers(transferId);
+    if (isFast) {
+      for (uint256 i; i <= pathLen - 1; i++) {
+        assertEq(stored[i], args.routers[i]);
+        assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
+      }
+
+      uint256 sweep = isFast ? debited + (args.params.bridgedAmt % pathLen) : 0;
+      assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
+      assertEq(
+        end.liquidity[pathLen - 1],
+        usesPortals ? initial.liquidity[pathLen - 1] : initial.liquidity[pathLen - 1] - sweep
+      );
+    } else {
+      assertEq(stored.length, 0);
+    }
+
+    // recipient gains (adopted/specified)
+    assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
+
+    // status updated
+    assertEq(
+      uint256(_destinationConnext.transferStatus(transferId)),
+      isFast ? uint256(DestinationTransferStatus.Executed) : uint256(DestinationTransferStatus.Completed)
+    );
+
+    if (!usesPortals) {
+      return;
+    }
+    assertEq(_destinationConnext.getAavePortalDebt(transferId), bridgeOut);
+    assertEq(
+      _destinationConnext.getAavePortalFeeDebt(transferId),
+      (bridgeOut * _destinationConnext.aavePortalFee()) / 10000
+    );
   }
 
   // Shortcut: no vault or portals.
@@ -675,8 +684,9 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return
       ReconcileBalances(
         initLiquidity,
-        _destinationConnext.getAavePortalDebt(transferId),
-        _destinationConnext.getAavePortalFeeDebt(transferId)
+        // FIXME: need to fork at the right block
+        0, // _destinationConnext.getAavePortalDebt(transferId),
+        0 //_destinationConnext.getAavePortalFeeDebt(transferId)
       );
   }
 
