@@ -116,6 +116,10 @@ variable "blast_key" {
   type = string
 }
 
+variable "infura_key" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
