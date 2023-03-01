@@ -62,8 +62,8 @@ POST {{baseUrl}}/estimateRelayerFee
 Content-Type: application/json
 
 {
-  "origin": "1735353714",
-  "destination": "9991"
+  "originDomain": "6648936",
+  "destinationDomain": "1869640809"
 }
 
 ##############
