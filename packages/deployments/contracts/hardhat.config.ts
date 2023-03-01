@@ -144,6 +144,14 @@ const config: HardhatUserConfig = {
           browserURL: "https://explorer.goerli.zkevm.consensys.net",
         },
       },
+      {
+        network: "zksync2-testnet",
+        chainId: 280,
+        urls: {
+          apiURL: "hhttps://zksync2-testnet.zkscan.io/api",
+          browserURL: "https://zksync2-testnet.zkscan.io",
+        },
+      },
     ],
   },
   gasReporter: {

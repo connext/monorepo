@@ -214,6 +214,12 @@ export const hardhatNetworks = {
     zksync: true,
     ethNetwork: "goerli",
     verifyURL: "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://zksync2-testnet.zkscan.io/api",
+      },
+    },
   },
   consensys: {
     accounts: { mnemonic },
