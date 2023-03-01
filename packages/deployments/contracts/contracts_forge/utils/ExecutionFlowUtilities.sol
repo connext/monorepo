@@ -684,9 +684,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return
       ReconcileBalances(
         initLiquidity,
-        // FIXME: need to fork at the right block
-        0, // _destinationConnext.getAavePortalDebt(transferId),
-        0 //_destinationConnext.getAavePortalFeeDebt(transferId)
+        _destinationConnext.getAavePortalDebt(transferId),
+        _destinationConnext.getAavePortalFeeDebt(transferId)
       );
   }
 
