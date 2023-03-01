@@ -975,6 +975,7 @@ export type arbitrumone_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumone_Bytes']>;
   asset?: Maybe<arbitrumone_Asset>;
+  transactingAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
   message?: Maybe<arbitrumone_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
@@ -1159,6 +1160,16 @@ export type arbitrumone_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<arbitrumone_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1291,6 +1302,7 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'asset__adoptedAsset'
   | 'asset__localAsset'
   | 'asset__blockNumber'
+  | 'transactingAsset'
   | 'message'
   | 'message__id'
   | 'message__transferId'
@@ -1796,6 +1808,7 @@ export type arbitrumone_RelayerFeesIncrease_orderBy =
   | 'transfer__bridgedAmt'
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
   | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
   | 'transfer__caller'

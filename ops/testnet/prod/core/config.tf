@@ -79,6 +79,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -195,6 +198,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -218,6 +224,9 @@ locals {
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -267,6 +276,9 @@ locals {
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
     }
     environment   = var.stage

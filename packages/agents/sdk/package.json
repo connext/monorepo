@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "0.2.7-alpha.3",
+  "version": "0.2.7",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",

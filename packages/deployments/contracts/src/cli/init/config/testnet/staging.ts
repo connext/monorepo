@@ -7,6 +7,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
+    "1668247156", /// CONSENSYS-ZKEVM-TEST
   ],
   assets: [
     {
@@ -30,6 +31,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
           adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
         },
+        /// CONSENSYS-ZKEVM-TEST
+        "1668247156": {
+          local: "0xB706319D37b945727E71ae0d4353699d19112576",
+          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
+        },
       },
     },
     {
@@ -52,6 +58,11 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         "1734439522": {
           local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
           adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+        },
+        /// CONSENSYS-ZKEVM-TEST
+        "1668247156": {
+          local: "0xB706319D37b945727E71ae0d4353699d19112576",
+          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
         },
       },
     },

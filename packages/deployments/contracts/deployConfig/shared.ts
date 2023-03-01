@@ -260,30 +260,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // // Sokol testnet (for Gnosis):
-      // 77: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://kovan.etherscan.io/address/0xfe446bef1dbf7afe24e81e05bc8b271c1ba9a560#code
-      //     hub: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
-      //     // https://blockscout.com/poa/sokol/address/0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560/contracts
-      //     spoke: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      // },
-      // Gnosis Chiado chain
-      // 100100: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://docs.gnosischain.com/about/networks/chiado
-      //     hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
-      //     spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
       421613: {
@@ -327,31 +303,20 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // 97: {
-      //   prefix: "Multichain",
-      //   networkName: "Chapel",
-      //   ambs: {
-      //     // AnyCallV6Proxy on goerli
-      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-      //     // AnyCallV6Proxy on chapel/bsc testnet
-      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      //   custom: {
-      //     hub: {
-      //       mirrorChainId: "97",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-      //     },
-      //     spoke: {
-      //       mirrorChainId: "5",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-      //     },
-      //   },
-      // },
+      59140: {
+        prefix: "Consensys",
+        ambs: {
+          // L1Bridge on goerli
+          // https://goerli.etherscan.io/address/0xe87d317eb8dcc9afe24d9f63d6c760e52bc18a40
+          hub: "0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40",
+          // L2Bridge on zkEvm
+          // https://explorer.goerli.zkevm.consensys.net/address/0xA59477f7742Ba7d51bb1E487a8540aB339d6801d
+          spoke: "0xA59477f7742Ba7d51bb1E487a8540aB339d6801d",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
       5: {
         prefix: "Mainnet",
         ambs: {
