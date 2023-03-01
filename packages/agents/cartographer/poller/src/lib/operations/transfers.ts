@@ -21,8 +21,8 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
     : Math.max(...transfers.map((transfer) => transfer.destination?.reconcile?.timestamp ?? 0));
 };
 
-const getMaxTimestamp = (entities: any[]): number => {
-  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
+const getMaxTimestamp = (entities: RelayerFeesIncrease[] | SlippageUpdate[]): number => {
+  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => (entity?.timestamp as number) ?? 0));
 };
 
 export const updateTransfers = async () => {
