@@ -260,6 +260,15 @@ export const saveTransfers = async (
       _transfer.error_status = undefined;
     }
 
+    const prevRelayerFee = BigNumber.from(dbTransfer?.relayer_fee || "0");
+    const newRelayerFee = BigNumber.from(_transfer.relayer_fee || "0");
+    if (newRelayerFee.gt(prevRelayerFee)) {
+      // reset backoff if there is a bump in relayerFee
+
+      _transfer.backoff = 32;
+      _transfer.next_execution_timestamp = 0;
+    }
+
     const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
     return transfer;
   });
