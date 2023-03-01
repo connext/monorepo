@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Added ability to fork chains and apply proposed upgrades
+
 ## Amarok 0.2.7
 
 - [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version
