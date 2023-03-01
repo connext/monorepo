@@ -22,6 +22,7 @@ import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { PropagateContext } from "../src/tasks/propagate/context";
 import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
+import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -68,6 +69,21 @@ export const mock = {
     };
   },
   propagateCtx: (): PropagateContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
+        relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  sendOuboundRootCtx: (): SendOutboundRootContext => {
     return {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       adapters: {

@@ -971,6 +971,7 @@ type mainnet_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: mainnet_Bytes
   asset: mainnet_Asset
+  transactingAsset: mainnet_Bytes
   message: mainnet_OriginMessage
   relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
@@ -1155,6 +1156,16 @@ input mainnet_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: mainnet_Asset_filter
+  transactingAsset: mainnet_Bytes
+  transactingAsset_not: mainnet_Bytes
+  transactingAsset_gt: mainnet_Bytes
+  transactingAsset_lt: mainnet_Bytes
+  transactingAsset_gte: mainnet_Bytes
+  transactingAsset_lte: mainnet_Bytes
+  transactingAsset_in: [mainnet_Bytes!]
+  transactingAsset_not_in: [mainnet_Bytes!]
+  transactingAsset_contains: mainnet_Bytes
+  transactingAsset_not_contains: mainnet_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1287,6 +1298,7 @@ enum mainnet_OriginTransfer_orderBy {
   asset__adoptedAsset
   asset__localAsset
   asset__blockNumber
+  transactingAsset
   message
   message__id
   message__transferId
@@ -1890,6 +1902,7 @@ enum mainnet_RelayerFeesIncrease_orderBy {
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
+  transfer__transactingAsset
   transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
