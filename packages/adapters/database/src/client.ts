@@ -311,6 +311,18 @@ export const saveProcessedRootMessages = async (
       updateColumns: ["processed_transaction_hash", "processed"],
     })
     .run(poolToUse);
+
+  // update `processed` to true for previous root messages.
+  for (const message of _messages) {
+    const spoke_domain = message.spokeDomain;
+    await db
+      .update(
+        "root_messages",
+        { processed: true },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+      )
+      .run(poolToUse);
+  }
 };
 
 export const getRootMessages = async (
@@ -870,4 +882,37 @@ export const updateSlippage = async (
       .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
       .run(poolToUse);
   }
+};
+
+export const markRootMessagesProcessed = async (
+  rootMessages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const rootMessageIds = rootMessages.map((m) => m.id);
+  await db.update("root_messages", { processed: true }, { id: dc.isIn(rootMessageIds) }).run(poolToUse);
+};
+
+export const updateExecuteSimulationData = async (
+  transferId: string,
+  executeSimulationInput: string,
+  executeSimulationFrom: string,
+  executeSimulationTo: string,
+  executeSimulationNetwork: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await db
+    .update(
+      "transfers",
+      {
+        execute_simulation_input: executeSimulationInput,
+        execute_simulation_from: executeSimulationFrom,
+        execute_simulation_to: executeSimulationTo,
+        execute_simulation_network: executeSimulationNetwork,
+      },
+      { transfer_id: transferId },
+    )
+    .run(poolToUse);
 };

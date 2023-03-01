@@ -59,6 +59,8 @@ import {
   saveStableSwapPoolEvent,
   saveRouterDailyTVL,
   updateSlippage,
+  markRootMessagesProcessed,
+  updateExecuteSimulationData,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -192,8 +194,17 @@ export type Database = {
     _poolEvents: StableSwapPoolEvent[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveRouterDailyTVL: (_tvls: RouterDailyTVL[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   updateSlippage: (_slippageUpdates: SlippageUpdate[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  updateExecuteSimulationData: (
+    transferId: string,
+    executeSimulationInput: string,
+    executeSimulationFrom: string,
+    executeSimulationTo: string,
+    executeSimulationNetwork: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -247,8 +258,10 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveStableSwapExchange,
     updateErrorStatus,
     saveStableSwapPoolEvent,
+    markRootMessagesProcessed,
     saveRouterDailyTVL,
     updateSlippage,
+    updateExecuteSimulationData,
   };
 };
 
