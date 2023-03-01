@@ -248,7 +248,7 @@ export const updateBackoffs = async (): Promise<void> => {
       const domainUpdates = updates.filter((update) => update.domain === domain);
       increasesByDomain[domain] = domainUpdates.map((update) => update.transferId);
       const max = getMaxTimestamp(domainUpdates);
-      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      const latest = subgraphRelayerFeeQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
       if (domainUpdates.length > 0 && max > latest) {
         return { domain, checkpoint: max };
       }

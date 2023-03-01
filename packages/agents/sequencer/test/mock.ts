@@ -161,6 +161,7 @@ export const mock = {
         type: RelayerType.Connext,
       },
     ],
+    database: () => mockDatabase(),
     mqClient: () => {
       return {
         publish: stub(),
