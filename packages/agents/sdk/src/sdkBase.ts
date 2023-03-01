@@ -567,6 +567,7 @@ export class SdkBase extends SdkShared {
     originSlippage: BigNumberish;
     routerFee: BigNumberish;
     destinationSlippage: BigNumberish;
+    isFastPath: boolean;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
 
@@ -626,11 +627,20 @@ export class SdkBase extends SdkShared {
       destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
     );
 
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    const sdkUtils = await SdkUtils.create(this.config);
+    const isFastPath = (await sdkUtils.checkRouterLiquidity(destinationDomain, destinationAssetData.local)).gt(
+      destinationAmount,
+    )
+      ? true
+      : false;
+
     return {
       amountReceived: destinationAmountReceived,
       originSlippage,
       routerFee,
       destinationSlippage,
+      isFastPath,
     };
   }
 }
