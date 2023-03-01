@@ -12,6 +12,7 @@ export const SUPPORTED_DOMAINS = {
     1735356532, // optimism goerli
     9991, // mumbai
     1734439522, // arbitrum-goerli
+    1668247156, // consensus-zkevm-test
   ],
 };
 

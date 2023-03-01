@@ -6,7 +6,7 @@ import { Deployment } from "../../types";
 import { log } from "./log";
 import { CallSchema } from "./types";
 
-const DEFAULT_CONFIRMATIONS = 3;
+const DEFAULT_CONFIRMATIONS = 1;
 
 type WaitForTxArguments = {
   deployment: Deployment;
