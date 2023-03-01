@@ -70,10 +70,12 @@ export const calculateRelayerFee = async (
     isHighPriority,
   );
 
-  if (!estimatedRelayerFee || (estimatedRelayerFee == BigNumber.from("0") && getGasPriceCallback)) {
+  estimatedRelayerFee = BigNumber.from("0");
+  const shouldFallback = estimatedRelayerFee.eq("0") && getGasPriceCallback;
+  if (shouldFallback) {
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await getGasPriceCallback!(Number(params.destinationDomain));
+      gasPrice = await getGasPriceCallback(Number(params.destinationDomain));
       estimatedRelayerFee = BigNumber.from(totalGasAmount).mul(gasPrice);
     } catch (e: unknown) {
       if (logger) {
