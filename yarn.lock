@@ -2460,7 +2460,6 @@ __metadata:
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
     "@matterlabs/hardhat-zksync-solc": ^0.3.14
     "@matterlabs/hardhat-zksync-verify": ^0.1.1
-    "@matterlabs/zksync-contracts": 0.4.2
     "@nomiclabs/hardhat-ethers": 2.2.2
     "@nomiclabs/hardhat-etherscan": 3.1.6
     "@nomiclabs/hardhat-waffle": 2.0.5
@@ -5240,16 +5239,6 @@ __metadata:
   peerDependencies:
     "@nomiclabs/hardhat-etherscan": 3.1.2
   checksum: 90471f7c97c2a49d625a005d85c679e653c4dcb3515887017e1044b0c3a2b6d7deb81a8a1b22298c2818ccdd636c08be55b4a23e31ac58797618418068c3fda5
-  languageName: node
-  linkType: hard
-
-"@matterlabs/zksync-contracts@npm:0.4.2":
-  version: 0.4.2
-  resolution: "@matterlabs/zksync-contracts@npm:0.4.2"
-  peerDependencies:
-    "@openzeppelin/contracts": 4.6.0
-    "@openzeppelin/contracts-upgradeable": 4.6.0
-  checksum: 761ca87c6b3c6f6d5928d067bcb89abca8a8aa7433543652dae10e92cf9cdc7e54a654799277fa6124650390eedd7c5e98614f6051ed733f090dbd8bd16e6b6b
   languageName: node
   linkType: hard
 

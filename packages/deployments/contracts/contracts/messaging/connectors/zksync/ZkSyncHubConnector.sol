@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 // Importing zkSync contract interface
-import "@matterlabs/zksync-contracts/l1/contracts/zksync/interfaces/IZkSync.sol";
+import {IZkSync, L2Message} from "../../interfaces/ambs/zksync/IZkSync.sol";
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {HubConnector} from "../HubConnector.sol";
@@ -42,7 +42,7 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should include gasPrice value for `l2TransactionBaseCOst` specialized calldata
+    // Should include gasPrice value for `l2TransactionBaseCost` specialized calldata
     require(_encodedData.length == 32, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
@@ -51,14 +51,17 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     // Get the gas data
     uint256 gasPrice = abi.decode(_encodedData, (uint256));
 
-    // Declare the ergs limit
-    uint256 ERGS_LIMIT = 10000;
+    // Maximum amount of L2 gas that transaction can consume during execution on L2
+    uint256 l2GasLimit = 10000000;
+
+    // The maximum amount L2 gas that the operator may charge the user for.
+    uint256 l2GasPerPubdataByteLimit = 800;
 
     // Get the max supplied
     uint256 fee = _getGas(msg.value);
 
     // Ensure it is above minimum
-    require(fee > IZkSync(AMB).l2TransactionBaseCost(gasPrice, ERGS_LIMIT, uint32(_calldata.length)), "!fees");
+    require(fee > IZkSync(AMB).l2TransactionBaseCost(gasPrice, l2GasLimit, l2GasPerPubdataByteLimit), "!fees");
 
     // Dispatch message
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#structure
@@ -72,10 +75,13 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
       0,
       // Encoding the calldata for the execute
       _calldata,
-      // Ergs limit
-      ERGS_LIMIT,
+      // l2 Gas limit
+      l2GasLimit,
+      // The default l2GasPricePerPubdata
+      l2GasPerPubdataByteLimit,
       // factory dependencies
-      new bytes[](0)
+      new bytes[](0),
+      msg.sender
     );
   }
 
