@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, Bid, OriginTransfer } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, Bid, OriginTransfer, GELATO_RELAYER_ADDRESS } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -31,7 +31,7 @@ export const sendExecuteFastToRelayer = async (
   const executeEncodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
 
   // Simulation data for Execute transfer
-  const relayerFrom = await relayers[0].instance.getRelayerAddress(destinationChainId);
+  const relayerFrom = GELATO_RELAYER_ADDRESS;
 
   await database.updateExecuteSimulationData(
     transfer.transferId,
