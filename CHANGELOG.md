@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 1.0.0-alpha.0
+
+- [sdk] Moved core function `calculateAmountReceived` to SdkBase
+- [sdk] `calculateAmountReceived` now provides isFastPath determination
+
 ## Amarok 0.2.7
 
 - [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version
