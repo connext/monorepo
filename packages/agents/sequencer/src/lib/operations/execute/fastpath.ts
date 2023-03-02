@@ -248,7 +248,7 @@ export const executeFastPathData = async (
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
   if ([...Object.keys(bidsRoundMap)].length < 1) {
     await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
-    throw new NoBidsSent();
+    throw new NoBidsSent({ bidsRoundMap });
   }
 
   for (const roundIdx of availableRoundIds) {
