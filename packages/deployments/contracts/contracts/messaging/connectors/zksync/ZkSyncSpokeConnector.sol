@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 // Importing interfaces and addresses of the system contracts
-import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
+import {IL1Messenger} from "../../interfaces/ambs/zksync/IL1Messenger.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
@@ -54,8 +54,11 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
+
     // Dispatch message through zkSync AMB
-    L1_MESSENGER_CONTRACT.sendToL1(_data);
+    // https://era.zksync.io/docs/dev/developer-guides/bridging/l2-l1.html#structure
+    /// https://github.com/matter-labs/era-system-contracts/blob/main/contracts/interfaces/IL1Messenger.sol
+    IL1Messenger(AMB).sendToL1(_data);
   }
 
   /**

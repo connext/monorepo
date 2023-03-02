@@ -39,7 +39,6 @@
   "license": "ISC",
   "devDependencies": {
     "@arbitrum/sdk": "3.0.0-beta.12",
-    "@matterlabs/zksync-contracts": "0.4.2",
     "@nomiclabs/hardhat-ethers": "2.2.2",
     "@nomiclabs/hardhat-etherscan": "3.1.6",
     "@nomiclabs/hardhat-waffle": "2.0.5",
@@ -75,16 +74,20 @@
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "2.1.0",
+    "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.14",
+    "@matterlabs/hardhat-zksync-verify": "^0.1.1",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@typescript-eslint/eslint-plugin": "5.52.0",
     "adv": "0.1.5",
     "ajv": "8.12.0",
     "dotenv": "16.0.3",
     "eslint": "8.34.0",
-    "hardhat-deploy": "0.11.23",
+    "hardhat-deploy": "0.11.24",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
-    "typechain": "8.1.1"
+    "typechain": "8.1.1",
+    "zksync-web3": "^0.13.0"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"

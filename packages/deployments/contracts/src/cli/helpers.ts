@@ -1,3 +1,4 @@
+import * as zk from "zksync-web3";
 import { Contract, providers, Wallet } from "ethers";
 
 import _Deployments from "../../deployments.json";
@@ -12,7 +13,7 @@ export const getContract = (
   name: string,
   chain: string,
   useStaging: boolean,
-  connection?: Wallet | providers.JsonRpcProvider,
+  connection?: Wallet | providers.JsonRpcProvider | zk.Wallet,
 ): Deployment => {
   const deployments = Deployments[chain];
   if (!deployments) {

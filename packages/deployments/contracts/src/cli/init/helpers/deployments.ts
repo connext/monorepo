@@ -1,3 +1,4 @@
+import * as zk from "zksync-web3";
 import { ethers, Wallet } from "ethers";
 
 import { getContract, getHubConnectors, getSpokeConnector } from "../../helpers";
@@ -6,15 +7,20 @@ import { Deployment } from "../../types";
 import { DomainDeployments } from "./types";
 
 export const getDeployments = (args: {
-  deployer: Wallet;
-  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider };
+  deployer: Wallet | zk.Wallet;
+  chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider | zk.Provider; zksync: boolean };
   isHub: boolean;
   useStaging: boolean;
 }): DomainDeployments => {
   const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
   const chain = chainInfo.chain;
 
-  const deployer = _deployer.connect(chainInfo.rpc);
+  let deployer;
+  if (chainInfo.zksync) {
+    deployer = (_deployer as zk.Wallet).connect(chainInfo.rpc as zk.Provider);
+  } else {
+    deployer = (_deployer as Wallet).connect(chainInfo.rpc as ethers.providers.JsonRpcProvider);
+  }
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = isHub

@@ -132,7 +132,7 @@ export const transferOwnership = async () => {
       }
 
       // Deadline is passed, execute
-      let sender = wallet;
+      let sender = wallet.connect(provider);
       if (desiredWallet && desiredWallet.address.toLowerCase() === proposed.toLowerCase()) {
         sender = desiredWallet.connect(provider);
       }
