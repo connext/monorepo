@@ -252,6 +252,8 @@ export const executeFastPathData = async (
       transferId,
     });
 
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+
     return { taskId };
   }
 
@@ -430,8 +432,11 @@ export const executeFastPathData = async (
   }
 
   if (!taskId) {
+    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
+      bidsRoundMap,
+      transferId,
+    });
     await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
-    throw new NoBidsSent({ transfer });
   }
 
   return { taskId };
