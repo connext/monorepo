@@ -21,8 +21,8 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
     : Math.max(...transfers.map((transfer) => transfer.destination?.reconcile?.timestamp ?? 0));
 };
 
-const getMaxTimestamp = (entities: SlippageUpdate[]): number => {
-  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
+const getMaxTimestamp = (entities: RelayerFeesIncrease[] | SlippageUpdate[]): number => {
+  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => (entity?.timestamp as number) ?? 0));
 };
 
 export const updateTransfers = async () => {
@@ -245,11 +245,11 @@ export const updateBackoffs = async (): Promise<void> => {
 
   const increaseCheckpoints = domains
     .map((domain) => {
-      const domainUpdates = updates.filter((update) => update.domain === domain);
-      increasesByDomain[domain] = domainUpdates.map((update) => update.transferId);
-      const max = getMaxTimestamp(domainUpdates);
-      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
-      if (domainUpdates.length > 0 && max > latest) {
+      const domainIncreases = increases.filter((increase) => increase.domain === domain);
+      increasesByDomain[domain] = domainIncreases.map((increase) => increase.transferId);
+      const max = getMaxTimestamp(domainIncreases);
+      const latest = subgraphRelayerFeeQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainIncreases.length > 0 && max > latest) {
         return { domain, checkpoint: max };
       }
       return undefined;

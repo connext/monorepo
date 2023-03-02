@@ -59,6 +59,7 @@ import {
   increaseBackoff,
   resetBackoffs,
   updateErrorStatus,
+  markRootMessagesProcessed,
   updateSlippage,
 } from "../src/client";
 
@@ -1057,5 +1058,17 @@ describe("Database client", () => {
       queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfers[i].transferId]);
       expect(queryRes.rows[0].updated_slippage).to.eq((i + 1).toString());
     }
+  });
+
+  it("should mark root messages processed", async () => {
+    const roots = [mock.entity.rootMessage(), mock.entity.rootMessage(), mock.entity.rootMessage()];
+    await saveSentRootMessages(roots, pool);
+    await markRootMessagesProcessed([roots[0], roots[1]], pool);
+    let queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[0].id]);
+    expect(queryRes.rows[0].processed).to.eq(true);
+    queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[1].id]);
+    expect(queryRes.rows[0].processed).to.eq(true);
+    queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
+    expect(queryRes.rows[0].processed).to.eq(false);
   });
 });
