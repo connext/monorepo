@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
+import { createRequestContext, expect, mkAddress, mkHash } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 
 import * as MockableFns from "../../../../src/mockable";
@@ -8,10 +8,13 @@ import { BigNumber } from "ethers";
 
 let getTransactionReceiptStub: SinonStub;
 let getLogProofStub: SinonStub;
+let getMainContractAddressStub: SinonStub;
+let getContractStub: SinonStub;
 
 class MockZkWeb3Provider {
   public getTransactionReceipt = getTransactionReceiptStub;
   public getLogProof = getLogProofStub;
+  public getMainContractAddress = getMainContractAddressStub;
 }
 
 describe("Helpers: ZkSync", () => {
@@ -27,6 +30,11 @@ describe("Helpers: ZkSync", () => {
       proof: [mkHash("0x111")],
       root: mkHash("0xdada"),
     });
+    getMainContractAddressStub = stub().returns(mkAddress("0xaaaa"));
+
+    getContractStub = stub(MockableFns, "getContract").returns({
+      proveL2MessageInclusion: stub().resolves(true),
+    } as any);
   });
 
   it("should throw error if no logs", async () => {
@@ -53,6 +61,26 @@ describe("Helpers: ZkSync", () => {
 
   it("should throw error if undefined", async () => {
     getTransactionReceiptStub.resolves(undefined);
+    await expect(
+      getProcessFromZkSyncRootArgs({
+        spokeChainId: 1,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 2,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        blockNumber: 123,
+        message: mkHash("0xbbbb"),
+        _requestContext: createRequestContext("foo"),
+      }),
+    ).to.be.rejectedWith(NoRootAvailable);
+  });
+
+  it("should throw error if not inclusion", async () => {
+    getContractStub.returns({
+      proveL2MessageInclusion: stub().resolves(false),
+    } as any);
     await expect(
       getProcessFromZkSyncRootArgs({
         spokeChainId: 1,
