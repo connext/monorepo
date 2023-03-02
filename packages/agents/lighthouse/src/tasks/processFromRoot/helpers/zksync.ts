@@ -1,14 +1,16 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { ZkSyncWeb3Provider } from "../../../mockable";
+import { getContract, JsonRpcProvider, ZkSyncWeb3Provider } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 import { GetProcessArgsParams } from ".";
+import { utils } from "zksync-web3";
 
 export const getProcessFromZkSyncRootArgs = async ({
   spokeChainId,
   hubChainId,
+  hubProvider,
   spokeProvider,
   message,
   sendHash,
@@ -29,7 +31,8 @@ export const getProcessFromZkSyncRootArgs = async ({
   // // Merkle proof for the message
   // bytes32[] calldata _proof
 
-  // create L2 provider
+  // create L1, L2 provider
+  const l1Provider = new JsonRpcProvider(hubProvider);
   const l2Provider = new ZkSyncWeb3Provider(spokeProvider);
 
   // get transaction receipt from hash on l2
@@ -37,7 +40,8 @@ export const getProcessFromZkSyncRootArgs = async ({
   if (!txReceipt) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }
-  const { l2ToL1Logs, l1BatchNumber, l1BatchTxIndex } = txReceipt;
+
+  const { l2ToL1Logs, l1BatchNumber, l1BatchTxIndex, to } = txReceipt;
   const l2Tol1Log = l2ToL1Logs?.find((l) => l.transactionHash === sendHash);
   if (!l2Tol1Log) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
@@ -48,6 +52,32 @@ export const getProcessFromZkSyncRootArgs = async ({
 
   // if l2MessageProof == null. no such message
   if (!l2MessageProof) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+  }
+
+  // check L2Message Inclusion
+  const zkAddress = await l2Provider.getMainContractAddress();
+  const mailboxL1Contract = getContract(zkAddress, utils.ZKSYNC_MAIN_ABI, l1Provider);
+  // all the information of the message sent from L2
+  const messageInfo = {
+    txNumberInBlock: l1BatchTxIndex,
+    sender: to,
+    data: message,
+  };
+
+  const inclusion = await mailboxL1Contract.proveL2MessageInclusion(
+    l1BatchNumber,
+    l2MessageProof.id,
+    messageInfo,
+    l2MessageProof.proof,
+  );
+  logger.info("Prove L2 Message Inclusion from zksync", requestContext, methodContext, {
+    l1BatchNumber,
+    index: l2MessageProof.id,
+    messageInfo,
+    proof: l2MessageProof.proof,
+  });
+  if (!inclusion) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }
 
