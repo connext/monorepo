@@ -4,6 +4,7 @@ import { sendWithRelayerWithBackup } from "../../../mockable";
 import {
   getSendOutboundRootParamsBnb,
   getSendOutboundRootParamsConsensys,
+  getSendOutboundRootParamsZkSync,
   getSendOutboundRootParamsGnosis,
   getSendOutboundRootParamsOptimism,
 } from "../helpers";
@@ -21,6 +22,7 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "6778479": getSendOutboundRootParamsGnosis,
   // testnet
   "1668247156": getSendOutboundRootParamsConsensys,
+  "2053862260": getSendOutboundRootParamsZkSync,
   "1735356532": getSendOutboundRootParamsOptimism,
 };
 

@@ -154,11 +154,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         if (asset === constants.AddressZero) {
           balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
-          const erc20 = await hre.ethers.getContractAt(
-            "@matterlabs/zksync-contracts/l1/contracts/common/interfaces/IERC20.sol:IERC20",
-            asset,
-            senders[i],
-          );
+          const erc20 = await hre.ethers.getContractAt("TestERC20", asset, senders[i]);
           console.log("erc20: ", erc20.address);
           const allowance = await erc20.allowance(senders[i].address, connextAddress);
           console.log("allowance: ", allowance.toString());
@@ -213,7 +209,7 @@ export default task("xcall", "Prepare a cross-chain tx")
               .connect(sender)
               .functions[functionName](destinationDomain, to, asset, delegate, amount, slippage, callData, {
                 from: sender.address,
-                gasLimit: 2_000_000,
+                gasLimit: originDomain === 2053862260 ? 50_000_000 : 2_000_000,
                 value: relayerFee,
               });
 
