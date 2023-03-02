@@ -2,6 +2,7 @@ import * as fs from "fs";
 
 import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
+import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
 import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
@@ -132,14 +133,6 @@ export const sanitizeAndInit = async () => {
         "or set DEPLOYER or DEPLOYER_MNEMONIC in env.",
     );
   }
-  // Convert deployer from mnemonic to Wallet.
-  let deployer;
-  if (privateKey) {
-    deployer = new Wallet(privateKey);
-  } else {
-    deployer = Wallet.fromMnemonic(mnemonic!);
-  }
-  console.log("deployer: ", deployer.address);
 
   const networks: NetworkStack[] = [];
   const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
@@ -155,18 +148,27 @@ export const sanitizeAndInit = async () => {
 
     const chainConfig = Object.values(filteredHardhatNetworks).find(
       (networkConfig: any) => networkConfig["chainId"] == chainId,
-    ) as HttpNetworkUserConfig;
+    ) as HttpNetworkUserConfig & { zksync: boolean | undefined };
 
     if (!chainConfig || !chainConfig.url) {
       throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
     }
 
-    const rpc = new providers.JsonRpcProvider(chainConfig.url);
+    // Convert deployer from mnemonic to Wallet.
+    let deployer;
+    if (privateKey) {
+      deployer = chainConfig.zksync ? new zk.Wallet(privateKey) : new Wallet(privateKey);
+    } else {
+      deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
+    }
+    console.log("deployer: ", deployer.address);
+
+    const rpc = chainConfig.zksync ? new zk.Provider(chainConfig.url) : new providers.JsonRpcProvider(chainConfig.url);
 
     const isHub = domain === hubDomain;
     const deployments = getDeployments({
       deployer,
-      chainInfo: { chain: chainId.toString(), rpc },
+      chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
       isHub,
       useStaging,
     });
@@ -183,7 +185,6 @@ export const sanitizeAndInit = async () => {
   }
 
   const sanitized = {
-    deployer,
     hub: hubDomain,
     networks,
     assets,
@@ -234,14 +235,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   const chainData = await getChainData(true);
-
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
-  }
 
   /// ********************* Messaging **********************
   /// MARK - Messaging

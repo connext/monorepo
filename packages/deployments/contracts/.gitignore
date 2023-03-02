@@ -5,3 +5,5 @@ coverage.json
 deployments/*/solcInputs
 .openzeppelin/unknown-31337.json
 init.json
+artifacts-zk
+cache-zk

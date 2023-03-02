@@ -196,6 +196,21 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Connext_ZkSync2Test
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v0-zksynct
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: zksync2test_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
   - name: StableSwap_Goerli
     handler:

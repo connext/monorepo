@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { constants, Contract } from "ethers";
 import { task } from "hardhat/config";
 
 import {
@@ -11,14 +11,16 @@ import {
 } from "../../src/utils";
 
 type TaskArgs = {
+  data?: string;
   env?: Env;
   networkType?: ProtocolNetwork;
 };
 
 export default task("connector-send", "Call `Connector.send()` to distribute outbound root")
+  .addOptionalParam("data", "Encoded Data (bytes)")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
-  .setAction(async ({ env: _env, networkType: _networkType }: TaskArgs, { deployments, ethers }) => {
+  .setAction(async ({ data: _data, env: _env, networkType: _networkType }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await ethers.getUnnamedSigners();
@@ -38,7 +40,8 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
 
     const connector = new Contract(address, deployment.abi, deployer);
 
-    const tx = await connector.send();
+    const data = _data ?? "0x";
+    const tx = await connector.send(data);
     console.log("connector send tx: ", tx);
     const receipt = await tx.wait();
     console.log("connector send tx mined: ", receipt.transactionHash);

@@ -1,7 +1,11 @@
 import { createLoggingContext, getChainIdFromDomain, NxtpError } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { getSendOutboundRootParamsBnb, getSendOutboundRootParamsConsensys } from "../helpers";
+import {
+  getSendOutboundRootParamsBnb,
+  getSendOutboundRootParamsConsensys,
+  getSendOutboundRootParamsZkSync,
+} from "../helpers";
 import { getContext } from "../sendOutboundRoot";
 
 export type ExtraSendOutboundRootParam = {
@@ -14,6 +18,7 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "6450786": getSendOutboundRootParamsBnb,
   // testnet
   "1668247156": getSendOutboundRootParamsConsensys,
+  "2053862260": getSendOutboundRootParamsZkSync,
 };
 
 export const sendOutboundRoot = async () => {

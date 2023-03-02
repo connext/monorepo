@@ -48,6 +48,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(421611);
   } else if (network == "arbitrum-goerli") {
     chainId = BigInt.fromI32(421613);
+  } else if (network == "zkSync2-testnet") {
+    chainId = BigInt.fromI32(280);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }

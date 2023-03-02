@@ -303,6 +303,26 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      280: {
+        prefix: "ZkSync",
+        ambs: {
+          // zkSync Diamond on goerli
+          // https://goerli.etherscan.io/address/0x1908e2bf4a88f91e4ef0dc72f02b8ea36bea2319
+          hub: "0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319",
+          // zkSync on testnet
+          // https://goerli.explorer.zksync.io/address/0x0000000000000000000000000000000000008008
+          // https://github.com/matter-labs/era-system-contracts/blob/5a6c728576de5db68ad577a09f34e7b85c374192/contracts/Constants.sol#L40
+          spoke: "0x0000000000000000000000000000000000008008",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
       59140: {
         prefix: "Consensys",
         ambs: {
@@ -317,6 +337,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
+      // 97: {
+      //   prefix: "Multichain",
+      //   networkName: "Chapel",
+      //   ambs: {
+      //     // AnyCallV6Proxy on goerli
+      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
+      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
+      //     // AnyCallV6Proxy on chapel/bsc testnet
+      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
+      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   custom: {
+      //     hub: {
+      //       mirrorChainId: "97",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //     spoke: {
+      //       mirrorChainId: "5",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //   },
+      // },
       5: {
         prefix: "Mainnet",
         ambs: {

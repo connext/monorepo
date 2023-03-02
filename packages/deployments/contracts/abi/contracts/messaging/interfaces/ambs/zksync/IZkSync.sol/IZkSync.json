@@ -1,0 +1,11 @@
+[
+  "event EthWithdrawalFinalized(address indexed,uint256)",
+  "event NewPriorityRequest(uint256,bytes32,uint64,tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[4],bytes,bytes,uint256[],bytes,bytes),bytes[])",
+  "function finalizeEthWithdrawal(uint256,uint256,uint16,bytes,bytes32[])",
+  "function l2TransactionBaseCost(uint256,uint256,uint256) view returns (uint256)",
+  "function proveL1ToL2TransactionStatus(bytes32,uint256,uint256,uint16,bytes32[],uint8) view returns (bool)",
+  "function proveL2LogInclusion(uint256,uint256,tuple(uint8,bool,uint16,address,bytes32,bytes32),bytes32[]) view returns (bool)",
+  "function proveL2MessageInclusion(uint256,uint256,tuple(uint16,address,bytes),bytes32[]) view returns (bool)",
+  "function requestL2Transaction(address,uint256,bytes,uint256,uint256,bytes[],address) payable returns (bytes32)",
+  "function serializeL2Transaction(uint256,uint256,address,address,bytes,uint256,uint256,bytes[],uint256,address) pure returns (tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[4],bytes,bytes,uint256[],bytes,bytes))"
+]
