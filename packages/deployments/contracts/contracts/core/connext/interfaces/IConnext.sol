@@ -210,11 +210,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function getRouterApprovalForPortal(address _router) external view returns (bool);
 
-  function approveRouter(address router) external;
+  function approveRouter(address _router) external;
 
-  function initializeRouter(address owner, address recipient) external;
+  function initializeRouter(address _owner, address _recipient) external;
 
-  function unapproveRouter(address router) external;
+  function unapproveRouter(address _router) external;
 
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external;
 
@@ -224,11 +224,11 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
 
   function unapproveRouterForPortal(address _router) external;
 
-  function setRouterRecipient(address router, address recipient) external;
+  function setRouterRecipient(address _router, address _recipient) external;
 
-  function proposeRouterOwner(address router, address proposed) external;
+  function proposeRouterOwner(address _router, address _proposed) external;
 
-  function acceptProposedRouterOwner(address router) external;
+  function acceptProposedRouterOwner(address _router) external;
 
   function addRouterLiquidityFor(
     uint256 _amount,
@@ -239,15 +239,15 @@ interface IConnext is IDiamondLoupe, IDiamondCut {
   function addRouterLiquidity(uint256 _amount, address _local) external payable;
 
   function removeRouterLiquidityFor(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to,
     address _router
   ) external;
 
   function removeRouterLiquidity(
+    TokenId memory _canonical,
     uint256 _amount,
-    address _local,
     address payable _to
   ) external;
 

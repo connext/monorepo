@@ -57,7 +57,7 @@ describe("Helpers: ZkSync", () => {
       expect(data).to.deep.eq({
         _connector: "",
         _fee: "0",
-        _encodedData: utils.defaultAbiCoder.encode(["uint256"], ["1000"]),
+        _encodedData: utils.defaultAbiCoder.encode(["uint256"], ["10000000"]),
       });
     });
   });
