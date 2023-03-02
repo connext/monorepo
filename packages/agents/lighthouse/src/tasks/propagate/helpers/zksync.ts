@@ -102,5 +102,5 @@ export const getPropagateParams = async (
     encodedData,
   });
 
-  return { _connector: "", _fee: txCostPrice, _encodedData: encodedData };
+  return { _connector: "", _fee: txCostPrice.toString(), _encodedData: encodedData };
 };
