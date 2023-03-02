@@ -42,17 +42,15 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should include gasPrice value for `l2TransactionBaseCost` specialized calldata
+    // Should include  L2 gas that transaction can consume during execution on L2
     require(_encodedData.length == 32, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    // Get the gas data
-    uint256 gasPrice = abi.decode(_encodedData, (uint256));
 
     // Maximum amount of L2 gas that transaction can consume during execution on L2
-    uint256 l2GasLimit = 10000000;
+    uint256 l2GasLimit = abi.decode(_encodedData, (uint256));
 
     // The maximum amount L2 gas that the operator may charge the user for.
     uint256 l2GasPerPubdataByteLimit = 800;
@@ -61,7 +59,7 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     uint256 fee = _getGas(msg.value);
 
     // Ensure it is above minimum
-    require(fee > IZkSync(AMB).l2TransactionBaseCost(gasPrice, l2GasLimit, l2GasPerPubdataByteLimit), "!fees");
+    require(fee >= IZkSync(AMB).l2TransactionBaseCost(tx.gasprice, l2GasLimit, l2GasPerPubdataByteLimit), "!fees");
 
     // Dispatch message
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l1-l2.html#structure
