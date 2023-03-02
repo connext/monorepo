@@ -1,10 +1,9 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { Provider } from "zksync-web3";
 import { BigNumber } from "ethers";
 
+import { ZkSyncWeb3Provider } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
-
 import { GetProcessArgsParams } from ".";
 
 export const getProcessFromZkSyncRootArgs = async ({
@@ -31,11 +30,15 @@ export const getProcessFromZkSyncRootArgs = async ({
   // bytes32[] calldata _proof
 
   // create L2 provider
-  const l2Provider = new Provider(spokeProvider);
+  const l2Provider = new ZkSyncWeb3Provider(spokeProvider);
 
   // get transaction receipt from hash on l2
-  const { l2ToL1Logs, l1BatchNumber, l1BatchTxIndex } = await l2Provider.getTransactionReceipt(sendHash);
-  const l2Tol1Log = l2ToL1Logs.find((l) => l.transactionHash === sendHash);
+  const txReceipt = await l2Provider.getTransactionReceipt(sendHash);
+  if (!txReceipt) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+  }
+  const { l2ToL1Logs, l1BatchNumber, l1BatchTxIndex } = txReceipt;
+  const l2Tol1Log = l2ToL1Logs?.find((l) => l.transactionHash === sendHash);
   if (!l2Tol1Log) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }

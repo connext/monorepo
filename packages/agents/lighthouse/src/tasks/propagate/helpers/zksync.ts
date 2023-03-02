@@ -1,8 +1,7 @@
 import { BigNumber, utils } from "ethers";
-import { Provider } from "zksync-web3";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider } from "../../../mockable";
+import { getContract, getJsonRpcProvider, getZkSyncWeb3Provider } from "../../../mockable";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getContext } from "../propagate";
@@ -82,7 +81,7 @@ export const getPropagateParams = async (
   }
 
   const l1Provider = getJsonRpcProvider(l1RpcUrl);
-  const l2Provider = new Provider(l2RpcUrl);
+  const l2Provider = getZkSyncWeb3Provider(l2RpcUrl);
 
   const gasPrice = await l1Provider.getGasPrice();
   const gasLimit = BigNumber.from(10000000);
