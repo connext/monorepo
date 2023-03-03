@@ -38,7 +38,7 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
   const [ambAddress] = contracts.spokeConnector.decodeFunctionResult("AMB", encoded);
 
   const ambInterface = getInterface(ambs.bnb);
-  encodedData = ambInterface.encodeFunctionData("calcSrcFees", ["", l2ChainId, 32]);
+  encodedData = ambInterface.encodeFunctionData("calcSrcFees", ["", 1, 32]);
   encoded = await chainreader.readTx({ data: encodedData, domain: Number(l2domain), to: ambAddress });
   const [_fee] = ambInterface.decodeFunctionResult("calcSrcFees", encoded);
 
