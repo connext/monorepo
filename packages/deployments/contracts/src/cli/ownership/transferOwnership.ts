@@ -123,10 +123,10 @@ export const transferOwnership = async () => {
       if (timestamp.add(delay).gt(sec)) {
         // deadline not passed, do nothing
         console.log(
-          `desired owner for ${name} already proposed, deadline not elapsed. Waiting ${timestamp
-            .add(delay)
-            .sub(sec)
-            .toNumber()}s`,
+          `desired owner for ${name} (${contract.address.substring(
+            0,
+            7,
+          )}...) already proposed, deadline not elapsed. Waiting ${timestamp.add(delay).sub(sec).toNumber()}s`,
         );
         return;
       }
