@@ -43,5 +43,5 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
   encoded = await chainreader.readTx({ data: encodedData, domain: Number(l2domain), to: ambAddress });
   const [_fee] = ambInterface.decodeFunctionResult("calcSrcFees", encoded);
 
-  return { _fee, _encodedData: "0x" };
+  return { _fee: _fee.toString(), _encodedData: "0x" };
 };
