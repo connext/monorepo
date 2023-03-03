@@ -5,6 +5,8 @@ import {
   getSendOutboundRootParamsBnb,
   getSendOutboundRootParamsConsensys,
   getSendOutboundRootParamsZkSync,
+  getSendOutboundRootParamsGnosis,
+  getSendOutboundRootParamsOptimism,
 } from "../helpers";
 import { getContext } from "../sendOutboundRoot";
 
@@ -16,9 +18,12 @@ export type ExtraSendOutboundRootParam = {
 export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<ExtraSendOutboundRootParam>> = {
   // mainnet
   "6450786": getSendOutboundRootParamsBnb,
+  "1869640809": getSendOutboundRootParamsOptimism,
+  "6778479": getSendOutboundRootParamsGnosis,
   // testnet
   "1668247156": getSendOutboundRootParamsConsensys,
   "2053862260": getSendOutboundRootParamsZkSync,
+  "1735356532": getSendOutboundRootParamsOptimism,
 };
 
 export const sendOutboundRoot = async () => {
