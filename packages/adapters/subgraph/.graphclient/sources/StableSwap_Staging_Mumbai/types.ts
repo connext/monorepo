@@ -381,6 +381,7 @@ export type stagingmumbai_swap_StableSwapAddLiquidityEvent = stagingmumbai_swap_
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  lpTokenAmount: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
@@ -455,6 +456,14 @@ export type stagingmumbai_swap_StableSwapAddLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balances?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -496,11 +505,28 @@ export type stagingmumbai_swap_StableSwapAddLiquidityEvent_filter = {
 export type stagingmumbai_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'provider'
   | 'tokenAmounts'
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'lpTokenAmount'
   | 'balances'
   | 'block'
   | 'timestamp'
@@ -579,6 +605,22 @@ export type stagingmumbai_swap_StableSwapEvent_filter = {
 export type stagingmumbai_swap_StableSwapEvent_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'block'
   | 'timestamp'
   | 'transaction';
@@ -592,6 +634,7 @@ export type stagingmumbai_swap_StableSwapExchange = {
   soldId: Scalars['BigInt'];
   tokensSold: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
+  fee: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['stagingmumbai_swap_Bytes'];
@@ -675,6 +718,14 @@ export type stagingmumbai_swap_StableSwapExchange_filter = {
   balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -710,12 +761,29 @@ export type stagingmumbai_swap_StableSwapExchange_filter = {
 export type stagingmumbai_swap_StableSwapExchange_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'buyer'
   | 'boughtId'
   | 'tokensBought'
   | 'soldId'
   | 'tokensSold'
   | 'balances'
+  | 'fee'
   | 'block'
   | 'timestamp'
   | 'transaction';
@@ -728,6 +796,7 @@ export type stagingmumbai_swap_StableSwapRemoveLiquidityEvent = stagingmumbai_sw
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
   lpTokenSupply: Scalars['BigInt'];
+  lpTokenAmount: Scalars['BigInt'];
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
@@ -802,6 +871,14 @@ export type stagingmumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  lpTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lpTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balances?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
   balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -843,11 +920,28 @@ export type stagingmumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
 export type stagingmumbai_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'provider'
   | 'tokenAmounts'
   | 'fees'
   | 'invariant'
   | 'lpTokenSupply'
+  | 'lpTokenAmount'
   | 'balances'
   | 'block'
   | 'timestamp'
@@ -1340,6 +1434,22 @@ export type stagingmumbai_swap_SwapDailyVolume_filter = {
 export type stagingmumbai_swap_SwapDailyVolume_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'timestamp'
   | 'volume';
 
@@ -1405,6 +1515,22 @@ export type stagingmumbai_swap_SwapHourlyVolume_filter = {
 export type stagingmumbai_swap_SwapHourlyVolume_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'timestamp'
   | 'volume';
 
@@ -1460,6 +1586,22 @@ export type stagingmumbai_swap_SwapTradeVolume_filter = {
 
 export type stagingmumbai_swap_SwapTradeVolume_orderBy =
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'timestamp'
   | 'volume';
 
@@ -1525,6 +1667,22 @@ export type stagingmumbai_swap_SwapWeeklyVolume_filter = {
 export type stagingmumbai_swap_SwapWeeklyVolume_orderBy =
   | 'id'
   | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
   | 'timestamp'
   | 'volume';
 

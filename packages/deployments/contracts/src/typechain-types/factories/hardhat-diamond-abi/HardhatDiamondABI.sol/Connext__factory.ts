@@ -62,31 +62,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__addRemote_invalidDomain",
     type: "error",
   },
@@ -1793,26 +1768,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "PortalFacet__repayAavePortalFor_invalidAsset",
     type: "error",
   },
@@ -2750,21 +2705,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__acceptProposedRouterOwner_badCaller",
     type: "error",
   },
@@ -3612,21 +3552,6 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
   },
   {
     inputs: [],
@@ -4540,11 +4465,6 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
   },
   {
     inputs: [],

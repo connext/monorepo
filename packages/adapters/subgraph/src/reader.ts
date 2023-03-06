@@ -19,6 +19,10 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  StableSwapPoolEvent,
+  RelayerFeesIncrease,
+  SlippageUpdate,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -51,8 +55,12 @@ import {
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getPoolEventsQuery,
   getPropagatedRootsQuery,
+  getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getRouterDailyTVLQuery,
+  getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
 import { SubgraphMap } from "./lib/entities";
@@ -109,7 +117,11 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        blockNumberRes.set(domain, Number(blockInfo.block.number));
+        if (blockInfo.block?.number) {
+          blockNumberRes.set(domain, Number(blockInfo.block.number));
+        } else {
+          console.error(`No block number found for domain ${domain}!`);
+        }
       }
     }
     return blockNumberRes;
@@ -896,5 +908,110 @@ export class SubgraphReader {
       .map(parser.stableSwapExchange);
 
     return domainExchanges;
+  }
+
+  public async getStableSwapPoolEventsByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+    addOrRemove: "add" | "remove" = "add",
+  ): Promise<StableSwapPoolEvent[]> {
+    const { execute, parser } = getHelpers();
+    const exchangeQuery = getPoolEventsQuery(agents, addOrRemove);
+    const response = await execute(exchangeQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapPoolEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
+  }
+
+  public async getRelayerFeesIncreasesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RelayerFeesIncrease[]> {
+    const { execute, parser } = getHelpers();
+    const increasesQuery = getRelayerFeesIncreasesQuery(agents);
+    const response = await execute(increasesQuery);
+
+    const increases: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _increases = value?.flat();
+      increases.push(
+        _increases?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const relayerFeeIncreases: RelayerFeesIncrease[] = increases
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.relayerFeesIncrease);
+
+    return relayerFeeIncreases;
+  }
+
+  public async getSlippageUpdatesByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<SlippageUpdate[]> {
+    const { execute, parser } = getHelpers();
+    const updatesQuery = getSlippageUpdatesQuery(agents);
+    const response = await execute(updatesQuery);
+
+    const updates: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _updates = value?.flat();
+      updates.push(
+        _updates?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const slippageUpdates: SlippageUpdate[] = updates
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.slippageUpdate);
+
+    return slippageUpdates;
+  }
+
+  public async getRouterDailyTVLByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<RouterDailyTVL[]> {
+    const { execute, parser } = getHelpers();
+    const tvlsQuery = getRouterDailyTVLQuery(agents);
+    const response = await execute(tvlsQuery);
+
+    const tvls: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _tvls = value?.flat();
+      tvls.push(
+        _tvls?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const routerTVLs: RouterDailyTVL[] = tvls
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.routerDailyTvl);
+
+    return routerTVLs;
   }
 }

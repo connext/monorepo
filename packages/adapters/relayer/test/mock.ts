@@ -10,7 +10,7 @@ export const mockRelayer = (): Relayer => {
   return {
     getRelayerAddress: stub().resolves(mockRelayerAddress),
     send: stub().resolves(mockTaskId),
-    getTaskStatus: stub().resolves({ status: RelayerTaskStatus.ExecSuccess }),
+    getTaskStatus: stub().resolves(RelayerTaskStatus.ExecSuccess),
     waitForTaskCompletion: stub().resolves({ taskId: mockTaskId, status: RelayerTaskStatus.ExecSuccess }),
   } as Relayer;
 };

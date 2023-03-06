@@ -396,6 +396,7 @@ type staginggoerli_swap_StableSwapAddLiquidityEvent implements staginggoerli_swa
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
   balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
@@ -470,6 +471,14 @@ input staginggoerli_swap_StableSwapAddLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  lpTokenAmount: BigInt
+  lpTokenAmount_not: BigInt
+  lpTokenAmount_gt: BigInt
+  lpTokenAmount_lt: BigInt
+  lpTokenAmount_gte: BigInt
+  lpTokenAmount_lte: BigInt
+  lpTokenAmount_in: [BigInt!]
+  lpTokenAmount_not_in: [BigInt!]
   balances: [BigInt!]
   balances_not: [BigInt!]
   balances_contains: [BigInt!]
@@ -511,11 +520,28 @@ input staginggoerli_swap_StableSwapAddLiquidityEvent_filter {
 enum staginggoerli_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
   invariant
   lpTokenSupply
+  lpTokenAmount
   balances
   block
   timestamp
@@ -595,6 +621,22 @@ input staginggoerli_swap_StableSwapEvent_filter {
 enum staginggoerli_swap_StableSwapEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -609,6 +651,7 @@ type staginggoerli_swap_StableSwapExchange {
   soldId: BigInt!
   tokensSold: BigInt!
   balances: [BigInt!]!
+  fee: BigInt!
   block: BigInt!
   timestamp: BigInt!
   transaction: staginggoerli_swap_Bytes!
@@ -692,6 +735,14 @@ input staginggoerli_swap_StableSwapExchange_filter {
   balances_contains_nocase: [BigInt!]
   balances_not_contains: [BigInt!]
   balances_not_contains_nocase: [BigInt!]
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
   block: BigInt
   block_not: BigInt
   block_gt: BigInt
@@ -727,12 +778,29 @@ input staginggoerli_swap_StableSwapExchange_filter {
 enum staginggoerli_swap_StableSwapExchange_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
   soldId
   tokensSold
   balances
+  fee
   block
   timestamp
   transaction
@@ -746,6 +814,7 @@ type staginggoerli_swap_StableSwapRemoveLiquidityEvent implements staginggoerli_
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
   balances: [BigInt!]!
   block: BigInt!
   timestamp: BigInt!
@@ -820,6 +889,14 @@ input staginggoerli_swap_StableSwapRemoveLiquidityEvent_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
+  lpTokenAmount: BigInt
+  lpTokenAmount_not: BigInt
+  lpTokenAmount_gt: BigInt
+  lpTokenAmount_lt: BigInt
+  lpTokenAmount_gte: BigInt
+  lpTokenAmount_lte: BigInt
+  lpTokenAmount_in: [BigInt!]
+  lpTokenAmount_not_in: [BigInt!]
   balances: [BigInt!]
   balances_not: [BigInt!]
   balances_contains: [BigInt!]
@@ -861,11 +938,28 @@ input staginggoerli_swap_StableSwapRemoveLiquidityEvent_filter {
 enum staginggoerli_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
   invariant
   lpTokenSupply
+  lpTokenAmount
   balances
   block
   timestamp
@@ -1421,6 +1515,22 @@ input staginggoerli_swap_SwapDailyVolume_filter {
 enum staginggoerli_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1487,6 +1597,22 @@ input staginggoerli_swap_SwapHourlyVolume_filter {
 enum staginggoerli_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1543,6 +1669,22 @@ input staginggoerli_swap_SwapTradeVolume_filter {
 
 enum staginggoerli_swap_SwapTradeVolume_orderBy {
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1609,6 +1751,22 @@ input staginggoerli_swap_SwapWeeklyVolume_filter {
 enum staginggoerli_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
+  stableSwap__id
+  stableSwap__isActive
+  stableSwap__key
+  stableSwap__canonicalId
+  stableSwap__domain
+  stableSwap__swapPool
+  stableSwap__lpToken
+  stableSwap__initialA
+  stableSwap__futureA
+  stableSwap__initialATime
+  stableSwap__futureATime
+  stableSwap__swapFee
+  stableSwap__adminFee
+  stableSwap__virtualPrice
+  stableSwap__invariant
+  stableSwap__lpTokenSupply
   timestamp
   volume
 }

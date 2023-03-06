@@ -5,6 +5,8 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   DestinationTransfer,
+  RelayerFeesIncrease,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
@@ -17,6 +19,10 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
   return transfers.length == 0
     ? 0
     : Math.max(...transfers.map((transfer) => transfer.destination?.reconcile?.timestamp ?? 0));
+};
+
+const getMaxTimestamp = (entities: RelayerFeesIncrease[] | SlippageUpdate[]): number => {
+  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => (entity?.timestamp as number) ?? 0));
 };
 
 export const updateTransfers = async () => {
@@ -95,14 +101,7 @@ export const updateTransfers = async () => {
   if (subgraphOriginQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfersByNonce(subgraphOriginQueryMetaParams);
-    transfers.forEach((transfer) => {
-      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
-        "updateTransfers",
-        undefined,
-        transfer.transferId,
-      );
-      logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
-    });
+    logger.info("Retrieved origin transfers", requestContext, methodContext, { count: transfers.length });
     const checkpoints = domains
       .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
@@ -189,4 +188,103 @@ export const updateTransfers = async () => {
     });
     await database.saveTransfers(transfers as XTransfer[]);
   }
+};
+
+export const updateBackoffs = async (): Promise<void> => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("updateTransfers");
+  const subgraphRelayerFeeQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const subgraphSlippageUpdatesQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  await Promise.all(
+    domains.map(async (domain) => {
+      const increasesTimestamp = await database.getCheckPoint("relayer_fees_increases_timestamp_" + domain);
+      subgraphRelayerFeeQueryMetaParams.set(domain, {
+        fromTimestamp: increasesTimestamp,
+        orderDirection: "asc",
+      });
+
+      const updatesTimestamp = await database.getCheckPoint("slippage_updates_timestamp_" + domain);
+      subgraphSlippageUpdatesQueryMetaParams.set(domain, {
+        fromTimestamp: updatesTimestamp,
+        orderDirection: "asc",
+      });
+    }),
+  );
+
+  let increases: RelayerFeesIncrease[] = [];
+  let updates: SlippageUpdate[] = [];
+  if (subgraphRelayerFeeQueryMetaParams.size > 0) {
+    increases = await subgraph.getRelayerFeesIncreasesByDomainAndTimestamp(subgraphRelayerFeeQueryMetaParams);
+    logger.info("Retrieved relayer fee increases", requestContext, methodContext, {
+      increases,
+      count: increases.length,
+    });
+  }
+
+  if (subgraphSlippageUpdatesQueryMetaParams.size > 0) {
+    updates = await subgraph.getSlippageUpdatesByDomainAndTimestamp(subgraphSlippageUpdatesQueryMetaParams);
+    logger.info("Retrieved slippage updates", requestContext, methodContext, {
+      updates,
+      count: updates.length,
+    });
+  }
+
+  // update updated_slippage value for transfers
+  await database.updateSlippage(updates);
+
+  await database.resetBackoffs(
+    increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
+  );
+
+  // filter by domain
+  const increasesByDomain: Record<string, string[]> = {};
+
+  const increaseCheckpoints = domains
+    .map((domain) => {
+      const domainIncreases = increases.filter((increase) => increase.domain === domain);
+      increasesByDomain[domain] = domainIncreases.map((increase) => increase.transferId);
+      const max = getMaxTimestamp(domainIncreases);
+      const latest = subgraphRelayerFeeQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainIncreases.length > 0 && max > latest) {
+        return { domain, checkpoint: max };
+      }
+      return undefined;
+    })
+    .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  // update transfers with relayer fee bumps
+  // query subgraphs to avoid recalculating relayer fee based on increases
+  for (const domain of Object.keys(increasesByDomain)) {
+    const transfers = await subgraph.getOriginTransfersByDomain(domain, increasesByDomain[domain]);
+    await database.saveTransfers(transfers);
+  }
+
+  for (const checkpoint of increaseCheckpoints) {
+    await database.saveCheckPoint("relayer_fees_increases_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+  }
+
+  const updateCheckpoints = domains
+    .map((domain) => {
+      const domainUpdates = updates.filter((update) => update.domain === domain);
+      const max = getMaxTimestamp(domainUpdates);
+      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainUpdates.length > 0 && max > latest) {
+        return { domain, checkpoint: max };
+      }
+      return undefined;
+    })
+    .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  for (const checkpoint of updateCheckpoints) {
+    await database.saveCheckPoint("slippage_updates_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+  }
+
+  logger.debug("Reset backoffs", requestContext, methodContext, {
+    increases: increases.length,
+    updates: updates.length,
+  });
 };

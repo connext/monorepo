@@ -1,4 +1,4 @@
-import { MethodContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { MethodContext, NxtpError, RelayerType, RequestContext } from "@connext/nxtp-utils";
 
 export class NoRootAvailable extends NxtpError {
   constructor(
@@ -42,6 +42,15 @@ export class ConfirmDataDoesNotMatch extends NxtpError {
       ...context,
       confirmData,
       encoded,
+    });
+  }
+}
+
+export class CouldNotFindRelayer extends NxtpError {
+  constructor(public readonly relayerType: RelayerType, public readonly context: any = {}) {
+    super(`Could not find relayer with type ${relayerType}`, {
+      ...context,
+      relayerType,
     });
   }
 }

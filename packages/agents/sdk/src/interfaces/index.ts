@@ -61,6 +61,14 @@ export const SdkBumpTransferParamsSchema = Type.Object({
 
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
+export const SdkUpdateSlippageSchema = Type.Object({
+  domainId: TIntegerString,
+  transferId: Type.String(),
+  slippage: TIntegerString,
+});
+
+export type SdkUpdateSlippage = Static<typeof SdkUpdateSlippageSchema>;
+
 export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,
@@ -79,3 +87,19 @@ export const SdkUpdateSlippageParamsSchema = Type.Object({
 });
 
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
+
+export type RouterBalance = {
+  address: string;
+  asset_canonical_id: string;
+  asset_domain: string;
+  router_address: string;
+  balance: number;
+  local: string;
+  adopted: string;
+  canonical_id: string;
+  canonical_domain: string;
+  domain: string;
+  key: string;
+  id: string;
+  fees_earned: number;
+};

@@ -63,15 +63,12 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220244639633dcfdcd783ee95ad171b6a9a5adbd9c545d1fb593ae7d7c77e559b6464736f6c63430008110033";
+  "0x00000001012001900000000b0000613d0000008001000039000000400010043f0000000001000416000000000110004c0000000b0000c13d0000002001000039000001000010044300000120000004430010000c0000040f0010000e0000040f0000000501000041000000110001042e000000000100001900000012000104300000001000000432000000110001042e0000001200010430000000000000000000000002000000000000000000000000000000400000010000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
-type BaseConnextFacetConstructorParams =
-  | [signer?: Signer]
-  | ConstructorParameters<typeof ContractFactory>;
+type BaseConnextFacetConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (
-  xs: BaseConnextFacetConstructorParams
-): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
+const isSuperArgs = (xs: BaseConnextFacetConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
+  xs.length > 1;
 
 export class BaseConnextFacet__factory extends ContractFactory {
   constructor(...args: BaseConnextFacetConstructorParams) {
@@ -82,14 +79,10 @@ export class BaseConnextFacet__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<BaseConnextFacet> {
+  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BaseConnextFacet> {
     return super.deploy(overrides || {}) as Promise<BaseConnextFacet>;
   }
-  override getDeployTransaction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): BaseConnextFacet {
@@ -104,10 +97,7 @@ export class BaseConnextFacet__factory extends ContractFactory {
   static createInterface(): BaseConnextFacetInterface {
     return new utils.Interface(_abi) as BaseConnextFacetInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): BaseConnextFacet {
+  static connect(address: string, signerOrProvider: Signer | Provider): BaseConnextFacet {
     return new Contract(address, _abi, signerOrProvider) as BaseConnextFacet;
   }
 }

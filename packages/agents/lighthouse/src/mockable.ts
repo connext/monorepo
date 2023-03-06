@@ -12,6 +12,7 @@ import {
   Outbox__factory as _Outbox__factory,
 } from "@connext/smart-contracts";
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
+import * as zk from "zksync-web3";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
@@ -40,6 +41,8 @@ export const Outbox__factory = _Outbox__factory;
 
 export const JsonRpcProvider = providers.JsonRpcProvider;
 
+export const ZkSyncWeb3Provider = zk.Provider;
+
 export const encodePropagate = (abi: any[], args: any[]): string => {
   const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);
   return encodedData;
@@ -54,12 +57,17 @@ export const getJsonRpcProvider = (url: string): providers.JsonRpcProvider => {
   return new providers.JsonRpcProvider(url);
 };
 
+export const getZkSyncWeb3Provider = (url: string): zk.Provider => {
+  return new zk.Provider(url);
+};
+
 export const getL1ToL2MessageGasEstimator = (l2Provider: providers.JsonRpcProvider): L1ToL2MessageGasEstimator => {
   return new L1ToL2MessageGasEstimator(l2Provider);
 };
 
 export const getContract = (address: string, abi: ContractInterface, provider?: providers.JsonRpcProvider) =>
   new Contract(address, abi, provider);
+
 export const getInterface = (abi: any[]) => new ethers.utils.Interface(abi);
 
 export const getBaseFee = _getBaseFee;

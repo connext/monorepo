@@ -2,7 +2,42 @@
 
 ## Next Release
 
-## Amarok 0.2.1-rc.28
+- [contracts] Added ability to fork chains and apply proposed upgrades
+
+## Amarok 0.2.8-alpha.1
+
+- [sdk] support for debugging simulation support for explorer.
+- [all] support of Consesys ZKevm is live on testnet.
+
+## Amarok 0.2.7
+
+- [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version
+- [sdk] Fixed optional `params` object for `getTransfers`, added optional `order` to `params` object for `getRoutersData`, added `checkRouterLiquidity` to `SdkUtils`
+- [sdk-server] Added `checkRouterLiquidity` endpoint
+- [subgraph] Added ConsenSys zkEVM subgraphs, added `transactingAsset` field to `OriginTransfer` entity
+- [contracts] Added ConsenSys zkEVM connectors, added ownership helpers for CLI
+- [infra] Bumped memory for lambdas
+
+## Amarok 0.2.7-alpha.4
+
+- [sdk] optimise relayer fee calculations
+
+## Amarok 0.2.7-alpha.3
+
+- [sdk] more fixes
+
+## Amarok 0.2.7-alpha.2
+
+- [sdk] optimisation for fee caclulation on optimism
+
+## Amarok 0.2.7-alpha.1
+
+- [sequencer] extra errors
+- [db] updated slippage field
+
+## Amarok 0.2.6
+
+- [all] stable release
 
 ## Amarok 0.2.1-rc.27
 

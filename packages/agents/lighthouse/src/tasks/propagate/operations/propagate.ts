@@ -3,7 +3,13 @@ import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
-import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
+import {
+  getPropagateParamsArbitrum,
+  getPropagateParamsBnb,
+  getPropagateParamsConsensys,
+  getPropagateParamsGnosis,
+  getPropagateParamsZkSync,
+} from "../helpers";
 import { getContext } from "../propagate";
 
 export type ExtraPropagateParam = {
@@ -21,10 +27,14 @@ export const getParamsForDomainFn: Record<
     requestContext: RequestContext,
   ) => Promise<ExtraPropagateParam>
 > = {
+  // mainnet
   "1634886255": getPropagateParamsArbitrum,
-  "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
   "6778479": getPropagateParamsGnosis,
+  // testnet
+  "1734439522": getPropagateParamsArbitrum,
+  "1668247156": getPropagateParamsConsensys,
+  "2053862260": getPropagateParamsZkSync,
 };
 
 export const propagate = async () => {

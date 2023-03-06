@@ -6,10 +6,9 @@ import {
   WETHAbi,
   MultisendTransaction,
   encodeMultisendCall,
-  NxtpError,
   ajv,
 } from "@connext/nxtp-utils";
-import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
@@ -41,11 +40,9 @@ import { SdkUtils } from "./sdkUtils";
  */
 export class SdkBase extends SdkShared {
   private static _instance: SdkBase;
-  private chainreader: ChainReader;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
-    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
   /**
@@ -363,9 +360,6 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const chainId = await this.getChainId(domainId);
-    const ConnextContractAddress = (await this.getConnext(domainId)).address;
-
     // Construct the TransferInfo for this transferId
     const sdkUtils = await SdkUtils.create(this.config);
     const transfers = await sdkUtils.getTransfers({ transferId: transferId });
@@ -377,6 +371,29 @@ export class SdkBase extends SdkShared {
       });
     }
     const transfer = transfers[0];
+
+    // Check to make sure this domain is the destination
+    if (transfer.destination_domain !== domainId) {
+      throw new ParamsInvalid({
+        paramsError: "Must update slippage on destination domain",
+        domain: domainId,
+        destination: transfer.destionation_domain,
+        transferId,
+      });
+    }
+
+    // Check to make sure it is being sent from delegate
+    if (transfer.delegate.toLowerCase() !== signerAddress.toLowerCase()) {
+      throw new ParamsInvalid({
+        paramsError: "Must update slippage with delegate",
+        delegate: transfer.delegate,
+        signer: this.config.signerAddress,
+        transferId,
+      });
+    }
+
+    const chainId = await this.getChainId(domainId);
+    const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     const transferInfo = {
       originDomain: transfer.origin_domain,
@@ -514,18 +531,11 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    let gasPrice;
-    try {
-      gasPrice = await this.chainreader.getGasPrice(Number(params.destinationDomain), requestContext);
-    } catch (e: unknown) {
-      this.logger.warn("Error getting GasPrice", requestContext, methodContext, {
-        error: e as NxtpError,
-        domain: params.destinationDomain,
-      });
-    }
-
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
-      { ...params, gasPrice },
+      {
+        ...params,
+        getGasPriceCallback: (domain: number) => this.chainreader.getGasPrice(domain, requestContext),
+      },
       this.chainData,
       this.logger,
       requestContext,

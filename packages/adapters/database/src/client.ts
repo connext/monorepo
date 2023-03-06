@@ -15,6 +15,10 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  XTransferErrorStatus,
+  StableSwapPoolEvent,
+  RouterDailyTVL,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -23,6 +27,9 @@ import type * as s from "zapatos/schema";
 import { BigNumber } from "ethers";
 
 import { pool } from "./index";
+
+// Max execution time backoff for a transfer
+const maxBackoff = 86400 * 7;
 
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
@@ -115,6 +122,9 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
     leaf_count: message.count,
+    sent_task_id: message.sentTaskId,
+    sent_timestamp_secs: message.sentTimestamp,
+    relayer_type: message.relayerType,
   };
 };
 
@@ -177,9 +187,42 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     sold_id: exchange.soldId,
     tokens_sold: exchange.tokensSold,
     tokens_bought: exchange.tokensBought,
+    balances: exchange.balances,
+    fee: exchange.fee,
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+  };
+};
+
+const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswap_pool_events.Insertable => {
+  return {
+    id: event.id,
+    pool_id: event.poolId,
+    domain: event.domain,
+    action: event.action,
+    provider: event.provider,
+    pooled_tokens: event.pooledTokens,
+    pool_token_decimals: event.poolTokenDecimals,
+    token_amounts: event.tokenAmounts,
+    balances: event.balances,
+    fees: event.fees,
+    lp_token_amount: event.lpTokenAmount,
+    lp_token_supply: event.lpTokenSupply,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+  };
+};
+
+const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Insertable => {
+  return {
+    id: tvl.id,
+    domain: tvl.domain,
+    asset: tvl.asset,
+    router: tvl.router,
+    day: new Date(tvl.timestamp * 1000),
+    balance: tvl.balance,
   };
 };
 
@@ -201,13 +244,23 @@ export const saveTransfers = async (
 
   transfers = transfers.map((_transfer) => {
     const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+
+    if (dbTransfer !== undefined) {
+      // Special handling as boolean fields defualt to false, when upstream subgraph data is null
+      _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
+    }
+
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
-    } else if (_transfer.status == XTransferStatus.CompletedFast || _transfer.status == XTransferStatus.CompletedSlow) {
+    } else if (
+      _transfer.status == XTransferStatus.Executed ||
+      _transfer.status == XTransferStatus.CompletedFast ||
+      _transfer.status == XTransferStatus.CompletedSlow
+    ) {
       _transfer.error_status = undefined;
     }
 
-    const transfer: any = { ...dbTransfer, ..._transfer };
+    const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
     return transfer;
   });
 
@@ -236,7 +289,11 @@ export const saveSentRootMessages = async (
     .map(sanitizeNull);
 
   // use upsert here. if the message exists, we don't want to overwrite anything, just add the sent tx hash
-  await db.upsert("root_messages", messages, ["id"], { updateColumns: ["sent_transaction_hash"] }).run(poolToUse);
+  await db
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["sent_transaction_hash", "sent_timestamp_secs", "sent_task_id", "relayer_type"],
+    })
+    .run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (
@@ -254,6 +311,18 @@ export const saveProcessedRootMessages = async (
       updateColumns: ["processed_transaction_hash", "processed"],
     })
     .run(poolToUse);
+
+  // update `processed` to true for previous root messages.
+  for (const message of _messages) {
+    const spoke_domain = message.spokeDomain;
+    await db
+      .update(
+        "root_messages",
+        { processed: true },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+      )
+      .run(poolToUse);
+  }
 };
 
 export const getRootMessages = async (
@@ -732,9 +801,20 @@ export const increaseBackoff = async (
   if (!transfer) {
     return;
   }
-  const backoff = transfer.backoff * 2;
+  const backoff = Math.min(transfer.backoff * 2, maxBackoff);
   const next_execution_timestamp = Math.floor(Date.now() / 1000) + backoff;
   await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
+};
+
+export const resetBackoffs = async (
+  transferIds: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const backoff = 32;
+  await db
+    .update("transfers", { backoff, next_execution_timestamp: 0 }, { transfer_id: dc.isIn(transferIds) })
+    .run(poolToUse);
 };
 
 export const saveStableSwapPool = async (
@@ -757,4 +837,82 @@ export const saveStableSwapExchange = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
+};
+
+export const updateErrorStatus = async (
+  transferId: string,
+  error: XTransferErrorStatus,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.update("transfers", { error_status: error }, { transfer_id: transferId }).run(poolToUse);
+};
+
+export const saveStableSwapPoolEvent = async (
+  _poolEvents: StableSwapPoolEvent[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const poolEvents: s.stableswap_pool_events.Insertable[] = _poolEvents
+    .map((m) => convertToDbStableSwapPoolEvent(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveRouterDailyTVL = async (
+  _tvls: RouterDailyTVL[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
+
+  await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const updateSlippage = async (
+  _slippageUpdates: SlippageUpdate[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  // todo can this be done in a single query?
+  for (const update of _slippageUpdates) {
+    await db
+      .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
+      .run(poolToUse);
+  }
+};
+
+export const markRootMessagesProcessed = async (
+  rootMessages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const rootMessageIds = rootMessages.map((m) => m.id);
+  await db.update("root_messages", { processed: true }, { id: dc.isIn(rootMessageIds) }).run(poolToUse);
+};
+
+export const updateExecuteSimulationData = async (
+  transferId: string,
+  executeSimulationInput: string,
+  executeSimulationFrom: string,
+  executeSimulationTo: string,
+  executeSimulationNetwork: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await db
+    .update(
+      "transfers",
+      {
+        execute_simulation_input: executeSimulationInput,
+        execute_simulation_from: executeSimulationFrom,
+        execute_simulation_to: executeSimulationTo,
+        execute_simulation_network: executeSimulationNetwork,
+      },
+      { transfer_id: transferId },
+    )
+    .run(poolToUse);
 };
