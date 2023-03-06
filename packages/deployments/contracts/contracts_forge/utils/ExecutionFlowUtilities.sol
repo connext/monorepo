@@ -139,11 +139,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
 
   // Used to initialize swap pools. Must be called after connext is deployed
   // and after assets are stored
-  function utils_setupPool(
-    uint32 domain,
-    bytes32 canonicalKey,
-    uint256 amount
-  ) internal {
+  function utils_setupPool(uint32 domain, bytes32 canonicalKey, uint256 amount) internal {
     // assert assets are set
     bool isOrigin = domain == _origin;
     address local = isOrigin ? _originLocal : _destinationLocal;
@@ -212,11 +208,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
 
   // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
   // are freshly deployed assets being used in tests. Used in fork tests
-  function utils_setupOriginAssets(
-    uint32 canonicalDomain,
-    bool localIsAdopted,
-    uint256 cap
-  ) internal {
+  function utils_setupOriginAssets(uint32 canonicalDomain, bool localIsAdopted, uint256 cap) internal {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
@@ -260,11 +252,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
 
   // Used to enroll assets, setup the pools, mint assets. Should generally be called IF there
   // are freshly deployed assets being used in tests. Used in fork tests
-  function utils_setupDestinationAssets(
-    uint32 canonicalDomain,
-    bool localIsAdopted,
-    uint256 cap
-  ) internal {
+  function utils_setupDestinationAssets(uint32 canonicalDomain, bool localIsAdopted, uint256 cap) internal {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
     _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
@@ -488,10 +476,10 @@ contract ExecutionFlowUtilities is ForgeHelper {
     return (routers, signatures);
   }
 
-  function utils_createSequencer(bytes32 transferId, address[] memory routers)
-    internal
-    returns (address, bytes memory)
-  {
+  function utils_createSequencer(
+    bytes32 transferId,
+    address[] memory routers
+  ) internal returns (address, bytes memory) {
     assertTrue(address(_originConnext) != address(0), "origin connext not set");
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256 key = 0xA11CE;
@@ -663,19 +651,15 @@ contract ExecutionFlowUtilities is ForgeHelper {
   }
 
   // Shortcut: no vault or portals.
-  function utils_executeAndAssert(
-    ExecuteArgs memory args,
-    bytes32 transferId,
-    uint256 bridgeOut
-  ) internal {
+  function utils_executeAndAssert(ExecuteArgs memory args, bytes32 transferId, uint256 bridgeOut) internal {
     utils_executeAndAssert(args, transferId, bridgeOut, 0, false);
   }
 
   // ============ Reconcile helpers ============
-  function utils_getReconcileBalances(bytes32 transferId, address[] memory routers)
-    internal
-    returns (ReconcileBalances memory)
-  {
+  function utils_getReconcileBalances(
+    bytes32 transferId,
+    address[] memory routers
+  ) internal returns (ReconcileBalances memory) {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     uint256[] memory initLiquidity = new uint256[](routers.length);
     for (uint256 i; i < routers.length; i++) {
@@ -689,11 +673,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
       );
   }
 
-  function utils_reconcileAndAssert(
-    TransferInfo memory params,
-    bytes32 transferId,
-    address[] memory routers
-  ) internal {
+  function utils_reconcileAndAssert(TransferInfo memory params, bytes32 transferId, address[] memory routers) internal {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
     assertTrue(address(_destinationLocal) != address(0), "destination local not set");
 
@@ -717,10 +697,9 @@ contract ExecutionFlowUtilities is ForgeHelper {
       address(_destinationManager)
     );
 
-    bytes32 remoteSender = TypeCasts.addressToBytes32(address(_originConnext));
     bytes memory message = MessagingUtils.formatTransferMessage(params);
     vm.prank(address(_destinationManager));
-    _destinationConnext.handle(_origin, 0, remoteSender, message);
+    _destinationConnext.handle(_origin, 0, TypeCasts.addressToBytes32(address(_originConnext)), message);
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
     // assert router liquidity balance
