@@ -79,6 +79,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1735353714": "Mainnet",
   "9991": "Polygon",
   "1734439522": "Arbitrum",
+  "2053862260": "ZkSync",
   "1668247156": "Consensys",
   // MAINNET
   "1869640809": "Optimism",

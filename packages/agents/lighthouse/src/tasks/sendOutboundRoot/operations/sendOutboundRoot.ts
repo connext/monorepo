@@ -1,7 +1,13 @@
 import { createLoggingContext, getChainIdFromDomain, NxtpError } from "@connext/nxtp-utils";
 
-import { sendWithRelayerWithBackup } from "../../../mockable";
-import { getSendOutboundRootParamsBnb, getSendOutboundRootParamsConsensys } from "../helpers";
+import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
+import {
+  getSendOutboundRootParamsBnb,
+  getSendOutboundRootParamsConsensys,
+  getSendOutboundRootParamsZkSync,
+  getSendOutboundRootParamsGnosis,
+  getSendOutboundRootParamsOptimism,
+} from "../helpers";
 import { getContext } from "../sendOutboundRoot";
 
 export type ExtraSendOutboundRootParam = {
@@ -12,8 +18,12 @@ export type ExtraSendOutboundRootParam = {
 export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<ExtraSendOutboundRootParam>> = {
   // mainnet
   "6450786": getSendOutboundRootParamsBnb,
+  "1869640809": getSendOutboundRootParamsOptimism,
+  "6778479": getSendOutboundRootParamsGnosis,
   // testnet
   "1668247156": getSendOutboundRootParamsConsensys,
+  "2053862260": getSendOutboundRootParamsZkSync,
+  "1735356532": getSendOutboundRootParamsOptimism,
 };
 
 export const sendOutboundRoot = async () => {
@@ -28,6 +38,45 @@ export const sendOutboundRoot = async () => {
   for (const domain of Object.keys(config.chains)) {
     const relayerProxyAddress = config.chains[domain].deployments.relayerProxy;
 
+    // Check if outbound root already sent!
+    const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
+    const l2Provider = config.chains[domain].providers[0];
+    logger.info("Checking if outboundroot already sent", requestContext, methodContext, {
+      domain,
+      spokeConnectorAddress,
+      l2Provider,
+    });
+    if (!spokeConnectorAddress || !l2Provider) {
+      logger.error(
+        "Error while checking outboundroot already sent! Spoke Connector deployment missing",
+        requestContext,
+        methodContext,
+      );
+      continue;
+    }
+
+    const spokeConnectorContract = getContract(
+      spokeConnectorAddress,
+      contracts.spokeConnector,
+      getJsonRpcProvider(l2Provider),
+    );
+    const outboundroot = await spokeConnectorContract.outboundRoot();
+    const sent = await spokeConnectorContract.sentMessageRoots(outboundroot);
+    logger.info("Got if outboundroot already sent", requestContext, methodContext, {
+      domain,
+      spokeConnectorAddress,
+      outboundroot,
+      sent,
+    });
+    if (sent) {
+      logger.info("OutboundRoot already sent!! passing...", requestContext, methodContext, {
+        domain,
+        outboundroot,
+      });
+      continue;
+    }
+
+    // Get tx params for domain!!
     logger.info("Getting params for domain", requestContext, methodContext, { domain, relayerProxyAddress });
     let encodedData = "0x";
     let fee = "0";

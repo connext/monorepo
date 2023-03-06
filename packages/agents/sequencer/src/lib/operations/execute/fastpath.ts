@@ -247,12 +247,8 @@ export const executeFastPathData = async (
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
   if ([...Object.keys(bidsRoundMap)].length < 1) {
-    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
-      bidsRoundMap,
-      transferId,
-    });
-
-    return { taskId };
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+    throw new NoBidsSent({ bidsRoundMap });
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -430,8 +426,12 @@ export const executeFastPathData = async (
   }
 
   if (!taskId) {
+    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
+      bidsRoundMap,
+      transferId,
+    });
     await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
-    throw new NoBidsSent({ transfer });
+    throw new NoBidsSent();
   }
 
   return { taskId };

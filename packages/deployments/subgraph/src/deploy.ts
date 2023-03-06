@@ -4,6 +4,7 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
+import { name } from "mustache";
 
 // import Connext_DiamondProxy_1337 from "../../contracts/deployments/local_1337/Connext_DiamondProxy.json";
 // import Connext_DiamondProxy_1338 from "../../contracts/deployments/local_1338/Connext_DiamondProxy.json";
@@ -84,17 +85,23 @@ const run = async () => {
     // }
 
     /// prepare
-    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any, index: number) => {
-      return {
-        ...ds,
-        network: n.network,
-        source: {
-          ...ds.source,
-          address: n.source[index].address,
-          startBlock: n.source[index].startBlock,
-        },
-      };
+    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
+      const source = n.source.find((s) => s.name === ds.name);
+      if (source) {
+        return {
+          ...ds,
+          network: n.network,
+          source: {
+            ...ds.source,
+            address: source.address,
+            startBlock: source.startBlock,
+          },
+        };
+      } else {
+        return null;
+      }
     });
+    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
 
     if (jsonFile.templates) {
       jsonFile.templates = (jsonFile.templates ?? []).map((ds: any, index: number) => {

@@ -19,6 +19,7 @@ import {
   getProcessFromPolygonRootArgs,
   getProcessFromGnosisRootArgs,
   getProcessFromArbitrumRootArgs,
+  getProcessFromZkSyncRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -62,6 +63,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
   "1634886255": {
     getArgs: getProcessFromArbitrumRootArgs,
     hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "2053862260": {
+    getArgs: getProcessFromZkSyncRootArgs,
+    hubConnectorPrefix: "ZkSync",
     processorFunctionName: "processMessageFromRoot",
   },
 };
@@ -183,6 +189,7 @@ export const processSingleRootMessage = async (
     hubProvider,
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
+    message: rootMessage.root,
     sendHash: rootMessage.transactionHash,
     blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,

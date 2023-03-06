@@ -35,6 +35,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("domain: ", domain);
   const price = await hre.ethers.provider.getGasPrice();
   console.log("price: ", price.toString());
+  const zksync = hre.network.config.zksync || false;
+  console.log("zksync: ", zksync);
 
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("balance: ", balance.toString());
@@ -81,18 +83,24 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       name: "_DefaultDiamondLoupeFacet",
       contract: "DiamondLoupeFacet",
       args: [],
+      deterministic: !zksync,
     },
-    { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [] },
-    { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
-    { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [] },
-    { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
-    { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [] },
-    { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
-    { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
-    { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
-    { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
-    { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
-    { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [] },
+    { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [], deterministic: !zksync },
+    {
+      name: getDeploymentName("ProposedOwnableFacet"),
+      contract: "ProposedOwnableFacet",
+      args: [],
+      deterministic: !zksync,
+    },
+    { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [], deterministic: !zksync },
+    { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [], deterministic: !zksync },
   ];
 
   // Deploy all the facets
