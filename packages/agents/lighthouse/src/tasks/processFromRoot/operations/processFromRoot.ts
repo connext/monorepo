@@ -2,20 +2,24 @@ import {
   createLoggingContext,
   createMethodContext,
   createRequestContext,
+  getNtpTimeSeconds,
   jsonifyError,
   NxtpError,
+  RelayerTaskStatus,
+  RelayerType,
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
-import { ProcessConfigNotAvailable } from "../errors";
+import { CouldNotFindRelayer, ProcessConfigNotAvailable } from "../errors";
 import {
   GetProcessArgsParams,
   getProcessFromOptimismRootArgs,
   getProcessFromPolygonRootArgs,
   getProcessFromGnosisRootArgs,
   getProcessFromArbitrumRootArgs,
+  getProcessFromZkSyncRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -61,6 +65,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Arbitrum",
     processorFunctionName: "processMessageFromRoot",
   },
+  "2053862260": {
+    getArgs: getProcessFromZkSyncRootArgs,
+    hubConnectorPrefix: "ZkSync",
+    processorFunctionName: "processMessageFromRoot",
+  },
 };
 
 export const processFromRoot = async () => {
@@ -76,14 +85,30 @@ export const processFromRoot = async () => {
     logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
   }
 
-  for (const msg of unprocessed) {
-    const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
-    logger.info("Processing root message", requestContext, methodContext, { msg });
+  // get latest unprocessed for each spoke
+  const byDomain: Record<string, RootMessage[]> = {};
+  unprocessed.forEach((msg) => {
+    if (!byDomain[msg.spokeDomain]) {
+      byDomain[msg.spokeDomain] = [];
+    }
+    byDomain[msg.spokeDomain].push(msg);
+  });
 
-    try {
-      await processSingleRootMessage(msg, requestContext);
-    } catch (err: unknown) {
-      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+  Object.keys(byDomain).forEach((domain) => {
+    byDomain[domain].sort((a, b) => b.timestamp - a.timestamp);
+  });
+
+  for (const domain of Object.keys(byDomain)) {
+    for (const msg of byDomain[domain]) {
+      const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
+      logger.info("Processing root message", requestContext, methodContext, { msg });
+
+      try {
+        const taskId = await processSingleRootMessage(msg, requestContext);
+        if (taskId) break;
+      } catch (err: unknown) {
+        logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+      }
     }
   }
 };
@@ -91,9 +116,9 @@ export const processFromRoot = async () => {
 export const processSingleRootMessage = async (
   rootMessage: RootMessage,
   requestContext: RequestContext,
-): Promise<string> => {
+): Promise<string | undefined> => {
   const {
-    adapters: { relayers, contracts, chainreader },
+    adapters: { relayers, contracts, chainreader, database },
     logger,
     chainData,
     config,
@@ -124,6 +149,39 @@ export const processSingleRootMessage = async (
     });
   }
 
+  if (rootMessage.sentTaskId) {
+    const relayer = relayers.find((r) => r.type === rootMessage.relayerType);
+    if (!relayer) {
+      throw new CouldNotFindRelayer(rootMessage.relayerType as RelayerType, {
+        rootMessage,
+      });
+    }
+    const status = await relayer.instance.getTaskStatus(rootMessage.sentTaskId);
+    console.log("status: ", status);
+    if (status === RelayerTaskStatus.ExecSuccess) {
+      logger.info("Process from root sent successfully, waiting for subgraph update", requestContext, methodContext, {
+        rootMessage,
+      });
+      return undefined;
+    } else if (status === RelayerTaskStatus.ExecPending) {
+      // do nothing
+    } else {
+      // there was an error, so we want to retry
+      logger.info("Found failed status, retrying process", requestContext, methodContext, {
+        rootMessage,
+        status: status,
+      });
+      rootMessage.sentTimestamp = undefined;
+    }
+  }
+
+  if (rootMessage.sentTimestamp && getNtpTimeSeconds() < rootMessage.sentTimestamp + config.relayerWaitTime) {
+    logger.info("Process from root already sent, waiting for subgraph update", requestContext, methodContext, {
+      rootMessage,
+    });
+    return undefined;
+  }
+
   const args = await processorConfig.getArgs({
     spokeChainId,
     hubChainId,
@@ -131,6 +189,7 @@ export const processSingleRootMessage = async (
     hubProvider,
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
+    message: rootMessage.root,
     sendHash: rootMessage.transactionHash,
     blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
@@ -149,7 +208,7 @@ export const processSingleRootMessage = async (
     hubChain: hubChainId,
   });
 
-  const { taskId } = await sendWithRelayerWithBackup(
+  const { taskId, relayerType } = await sendWithRelayerWithBackup(
     hubChainId,
     rootMessage.hubDomain,
     hubConnector.address,
@@ -159,6 +218,13 @@ export const processSingleRootMessage = async (
     logger,
     requestContext,
   );
+
+  // Upsert with latest task meta data
+  rootMessage.sentTaskId = taskId;
+  rootMessage.relayerType = relayerType;
+  rootMessage.sentTimestamp = getNtpTimeSeconds();
+
+  await database.saveSentRootMessages([rootMessage]);
 
   logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
   return taskId;

@@ -161,7 +161,20 @@ export type mainnet_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type mainnet_AssetStatus = {
@@ -292,7 +305,9 @@ export type mainnet_Asset_orderBy =
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status';
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type mainnet_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -774,6 +789,13 @@ export type mainnet_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -929,7 +951,9 @@ export type mainnet_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type mainnet_OriginTransfer = {
   id: Scalars['ID'];
@@ -951,6 +975,7 @@ export type mainnet_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['mainnet_Bytes']>;
   asset?: Maybe<mainnet_Asset>;
+  transactingAsset?: Maybe<Scalars['mainnet_Bytes']>;
   message?: Maybe<mainnet_OriginMessage>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
@@ -1135,6 +1160,16 @@ export type mainnet_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<mainnet_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1260,7 +1295,24 @@ export type mainnet_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'transactingAsset'
   | 'message'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
   | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
@@ -1280,6 +1332,8 @@ export type Query = {
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
   mainnet_routers: Array<mainnet_Router>;
+  mainnet_routerDailyTVL?: Maybe<mainnet_RouterDailyTVL>;
+  mainnet_routerDailyTVLs: Array<mainnet_RouterDailyTVL>;
   mainnet_setting?: Maybe<mainnet_Setting>;
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
@@ -1300,6 +1354,10 @@ export type Query = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
+  mainnet_relayerFeesIncrease?: Maybe<mainnet_RelayerFeesIncrease>;
+  mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
+  mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
+  mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -1372,6 +1430,24 @@ export type Querymainnet_routersArgs = {
   orderBy?: InputMaybe<mainnet_Router_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Router_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RouterDailyTVL_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1557,6 +1633,42 @@ export type Querymainnet_rootMessageSentsArgs = {
 };
 
 
+export type Querymainnet_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SlippageUpdate_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querymainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
@@ -1566,6 +1678,153 @@ export type mainnet_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['mainnet_Bytes']>;
 };
+
+export type mainnet_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: mainnet_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  caller: Scalars['mainnet_Bytes'];
+  transactionHash: Scalars['mainnet_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mainnet_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<mainnet_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RelayerFeesIncrease_filter>>>;
+};
+
+export type mainnet_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__relayerFee'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'increase'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type mainnet_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1780,6 +2039,107 @@ export type mainnet_RouterassetBalancesArgs = {
   where?: InputMaybe<mainnet_AssetBalance_filter>;
 };
 
+export type mainnet_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: mainnet_Router;
+  asset: mainnet_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type mainnet_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<mainnet_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<mainnet_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_RouterDailyTVL_filter>>>;
+};
+
+export type mainnet_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
+
 export type mainnet_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -1931,6 +2291,159 @@ export type mainnet_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
+export type mainnet_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: mainnet_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['mainnet_Bytes'];
+  transactionHash: Scalars['mainnet_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mainnet_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<mainnet_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_SlippageUpdate_filter>>>;
+};
+
+export type mainnet_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type Subscription = {
   mainnet_asset?: Maybe<mainnet_Asset>;
   mainnet_assets: Array<mainnet_Asset>;
@@ -1940,6 +2453,8 @@ export type Subscription = {
   mainnet_assetBalances: Array<mainnet_AssetBalance>;
   mainnet_router?: Maybe<mainnet_Router>;
   mainnet_routers: Array<mainnet_Router>;
+  mainnet_routerDailyTVL?: Maybe<mainnet_RouterDailyTVL>;
+  mainnet_routerDailyTVLs: Array<mainnet_RouterDailyTVL>;
   mainnet_setting?: Maybe<mainnet_Setting>;
   mainnet_settings: Array<mainnet_Setting>;
   mainnet_relayer?: Maybe<mainnet_Relayer>;
@@ -1960,6 +2475,10 @@ export type Subscription = {
   mainnet_rootCounts: Array<mainnet_RootCount>;
   mainnet_rootMessageSent?: Maybe<mainnet_RootMessageSent>;
   mainnet_rootMessageSents: Array<mainnet_RootMessageSent>;
+  mainnet_relayerFeesIncrease?: Maybe<mainnet_RelayerFeesIncrease>;
+  mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
+  mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
+  mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -2032,6 +2551,24 @@ export type Subscriptionmainnet_routersArgs = {
   orderBy?: InputMaybe<mainnet_Router_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_Router_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RouterDailyTVL_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2217,6 +2754,42 @@ export type Subscriptionmainnet_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionmainnet_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SlippageUpdate_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
@@ -2277,6 +2850,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   mainnet_routers: InContextSdkMethod<Query['mainnet_routers'], Querymainnet_routersArgs, MeshContext>,
   /** null **/
+  mainnet_routerDailyTVL: InContextSdkMethod<Query['mainnet_routerDailyTVL'], Querymainnet_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVLs: InContextSdkMethod<Query['mainnet_routerDailyTVLs'], Querymainnet_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   mainnet_setting: InContextSdkMethod<Query['mainnet_setting'], Querymainnet_settingArgs, MeshContext>,
   /** null **/
   mainnet_settings: InContextSdkMethod<Query['mainnet_settings'], Querymainnet_settingsArgs, MeshContext>,
@@ -2316,6 +2893,14 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Query['mainnet_rootMessageSent'], Querymainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Query['mainnet_rootMessageSents'], Querymainnet_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncrease: InContextSdkMethod<Query['mainnet_relayerFeesIncrease'], Querymainnet_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncreases: InContextSdkMethod<Query['mainnet_relayerFeesIncreases'], Querymainnet_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdate: InContextSdkMethod<Query['mainnet_slippageUpdate'], Querymainnet_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdates: InContextSdkMethod<Query['mainnet_slippageUpdates'], Querymainnet_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Query['mainnet__meta'], Querymainnet__metaArgs, MeshContext>
   };
@@ -2341,6 +2926,10 @@ export type _SubgraphErrorPolicy_ =
   mainnet_router: InContextSdkMethod<Subscription['mainnet_router'], Subscriptionmainnet_routerArgs, MeshContext>,
   /** null **/
   mainnet_routers: InContextSdkMethod<Subscription['mainnet_routers'], Subscriptionmainnet_routersArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVL: InContextSdkMethod<Subscription['mainnet_routerDailyTVL'], Subscriptionmainnet_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  mainnet_routerDailyTVLs: InContextSdkMethod<Subscription['mainnet_routerDailyTVLs'], Subscriptionmainnet_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   mainnet_setting: InContextSdkMethod<Subscription['mainnet_setting'], Subscriptionmainnet_settingArgs, MeshContext>,
   /** null **/
@@ -2381,6 +2970,14 @@ export type _SubgraphErrorPolicy_ =
   mainnet_rootMessageSent: InContextSdkMethod<Subscription['mainnet_rootMessageSent'], Subscriptionmainnet_rootMessageSentArgs, MeshContext>,
   /** null **/
   mainnet_rootMessageSents: InContextSdkMethod<Subscription['mainnet_rootMessageSents'], Subscriptionmainnet_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncrease: InContextSdkMethod<Subscription['mainnet_relayerFeesIncrease'], Subscriptionmainnet_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  mainnet_relayerFeesIncreases: InContextSdkMethod<Subscription['mainnet_relayerFeesIncreases'], Subscriptionmainnet_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdate: InContextSdkMethod<Subscription['mainnet_slippageUpdate'], Subscriptionmainnet_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  mainnet_slippageUpdates: InContextSdkMethod<Subscription['mainnet_slippageUpdates'], Subscriptionmainnet_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Subscription['mainnet__meta'], Subscriptionmainnet__metaArgs, MeshContext>
   };

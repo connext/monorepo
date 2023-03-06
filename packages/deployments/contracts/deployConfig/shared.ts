@@ -260,30 +260,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // // Sokol testnet (for Gnosis):
-      // 77: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://kovan.etherscan.io/address/0xfe446bef1dbf7afe24e81e05bc8b271c1ba9a560#code
-      //     hub: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
-      //     // https://blockscout.com/poa/sokol/address/0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560/contracts
-      //     spoke: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      // },
-      // Gnosis Chiado chain
-      // 100100: {
-      //   prefix: "Gnosis",
-      //   ambs: {
-      //     // https://docs.gnosischain.com/about/networks/chiado
-      //     hub: "0x5816D9EdC3D30F501A098bC26A313Ae8BeB7B8ad",
-      //     spoke: "0x2f018c1118B0DC28E395d054e80fE44c61904892",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
       421613: {
@@ -326,6 +302,40 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
           },
         },
+      },
+      280: {
+        prefix: "ZkSync",
+        ambs: {
+          // zkSync Diamond on goerli
+          // https://goerli.etherscan.io/address/0x1908e2bf4a88f91e4ef0dc72f02b8ea36bea2319
+          hub: "0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319",
+          // zkSync on testnet
+          // https://goerli.explorer.zksync.io/address/0x0000000000000000000000000000000000008008
+          // https://github.com/matter-labs/era-system-contracts/blob/5a6c728576de5db68ad577a09f34e7b85c374192/contracts/Constants.sol#L40
+          spoke: "0x0000000000000000000000000000000000008008",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      59140: {
+        prefix: "Consensys",
+        ambs: {
+          // L1Bridge on goerli
+          // https://goerli.etherscan.io/address/0xe87d317eb8dcc9afe24d9f63d6c760e52bc18a40
+          hub: "0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40",
+          // L2Bridge on zkEvm
+          // https://explorer.goerli.zkevm.consensys.net/address/0xA59477f7742Ba7d51bb1E487a8540aB339d6801d
+          spoke: "0xA59477f7742Ba7d51bb1E487a8540aB339d6801d",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
       // 97: {
       //   prefix: "Multichain",

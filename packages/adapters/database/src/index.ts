@@ -11,6 +11,10 @@ import {
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
+  XTransferErrorStatus,
+  StableSwapPoolEvent,
+  RouterDailyTVL,
+  SlippageUpdate,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -50,6 +54,13 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  resetBackoffs,
+  updateErrorStatus,
+  saveStableSwapPoolEvent,
+  saveRouterDailyTVL,
+  updateSlippage,
+  markRootMessagesProcessed,
+  updateExecuteSimulationData,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -172,9 +183,26 @@ export type Database = {
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   increaseBackoff: (transferId: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  resetBackoffs: (transferIds: string[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapPool: (_swapPools: StableSwapPool[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveStableSwapExchange: (
     _swapExchanges: StableSwapExchange[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  updateErrorStatus: (transferId: string, error: XTransferErrorStatus) => Promise<void>;
+  saveStableSwapPoolEvent: (
+    _poolEvents: StableSwapPoolEvent[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveRouterDailyTVL: (_tvls: RouterDailyTVL[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  updateSlippage: (_slippageUpdates: SlippageUpdate[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  updateExecuteSimulationData: (
+    transferId: string,
+    executeSimulationInput: string,
+    executeSimulationFrom: string,
+    executeSimulationTo: string,
+    executeSimulationNetwork: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
 };
@@ -225,8 +253,15 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getRoot,
     putRoot,
     increaseBackoff,
+    resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
+    updateErrorStatus,
+    saveStableSwapPoolEvent,
+    markRootMessagesProcessed,
+    saveRouterDailyTVL,
+    updateSlippage,
+    updateExecuteSimulationData,
   };
 };
 

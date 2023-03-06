@@ -2,6 +2,7 @@ import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-uti
 
 import { AppContext } from "../../shared";
 import { updateTransfers } from "../../lib/operations";
+import { updateBackoffs } from "../../lib/operations/transfers";
 
 export const bindTransfers = async (context: AppContext) => {
   const { logger } = context;
@@ -9,6 +10,7 @@ export const bindTransfers = async (context: AppContext) => {
   try {
     logger.debug("Bind transfers polling loop start", requestContext, methodContext);
     await updateTransfers();
+    await updateBackoffs(); // putting this in same try-catch, if we cant update transfers best to not update backoffs
     logger.debug("Bind transfers polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(

@@ -34,6 +34,14 @@ type Router @entity {
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
 
+type RouterDailyTVL @entity {
+  id: ID!
+  router: Router!
+  asset: Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
 type Setting @entity {
   id: ID!
   maxRoutersPerTransfer: BigInt!
@@ -86,6 +94,7 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
+  transactingAsset: Bytes
 
   # Message
   message: OriginMessage
@@ -210,4 +219,34 @@ type RootMessageSent @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+}
+
+type RelayerFeesIncrease @entity {
+  id: ID!
+
+  transfer: OriginTransfer!
+  increase: BigInt
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+type SlippageUpdate @entity {
+  id: ID!
+
+  transfer: DestinationTransfer!
+  slippage: BigInt!
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }

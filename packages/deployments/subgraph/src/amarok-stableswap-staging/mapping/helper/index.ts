@@ -407,7 +407,7 @@ export function swap(
   dx: BigInt,
   dy: BigInt,
   timestamp: BigInt,
-): void {
+): StableSwap {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
   const balances = stableSwap.balances;
 
@@ -430,6 +430,7 @@ export function swap(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
+  return stableSwap;
   // log.warning("Swap Saved!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}, {}, {}", [
   //   stableSwapKey.toHexString(),
   //   tokenIndexFrom.toString(),
@@ -453,7 +454,7 @@ export function addLiquidity(
   fees: BigInt[],
   invariant: BigInt,
   lpTokenSupply: BigInt,
-): void {
+): StableSwap {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
   const balances = stableSwap.balances;
 
@@ -473,6 +474,7 @@ export function addLiquidity(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
+  return stableSwap;
   // log.warning("Liquidity Added!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}", [
   //   stableSwapKey.toHexString(),
   //   amounts[0].toString(),
@@ -492,7 +494,7 @@ export function removeLiquidity(
   amounts: BigInt[],
   lpTokenSupply: BigInt,
   timestamp: BigInt,
-): void {
+): StableSwap {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
   const balances = stableSwap.balances;
 
@@ -510,6 +512,7 @@ export function removeLiquidity(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
 
+  return stableSwap;
   // log.warning("Liquidity Removed!, {}, {}, {}, {} ,{}, {}, {}, {}, {}, {}, {}", [
   //   stableSwapKey.toHexString(),
   //   amounts[0].toString(),
@@ -531,7 +534,7 @@ export function removeLiquidityImbalance(
   fees: BigInt[],
   invariant: BigInt,
   lpTokenSupply: BigInt,
-): void {
+): StableSwap {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
 
   const newBalances = new Array<BigInt>(stableSwap.balances.length);
@@ -546,6 +549,8 @@ export function removeLiquidityImbalance(
 
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
   stableSwap.save();
+
+  return stableSwap;
 }
 
 export function removeLiquidityOneToken(
@@ -555,7 +560,7 @@ export function removeLiquidityOneToken(
   boughtId: BigInt,
   tokensBought: BigInt,
   timestamp: BigInt,
-): void {
+): StableSwap {
   const stableSwap = getOrCreateStableSwap(stableSwapKey);
 
   const newBalances = new Array<BigInt>(stableSwap.balances.length);
@@ -580,4 +585,6 @@ export function removeLiquidityOneToken(
   stableSwap.virtualPrice = getVirtualPriceEx(stableSwap.invariant, stableSwap.lpTokenSupply);
 
   stableSwap.save();
+
+  return stableSwap;
 }

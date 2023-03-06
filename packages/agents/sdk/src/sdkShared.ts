@@ -1,6 +1,6 @@
 import { constants, providers, BigNumber, utils } from "ethers";
 import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
-import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
 
@@ -17,6 +17,7 @@ export class SdkShared {
   readonly config: SdkConfig;
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
+  protected readonly chainreader: ChainReader;
   protected readonly logger: Logger;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
@@ -24,6 +25,7 @@ export class SdkShared {
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
+    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
   /**
@@ -355,4 +357,41 @@ export class SdkShared {
 
     return ["0", constants.HashZero];
   }
+
+  /**
+   * Format an efficient multisend RPC call to get name, symbol, and decimals for a given
+   * list of ERC20 tokens.
+   * @param domainId
+   * @param erc20TokenContracts ethers Contract instances with populated address and interface.
+   * @returns ethers utils.Result
+   */
+  // async getInfoForTokens(domainId: string, erc20TokenContracts: Contract[]): Promise<utils.Result> {
+  //   const erc20Iface = getErc20Interface(); // As a backup, in case the interface is not populated correctly.
+  //   const txs = erc20TokenContracts
+  //     .map((contract) => {
+  //       return [
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("name"),
+  //           resultTypes: contract.interface.getFunction("name").outputs ?? erc20Iface.getFunction("name").outputs!,
+  //         },
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("symbol"),
+  //           resultTypes: contract.interface.getFunction("symbol").outputs ?? erc20Iface.getFunction("symbol").outputs!,
+  //         },
+  //         {
+  //           to: contract.address,
+  //           data: contract.interface.encodeFunctionData("decimals"),
+  //           resultTypes:
+  //             contract.interface.getFunction("decimals").outputs ?? erc20Iface.getFunction("decimals").outputs!,
+  //         },
+  //       ];
+  //     })
+  //     .flat();
+  //   return await this.chainreader.multiread({
+  //     domain: +domainId,
+  //     txs,
+  //   });
+  // }
 }

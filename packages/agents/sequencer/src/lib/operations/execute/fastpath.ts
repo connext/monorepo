@@ -12,7 +12,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -247,12 +247,8 @@ export const executeFastPathData = async (
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
   if ([...Object.keys(bidsRoundMap)].length < 1) {
-    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
-      bidsRoundMap,
-      transferId,
-    });
-
-    return { taskId };
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+    throw new NoBidsSent({ bidsRoundMap });
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -390,32 +386,21 @@ export const executeFastPathData = async (
           },
         );
 
-        if (
-          jsonError.context.message &&
-          SlippageErrorPatterns.some((i) => (jsonError.context.message as string).includes(i))
-        ) {
-          transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
-          await database.saveTransfers([transfer]);
-
-          return { taskId };
+        const errorMessage = jsonError.context?.message ?? jsonError.message;
+        if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+          throw new SlippageToleranceExceeded({ transfer, error: jsonError });
         }
       }
     }
 
     if (!taskId) {
-      logger.error(
-        `No combinations sent to relayer for the round ${roundIdInNum}`,
-        requestContext,
-        methodContext,
-        jsonifyError(new Error("No successfully sent bids")),
-        {
-          transferId,
-          origin,
-          destination,
-          round: roundIdInNum,
-          combinations: combinedBidsForRound,
-        },
-      );
+      logger.warn(`No combinations sent to relayer for the round ${roundIdInNum}`, requestContext, methodContext, {
+        transferId,
+        origin,
+        destination,
+        round: roundIdInNum,
+        combinations: combinedBidsForRound,
+      });
       continue;
     }
 
@@ -438,6 +423,15 @@ export const executeFastPathData = async (
     await database.saveTransfers([transfer]);
 
     return { taskId };
+  }
+
+  if (!taskId) {
+    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
+      bidsRoundMap,
+      transferId,
+    });
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
+    throw new NoBidsSent();
   }
 
   return { taskId };

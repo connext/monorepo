@@ -70,6 +70,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       asset {
         ${ASSET_ENTITY}
       }
+      transactingAsset
 
       # Message
       message { 
@@ -233,9 +234,60 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       soldId
       tokensBought
       tokensSold
+      balances
+      fee
       block
       timestamp
       transaction
+`;
+
+export const STABLESWAP_POOL_EVENT_ENTITY = `
+      id
+      stableSwap {
+        key
+        domain
+        tokenPrecisionMultipliers
+        pooledTokens
+      }
+      provider
+      tokenAmounts
+      balances
+      lpTokenSupply
+      lpTokenAmount
+      fees
+      block
+      timestamp
+      transaction
+`;
+
+export const RELAYER_FEES_INCREASE_ENTITY = `
+      id
+      increase
+      transfer {
+        id
+      }
+      timestamp
+`;
+
+export const SLIPPAGE_UPDATE_ENTITY = `
+      id
+      transfer {
+        id
+      }
+      slippage
+      timestamp
+`;
+
+export const ROUTER_DAILY_TVL_ENTITY = `
+      id
+      asset {
+        id
+      }
+      router {
+        id
+      }
+      timestamp
+      balance
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
@@ -898,6 +950,54 @@ const swapExchangeQueryString = (
   ) {${STABLESWAP_EXCHANGE_ENTITY}}`;
 };
 
+const relayerFeesIncreaseQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_relayerFeesIncreases(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${RELAYER_FEES_INCREASE_ENTITY}}`;
+};
+
+const slippageUpdateQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_slippageUpdates(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${SLIPPAGE_UPDATE_ENTITY}}`;
+};
+
+const routerDailyTVLQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_routerDailyTVLs(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${ROUTER_DAILY_TVL_ENTITY}}`;
+};
+
 export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
   const { config } = getContext();
 
@@ -919,6 +1019,131 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
 
   return gql`
     query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const poolEventsQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+  addOrRemove: "add" | "remove" = "add",
+) => {
+  return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
+};
+
+export const getPoolEventsQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  addOrRemove: "add" | "remove" = "add",
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += poolEventsQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+        addOrRemove,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetPoolEvents { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRelayerFeesIncreasesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += relayerFeesIncreaseQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRelayerFeesIncreases { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getSlippageUpdatesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += slippageUpdateQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSlippageUpdates { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRouterDailyTVLQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += routerDailyTVLQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRouterDailyTVL { 
         ${combinedQuery}
       }
   `;

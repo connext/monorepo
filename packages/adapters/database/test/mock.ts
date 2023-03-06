@@ -36,7 +36,16 @@ export const mockDatabase = (): Database => {
     saveAggregatedRoots: stub().resolves(),
     savePropagatedRoots: stub().resolves(),
     saveReceivedAggregateRoot: stub().resolves(),
+    increaseBackoff: stub().resolves(),
     saveStableSwapPool: stub().resolves(),
     saveStableSwapExchange: stub().resolves(),
+    resetBackoffs: stub().resolves(),
+    saveStableSwapPoolEvent: stub().resolves(),
+    updateErrorStatus: stub().resolves(),
+    markRootMessagesProcessed: stub().resolves(),
+    updateErrorStatus: stub().resolves(),
+    updateSlippage: stub().resolves(),
+    saveRouterDailyTVL: stub().resolves(),
+    updateExecuteSimulationData: stub().resolves(),
   };
 };

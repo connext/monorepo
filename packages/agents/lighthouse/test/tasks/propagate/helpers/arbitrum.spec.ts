@@ -5,7 +5,7 @@ import { BigNumber, constants, providers } from "ethers";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import * as Mockable from "../../../../src/mockable";
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/arbitrum";
-import { propagateCtxMock } from "../../../globalTestHook";
+import { getInterfaceMock, propagateCtxMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 
@@ -21,7 +21,7 @@ describe("Helpers: Arbitrum ", () => {
     stub(Mockable, "getJsonRpcProvider").returns(createStubInstance(providers.JsonRpcProvider));
     stub(Mockable, "getL1ToL2MessageGasEstimator").returns(l1ToL2);
     stub(Mockable, "getBaseFee").resolves(BigNumber.from(1));
-    stub(Mockable, "getInterface").returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) } as any);
+    getInterfaceMock.returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) });
   });
 
   describe("#getPropagateParams", () => {

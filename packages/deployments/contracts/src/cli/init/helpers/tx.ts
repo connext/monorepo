@@ -6,7 +6,7 @@ import { Deployment } from "../../types";
 import { log } from "./log";
 import { CallSchema } from "./types";
 
-const DEFAULT_CONFIRMATIONS = 3;
+const DEFAULT_CONFIRMATIONS = 1;
 
 type WaitForTxArguments = {
   deployment: Deployment;
@@ -88,6 +88,10 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
       return await contract[write.method](...write.args, {
         gasLimit: 2000000,
         gasPrice: "100000000000",
+      });
+    } else if (chain == 280) {
+      return await contract[write.method](...write.args, {
+        gasLimit: 30000000,
       });
     } else {
       return await contract[write.method](...write.args, {

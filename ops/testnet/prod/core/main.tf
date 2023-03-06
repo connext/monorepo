@@ -290,6 +290,17 @@ module "lighthouse_propagate_cron" {
   schedule_expression = "rate(5 minutes)"
 }
 
+module "lighthouse_sendoutboundroot_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-sendoutboundroot"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
+  schedule_expression = "rate(30 minutes)"
+}
+
 
 module "relayer" {
   source                   = "../../../modules/service"

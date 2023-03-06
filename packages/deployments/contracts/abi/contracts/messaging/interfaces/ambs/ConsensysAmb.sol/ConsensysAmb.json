@@ -1,0 +1,7 @@
+[
+  "event MessageDelivered(address,address,uint256,uint256,uint256,bytes)",
+  "event MessageDispatched(address,address,uint256,uint256,uint256,bytes)",
+  "function deliverMessage(address,address,uint256,uint256,uint256,bytes) payable",
+  "function dispatchMessage(address,uint256,uint256,bytes) payable",
+  "function sender() view returns (address)"
+]
