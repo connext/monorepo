@@ -200,7 +200,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://blockscout.chiadochain.net/api",
+        apiUrl: "https://blockscout.chiadochain.net",
       },
     },
   },
@@ -214,7 +214,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://explorer.public.zkevm-test.net/api",
+        apiUrl: "https://explorer.public.zkevm-test.net",
       },
     },
   },
@@ -231,7 +231,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://zksync2-testnet.zkscan.io/api",
+        apiUrl: "https://zksync2-testnet.zkscan.io",
       },
     },
   },
