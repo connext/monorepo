@@ -40,3 +40,5 @@ ops/**/tfvars.json
 .idea
 packages/deployments/contracts/deployments/local_1337
 packages/deployments/contracts/deployments/local_1338
+
+packages/deployments/contracts/cuts.json

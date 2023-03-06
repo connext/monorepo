@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Added ability to fork chains and apply proposed upgrades
+
 ## Amarok 0.2.8-alpha.1
 
 - [sdk] support for debugging simulation support for explorer.
