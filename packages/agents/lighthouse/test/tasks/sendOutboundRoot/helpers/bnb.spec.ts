@@ -8,7 +8,7 @@ describe("Helpers: BNB", () => {
     it("should get params", async () => {
       const res = await getSendOutboundRootParams(mock.domain.A);
       expect(res).to.deep.eq({
-        _fee: BigNumber.from(42),
+        _fee: "42",
         _encodedData: "0x",
       });
     });

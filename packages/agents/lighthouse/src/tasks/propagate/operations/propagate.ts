@@ -8,6 +8,7 @@ import {
   getPropagateParamsBnb,
   getPropagateParamsConsensys,
   getPropagateParamsGnosis,
+  getPropagateParamsZkSync,
 } from "../helpers";
 import { getContext } from "../propagate";
 
@@ -33,6 +34,7 @@ export const getParamsForDomainFn: Record<
   // testnet
   "1734439522": getPropagateParamsArbitrum,
   "1668247156": getPropagateParamsConsensys,
+  "2053862260": getPropagateParamsZkSync,
 };
 
 export const propagate = async () => {

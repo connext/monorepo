@@ -1,4 +1,0 @@
-[
-  "function balanceOf(address) returns (uint256)",
-  "function transferFromTo(address,address,uint256)"
-]
