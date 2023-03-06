@@ -4,7 +4,10 @@
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../../../../../common";
-import type { AssetLogic, AssetLogicInterface } from "../../../../../contracts/core/connext/libraries/AssetLogic";
+import type {
+  AssetLogic,
+  AssetLogicInterface,
+} from "../../../../../contracts/core/connext/libraries/AssetLogic";
 
 const _abi = [
   {
@@ -40,12 +43,15 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x00000001012001900000000b0000613d0000008001000039000000400010043f0000000001000416000000000110004c0000000b0000c13d0000002001000039000001000010044300000120000004430010000c0000040f0010000e0000040f0000000501000041000000110001042e000000000100001900000012000104300000001000000432000000110001042e0000001200010430000000000000000000000002000000000000000000000000000000400000010000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220a58735110cbf4bb4bf574fd8956f3fed4f045e37e3ef87d889af570194cd202e64736f6c63430008110033";
 
-type AssetLogicConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type AssetLogicConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: AssetLogicConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: AssetLogicConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class AssetLogic__factory extends ContractFactory {
   constructor(...args: AssetLogicConstructorParams) {
@@ -56,10 +62,14 @@ export class AssetLogic__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<AssetLogic> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<AssetLogic> {
     return super.deploy(overrides || {}) as Promise<AssetLogic>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): AssetLogic {
@@ -74,7 +84,10 @@ export class AssetLogic__factory extends ContractFactory {
   static createInterface(): AssetLogicInterface {
     return new utils.Interface(_abi) as AssetLogicInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): AssetLogic {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): AssetLogic {
     return new Contract(address, _abi, signerOrProvider) as AssetLogic;
   }
 }
