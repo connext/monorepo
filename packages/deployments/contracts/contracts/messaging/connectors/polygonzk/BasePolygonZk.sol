@@ -24,7 +24,6 @@ abstract contract BasePolygonZk is IBridgeMessageReceiver {
 
   // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
   //function _processMessage(bytes memory _data) internal virtual;
-
   /**
    * @notice This function is used by the PolygonZkEVMBridge to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
@@ -35,11 +34,7 @@ abstract contract BasePolygonZk is IBridgeMessageReceiver {
    * @notice This function is called by the PolygonZkEVMBridge to handle incoming messages.
    * while handling claimMessage
    */
-  function onMessageReceived(
-    address originAddress,
-    uint32 originNetwork,
-    bytes memory data
-  ) external returns (bool) {
+  function onMessageReceived(address originAddress, uint32 originNetwork, bytes memory data) external payable {
     require(originNetwork == MIRROR_NETWORK_ID, "!mirror network");
 
     // get the data (should be the outbound root)
@@ -66,6 +61,7 @@ abstract contract BasePolygonZk is IBridgeMessageReceiver {
     IPolygonZkEVMBridge(_amb).bridgeMessage(
       MIRROR_NETWORK_ID,
       _mirrorConnector, // Target contract on destination
+      true, // forceUpdateGlobalExitRoot = true Indicates if the new global exit root is updated or not
       _data // Call data for interaction
     );
   }

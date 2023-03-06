@@ -366,11 +366,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         prefix: "PolygonZk",
         ambs: {
           // PolygonZkEVMBridge on goerli
-          // https://goerli.etherscan.io/address/0xe2e52c2d0d64209b8dd1854371a4c673c13448f0
-          hub: "0xe2E52C2D0D64209b8DD1854371A4C673c13448f0",
+          // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+          hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
           // PolygonZkEVMBridge on polygon-zkevm
-          // https://explorer.public.zkevm-test.net/address/0x9D98DeAbC42dd696Deb9e40b4f1CAB7dDBF55988
-          spoke: "0x9D98DeAbC42dd696Deb9e40b4f1CAB7dDBF55988",
+          // https://explorer.public.zkevm-test.net/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+          spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
