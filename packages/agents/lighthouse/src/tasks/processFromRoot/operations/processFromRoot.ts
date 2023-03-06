@@ -19,6 +19,7 @@ import {
   getProcessFromPolygonRootArgs,
   getProcessFromGnosisRootArgs,
   getProcessFromArbitrumRootArgs,
+  getProcessFromZkSyncRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -64,6 +65,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Arbitrum",
     processorFunctionName: "processMessageFromRoot",
   },
+  "2053862260": {
+    getArgs: getProcessFromZkSyncRootArgs,
+    hubConnectorPrefix: "ZkSync",
+    processorFunctionName: "processMessageFromRoot",
+  },
 };
 
 export const processFromRoot = async () => {
@@ -79,14 +85,30 @@ export const processFromRoot = async () => {
     logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
   }
 
-  for (const msg of unprocessed) {
-    const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
-    logger.info("Processing root message", requestContext, methodContext, { msg });
+  // get latest unprocessed for each spoke
+  const byDomain: Record<string, RootMessage[]> = {};
+  unprocessed.forEach((msg) => {
+    if (!byDomain[msg.spokeDomain]) {
+      byDomain[msg.spokeDomain] = [];
+    }
+    byDomain[msg.spokeDomain].push(msg);
+  });
 
-    try {
-      await processSingleRootMessage(msg, requestContext);
-    } catch (err: unknown) {
-      logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+  Object.keys(byDomain).forEach((domain) => {
+    byDomain[domain].sort((a, b) => b.timestamp - a.timestamp);
+  });
+
+  for (const domain of Object.keys(byDomain)) {
+    for (const msg of byDomain[domain]) {
+      const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
+      logger.info("Processing root message", requestContext, methodContext, { msg });
+
+      try {
+        const taskId = await processSingleRootMessage(msg, requestContext);
+        if (taskId) break;
+      } catch (err: unknown) {
+        logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
+      }
     }
   }
 };
@@ -167,6 +189,7 @@ export const processSingleRootMessage = async (
     hubProvider,
     spokeDomainId: rootMessage.spokeDomain,
     hubDomainId: rootMessage.hubDomain,
+    message: rootMessage.root,
     sendHash: rootMessage.transactionHash,
     blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,

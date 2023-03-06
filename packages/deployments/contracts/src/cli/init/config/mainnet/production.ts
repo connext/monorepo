@@ -164,6 +164,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x048a5EcC705C280b2248aefF88fd581AbbEB8587", // Gnosis
         "0x975574980a5Da77f5C90bC92431835D91B73669e", // 01node
         "0x6892d4D1f73A65B03063B7d78174dC6350Fcc406", // Unagii
+        "0x32d63da9f776891843c90787cec54ada23abd4c2", // Ingag
+        "0xFaAB88015477493cFAa5DFAA533099C590876F21", // Paradox
       ],
     },
     sequencers: {

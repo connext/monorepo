@@ -105,6 +105,7 @@ type StableSwapExchange @entity {
   soldId: BigInt!
   tokensSold: BigInt!
   balances: [BigInt!]!
+  fee: BigInt!
 
   block: BigInt!
   timestamp: BigInt!

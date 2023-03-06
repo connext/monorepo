@@ -7,5 +7,8 @@ import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygonzk from "./polygonzk";
 export type { polygonzk };
+import type * as zksync from "./zksync";
+export type { zksync };
+export type { ConsensysAmb } from "./ConsensysAmb";
 export type { GnosisAmb } from "./GnosisAmb";
 export type { Multichain } from "./Multichain";

@@ -4,5 +4,7 @@
 export * as arbitrum from "./arbitrum";
 export * as optimism from "./optimism";
 export * as polygonzk from "./polygonzk";
+export * as zksync from "./zksync";
+export { ConsensysAmb__factory } from "./ConsensysAmb__factory";
 export { GnosisAmb__factory } from "./GnosisAmb__factory";
 export { Multichain__factory } from "./Multichain__factory";

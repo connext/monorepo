@@ -188,6 +188,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     tokens_sold: exchange.tokensSold,
     tokens_bought: exchange.tokensBought,
     balances: exchange.balances,
+    fee: exchange.fee,
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
@@ -205,6 +206,7 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     pool_token_decimals: event.poolTokenDecimals,
     token_amounts: event.tokenAmounts,
     balances: event.balances,
+    fees: event.fees,
     lp_token_amount: event.lpTokenAmount,
     lp_token_supply: event.lpTokenSupply,
     block_number: event.blockNumber,
@@ -242,6 +244,12 @@ export const saveTransfers = async (
 
   transfers = transfers.map((_transfer) => {
     const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+
+    if (dbTransfer !== undefined) {
+      // Special handling as boolean fields defualt to false, when upstream subgraph data is null
+      _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
+    }
+
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
     } else if (
@@ -303,6 +311,18 @@ export const saveProcessedRootMessages = async (
       updateColumns: ["processed_transaction_hash", "processed"],
     })
     .run(poolToUse);
+
+  // update `processed` to true for previous root messages.
+  for (const message of _messages) {
+    const spoke_domain = message.spokeDomain;
+    await db
+      .update(
+        "root_messages",
+        { processed: true },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+      )
+      .run(poolToUse);
+  }
 };
 
 export const getRootMessages = async (
@@ -862,4 +882,37 @@ export const updateSlippage = async (
       .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
       .run(poolToUse);
   }
+};
+
+export const markRootMessagesProcessed = async (
+  rootMessages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const rootMessageIds = rootMessages.map((m) => m.id);
+  await db.update("root_messages", { processed: true }, { id: dc.isIn(rootMessageIds) }).run(poolToUse);
+};
+
+export const updateExecuteSimulationData = async (
+  transferId: string,
+  executeSimulationInput: string,
+  executeSimulationFrom: string,
+  executeSimulationTo: string,
+  executeSimulationNetwork: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await db
+    .update(
+      "transfers",
+      {
+        execute_simulation_input: executeSimulationInput,
+        execute_simulation_from: executeSimulationFrom,
+        execute_simulation_to: executeSimulationTo,
+        execute_simulation_network: executeSimulationNetwork,
+      },
+      { transfer_id: transferId },
+    )
+    .run(poolToUse);
 };

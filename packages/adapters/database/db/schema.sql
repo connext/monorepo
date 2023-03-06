@@ -130,7 +130,8 @@ CREATE TABLE public.stableswap_exchanges (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+    balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    fee numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -152,7 +153,8 @@ CREATE TABLE public.stableswap_pool_events (
     lp_token_supply numeric NOT NULL,
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
-    "timestamp" integer NOT NULL
+    "timestamp" integer NOT NULL,
+    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
 );
 
 
@@ -161,22 +163,38 @@ CREATE TABLE public.stableswap_pool_events (
 --
 
 CREATE VIEW public.daily_swap_tvl AS
- SELECT e.pool_id,
-    e.domain,
-    (date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date AS day,
-    ARRAY( SELECT unnest((array_agg(e.balances ORDER BY e."timestamp" DESC))[1:1]) AS unnest) AS balances
-   FROM ( SELECT stableswap_pool_events.pool_id,
-            stableswap_pool_events.domain,
-            stableswap_pool_events.balances,
-            stableswap_pool_events."timestamp"
-           FROM public.stableswap_pool_events
-        UNION ALL
-         SELECT stableswap_exchanges.pool_id,
-            stableswap_exchanges.domain,
-            stableswap_exchanges.balances,
-            stableswap_exchanges."timestamp"
-           FROM public.stableswap_exchanges) e
-  GROUP BY e.pool_id, e.domain, ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date);
+ SELECT r.pool_id,
+    r.domain,
+    r.day,
+    r.balances,
+    r.total_fee,
+    r.total_vol,
+    ( SELECT sum(b.b) AS sum
+           FROM unnest(r.balances) b(b)) AS total_tvl
+   FROM ( SELECT e.pool_id,
+            e.domain,
+            (date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date AS day,
+            ARRAY( SELECT unnest((array_agg(e.balances ORDER BY e."timestamp" DESC))[1:1]) AS unnest) AS balances,
+            sum(e.fee) AS total_fee,
+            sum(e.vol) AS total_vol
+           FROM ( SELECT stableswap_pool_events.pool_id,
+                    stableswap_pool_events.domain,
+                    stableswap_pool_events.balances,
+                    ( SELECT sum(f.f) AS sum
+                           FROM unnest(stableswap_pool_events.fees) f(f)) AS fee,
+                    0 AS vol,
+                    stableswap_pool_events."timestamp"
+                   FROM public.stableswap_pool_events
+                UNION ALL
+                 SELECT stableswap_exchanges.pool_id,
+                    stableswap_exchanges.domain,
+                    stableswap_exchanges.balances,
+                    stableswap_exchanges.fee,
+                    ((stableswap_exchanges.tokens_sold + stableswap_exchanges.tokens_bought) / (2)::numeric) AS vol,
+                    stableswap_exchanges."timestamp"
+                   FROM public.stableswap_exchanges) e
+          GROUP BY e.pool_id, e.domain, ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date)
+          ORDER BY ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date)) r;
 
 
 --
@@ -253,7 +271,12 @@ CREATE TABLE public.transfers (
     error_status character varying(255),
     backoff integer DEFAULT 32 NOT NULL,
     next_execution_timestamp integer DEFAULT 0 NOT NULL,
-    updated_slippage numeric
+    updated_slippage numeric,
+    execute_simulation_input text,
+    execute_simulation_from character(42),
+    execute_simulation_to character(42),
+    execute_simulation_network character varying(255),
+    error_message character varying(255)
 );
 
 
@@ -963,4 +986,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230209043516'),
     ('20230213052113'),
     ('20230213141356'),
-    ('20230214014310');
+    ('20230214014310'),
+    ('20230215142524'),
+    ('20230215172901'),
+    ('20230227071659');

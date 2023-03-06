@@ -70,6 +70,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       asset {
         ${ASSET_ENTITY}
       }
+      transactingAsset
 
       # Message
       message { 
@@ -234,6 +235,7 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       tokensBought
       tokensSold
       balances
+      fee
       block
       timestamp
       transaction
@@ -252,6 +254,7 @@ export const STABLESWAP_POOL_EVENT_ENTITY = `
       balances
       lpTokenSupply
       lpTokenAmount
+      fees
       block
       timestamp
       transaction

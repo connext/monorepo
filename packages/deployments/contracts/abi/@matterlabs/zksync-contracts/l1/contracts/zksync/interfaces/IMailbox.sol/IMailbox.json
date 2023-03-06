@@ -1,8 +1,0 @@
-[
-  "event NewPriorityRequest(uint256,bytes32,uint64,tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[6],bytes,bytes,uint256[],bytes,bytes),bytes[])",
-  "function l2TransactionBaseCost(uint256,uint256,uint32) view returns (uint256)",
-  "function proveL2LogInclusion(uint256,uint256,tuple(uint8,bool,uint16,address,bytes32,bytes32),bytes32[]) view returns (bool)",
-  "function proveL2MessageInclusion(uint256,uint256,tuple(uint16,address,bytes),bytes32[]) view returns (bool)",
-  "function requestL2Transaction(address,uint256,bytes,uint256,bytes[]) payable returns (bytes32)",
-  "function serializeL2Transaction(uint256,uint256,address,address,bytes,uint256,bytes[]) pure returns (tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[6],bytes,bytes,uint256[],bytes,bytes))"
-]

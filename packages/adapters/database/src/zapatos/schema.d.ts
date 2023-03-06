@@ -896,6 +896,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances: number[] | null;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee: number | null;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol: number | null;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -922,6 +940,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances: number[] | null;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee: number | null;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol: number | null;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl: number | null;
     }
     export interface Whereable {
       /**
@@ -948,6 +984,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_vol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_vol?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_swap_tvl.total_tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3844,6 +3898,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `ARRAY[]::numeric[]`
       */
       balances: number[];
+      /**
+      * **stableswap_exchanges.fee**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fee: number;
     }
     export interface JSONSelectable {
       /**
@@ -3918,6 +3978,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `ARRAY[]::numeric[]`
       */
       balances: number[];
+      /**
+      * **stableswap_exchanges.fee**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fee: number;
     }
     export interface Whereable {
       /**
@@ -3992,6 +4058,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `ARRAY[]::numeric[]`
       */
       balances?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_exchanges.fee**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4066,6 +4138,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `ARRAY[]::numeric[]`
       */
       balances?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment;
+      /**
+      * **stableswap_exchanges.fee**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fee?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4140,6 +4218,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `ARRAY[]::numeric[]`
       */
       balances?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **stableswap_exchanges.fee**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      fee?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'stableswap_exchanges_id_key' | 'stableswap_exchanges_pkey';
     export type Column = keyof Selectable;
@@ -4372,6 +4456,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **stableswap_pool_events.fees**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      fees: number[];
     }
     export interface JSONSelectable {
       /**
@@ -4458,6 +4548,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **stableswap_pool_events.fees**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      fees: number[];
     }
     export interface Whereable {
       /**
@@ -4544,6 +4640,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **stableswap_pool_events.fees**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      fees?: number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4630,6 +4732,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **stableswap_pool_events.fees**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      fees?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4716,6 +4824,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **stableswap_pool_events.fees**
+      * - `_numeric` in database
+      * - `NOT NULL`, default: `ARRAY[]::numeric[]`
+      */
+      fees?: number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number[] | db.Parameter<number[]> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'stableswap_pool_events_pkey';
     export type Column = keyof Selectable;
@@ -5830,6 +5944,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       updated_slippage: number | null;
+      /**
+      * **transfers.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input: string | null;
+      /**
+      * **transfers.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from: string | null;
+      /**
+      * **transfers.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to: string | null;
+      /**
+      * **transfers.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network: string | null;
+      /**
+      * **transfers.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -6168,6 +6312,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       updated_slippage: number | null;
+      /**
+      * **transfers.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input: string | null;
+      /**
+      * **transfers.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from: string | null;
+      /**
+      * **transfers.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to: string | null;
+      /**
+      * **transfers.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network: string | null;
+      /**
+      * **transfers.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message: string | null;
     }
     export interface Whereable {
       /**
@@ -6506,6 +6680,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       updated_slippage?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -6844,6 +7048,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       updated_slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7182,6 +7416,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       updated_slippage?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

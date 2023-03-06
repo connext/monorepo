@@ -7,6 +7,7 @@ import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
 config();
 
@@ -38,6 +39,8 @@ export const ProtocolNetworks: Record<string, string> = {
   "97": ProtocolNetwork.TESTNET,
   "421613": ProtocolNetwork.TESTNET,
   "1422": ProtocolNetwork.TESTNET,
+  "280": ProtocolNetwork.TESTNET,
+  "59140": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -261,7 +264,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment & { deployments: DeploymentsExtension; ethers: any },
   implementationArgs: any[] = [],
   deployName?: string,
 ): Promise<T> => {

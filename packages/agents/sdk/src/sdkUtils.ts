@@ -1,3 +1,4 @@
+import { utils } from "ethers";
 import {
   Logger,
   ChainData,
@@ -12,6 +13,7 @@ import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
+import { RouterBalance } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
@@ -73,7 +75,12 @@ export class SdkUtils extends SdkShared {
   /**
    * Fetches a list of router liquidity data.
    *
+   * @param params - (optional) Parameters object.
+   * @param params.order - (optional) The object with orderBy and ascOrDesc options.
+   * @param params.order.orderBy - (optional) Field to order by.
+   * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
    * @returns Array of objects containing the router address and liquidity information, in the form of:
+   *
    * ```ts
    * {
    *   "address": "0xf26c772c0ff3a6036bddabdaba22cf65eca9f97c",
@@ -92,8 +99,16 @@ export class SdkUtils extends SdkShared {
    *}
    * ```
    */
-  async getRoutersData(): Promise<any> {
-    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
+  async getRoutersData(params?: {
+    order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+  }): Promise<RouterBalance[]> {
+    const { order } = params ?? {};
+
+    const orderBy = order?.orderBy ? order.orderBy : "";
+    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
     // Validate uri
     validateUri(uri);
 
@@ -176,7 +191,7 @@ export class SdkUtils extends SdkShared {
    * }
    * ```
    */
-  async getTransfers(params: {
+  async getTransfers(params?: {
     userAddress?: string;
     routerAddress?: string;
     status?: XTransferStatus;
@@ -186,7 +201,8 @@ export class SdkUtils extends SdkShared {
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } = params;
+    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } =
+      params ?? {};
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
@@ -222,5 +238,28 @@ export class SdkUtils extends SdkShared {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Checks available router liquidity for a specific asset.
+   *
+   * @param domainId - The domain ID where the asset exists.
+   * @param asset - The address of the asset.
+   * @param topN - The top N routers by liquidity, should match the auction round depth (N = 2^(depth-1).
+   * @returns The total router liquidity available for the asset.
+   *
+   */
+  async checkRouterLiquidity(domainId: string, asset: string, topN?: number) {
+    const _asset = utils.getAddress(asset);
+    const _topN = topN ?? 4;
+
+    const routersByLargestBalance = await this.getRoutersData({ order: { orderBy: "balance", ascOrDesc: "desc" } });
+
+    const eligibleRouters = Array.from(routersByLargestBalance).filter(
+      (routerBalance: RouterBalance) =>
+        routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset,
+    );
+
+    return eligibleRouters.slice(0, _topN).reduce((acc, router) => acc + router.balance, 0);
   }
 }

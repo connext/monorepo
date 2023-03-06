@@ -1,5 +1,0 @@
-[
-  "event MarkedAsKnown(bytes32 indexed,bool indexed)",
-  "function getMarker(bytes32) view returns (uint256)",
-  "function markFactoryDeps(bool,bytes32[])"
-]

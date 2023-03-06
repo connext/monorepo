@@ -21,8 +21,8 @@ const getMaxReconcileTimestamp = (transfers: XTransfer[]): number => {
     : Math.max(...transfers.map((transfer) => transfer.destination?.reconcile?.timestamp ?? 0));
 };
 
-const getMaxTimestamp = (entities: SlippageUpdate[]): number => {
-  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
+const getMaxTimestamp = (entities: RelayerFeesIncrease[] | SlippageUpdate[]): number => {
+  return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => (entity?.timestamp as number) ?? 0));
 };
 
 export const updateTransfers = async () => {
@@ -240,17 +240,28 @@ export const updateBackoffs = async (): Promise<void> => {
     increases.map((increase) => increase.transferId).concat(updates.map((update) => update.transferId)),
   );
 
+  // filter by domain
+  const increasesByDomain: Record<string, string[]> = {};
+
   const increaseCheckpoints = domains
     .map((domain) => {
-      const domainUpdates = updates.filter((update) => update.domain === domain);
-      const max = getMaxTimestamp(domainUpdates);
-      const latest = subgraphSlippageUpdatesQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
-      if (domainUpdates.length > 0 && max > latest) {
+      const domainIncreases = increases.filter((increase) => increase.domain === domain);
+      increasesByDomain[domain] = domainIncreases.map((increase) => increase.transferId);
+      const max = getMaxTimestamp(domainIncreases);
+      const latest = subgraphRelayerFeeQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      if (domainIncreases.length > 0 && max > latest) {
         return { domain, checkpoint: max };
       }
       return undefined;
     })
     .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+  // update transfers with relayer fee bumps
+  // query subgraphs to avoid recalculating relayer fee based on increases
+  for (const domain of Object.keys(increasesByDomain)) {
+    const transfers = await subgraph.getOriginTransfersByDomain(domain, increasesByDomain[domain]);
+    await database.saveTransfers(transfers);
+  }
 
   for (const checkpoint of increaseCheckpoints) {
     await database.saveCheckPoint("relayer_fees_increases_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
