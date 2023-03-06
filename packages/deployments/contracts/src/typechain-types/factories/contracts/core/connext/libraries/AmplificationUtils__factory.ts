@@ -63,12 +63,15 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220061b16fa817f4b0ca2b5a6583c9fa676f05525b52a19811ea25e293073a52e6e64736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220198bad350a6a4204dab9c4f0964aeb8848525fe3c4004bfaa3d2b84314b6544c64736f6c63430008110033";
 
-type AmplificationUtilsConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;
+type AmplificationUtilsConstructorParams =
+  | [signer?: Signer]
+  | ConstructorParameters<typeof ContractFactory>;
 
-const isSuperArgs = (xs: AmplificationUtilsConstructorParams): xs is ConstructorParameters<typeof ContractFactory> =>
-  xs.length > 1;
+const isSuperArgs = (
+  xs: AmplificationUtilsConstructorParams
+): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class AmplificationUtils__factory extends ContractFactory {
   constructor(...args: AmplificationUtilsConstructorParams) {
@@ -79,10 +82,14 @@ export class AmplificationUtils__factory extends ContractFactory {
     }
   }
 
-  override deploy(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<AmplificationUtils> {
+  override deploy(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<AmplificationUtils> {
     return super.deploy(overrides || {}) as Promise<AmplificationUtils>;
   }
-  override getDeployTransaction(overrides?: Overrides & { from?: PromiseOrValue<string> }): TransactionRequest {
+  override getDeployTransaction(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   override attach(address: string): AmplificationUtils {
@@ -97,7 +104,10 @@ export class AmplificationUtils__factory extends ContractFactory {
   static createInterface(): AmplificationUtilsInterface {
     return new utils.Interface(_abi) as AmplificationUtilsInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): AmplificationUtils {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): AmplificationUtils {
     return new Contract(address, _abi, signerOrProvider) as AmplificationUtils;
   }
 }
