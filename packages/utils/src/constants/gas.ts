@@ -3,7 +3,7 @@ import { ChainData, getChainData } from "..";
 export const NATIVE_TOKEN = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const DEFAULT_GAS_ESTIMATES = {
   execute: "400000",
-  executeL1: "20000",
+  executeL1: "21000",
   gasPriceFactor: "1000000000000000000",
 };
 
