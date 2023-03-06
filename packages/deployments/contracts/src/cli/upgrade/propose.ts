@@ -9,13 +9,13 @@ import { getProposedFacetCuts } from "../../getProposedFacetCuts";
 import { Env } from "../../utils";
 import { hardhatNetworks } from "../../config";
 
-import { getDeployments, SUPPORTED_CHAINS } from "./helpers";
+import { FORK_BLOCKS, getDeployments, SUPPORTED_CHAINS } from "./helpers";
 
 config();
 
 export const optionDefinitions = [
-  { name: "env", type: String, defaultValue: "staging" },
-  { name: "network", type: String, defaultValue: "testnet" },
+  { name: "env", type: String },
+  { name: "network", type: String },
   { name: "chains", type: Number, multiple: true },
 ];
 
@@ -30,13 +30,12 @@ export const getDiamondUpgradeProposal = async () => {
   // Validate command line arguments
   // const chains = [1, 10, 56, 100, 137, 42161];
   const { env: _env, chains: _chains, network: _network } = cmdArgs;
-  const network = _network as "testnet" | "mainnet";
+  const network = (_network ?? process.env.NETWORK ?? "testnet") as "testnet" | "mainnet";
   const env = _env ?? process.env.ENV ?? "staging";
+  const chains = _chains ?? SUPPORTED_CHAINS[network];
   if (!["testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
-
-  const chains = _chains ?? SUPPORTED_CHAINS[network];
 
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
@@ -68,15 +67,14 @@ export const getDiamondUpgradeProposal = async () => {
       };
     });
 
-    // get the fork block (block used to create fork in fork tests)
-    const current = await provider.getBlockNumber();
-    const toDeduct = (21 * 24 * 60 * 60) / 15; // 21 days in blocks w/15s blocks
+    const connext = new Contract(Connext.address, Connext.abi, provider);
 
     // get the proposed cut
-    const namedCuts = await getProposedFacetCuts(facetOptions, new Contract(Connext.address, Connext.abi, provider));
+    const namedCuts = await getProposedFacetCuts(facetOptions, connext);
     // write to file without `name` field (matching contract call)
     chainCuts[chain] = {
-      forkBlock: current - toDeduct,
+      // default 1000 blocks into cut
+      forkBlock: (FORK_BLOCKS as any)[chain] as number,
       numberOfCuts: namedCuts.length,
       connext: Connext.address,
       proposal: namedCuts.map((cut) => {

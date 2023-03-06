@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
-    "test:upgrade": "yarn forge test -vvv --ffi --match-path '*/upgrade/**.sol'",
+    "test:upgrade": "yarn forge test -v --ffi --match-path '*/upgrade/**.sol'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
