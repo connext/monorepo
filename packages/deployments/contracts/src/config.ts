@@ -206,7 +206,7 @@ export const hardhatNetworks = {
   },
   "polygonzk-testnet": {
     accounts: { mnemonic },
-    chainId: 1422,
+    chainId: 1442,
     url: urlOverride || process.env.POLYGONZK_TESTNET_PROVIDER_URL || "https://rpc.public.zkevm-test.net",
     companionNetworks: {
       hub: "goerli",

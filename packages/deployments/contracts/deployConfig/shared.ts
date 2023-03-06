@@ -362,7 +362,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
-      1422: {
+      1442: {
         prefix: "PolygonZk",
         ambs: {
           // PolygonZkEVMBridge on goerli
