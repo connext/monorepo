@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.8-alpha.1
+
+- [sdk] support for debugging simulation support for explorer.
+- [all] support of Consesys ZKevm is live on testnet.
+
 ## Amarok 0.2.7
 
 - [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version
