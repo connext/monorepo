@@ -816,7 +816,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       originAddress: PromiseOrValue<string>,
       originNetwork: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
@@ -997,7 +997,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     originAddress: PromiseOrValue<string>,
     originNetwork: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   outboundRoot(overrides?: CallOverrides): Promise<string>;
@@ -1177,7 +1177,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       originNetwork: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1505,7 +1505,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       originAddress: PromiseOrValue<string>,
       originNetwork: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1687,7 +1687,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       originAddress: PromiseOrValue<string>,
       originNetwork: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;

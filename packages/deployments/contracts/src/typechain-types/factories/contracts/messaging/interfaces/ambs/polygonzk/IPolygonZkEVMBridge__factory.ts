@@ -12,6 +12,71 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "AlreadyClaimed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AmountDoesNotMatchMsgValue",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "DestinationNetworkInvalid",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "EtherTransferFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "GlobalExitRootInvalid",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidSmtProof",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MessageFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MsgValueNotZero",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotValidAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotValidOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotValidSignature",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotValidSpender",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyPolygonZkEVM",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "activateEmergencyState",
     outputs: [],
     stateMutability: "nonpayable",
@@ -19,11 +84,6 @@ const _abi = [
   },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
       {
         internalType: "uint32",
         name: "destinationNetwork",
@@ -38,6 +98,16 @@ const _abi = [
         internalType: "uint256",
         name: "amount",
         type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "forceUpdateGlobalExitRoot",
+        type: "bool",
       },
       {
         internalType: "bytes",
@@ -63,6 +133,11 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "bool",
+        name: "forceUpdateGlobalExitRoot",
+        type: "bool",
+      },
+      {
         internalType: "bytes",
         name: "metadata",
         type: "bytes",
@@ -76,9 +151,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32[]",
+        internalType: "bytes32[32]",
         name: "smtProof",
-        type: "bytes32[]",
+        type: "bytes32[32]",
       },
       {
         internalType: "uint32",
@@ -134,9 +209,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32[]",
+        internalType: "bytes32[32]",
         name: "smtProof",
-        type: "bytes32[]",
+        type: "bytes32[32]",
       },
       {
         internalType: "uint32",
@@ -192,6 +267,13 @@ const _abi = [
   {
     inputs: [],
     name: "deactivateEmergencyState",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "updateGlobalExitRoot",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

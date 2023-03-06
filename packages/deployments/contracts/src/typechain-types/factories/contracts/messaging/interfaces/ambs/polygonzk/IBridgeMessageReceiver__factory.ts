@@ -29,14 +29,8 @@ const _abi = [
       },
     ],
     name: "onMessageReceived",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
 ] as const;

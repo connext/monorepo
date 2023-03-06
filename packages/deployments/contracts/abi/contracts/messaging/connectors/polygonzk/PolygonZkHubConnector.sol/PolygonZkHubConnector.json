@@ -21,7 +21,7 @@
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
-  "function onMessageReceived(address,uint32,bytes) returns (bool)",
+  "function onMessageReceived(address,uint32,bytes) payable",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
   "function proposeNewOwner(address)",

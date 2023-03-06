@@ -54,7 +54,7 @@
   "function messages(bytes32) view returns (uint8)",
   "function mirrorConnector() view returns (address)",
   "function nonces(uint32) view returns (uint32)",
-  "function onMessageReceived(address,uint32,bytes) returns (bool)",
+  "function onMessageReceived(address,uint32,bytes) payable",
   "function outboundRoot() view returns (bytes32)",
   "function owner() view returns (address)",
   "function pause()",
