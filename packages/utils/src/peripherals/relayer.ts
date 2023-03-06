@@ -72,6 +72,10 @@ export const calculateRelayerFee = async (
 
   const shouldFallback = estimatedRelayerFee.eq("0") && getGasPriceCallback;
   if (shouldFallback) {
+    if (logger) {
+      logger.info("Falling back to getGasPriceCallback", requestContext, methodContext, getGasPriceCallback.name);
+    }
+
     let gasPrice = BigNumber.from(0);
     try {
       gasPrice = await getGasPriceCallback(Number(params.destinationDomain));
@@ -89,22 +93,22 @@ export const calculateRelayerFee = async (
 
   if (destinationChainId == 10) {
     // consider l1gas for optimism network
-    if (logger) {
-      const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
-        1,
-        constants.AddressZero,
-        Number(executeL1GasAmount),
-        isHighPriority,
-      );
+    const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
+      1,
+      constants.AddressZero,
+      Number(executeL1GasAmount),
+      isHighPriority,
+    );
 
+    if (logger) {
       logger.info("Adding l1Gas", requestContext, methodContext, {
         executeGasAmount,
         executeL1GasAmount,
         l1EstimatedRelayerFee: l1EstimatedRelayerFee.toString(),
       });
-
-      estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
     }
+
+    estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
   }
 
   if (logger) {
