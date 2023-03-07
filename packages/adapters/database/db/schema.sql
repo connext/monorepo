@@ -572,9 +572,10 @@ CREATE VIEW public.routers_with_balances AS
 CREATE VIEW public.router_liquidity AS
  SELECT r.domain,
     r.local,
+    r.adopted,
     sum(r.balance) AS total_balance
    FROM public.routers_with_balances r
-  GROUP BY r.domain, r.local
+  GROUP BY r.domain, r.local, r.adopted
   ORDER BY r.domain;
 
 
