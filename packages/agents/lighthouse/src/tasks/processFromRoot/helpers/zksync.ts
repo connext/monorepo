@@ -40,21 +40,26 @@ export const getProcessFromZkSyncRootArgs = async ({
   // get transaction receipt from hash on l2
   const txReceipt = await l2Provider.getTransactionReceipt(sendHash);
   if (!txReceipt) {
-    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: "Not found tx receipt",
+    });
   }
 
   const { l2ToL1Logs, l1BatchNumber, l1BatchTxIndex } = txReceipt;
   const l2Tol1Log = l2ToL1Logs?.find((l) => l.transactionHash === sendHash);
   if (!l2Tol1Log) {
-    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: "Not found  l2ToL1 Log",
+    });
   }
 
   // Getting L2 message proof for block
-  const l2MessageProof = await l2Provider.getLogProof(sendHash, l2Tol1Log.logIndex);
-
+  const l2MessageProof = await l2Provider.getLogProof(sendHash);
   // if l2MessageProof == null. no such message
   if (!l2MessageProof) {
-    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: "Not found Message Proof",
+    });
   }
 
   // check L2Message Inclusion
@@ -81,7 +86,9 @@ export const getProcessFromZkSyncRootArgs = async ({
     inclusion,
   });
   if (!inclusion) {
-    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: "Not included",
+    });
   }
 
   logger.info("Got proof from zksync", requestContext, methodContext, {
