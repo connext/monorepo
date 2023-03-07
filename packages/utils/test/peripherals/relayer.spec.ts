@@ -88,6 +88,7 @@ describe("Peripherals:Relayer", () => {
       ]);
 
       getConversionRateStub.onFirstCall().resolves(1);
+      getConversionRateStub.onSecondCall().resolves(1.5);
       getGelatoEstimatedFeeStub.onFirstCall().resolves(BigNumber.from(10000));
       const estimatedRelayerFee = await calculateRelayerFee(
         { originDomain: "13337", destinationDomain: "13338" },
