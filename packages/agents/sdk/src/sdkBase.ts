@@ -492,6 +492,10 @@ export class SdkBase extends SdkShared {
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
+   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
+   * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
    * @returns The relayer fee in native asset of the origin domain.
    *
    * @example
