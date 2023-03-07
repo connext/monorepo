@@ -89,7 +89,8 @@ CREATE TABLE public.assets (
     canonical_domain character varying(255) NOT NULL,
     domain character varying(255) NOT NULL,
     key character(66),
-    id character(42)
+    id character(42),
+    "decimal" numeric DEFAULT 0
 );
 
 
@@ -1015,4 +1016,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230227071659'),
     ('20230307011812'),
     ('20230307090110'),
-    ('20230307092333');
+    ('20230307092333'),
+    ('20230307171914');
