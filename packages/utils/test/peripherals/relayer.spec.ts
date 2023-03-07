@@ -88,17 +88,15 @@ describe("Peripherals:Relayer", () => {
       ]);
 
       getConversionRateStub.onFirstCall().resolves(1);
-      getConversionRateStub.onSecondCall().resolves(1.5);
       getGelatoEstimatedFeeStub.onFirstCall().resolves(BigNumber.from(10000));
-      getGelatoEstimatedFeeStub.onSecondCall().resolves(BigNumber.from(50000));
       const estimatedRelayerFee = await calculateRelayerFee(
         { originDomain: "13337", destinationDomain: "13338" },
         chainData,
         logger,
       );
       // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
-      // ==> (60000 + 60000 x 20 / 100) x ( 1.5 / 1 ) = 108000
-      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("108000"));
+      // ==> (10000 + 10000 x 20 / 100) x ( 1.5 / 1 ) = 108000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
     });
   });
 });
