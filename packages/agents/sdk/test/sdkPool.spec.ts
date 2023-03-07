@@ -81,7 +81,7 @@ describe("SdkPool", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
 
     sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
   });

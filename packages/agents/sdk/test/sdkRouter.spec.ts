@@ -23,7 +23,7 @@ describe("SdkRouter", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     nxtpRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
@@ -43,11 +43,6 @@ describe("SdkRouter", () => {
       expect(nxtpRouter.removeRouterLiquidity).to.be.a("function");
       expect(nxtpRouter.removeRouterLiquidityFor).to.be.a("function");
       expect(nxtpRouter.changeSignerAddress).to.be.a("function");
-    });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(SdkRouter.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 

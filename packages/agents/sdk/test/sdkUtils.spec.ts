@@ -20,7 +20,7 @@ describe("SdkUtils", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
     stub(SharedFns, "axiosGetRequest").resolves({});
 
@@ -41,11 +41,6 @@ describe("SdkUtils", () => {
       expect(nxtpUtils.getRoutersData).to.be.a("function");
       expect(nxtpUtils.getAssetsData).to.be.a("function");
       expect(nxtpUtils.getTransfers).to.be.a("function");
-    });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(SdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
