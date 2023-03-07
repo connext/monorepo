@@ -566,6 +566,18 @@ CREATE VIEW public.routers_with_balances AS
 
 
 --
+-- Name: router_liquidity; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.router_liquidity AS
+ SELECT r.domain,
+    r.local,
+    sum(r.balance) AS total_balance
+   FROM public.routers_with_balances r
+  GROUP BY r.domain, r.local;
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -989,4 +1001,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230214014310'),
     ('20230215142524'),
     ('20230215172901'),
-    ('20230227071659');
+    ('20230227071659'),
+    ('20230307011812');
