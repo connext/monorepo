@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Moved core function `calculateAmountReceived` to SdkBase
+- [sdk] `calculateAmountReceived` now provides isFastPath determination
 - [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
 - [utils] Added CDN for chainData JSON file to make globally available.
 
