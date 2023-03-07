@@ -16,7 +16,7 @@ import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {AssetTransfer, ExecuteArgs, TransferInfo, DestinationTransferStatus, TokenConfig} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, TransferInfo, DestinationTransferStatus, TokenConfig} from "../libraries/LibConnextStorage.sol";
 import {BridgeMessage} from "../libraries/BridgeMessage.sol";
 import {Constants} from "../libraries/Constants.sol";
 import {TokenId} from "../libraries/TokenId.sol";
@@ -24,6 +24,16 @@ import {TokenId} from "../libraries/TokenId.sol";
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
+
+/**
+ * @notice Defines the fields needed for an asset transfer
+ * @param asset - The address of the asset
+ * @param amount - The amount of the asset
+ */
+struct AssetTransfer {
+  address asset;
+  uint256 amount;
+}
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -702,11 +712,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _relayerFeeAsset - The asset you are bumping fee with
    * @param _relayerFee - The amount you want to bump transfer fee with
    */
-  function _bumpTransfer(
-    bytes32 _transferId,
-    address _relayerFeeAsset,
-    uint256 _relayerFee
-  ) internal {
+  function _bumpTransfer(bytes32 _transferId, address _relayerFeeAsset, uint256 _relayerFee) internal {
     address relayerVault = s.relayerFeeVault;
     if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
     if (_relayerFeeAsset == address(0)) {
@@ -826,11 +832,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _numerator Numerator
    * @param _denominator Denominator
    */
-  function _muldiv(
-    uint256 _amount,
-    uint256 _numerator,
-    uint256 _denominator
-  ) private pure returns (uint256) {
+  function _muldiv(uint256 _amount, uint256 _numerator, uint256 _denominator) private pure returns (uint256) {
     return (_amount * _numerator) / _denominator;
   }
 
@@ -845,14 +847,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _key,
     bool _isFast,
     ExecuteArgs calldata _args
-  )
-    private
-    returns (
-      uint256,
-      address,
-      address
-    )
-  {
+  ) private returns (uint256, address, address) {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 

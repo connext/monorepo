@@ -80,16 +80,6 @@ struct TransferInfo {
 }
 
 /**
- * @notice Defines the fields needed for an asset transfer
- * @param asset - The address of the asset
- * @param amount - The amount of the asset
- */
-struct AssetTransfer {
-  address asset;
-  uint256 amount;
-}
-
-/**
  * @notice
  * @param params - The TransferInfo. These are consistent across sending and receiving chains.
  * @param routers - The routers who you are sending the funds on behalf of.
