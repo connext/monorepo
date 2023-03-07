@@ -27,3 +27,6 @@ GET {{postgrestUrl}}/daily_router_tvl
 
 ### 7. TVL by StableSwap Pools
 GET {{postgrestUrl}}/daily_swap_tvl
+
+### 8. Total Router Liquidity
+GET {{postgrestUrl}}/router_liquidity
