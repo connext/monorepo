@@ -507,6 +507,9 @@ export const saveRouterBalances = async (
           router_address: router.address,
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           balance: b.balance as any,
+          locked: b.locked as any,
+          supplied: b.supplied as any,
+          removed: b.removed as any,
           fees_earned: b.feesEarned as any,
         },
         asset: {
