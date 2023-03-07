@@ -4,4 +4,24 @@ out = 'artifacts_forge'
 libs = ["node_modules", "lib"]
 block_timestamp = 1648744712
 solc_version = '0.8.17'
+fs_permissions = [{ access = "read", path = "./"}]
 # See more config options https://github.com/gakonst/foundry/tree/master/config
+
+
+[rpc_endpoints]
+1 = "https://mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+5 = "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+
+10 = "https://optimism-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+420 = "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+
+42161 = "https://arbitrum-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+421613 = "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+
+137 = "https://polygon-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+80001 = "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+
+56 = "https://bsc-dataseed.binance.org/"
+97 = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+
+100 = "https://rpc.gnosischain.com/"
