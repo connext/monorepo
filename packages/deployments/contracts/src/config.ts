@@ -56,7 +56,7 @@ export const hardhatNetworks = {
       urlOverride ||
       process.env.GOERLI_ETH_PROVIDER_URL ||
       "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    gasPrice: utils.parseUnits("50", "gwei").toNumber(),
+    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
@@ -163,7 +163,7 @@ export const hardhatNetworks = {
   mumbai: {
     accounts: { mnemonic },
     chainId: 80001,
-    url: "https://rpc.ankr.com/polygon_mumbai",
+    url: "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     companionNetworks: {
       hub: "goerli",
     },
@@ -201,6 +201,23 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
         apiUrl: "https://blockscout.chiadochain.net/api",
+      },
+    },
+  },
+  "zksync2-testnet": {
+    accounts: { mnemonic },
+    chainId: 280,
+    url: process.env.ZKSYNC2_TESTNET_PROVIDER_URL || "https://zksync2-testnet.zksync.dev",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    zksync: true,
+    ethNetwork: "goerli",
+    verifyURL: "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://zksync2-testnet.zkscan.io/api",
       },
     },
   },

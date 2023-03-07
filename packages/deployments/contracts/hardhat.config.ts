@@ -10,6 +10,9 @@ import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
+import "@matterlabs/hardhat-zksync-deploy";
+import "@matterlabs/hardhat-zksync-solc";
+import "@matterlabs/hardhat-zksync-verify";
 import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/addWatcher";
@@ -78,6 +81,11 @@ const config: HardhatUserConfig = {
       },
     ],
   },
+  zksolc: {
+    version: "1.3.5",
+    compilerSource: "binary",
+    settings: {},
+  },
   paths: {
     artifacts: "./artifacts",
     sources: "./contracts",
@@ -134,6 +142,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
           browserURL: "https://explorer.goerli.zkevm.consensys.net",
+        },
+      },
+      {
+        network: "zksync2-testnet",
+        chainId: 280,
+        urls: {
+          apiURL: "hhttps://zksync2-testnet.zkscan.io/api",
+          browserURL: "https://zksync2-testnet.zkscan.io",
         },
       },
     ],

@@ -82,6 +82,9 @@ locals {
       "1668247156" = {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -201,6 +204,9 @@ locals {
       "1668247156" = {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -217,7 +223,7 @@ locals {
         providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
@@ -227,6 +233,9 @@ locals {
       }
       "1668247156" = {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -279,6 +288,9 @@ locals {
       }
       "1668247156" = {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
       }
     }
     environment   = var.stage
