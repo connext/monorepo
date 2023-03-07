@@ -99,13 +99,13 @@ export const getProposedFacetCuts = async (
       });
     }
 
-    if (selectorsToAdd.length > 0) {
-      console.log("trying to add:", selectorsToAdd);
-    }
+    // if (selectorsToAdd.length > 0) {
+    //   console.log("trying to add:", selectorsToAdd);
+    // }
 
-    if (selectorsToReplace.length > 0) {
-      console.log("trying to replace:", selectorsToReplace);
-    }
+    // if (selectorsToReplace.length > 0) {
+    //   console.log("trying to replace:", selectorsToReplace);
+    // }
   }
 
   // Get facet selectors to delete
@@ -116,9 +116,9 @@ export const getProposedFacetCuts = async (
     }
   }
 
-  if (selectorsToDelete.length > 0) {
-    console.log("trying to remove:", selectorsToDelete);
-  }
+  // if (selectorsToDelete.length > 0) {
+  //   console.log("trying to remove:", selectorsToDelete);
+  // }
   if (selectorsToDelete.length > 0) {
     changesDetected = true;
     facetCuts.unshift({

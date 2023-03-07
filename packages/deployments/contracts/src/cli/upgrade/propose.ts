@@ -71,6 +71,7 @@ export const getDiamondUpgradeProposal = async () => {
 
     // get the proposed cut
     const namedCuts = await getProposedFacetCuts(facetOptions, connext);
+    console.log("namedCuts", namedCuts);
     // write to file without `name` field (matching contract call)
     chainCuts[chain] = {
       // default 1000 blocks into cut
