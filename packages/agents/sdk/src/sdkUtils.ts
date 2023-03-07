@@ -9,8 +9,7 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
-import { ChainDataUndefined } from "./lib/errors";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import { RouterBalance } from "./interfaces";

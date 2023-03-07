@@ -1,18 +1,11 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  ChainData,
-  formatUrl,
-  StableSwapExchange,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, formatUrl, StableSwapExchange } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
-import { SignerAddressMissing, ChainDataUndefined, ParamsInvalid } from "./lib/errors";
+import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";

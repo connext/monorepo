@@ -13,14 +13,8 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, calculateRelayerFee } from "./lib/helpers";
-import {
-  SignerAddressMissing,
-  ChainDataUndefined,
-  CannotUnwrapOnDestination,
-  ParamsInvalid,
-  SlippageInvalid,
-} from "./lib/errors";
+import { calculateRelayerFee } from "./lib/helpers";
+import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {

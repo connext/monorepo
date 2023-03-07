@@ -2,8 +2,7 @@ import { providers } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { SignerAddressMissing } from "./lib/errors";
 import { SdkShared } from "./sdkShared";
 import { SdkConfig, getConfig } from "./config";
 
