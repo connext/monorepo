@@ -44,6 +44,9 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
         destinationNativeToken,
         callDataGasAmount,
         isHighPriority,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
+        destinationGasPrice,
       } = request.body;
       const txReq = await sdkBaseInstance.estimateRelayerFee({
         originDomain,
@@ -52,6 +55,9 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
         destinationNativeToken,
         callDataGasAmount,
         isHighPriority,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
+        destinationGasPrice,
       });
       reply.status(200).send(txReq);
     },
