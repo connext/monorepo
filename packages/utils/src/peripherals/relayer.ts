@@ -80,8 +80,12 @@ export const calculateRelayerFee = async (
         isHighPriority,
         destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
       ),
-      originNativeTokenPrice ?? getConversionRate(originChainId, undefined, undefined),
-      destinationNativeTokenPrice ?? getConversionRate(destinationChainId, undefined, undefined),
+      originNativeTokenPrice
+        ? Promise.resolve(originNativeTokenPrice)
+        : getConversionRate(originChainId, undefined, undefined),
+      destinationNativeTokenPrice
+        ? Promise.resolve(destinationNativeTokenPrice)
+        : getConversionRate(destinationChainId, undefined, undefined),
       getDecimalsForAsset(originNativeToken, originChainId, undefined, chainData),
       getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, chainData),
     ]);
