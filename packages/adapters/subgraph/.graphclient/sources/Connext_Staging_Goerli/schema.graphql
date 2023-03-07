@@ -71,6 +71,9 @@ type staginggoerli_Asset {
 type staginggoerli_AssetBalance {
   id: ID!
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: staginggoerli_Router!
   asset: staginggoerli_Asset!
   feesEarned: BigInt!
@@ -93,6 +96,30 @@ input staginggoerli_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -152,6 +179,9 @@ input staginggoerli_AssetBalance_filter {
 enum staginggoerli_AssetBalance_orderBy {
   id
   amount
+  locked
+  supplied
+  removed
   router
   router__id
   router__isActive

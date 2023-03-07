@@ -18,6 +18,9 @@ type AssetStatus @entity {
 type AssetBalance @entity {
   id: ID! # `key-router_address`
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: Router!
   asset: Asset!
   feesEarned: BigInt!
