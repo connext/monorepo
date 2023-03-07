@@ -2,7 +2,8 @@
 
 ## Next Release
 
-- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades
+- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
+- [utils] Added CDN for chainData JSON file to make globally available.
 
 ## Amarok 0.2.8-alpha.1
 
