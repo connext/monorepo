@@ -76,6 +76,9 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   destinationNativeToken: Type.Optional(TAddress),
   callDataGasAmount: Type.Optional(Type.Integer()),
   isHighPriority: Type.Optional(Type.Boolean()),
+  originTokenPrice: Type.Optional(Type.String()),
+  destinationTokenPrice: Type.Optional(Type.String()),
+  destinationGasPrice: Type.Optional(Type.String()),
 });
 
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
