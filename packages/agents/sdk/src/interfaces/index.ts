@@ -88,6 +88,16 @@ export const SdkUpdateSlippageParamsSchema = Type.Object({
 
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
 
+export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  originTokenAddress: Type.String(),
+  amount: Type.String(),
+  receiveLocal: Type.Optional(Type.Boolean()),
+});
+
+export type SdkCalculateAmountReceivedParams = Static<typeof SdkUpdateSlippageParamsSchema>;
+
 export type RouterBalance = {
   address: string;
   asset_canonical_id: string;

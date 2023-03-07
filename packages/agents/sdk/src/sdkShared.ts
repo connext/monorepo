@@ -259,11 +259,7 @@ export class SdkShared {
       );
     });
 
-    if (asset) {
-      return asset;
-    }
-
-    return;
+    return asset;
   }
 
   /**
@@ -279,11 +275,7 @@ export class SdkShared {
       return assetData.domain == domainId && assetData.key == key;
     });
 
-    if (asset) {
-      return asset;
-    }
-
-    return;
+    return asset;
   }
 
   /**
@@ -298,11 +290,7 @@ export class SdkShared {
       return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
     });
 
-    if (asset) {
-      return utils.getAddress(asset.local) == tokenAddress ? true : false;
-    }
-
-    return;
+    return asset ? (utils.getAddress(asset.local) == tokenAddress ? true : false) : undefined;
   }
 
   /**
@@ -351,11 +339,7 @@ export class SdkShared {
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
     const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
-    if (asset) {
-      return [asset.canonical_domain, asset.canonical_id];
-    }
-
-    return ["0", constants.HashZero];
+    return asset ? [asset.canonical_domain, asset.canonical_id] : ["0", constants.HashZero];
   }
 
   /**
