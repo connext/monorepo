@@ -19,6 +19,9 @@ export const calculateRelayerFee = async (
     callDataGasAmount?: number;
     isHighPriority?: boolean;
     getGasPriceCallback?: (domain: number) => Promise<BigNumber>;
+    originNativeTokenPrice?: number;
+    destinationNativeTokenPrice?: number;
+    destinationGasPrice?: string;
   },
   chainData: Map<string, ChainData>,
   logger?: Logger,
@@ -37,6 +40,9 @@ export const calculateRelayerFee = async (
     destinationNativeToken: _destinationNativeToken,
     isHighPriority: _isHighPriority,
     getGasPriceCallback,
+    originNativeTokenPrice,
+    destinationNativeTokenPrice,
+    destinationGasPrice,
   } = params;
 
   const originNativeToken = _originNativeToken ?? constants.AddressZero;
@@ -74,27 +80,30 @@ export const calculateRelayerFee = async (
         isHighPriority,
         destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
       ),
-      getConversionRate(originChainId, undefined, undefined),
-      getConversionRate(destinationChainId, undefined, undefined),
+      originNativeTokenPrice ?? getConversionRate(originChainId, undefined, undefined),
+      destinationNativeTokenPrice ?? getConversionRate(destinationChainId, undefined, undefined),
       getDecimalsForAsset(originNativeToken, originChainId, undefined, chainData),
       getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, chainData),
     ]);
 
-  const shouldFallback = estimatedRelayerFee.eq("0") && getGasPriceCallback;
-  if (shouldFallback) {
-    let gasPrice = BigNumber.from(0);
-    try {
-      gasPrice = await getGasPriceCallback(Number(params.destinationDomain));
-      estimatedRelayerFee.add(BigNumber.from(totalGasAmount).mul(gasPrice));
-    } catch (e: unknown) {
-      if (logger) {
-        logger.warn("Error getting GasPrice", requestContext, methodContext, {
-          error: e as NxtpError,
-          domain: params.destinationDomain,
-        });
-        return BigNumber.from(0);
+  // fallback with passed-in gas price or with callback
+  let relayerFee = estimatedRelayerFee;
+  if (estimatedRelayerFee.eq("0")) {
+    let gasPrice = BigNumber.from(destinationGasPrice ?? 0);
+    if (gasPrice.eq("0") && getGasPriceCallback) {
+      try {
+        gasPrice = await getGasPriceCallback(Number(params.destinationDomain));
+      } catch (e: unknown) {
+        if (logger) {
+          logger.warn("Error getting GasPrice", requestContext, methodContext, {
+            error: e as NxtpError,
+            domain: params.destinationDomain,
+          });
+          return BigNumber.from(0);
+        }
       }
     }
+    relayerFee = estimatedRelayerFee.add(BigNumber.from(totalGasAmount).mul(gasPrice));
   }
 
   if (logger) {
@@ -109,7 +118,7 @@ export const calculateRelayerFee = async (
   }
 
   // add relayerFee bump to estimatedRelayerFee
-  const bumpedFee = estimatedRelayerFee.add(estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage)).div(100));
+  const bumpedFee = relayerFee.add(relayerFee.mul(BigNumber.from(relayerBufferPercentage)).div(100));
 
   if (originTokenPrice == 0 || destinationTokenPrice == 0) {
     return BigNumber.from(0);
