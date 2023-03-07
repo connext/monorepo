@@ -718,7 +718,7 @@ export class SdkPool extends SdkShared {
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
 
-    this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
+    this.logger.info(`${this.removeLiquidity.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }
