@@ -574,7 +574,8 @@ CREATE VIEW public.router_liquidity AS
     r.local,
     sum(r.balance) AS total_balance
    FROM public.routers_with_balances r
-  GROUP BY r.domain, r.local;
+  GROUP BY r.domain, r.local
+  ORDER BY r.domain;
 
 
 --
