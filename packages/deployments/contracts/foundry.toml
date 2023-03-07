@@ -9,16 +9,16 @@ fs_permissions = [{ access = "read", path = "./"}]
 
 
 [rpc_endpoints]
-1 = "https://cloudflare-eth.com"
+1 = "https://mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 5 = "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-10 = "https://mainnet.optimism.io"
+10 = "https://optimism-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 420 = "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-42161 = "https://arb1.arbitrum.io/rpc"
+42161 = "https://arbitrum-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 421613 = "https://arbitrum-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
-137 = "https://1rpc.io/matic"
+137 = "https://polygon-mainnet.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 80001 = "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
 
 56 = "https://bsc-dataseed.binance.org/"

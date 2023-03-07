@@ -15,9 +15,12 @@ import "forge-std/StdJson.sol";
  * of live contracts.
  */
 abstract contract MotherForker is ForgeHelper {
+  // ============ Libraries ============
   using stdJson for string;
   using Strings for string;
   using Strings for uint256;
+
+  // ============ Storage ============
 
   string[2][] public NETWORKS; // [[name, rpc], [name, rpc], ...]
   uint256[] public FORKED_CHAIN_IDS;
@@ -63,6 +66,15 @@ abstract contract MotherForker is ForgeHelper {
   }
 
   /**
+   * @notice Selects a fork given a chain
+   */
+  function utils_selectFork(uint256 chain) internal returns (uint256 forkId) {
+    // activate the fork
+    forkId = forkIdsByChain[chain];
+    vm.selectFork(forkId);
+  }
+
+  /**
    * @notice Generate the diamond cut proposal by running `propose` via cli:
    *     `ywc propose`
    */
@@ -77,11 +89,35 @@ abstract contract MotherForker is ForgeHelper {
     // load the supported chains based on output
     string memory json = utils_readProposalJson();
     uint256[] memory chains = json.readUintArray(".chains");
+    // FIXME: forking from gnosis mainnet gives this internal forge error:
+    //
+    // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
+    // (code: -32002, message: No state available for block 0x0ba985b09fec8fd02467a9dbfe0cbd6546a96e897c0576125e17896641b29b8d,
+    //  data: None)) address=0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38
+    //
+    // where the `0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38` is the `DEFAULT_SENDER` forge address found in
+    // Base.sol. Need to debug/report to figure out why this is failing.
+    //
+    // In the meantime, we can just skip this chain
+    uint256 gnosisIdx = 10_000;
     FORKED_CHAIN_IDS = new uint256[](chains.length);
     for (uint256 i; i < chains.length; i++) {
+      // see above
+      if (chains[i] == 100) {
+        // set the idx
+        gnosisIdx = i;
+      }
       FORKED_CHAIN_IDS[i] = chains[i];
-      bytes32 key = keccak256(abi.encode(chains[i].toString()));
-      isForkedChain[key] = true;
+      if (i != gnosisIdx) {
+        bytes32 key = keccak256(abi.encode(chains[i].toString()));
+        isForkedChain[key] = true;
+      }
+    }
+
+    // Put gnosis chain last, and remove from array
+    if (gnosisIdx != 10_000) {
+      FORKED_CHAIN_IDS[gnosisIdx] = FORKED_CHAIN_IDS[FORKED_CHAIN_IDS.length - 1];
+      FORKED_CHAIN_IDS.pop();
     }
   }
 
@@ -173,15 +209,14 @@ abstract contract MotherForker is ForgeHelper {
     for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
       uint256 forkId = forkIdsByChain[FORKED_CHAIN_IDS[i]];
       vm.selectFork(forkId);
-      utils_upgradeDiamond();
+      utils_upgradeDiamond(forkId);
     }
   }
 
   /**
    * @notice This function applies the upgrades to a single Connext instance
    */
-  function utils_upgradeDiamond() private {
-    uint256 forkId = vm.activeFork();
+  function utils_upgradeDiamond(uint256 forkId) private {
     ForkInfo storage info = forkInfo[forkId];
     IConnext connext = IConnext(info.connext);
     if (info.encodedCuts.length == 0) {

@@ -2,7 +2,7 @@
 
 ## Next Release
 
-- [contracts] Added ability to fork chains and apply proposed upgrades
+- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades
 
 ## Amarok 0.2.8-alpha.1
 
