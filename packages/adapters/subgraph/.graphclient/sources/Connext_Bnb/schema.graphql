@@ -60,6 +60,7 @@ enum bnb_AggregateRoot_orderBy {
 type bnb_Asset {
   id: ID!
   key: bnb_Bytes
+  decimal: BigInt
   canonicalId: bnb_Bytes
   canonicalDomain: BigInt
   adoptedAsset: bnb_Bytes
@@ -192,6 +193,7 @@ enum bnb_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input bnb_Asset_filter {
   key_not_in: [bnb_Bytes!]
   key_contains: bnb_Bytes
   key_not_contains: bnb_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: bnb_Bytes
   canonicalId_not: bnb_Bytes
   canonicalId_gt: bnb_Bytes
@@ -324,6 +334,7 @@ input bnb_Asset_filter {
 enum bnb_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum bnb_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum bnb_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum bnb_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
