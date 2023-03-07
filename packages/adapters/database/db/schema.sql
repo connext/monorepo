@@ -71,7 +71,10 @@ CREATE TABLE public.asset_balances (
     asset_domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
     balance numeric DEFAULT 0 NOT NULL,
-    fees_earned numeric DEFAULT 0 NOT NULL
+    fees_earned numeric DEFAULT 0 NOT NULL,
+    supplied numeric DEFAULT 0 NOT NULL,
+    removed numeric DEFAULT 0 NOT NULL,
+    locked numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -559,7 +562,10 @@ CREATE VIEW public.routers_with_balances AS
     assets.domain,
     assets.key,
     assets.id,
-    asset_balances.fees_earned
+    asset_balances.fees_earned,
+    asset_balances.locked,
+    asset_balances.supplied,
+    asset_balances.removed
    FROM ((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
@@ -573,7 +579,10 @@ CREATE VIEW public.router_liquidity AS
  SELECT r.domain,
     r.local,
     r.adopted,
-    sum(r.balance) AS total_balance
+    sum(r.balance) AS total_balance,
+    sum(r.locked) AS total_locked,
+    sum(r.supplied) AS total_supplied,
+    sum(r.removed) AS total_removed
    FROM public.routers_with_balances r
   GROUP BY r.domain, r.local, r.adopted
   ORDER BY r.domain;
@@ -1004,4 +1013,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230215142524'),
     ('20230215172901'),
     ('20230227071659'),
-    ('20230307011812');
+    ('20230307011812'),
+    ('20230307090110'),
+    ('20230307092333');
