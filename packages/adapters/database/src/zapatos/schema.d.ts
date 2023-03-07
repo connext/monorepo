@@ -3395,6 +3395,12 @@ declare module 'zapatos/schema' {
       */
       local: string | null;
       /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted: string | null;
+      /**
       * **router_liquidity.total_balance**
       * - `numeric` in database
       * - Nullable, no default
@@ -3415,6 +3421,12 @@ declare module 'zapatos/schema' {
       */
       local: string | null;
       /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted: string | null;
+      /**
       * **router_liquidity.total_balance**
       * - `numeric` in database
       * - Nullable, no default
@@ -3434,6 +3446,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       local?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **router_liquidity.total_balance**
       * - `numeric` in database
