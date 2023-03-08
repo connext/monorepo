@@ -6,7 +6,7 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
 import { chainIdToDomain, FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../src";
-import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { getFacetsToDeploy, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -77,42 +77,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("Deploying connext diamond...");
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
-  const facetsToDeploy = [
-    {
-      // always include the loupe facet
-      name: "_DefaultDiamondLoupeFacet",
-      contract: "DiamondLoupeFacet",
-      args: [],
-      deterministic: !zksync,
-    },
-    { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [], deterministic: !zksync },
-    {
-      name: getDeploymentName("ProposedOwnableFacet"),
-      contract: "ProposedOwnableFacet",
-      args: [],
-      deterministic: !zksync,
-    },
-    { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [], deterministic: !zksync },
-    { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [], deterministic: !zksync },
-  ];
-
-  // Deploy all the facets
+  // Get all the facet options
+  const facetsToDeploy = getFacetsToDeploy(zksync);
   const facets: FacetOptions[] = [];
   for (const facet of facetsToDeploy) {
-    const deployment = await hre.deployments.deploy(facet.name, {
-      contract: facet.contract,
-      args: facet.args,
-      from: deployer.address,
-      log: true,
-      deterministicDeployment: true,
-    });
+    const deployment = await hre.deployments.getOrNull(facet.name);
+    if (!deployment) {
+      throw new Error(`Failed to get deployment for ${facet.name}`);
+    }
     facets.push({
       name: facet.name,
       contract: new Contract(deployment.address, deployment.abi),
@@ -251,4 +223,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-func.dependencies = ["Messaging"];
+func.dependencies = ["Messaging", "Facets"];
