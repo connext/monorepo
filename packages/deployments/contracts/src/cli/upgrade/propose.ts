@@ -1,4 +1,5 @@
 import { writeFileSync } from "fs";
+import { resolve } from "path";
 import { exec } from "child_process";
 import * as util from "util";
 
@@ -32,9 +33,11 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
       name: string;
       config: HardhatUserConfig;
       rpc: string;
+      forkName: string;
+      forkConfig: HardhatUserConfig;
+      forkRpc: string;
     }
   > = {};
-  const rpcs = [];
 
   // create all the forks
   for (const chain of chains) {
@@ -43,7 +46,7 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
     const [forkName, forkConfig] = Object.entries(hardhatNetworks).find(([name, networkConfig]) => {
       return name.includes(`fork`) && (networkConfig as any)?.chainId === chain;
     }) as any;
-    const [_, config] = Object.entries(hardhatNetworks).find(([name, networkConfig]) => {
+    const [name, config] = Object.entries(hardhatNetworks).find(([name, networkConfig]) => {
       return !name.includes(`fork`) && (networkConfig as any)?.chainId === chain;
     }) as any;
     if (!config?.url || !forkConfig?.url) {
@@ -53,14 +56,29 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
     const command = `anvil --fork-url ${config.url} --fork-block-number ${forkBlock} --port ${port} --block-time 2 >/dev/null 2>&1 &`;
     console.log(`\ntrying to create fork:`, command);
     await execAsync(command);
-    // store rpc url
-    networkInfo[chain] = { name: forkName, config: forkConfig, rpc: `http://127.0.0.1:${port}` };
-    rpcs.push(networkInfo[chain].rpc);
+    // update network info
+    networkInfo[chain] = { name, config, rpc: config.url!, forkName, forkConfig, forkRpc: forkConfig.url };
+  }
+
+  // copy all current deployments to the `deployments` folder
+  for (const chain of chains) {
+    const forkDirectory = resolve(`./deployments/${networkInfo[chain].forkName}`);
+    const sourceDirectory = resolve(`./deployments/${networkInfo[chain].name}`);
+    console.log(`chain`, chain);
+    // remove all deployments from chain
+    const remove = `rm -rf ${forkDirectory}`;
+    console.log(`\ntrying to remove deployments:`, remove);
+    await execAsync(remove);
+
+    const copy = `cp -R ${sourceDirectory} ${forkDirectory}`;
+    console.log(`\ntrying to copy over deployments:`, copy);
+    await execAsync(copy);
+    console.log(`completed deployment of facets on ${chain}`);
   }
 
   // deploy all the facets
   for (const chain of chains) {
-    const deploy = `yarn workspace @connext/smart-contracts hardhat deploy --network ${networkInfo[chain].name} --tags "Facets"`;
+    const deploy = `yarn workspace @connext/smart-contracts hardhat deploy --network ${networkInfo[chain].forkName} --tags "Facets"`;
     console.log(`\ntrying to deploy facets:`, deploy);
     const { stderr, stdout } = await execAsync(deploy);
     if (stderr) {
@@ -72,7 +90,7 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
   }
 
   // return fork rpcs
-  return rpcs;
+  return Object.values(networkInfo).map((info) => info.forkRpc);
 };
 
 export const getDiamondUpgradeProposal = async () => {
