@@ -243,8 +243,14 @@ export class SdkBase extends SdkShared {
       callData,
     ];
     const xcallData = receiveLocal
-      ? this.contracts.connext.encodeFunctionData("xcallIntoLocal", formattedArguments)
-      : this.contracts.connext.encodeFunctionData("xcall", formattedArguments);
+      ? this.contracts.connext.encodeFunctionData(
+          "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+          formattedArguments,
+        )
+      : this.contracts.connext.encodeFunctionData(
+          "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+          formattedArguments,
+        );
 
     let txRequest: providers.TransactionRequest;
     if (wrapNativeOnOrigin) {
@@ -482,7 +488,7 @@ export class SdkBase extends SdkShared {
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
 
-    const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
+    const data = this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32)", [transferId]);
 
     const txRequest = {
       to: ConnextContractAddress,
