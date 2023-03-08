@@ -92,6 +92,8 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
+  assetBalance.locked = assetBalance.locked.plus(event.params.amount);
+  assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
 
   // update router tvl
   const routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);
@@ -115,6 +117,8 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
+  assetBalance.locked = assetBalance.locked.minus(event.params.amount);
+  assetBalance.removed = assetBalance.removed.plus(event.params.amount);
 
   // update router tvl
   const routerTvl = getRouterDailyTVL(event.params.local, event.params.router, event.block.timestamp);

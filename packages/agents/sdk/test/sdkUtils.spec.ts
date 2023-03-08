@@ -184,4 +184,13 @@ describe("SdkUtils", () => {
       await expect(nxtpUtils.getTransfers({})).to.be.rejectedWith(UriInvalid);
     });
   });
+
+  describe("#getRouterLiquidity", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getRouterLiquidity();
+
+      expect(res).to.not.be.undefined;
+    });
+  });
 });

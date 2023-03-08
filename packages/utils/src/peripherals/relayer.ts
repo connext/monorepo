@@ -68,6 +68,7 @@ export const calculateRelayerFee = async (
     destinationNativeToken,
     Number(totalGasAmount),
     isHighPriority,
+    destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
   );
 
   const shouldFallback = estimatedRelayerFee.eq("0") && getGasPriceCallback;
@@ -84,26 +85,6 @@ export const calculateRelayerFee = async (
         });
         return BigNumber.from(0);
       }
-    }
-  }
-
-  if (destinationChainId == 10) {
-    // consider l1gas for optimism network
-    if (logger) {
-      const l1EstimatedRelayerFee = await getGelatoEstimatedFee(
-        1,
-        constants.AddressZero,
-        Number(executeL1GasAmount),
-        isHighPriority,
-      );
-
-      logger.info("Adding l1Gas", requestContext, methodContext, {
-        executeGasAmount,
-        executeL1GasAmount,
-        l1EstimatedRelayerFee: l1EstimatedRelayerFee.toString(),
-      });
-
-      estimatedRelayerFee = BigNumber.from(estimatedRelayerFee).add(l1EstimatedRelayerFee);
     }
   }
 
