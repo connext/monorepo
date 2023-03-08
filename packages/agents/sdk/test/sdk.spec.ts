@@ -17,7 +17,7 @@ describe("Index", () => {
 
   beforeEach(() => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
   });
   afterEach(() => {
     restore();

@@ -131,6 +131,7 @@ describe("SubgraphReader", () => {
               canonicalDomain: "1111",
               canonicalId: mkAddress("0x11111"),
               key: mkBytes32(),
+              decimal: undefined,
               localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",

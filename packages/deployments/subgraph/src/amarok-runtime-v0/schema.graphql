@@ -1,6 +1,7 @@
 type Asset @entity {
   id: ID! # local asset address
   key: Bytes
+  decimal: BigInt
   canonicalId: Bytes
   canonicalDomain: BigInt
   adoptedAsset: Bytes
