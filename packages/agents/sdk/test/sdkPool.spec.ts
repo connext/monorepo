@@ -1,5 +1,5 @@
 import { reset, restore, stub } from "sinon";
-import { expect, getCanonicalHash, DEFAULT_ROUTER_FEE, getRandomBytes32 } from "@connext/nxtp-utils";
+import { expect, getCanonicalHash, getRandomBytes32 } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
 import { mock } from "./mock";
@@ -80,10 +80,9 @@ describe("SdkPool", () => {
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
 
-    sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
+    sdkPool = await SdkPool.create(config, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -147,6 +146,7 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
       const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("addSwapLiquidity", [
         key,
@@ -183,6 +183,7 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
       const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("removeSwapLiquidity", [
         key,
@@ -221,6 +222,7 @@ describe("SdkPool", () => {
     };
 
     it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
       const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("swap", [
         key,

@@ -48,6 +48,7 @@ describe("SdkRouter", () => {
 
   describe("#addLiquidityForRouter", () => {
     it("happy: should work if ERC20", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
@@ -71,6 +72,7 @@ describe("SdkRouter", () => {
     });
 
     it("happy: should work if Native", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
