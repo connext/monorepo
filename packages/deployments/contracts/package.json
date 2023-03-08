@@ -12,6 +12,7 @@
     "allowlist": "ts-node ./src/allowlist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
+    "pack": "yarn pack -o ~/smart-contracts.tgz",
     "export": "hardhat export --export-all ./deployments.json",
     "lint:sol": "solhint --config ./.solhint.json \"contracts/**/*.sol\"",
     "prettier:sol": "prettier --write './contracts/**/*.sol' && prettier --write './contracts_forge/**/*.sol'",
@@ -32,6 +33,9 @@
   "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
+    "!dist/src/cli/**/*",
+    "!deploy/**/*",
+    "!tasks/**/*",
     "artifacts",
     "deployments.json",
     "contracts",
