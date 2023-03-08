@@ -6317,6 +6317,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -6685,6 +6691,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
     }
     export interface Whereable {
       /**
@@ -7053,6 +7065,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -7421,6 +7439,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7789,6 +7813,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

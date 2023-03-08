@@ -2,7 +2,14 @@ import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
-import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
+import {
+  AssetBalance,
+  RouterBalance,
+  XTransfer,
+  XTransferErrorStatus,
+  XTransferMessageStatus,
+  XTransferStatus,
+} from "./xtransfers";
 
 export const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
@@ -66,6 +73,7 @@ export const transfersCastForUrl =
     "reconcile_tx_origin",
     "relayer_fee",
     "error_status",
+    "message_status",
   ].join(",");
 
 /**
@@ -97,6 +105,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           messageHash: transfer.message_hash,
           relayerFee: BigNumber.from(transfer.relayer_fee ?? "0").toString(),
           errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
+          messageStatus: (transfer.message_status as XTransferMessageStatus) ?? XTransferMessageStatus.XCalled,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),
