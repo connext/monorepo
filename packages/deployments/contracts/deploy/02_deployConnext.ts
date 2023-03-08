@@ -5,7 +5,8 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
-import { chainIdToDomain, FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../src";
+import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
+import { chainIdToDomain } from "../src";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 /**

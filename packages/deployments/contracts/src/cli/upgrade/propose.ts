@@ -5,7 +5,7 @@ import { Contract, providers } from "ethers";
 import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
 
-import { getProposedFacetCuts } from "../../getProposedFacetCuts";
+import { getProposedFacetCuts } from "../../../deployHelpers/getProposedFacetCuts";
 import { Env } from "../../utils";
 import { hardhatNetworks } from "../../config";
 
