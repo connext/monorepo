@@ -1,18 +1,11 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  ChainData,
-  formatUrl,
-  StableSwapExchange,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, formatUrl, StableSwapExchange } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
-import { SignerAddressMissing, ChainDataUndefined, ParamsInvalid } from "./lib/errors";
+import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
@@ -68,12 +61,7 @@ export class SdkPool extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkPool> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
 
     const logger = _logger
       ? _logger.child({ name: "SdkPool" })
@@ -730,7 +718,7 @@ export class SdkPool extends SdkShared {
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
 
-    this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
+    this.logger.info(`${this.removeLiquidity.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }
