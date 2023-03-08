@@ -92,14 +92,6 @@ export const calculateSwapPriceImpactSchema = Type.Object({
   tokenY: Type.String(),
 });
 
-export const calculateAmountReceivedSchema = Type.Object({
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  originTokenAddress: Type.String(),
-  amount: Type.String(),
-  receiveLocal: Type.Optional(Type.Boolean()),
-});
-
 export const getTokenPriceSchema = Type.Object({
   tokenSymbol: Type.String(),
 });

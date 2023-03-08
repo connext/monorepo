@@ -30,9 +30,10 @@ import type {
 export interface IOutboxInterface extends utils.Interface {
   functions: {
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "nonces(uint32)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "dispatch"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "dispatch" | "nonces"): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "dispatch",
@@ -42,8 +43,13 @@ export interface IOutboxInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "nonces",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
 
   events: {
     "Dispatch(bytes32,uint256,uint64,bytes32,bytes)": EventFragment;
@@ -99,12 +105,22 @@ export interface IOutbox extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    nonces(
+      domain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   dispatch(
     _destinationDomain: PromiseOrValue<BigNumberish>,
     _recipientAddress: PromiseOrValue<BytesLike>,
     _messageBody: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  nonces(
+    domain: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -115,6 +131,11 @@ export interface IOutbox extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
+
+    nonces(
+      domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
   };
 
   filters: {
@@ -141,6 +162,11 @@ export interface IOutbox extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    nonces(
+      domain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -148,6 +174,11 @@ export interface IOutbox extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    nonces(
+      domain: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
