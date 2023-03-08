@@ -13,14 +13,8 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, calculateRelayerFee } from "./lib/helpers";
-import {
-  SignerAddressMissing,
-  ChainDataUndefined,
-  CannotUnwrapOnDestination,
-  ParamsInvalid,
-  SlippageInvalid,
-} from "./lib/errors";
+import { calculateRelayerFee } from "./lib/helpers";
+import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
@@ -80,12 +74,7 @@ export class SdkBase extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkBase" })
       : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
@@ -509,6 +498,10 @@ export class SdkBase extends SdkShared {
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
+   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
+   * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
    * @returns The relayer fee in native asset of the origin domain.
    *
    * @example

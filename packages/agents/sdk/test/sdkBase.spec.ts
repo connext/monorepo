@@ -42,7 +42,7 @@ describe("SdkBase", () => {
     chainreader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);

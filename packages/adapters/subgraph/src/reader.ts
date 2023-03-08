@@ -226,6 +226,7 @@ export class SubgraphReader {
             domain,
             localAsset: a.asset.id,
             id: a.asset.id,
+            decimal: a.asset.decimal,
             key: a.asset.key,
           } as AssetBalance;
         }),

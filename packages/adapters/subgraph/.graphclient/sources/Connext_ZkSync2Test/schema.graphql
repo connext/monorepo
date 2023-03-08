@@ -60,6 +60,7 @@ enum zksync2test_AggregateRoot_orderBy {
 type zksync2test_Asset {
   id: ID!
   key: zksync2test_Bytes
+  decimal: BigInt
   canonicalId: zksync2test_Bytes
   canonicalDomain: BigInt
   adoptedAsset: zksync2test_Bytes
@@ -192,6 +193,7 @@ enum zksync2test_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input zksync2test_Asset_filter {
   key_not_in: [zksync2test_Bytes!]
   key_contains: zksync2test_Bytes
   key_not_contains: zksync2test_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: zksync2test_Bytes
   canonicalId_not: zksync2test_Bytes
   canonicalId_gt: zksync2test_Bytes
@@ -324,6 +334,7 @@ input zksync2test_Asset_filter {
 enum zksync2test_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum zksync2test_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum zksync2test_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum zksync2test_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

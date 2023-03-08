@@ -10,6 +10,7 @@ import { getContext } from "../../reader";
 export const ASSET_ENTITY = `
       id,
       key,
+      decimal,
       canonicalId,
       canonicalDomain,
       adoptedAsset,

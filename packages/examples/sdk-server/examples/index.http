@@ -63,7 +63,10 @@ Content-Type: application/json
 
 {
   "originDomain": "6648936",
-  "destinationDomain": "1869640809"
+  "destinationDomain": "1869640809",
+  "originNativeTokenPrice": 1500,
+  "destinationNativeTokenPrice": 1000,
+  "destinationGasPrice": "50"
 }
 
 ##############
