@@ -1,8 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TAddress, TBytes32, TIntegerString } from ".";
+import { TAddress, TBytes32, TIntegerString } from "./primitives";
 
-// dear Jake, please stop changing this to enum
 export const XTransferStatus = {
   XCalled: "XCalled",
   Executed: "Executed",

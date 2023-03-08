@@ -16,6 +16,7 @@ export const TService = Type.Union([
   Type.Literal("routers"),
   Type.Literal("messages"),
   Type.Literal("stableswap"),
+  Type.Literal("messagestatus"),
 ]);
 
 export const Cartographer = Type.Object({
