@@ -32,6 +32,9 @@
   "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
+    "!dist/src/cli/**/*",
+    "!deploy/**/*",
+    "!tasks/**/*",
     "artifacts",
     "deployments.json",
     "contracts",
