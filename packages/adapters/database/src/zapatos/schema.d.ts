@@ -488,9 +488,9 @@ declare module 'zapatos/schema' {
       /**
       * **assets.decimal**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      decimal: number;
+      decimal: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -538,9 +538,9 @@ declare module 'zapatos/schema' {
       /**
       * **assets.decimal**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      decimal: number;
+      decimal: number | null;
     }
     export interface Whereable {
       /**
@@ -588,7 +588,7 @@ declare module 'zapatos/schema' {
       /**
       * **assets.decimal**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
       decimal?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
@@ -638,9 +638,9 @@ declare module 'zapatos/schema' {
       /**
       * **assets.decimal**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      decimal?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      decimal?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -688,9 +688,9 @@ declare module 'zapatos/schema' {
       /**
       * **assets.decimal**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      decimal?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      decimal?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'assets_pkey';
     export type Column = keyof Selectable;
@@ -3881,6 +3881,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       removed: number | null;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -3979,6 +3985,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       removed: number | null;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal: number | null;
     }
     export interface Whereable {
       /**
@@ -4077,6 +4089,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       removed?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
