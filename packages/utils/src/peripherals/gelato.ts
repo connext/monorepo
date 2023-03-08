@@ -14,10 +14,13 @@ export const getGelatoEstimatedFee = async (
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
+  gasLimitL1?: number,
   logger?: Logger,
 ): Promise<BigNumber> => {
   let result = BigNumber.from("0");
-  const params = { paymentToken, gasLimit, isHighPriority };
+  const params = gasLimitL1
+    ? { paymentToken, gasLimit, isHighPriority, gasLimitL1 }
+    : { paymentToken, gasLimit, isHighPriority };
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     const res = await axiosGet(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });

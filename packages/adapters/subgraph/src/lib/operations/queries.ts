@@ -20,6 +20,9 @@ export const ASSET_ENTITY = `
 export const ASSET_BALANCE_ENTITY = `
     id
     amount
+    locked
+    supplied
+    removed
     feesEarned
 
     # Asset

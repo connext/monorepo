@@ -2,6 +2,16 @@
 
 ## Next Release
 
+- [sdk] Moved core function `calculateAmountReceived` to SdkBase
+- [sdk] `calculateAmountReceived` now provides isFastPath determination
+- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
+- [utils] Added CDN for chainData JSON file to make globally available.
+
+## Amarok 0.2.8-alpha.1
+
+- [sdk] support for debugging simulation support for explorer.
+- [all] support of Consesys ZKevm is live on testnet.
+
 ## Amarok 0.2.7
 
 - [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version

@@ -105,7 +105,7 @@ export const getChainData = async (useCached?: boolean, ignoreMissing?: boolean)
     return chainDataToMap(data, ignoreMissing);
   }
 
-  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+  const url = "https://chaindata.connext.ninja";
   try {
     const data = await fetchJson(url);
     return chainDataToMap(data, ignoreMissing);
