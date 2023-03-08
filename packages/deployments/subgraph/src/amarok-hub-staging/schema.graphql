@@ -1,13 +1,4 @@
 # ROOT MANAGER
-enum MessageStatus {
-  XCalled #Xcall
-  SpokeRootSent #Send Spoke Root at SpokeDomain
-  SpokeRootReceivedConnector #Receive Spoke Root at HubDomain Connector
-  SpokeRootReceivedManager #Receive Spoke Root at HubDomain Root Manager
-  HubRootSent #Send AggregateRoot to Spoke Domain at Hub Domain
-  HubRootReceived #Received HubRoot at Destination Domain
-}
-
 type RootAggregated @entity {
   id: ID! # "RootAggregated"
   domain: BigInt!

@@ -19,7 +19,6 @@ export function handleRootReceived(event: RootReceivedEvent): void {
     instance = new RootAggregated(event.params.receivedRoot.toHexString());
   }
 
-  instance.status = "SpokeRootReceivedManager";
   instance.domain = event.params.domain;
   instance.receivedRoot = event.params.receivedRoot;
   instance.index = event.params.queueIndex;
@@ -37,8 +36,6 @@ export function handleRootPropagated(event: RootPropagatedEvent): void {
   if (instance == null) {
     instance = new RootPropagated(key);
   }
-
-  instance.status = "HubRootSent";
   instance.aggregate = event.params.aggregateRoot;
   instance.domainsHash = event.params.domainsHash;
   instance.count = event.params.count;

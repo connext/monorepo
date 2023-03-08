@@ -34,7 +34,6 @@ export function handlePolygonMessageProcessed(event: MessageProcessed): void {
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
 
-  message.status = "SpokeRootReceivedConnector";
   message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
