@@ -2,6 +2,8 @@
 import { AssetAdded, AssetRemoved } from "../../../generated/Connext/Connext";
 import { Asset, AssetStatus } from "../../../generated/schema";
 
+import { getTokenDecimals } from "./helper";
+
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.localAsset.toHex();
@@ -10,6 +12,7 @@ export function handleAssetAdded(event: AssetAdded): void {
     asset = new Asset(assetId);
   }
   asset.key = event.params.key;
+  asset.decimal = getTokenDecimals(event.params.localAsset);
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
   asset.adoptedAsset = event.params.adoptedAsset;

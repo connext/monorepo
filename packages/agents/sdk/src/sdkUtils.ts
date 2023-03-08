@@ -9,8 +9,7 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
-import { ChainDataUndefined } from "./lib/errors";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import { RouterBalance } from "./interfaces";
@@ -59,12 +58,7 @@ export class SdkUtils extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkUtils> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkUtils" })
       : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });

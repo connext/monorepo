@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
+import { ERC20 } from "../../../../generated/Connext/ERC20";
 import { Asset, AssetBalance, Router, RouterDailyTVL } from "../../../../generated/schema";
 
 /// MARK - Helpers
@@ -123,4 +124,11 @@ export function getRouterDailyTVL(local: Address, routerAddress: Address, timest
   }
 
   return tvl;
+}
+
+export function getTokenDecimals(tokenAddress: Address): BigInt {
+  let token = ERC20.bind(tokenAddress);
+  let result = token.try_decimals();
+
+  return BigInt.fromI32(result.value);
 }

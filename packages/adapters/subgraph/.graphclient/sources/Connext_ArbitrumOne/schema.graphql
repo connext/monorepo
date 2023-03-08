@@ -60,6 +60,7 @@ enum arbitrumone_AggregateRoot_orderBy {
 type arbitrumone_Asset {
   id: ID!
   key: arbitrumone_Bytes
+  decimal: BigInt
   canonicalId: arbitrumone_Bytes
   canonicalDomain: BigInt
   adoptedAsset: arbitrumone_Bytes
@@ -192,6 +193,7 @@ enum arbitrumone_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input arbitrumone_Asset_filter {
   key_not_in: [arbitrumone_Bytes!]
   key_contains: arbitrumone_Bytes
   key_not_contains: arbitrumone_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
   canonicalId_gt: arbitrumone_Bytes
@@ -324,6 +334,7 @@ input arbitrumone_Asset_filter {
 enum arbitrumone_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum arbitrumone_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum arbitrumone_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum arbitrumone_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

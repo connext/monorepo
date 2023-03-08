@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "0.2.8-alpha.1",
+  "version": "0.2.8-alpha.2",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
@@ -31,6 +31,9 @@
   "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
+    "!dist/src/cli/**/*",
+    "!deploy/**/*",
+    "!tasks/**/*",
     "artifacts",
     "deployments.json",
     "contracts",

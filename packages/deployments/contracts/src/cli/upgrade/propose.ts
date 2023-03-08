@@ -8,7 +8,7 @@ import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
 import { HardhatUserConfig } from "hardhat/types";
 
-import { getProposedFacetCuts } from "../../getProposedFacetCuts";
+import { getProposedFacetCuts } from "../../../deployHelpers/getProposedFacetCuts";
 import { Env } from "../../utils";
 import { hardhatNetworks, SUPPORTED_CHAINS } from "../../config";
 
