@@ -566,7 +566,8 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.fees_earned,
     asset_balances.locked,
     asset_balances.supplied,
-    asset_balances.removed
+    asset_balances.removed,
+    assets."decimal"
    FROM ((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
