@@ -68,6 +68,7 @@ export type stagingoptimismgoerli_AggregateRoot_orderBy =
 export type stagingoptimismgoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  decimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -200,6 +201,7 @@ export type stagingoptimismgoerli_AssetBalance_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -254,6 +256,14 @@ export type stagingoptimismgoerli_Asset_filter = {
   key_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   key_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  decimal?: InputMaybe<Scalars['BigInt']>;
+  decimal_not?: InputMaybe<Scalars['BigInt']>;
+  decimal_gt?: InputMaybe<Scalars['BigInt']>;
+  decimal_lt?: InputMaybe<Scalars['BigInt']>;
+  decimal_gte?: InputMaybe<Scalars['BigInt']>;
+  decimal_lte?: InputMaybe<Scalars['BigInt']>;
+  decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -330,6 +340,7 @@ export type stagingoptimismgoerli_Asset_filter = {
 export type stagingoptimismgoerli_Asset_orderBy =
   | 'id'
   | 'key'
+  | 'decimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -821,6 +832,7 @@ export type stagingoptimismgoerli_DestinationTransfer_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1327,6 +1339,7 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -2162,6 +2175,7 @@ export type stagingoptimismgoerli_RouterDailyTVL_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'

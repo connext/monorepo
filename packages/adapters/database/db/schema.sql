@@ -89,7 +89,8 @@ CREATE TABLE public.assets (
     canonical_domain character varying(255) NOT NULL,
     domain character varying(255) NOT NULL,
     key character(66),
-    id character(42)
+    id character(42),
+    "decimal" numeric DEFAULT 0
 );
 
 
@@ -565,7 +566,8 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.fees_earned,
     asset_balances.locked,
     asset_balances.supplied,
-    asset_balances.removed
+    asset_balances.removed,
+    assets."decimal"
    FROM ((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
@@ -1015,4 +1017,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230227071659'),
     ('20230307011812'),
     ('20230307090110'),
-    ('20230307092333');
+    ('20230307092333'),
+    ('20230307171914');

@@ -60,6 +60,7 @@ enum goerli_AggregateRoot_orderBy {
 type goerli_Asset {
   id: ID!
   key: goerli_Bytes
+  decimal: BigInt
   canonicalId: goerli_Bytes
   canonicalDomain: BigInt
   adoptedAsset: goerli_Bytes
@@ -192,6 +193,7 @@ enum goerli_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input goerli_Asset_filter {
   key_not_in: [goerli_Bytes!]
   key_contains: goerli_Bytes
   key_not_contains: goerli_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: goerli_Bytes
   canonicalId_not: goerli_Bytes
   canonicalId_gt: goerli_Bytes
@@ -324,6 +334,7 @@ input goerli_Asset_filter {
 enum goerli_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum goerli_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum goerli_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum goerli_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

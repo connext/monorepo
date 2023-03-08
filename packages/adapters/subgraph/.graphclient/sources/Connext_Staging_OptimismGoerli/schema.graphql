@@ -60,6 +60,7 @@ enum stagingoptimismgoerli_AggregateRoot_orderBy {
 type stagingoptimismgoerli_Asset {
   id: ID!
   key: stagingoptimismgoerli_Bytes
+  decimal: BigInt
   canonicalId: stagingoptimismgoerli_Bytes
   canonicalDomain: BigInt
   adoptedAsset: stagingoptimismgoerli_Bytes
@@ -192,6 +193,7 @@ enum stagingoptimismgoerli_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input stagingoptimismgoerli_Asset_filter {
   key_not_in: [stagingoptimismgoerli_Bytes!]
   key_contains: stagingoptimismgoerli_Bytes
   key_not_contains: stagingoptimismgoerli_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: stagingoptimismgoerli_Bytes
   canonicalId_not: stagingoptimismgoerli_Bytes
   canonicalId_gt: stagingoptimismgoerli_Bytes
@@ -324,6 +334,7 @@ input stagingoptimismgoerli_Asset_filter {
 enum stagingoptimismgoerli_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum stagingoptimismgoerli_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum stagingoptimismgoerli_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

@@ -60,6 +60,7 @@ enum mainnet_AggregateRoot_orderBy {
 type mainnet_Asset {
   id: ID!
   key: mainnet_Bytes
+  decimal: BigInt
   canonicalId: mainnet_Bytes
   canonicalDomain: BigInt
   adoptedAsset: mainnet_Bytes
@@ -192,6 +193,7 @@ enum mainnet_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -248,6 +250,14 @@ input mainnet_Asset_filter {
   key_not_in: [mainnet_Bytes!]
   key_contains: mainnet_Bytes
   key_not_contains: mainnet_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
   canonicalId_gt: mainnet_Bytes
@@ -324,6 +334,7 @@ input mainnet_Asset_filter {
 enum mainnet_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -814,6 +825,7 @@ enum mainnet_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1323,6 +1335,7 @@ enum mainnet_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2251,6 +2264,7 @@ enum mainnet_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

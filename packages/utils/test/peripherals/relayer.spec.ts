@@ -46,6 +46,43 @@ describe("Peripherals:Relayer", () => {
       expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
     });
 
+    it("should return correct value when provided token prices", async () => {
+      getGelatoEstimatedFeeStub.resolves(BigNumber.from(10000));
+      const estimatedRelayerFee = await calculateRelayerFee(
+        {
+          originDomain: "13337",
+          destinationDomain: "13338",
+          originNativeTokenPrice: 1000,
+          destinationNativeTokenPrice: 1500,
+        },
+        mock.chainData(),
+        logger,
+      );
+      // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
+      // ==> (10000 + 10000 x 20 / 100) x ( 1500 / 1000 ) = 18000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
+    });
+
+    it("should return correct value when provided gas price", async () => {
+      getConversionRateStub.onFirstCall().resolves(1);
+      getConversionRateStub.onSecondCall().resolves(1.5);
+      getGelatoEstimatedFeeStub.resolves(BigNumber.from(0));
+      const estimatedRelayerFee = await calculateRelayerFee(
+        {
+          originDomain: "13337",
+          destinationDomain: "13338",
+          destinationGasPrice: "50",
+        },
+        mock.chainData(),
+        logger,
+      );
+      // fallbackRelayerFee = gasPrice x executeGasAmount
+      // ==> 50 x 400000 = 20000000
+      // estimatedRelayerFee = (fallbackRelayerFee + fallbackRelayerFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
+      // ==> (20000000 + 20000000 x 20 / 100) x ( 1.5 / 1 ) = 36000000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("36000000"));
+    });
+
     it("should add l1Gas for optimism network", async () => {
       const chainData = chainDataToMap([
         {

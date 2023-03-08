@@ -212,6 +212,7 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       canonicalId: routerBalanceRow.canonical_id,
       domain: routerBalanceRow.asset_domain,
       id: routerBalanceRow.id,
+      decimal: routerBalanceRow.decimal,
       localAsset: routerBalanceRow.local,
       key: routerBalanceRow.key,
     };
