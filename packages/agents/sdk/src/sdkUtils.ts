@@ -273,7 +273,7 @@ export class SdkUtils extends SdkShared {
 
     const eligibleRouters = Array.from(routersByLargestBalance).filter(
       (routerBalance: RouterBalance) =>
-        routerBalance.domain == domainId && utils.getAddress(routerBalance.local as string) == _asset,
+        routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset,
     );
 
     return eligibleRouters
