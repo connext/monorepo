@@ -166,13 +166,13 @@ export const getConfig = async (
   _nxtpConfig: SdkConfig,
   deployments: ConnextContractDeployments,
   _chainData?: Map<string, ChainData>,
-): Promise<SdkConfig> => {
+): Promise<{ nxtpConfig: SdkConfig; chainData: Map<string, ChainData> }> => {
   let chainData = _chainData;
   if (!chainData) {
     chainData = await getChainData();
   }
   nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
-  return nxtpConfig;
+  return { nxtpConfig: nxtpConfig, chainData: chainData };
 };
 
 export const domainsToChainNames: Record<string, string> = {

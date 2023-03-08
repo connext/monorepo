@@ -216,6 +216,9 @@ export class SubgraphReader {
           return {
             adoptedAsset: a.asset.adoptedAsset,
             balance: a.amount,
+            locked: a.locked,
+            supplied: a.supplied,
+            removed: a.removed,
             feesEarned: a.feesEarned ?? 0,
             blockNumber: a.asset.blockNumber,
             canonicalDomain: a.asset.canonicalDomain,
@@ -223,6 +226,7 @@ export class SubgraphReader {
             domain,
             localAsset: a.asset.id,
             id: a.asset.id,
+            decimal: a.asset.decimal,
             key: a.asset.key,
           } as AssetBalance;
         }),

@@ -4,7 +4,7 @@ import { stub, SinonStub } from "sinon";
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromZkSyncRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
 import { NoRootAvailable } from "../../../../src/tasks/processFromRoot/errors";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 
 let getTransactionReceiptStub: SinonStub;
 let getLogProofStub: SinonStub;
@@ -21,7 +21,7 @@ describe("Helpers: ZkSync", () => {
   beforeEach(() => {
     stub(MockableFns, "ZkSyncWeb3Provider").value(MockZkWeb3Provider);
     getTransactionReceiptStub = stub().resolves({
-      l2ToL1Logs: [{ transactionHash: mkHash("0xdeadbeef"), logIndex: 0 }],
+      l2ToL1Logs: [{ transactionHash: mkHash("0xdeadbeef"), logIndex: 0, key: utils.zeroPad(mkAddress("0xaabb"), 32) }],
       l1BatchNumber: 100000,
       l1BatchTxIndex: 1,
     });

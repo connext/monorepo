@@ -10,6 +10,7 @@ import { getContext } from "../../reader";
 export const ASSET_ENTITY = `
       id,
       key,
+      decimal,
       canonicalId,
       canonicalDomain,
       adoptedAsset,
@@ -20,6 +21,9 @@ export const ASSET_ENTITY = `
 export const ASSET_BALANCE_ENTITY = `
     id
     amount
+    locked
+    supplied
+    removed
     feesEarned
 
     # Asset

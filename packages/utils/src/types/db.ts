@@ -203,12 +203,16 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
     const assetBalance: AssetBalance = {
       adoptedAsset: routerBalanceRow.adopted,
       balance: BigNumber.from(BigInt(routerBalanceRow.balance as string)).toString(),
+      locked: BigNumber.from(BigInt(routerBalanceRow.locked as string)).toString(),
+      supplied: BigNumber.from(BigInt(routerBalanceRow.supplied as string)).toString(),
+      removed: BigNumber.from(BigInt(routerBalanceRow.removed as string)).toString(),
       feesEarned: BigNumber.from(BigInt(routerBalanceRow.fees_earned as string)).toString(),
       blockNumber: "0",
       canonicalDomain: routerBalanceRow.canonical_domain,
       canonicalId: routerBalanceRow.canonical_id,
       domain: routerBalanceRow.asset_domain,
       id: routerBalanceRow.id,
+      decimal: routerBalanceRow.decimal,
       localAsset: routerBalanceRow.local,
       key: routerBalanceRow.key,
     };

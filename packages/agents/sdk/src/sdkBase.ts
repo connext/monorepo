@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, BigNumber, BigNumberish, utils } from "ethers";
 import {
   Logger,
   createLoggingContext,
@@ -7,19 +7,14 @@ import {
   MultisendTransaction,
   encodeMultisendCall,
   ajv,
+  DEFAULT_ROUTER_FEE,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, calculateRelayerFee } from "./lib/helpers";
-import {
-  SignerAddressMissing,
-  ChainDataUndefined,
-  CannotUnwrapOnDestination,
-  ParamsInvalid,
-  SlippageInvalid,
-} from "./lib/errors";
+import { calculateRelayerFee } from "./lib/helpers";
+import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
@@ -33,6 +28,7 @@ import {
   SdkEstimateRelayerFeeParams,
 } from "./interfaces";
 import { SdkUtils } from "./sdkUtils";
+import { SdkPool } from "./sdkPool";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -78,12 +74,7 @@ export class SdkBase extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkBase" })
       : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
@@ -501,6 +492,10 @@ export class SdkBase extends SdkShared {
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
+   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
+   * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
    * @returns The relayer fee in native asset of the origin domain.
    *
    * @example
@@ -542,5 +537,103 @@ export class SdkBase extends SdkShared {
     );
 
     return relayerFeeInOriginNativeAsset;
+  }
+
+  /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   *
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
+   * @param originTokenAddress - The address of the token to be bridged from origin.
+   * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
+   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   */
+  async calculateAmountReceived(
+    originDomain: string,
+    destinationDomain: string,
+    originTokenAddress: string,
+    amount: BigNumberish,
+    receiveLocal = false,
+  ): Promise<{
+    amountReceived: BigNumberish;
+    originSlippage: BigNumberish;
+    routerFee: BigNumberish;
+    destinationSlippage: BigNumberish;
+    isFastPath: boolean;
+  }> {
+    const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+
+    const _originTokenAddress = utils.getAddress(originTokenAddress);
+
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomain,
+      destinationDomain,
+      _originTokenAddress,
+      amount,
+    });
+
+    // Calculate origin swap
+    const sdkPool = await SdkPool.create(this.config);
+    const originPool = await sdkPool.getPool(originDomain, _originTokenAddress);
+    let originAmountReceived = amount;
+
+    // Swap IFF supplied origin token is an adopted asset
+    if (!(await this.isNextAsset(_originTokenAddress)) && originPool) {
+      originAmountReceived = await sdkPool.calculateSwap(
+        originDomain,
+        _originTokenAddress,
+        originPool.adopted.index,
+        originPool.local.index,
+        amount,
+      );
+    }
+
+    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
+
+    // Calculate destination swap
+    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, _originTokenAddress);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    if (!destinationAssetData) {
+      throw new Error("Origin token cannot be bridged to any token on this destination domain");
+    }
+
+    const destinationPool = await sdkPool.getPool(destinationDomain, destinationAssetData.local);
+    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
+    let destinationAmountReceived = destinationAmount;
+
+    // Swap IFF desired destination token is an adopted asset
+    if (!receiveLocal && destinationPool) {
+      destinationAmountReceived = await sdkPool.calculateSwap(
+        destinationDomain,
+        destinationAssetData.local,
+        destinationPool.local.index,
+        destinationPool.adopted.index,
+        destinationAmount,
+      );
+    }
+
+    const destinationSlippage = BigNumber.from(
+      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+    );
+
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    const sdkUtils = await SdkUtils.create(this.config);
+    const isFastPath = (await sdkUtils.checkRouterLiquidity(destinationDomain, destinationAssetData.local)).gt(
+      destinationAmount,
+    )
+      ? true
+      : false;
+
+    return {
+      amountReceived: destinationAmountReceived,
+      originSlippage,
+      routerFee,
+      destinationSlippage,
+      isFastPath,
+    };
   }
 }

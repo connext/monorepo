@@ -23,6 +23,8 @@ dataSources:
       abis:
         - name: Connext
           file: ./src/amarok-runtime-v0/abis/Connext.json
+        - name: ERC20
+          file: ./src/amarok-runtime-staging/abis/ERC20.json
       eventHandlers:
         # AssetAdded: key, canonicalId, domain, adoptedAsset, localAsset, caller
         - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
