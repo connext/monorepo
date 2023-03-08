@@ -2,8 +2,19 @@
 
 ## Next Release
 
+## Amarok 0.2.8-alpha.2
+
 - [sdk] Moved core function `calculateAmountReceived` to SdkBase
 - [sdk] `calculateAmountReceived` now provides isFastPath determination
+- [sdk] fixes for optimisation gas fee estimation
+- [sdk] Multiple optimisation for relayer fee calculation
+  - `getDecimals()` from cartographer
+  - fixes at config setup, and fixes at sdkBase instance creation.
+  - memoziation for `getConverstionRate()`
+  - parallize calls at function
+- [sdk] router liquidity visualisation
+- [subgraph][carto] add decimals to Assets
+- [subgraph][carto] supplied, locked, removed liquidity for Router
 - [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
 - [utils] Added CDN for chainData JSON file to make globally available.
 
