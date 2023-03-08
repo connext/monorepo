@@ -72,15 +72,6 @@ enum TransferStatus {
   CompletedFast
 }
 
-enum MessageStatus {
-  XCalled #Xcall
-  SpokeRootSent #Send Spoke Root at SpokeDomain
-  SpokeRootReceivedConnector #Receive Spoke Root at HubDomain Connector
-  SpokeRootReceivedManager #Receive Spoke Root at HubDomain Root Manager
-  HubRootPropagate # Root propagate at HubDomain
-  HubRootSent #Send AggregateRoot to Spoke Domain at Hub Domain
-  HubRootReceived #Received HubRoot at Destination Domain
-}
 type OriginTransfer @entity {
   id: ID!
 
@@ -180,8 +171,6 @@ type DestinationTransfer @entity {
 type OriginMessage @entity {
   id: ID!
 
-  status: MessageStatus
-
   # origin transfer data
   transferId: Bytes
   destinationDomain: BigInt
@@ -200,8 +189,6 @@ type OriginMessage @entity {
 
 type AggregateRoot @entity {
   id: ID!
-
-  status: MessageStatus
   root: Bytes!
   blockNumber: BigInt!
 }
@@ -223,9 +210,6 @@ type RootCount @entity {
 
 type RootMessageSent @entity {
   id: ID!
-
-  status: MessageStatus
-
   spokeDomain: BigInt
   hubDomain: BigInt
   root: Bytes

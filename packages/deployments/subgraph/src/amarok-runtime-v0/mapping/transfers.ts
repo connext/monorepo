@@ -64,7 +64,6 @@ export function handleXCalled(event: XCalled): void {
   if (message == null) {
     message = new OriginMessage(event.params.messageHash.toHex());
   }
-  message.status = "XCalled";
   message.leaf = event.params.messageHash;
   message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
