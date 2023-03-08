@@ -74,6 +74,7 @@ export const transfersCastForUrl =
     "relayer_fee",
     "error_status",
     "message_status",
+    "message_hash",
   ].join(",");
 
 /**
