@@ -1,9 +1,17 @@
 import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
+import { NetworkUserConfig } from "hardhat/types";
+
+export const SUPPORTED_CHAINS = {
+  mainnet: [1, 10, 56, 100, 137, 42161],
+  testnet: [5, 420, 80001, 421613],
+};
 
 envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
+const network = process.env.NETWORK ?? "testnet";
+const env = process.env.ENV ?? "staging";
 
 const mnemonic =
   process.env.SUGAR_DADDY ||
@@ -12,7 +20,33 @@ const mnemonic =
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
 
+export const getForkPort = (network: "testnet" | "mainnet", chainId: number) => {
+  // ensure each chain has a unique port based on position in [...mainnet, ...testnet]
+  const shift = network === "mainnet" ? 0 : SUPPORTED_CHAINS["mainnet"].length;
+  const idx = SUPPORTED_CHAINS[network].indexOf(chainId);
+  if (idx < -1) {
+    throw new Error(`Invalid chainId: ${chainId} for network: ${network}`);
+  }
+  return 8545 + idx + shift;
+};
+
+export const getNetworkForkName = (chainId: number) => {
+  return `${chainId}_${env}_fork`;
+};
+
+export const hardhatForkNetworks: Record<string, NetworkUserConfig> = {};
+Object.values(SUPPORTED_CHAINS).forEach((chains) => {
+  chains.forEach((chain) => {
+    hardhatForkNetworks[getNetworkForkName(chain)] = {
+      accounts: { mnemonic },
+      chainId: chain,
+      url: `http://127.0.0.1:${getForkPort(network as "mainnet" | "testnet", chain)}`,
+    };
+  });
+});
+
 export const hardhatNetworks = {
+  ...hardhatForkNetworks,
   hardhat: {
     allowUnlimitedContractSize: true,
   },

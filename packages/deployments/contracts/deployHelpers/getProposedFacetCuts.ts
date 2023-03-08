@@ -98,14 +98,6 @@ export const getProposedFacetCuts = async (
         action: FacetCutAction.Add,
       });
     }
-
-    // if (selectorsToAdd.length > 0) {
-    //   console.log("trying to add:", selectorsToAdd);
-    // }
-
-    // if (selectorsToReplace.length > 0) {
-    //   console.log("trying to replace:", selectorsToReplace);
-    // }
   }
 
   // Get facet selectors to delete

@@ -31,7 +31,7 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     // apply proposed upgrade to all diamonds
     utils_upgradeDiamonds();
     // set the hub domain and chain
-    if (isForkedChain[keccak256(abi.encode(uint256(MAINNET_HUB_CHAIN).toString()))]) {
+    if (forkRpcsByChain[MAINNET_HUB_CHAIN].equal("")) {
       HUB_DOMAIN = MAINNET_HUB_DOMAIN;
       HUB_CHAIN = MAINNET_HUB_CHAIN;
     } else {
@@ -105,11 +105,11 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
 
   // ============ Tests ==================
   function test_ExecutionUpgrade__fastPathWithSwap() public {
-    uint256 numChains = FORKED_CHAIN_IDS.length;
+    uint256 numChains = NETWORK_IDS.length;
     // set test constants
     uint256 amountIn = 0.05 ether;
     for (uint256 i; i < numChains; i++) {
-      uint256 originChain = FORKED_CHAIN_IDS[i];
+      uint256 originChain = NETWORK_IDS[i];
 
       // console.log("");
       // console.log("");
@@ -121,7 +121,7 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
         utils_primeCanonicalFork();
         // ignore cases where destination chain == origin chain
         if (i == j) continue;
-        uint256 destinationChain = FORKED_CHAIN_IDS[j];
+        uint256 destinationChain = NETWORK_IDS[j];
         // console.log("");
         // console.log("======================================", destinationChain);
         // prime the origin fork
@@ -178,11 +178,11 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
   }
 
   function test_ExecutionUpgrade__slowPathWithSwap() public {
-    uint256 numChains = FORKED_CHAIN_IDS.length;
+    uint256 numChains = NETWORK_IDS.length;
     // set test constants
     uint256 amountIn = 0.05 ether;
     for (uint256 i; i < numChains; i++) {
-      uint256 originChain = FORKED_CHAIN_IDS[i];
+      uint256 originChain = NETWORK_IDS[i];
 
       // console.log("");
       // console.log("");
@@ -194,7 +194,7 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
         utils_primeCanonicalFork();
         // ignore cases where destination chain == origin chain
         if (i == j) continue;
-        uint256 destinationChain = FORKED_CHAIN_IDS[j];
+        uint256 destinationChain = NETWORK_IDS[j];
         // console.log("");
         // console.log("======================================", destinationChain);
         // prime the origin fork
