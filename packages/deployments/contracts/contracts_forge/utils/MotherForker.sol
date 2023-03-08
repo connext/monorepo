@@ -196,14 +196,6 @@ abstract contract MotherForker is ForgeHelper {
     }
   }
 
-  function utils_deployFacets(uint256 forkId) private {
-    // switch to active fork
-    vm.selectFork(forkId);
-    // deploy all the facets on this fork
-    Deployer deployer = new Deployer();
-    deployer.deployFacets();
-  }
-
   /**
    * @notice Sets up the forks, runs the proposal script to generate cuts to perform, and
    * loads the fork info into the contract.
