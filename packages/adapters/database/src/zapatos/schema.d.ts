@@ -1766,11 +1766,11 @@ declare module 'zapatos/schema' {
     export type Table = 'hourly_transfer_metrics';
     export interface Selectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour: Date | null;
+      transfer_date: Date | null;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1783,18 +1783,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain: string | null;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database
@@ -1870,11 +1858,11 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour: db.TimestampTzString | null;
+      transfer_date: db.DateString | null;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1887,18 +1875,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain: string | null;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database
@@ -1974,11 +1950,11 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
+      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1991,18 +1967,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database

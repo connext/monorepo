@@ -369,11 +369,9 @@ CREATE VIEW public.hourly_swap_volume AS
 --
 
 CREATE VIEW public.hourly_transfer_metrics AS
- SELECT date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
+ SELECT (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
-    regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
-    tf.origin_transacting_asset AS asset,
     count(tf.transfer_id) AS transfer_count,
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
@@ -427,7 +425,8 @@ CREATE VIEW public.hourly_transfer_metrics AS
             ELSE NULL::integer
         END) AS slowpath_avg_ttr_in_secs
    FROM public.transfers tf
-  GROUP BY (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+  GROUP BY ((date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain
+  ORDER BY ((date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date);
 
 
 --
@@ -1101,5 +1100,4 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230307090110'),
     ('20230307092333'),
     ('20230307171914'),
-    ('20230308162843'),
-    ('20230308172752');
+    ('20230308162843');
