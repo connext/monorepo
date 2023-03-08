@@ -1,8 +1,3 @@
-export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 420, 80001, 421613],
-};
-
 // // These are the blocks to fork from in the forge tests.
 // // NOTE: This MUST be updated when contracts are deployed or upgraded for the upgrade
 // // tests to succeed. This value should be after the contracts are configured, and at least

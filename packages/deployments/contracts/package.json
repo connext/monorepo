@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
-    "test:upgrade": "yarn forge test -v --ffi --match-path '*/upgrade/**.sol'",
+    "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
@@ -25,7 +25,6 @@
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
-    "propose": "ts-node ./src/cli/upgrade/main.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",

@@ -111,7 +111,9 @@ contract Deployer {
     bridgeFacetSelectors[10] = getSelector("xcall(uint32,address,address,address,uint256,uint256,bytes)");
     bridgeFacetSelectors[11] = getSelector("xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)");
     bridgeFacetSelectors[12] = getSelector("xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)");
-    bridgeFacetSelectors[12] = getSelector("xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)");
+    bridgeFacetSelectors[13] = getSelector(
+      "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+    );
     bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
     bridgeFacetSelectors[15] = getSelector("bumpTransfer(bytes32)");
     bridgeFacetSelectors[16] = getSelector("bumpTransfer(bytes32,address,uint256)");
@@ -137,11 +139,9 @@ contract Deployer {
       });
   }
 
-  function getProposedOwnableFacetCut(address _proposedOwnableFacet)
-    internal
-    pure
-    returns (IDiamondCut.FacetCut memory)
-  {
+  function getProposedOwnableFacetCut(
+    address _proposedOwnableFacet
+  ) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](13);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerAllowlistRemoved.selector;
