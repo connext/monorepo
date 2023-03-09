@@ -77,24 +77,30 @@ describe("SdkBase", () => {
     let relayerFee = BigNumber.from("1");
 
     const mockXCallArgs = mock.entity.xcallArgs();
-    const standardXCallData: string = getConnextInterface().encodeFunctionData("xcall", [
-      mockXCallArgs.destination,
-      mockXCallArgs.to,
-      mockXCallArgs.asset,
-      mockXCallArgs.delegate,
-      mockXCallArgs.amount,
-      mockXCallArgs.slippage,
-      mockXCallArgs.callData,
-    ]);
-    const standardXCallIntoLocalData: string = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
-      mockXCallArgs.destination,
-      mockXCallArgs.to,
-      mockXCallArgs.asset,
-      mockXCallArgs.delegate,
-      mockXCallArgs.amount,
-      mockXCallArgs.slippage,
-      mockXCallArgs.callData,
-    ]);
+    const standardXCallData: string = getConnextInterface().encodeFunctionData(
+      "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+      [
+        mockXCallArgs.destination,
+        mockXCallArgs.to,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        mockXCallArgs.callData,
+      ],
+    );
+    const standardXCallIntoLocalData: string = getConnextInterface().encodeFunctionData(
+      "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+      [
+        mockXCallArgs.destination,
+        mockXCallArgs.to,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        mockXCallArgs.callData,
+      ],
+    );
 
     const mockXCallRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
@@ -211,17 +217,20 @@ describe("SdkBase", () => {
 
     it("happy: handle unwrapNativeOnDestination", async () => {
       // Format the xcall for the unwrapNativeOnDestination case.
-      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
-        mockXCallArgs.destination,
-        // The `to` argument becomes the Unwrapper contract address.
-        mockUnwrapperAddress,
-        mockXCallArgs.asset,
-        mockXCallArgs.delegate,
-        mockXCallArgs.amount,
-        mockXCallArgs.slippage,
-        // For the Unwrapper contract, we provide the original recipient as argument.
-        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
-      ]);
+      const xcallData = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXCallArgs.destination,
+          // The `to` argument becomes the Unwrapper contract address.
+          mockUnwrapperAddress,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          // For the Unwrapper contract, we provide the original recipient as argument.
+          utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
+        ],
+      );
 
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
@@ -244,17 +253,20 @@ describe("SdkBase", () => {
       const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
 
       // Format the xcall for the unwrapNativeOnDestination case.
-      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
-        mockXCallArgs.destination,
-        // The `to` argument becomes the Unwrapper contract address.
-        mockUnwrapperAddress,
-        mockXCallArgs.asset,
-        mockXCallArgs.delegate,
-        mockXCallArgs.amount,
-        mockXCallArgs.slippage,
-        // For the Unwrapper contract, we provide the original recipient as argument.
-        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
-      ]);
+      const xcallData = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXCallArgs.destination,
+          // The `to` argument becomes the Unwrapper contract address.
+          mockUnwrapperAddress,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          // For the Unwrapper contract, we provide the original recipient as argument.
+          utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
+        ],
+      );
       txs[2].data = xcallData;
 
       const expectedTxRequest: providers.TransactionRequest = {
@@ -308,15 +320,18 @@ describe("SdkBase", () => {
 
       stub(sdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
       const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
+      const data = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXcallArgs.destination,
+          mockXcallArgs.to,
+          mockXcallArgs.asset,
+          mockXcallArgs.delegate,
+          mockXcallArgs.amount,
+          mockXcallArgs.slippage,
+          mockXcallArgs.callData,
+        ],
+      );
 
       const mockXCallRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
@@ -365,7 +380,9 @@ describe("SdkBase", () => {
 
     it("happy: should work", async () => {
       sdkBase.config.signerAddress = mockConfig.signerAddress;
-      const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [
+        mockBumpTransferParams.transferId,
+      ]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
