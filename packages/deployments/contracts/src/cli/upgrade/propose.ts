@@ -98,7 +98,7 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     const copy = `cp -R ${sourceDirectory} ${forkDirectory}`;
     console.log(`\ntrying to copy over deployments:`, copy);
     await execAsync(copy);
-    console.log(`completed deployment of facets on ${chain}`);
+    console.log(`completed deployment on ${chain}`);
 
     // run preflight
     await preflight(tag, networkInfo[chain]);
@@ -150,7 +150,8 @@ export const getDiamondUpgradeProposal = async () => {
   const chainCuts: Record<number, { proposal: FacetCut[]; connext: string; numberOfCuts: number }> & {
     chains: number[];
     rpcs: string[];
-  } = { chains, rpcs };
+    passed: false;
+  } = { chains, rpcs, passed: false };
   for (const chain of chains) {
     // get the hardhat config
     const [, config]: any = Object.entries(hardhatNetworks).find(
@@ -191,12 +192,16 @@ export const getDiamondUpgradeProposal = async () => {
   writeFileSync("cuts.json", JSON.stringify(chainCuts), { encoding: "utf-8" });
 
   // run the forge fork tests
-  const forgeTest = `yarn forge test -v --ffi --match-path '*/upgrade/**.sol'`;
+  const forgeTest = `yarn forge test -vv --ffi --match-path '*/upgrade/**.sol'`;
   console.log(`\nrunning forge fork tests with command:`, forgeTest);
   const { stderr, stdout } = await execAsync(forgeTest);
   console.log("forge stdout", stdout);
+
   if (stderr) {
     console.log("forge stderr", stderr);
+  } else {
+    // write that tests passed to file
+    writeFileSync("cuts.json", JSON.stringify({ ...chainCuts, passed: true }), { encoding: "utf-8" });
   }
 
   // kill all the forks

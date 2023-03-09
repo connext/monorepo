@@ -143,7 +143,7 @@ export const getProposedFacetCuts = async (
  *
  * @param prev The abi of the contract prior to the upgrade execution
  */
-export const getUpgradedAbi = (facets: FacetOptions[], prev: any[]): any[] => {
+export const getUpgradedAbi = (facets: (FacetOptions & { abi: any[] })[], prev: any[]): any[] => {
   // Shortcircuit if no facets
   if (facets.length === 0) {
     return prev;
@@ -153,7 +153,7 @@ export const getUpgradedAbi = (facets: FacetOptions[], prev: any[]): any[] => {
   let abi = prev.concat([]);
 
   for (const facet of facets) {
-    abi = mergeABIs([abi, facet.contract.abi] as any[][], {
+    abi = mergeABIs([abi, facet.abi] as any[][], {
       check: true,
       skipSupportsInterface: false,
     });
