@@ -119,6 +119,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
     "feeCollector()": FunctionFragment;
     "gelatoRelayer()": FunctionFragment;
+    "keep3r()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -131,6 +132,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "setConnext(address)": FunctionFragment;
     "setFeeCollector(address)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
+    "setKeep3r(address)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -146,6 +148,7 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "execute"
       | "feeCollector"
       | "gelatoRelayer"
+      | "keep3r"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -158,6 +161,7 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "setConnext"
       | "setFeeCollector"
       | "setGelatoRelayer"
+      | "setKeep3r"
       | "setSpokeConnector"
       | "spokeConnector"
       | "withdraw"
@@ -189,6 +193,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -239,6 +244,10 @@ export interface RelayerProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setKeep3r",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setSpokeConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -268,6 +277,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -301,6 +311,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "setGelatoRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setKeep3r", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSpokeConnector",
     data: BytesLike
@@ -317,6 +328,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "GelatoRelayerChanged(address,address)": EventFragment;
+    "Keep3rChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RelayerAdded(address)": EventFragment;
@@ -329,6 +341,7 @@ export interface RelayerProxyInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GelatoRelayerChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Keep3rChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
@@ -392,6 +405,17 @@ export type GelatoRelayerChangedEvent = TypedEvent<
 
 export type GelatoRelayerChangedEventFilter =
   TypedEventFilter<GelatoRelayerChangedEvent>;
+
+export interface Keep3rChangedEventObject {
+  keep3r: string;
+  oldKeep3r: string;
+}
+export type Keep3rChangedEvent = TypedEvent<
+  [string, string],
+  Keep3rChangedEventObject
+>;
+
+export type Keep3rChangedEventFilter = TypedEventFilter<Keep3rChangedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -500,6 +524,8 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<[string]>;
 
+    keep3r(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeNewOwner(
@@ -553,6 +579,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -592,6 +623,8 @@ export interface RelayerProxy extends BaseContract {
   feeCollector(overrides?: CallOverrides): Promise<string>;
 
   gelatoRelayer(overrides?: CallOverrides): Promise<string>;
+
+  keep3r(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -646,6 +679,11 @@ export interface RelayerProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setKeep3r(
+    _keep3r: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setSpokeConnector(
     _spokeConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -683,6 +721,8 @@ export interface RelayerProxy extends BaseContract {
     feeCollector(overrides?: CallOverrides): Promise<string>;
 
     gelatoRelayer(overrides?: CallOverrides): Promise<string>;
+
+    keep3r(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -735,6 +775,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -781,6 +826,12 @@ export interface RelayerProxy extends BaseContract {
       updated?: null,
       previous?: null
     ): GelatoRelayerChangedEventFilter;
+
+    "Keep3rChanged(address,address)"(
+      keep3r?: null,
+      oldKeep3r?: null
+    ): Keep3rChangedEventFilter;
+    Keep3rChanged(keep3r?: null, oldKeep3r?: null): Keep3rChangedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -843,6 +894,8 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<BigNumber>;
 
+    keep3r(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -896,6 +949,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -936,6 +994,8 @@ export interface RelayerProxy extends BaseContract {
     feeCollector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     gelatoRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -987,6 +1047,11 @@ export interface RelayerProxy extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

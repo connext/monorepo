@@ -102,6 +102,8 @@ export type { ERC20 } from "./contracts/core/connext/helpers/OZERC20.sol/ERC20";
 export { ERC20__factory } from "./factories/contracts/core/connext/helpers/OZERC20.sol/ERC20__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
+export type { IKeep3rV2 } from "./contracts/core/connext/helpers/RelayerProxy.sol/IKeep3rV2";
+export { IKeep3rV2__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/IKeep3rV2__factory";
 export type { ISpokeConnector } from "./contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector";
 export { ISpokeConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxy.sol/ISpokeConnector__factory";
 export type { RelayerProxy } from "./contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy";

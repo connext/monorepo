@@ -1,0 +1,5 @@
+[
+  "function directTokenPayment(address,address,uint256)",
+  "function isKeeper(address) returns (bool)",
+  "function worked(address)"
+]

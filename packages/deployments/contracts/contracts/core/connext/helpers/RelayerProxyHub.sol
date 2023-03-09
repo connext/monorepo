@@ -19,9 +19,13 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ Properties ============
 
   IRootManager public rootManager;
+  uint256 public propagateCooldown;
+  // Timestamp of the last time the job was worked.
+  uint public lastPropagateAt;
 
   // ============ Events ============
   event RootManagerChanged(address rootManager, address oldRootManager);
+  event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
 
   // ============ Constructor ============
 
@@ -38,9 +42,12 @@ contract RelayerProxyHub is RelayerProxy {
     address _spokeConnector,
     address _gelatoRelayer,
     address _feeCollector,
-    address _rootManager
-  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector) {
+    address _rootManager,
+    address _keep3r,
+    uint256 _propagateCooldown
+  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
+    _setPropagateCooldown(_propagateCooldown);
   }
 
   // ============ Admin Functions ============
@@ -51,6 +58,10 @@ contract RelayerProxyHub is RelayerProxy {
    */
   function setRootManager(address _rootManager) external onlyOwner definedAddress(_rootManager) {
     _setRootManager(_rootManager);
+  }
+
+  function setPropagateCooldown(uint256 _propagateCooldown) external onlyOwner {
+    _setPropagateCooldown(_propagateCooldown);
   }
 
   // ============ External Functions ============
@@ -71,6 +82,42 @@ contract RelayerProxyHub is RelayerProxy {
     bytes[] memory _encodedData,
     uint256 _relayerFee
   ) external onlyRelayer nonReentrant {
+    uint256 sum = _propagate(_connectors, _messageFees, _encodedData);
+    emit FundsDeducted(sum, address(this).balance);
+    transferRelayerFee(_relayerFee);
+  }
+
+  // Returns a boolean that indicates if a job is workable or not.
+  function propagateWorkable() public view returns (bool _isWorkable) {
+    return block.timestamp > (lastPropagateAt + propagateCooldown);
+  }
+
+  function propagateKeep3r(
+    address[] calldata _connectors,
+    uint256[] calldata _messageFees,
+    bytes[] memory _encodedData
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
+    require(propagateWorkable(), "Job is not workable");
+    _propagate(_connectors, _messageFees, _encodedData);
+    lastPropagateAt = block.timestamp;
+  }
+
+  // ============ Internal Functions ============
+  function _setRootManager(address _rootManager) internal {
+    emit RootManagerChanged(_rootManager, address(rootManager));
+    rootManager = IRootManager(_rootManager);
+  }
+
+  function _setPropagateCooldown(uint256 _propagateCooldown) internal {
+    emit PropagateCooldownChanged(_propagateCooldown, propagateCooldown);
+    propagateCooldown = _propagateCooldown;
+  }
+
+  function _propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _messageFees,
+    bytes[] memory _encodedData
+  ) internal returns (uint256) {
     uint256 sum = 0;
     uint256 length = _connectors.length;
     for (uint32 i; i < length; ) {
@@ -81,13 +128,6 @@ contract RelayerProxyHub is RelayerProxy {
     }
 
     rootManager.propagate{value: sum}(_connectors, _messageFees, _encodedData);
-    emit FundsDeducted(sum, address(this).balance);
-    transferRelayerFee(_relayerFee);
-  }
-
-  // ============ Internal Functions ============
-  function _setRootManager(address _rootManager) internal {
-    emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = IRootManager(_rootManager);
+    return sum;
   }
 }
