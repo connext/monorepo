@@ -1,5 +1,6 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { constants } from "ethers";
 
 import {
   XCalled,
@@ -262,9 +263,8 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   transfer.save();
 
   // should never be more than 1 but just in case theres somehow multiple in the same tx
-  const relayerFeeKey = `${event.params.transferId.toHexString()}-${
-    event.params.asset
-  }-${event.transaction.hash.toHexString()}`;
+  const asset = event.params.asset ?? constants.AddressZero;
+  const relayerFeeKey = `${event.params.transferId.toHexString()}-${asset}-${event.transaction.hash.toHexString()}`;
   let relayerFeesIncrease = RelayerFeesIncrease.load(relayerFeeKey);
   if (relayerFeesIncrease == null) {
     relayerFeesIncrease = new RelayerFeesIncrease(relayerFeeKey);
@@ -272,7 +272,7 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
 
   relayerFeesIncrease.transfer = transfer.id;
   relayerFeesIncrease.increase = event.params.increase;
-  relayerFeesIncrease.asset = event.params.asset;
+  relayerFeesIncrease.asset = asset;
 
   // tx
   relayerFeesIncrease.caller = event.transaction.from;
