@@ -499,6 +499,10 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _relayerFee
   ) external nonReentrant whenNotPaused {
     if (_relayerFee == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+    // check that the asset is whitelisted (the following reverts if asset
+    // is not approved)
+    _getApprovedCanonicalId(_relayerFeeAsset);
+    // handle transferring asset to the relayer fee vault
     _bumpTransfer(_transferId, _relayerFeeAsset, _relayerFee);
   }
 
