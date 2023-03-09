@@ -256,24 +256,23 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
-  transfer.relayerFee = (transfer.relayerFee ? transfer.relayerFee : BigInt.fromI32(0))!.plus(event.params.increase);
   transfer.bumpRelayerFeeCount = (
     transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
   )!.plus(BigInt.fromI32(1));
   transfer.save();
 
   // should never be more than 1 but just in case theres somehow multiple in the same tx
-  let relayerFeesIncrease = RelayerFeesIncrease.load(
-    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-  );
+  const relayerFeeKey = `${event.params.transferId.toHexString()}-${
+    event.params.asset
+  }-${event.transaction.hash.toHexString()}`;
+  let relayerFeesIncrease = RelayerFeesIncrease.load(relayerFeeKey);
   if (relayerFeesIncrease == null) {
-    relayerFeesIncrease = new RelayerFeesIncrease(
-      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
-    );
+    relayerFeesIncrease = new RelayerFeesIncrease(relayerFeeKey);
   }
 
   relayerFeesIncrease.transfer = transfer.id;
   relayerFeesIncrease.increase = event.params.increase;
+  relayerFeesIncrease.asset = event.params.asset;
 
   // tx
   relayerFeesIncrease.caller = event.transaction.from;

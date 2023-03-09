@@ -104,7 +104,6 @@ type OriginTransfer @entity {
   message: OriginMessage
 
   # Relayer Fee paid by user
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
 
   # XCalled Transaction
@@ -230,6 +229,7 @@ type RelayerFeesIncrease @entity {
 
   transfer: OriginTransfer!
   increase: BigInt
+  asset: Bytes!
 
   # _bumpTransfer Transaction
   caller: Bytes!
