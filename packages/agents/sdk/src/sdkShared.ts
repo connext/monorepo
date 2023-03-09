@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  getCanonicalHash,
+  formatUrl,
+  getConversionRate as _getConversionRate,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
@@ -28,6 +35,12 @@ export class SdkShared {
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
+  getConversionRate = memoize(
+    async (chainId: number) => {
+      return await _getConversionRate(chainId, undefined, undefined);
+    },
+    { promise: true, maxAge: 1 * 60 * 1000 }, // maxAge: 1 min
+  );
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
    *
