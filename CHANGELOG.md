@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 1.0.0
+
+- [sdk] Maintain `calculateAmountReceived` backwards caompatibility, accessible in both SdkPool and SdkBase
+
 ## Amarok 1.0.0-alpha.0
 
 - [sdk] Moved core function `calculateAmountReceived` to SdkBase
