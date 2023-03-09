@@ -122,7 +122,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Save updated abi to Connext Deployment if cuts were performed
   const diamondDeployment: DeploymentSubmission = {
-    ...connext,
+    ...connextDeployment,
     abi: generated.length ? getUpgradedAbi(facets, connextDeployment.abi) : connextDeployment.abi,
   };
 

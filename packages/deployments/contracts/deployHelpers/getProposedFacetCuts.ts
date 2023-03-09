@@ -154,7 +154,7 @@ export const getUpgradedAbi = (facets: (FacetOptions & { abi: any[] })[], prev: 
 
   for (const facet of facets) {
     abi = mergeABIs([abi, facet.abi] as any[][], {
-      check: true,
+      check: false,
       skipSupportsInterface: false,
     });
   }
