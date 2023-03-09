@@ -239,10 +239,10 @@ abstract contract MotherForker is ForgeHelper {
     vm.prank(connext.owner());
     connext.proposeDiamondCut(cuts, address(0), bytes(""));
 
-    // roll forward and accept
+    // roll forward and accept if needed
     uint256 acceptance = connext.getAcceptanceTime(cuts, address(0), bytes(""));
     while (block.timestamp < acceptance) {
-      vm.rollFork(forkId, 43200 + block.number);
+      vm.rollFork(forkId, 3000 + block.number);
     }
     vm.prank(connext.owner());
     connext.diamondCut(cuts, address(0), bytes(""));
