@@ -32,7 +32,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       args: facet.args,
       from: deployer.address,
       log: true,
-      deterministicDeployment: true,
+      skipIfAlreadyDeployed: true,
+      deterministicDeployment: facet.deterministic,
     });
     console.log(`deployed ${facet.name} at ${deployment.address}`);
   }
