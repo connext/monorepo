@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-relayer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic relayer agent for Amarok",
   "author": "Connext",
   "license": "MIT",
