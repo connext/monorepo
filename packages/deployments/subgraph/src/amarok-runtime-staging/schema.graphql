@@ -229,7 +229,7 @@ type RelayerFeesIncrease @entity {
 
   transfer: OriginTransfer!
   increase: BigInt
-  asset: Bytes!
+  asset: Bytes
 
   # _bumpTransfer Transaction
   caller: Bytes!
