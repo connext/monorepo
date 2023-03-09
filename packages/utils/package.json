@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@maticnetwork/maticjs": "3.6.0-beta.3",
+    "@maticnetwork/maticjs": "3.6.0-beta.6",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.21",
     "@typescript-eslint/eslint-plugin": "5.52.0",
