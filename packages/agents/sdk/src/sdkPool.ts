@@ -17,7 +17,6 @@ import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
-import { SdkUtils } from "./sdkUtils";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -200,12 +199,14 @@ export class SdkPool extends SdkShared {
     );
 
     // Determine if fast liquidity is available (pre-destination-swap amount)
-    const sdkUtils = await SdkUtils.create(this.config);
-    const isFastPath = (await sdkUtils.checkRouterLiquidity(destinationDomain, destinationAssetData.local)).gt(
-      destinationAmount,
-    )
-      ? true
-      : false;
+
+    let isFastPath = true;
+    try {
+      const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
+      isFastPath = BigNumber.from(activeLiquidity.total_balance.mul(70).div(100)).gt(destinationAmount) ? true : false;
+    } catch {
+      this.logger.warn("Error while calculating active liquidity", requestContext, methodContext);
+    }
 
     return {
       amountReceived: destinationAmountReceived,
