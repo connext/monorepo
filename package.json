@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
