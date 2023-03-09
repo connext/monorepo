@@ -3,7 +3,8 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
+import {IOptimismPortal, ProvenWithdrawal} from "../../interfaces/ambs/optimism/IOptimismPortal.sol";
+import {IL2OutputOracle} from "../../interfaces/ambs/optimism/IL2OutputOracle.sol";
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
@@ -13,6 +14,8 @@ import {Connector} from "../Connector.sol";
 import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
 import {OVMCodec} from "./lib/OVMCodec.sol";
 import {SecureMerkleTrie} from "./lib/SecureMerkleTrie.sol";
+import {Hashing} from "./lib/Hashing.sol";
+import {Types} from "./lib/Types.sol";
 
 import {BaseOptimism} from "./BaseOptimism.sol";
 
@@ -22,7 +25,10 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   using TypedMemView for bytes29;
 
   // ============ Storage ============
-  IStateCommitmentChain public immutable stateCommitmentChain;
+  // IStateCommitmentChain public immutable stateCommitmentChain;
+  IOptimismPortal public immutable OPTIMISM_PORTAL;
+
+  IL2OutputOracle public immutable L2_ORACLE;
 
   // NOTE: This is needed because we need to track the roots we've
   // already sent across chains. When sending an optimism message, we send calldata
@@ -38,10 +44,12 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    address _stateCommitmentChain,
-    uint256 _gasCap
+    uint256 _gasCap,
+    address _optimismPortal,
+    address _l2OutputOracle
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseOptimism(_gasCap) {
-    stateCommitmentChain = IStateCommitmentChain(_stateCommitmentChain);
+    OPTIMISM_PORTAL = IOptimismPortal(_optimismPortal);
+    L2_ORACLE = IL2OutputOracle(_l2OutputOracle);
   }
 
   // ============ Override Fns ============
@@ -72,7 +80,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     address _sender,
     bytes memory _message,
     uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
+    Types.WithdrawalTransaction memory _tx
   ) external {
     // verify the sender is the l2 contract
     require(_sender == mirrorConnector, "!mirrorConnector");
@@ -80,10 +88,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // verify the target is this contract
     require(_target == address(this), "!this");
 
-    // Get the encoded data
-    bytes memory xDomainData = _encodeXDomainCalldata(_target, _sender, _message, _messageNonce);
-
-    require(_verifyXDomainMessage(xDomainData, _proof), "!proof");
+    require(_verifyXDomainMessage(_tx), "!proof");
 
     // NOTE: optimism seems to pad the calldata sent in to include more than the expected
     // 36 bytes, i.e. in this transaction:
@@ -110,84 +115,31 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
   /**
    * Verifies that the given message is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L283-L288
-   * @param _xDomainCalldata Calldata to verify.
-   * @param _proof Inclusion proof for the message.
-   * @return Whether or not the provided message is valid.
+   * @param _tx The WithdrawalTransaction to verify.
+   * @return bool Whether or not the provided message is valid.
    */
-  function _verifyXDomainMessage(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
-    internal
-    view
-    returns (bool)
-  {
-    return (_verifyStateRootProof(_proof) && _verifyStorageProof(_xDomainCalldata, _proof));
-  }
+  function _verifyXDomainMessage(Types.WithdrawalTransaction memory _tx) internal view returns (bool) {
+    // Get the proven withdrawal record from the OptimismOracle.
+    bytes32 withdrawalHash = Hashing.hashWithdrawal(_tx);
+    ProvenWithdrawal memory provenWithdrawal = OPTIMISM_PORTAL.provenWithdrawals(withdrawalHash);
 
-  /**
-   * Verifies that the state root within an inclusion proof is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L295-L311
-   * @param _proof Message inclusion proof.
-   * @return Whether or not the provided proof is valid.
-   */
-  function _verifyStateRootProof(L2MessageInclusionProof memory _proof) internal view returns (bool) {
-    return
-      stateCommitmentChain.verifyStateCommitment(_proof.stateRoot, _proof.stateRootBatchHeader, _proof.stateRootProof);
-  }
+    // Ensure withdrawal was proven.
+    require(provenWithdrawal.timestamp != 0, "!proven");
 
-  /**
-   * Verifies that the storage proof within an inclusion proof is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L313-L357
-   * @param _xDomainCalldata Encoded message calldata.
-   * @param _proof Message inclusion proof.
-   * @return Whether or not the provided proof is valid.
-   */
-  function _verifyStorageProof(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
-    internal
-    pure
-    returns (bool)
-  {
-    bytes32 storageKey = keccak256(
-      abi.encodePacked(
-        keccak256(abi.encodePacked(_xDomainCalldata, PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER)),
-        uint256(0)
-      )
-    );
+    // Ensure this is a message that has happened after the fork.
+    require(provenWithdrawal.timestamp >= L2_ORACLE.startingTimestamp(), "pre-bedrock");
 
-    (bool exists, bytes memory encodedMessagePassingAccount) = SecureMerkleTrie.get(
-      abi.encodePacked(PredeployAddresses.L2_TO_L1_MESSAGE_PASSER),
-      _proof.stateTrieWitness,
-      _proof.stateRoot
-    );
+    // Grab the OutputProposal from the L2OutputOracle, will revert if the output that
+    // corresponds to the given index has not been proposed yet.
+    Types.OutputProposal memory proposal = L2_ORACLE.getL2Output(provenWithdrawal.l2OutputIndex);
 
-    require(exists == true, "Message passing predeploy has not been initialized or invalid proof provided.");
+    // Check that the output root that was used to prove the withdrawal is the same as the
+    // current output root for the given output index. An output root may change if it is
+    // deleted by the challenger address and then re-proposed.
+    require(proposal.outputRoot == provenWithdrawal.outputRoot, "!outputRoot");
 
-    OVMCodec.EVMAccount memory account = OVMCodec.decodeEVMAccount(encodedMessagePassingAccount);
-
-    return
-      SecureMerkleTrie.verifyInclusionProof(
-        abi.encodePacked(storageKey),
-        abi.encodePacked(uint8(1)),
-        _proof.storageTrieWitness,
-        account.storageRoot
-      );
-  }
-
-  /**
-   * Generates the correct cross domain calldata for a message.
-   * @dev taken from: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/libraries/bridge/Lib_CrossDomainUtils.sol
-   * @param _target Target contract address.
-   * @param _sender Message sender address.
-   * @param _message Message to send to the target.
-   * @param _messageNonce Nonce for the provided message.
-   * @return ABI encoded cross domain calldata.
-   */
-  function _encodeXDomainCalldata(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce
-  ) internal pure returns (bytes memory) {
-    return
-      abi.encodeWithSignature("relayMessage(address,address,bytes,uint256)", _target, _sender, _message, _messageNonce);
+    // Now the message is proven within the L2 root for bedrock. The merkle
+    // proof of inclusion is completed via `OptimismPortal.prove`.
+    return true;
   }
 }
