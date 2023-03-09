@@ -82,7 +82,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
   generated.forEach((cut) => {
-    const matching = proposal.find((p) => p.action === cut.action && cut.name.includes(p.name as string));
+    const matching = proposal.find((p: any) => p.action === cut.action && cut.name.includes(p.name as string));
     if (!matching) {
       throw new Error(`No matching cut found for ${cut.action} ${cut.facetAddress} in test record`);
     }

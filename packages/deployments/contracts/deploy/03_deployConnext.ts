@@ -80,13 +80,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Get all the facet options
   const facetsToDeploy = getFacetsToDeploy(zksync);
-  const facets: FacetOptions[] = [];
+  const facets: (FacetOptions & { abi: any[] })[] = [];
   for (const facet of facetsToDeploy) {
     const deployment = await hre.deployments.getOrNull(facet.name);
     if (!deployment) {
       throw new Error(`Failed to get deployment for ${facet.name}`);
     }
     facets.push({
+      abi: deployment.abi,
       name: facet.name,
       contract: new Contract(deployment.address, deployment.abi),
     });
