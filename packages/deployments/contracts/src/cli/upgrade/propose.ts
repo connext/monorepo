@@ -10,7 +10,7 @@ import { FacetCut } from "hardhat-deploy/types";
 import { HardhatUserConfig } from "hardhat/types";
 
 import { getProposedFacetCuts } from "../../../deployHelpers/getProposedFacetCuts";
-import { Env } from "../../utils";
+import { Env, getDeploymentName } from "../../utils";
 import { hardhatNetworks, SUPPORTED_CHAINS } from "../../config";
 
 import { FORK_BLOCKS, getDeployments } from "./helpers";
@@ -19,27 +19,49 @@ const execAsync = util.promisify(exec);
 
 config();
 
+const DEFAULT_TAG = "relayer-fee-upgrade";
+
 export const optionDefinitions = [
   { name: "env", type: String },
   { name: "network", type: String },
   { name: "chains", type: Number, multiple: true },
+  { name: "tag", type: String, defaultValue: DEFAULT_TAG },
 ];
 
-const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
-  // for each chain, start an anvil fork and store the rpc url
-  const networkInfo: Record<
-    number,
-    {
-      name: string;
-      config: HardhatUserConfig;
-      rpc: string;
-      forkName: string;
-      forkConfig: HardhatUserConfig;
-      forkRpc: string;
-    }
-  > = {};
+type NetworkContext = {
+  name: string;
+  config: HardhatUserConfig;
+  rpc: string;
+};
 
-  // create all the forks
+type ForkContext = {
+  default: NetworkContext;
+  fork: NetworkContext;
+};
+
+// sanitation checks before running the `hardhat deploy` command
+const preflight = async (tag: string, networkInfo: ForkContext) => {
+  if (tag === "relayer-fee-upgrade") {
+    // Should delete the existing deployment from the copied-over fork
+    // to ensure the deployment is not reused
+
+    // fork names are in format: 5_staging_fork
+    const env = networkInfo.fork.name.includes("staging") ? "staging" : "production";
+    const file = getDeploymentName("BridgeFacet", env);
+    const path = resolve(`./deployments/${networkInfo.fork.name}/${file}.json`);
+    const remove = `rm -rf ${path}`;
+    console.log(`\ntrying to remove ${file}:`, remove);
+    await execAsync(remove);
+    return;
+  }
+  throw new Error(`Ensure no preflight needed for ${tag}`);
+};
+
+const deployAgainstForks = async (chains: number[], tag: string): Promise<string[]> => {
+  // for each chain, start an anvil fork and store the rpc url
+  const networkInfo: Record<number, ForkContext> = {};
+
+  // create all the forks + populate the network info
   for (const chain of chains) {
     const forkBlock = (FORK_BLOCKS as any)[chain];
     // get the hardhat config
@@ -57,13 +79,16 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
     console.log(`\ntrying to create fork:`, command);
     await execAsync(command);
     // update network info
-    networkInfo[chain] = { name, config, rpc: config.url!, forkName, forkConfig, forkRpc: forkConfig.url };
+    networkInfo[chain] = {
+      default: { name, config, rpc: config.url! },
+      fork: { name: forkName, config: forkConfig, rpc: forkConfig.url },
+    };
   }
 
   // copy all current deployments to the `deployments` folder
   for (const chain of chains) {
-    const forkDirectory = resolve(`./deployments/${networkInfo[chain].forkName}`);
-    const sourceDirectory = resolve(`./deployments/${networkInfo[chain].name}`);
+    const forkDirectory = resolve(`./deployments/${networkInfo[chain].fork.name}`);
+    const sourceDirectory = resolve(`./deployments/${networkInfo[chain].default.name}`);
     console.log(`chain`, chain);
     // remove all deployments from chain
     const remove = `rm -rf ${forkDirectory}`;
@@ -74,12 +99,15 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
     console.log(`\ntrying to copy over deployments:`, copy);
     await execAsync(copy);
     console.log(`completed deployment of facets on ${chain}`);
+
+    // run preflight
+    await preflight(tag, networkInfo[chain]);
   }
 
   // deploy all the facets
   for (const chain of chains) {
-    const deploy = `yarn workspace @connext/smart-contracts hardhat deploy --network ${networkInfo[chain].forkName} --tags "Facets"`;
-    console.log(`\ntrying to deploy facets:`, deploy);
+    const deploy = `yarn workspace @connext/smart-contracts hardhat deploy --network ${networkInfo[chain].fork.name} --tags "${tag}"`;
+    console.log(`\ntrying to run deploy cmd:`, deploy);
     const { stderr, stdout } = await execAsync(deploy);
     if (stderr) {
       console.log(stderr);
@@ -90,7 +118,7 @@ const deployAgainstForks = async (chains: number[]): Promise<string[]> => {
   }
 
   // return fork rpcs
-  return Object.values(networkInfo).map((info) => info.forkRpc);
+  return Object.values(networkInfo).map((info) => info.fork.rpc);
 };
 
 export const getDiamondUpgradeProposal = async () => {
@@ -103,7 +131,7 @@ export const getDiamondUpgradeProposal = async () => {
 
   // Validate command line arguments
   // const chains = [1, 10, 56, 100, 137, 42161];
-  const { env: _env, chains: _chains, network: _network } = cmdArgs;
+  const { env: _env, chains: _chains, network: _network, tag } = cmdArgs;
   const network: "testnet" | "mainnet" = _network ?? process.env.NETWORK ?? "testnet";
   const env: Env = _env ?? process.env.ENV ?? "staging";
   const chains: number[] = _chains ?? SUPPORTED_CHAINS[network];
@@ -117,7 +145,7 @@ export const getDiamondUpgradeProposal = async () => {
 
   // deploy all the facets against a fork of the chain. when proposing, will use the
   // current `Connext` deployment on the mirroring fork chain
-  const rpcs = await deployAgainstForks(chains);
+  const rpcs = await deployAgainstForks(chains, tag as string);
 
   const chainCuts: Record<number, { proposal: FacetCut[]; connext: string; numberOfCuts: number }> & {
     chains: number[];
