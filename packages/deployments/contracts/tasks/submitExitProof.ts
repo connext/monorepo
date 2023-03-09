@@ -42,10 +42,10 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
 
     const deployments = getConnectorDeployments(env, network);
     const L1ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`, env),
     );
     const L2ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${SPOKE_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(`Polygon${SPOKE_PREFIX}Connector`, env),
     );
 
     if (!L1ConnectorDeployment || !L2ConnectorDeployment) {
