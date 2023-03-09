@@ -4,7 +4,7 @@ import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import { getContext } from "../processFromRoot";
-import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../errors";
+import { ConfirmDataDoesNotMatch, NoRootAvailable, RollUpNodeStaked } from "../errors";
 import { EventFetcher, JsonRpcProvider, L2TransactionReceipt, RollupUserLogic__factory } from "../../../mockable";
 import { ArbitrumNodeCreatedEventsNotFound } from "../../../errors";
 
@@ -135,12 +135,20 @@ export const getProcessFromArbitrumRootArgs = async ({
     to: arbNetwork.ethBridge.rollup,
   });
   const [node] = iface.decodeFunctionResult("getNode", nodeData);
+  logger.info("Got rollup node data", requestContext, methodContext, {
+    node,
+  });
+
   const confirmData = node.confirmData.toLowerCase() as string;
   const encoded = utils
     .keccak256(utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [foundBlock.hash, foundBlock.sendRoot]))
     .toLowerCase();
   if (confirmData !== encoded) {
     throw new ConfirmDataDoesNotMatch(confirmData, encoded, { requestContext, methodContext });
+  }
+
+  if (node.stakerCount.toNumber() == 0 || node.childStakerCount.toNumber() == 0) {
+    throw new RollUpNodeStaked(node.stakerCount.toNumber() as number, node.childStakerCount.toNumber() as number);
   }
 
   // get the proof
