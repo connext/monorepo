@@ -132,7 +132,7 @@ export const hardhatNetworks = {
   matic: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 137,
-    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://1rpc.io/matic",
+    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://rpc.ankr.com/polygon",
     companionNetworks: {
       hub: "mainnet",
     },

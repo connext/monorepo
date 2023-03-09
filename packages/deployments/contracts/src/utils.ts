@@ -91,7 +91,7 @@ const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 export const getDeploymentName = (_contractName: string, _env?: string, _networkName?: string) => {
   const env = mustGetEnv(_env);
   let contractName = _contractName;
-  console.log(contractName, _env, _networkName);
+
   if (contractName.includes("Multichain")) {
     const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
     contractName = contractName.replace("Multichain", networkName);
@@ -162,8 +162,16 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub), env);
-    const spokeName = getDeploymentName(getConnectorName(protocol, chainId), env);
+    const hubName = getDeploymentName(
+      getConnectorName(protocol, chainId, protocol.hub),
+      env,
+      protocol.configs[chainId].networkName,
+    );
+    const spokeName = getDeploymentName(
+      getConnectorName(protocol, chainId),
+      env,
+      protocol.configs[chainId].networkName,
+    );
     connectors.push({
       chain: protocol.hub,
       name: hubName,
