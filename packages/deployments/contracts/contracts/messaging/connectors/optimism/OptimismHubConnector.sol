@@ -25,7 +25,6 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   using TypedMemView for bytes29;
 
   // ============ Storage ============
-  // IStateCommitmentChain public immutable stateCommitmentChain;
   IOptimismPortal public immutable OPTIMISM_PORTAL;
 
   IL2OutputOracle public immutable L2_ORACLE;
