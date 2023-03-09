@@ -3,7 +3,7 @@ import { createLoggingContext } from "@connext/nxtp-utils";
 
 import { getContext } from "../processFromRoot";
 import { NoRootAvailable, AlreadyProcessed } from "../errors";
-import { generateExitPayload } from "../../../mockable";
+import { generateExitPayload, getContract } from "../../../mockable";
 
 import { GetProcessArgsParams } from ".";
 
@@ -40,6 +40,10 @@ export const getProcessFromPolygonRootArgs = async ({
     providers,
   );
 
+  if (!payload) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
+  }
+
   if (hash) {
     // check if already processed!!
     const hubConnector = contracts.hubConnector(
@@ -48,7 +52,7 @@ export const getProcessFromPolygonRootArgs = async ({
       config.environment === "staging" ? "Staging" : "",
     );
     const rpcProvider = new ethers.providers.JsonRpcProvider(hubProvider);
-    const hubConnectorContract = new ethers.Contract(hubConnector!.address, hubConnector!.abi as any[], rpcProvider);
+    const hubConnectorContract = getContract(hubConnector!.address, hubConnector!.abi as any[], rpcProvider);
 
     const processed = await hubConnectorContract.processedExits(hash);
     logger.info("Got exitHash and checked if processed from polygon", requestContext, methodContext, {
@@ -63,8 +67,5 @@ export const getProcessFromPolygonRootArgs = async ({
     }
   }
 
-  if (!payload) {
-    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
-  }
   return [payload];
 };
