@@ -54,3 +54,21 @@ export class CouldNotFindRelayer extends NxtpError {
     });
   }
 }
+
+export class AlreadyProcessed extends NxtpError {
+  constructor(
+    public readonly spokeDomain: number,
+    public readonly hubDomain: number,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Aleady processed for spoke ${spokeDomain} and hub ${hubDomain}`, {
+      ...context,
+      spokeDomain,
+      hubDomain,
+      requestContext,
+      methodContext,
+    });
+  }
+}
