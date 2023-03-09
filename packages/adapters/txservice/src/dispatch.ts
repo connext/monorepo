@@ -5,12 +5,12 @@ import {
   delay,
   getUuid,
   jsonifyError,
+  getChainIdFromDomain,
   Logger,
   NxtpError,
   RequestContext,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import {
   BadNonce,
@@ -365,7 +365,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const { domain, ...toCall } = minTx;
     const formatted = {
       ...toCall,
-      chainId: domainToChainId(domain),
+      chainId: getChainIdFromDomain(domain),
     };
 
     const result = await this.queue.add(

@@ -4,11 +4,11 @@ import {
   Logger,
   RequestContext,
   getNtpTimeSeconds,
+  getChainIdFromDomain,
   encodeMultisendCall,
   MultisendTransactionOperation,
   createMethodContext,
 } from "@connext/nxtp-utils";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {
@@ -96,7 +96,7 @@ export class ChainReader {
   }): Promise<utils.Result> {
     const { domain, txs, multisendContract, blockTag } = params;
 
-    const chainId = domainToChainId(domain);
+    const chainId = getChainIdFromDomain(domain);
     const multisend = multisendContract ?? getDeployedMultisendContract(chainId)?.address;
 
     if (!multisend) {
@@ -273,7 +273,7 @@ export class ChainReader {
    */
   public async getGasEstimateWithRevertCode(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
     const { domain, ...rest } = tx;
-    return await this.getProvider(domain).estimateGas({ ...rest, chainId: domainToChainId(domain) });
+    return await this.getProvider(domain).estimateGas({ ...rest, chainId: getChainIdFromDomain(domain) });
   }
 
   /// CONTRACT READ METHODS
@@ -318,7 +318,7 @@ export class ChainReader {
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
-    const priceOracleContract = getDeployedPriceOracleContract(domainToChainId(domain));
+    const priceOracleContract = getDeployedPriceOracleContract(getChainIdFromDomain(domain));
     if (!priceOracleContract || !priceOracleContract.address) {
       throw new ChainNotSupported(domain.toString(), requestContext);
     }

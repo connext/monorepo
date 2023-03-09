@@ -3,13 +3,13 @@ import {
   createRequestContext,
   delay,
   ERC20Abi,
+  getChainIdFromDomain,
   jsonifyError,
   Logger,
   NxtpError,
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -285,7 +285,7 @@ export class RpcProviderAggregator {
     const { domain, ...toCall } = tx;
     const formatted = {
       ...toCall,
-      chainId: domainToChainId(domain),
+      chainId: getChainIdFromDomain(domain),
     };
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
@@ -623,7 +623,7 @@ export class RpcProviderAggregator {
     const { domain, ...toCall } = tx;
     const formatted = {
       ...toCall,
-      chainId: domainToChainId(domain),
+      chainId: getChainIdFromDomain(domain),
     };
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
       return await provider.estimateGas(formatted);

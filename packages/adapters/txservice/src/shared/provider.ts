@@ -1,6 +1,5 @@
-import { delay, parseHostname } from "@connext/nxtp-utils";
+import { delay, getChainIdFromDomain, parseHostname } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
 
@@ -59,7 +58,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
   ) {
     // NOTE: super (StaticJsonRpc) uses the hard-coded chainId when instantiated for all future
     // .getNetwork() requests, so it is important to use the chainId here, not the domain
-    super(_connectionInfo, domainToChainId(domain));
+    super(_connectionInfo, getChainIdFromDomain(domain));
     this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
     this.name = parseHostname(this.connectionInfo.url)
       ? parseHostname(this.connectionInfo.url)!.split(".").slice(0, -1).join(".")
