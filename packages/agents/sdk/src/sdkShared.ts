@@ -39,7 +39,7 @@ export class SdkShared {
     async (chainId: number) => {
       return await _getConversionRate(chainId, undefined, undefined);
     },
-    { promise: true },
+    { promise: true, maxAge: 1 * 60 * 1000 }, // maxAge: 1 min
   );
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
