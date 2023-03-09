@@ -81,12 +81,12 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
         if (processed) {
           console.log("Already Processed!");
           return;
+        } else {
+          const tx = await L1ConnectorContract.receiveMessage(payload);
+          console.log(`receive message tx`, tx.hash);
+          const receipt = await tx.wait();
+          console.log("receipt", receipt);
         }
-      } else {
-        const tx = await L1ConnectorContract.receiveMessage(payload);
-        console.log(`receive message tx`, tx.hash);
-        const receipt = await tx.wait();
-        console.log("receipt", receipt);
       }
     }
   });

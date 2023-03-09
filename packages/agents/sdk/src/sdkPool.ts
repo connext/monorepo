@@ -199,11 +199,12 @@ export class SdkPool extends SdkShared {
     );
 
     // Determine if fast liquidity is available (pre-destination-swap amount)
-
     let isFastPath = true;
     try {
       const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
-      isFastPath = BigNumber.from(activeLiquidity.total_balance.mul(70).div(100)).gt(destinationAmount) ? true : false;
+      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount)
+        ? true
+        : false;
     } catch {
       this.logger.warn("Error while calculating active liquidity", requestContext, methodContext);
     }
