@@ -201,6 +201,23 @@ export class SdkShared {
     { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
   );
 
+  getActiveLiquidity = memoize(
+    async (domain?: string, local?: string): Promise<any> => {
+      const domainIdentifier = domain ? `domain=eq.${domain.toString()}&` : "";
+      const localIdentifier = local ? `local=eq.${local.toLowerCase()}&` : "";
+
+      const searchIdentifier = domainIdentifier + localIdentifier;
+
+      const uri = formatUrl(this.config.cartographerUrl!, "router_liquidity?", searchIdentifier);
+
+      // Validate uri
+      validateUri(uri);
+
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 1 * 60 * 1000 }, // 1 min
+  );
+
   /**
    * Fetches the list of supported networks and assets.
    *
