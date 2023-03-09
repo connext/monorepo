@@ -473,121 +473,25 @@ describe("SdkBase", () => {
       adminFee: "0",
     };
 
-    const mockAssetData = {
-      local: mockPool.local.address,
-      adopted: mockPool.adopted.address,
-      canonical_id: constants.HashZero,
-      canonical_domain: mockPool.domainId,
-      domain: mockPool.domainId,
-      key: mockPool.canonicalHash,
-      id: mockPool.local.address,
+    const mockResponse = {
+      amountReceived: "100",
+      originSlippage: "1",
+      routerFee: "1",
+      destinationSlippage: "1",
+      isFastPath: true,
     };
 
-    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
-
-    it("happy: should work with local origin asset and adopted destination asset", async () => {
-      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
-
-      const originAmount = BigNumber.from(100_000);
-      const originSlippage = "0"; // 0% in BPS
-
-      const destinationAmount = originAmount.sub(originAmount.mul(feeBps).div(10000)); // router takes 0.05%
-      const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
-      const destinationSlippage = "1000"; // 10% in BPS
-
-      stub(sdkPool, "calculateSwap")
-        .onCall(0) // swap once for destination pool
-        .resolves(destinationAmountAfterSwap);
-      stub(sdkBase, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkBase, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
-      const res = await sdkBase.calculateAmountReceived(
-        mockPool.domainId,
-        mockPool.domainId,
-        mockPool.local.address,
-        originAmount,
-      );
-
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
-    });
-
-    it("happy: should work with adopted origin asset and adopted destination asset", async () => {
-      stub(sdkPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
-
-      const originAmount = BigNumber.from(100_000);
-      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
-      const originSlippage = "1000"; // 10% in BPS
-
-      const destinationAmount = originAmountAfterSwap.sub(originAmountAfterSwap.mul(feeBps).div(10000)); // router takes 0.05%
-      const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
-      const destinationSlippage = "1000"; // 10% in BPS
-
-      stub(sdkPool, "calculateSwap")
-        .onCall(0) // swap once for origin pool
-        .resolves(originAmountAfterSwap)
-        .onCall(1) // swap once for destination pool
-        .resolves(destinationAmountAfterSwap);
-      stub(sdkBase, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkBase, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
-      const res = await sdkBase.calculateAmountReceived(
-        mockPool.domainId,
-        mockPool.domainId,
-        mockPool.adopted.address,
-        originAmount,
-      );
-
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
-    });
-
-    it("happy: should work with adopted origin asset and local destination asset", async () => {
-      stub(sdkPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(undefined);
-
-      const originAmount = BigNumber.from(100_000);
-      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
-      const originSlippage = "1000"; // 10% in BPS
-      const destinationSlippage = "0"; // 0% in BPS
-
-      stub(sdkPool, "calculateSwap")
-        .onCall(0) // swap once for origin pool
-        .resolves(originAmountAfterSwap);
-      stub(sdkBase, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkBase, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
-      const res = await sdkBase.calculateAmountReceived(
-        mockPool.domainId,
-        mockPool.domainId,
-        mockPool.adopted.address,
-        originAmount,
-        true,
-      );
-
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
-    });
-
     it("happy: should work with local origin asset and local destination asset", async () => {
-      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
-
-      const originAmount = BigNumber.from(100_000);
-      const originSlippage = "0"; // 10% in BPS
-      const destinationSlippage = "0"; // 0% in BPS
-
-      stub(sdkBase, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkBase, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
+      stub(sdkPool, "calculateAmountReceived").resolves(mockResponse);
       const res = await sdkBase.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
         mockPool.local.address,
-        originAmount,
+        "100",
         true,
       );
 
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+      expect(res).to.equal(mockResponse);
     });
   });
 });
