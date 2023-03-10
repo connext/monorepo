@@ -2003,7 +2003,7 @@ __metadata:
     ts-mocha: 10.0.0
     typescript: 4.9.5
     zapatos: 6.1.4
-    zksync-web3: ^0.13.4
+    zksync-web3: 0.13.4
   languageName: unknown
   linkType: soft
 
@@ -2451,9 +2451,9 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 2.0.0
     "@gelatonetwork/relay-context": 2.1.0
-    "@matterlabs/hardhat-zksync-deploy": ^0.6.1
-    "@matterlabs/hardhat-zksync-solc": ^0.3.14
-    "@matterlabs/hardhat-zksync-verify": ^0.1.1
+    "@matterlabs/hardhat-zksync-deploy": 0.6.2
+    "@matterlabs/hardhat-zksync-solc": 0.3.14
+    "@matterlabs/hardhat-zksync-verify": 0.1.3
     "@nomiclabs/hardhat-ethers": 2.2.2
     "@nomiclabs/hardhat-etherscan": 3.1.6
     "@nomiclabs/hardhat-waffle": 2.0.5
@@ -2494,7 +2494,7 @@ __metadata:
     ts-node: 10.9.1
     typechain: 8.1.1
     typescript: 4.9.5
-    zksync-web3: ^0.13.0
+    zksync-web3: 0.13.4
   languageName: unknown
   linkType: soft
 
@@ -5185,32 +5185,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.1"
+"@matterlabs/hardhat-zksync-deploy@npm:0.6.2":
+  version: 0.6.2
+  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.2"
   dependencies:
     chalk: 4.1.2
   peerDependencies:
     ethers: ~5.7.2
-    hardhat: ^2.12.4
-    zksync-web3: ^0.12.3
-  checksum: 5417c2049f00f1894a1fb0bd7ba15a88322afe858cb4ea9031e7b33d6cd15812a8d038851e3da87b9c95389bcf30599b20bc3651f8efa4e9900aa31916ab8001
+    hardhat: ^2.12.6
+    zksync-web3: ^0.13.4
+  checksum: 99fb5d057703e538d7fb8598b28c3227fd4c9f76c4b7ddc1dcfe7756833bb00e84394cc04682c27e563bcadc75381fcf6b4c5a167d538a7b0808542e1a0a6d24
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:0.3.12":
-  version: 0.3.12
-  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.12"
-  dependencies:
-    "@nomiclabs/hardhat-docker": ^2.0.0
-    dockerode: ^3.3.4
-  peerDependencies:
-    hardhat: ^2.12.2
-  checksum: 1ce3eccda94db5f9cf9b965bb3c7c02b7992467c4d5f977cb3c9a800d4cb16c76d0bb74fee81d79d9221672d6da262ff339159f5aa47c6d84f2ab2a14c183a00
-  languageName: node
-  linkType: hard
-
-"@matterlabs/hardhat-zksync-solc@npm:^0.3.14":
+"@matterlabs/hardhat-zksync-solc@npm:0.3.14":
   version: 0.3.14
   resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.14"
   dependencies:
@@ -5223,16 +5211,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-verify@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.1"
+"@matterlabs/hardhat-zksync-verify@npm:0.1.3":
+  version: 0.1.3
+  resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.3"
   dependencies:
-    "@matterlabs/hardhat-zksync-solc": 0.3.12
-    axios: ^1.2.1
+    "@matterlabs/hardhat-zksync-solc": 0.3.14
+    axios: ^1.3.4
+    chalk: 4.1.2
     dockerode: ^3.3.4
   peerDependencies:
     "@nomiclabs/hardhat-etherscan": 3.1.2
-  checksum: 90471f7c97c2a49d625a005d85c679e653c4dcb3515887017e1044b0c3a2b6d7deb81a8a1b22298c2818ccdd636c08be55b4a23e31ac58797618418068c3fda5
+  checksum: b9670098270b2bb8a1f84f3db0ba91466d5b2085c5f1fbd2e398fad86891dcc0c0ce50d66c167dad6ab9b83db9632ae22f6885fbca3dae492f6355aaa180237d
   languageName: node
   linkType: hard
 
@@ -8461,7 +8450,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.3.3, axios@npm:^1.2.1":
+"axios@npm:1.3.3":
   version: 1.3.3
   resolution: "axios@npm:1.3.3"
   dependencies:
@@ -8487,6 +8476,17 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.8
   checksum: d9eb58ff4bc0b36a04783fc9ff760e9245c829a5a1052ee7ca6013410d427036b1d10d04e7380c02f3508c5eaf3485b1ae67bd2adbfec3683704745c8d7a6e1a
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "axios@npm:1.3.4"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 7440edefcf8498bc3cdf39de00443e8101f249972c83b739c6e880d9d669fea9486372dbe8739e88b3bf8bb1ad15f6106693f206f078f4516fe8fd47b1c3093c
   languageName: node
   linkType: hard
 
@@ -28753,7 +28753,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.13.0, zksync-web3@npm:^0.13.4":
+"zksync-web3@npm:0.13.4":
   version: 0.13.4
   resolution: "zksync-web3@npm:0.13.4"
   peerDependencies:

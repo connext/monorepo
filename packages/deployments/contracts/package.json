@@ -79,9 +79,9 @@
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/sdk": "2.0.0",
     "@gelatonetwork/relay-context": "2.1.0",
-    "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
-    "@matterlabs/hardhat-zksync-solc": "^0.3.14",
-    "@matterlabs/hardhat-zksync-verify": "^0.1.1",
+    "@matterlabs/hardhat-zksync-deploy": "0.6.2",
+    "@matterlabs/hardhat-zksync-solc": "0.3.14",
+    "@matterlabs/hardhat-zksync-verify": "0.1.3",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@typescript-eslint/eslint-plugin": "5.52.0",
     "adv": "0.1.5",
@@ -92,7 +92,7 @@
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
     "typechain": "8.1.1",
-    "zksync-web3": "^0.13.0"
+    "zksync-web3": "0.13.4"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"
