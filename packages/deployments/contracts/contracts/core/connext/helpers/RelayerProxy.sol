@@ -28,8 +28,6 @@ interface ISpokeConnector {
 interface IKeep3rV2 {
   function isKeeper(address _keeper) external returns (bool _isKeeper);
 
-  function directTokenPayment(address _token, address _keeper, uint256 _amount) external;
-
   function worked(address _keeper) external;
 }
 

@@ -21,7 +21,7 @@ contract RelayerProxyHub is RelayerProxy {
   IRootManager public rootManager;
   uint256 public propagateCooldown;
   // Timestamp of the last time the job was worked.
-  uint public lastPropagateAt;
+  uint256 public lastPropagateAt;
 
   // ============ Events ============
   event RootManagerChanged(address rootManager, address oldRootManager);
