@@ -64,7 +64,7 @@ export const transfersCastForUrl =
     "reconcile_gas_limit",
     "reconcile_block_number",
     "reconcile_tx_origin",
-    "relayer_fee",
+    "relayer_fees",
     "error_status",
   ].join(",");
 
