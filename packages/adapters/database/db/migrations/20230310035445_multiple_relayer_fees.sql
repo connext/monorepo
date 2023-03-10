@@ -1,6 +1,11 @@
 -- migrate:up
 ALTER TABLE transfers
 ADD COLUMN relayer_fees jsonb;
+UPDATE transfers
+SET relayer_fees = jsonb_build_object(
+        '0x0000000000000000000000000000000000000000',
+        relayer_fee
+    );
 DROP VIEW public.transfers_with_ttr_ttv;
 ALTER TABLE transfers DROP COLUMN relayer_fee;
 CREATE VIEW public.transfers_with_ttr_ttv AS
