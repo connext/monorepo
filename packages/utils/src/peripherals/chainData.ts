@@ -110,13 +110,19 @@ export const getChainData = async (useCached?: boolean, ignoreMissing?: boolean)
     const data = await fetchJson(url);
     return chainDataToMap(data, ignoreMissing);
   } catch (err: unknown) {
-    // Check to see if we have the chain data cached locally.
-    if (fs.existsSync("./chaindata.json")) {
-      console.info("Using cached chain data.");
-      const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
+    const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+    try {
+      const data = await fetchJson(url);
       return chainDataToMap(data, ignoreMissing);
+    } catch (err: unknown) {
+      // Check to see if we have the chain data cached locally.
+      if (fs.existsSync("./chaindata.json")) {
+        console.info("Using cached chain data.");
+        const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
+        return chainDataToMap(data, ignoreMissing);
+      }
+      // It could be dangerous to let any agent start without chain data.
+      throw new Error("Could not get chain data, and no cached chain data was available.");
     }
-    // It could be dangerous to let any agent start without chain data.
-    throw new Error("Could not get chain data, and no cached chain data was available.");
   }
 };

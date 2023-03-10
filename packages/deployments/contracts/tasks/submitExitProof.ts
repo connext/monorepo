@@ -42,10 +42,10 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
 
     const deployments = getConnectorDeployments(env, network);
     const L1ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`, env),
     );
     const L2ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${SPOKE_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(`Polygon${SPOKE_PREFIX}Connector`, env),
     );
 
     if (!L1ConnectorDeployment || !L2ConnectorDeployment) {
@@ -63,19 +63,30 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
     }
 
     const SEND_MESSAGE_EVENT_SIG = "0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036"; // keccak256(MessageSent(bytes))
-    const payload = await generateExitPayload(
+    const { payload, hash } = await generateExitPayload(
       String(chainIdToDomain(L2ConnectorDeployment.chain)),
       String(chainIdToDomain(L1ConnectorDeployment.chain)),
       txHash,
       SEND_MESSAGE_EVENT_SIG,
       providers,
     );
+    console.log(payload, hash);
 
     if (payload) {
       const L1ConnectorContract = new Contract(L1ConnectorDeployment.address, L1ConnectorDeployment.abi, deployer);
-      const tx = await L1ConnectorContract.receiveMessage(payload);
-      console.log(`receive message tx`, tx.hash);
-      const receipt = await tx.wait();
-      console.log("receipt", receipt);
+
+      if (hash) {
+        const processed = await L1ConnectorContract.processedExits(hash);
+        console.log("processed", processed);
+        if (processed) {
+          console.log("Already Processed!");
+          return;
+        } else {
+          const tx = await L1ConnectorContract.receiveMessage(payload);
+          console.log(`receive message tx`, tx.hash);
+          const receipt = await tx.wait();
+          console.log("receipt", receipt);
+        }
+      }
     }
   });

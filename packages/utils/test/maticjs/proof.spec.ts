@@ -30,6 +30,7 @@ describe("maticjs:proof", () => {
     let posClient: POSClient;
     let posClientStub: SinonStub;
     let exitBuildStub: SinonStub;
+    let exitHashStub: SinonStub;
     let exitCheckpointStub: SinonStub;
 
     const domain = "1337";
@@ -37,6 +38,7 @@ describe("maticjs:proof", () => {
     const burnTx = mkHash("0xburn");
     const eventSignature = mkSig("MessageSent(bytes)");
     const mockProof = mkHash("0xproof");
+    const mockHash = mkHash("0xaa");
 
     beforeEach(async () => {
       fetchJsonStub = stub(SharedFns, "fetchJson");
@@ -45,6 +47,7 @@ describe("maticjs:proof", () => {
       posClient = await initMatic(false, mockChainData[0].rpc[0], mockChainData[1].rpc[0]);
       posClientStub = stub(ClientFuncs, "initMatic").resolves(posClient);
       exitBuildStub = stub(posClient.exitUtil, "buildPayloadForExit");
+      exitHashStub = stub(posClient.exitUtil, "getExitHash");
       exitCheckpointStub = stub(posClient.exitUtil, "isCheckPointed");
     });
 
@@ -72,7 +75,8 @@ describe("maticjs:proof", () => {
         }),
       );
       const result = await generateExitPayload(domain, mirrorDomain, burnTx, eventSignature);
-      expect(result).to.be.undefined;
+      expect(result.payload).to.be.undefined;
+      expect(result.hash).to.be.undefined;
     });
 
     it("throws if not checkpoint throws", async () => {
@@ -99,11 +103,16 @@ describe("maticjs:proof", () => {
 
     it("happy", async () => {
       exitBuildStub.resolves(mockProof);
+      exitHashStub.resolves(mockHash);
       exitCheckpointStub.resolves(true);
-      expect(await generateExitPayload(domain, mirrorDomain, burnTx, eventSignature)).to.be.equal(mockProof);
+      expect(await generateExitPayload(domain, mirrorDomain, burnTx, eventSignature)).to.be.deep.equal({
+        payload: mockProof,
+        hash: mockHash,
+      });
 
       expect(posClientStub.alwaysCalledWith(false, mockChainData[0].rpc[0], mockChainData[1].rpc[0])).to.be.true;
       expect(exitBuildStub.alwaysCalledWith(burnTx, eventSignature, false)).to.be.true;
+      expect(exitHashStub.alwaysCalledWith(burnTx, 0, eventSignature)).to.be.true;
       expect(exitCheckpointStub.alwaysCalledWith(burnTx)).to.be.true;
     });
   });
