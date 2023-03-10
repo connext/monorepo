@@ -49,7 +49,10 @@ describe("Operations: ProveAndProcess", () => {
 
   describe("#processMessages", () => {
     beforeEach(() => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
+      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves({
+        ...mockRootMessage,
+        root: mockXMessage1.origin.root,
+      });
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(mockXMessage1.origin.index);
       (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
@@ -76,7 +79,10 @@ describe("Operations: ProveAndProcess", () => {
 
   describe("#processMessages with exceptions", () => {
     beforeEach(() => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(mockXMessage1.origin.root);
+      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves({
+        ...mockRootMessage,
+        root: mockXMessage1.origin.root,
+      });
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(mockXMessage1.origin.index);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(mockXMessage1.origin.index);
       (proverCtxMock.adapters.database.getAggregateRoot as SinonStub).resolves(mockXMessage1.origin.root);
@@ -85,7 +91,7 @@ describe("Operations: ProveAndProcess", () => {
     });
 
     it("should catch error", async () => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves(undefined);
+      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves();
       await expect(
         processMessages(
           [mockXMessage1],

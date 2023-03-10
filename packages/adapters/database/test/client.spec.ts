@@ -752,7 +752,7 @@ describe("Database client", () => {
     expect(firstRoot).to.eq(messages[0].root);
     // Index the message leaf just after the count of the previous aggregate root
     const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
-    expect(lastRoot).to.eq(messages[batchSize - 1].root);
+    expect(lastRoot!.root).to.eq(messages[batchSize - 1].root);
   });
 
   it("should not set processed to false", async () => {
@@ -936,7 +936,7 @@ describe("Database client", () => {
 
   it("should return undefined", async () => {
     expect(await getTransferByTransferId("", pool)).to.eq(undefined);
-    expect(await getMessageRootFromIndex("", 10000000, pool)).to.eq(undefined);
+    expect((await getMessageRootFromIndex("", 10000000, pool))?.root).to.eq(undefined);
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);

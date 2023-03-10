@@ -61,6 +61,8 @@ import {
   updateSlippage,
   markRootMessagesProcessed,
   updateExecuteSimulationData,
+  getPendingTransfersByMessageStatus,
+  getMessageByLeaf,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -154,7 +156,7 @@ export type Database = {
     domain: string,
     index: number,
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  ) => Promise<RootMessage | undefined>;
   getMessageRootCount: (
     domain: string,
     messageRoot: string,
@@ -205,6 +207,18 @@ export type Database = {
     executeSimulationNetwork: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  getPendingTransfersByMessageStatus: (
+    domain: string,
+    offset: number,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XTransfer[]>;
+  getMessageByLeaf: (
+    origin_domain: string,
+    leaf: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage | undefined>;
 };
 
 export let pool: Pool;
@@ -262,6 +276,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveRouterDailyTVL,
     updateSlippage,
     updateExecuteSimulationData,
+    getPendingTransfersByMessageStatus,
+    getMessageByLeaf,
   };
 };
 
