@@ -110,9 +110,8 @@ export const calculateRelayerFee = async (
 
   if (logger) {
     logger.info("Estimate Relayer Fee", requestContext, methodContext, {
-      originNativeToken,
+      priceIn,
       originChainId,
-      destinationNativeToken,
       destinationChainId,
       executeGasAmount,
       callDataGasAmount,

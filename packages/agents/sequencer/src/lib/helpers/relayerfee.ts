@@ -40,8 +40,6 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
       originDomain,
       destinationDomain,
       priceIn: "usd",
-      originNativeToken: constants.AddressZero,
-      destinationNativeToken: constants.AddressZero,
       getGasPriceCallback: (domain: number) => chainreader.getGasPrice(domain, requestContext),
     },
     chainData,
