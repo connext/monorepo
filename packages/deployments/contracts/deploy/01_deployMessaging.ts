@@ -2,8 +2,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -33,8 +34,8 @@ const formatConnectorArgs = (
 
   const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
 
-  const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
-  const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
+  const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
+  const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
 
   const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 

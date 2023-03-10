@@ -2,7 +2,7 @@ import { BigNumber, constants } from "ethers";
 
 import { getHardcodedGasLimits } from "../constants";
 import { NxtpError } from "../types";
-import { getChainIdFromDomain, getDecimalsForAsset } from "../helpers";
+import { chainIdToDomain, getDecimalsForAsset } from "../helpers";
 import { Logger, createLoggingContext, RequestContext } from "../logging";
 
 import { ChainData } from "./chainData";
@@ -49,10 +49,8 @@ export const calculateRelayerFee = async (
   const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
   const isHighPriority = _isHighPriority ?? false;
 
-  const [originChainId, destinationChainId] = await Promise.all([
-    await getChainIdFromDomain(originDomain, chainData),
-    await getChainIdFromDomain(destinationDomain, chainData),
-  ]);
+  const originChainId = chainIdToDomain(Number(originDomain));
+  const destinationChainId = chainIdToDomain(Number(destinationDomain));
 
   // fetch executeGasAmount from chainData
   const {

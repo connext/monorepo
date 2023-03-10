@@ -4,10 +4,10 @@ import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
-import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, domainToChainId } from "../../domain";
+import { canonizeId } from "../../domain";
 import { hardhatNetworks } from "../../config";
 
 import {

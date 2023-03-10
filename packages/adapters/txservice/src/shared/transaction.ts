@@ -1,4 +1,4 @@
-import { getChainIdFromDomain, RequestContext } from "@connext/nxtp-utils";
+import { domainToChainId, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers, utils } from "ethers";
 
 import { Gas, WriteTransaction } from "./types";
@@ -132,7 +132,7 @@ export class OnchainTransaction {
     const { domain, ...rest } = this.minTx;
     return {
       ...rest,
-      chainId: getChainIdFromDomain(domain),
+      chainId: domainToChainId(domain),
       nonce: this.nonce,
       type: this.type,
       gasLimit: this.gas.limit,

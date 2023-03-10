@@ -2,8 +2,8 @@ import {
   createLoggingContext,
   createRequestContext,
   delay,
+  domainToChainId,
   ERC20Abi,
-  getChainIdFromDomain,
   jsonifyError,
   Logger,
   NxtpError,
@@ -285,7 +285,7 @@ export class RpcProviderAggregator {
     const { domain, ...toCall } = tx;
     const formatted = {
       ...toCall,
-      chainId: getChainIdFromDomain(domain),
+      chainId: domainToChainId(domain),
     };
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
@@ -623,7 +623,7 @@ export class RpcProviderAggregator {
     const { domain, ...toCall } = tx;
     const formatted = {
       ...toCall,
-      chainId: getChainIdFromDomain(domain),
+      chainId: domainToChainId(domain),
     };
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
       return await provider.estimateGas(formatted);

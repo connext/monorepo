@@ -3,9 +3,9 @@ import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
   delay,
+  domainToChainId,
   getUuid,
   jsonifyError,
-  getChainIdFromDomain,
   Logger,
   NxtpError,
   RequestContext,
@@ -365,7 +365,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const { domain, ...toCall } = minTx;
     const formatted = {
       ...toCall,
-      chainId: getChainIdFromDomain(domain),
+      chainId: domainToChainId(domain),
     };
 
     const result = await this.queue.add(
