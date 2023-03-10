@@ -14,6 +14,7 @@ export const calculateRelayerFee = async (
   params: {
     originDomain: string;
     destinationDomain: string;
+    priceIn?: "native" | "usd";
     originChainId?: number;
     destinationChainId?: number;
     originNativeToken?: string;
@@ -37,6 +38,7 @@ export const calculateRelayerFee = async (
   const {
     originDomain,
     destinationDomain,
+    priceIn: _priceIn,
     originChainId: _originChainId,
     destinationChainId: _destinationChainId,
     callDataGasAmount,
@@ -52,6 +54,7 @@ export const calculateRelayerFee = async (
   const originNativeToken = _originNativeToken ?? constants.AddressZero;
   const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
   const isHighPriority = _isHighPriority ?? false;
+  const priceIn = _priceIn ?? "native";
 
   const [originChainId, destinationChainId] = await Promise.all([
     _originChainId ? Promise.resolve(_originChainId) : getChainIdFromDomain(originDomain, chainData),
@@ -136,24 +139,30 @@ export const calculateRelayerFee = async (
   const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);
   const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
 
-  const relayerFeeInOrginNativeAsset =
-    originTokenDecimals >= destinationTokenDecimals
-      ? bumpedFee
-          .mul(impactedDestinationTokenPrice)
-          .div(impactedOriginTokenPrice)
-          .mul(BigNumber.from(10).pow(originTokenDecimals - destinationTokenDecimals))
-      : bumpedFee
-          .mul(impactedDestinationTokenPrice)
-          .div(impactedOriginTokenPrice)
-          .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
+  let relayerFeeFinal;
+  if (priceIn === "native") {
+    relayerFeeFinal =
+      originTokenDecimals >= destinationTokenDecimals
+        ? bumpedFee
+            .mul(impactedDestinationTokenPrice)
+            .div(impactedOriginTokenPrice)
+            .mul(BigNumber.from(10).pow(originTokenDecimals - destinationTokenDecimals))
+        : bumpedFee
+            .mul(impactedDestinationTokenPrice)
+            .div(impactedOriginTokenPrice)
+            .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
+  } else {
+    // TODO: get price in USD
+    relayerFeeFinal = constants.Zero;
+  }
 
   if (logger) {
     logger.info("Fee estimation completed!", requestContext, methodContext, {
       bumpedFee: bumpedFee.toString(),
       originTokenPrice,
       destinationTokenPrice,
-      relayerFeeInOrginNativeAsset: relayerFeeInOrginNativeAsset.toString(),
+      relayerFeeInOriginNativeAsset: relayerFeeFinal.toString(),
     });
   }
-  return relayerFeeInOrginNativeAsset;
+  return relayerFeeFinal;
 };

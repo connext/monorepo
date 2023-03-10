@@ -231,7 +231,7 @@ export const executeFastPathData = async (
   if (!canSubmit) {
     logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
       transferId,
-      relayerFee: transfer.origin.relayerFee,
+      relayerFees: transfer.origin.relayerFees,
       needed,
     });
 
