@@ -72,9 +72,8 @@ export type SdkUpdateSlippage = Static<typeof SdkUpdateSlippageSchema>;
 export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,
-  originNativeToken: Type.Optional(TAddress),
-  destinationNativeToken: Type.Optional(TAddress),
   callDataGasAmount: Type.Optional(Type.Integer()),
+  priceIn: Type.Optional(Type.Union([Type.Literal("native"), Type.Literal("usd")])),
   isHighPriority: Type.Optional(Type.Boolean()),
   originNativeTokenPrice: Type.Optional(Type.Number()),
   destinationNativeTokenPrice: Type.Optional(Type.Number()),

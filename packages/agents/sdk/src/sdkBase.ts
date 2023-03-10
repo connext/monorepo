@@ -499,16 +499,17 @@ export class SdkBase extends SdkShared {
   }
 
   /**
-   * Calculates an estimated relayer fee in the native asset of the origin domain to be used in xcall.
+   * Calculates an estimated relayer fee in either the native asset of the origin domain or the USD price to be used in xcall.
    *
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.priceIn - `native` or `usd`, the currency to return the relayer fee in.`
    * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
-   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.originNativeTokenPrice - (optional) The USD price of the origin native token.
    * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
    * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
-   * @returns The relayer fee in native asset of the origin domain.
+   * @returns The relayer fee in either native asset of the origin domain or USD (18 decimal fidelity).
    *
    * @example
    * ```ts

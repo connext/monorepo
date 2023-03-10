@@ -17,8 +17,6 @@ export const calculateRelayerFee = async (
     priceIn?: "native" | "usd";
     originChainId?: number;
     destinationChainId?: number;
-    originNativeToken?: string;
-    destinationNativeToken?: string;
     callDataGasAmount?: number;
     isHighPriority?: boolean;
     getGasPriceCallback?: (domain: number) => Promise<BigNumber>;
@@ -42,8 +40,6 @@ export const calculateRelayerFee = async (
     originChainId: _originChainId,
     destinationChainId: _destinationChainId,
     callDataGasAmount,
-    originNativeToken: _originNativeToken,
-    destinationNativeToken: _destinationNativeToken,
     isHighPriority: _isHighPriority,
     getGasPriceCallback,
     originNativeTokenPrice,
@@ -51,8 +47,6 @@ export const calculateRelayerFee = async (
     destinationGasPrice,
   } = params;
 
-  const originNativeToken = _originNativeToken ?? constants.AddressZero;
-  const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
   const isHighPriority = _isHighPriority ?? false;
   const priceIn = _priceIn ?? "native";
 
@@ -81,7 +75,7 @@ export const calculateRelayerFee = async (
   const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
     getGelatoEstimatedFee(
       destinationChainId,
-      destinationNativeToken,
+      constants.AddressZero,
       Number(totalGasAmount),
       isHighPriority,
       destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
