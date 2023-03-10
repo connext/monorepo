@@ -318,7 +318,7 @@ export const saveProcessedRootMessages = async (
       .update(
         "root_messages",
         { processed: true },
-        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.timestamp) },
       )
       .run(poolToUse);
   }

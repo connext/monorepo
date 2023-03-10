@@ -75,6 +75,10 @@ export const transfersCastForUrl =
     "error_status",
     "message_status",
     "message_hash",
+    "execute_simulation",
+    "execute_simulation_from",
+    "execute_simulation_to",
+    "execute_simulation_network",
   ].join(",");
 
 /**

@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, formatUrl, StableSwapExchange } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  formatUrl,
+  StableSwapExchange,
+  DEFAULT_ROUTER_FEE,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
@@ -109,6 +116,107 @@ export class SdkPool extends SdkShared {
     const minAmount = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amount);
 
     return minAmount;
+  }
+
+  /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   *
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
+   * @param originTokenAddress - The address of the token to be bridged from origin.
+   * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
+   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   */
+  async calculateAmountReceived(
+    originDomain: string,
+    destinationDomain: string,
+    originTokenAddress: string,
+    amount: BigNumberish,
+    receiveLocal = false,
+  ): Promise<{
+    amountReceived: BigNumberish;
+    originSlippage: BigNumberish;
+    routerFee: BigNumberish;
+    destinationSlippage: BigNumberish;
+    isFastPath: boolean;
+  }> {
+    const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+    const _originTokenAddress = utils.getAddress(originTokenAddress);
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomain,
+      destinationDomain,
+      _originTokenAddress,
+      amount,
+    });
+
+    const [originPool, [canonicalDomain, canonicalId], isNextAsset] = await Promise.all([
+      this.getPool(originDomain, _originTokenAddress),
+      this.getCanonicalTokenId(originDomain, _originTokenAddress),
+      this.isNextAsset(_originTokenAddress),
+    ]);
+
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    if (!destinationAssetData) {
+      throw new Error("Origin token cannot be bridged to any token on this destination domain");
+    }
+
+    // Swap IFF supplied origin token is an adopted asset
+    let originAmountReceived = amount;
+    if (!isNextAsset && originPool) {
+      originAmountReceived = await this.calculateSwap(
+        originDomain,
+        _originTokenAddress,
+        originPool.adopted.index,
+        originPool.local.index,
+        amount,
+      );
+    }
+
+    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
+
+    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
+    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
+    let destinationAmountReceived = destinationAmount;
+
+    const promises: Promise<any>[] = [];
+
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+
+    // Swap IFF desired destination token is an adopted asset
+    if (!receiveLocal && destinationPool) {
+      promises.push(
+        this.calculateSwap(
+          destinationDomain,
+          destinationAssetData.local,
+          destinationPool.local.index,
+          destinationPool.adopted.index,
+          destinationAmount,
+        ),
+      );
+    }
+
+    const [activeLiquidity, destinationAmountReceivedSwap] = await Promise.all(promises);
+    destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
+    let isFastPath = false;
+    if (activeLiquidity.length > 0) {
+      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
+    }
+    const destinationSlippage = BigNumber.from(
+      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+    );
+
+    return {
+      amountReceived: destinationAmountReceived,
+      originSlippage,
+      routerFee,
+      destinationSlippage,
+      isFastPath,
+    };
   }
 
   /**

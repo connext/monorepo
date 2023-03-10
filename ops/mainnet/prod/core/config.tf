@@ -296,9 +296,10 @@ locals {
       }
     ]
     healthUrls = {
-      prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
-      processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
-      propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      prover           = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
+      processor        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+      propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
     hubDomain       = "6648936"
     proverBatchSize = 1
@@ -342,7 +343,7 @@ locals {
       adminToken = var.admin_token_watcher
     }
     environment = "production"
-    logLevel = "debug"
+    logLevel    = "debug"
     chains = {
       "6648936" = {
         providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com", "https://rpc.ankr.com/eth", "https://api.zmok.io/mainnet/oaen6dy8ff6hju9k"]
