@@ -10,7 +10,7 @@ export const XTransferStatus = {
   CompletedFast: "CompletedFast",
   CompletedSlow: "CompletedSlow",
 } as const;
-export type XTransferStatus = (typeof XTransferStatus)[keyof typeof XTransferStatus];
+export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
 
 export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
@@ -18,7 +18,7 @@ export const XTransferErrorStatus = {
   ExecutionError: "ExecutionError",
   NoBidsReceived: "NoBidsReceived",
 } as const;
-export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
+export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -51,7 +51,7 @@ export const XTransferOriginSchema = Type.Object({
     }),
   }),
 
-  relayerFee: TIntegerString,
+  relayerFees: Type.Record(Type.String(), TIntegerString),
 
   // XCall Transaction
   xcall: Type.Intersect([XTransferMethodCallSchema]),
