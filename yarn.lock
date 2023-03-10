@@ -15,21 +15,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arbitrum/sdk@npm:3.0.0-beta.12":
-  version: 3.0.0-beta.12
-  resolution: "@arbitrum/sdk@npm:3.0.0-beta.12"
+"@arbitrum/sdk@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@arbitrum/sdk@npm:3.1.1"
   dependencies:
     "@ethersproject/address": ^5.0.8
     "@ethersproject/bignumber": ^5.1.1
     "@ethersproject/bytes": ^5.0.8
-    "@typechain/ethers-v5": 9.0.0
-    "@types/prompts": ^2.0.14
-    "@types/yargs": ^17.0.9
-    dotenv: ^10.0.0
     ethers: ^5.1.0
-    ts-node: ^10.2.1
-    typechain: 7.0.0
-  checksum: ace357a8a2161758fb09d6eb4f40099adb49924ca581e33bb05739e5fee4507d5763c0781752b2c3a45a2cfbf8c4ba113384b29af17fa8188e059cce1c2113c3
+  checksum: ed4f9ba5c0ad275e2182324b646b5a0d9fea1d6e28ddd6561e8c502e9ed2571ae6bc2b3c46515ea3bf64d5e750d2325b62e1b695537ca3c995664e2b1d96b876
   languageName: node
   linkType: hard
 
@@ -1976,7 +1970,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
-    "@arbitrum/sdk": 3.0.0-beta.12
+    "@arbitrum/sdk": 3.1.1
     "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-relayer": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
@@ -2453,7 +2447,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
-    "@arbitrum/sdk": 3.0.0-beta.12
+    "@arbitrum/sdk": 3.1.1
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 1.6.9
     "@gelatonetwork/relay-context": 2.1.0
@@ -6394,23 +6388,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typechain/ethers-v5@npm:9.0.0":
-  version: 9.0.0
-  resolution: "@typechain/ethers-v5@npm:9.0.0"
-  dependencies:
-    lodash: ^4.17.15
-    ts-essentials: ^7.0.1
-  peerDependencies:
-    "@ethersproject/abi": ^5.0.0
-    "@ethersproject/bytes": ^5.0.0
-    "@ethersproject/providers": ^5.0.0
-    ethers: ^5.1.3
-    typechain: ^7.0.0
-    typescript: ">=4.0.0"
-  checksum: 8b04bf08796a6318c90592d168ce7127a57dac1f8f7394501bc2181808ad03c269275a81a13509650213eb2d02e85dc6b26e39373208a319f604ca21a63340a1
-  languageName: node
-  linkType: hard
-
 "@typechain/ethers-v5@npm:^2.0.0":
   version: 2.0.0
   resolution: "@typechain/ethers-v5@npm:2.0.0"
@@ -6846,16 +6823,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prompts@npm:^2.0.14":
-  version: 2.4.2
-  resolution: "@types/prompts@npm:2.4.2"
-  dependencies:
-    "@types/node": "*"
-    kleur: ^3.0.3
-  checksum: 1c2277534a546d77fe7390e4a3a34881ceb7015c95f5b22d1b239cb6c287c300c4dc5a713c1f734f3f892b243225ed703b1d1d149b9995af024c7a19dc49369e
-  languageName: node
-  linkType: hard
-
 "@types/prop-types@npm:*":
   version: 15.7.5
   resolution: "@types/prop-types@npm:15.7.5"
@@ -7016,22 +6983,6 @@ __metadata:
   dependencies:
     yaml: "*"
   checksum: 0cdbf1857d89ade9b7d00aa09f2e0a2a56b707870b1dc1387f5be5398cd60c3f92bb32a543471147d2eaf38919f921391e0ade34fc9e1e022c7d67fb1a0da73c
-  languageName: node
-  linkType: hard
-
-"@types/yargs-parser@npm:*":
-  version: 21.0.0
-  resolution: "@types/yargs-parser@npm:21.0.0"
-  checksum: b2f4c8d12ac18a567440379909127cf2cec393daffb73f246d0a25df36ea983b93b7e9e824251f959e9f928cbc7c1aab6728d0a0ff15d6145f66cec2be67d9a2
-  languageName: node
-  linkType: hard
-
-"@types/yargs@npm:^17.0.9":
-  version: 17.0.20
-  resolution: "@types/yargs@npm:17.0.20"
-  dependencies:
-    "@types/yargs-parser": "*"
-  checksum: dc2edbb0e4b6bfe5189b86c057bb6991139af02372b1d3591083e4ce8f9605b19d598e56413e30f41453733f7a048f732f899cb637f3938f90ed3eb13f23cc90
   languageName: node
   linkType: hard
 
@@ -12208,13 +12159,6 @@ __metadata:
   version: 16.0.3
   resolution: "dotenv@npm:16.0.3"
   checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "dotenv@npm:10.0.0"
-  checksum: f412c5fe8c24fbe313d302d2500e247ba8a1946492db405a4de4d30dd0eb186a88a43f13c958c5a7de303938949c4231c56994f97d05c4bc1f22478d631b4005
   languageName: node
   linkType: hard
 
@@ -18121,13 +18065,6 @@ __metadata:
     graceful-fs:
       optional: true
   checksum: 8f69e4797c26e7c3f2426bfa85f38a3da3c2cb1b4c6bd850d2377aed440d41ce9d806f2885c2e2e224372c56af4b1d43b8a499adecf9a05e7373dc6b8b7c52e4
-  languageName: node
-  linkType: hard
-
-"kleur@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "kleur@npm:3.0.3"
-  checksum: df82cd1e172f957bae9c536286265a5cdbd5eeca487cb0a3b2a7b41ef959fc61f8e7c0e9aeea9c114ccf2c166b6a8dd45a46fd619c1c569d210ecd2765ad5169
   languageName: node
   linkType: hard
 
@@ -26080,7 +26017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:10.9.1, ts-node@npm:^10.2.1, ts-node@npm:^10.9.1":
+"ts-node@npm:10.9.1, ts-node@npm:^10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
   dependencies:
@@ -26358,28 +26295,6 @@ __metadata:
   version: 2.7.2
   resolution: "type@npm:2.7.2"
   checksum: 0f42379a8adb67fe529add238a3e3d16699d95b42d01adfe7b9a7c5da297f5c1ba93de39265ba30ffeb37dfd0afb3fb66ae09f58d6515da442219c086219f6f4
-  languageName: node
-  linkType: hard
-
-"typechain@npm:7.0.0":
-  version: 7.0.0
-  resolution: "typechain@npm:7.0.0"
-  dependencies:
-    "@types/prettier": ^2.1.1
-    debug: ^4.1.1
-    fs-extra: ^7.0.0
-    glob: ^7.1.6
-    js-sha3: ^0.8.0
-    lodash: ^4.17.15
-    mkdirp: ^1.0.4
-    prettier: ^2.1.2
-    ts-command-line-args: ^2.2.0
-    ts-essentials: ^7.0.1
-  peerDependencies:
-    typescript: ">=4.1.0"
-  bin:
-    typechain: dist/cli/cli.js
-  checksum: a6d67427d01b82d2f224e8b4b83c2e84df81b2a12b5a1df9907092d0668a8a747e12474b4367b8887ff60a8f9a055b22f6dc46b31383623d52ceccce84a3b618
   languageName: node
   linkType: hard
 
