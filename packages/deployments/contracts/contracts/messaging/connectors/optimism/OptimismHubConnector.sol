@@ -11,9 +11,6 @@ import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 
-import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
-import {OVMCodec} from "./lib/OVMCodec.sol";
-import {SecureMerkleTrie} from "./lib/SecureMerkleTrie.sol";
 import {Hashing} from "./lib/Hashing.sol";
 import {Types} from "./lib/Types.sol";
 
