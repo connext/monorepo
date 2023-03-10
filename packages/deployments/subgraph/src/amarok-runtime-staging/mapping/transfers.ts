@@ -285,6 +285,11 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
+
+  if (transfer.bumpRelayerFeeCount === BigInt.fromI32(0)) {
+    transfer.initialRelayerFeeAsset = event.params.asset.toHexString();
+  }
+
   transfer.bumpRelayerFeeCount = (
     transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
   )!.plus(BigInt.fromI32(1));
