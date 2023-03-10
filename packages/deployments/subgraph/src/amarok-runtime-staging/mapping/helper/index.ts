@@ -2,7 +2,14 @@
 import { Address, BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 
 import { ERC20 } from "../../../../generated/Connext/ERC20";
-import { Asset, AssetBalance, RelayerFeesIncrease, Router, RouterDailyTVL } from "../../../../generated/schema";
+import {
+  Asset,
+  AssetBalance,
+  RelayerFee,
+  RelayerFeesIncrease,
+  Router,
+  RouterDailyTVL,
+} from "../../../../generated/schema";
 
 /// MARK - Helpers
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -99,6 +106,18 @@ export function getOrCreateAssetBalance(local: Address, routerAddress: Address):
     assetBalance.feesEarned = new BigInt(0);
   }
   return assetBalance;
+}
+
+export function getOrCreateTransferRelayFee(transferId: string, asset: Bytes): RelayerFee {
+  const relayerFeeKey = `${transferId}-${asset}`;
+  let relayerFee = RelayerFee.load(relayerFeeKey);
+  if (relayerFee == null) {
+    relayerFee = new RelayerFee(relayerFeeKey);
+    relayerFee.transfer = transferId;
+    relayerFee.asset = asset;
+    relayerFee.fee = new BigInt(0);
+  }
+  return relayerFee;
 }
 
 export function getOrCreateTransferRelayFeeIncrease(

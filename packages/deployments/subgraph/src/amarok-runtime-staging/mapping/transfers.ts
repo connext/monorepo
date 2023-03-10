@@ -14,6 +14,7 @@ import {
   getChainId,
   getOrCreateAsset,
   getOrCreateAssetBalance,
+  getOrCreateTransferRelayFee,
   getOrCreateTransferRelayFeeIncrease,
   getRouterDailyTVL,
 } from "./helper";
@@ -253,6 +254,13 @@ export function handleRelayerFeesIncreasedNativeOnly(event: TransferRelayerFeesI
   transfer.bumpRelayerFeeCount = (
     transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
   )!.plus(BigInt.fromI32(1));
+
+  const transferRelayerFee = getOrCreateTransferRelayFee(
+    transfer.id,
+    Bytes.fromHexString("0x0000000000000000000000000000000000000000"),
+  );
+  transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
+  transferRelayerFee.save();
   transfer.save();
 
   const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
@@ -280,6 +288,10 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   transfer.bumpRelayerFeeCount = (
     transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
   )!.plus(BigInt.fromI32(1));
+
+  const transferRelayerFee = getOrCreateTransferRelayFee(transfer.id, event.params.asset);
+  transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
+  transferRelayerFee.save();
   transfer.save();
 
   const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(

@@ -72,6 +72,13 @@ enum TransferStatus {
   CompletedFast
 }
 
+type RelayerFee @entity {
+  id: ID!
+  transfer: OriginTransfer!
+  fee: BigInt!
+  asset: Bytes!
+}
+
 type OriginTransfer @entity {
   id: ID!
 
@@ -105,6 +112,7 @@ type OriginTransfer @entity {
 
   # Relayer Fee paid by user
   bumpRelayerFeeCount: BigInt
+  relayerFees: [RelayerFee!]
 
   # XCalled Transaction
   caller: Bytes

@@ -1016,6 +1016,7 @@ type staginggoerli_OriginTransfer {
   transactingAsset: staginggoerli_Bytes
   message: staginggoerli_OriginMessage
   bumpRelayerFeeCount: BigInt
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_RelayerFee_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_RelayerFee_filter): [staginggoerli_RelayerFee!]
   caller: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   timestamp: BigInt
@@ -1236,6 +1237,13 @@ input staginggoerli_OriginTransfer_filter {
   bumpRelayerFeeCount_lte: BigInt
   bumpRelayerFeeCount_in: [BigInt!]
   bumpRelayerFeeCount_not_in: [BigInt!]
+  relayerFees: [String!]
+  relayerFees_not: [String!]
+  relayerFees_contains: [String!]
+  relayerFees_contains_nocase: [String!]
+  relayerFees_not_contains: [String!]
+  relayerFees_not_contains_nocase: [String!]
+  relayerFees_: staginggoerli_RelayerFee_filter
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
   caller_gt: staginggoerli_Bytes
@@ -1344,6 +1352,7 @@ enum staginggoerli_OriginTransfer_orderBy {
   message__transactionHash
   message__blockNumber
   bumpRelayerFeeCount
+  relayerFees
   caller
   transactionHash
   timestamp
@@ -1562,6 +1571,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_Sequencer!]!
+  staginggoerli_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RelayerFee
+  staginggoerli_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RelayerFee_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RelayerFee!]!
   staginggoerli_originTransfer(
     id: ID!
     """
@@ -1804,6 +1839,101 @@ type staginggoerli_Relayer {
   id: ID!
   isActive: Boolean!
   relayer: staginggoerli_Bytes
+}
+
+type staginggoerli_RelayerFee {
+  id: ID!
+  transfer: staginggoerli_OriginTransfer!
+  fee: BigInt!
+  asset: staginggoerli_Bytes!
+}
+
+input staginggoerli_RelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: staginggoerli_OriginTransfer_filter
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  asset: staginggoerli_Bytes
+  asset_not: staginggoerli_Bytes
+  asset_gt: staginggoerli_Bytes
+  asset_lt: staginggoerli_Bytes
+  asset_gte: staginggoerli_Bytes
+  asset_lte: staginggoerli_Bytes
+  asset_in: [staginggoerli_Bytes!]
+  asset_not_in: [staginggoerli_Bytes!]
+  asset_contains: staginggoerli_Bytes
+  asset_not_contains: staginggoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: staginggoerli_BlockChangedFilter
+  and: [staginggoerli_RelayerFee_filter]
+  or: [staginggoerli_RelayerFee_filter]
+}
+
+enum staginggoerli_RelayerFee_orderBy {
+  id
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  fee
+  asset
 }
 
 type staginggoerli_RelayerFeesIncrease {
@@ -2792,6 +2922,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [staginggoerli_Sequencer!]!
+  staginggoerli_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): staginggoerli_RelayerFee
+  staginggoerli_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_RelayerFee_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [staginggoerli_RelayerFee!]!
   staginggoerli_originTransfer(
     id: ID!
     """
