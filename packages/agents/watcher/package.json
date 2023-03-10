@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-watcher",
-  "version": "1.0.2-alpha.0",
+  "version": "1.0.2",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
