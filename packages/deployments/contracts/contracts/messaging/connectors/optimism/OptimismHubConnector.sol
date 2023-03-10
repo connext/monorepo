@@ -70,22 +70,16 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
   // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
   // `processMessageFromRoot` flow.
-
   /**
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L165
+   * @dev modified from: OptimismPortal contract
+   * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L291
    */
-  function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    Types.WithdrawalTransaction memory _tx
-  ) external {
+  function processMessageFromRoot(Types.WithdrawalTransaction memory _tx) external {
     // verify the sender is the l2 contract
-    require(_sender == mirrorConnector, "!mirrorConnector");
+    require(_tx.sender == mirrorConnector, "!mirrorConnector");
 
     // verify the target is this contract
-    require(_target == address(this), "!this");
+    require(_tx.target == address(this), "!this");
 
     require(_verifyXDomainMessage(_tx), "!proof");
 
@@ -99,17 +93,16 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // not work here. Instead, take the back 32 bytes of the string
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes29 _view = _message.ref(0);
+    bytes29 _view = _tx.data.ref(0);
     bytes32 root = _view.index(_view.len() - 32, 32);
 
-    if (!processed[root]) {
-      // set root to processed
-      processed[root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+    require(processed[root], "processed");
+    // set root to processed
+    processed[root] = true;
+    // update the root on the root manager
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
 
-      emit MessageProcessed(abi.encode(root), msg.sender);
-    } // otherwise root was already sent to root manager
+    emit MessageProcessed(abi.encode(root), msg.sender);
   }
 
   /**

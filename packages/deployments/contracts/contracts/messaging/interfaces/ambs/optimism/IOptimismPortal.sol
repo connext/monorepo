@@ -20,9 +20,9 @@ struct ProvenWithdrawal {
  * @dev An informal interface. Technically not an interface but a contract, since we need to reference
  * a mapping when interfacing with the real thing (and mappings cannot be declared in interfaces in solidity).
  */
-contract IOptimismPortal {
+interface IOptimismPortal {
   /**
    * @notice A mapping of withdrawal hashes to `ProvenWithdrawal` data.
    */
-  mapping(bytes32 => ProvenWithdrawal) public provenWithdrawals;
+  function provenWithdrawals(bytes32 _hash) external view returns (ProvenWithdrawal memory);
 }
