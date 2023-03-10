@@ -65,7 +65,7 @@ dataSources:
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
         - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
-          handler: handleRelayerFeesIncreased
+          handler: handleRelayerFeesIncreasedNativeOnly
         - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address,address)
           handler: handleRelayerFeesIncreased
           # SlippageUpdated(indexed bytes32,uint256)

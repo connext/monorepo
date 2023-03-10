@@ -8,16 +8,15 @@ import {
   TransferRelayerFeesIncreased,
   SlippageUpdated,
 } from "../../../generated/Connext/Connext";
-import {
-  Router,
-  OriginTransfer,
-  DestinationTransfer,
-  OriginMessage,
-  RelayerFeesIncrease,
-  SlippageUpdate,
-} from "../../../generated/schema";
+import { Router, OriginTransfer, DestinationTransfer, OriginMessage, SlippageUpdate } from "../../../generated/schema";
 
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
+import {
+  getChainId,
+  getOrCreateAsset,
+  getOrCreateAssetBalance,
+  getOrCreateTransferRelayFeeIncrease,
+  getRouterDailyTVL,
+} from "./helper";
 
 /// MARK - Connext Bridge
 /**
@@ -245,6 +244,28 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
+export function handleRelayerFeesIncreasedNativeOnly(event: TransferRelayerFeesIncreased): void {
+  let transfer = OriginTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new OriginTransfer(event.params.transferId.toHexString());
+  }
+  transfer.bumpRelayerFeeCount = (
+    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
+  )!.plus(BigInt.fromI32(1));
+  transfer.save();
+
+  const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
+    event.params.transferId.toHexString(),
+    "0x0000000000000000000000000000000000000000",
+    event,
+  );
+  relayerFeesIncrease.transfer = transfer.id;
+  relayerFeesIncrease.increase = event.params.increase;
+  relayerFeesIncrease.asset = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+  relayerFeesIncrease.save();
+}
+
 /**
  * Updates subgraph records when TransferRelayerFeesIncreased events are emitted
  *
@@ -261,28 +282,15 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   )!.plus(BigInt.fromI32(1));
   transfer.save();
 
-  // should never be more than 1 but just in case theres somehow multiple in the same tx
-  let assetKey = "0x0000000000000000000000000000000000000000";
-  if (event.params.asset) {
-    assetKey = event.params.asset.toHexString();
-  }
-  const relayerFeeKey = `${event.params.transferId.toHexString()}-${assetKey}-${event.transaction.hash.toHexString()}`;
-  let relayerFeesIncrease = RelayerFeesIncrease.load(relayerFeeKey);
-  if (relayerFeesIncrease == null) {
-    relayerFeesIncrease = new RelayerFeesIncrease(relayerFeeKey);
-  }
+  const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
+    event.params.transferId.toHexString(),
+    event.params.asset.toHexString(),
+    event,
+  );
 
   relayerFeesIncrease.transfer = transfer.id;
   relayerFeesIncrease.increase = event.params.increase;
-  relayerFeesIncrease.asset = Bytes.fromHexString(assetKey);
-
-  // tx
-  relayerFeesIncrease.caller = event.transaction.from;
-  relayerFeesIncrease.blockNumber = event.block.number;
-  relayerFeesIncrease.timestamp = event.block.timestamp;
-  relayerFeesIncrease.transactionHash = event.transaction.hash;
-  relayerFeesIncrease.gasLimit = event.transaction.gasLimit;
-  relayerFeesIncrease.gasPrice = event.transaction.gasPrice;
+  relayerFeesIncrease.asset = event.params.asset;
   relayerFeesIncrease.save();
 }
 
