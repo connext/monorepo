@@ -1015,7 +1015,6 @@ type staginggoerli_OriginTransfer {
   asset: staginggoerli_Asset
   transactingAsset: staginggoerli_Bytes
   message: staginggoerli_OriginMessage
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
   caller: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
@@ -1229,14 +1228,6 @@ input staginggoerli_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: staginggoerli_OriginMessage_filter
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1352,7 +1343,6 @@ enum staginggoerli_OriginTransfer_orderBy {
   message__root
   message__transactionHash
   message__blockNumber
-  relayerFee
   bumpRelayerFeeCount
   caller
   transactionHash
@@ -1820,6 +1810,7 @@ type staginggoerli_RelayerFeesIncrease {
   id: ID!
   transfer: staginggoerli_OriginTransfer!
   increase: BigInt
+  asset: staginggoerli_Bytes
   caller: staginggoerli_Bytes!
   transactionHash: staginggoerli_Bytes!
   timestamp: BigInt!
@@ -1866,6 +1857,16 @@ input staginggoerli_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
+  asset: staginggoerli_Bytes
+  asset_not: staginggoerli_Bytes
+  asset_gt: staginggoerli_Bytes
+  asset_lt: staginggoerli_Bytes
+  asset_gte: staginggoerli_Bytes
+  asset_lte: staginggoerli_Bytes
+  asset_in: [staginggoerli_Bytes!]
+  asset_not_in: [staginggoerli_Bytes!]
+  asset_contains: staginggoerli_Bytes
+  asset_not_contains: staginggoerli_Bytes
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
   caller_gt: staginggoerli_Bytes
@@ -1946,7 +1947,6 @@ enum staginggoerli_RelayerFeesIncrease_orderBy {
   transfer__normalizedIn
   transfer__canonicalId
   transfer__transactingAsset
-  transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
   transfer__transactionHash
@@ -1956,6 +1956,7 @@ enum staginggoerli_RelayerFeesIncrease_orderBy {
   transfer__blockNumber
   transfer__txOrigin
   increase
+  asset
   caller
   transactionHash
   timestamp

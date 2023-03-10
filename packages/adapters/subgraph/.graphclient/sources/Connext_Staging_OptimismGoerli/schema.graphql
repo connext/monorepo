@@ -1015,7 +1015,6 @@ type stagingoptimismgoerli_OriginTransfer {
   asset: stagingoptimismgoerli_Asset
   transactingAsset: stagingoptimismgoerli_Bytes
   message: stagingoptimismgoerli_OriginMessage
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
   caller: stagingoptimismgoerli_Bytes
   transactionHash: stagingoptimismgoerli_Bytes
@@ -1229,14 +1228,6 @@ input stagingoptimismgoerli_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: stagingoptimismgoerli_OriginMessage_filter
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1352,7 +1343,6 @@ enum stagingoptimismgoerli_OriginTransfer_orderBy {
   message__root
   message__transactionHash
   message__blockNumber
-  relayerFee
   bumpRelayerFeeCount
   caller
   transactionHash
@@ -1820,6 +1810,7 @@ type stagingoptimismgoerli_RelayerFeesIncrease {
   id: ID!
   transfer: stagingoptimismgoerli_OriginTransfer!
   increase: BigInt
+  asset: stagingoptimismgoerli_Bytes
   caller: stagingoptimismgoerli_Bytes!
   transactionHash: stagingoptimismgoerli_Bytes!
   timestamp: BigInt!
@@ -1866,6 +1857,16 @@ input stagingoptimismgoerli_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
+  asset: stagingoptimismgoerli_Bytes
+  asset_not: stagingoptimismgoerli_Bytes
+  asset_gt: stagingoptimismgoerli_Bytes
+  asset_lt: stagingoptimismgoerli_Bytes
+  asset_gte: stagingoptimismgoerli_Bytes
+  asset_lte: stagingoptimismgoerli_Bytes
+  asset_in: [stagingoptimismgoerli_Bytes!]
+  asset_not_in: [stagingoptimismgoerli_Bytes!]
+  asset_contains: stagingoptimismgoerli_Bytes
+  asset_not_contains: stagingoptimismgoerli_Bytes
   caller: stagingoptimismgoerli_Bytes
   caller_not: stagingoptimismgoerli_Bytes
   caller_gt: stagingoptimismgoerli_Bytes
@@ -1946,7 +1947,6 @@ enum stagingoptimismgoerli_RelayerFeesIncrease_orderBy {
   transfer__normalizedIn
   transfer__canonicalId
   transfer__transactingAsset
-  transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
   transfer__transactionHash
@@ -1956,6 +1956,7 @@ enum stagingoptimismgoerli_RelayerFeesIncrease_orderBy {
   transfer__blockNumber
   transfer__txOrigin
   increase
+  asset
   caller
   transactionHash
   timestamp

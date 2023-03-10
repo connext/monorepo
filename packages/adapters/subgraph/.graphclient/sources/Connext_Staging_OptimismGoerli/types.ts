@@ -1019,7 +1019,6 @@ export type stagingoptimismgoerli_OriginTransfer = {
   asset?: Maybe<stagingoptimismgoerli_Asset>;
   transactingAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: Maybe<stagingoptimismgoerli_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   caller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -1233,14 +1232,6 @@ export type stagingoptimismgoerli_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<stagingoptimismgoerli_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1356,7 +1347,6 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
   | 'caller'
   | 'transactionHash'
@@ -1726,6 +1716,7 @@ export type stagingoptimismgoerli_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: stagingoptimismgoerli_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller: Scalars['stagingoptimismgoerli_Bytes'];
   transactionHash: Scalars['stagingoptimismgoerli_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1763,16 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -1852,7 +1853,6 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
   | 'transfer__caller'
   | 'transfer__transactionHash'
@@ -1862,6 +1862,7 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'

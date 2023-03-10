@@ -1015,7 +1015,6 @@ type stagingarbitrumgoerli_OriginTransfer {
   asset: stagingarbitrumgoerli_Asset
   transactingAsset: stagingarbitrumgoerli_Bytes
   message: stagingarbitrumgoerli_OriginMessage
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
   caller: stagingarbitrumgoerli_Bytes
   transactionHash: stagingarbitrumgoerli_Bytes
@@ -1229,14 +1228,6 @@ input stagingarbitrumgoerli_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: stagingarbitrumgoerli_OriginMessage_filter
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1352,7 +1343,6 @@ enum stagingarbitrumgoerli_OriginTransfer_orderBy {
   message__root
   message__transactionHash
   message__blockNumber
-  relayerFee
   bumpRelayerFeeCount
   caller
   transactionHash
@@ -1820,6 +1810,7 @@ type stagingarbitrumgoerli_RelayerFeesIncrease {
   id: ID!
   transfer: stagingarbitrumgoerli_OriginTransfer!
   increase: BigInt
+  asset: stagingarbitrumgoerli_Bytes
   caller: stagingarbitrumgoerli_Bytes!
   transactionHash: stagingarbitrumgoerli_Bytes!
   timestamp: BigInt!
@@ -1866,6 +1857,16 @@ input stagingarbitrumgoerli_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
+  asset: stagingarbitrumgoerli_Bytes
+  asset_not: stagingarbitrumgoerli_Bytes
+  asset_gt: stagingarbitrumgoerli_Bytes
+  asset_lt: stagingarbitrumgoerli_Bytes
+  asset_gte: stagingarbitrumgoerli_Bytes
+  asset_lte: stagingarbitrumgoerli_Bytes
+  asset_in: [stagingarbitrumgoerli_Bytes!]
+  asset_not_in: [stagingarbitrumgoerli_Bytes!]
+  asset_contains: stagingarbitrumgoerli_Bytes
+  asset_not_contains: stagingarbitrumgoerli_Bytes
   caller: stagingarbitrumgoerli_Bytes
   caller_not: stagingarbitrumgoerli_Bytes
   caller_gt: stagingarbitrumgoerli_Bytes
@@ -1946,7 +1947,6 @@ enum stagingarbitrumgoerli_RelayerFeesIncrease_orderBy {
   transfer__normalizedIn
   transfer__canonicalId
   transfer__transactingAsset
-  transfer__relayerFee
   transfer__bumpRelayerFeeCount
   transfer__caller
   transfer__transactionHash
@@ -1956,6 +1956,7 @@ enum stagingarbitrumgoerli_RelayerFeesIncrease_orderBy {
   transfer__blockNumber
   transfer__txOrigin
   increase
+  asset
   caller
   transactionHash
   timestamp
