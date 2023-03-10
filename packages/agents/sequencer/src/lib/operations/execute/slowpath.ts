@@ -149,7 +149,7 @@ export const executeSlowPathData = async (
       await database.saveTransfers([transfer]);
     }
 
-    throw new NotEnoughRelayerFee({ transferId, relayerFee: transfer.origin?.relayerFee, needed });
+    throw new NotEnoughRelayerFee({ transferId, relayerFees: transfer.origin?.relayerFees, needed });
   }
 
   let taskId: string | undefined;
