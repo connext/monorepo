@@ -72,6 +72,7 @@ export class SdkBase extends SdkShared {
    * const sdkBase = await SdkBase.create(config);
    * ```
    */
+
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
     const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
@@ -81,6 +82,12 @@ export class SdkBase extends SdkShared {
     return this._instance || (this._instance = new SdkBase(nxtpConfig, logger, chainData));
   }
 
+  async memoizeConversionRate(): Promise<any> {
+    Object.keys(this.config.chains).map(async (domain) => {
+      const chainId = await this.getChainId(domain);
+      this.getConversionRate(chainId);
+    });
+  }
   /**
    * Prepares xcall inputs and encodes the calldata. Returns an ethers TransactionRequest object, ready
    * to be sent to an RPC provider.
@@ -525,9 +532,27 @@ export class SdkBase extends SdkShared {
       });
     }
 
+    const [originChainId, destinationChainId] = await Promise.all([
+      this.getChainId(params.originDomain),
+      this.getChainId(params.destinationDomain),
+    ]);
+
+    const [originNativeTokenPrice, destinationNativeTokenPrice] = await Promise.all([
+      params.originNativeTokenPrice
+        ? Promise.resolve(params.originNativeTokenPrice)
+        : this.getConversionRate(originChainId),
+      params.destinationNativeTokenPrice
+        ? Promise.resolve(params.destinationNativeTokenPrice)
+        : this.getConversionRate(destinationChainId),
+    ]);
+
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
       {
         ...params,
+        originChainId,
+        destinationChainId,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
         getGasPriceCallback: (domain: number) => this.chainreader.getGasPrice(domain, requestContext),
       },
       this.chainData,

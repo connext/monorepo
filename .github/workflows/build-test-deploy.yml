@@ -82,9 +82,9 @@ jobs:
         id: version_type
         run: |
           if [[ "$VERSION" == *"-alpha"* ]]; then
-            echo "::set-output name=tag::alpha $VERSION"
+            echo "::set-output name=tag::alpha"
           elif [[ "$VERSION" == *"-beta"* ]]; then
-            echo "::set-output name=tag::beta $VERSION"
+            echo "::set-output name=tag::beta"
           fi
 
       - name: Publish

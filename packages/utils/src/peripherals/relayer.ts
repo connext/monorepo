@@ -14,6 +14,8 @@ export const calculateRelayerFee = async (
   params: {
     originDomain: string;
     destinationDomain: string;
+    originChainId?: number;
+    destinationChainId?: number;
     originNativeToken?: string;
     destinationNativeToken?: string;
     callDataGasAmount?: number;
@@ -35,6 +37,8 @@ export const calculateRelayerFee = async (
   const {
     originDomain,
     destinationDomain,
+    originChainId: _originChainId,
+    destinationChainId: _destinationChainId,
     callDataGasAmount,
     originNativeToken: _originNativeToken,
     destinationNativeToken: _destinationNativeToken,
@@ -49,8 +53,8 @@ export const calculateRelayerFee = async (
   const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
   const isHighPriority = _isHighPriority ?? false;
 
-  const originChainId = chainIdToDomain(Number(originDomain));
-  const destinationChainId = chainIdToDomain(Number(destinationDomain));
+  const originChainId = _originChainId ? _originChainId : chainIdToDomain(Number(originDomain));
+  const destinationChainId = _destinationChainId ? _destinationChainId : chainIdToDomain(Number(destinationDomain));
 
   // fetch executeGasAmount from chainData
   const {
