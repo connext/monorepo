@@ -246,6 +246,7 @@ export const queryOptimismMessageStatus = async (
     l2ChainId,
     l1SignerOrProvider: l1Provider,
     l2SignerOrProvider: l2Provider,
+    bedrock: l1ChainId !== 1,
   });
   const status = await crossChainMessenger.getMessageStatus(hash);
   const [message] = await crossChainMessenger.getMessagesByTransaction(hash);
@@ -257,6 +258,7 @@ export const queryOptimismMessageStatus = async (
     [MessageStatus.IN_CHALLENGE_PERIOD]: "In challenge period",
     [MessageStatus.READY_FOR_RELAY]: "Ready for relay",
     [MessageStatus.RELAYED]: "Relayed",
+    [MessageStatus.READY_TO_PROVE]: "Ready to prove",
   };
   if (relay && status === MessageStatus.READY_FOR_RELAY) {
     const tx = await crossChainMessenger.finalizeMessage(hash, { signer });

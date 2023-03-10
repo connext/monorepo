@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { EventFetcher, L2ToL1MessageReader, L2TransactionReceipt } from "@arbitrum/sdk";
+import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
 import { BigNumber, BigNumberish, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
@@ -159,6 +159,7 @@ const processFromOptimismRoot = async (
     l2SignerOrProvider: spokeProvider,
     l1ChainId: protocolConfig.hub,
     l1SignerOrProvider: hubProvider,
+    bedrock: protocolConfig.hub !== 1,
   });
 
   // check to make sure you can prove

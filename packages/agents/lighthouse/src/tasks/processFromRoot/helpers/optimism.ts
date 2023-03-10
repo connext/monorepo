@@ -32,6 +32,7 @@ export const getProcessFromOptimismRootArgs = async ({
     l2SignerOrProvider: new providers.JsonRpcProvider(spokeProvider),
     l1ChainId: hubChainId,
     l1SignerOrProvider: new providers.JsonRpcProvider(hubProvider),
+    bedrock: hubChainId !== 1,
   });
 
   // check to make sure you can prove
