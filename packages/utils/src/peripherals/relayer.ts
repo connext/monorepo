@@ -152,8 +152,16 @@ export const calculateRelayerFee = async (
             .div(impactedOriginTokenPrice)
             .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
   } else {
-    // TODO: get price in USD
-    relayerFeeFinal = constants.Zero;
+    relayerFeeFinal =
+      18 >= destinationTokenDecimals
+        ? bumpedFee
+            .mul(impactedDestinationTokenPrice)
+            .div(1000)
+            .mul(BigNumber.from(10).pow(18 - destinationTokenDecimals))
+        : bumpedFee
+            .mul(impactedDestinationTokenPrice)
+            .div(1000)
+            .div(BigNumber.from(10).pow(destinationTokenDecimals - 18));
   }
 
   if (logger) {
