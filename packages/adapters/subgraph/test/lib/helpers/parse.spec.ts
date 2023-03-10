@@ -92,7 +92,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 5000,
           },
-          relayerFee: "1",
+          relayerFees: {},
         },
         destination: undefined,
       });
@@ -140,7 +140,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 0,
           },
-          relayerFee: "1",
+          relayerFees: {},
         },
         destination: undefined,
       });
@@ -197,7 +197,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 0,
           },
-          relayerFee: "1",
+          relayerFees: {},
         },
         destination: undefined,
       });
