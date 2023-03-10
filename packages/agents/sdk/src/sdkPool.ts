@@ -142,9 +142,7 @@ export class SdkPool extends SdkShared {
     isFastPath: boolean;
   }> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
-
     const _originTokenAddress = utils.getAddress(originTokenAddress);
-
     this.logger.info("Method start", requestContext, methodContext, {
       originDomain,
       destinationDomain,
@@ -152,12 +150,21 @@ export class SdkPool extends SdkShared {
       amount,
     });
 
-    // Calculate origin swap
-    const originPool = await this.getPool(originDomain, _originTokenAddress);
-    let originAmountReceived = amount;
+    const [originPool, [canonicalDomain, canonicalId], isNextAsset] = await Promise.all([
+      this.getPool(originDomain, _originTokenAddress),
+      this.getCanonicalTokenId(originDomain, _originTokenAddress),
+      this.isNextAsset(_originTokenAddress),
+    ]);
+
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    if (!destinationAssetData) {
+      throw new Error("Origin token cannot be bridged to any token on this destination domain");
+    }
 
     // Swap IFF supplied origin token is an adopted asset
-    if (!(await this.isNextAsset(_originTokenAddress)) && originPool) {
+    let originAmountReceived = amount;
+    if (!isNextAsset && originPool) {
       originAmountReceived = await this.calculateSwap(
         originDomain,
         _originTokenAddress,
@@ -171,43 +178,37 @@ export class SdkPool extends SdkShared {
     const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
 
-    // Calculate destination swap
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, _originTokenAddress);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
-    if (!destinationAssetData) {
-      throw new Error("Origin token cannot be bridged to any token on this destination domain");
-    }
-
     const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
     const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
     let destinationAmountReceived = destinationAmount;
 
+    const promises: Promise<any>[] = [];
+
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+
     // Swap IFF desired destination token is an adopted asset
     if (!receiveLocal && destinationPool) {
-      destinationAmountReceived = await this.calculateSwap(
-        destinationDomain,
-        destinationAssetData.local,
-        destinationPool.local.index,
-        destinationPool.adopted.index,
-        destinationAmount,
+      promises.push(
+        this.calculateSwap(
+          destinationDomain,
+          destinationAssetData.local,
+          destinationPool.local.index,
+          destinationPool.adopted.index,
+          destinationAmount,
+        ),
       );
     }
 
+    const [activeLiquidity, destinationAmountReceivedSwap] = await Promise.all(promises);
+    destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
+    let isFastPath = false;
+    if (activeLiquidity.length > 0) {
+      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
+    }
     const destinationSlippage = BigNumber.from(
       destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
     );
-
-    // Determine if fast liquidity is available (pre-destination-swap amount)
-    let isFastPath = true;
-    try {
-      const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
-      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount)
-        ? true
-        : false;
-    } catch {
-      this.logger.warn("Error while calculating active liquidity", requestContext, methodContext);
-    }
 
     return {
       amountReceived: destinationAmountReceived,

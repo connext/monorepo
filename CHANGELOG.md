@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 1.0.2-alpha.0
+
+- [sdk] `calculateAmountReceived` optimizations
+
 ## Amarok 1.0.1
 
 - [sdk] Fixed active liquidity fast path determination
