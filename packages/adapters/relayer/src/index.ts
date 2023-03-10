@@ -7,7 +7,7 @@ import {
   RelayerType,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, TransactionReverted } from "@connext/nxtp-txservice";
 
 import { setupRelayer as _setupGelatoRelayer } from "./gelato";
 import { setupRelayer as _setupConnextRelayer } from "./connext";
@@ -74,6 +74,17 @@ export const sendWithRelayerWithBackup = async (
       const jsonError = jsonifyError(err as NxtpError);
       error_msg = jsonError.context?.message ?? jsonError.message;
       logger.error(`Failed to send data with ${relayer.type}`, requestContext, methodContext, jsonError);
+
+      if (jsonError.type == TransactionReverted.type) {
+        // If relayer failed with tx reverted error, don't need to attempt another
+        logger.info(
+          `Tx will be reverted with ${error_msg} on chain, Skip other relayers`,
+          requestContext,
+          methodContext,
+          jsonError,
+        );
+        break;
+      }
     }
   }
 

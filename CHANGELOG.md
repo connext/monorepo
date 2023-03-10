@@ -2,6 +2,18 @@
 
 ## Next Release
 
+## Amarok 1.0.2-alpha.0
+
+- [sdk] `calculateAmountReceived` optimizations
+
+## Amarok 1.0.1
+
+- [sdk] Fixed active liquidity fast path determination
+
+## Amarok 1.0.0
+
+- [sdk] Maintain `calculateAmountReceived` backwards caompatibility, accessible in both SdkPool and SdkBase
+
 ## Amarok 1.0.0-alpha.0
 
 - [sdk] Moved core function `calculateAmountReceived` to SdkBase

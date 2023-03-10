@@ -66,6 +66,10 @@ export const transfersCastForUrl =
     "reconcile_tx_origin",
     "relayer_fees",
     "error_status",
+    "execute_simulation",
+    "execute_simulation_from",
+    "execute_simulation_to",
+    "execute_simulation_network",
   ].join(",");
 
 /**
