@@ -29,7 +29,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     return { canSubmit: true, needed: "0" };
   }
 
-  if (!origin?.relayerFee) {
+  if (!origin?.relayerFees) {
     return { canSubmit: false, needed: "0" };
   }
 
@@ -46,7 +46,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   );
 
   const minimumFeeNeeded = estimatedRelayerFee.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
-  const canSubmit = BigNumber.from(origin.relayerFee).gte(minimumFeeNeeded);
+  const canSubmit = BigNumber.from(origin.relayerFees).gte(minimumFeeNeeded);
 
   return { canSubmit, needed: minimumFeeNeeded.toString() };
 };
