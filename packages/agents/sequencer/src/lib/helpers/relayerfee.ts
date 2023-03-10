@@ -1,13 +1,7 @@
-import {
-  XTransfer,
-  createLoggingContext,
-  getConversionRate,
-  getChainIdFromDomain,
-  getDecimalsForAsset,
-} from "@connext/nxtp-utils";
+import { XTransfer, createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { calculateRelayerFee } from "../../mockable";
+import { calculateRelayerFee, getConversionRate, getDecimalsForAsset } from "../../mockable";
 import { getContext } from "../../sequencer";
 
 /**
@@ -54,26 +48,36 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     logger,
   );
 
-  const relayerFeePaidUsd = constants.Zero;
+  let relayerFeePaidUsd = constants.Zero;
+  console.log("relayerFeeAssets: ", relayerFeeAssets);
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
       const destChainId = await getChainIdFromDomain(destinationDomain, chainData);
       const nativeUsd = await getConversionRate(destChainId, undefined, logger);
+      console.log("nativeUsd: ", nativeUsd);
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
-      const relayerFeePaid = nativeFee.mul(nativeUsd * 1000).div(1000);
-      relayerFeePaidUsd.add(relayerFeePaid);
+      console.log("nativeFee: ", nativeFee.toString());
+      console.log("nativeFee.mul(nativeUsd * 1000)", nativeFee.mul(Math.floor(nativeUsd * 1000)));
+      const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
+      console.log("relayerFeePaid: ", relayerFeePaid.toString());
+      relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else {
       const originChainId = await getChainIdFromDomain(originDomain, chainData);
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
+      console.log("relayerFeeDecimals: ", relayerFeeDecimals);
       const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
         BigNumber.from(10).pow(18 - relayerFeeDecimals),
       );
-      relayerFeePaidUsd.add(relayerFeePaid);
+      console.log("relayerFeePaid: ", relayerFeePaid.toString());
+      relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     }
   }
 
+  console.log("estimatedRelayerFeeUsd: ", estimatedRelayerFeeUsd.toString());
   const minimumFeeNeeded = estimatedRelayerFeeUsd.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
-  const canSubmit = BigNumber.from(relayerFeePaidUsd).gte(minimumFeeNeeded);
+  console.log("minimumFeeNeeded: ", minimumFeeNeeded.toString());
+  console.log("relayerFeePaidUsd: ", relayerFeePaidUsd.toString());
+  const canSubmit = relayerFeePaidUsd.gte(minimumFeeNeeded);
   logger.info("Relayer fee check", requestContext, methodContext, {
     relayerFeePaidUsd: relayerFeePaidUsd.toString(),
     minimumFeeNeeded: minimumFeeNeeded.toString(),
