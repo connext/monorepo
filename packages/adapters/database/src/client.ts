@@ -50,7 +50,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     normalized_in: transfer.xparams?.normalizedIn,
     nonce: transfer.xparams?.nonce,
     canonical_id: transfer.xparams?.canonicalId,
-    relayer_fee: transfer.origin?.relayerFee,
+    // relayer_fees: transfer.origin?.relayerFees,
     error_status: transfer.origin?.errorStatus,
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 
