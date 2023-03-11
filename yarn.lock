@@ -2470,11 +2470,8 @@ __metadata:
     "@types/mocha": 10.0.1
     "@types/node": 18.13.0
     "@typescript-eslint/eslint-plugin": 5.52.0
-    adv: 0.1.5
-    ajv: 8.12.0
     chai: 4.3.7
     command-line-args: 5.2.1
-    dotenv: 16.0.3
     eslint: 8.34.0
     ethereum-waffle: 3.4.4
     ethers: 5.7.2
@@ -7721,17 +7718,6 @@ __metadata:
   version: 0.4.16
   resolution: "adm-zip@npm:0.4.16"
   checksum: 5ea46664d8b3b073fffeb7f934705fea288708745e708cffc1dd732ce3d2672cecd476b243f9d051892fd12952db2b6bd061975e1ff40057246f6d0cb6534a50
-  languageName: node
-  linkType: hard
-
-"adv@npm:0.1.5":
-  version: 0.1.5
-  resolution: "adv@npm:0.1.5"
-  dependencies:
-    minimist: ~1.2.0
-  bin:
-    adv: index.js
-  checksum: cd13c9b092d586ccd5b5fdbb273e7e2675070add94642995258eac45c797f3a2b0eadd8d958469fc13a430f151625300c7914288768dd60d510cf2506077a512
   languageName: node
   linkType: hard
 
