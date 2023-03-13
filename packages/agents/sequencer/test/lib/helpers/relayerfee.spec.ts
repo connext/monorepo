@@ -61,8 +61,10 @@ describe("Helpers:RelayerFee", () => {
     });
 
     it("should return true if relayer fee is enough USD only, 6 decimals", async () => {
+      const transactingAsset = mkAddress("0xaaa");
       const transfer = mock.entity.xtransfer({
-        relayerFees: { [mkAddress("0xaaa")]: "1" },
+        relayerFees: { [transactingAsset]: "1" },
+        asset: transactingAsset,
       }) as OriginTransfer;
       calculateRelayerFeeStub.resolves(BigNumber.from("1000000000000"));
       const res = await canSubmitToRelayer(transfer);
@@ -71,8 +73,10 @@ describe("Helpers:RelayerFee", () => {
 
     it("should return true if relayer fee is enough both native and usd", async () => {
       getConversionRateStub.resolves(100);
+      const transactingAsset = mkAddress("0xaaa");
       const transfer = mock.entity.xtransfer({
-        relayerFees: { [constants.AddressZero]: "1", [mkAddress("0xaaa")]: "60" },
+        relayerFees: { [constants.AddressZero]: "1", [transactingAsset]: "60" },
+        asset: transactingAsset,
       }) as OriginTransfer;
       calculateRelayerFeeStub.resolves(BigNumber.from("60000000000100"));
       const res = await canSubmitToRelayer(transfer);
