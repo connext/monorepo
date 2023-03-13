@@ -245,6 +245,7 @@ export const RelayerFeesIncreaseSchema = Type.Object({
   id: Type.String(),
   transferId: TBytes32,
   increase: TIntegerString,
+  asset: TAddress,
   domain: Type.String(),
   timestamp: TIntegerString,
 });

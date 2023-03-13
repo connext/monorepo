@@ -620,6 +620,7 @@ export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
     increase: entity.increase,
     transferId: entity.transfer.id,
     timestamp: entity.timestamp,
+    asset: entity.asset,
     domain: entity.domain,
   };
 };
