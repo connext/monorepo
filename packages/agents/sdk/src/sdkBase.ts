@@ -128,8 +128,8 @@ export class SdkBase extends SdkShared {
    *   amount: "1000000"
    *   slippage: "300"
    *   callData: "0x",
-   *   relayerFeeInNative: "10000000000000"
-   *   relayerFeeInTransactingAsset?: "10000000000000"
+   *   relayerFee: "10000000000000" // relayer fee in native asset
+   *   relayerFeeInTransactingAsset?: "10000000000000" // relayer fee in transacting asset
    * };
    *
    * const txRequest = sdkBase.xcall(params);
@@ -148,8 +148,8 @@ export class SdkBase extends SdkShared {
       delegate: _delegate,
       amount: _amount,
       slippage: _slippage,
-      relayerFeeInNativeAsset: _relayerFeeInNativeAsset,
       relayerFee: _relayerFee,
+      relayerFeeInTransactingAsset: _relayerFeeInTransactingAsset,
       receiveLocal: _receiveLocal,
       wrapNativeOnOrigin,
       unwrapNativeOnDestination,
@@ -163,10 +163,10 @@ export class SdkBase extends SdkShared {
     const amount = _amount ?? "0";
     const amountBN = BigNumber.from(amount);
     const slippage = _slippage ?? "10000";
-    const relayerFee = _relayerFee ? BigNumber.from(_relayerFee) : constants.Zero;
-    const relayerFeeInNativeAsset = _relayerFeeInNativeAsset
-      ? BigNumber.from(_relayerFeeInNativeAsset)
+    const relayerFeeInTransactingAsset = _relayerFeeInTransactingAsset
+      ? BigNumber.from(_relayerFeeInTransactingAsset)
       : constants.Zero;
+    const relayerFeeInNativeAsset = _relayerFee ? BigNumber.from(_relayerFee) : constants.Zero;
 
     const receiveLocal = _receiveLocal ?? false;
 
@@ -234,7 +234,7 @@ export class SdkBase extends SdkShared {
     // Take the finalized xcall arguments and encode calldata.
     // NOTE: Using a tuple here to satisfy compiler for `encodeFunctionData` call below.
     let xcallData: string;
-    if (relayerFee.gt(0)) {
+    if (relayerFeeInTransactingAsset.gt(0)) {
       const formattedArguments: [string, string, string, string, BigNumber, string, string, string] = [
         destination,
         to,
@@ -243,7 +243,7 @@ export class SdkBase extends SdkShared {
         amountBN,
         slippage,
         callData,
-        relayerFee.toString(),
+        relayerFeeInTransactingAsset.toString(),
       ];
       xcallData = receiveLocal
         ? this.contracts.connext.encodeFunctionData(
