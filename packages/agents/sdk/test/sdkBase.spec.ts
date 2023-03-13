@@ -1,10 +1,19 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi, mkAddress } from "@connext/nxtp-utils";
+import {
+  encodeMultisendCall,
+  expect,
+  MultisendTransaction,
+  WETHAbi,
+  mkAddress,
+  DEFAULT_ROUTER_FEE,
+} from "@connext/nxtp-utils";
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
-import { providers, BigNumber, utils } from "ethers";
+import { providers, BigNumber, utils, constants } from "ethers";
 import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";
 import { SdkUtils } from "../src/sdkUtils";
+import { SdkPool } from "../src/sdkPool";
+import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
 import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing } from "../src/lib/errors";
 
@@ -24,6 +33,7 @@ const chainId = +mock.chain.A;
 describe("SdkBase", () => {
   let sdkBase: SdkBase;
   let sdkUtils: SdkUtils;
+  let sdkPool: SdkPool;
   let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
@@ -32,11 +42,12 @@ describe("SdkBase", () => {
     chainreader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
     sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
+    sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
     (sdkBase as any).chainreader = chainreader;
   });
 
@@ -55,6 +66,7 @@ describe("SdkBase", () => {
       expect(sdkBase.bumpTransfer).to.be.a("function");
       expect(sdkBase.updateSlippage).to.be.a("function");
       expect(sdkBase.estimateRelayerFee).to.be.a("function");
+      expect(sdkBase.calculateAmountReceived).to.be.a("function");
     });
   });
 
@@ -427,6 +439,59 @@ describe("SdkBase", () => {
       });
       expect(calculateRelayerFeeStub.callCount).to.be.eq(1);
       expect(relayerFee.toString()).to.be.eq("100");
+    });
+  });
+
+  describe("#calculateAmountReceived", () => {
+    const localAsset: PoolAsset = {
+      address: mock.asset.A.address,
+      name: mock.asset.A.name,
+      symbol: mock.asset.A.symbol,
+      decimals: 18,
+      index: 0,
+      balance: BigNumber.from("100"),
+    };
+
+    const adoptedAsset: PoolAsset = {
+      address: mock.asset.B.address,
+      name: mock.asset.B.name,
+      symbol: mock.asset.B.symbol,
+      decimals: 18,
+      index: 1,
+      balance: BigNumber.from("100"),
+    };
+
+    const mockPool: Pool = {
+      domainId: mock.domain.A,
+      name: "TSTB Pool",
+      symbol: "TSTB-TSTA",
+      local: localAsset,
+      adopted: adoptedAsset,
+      lpTokenAddress: utils.formatBytes32String("asdf"),
+      canonicalHash: utils.formatBytes32String("13337"),
+      swapFee: "4000000",
+      adminFee: "0",
+    };
+
+    const mockResponse = {
+      amountReceived: "100",
+      originSlippage: "1",
+      routerFee: "1",
+      destinationSlippage: "1",
+      isFastPath: true,
+    };
+
+    it("happy: should work with local origin asset and local destination asset", async () => {
+      stub(sdkPool, "calculateAmountReceived").resolves(mockResponse);
+      const res = await sdkBase.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.local.address,
+        "100",
+        true,
+      );
+
+      expect(res).to.equal(mockResponse);
     });
   });
 });

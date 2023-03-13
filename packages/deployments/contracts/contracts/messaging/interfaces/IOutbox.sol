@@ -40,4 +40,9 @@ interface IOutbox {
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external returns (bytes32, bytes memory);
+
+  /**
+   * @notice domain => next available nonce for the domain.
+   */
+  function nonces(uint32 domain) external returns (uint32);
 }

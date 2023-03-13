@@ -76,6 +76,9 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   destinationNativeToken: Type.Optional(TAddress),
   callDataGasAmount: Type.Optional(Type.Integer()),
   isHighPriority: Type.Optional(Type.Boolean()),
+  originNativeTokenPrice: Type.Optional(Type.Number()),
+  destinationNativeTokenPrice: Type.Optional(Type.Number()),
+  destinationGasPrice: Type.Optional(Type.String()),
 });
 
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
@@ -87,6 +90,16 @@ export const SdkUpdateSlippageParamsSchema = Type.Object({
 });
 
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
+
+export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  originTokenAddress: Type.String(),
+  amount: Type.String(),
+  receiveLocal: Type.Optional(Type.Boolean()),
+});
+
+export type SdkCalculateAmountReceivedParams = Static<typeof SdkUpdateSlippageParamsSchema>;
 
 export type RouterBalance = {
   address: string;

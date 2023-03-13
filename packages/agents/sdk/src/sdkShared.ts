@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber, utils } from "ethers";
-import { Logger, createLoggingContext, ChainData, getCanonicalHash, formatUrl } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  getCanonicalHash,
+  formatUrl,
+  getConversionRate as _getConversionRate,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
@@ -28,6 +35,12 @@ export class SdkShared {
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
+  getConversionRate = memoize(
+    async (chainId: number) => {
+      return await _getConversionRate(chainId, undefined, undefined);
+    },
+    { promise: true, maxAge: 1 * 60 * 1000 }, // maxAge: 1 min
+  );
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
    *
@@ -201,6 +214,23 @@ export class SdkShared {
     { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
   );
 
+  getActiveLiquidity = memoize(
+    async (domain?: string, local?: string): Promise<any> => {
+      const domainIdentifier = domain ? `domain=eq.${domain.toString()}&` : "";
+      const localIdentifier = local ? `local=eq.${local.toLowerCase()}&` : "";
+
+      const searchIdentifier = domainIdentifier + localIdentifier;
+
+      const uri = formatUrl(this.config.cartographerUrl!, "router_liquidity?", searchIdentifier);
+
+      // Validate uri
+      validateUri(uri);
+
+      return await axiosGetRequest(uri);
+    },
+    { promise: true, maxAge: 1 * 60 * 1000 }, // 1 min
+  );
+
   /**
    * Fetches the list of supported networks and assets.
    *
@@ -259,11 +289,7 @@ export class SdkShared {
       );
     });
 
-    if (asset) {
-      return asset;
-    }
-
-    return;
+    return asset;
   }
 
   /**
@@ -279,11 +305,7 @@ export class SdkShared {
       return assetData.domain == domainId && assetData.key == key;
     });
 
-    if (asset) {
-      return asset;
-    }
-
-    return;
+    return asset;
   }
 
   /**
@@ -298,11 +320,7 @@ export class SdkShared {
       return utils.getAddress(assetData.local) == tokenAddress || utils.getAddress(assetData.adopted) == tokenAddress;
     });
 
-    if (asset) {
-      return utils.getAddress(asset.local) == tokenAddress ? true : false;
-    }
-
-    return;
+    return asset ? (utils.getAddress(asset.local) == tokenAddress ? true : false) : undefined;
   }
 
   /**
@@ -351,11 +369,7 @@ export class SdkShared {
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
     const asset = await this.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
 
-    if (asset) {
-      return [asset.canonical_domain, asset.canonical_id];
-    }
-
-    return ["0", constants.HashZero];
+    return asset ? [asset.canonical_domain, asset.canonical_id] : ["0", constants.HashZero];
   }
 
   /**

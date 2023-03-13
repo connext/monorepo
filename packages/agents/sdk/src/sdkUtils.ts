@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import {
   Logger,
   ChainData,
@@ -9,8 +9,7 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
-import { ChainDataUndefined } from "./lib/errors";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import { RouterBalance } from "./interfaces";
@@ -59,12 +58,7 @@ export class SdkUtils extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkUtils> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkUtils" })
       : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });
@@ -109,6 +103,28 @@ export class SdkUtils extends SdkShared {
     const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
 
     const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Fetches router liquidity for each domain.
+   *
+   * @param params - (optional) Parameters object.
+   * @param params.order - (optional) The object with orderBy and ascOrDesc options.
+   * @param params.order.orderBy - (optional) Field to order by.
+   * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
+   */
+  async getRouterLiquidity(params?: { order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" } }): Promise<any> {
+    const { order } = params ?? {};
+
+    const orderBy = order?.orderBy ? order.orderBy : "";
+    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+
+    const uri = formatUrl(this.config.cartographerUrl!, "router_liquidity?", orderIdentifier);
     // Validate uri
     validateUri(uri);
 
@@ -249,7 +265,7 @@ export class SdkUtils extends SdkShared {
    * @returns The total router liquidity available for the asset.
    *
    */
-  async checkRouterLiquidity(domainId: string, asset: string, topN?: number) {
+  async checkRouterLiquidity(domainId: string, asset: string, topN?: number): Promise<BigNumber> {
     const _asset = utils.getAddress(asset);
     const _topN = topN ?? 4;
 
@@ -260,6 +276,8 @@ export class SdkUtils extends SdkShared {
         routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset,
     );
 
-    return eligibleRouters.slice(0, _topN).reduce((acc, router) => acc + router.balance, 0);
+    return eligibleRouters
+      .slice(0, _topN)
+      .reduce((acc, router) => acc.add(BigNumber.from(router.balance.toString())), BigNumber.from(0));
   }
 }

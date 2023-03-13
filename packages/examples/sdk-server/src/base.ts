@@ -1,23 +1,17 @@
 import { FastifyInstance } from "fastify";
-import { Static, Type } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import {
   SdkBase,
   SdkXCallParamsSchema,
   SdkXCallParams,
+  SdkEstimateRelayerFeeParamsSchema,
+  SdkEstimateRelayerFeeParams,
   SdkBumpTransferParamsSchema,
   SdkUpdateSlippageSchema,
+  SdkCalculateAmountReceivedParamsSchema,
 } from "@connext/sdk";
-import { TIntegerString } from "@connext/nxtp-utils";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
-
-const EstimateRelayerFeeSchema = Type.Object({
-  origin: TIntegerString,
-  destination: TIntegerString,
-});
-
-export type EstimateRelayerFee = Static<typeof EstimateRelayerFeeSchema>;
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
@@ -35,16 +29,36 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
     },
   );
 
-  s.post<{ Body: EstimateRelayerFee }>(
+  s.post<{ Body: SdkEstimateRelayerFeeParams }>(
     "/estimateRelayerFee",
     {
       schema: {
-        body: EstimateRelayerFeeSchema,
+        body: SdkEstimateRelayerFeeParamsSchema,
       },
     },
     async (request, reply) => {
-      const { origin, destination } = request.body;
-      const txReq = await sdkBaseInstance.estimateRelayerFee({ originDomain: origin, destinationDomain: destination });
+      const {
+        originDomain,
+        destinationDomain,
+        originNativeToken,
+        destinationNativeToken,
+        callDataGasAmount,
+        isHighPriority,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
+        destinationGasPrice,
+      } = request.body;
+      const txReq = await sdkBaseInstance.estimateRelayerFee({
+        originDomain,
+        destinationDomain,
+        originNativeToken,
+        destinationNativeToken,
+        callDataGasAmount,
+        isHighPriority,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
+        destinationGasPrice,
+      });
       reply.status(200).send(txReq);
     },
   );
@@ -113,6 +127,26 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
     async (request, reply) => {
       const { domainId, tokenId } = request.params;
       const res = sdkBaseInstance.calculateCanonicalKey(domainId, tokenId);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/calculateAmountReceived",
+    {
+      schema: {
+        body: SdkCalculateAmountReceivedParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal } = request.body;
+      const res = await sdkBaseInstance.calculateAmountReceived(
+        originDomain,
+        destinationDomain,
+        originTokenAddress,
+        amount,
+        receiveLocal,
+      );
       reply.status(200).send(res);
     },
   );

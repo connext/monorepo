@@ -38,7 +38,7 @@ describe("SdkShared", () => {
     logger = createStubInstance(Logger);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
@@ -61,6 +61,8 @@ describe("SdkShared", () => {
       expect(sdkShared.getAssetsData).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
+      expect(sdkShared.getActiveLiquidity).to.be.a("function");
+      expect(sdkShared.getSupported).to.be.a("function");
       expect(sdkShared.isNextAsset).to.be.a("function");
       expect(sdkShared.changeSignerAddress).to.be.a("function");
       expect(sdkShared.parseConnextTransactionReceipt).to.be.a("function");
@@ -276,6 +278,14 @@ describe("SdkShared", () => {
     it("happy: should work", async () => {
       (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
       const connext = await sdkShared.getSupported();
+      expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#getActiveLiquidity", () => {
+    it("happy: should work", async () => {
+      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
+      const connext = await sdkShared.getActiveLiquidity();
       expect(connext).to.not.be.undefined;
     });
   });

@@ -427,8 +427,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -439,8 +443,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("99").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -451,8 +459,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("98").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -463,8 +475,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("97").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
         ],
@@ -480,8 +496,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -492,8 +512,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("99").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -504,8 +528,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("98").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
           {
@@ -516,8 +544,12 @@ describe("Database client", () => {
             id: mkAddress("0xbb"),
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
+            decimal: "18",
             localAsset: mkAddress("0xaa"),
-            balance: utils.parseEther("97").toString(),
+            balance: utils.parseEther("100").toString(),
+            locked: utils.parseEther("100").toString(),
+            supplied: utils.parseEther("100").toString(),
+            removed: utils.parseEther("100").toString(),
             feesEarned: utils.parseEther("100").toString(),
           },
         ],
@@ -687,6 +719,7 @@ describe("Database client", () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const _m = mock.entity.rootMessage();
+      _m.timestamp = _i * 2;
       _m.count = _i * 2;
       messages.push(_m);
     }
@@ -707,7 +740,8 @@ describe("Database client", () => {
     }
     await saveAggregatedRoots(roots, pool);
 
-    const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    const _messages = await getRootMessages(true, 100, "ASC", pool);
+    _messages.sort((a, b) => a.timestamp - b.timestamp);
     expect(_messages).to.deep.eq(
       messages.map((m) => {
         return { ...m, processed: true };
@@ -742,17 +776,23 @@ describe("Database client", () => {
   it("should filter processed properly", async () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.rootMessage());
+      let rootMessage = mock.entity.rootMessage();
+      rootMessage.timestamp = _i;
+      rootMessage.count = _i;
+      messages.push(rootMessage);
     }
     await saveSentRootMessages(messages, pool);
     // process first half of batch
-    await saveProcessedRootMessages(messages.slice(0, batchSize / 2 - 1), pool);
+    await saveProcessedRootMessages(messages.slice(batchSize / 2 - 1, batchSize / 2), pool);
 
     let _messages = await getRootMessages(true, 100, "ASC", pool);
-    expect(_messages).to.deep.eq(messages.slice(0, batchSize / 2 - 1).map((m) => ({ ...m, processed: true })));
+    _messages.sort((a, b) => a.timestamp - b.timestamp);
+
+    expect(_messages).to.deep.eq(messages.slice(0, batchSize / 2).map((m) => ({ ...m, processed: true })));
 
     _messages = await getRootMessages(false, 100, "ASC", pool);
-    expect(_messages).to.deep.eq(messages.slice(batchSize / 2 - 1));
+    _messages.sort((a, b) => a.timestamp - b.timestamp);
+    expect(_messages).to.deep.eq(messages.slice(batchSize / 2));
   });
 
   it("should get spoke node", async () => {

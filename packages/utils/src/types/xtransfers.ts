@@ -10,7 +10,7 @@ export const XTransferStatus = {
   CompletedFast: "CompletedFast",
   CompletedSlow: "CompletedSlow",
 } as const;
-export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
+export type XTransferStatus = (typeof XTransferStatus)[keyof typeof XTransferStatus];
 
 export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
@@ -18,7 +18,7 @@ export const XTransferErrorStatus = {
   ExecutionError: "ExecutionError",
   NoBidsReceived: "NoBidsReceived",
 } as const;
-export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
+export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -207,6 +207,7 @@ export type ReconciledTransaction = {
 export const AssetSchema = Type.Object({
   id: TAddress,
   key: Type.String(),
+  decimal: TIntegerString,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
@@ -219,6 +220,9 @@ export const AssetBalanceSchema = Type.Intersect([
   AssetSchema,
   Type.Object({
     balance: TIntegerString,
+    locked: TIntegerString,
+    supplied: TIntegerString,
+    removed: TIntegerString,
     feesEarned: TIntegerString,
     domain: Type.String(),
   }),

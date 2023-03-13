@@ -62,8 +62,11 @@ POST {{baseUrl}}/estimateRelayerFee
 Content-Type: application/json
 
 {
-  "origin": "1735353714",
-  "destination": "9991"
+  "originDomain": "6648936",
+  "destinationDomain": "1869640809",
+  "originNativeTokenPrice": 1500,
+  "destinationNativeTokenPrice": 1000,
+  "destinationGasPrice": "50"
 }
 
 ##############
@@ -320,7 +323,7 @@ Content-Type: application/json
 
 ##############
 ### GET checkRouterLiquidity
-GET {{baseUrl}}/checkRouterLiquidity/6648936/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/4
+GET {{baseUrl}}/checkRouterLiquidity/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/4
 
 ##############
 ### GET getBlockNumberFromUnixTimestamp

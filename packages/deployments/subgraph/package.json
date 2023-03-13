@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-subgraph",
-  "version": "0.2.7",
+  "version": "1.0.3-alpha.0",
   "license": "UNLICENSED",
   "scripts": {
     "graph": "graph",

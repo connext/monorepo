@@ -60,6 +60,7 @@ enum stagingmumbai_AggregateRoot_orderBy {
 type stagingmumbai_Asset {
   id: ID!
   key: stagingmumbai_Bytes
+  decimal: BigInt
   canonicalId: stagingmumbai_Bytes
   canonicalDomain: BigInt
   adoptedAsset: stagingmumbai_Bytes
@@ -71,6 +72,9 @@ type stagingmumbai_Asset {
 type stagingmumbai_AssetBalance {
   id: ID!
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: stagingmumbai_Router!
   asset: stagingmumbai_Asset!
   feesEarned: BigInt!
@@ -93,6 +97,30 @@ input stagingmumbai_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -152,6 +180,9 @@ input stagingmumbai_AssetBalance_filter {
 enum stagingmumbai_AssetBalance_orderBy {
   id
   amount
+  locked
+  supplied
+  removed
   router
   router__id
   router__isActive
@@ -162,6 +193,7 @@ enum stagingmumbai_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -218,6 +250,14 @@ input stagingmumbai_Asset_filter {
   key_not_in: [stagingmumbai_Bytes!]
   key_contains: stagingmumbai_Bytes
   key_not_contains: stagingmumbai_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: stagingmumbai_Bytes
   canonicalId_not: stagingmumbai_Bytes
   canonicalId_gt: stagingmumbai_Bytes
@@ -294,6 +334,7 @@ input stagingmumbai_Asset_filter {
 enum stagingmumbai_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -784,6 +825,7 @@ enum stagingmumbai_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1293,6 +1335,7 @@ enum stagingmumbai_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2221,6 +2264,7 @@ enum stagingmumbai_RouterDailyTVL_orderBy {
   asset
   asset__id
   asset__key
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset

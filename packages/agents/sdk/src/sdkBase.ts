@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, BigNumber, BigNumberish, utils } from "ethers";
 import {
   Logger,
   createLoggingContext,
@@ -12,14 +12,8 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 export type logger = Logger;
 
-import { getChainData, calculateRelayerFee } from "./lib/helpers";
-import {
-  SignerAddressMissing,
-  ChainDataUndefined,
-  CannotUnwrapOnDestination,
-  ParamsInvalid,
-  SlippageInvalid,
-} from "./lib/errors";
+import { calculateRelayerFee } from "./lib/helpers";
+import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
@@ -33,6 +27,7 @@ import {
   SdkEstimateRelayerFeeParams,
 } from "./interfaces";
 import { SdkUtils } from "./sdkUtils";
+import { SdkPool } from "./sdkPool";
 
 /**
  * @classdesc SDK class encapsulating bridge functions.
@@ -77,13 +72,9 @@ export class SdkBase extends SdkShared {
    * const sdkBase = await SdkBase.create(config);
    * ```
    */
-  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
 
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkBase> {
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkBase" })
       : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
@@ -91,6 +82,12 @@ export class SdkBase extends SdkShared {
     return this._instance || (this._instance = new SdkBase(nxtpConfig, logger, chainData));
   }
 
+  async memoizeConversionRate(): Promise<any> {
+    Object.keys(this.config.chains).map(async (domain) => {
+      const chainId = await this.getChainId(domain);
+      this.getConversionRate(chainId);
+    });
+  }
   /**
    * Prepares xcall inputs and encodes the calldata. Returns an ethers TransactionRequest object, ready
    * to be sent to an RPC provider.
@@ -501,6 +498,10 @@ export class SdkBase extends SdkShared {
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
+   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
+   * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
    * @returns The relayer fee in native asset of the origin domain.
    *
    * @example
@@ -531,9 +532,27 @@ export class SdkBase extends SdkShared {
       });
     }
 
+    const [originChainId, destinationChainId] = await Promise.all([
+      this.getChainId(params.originDomain),
+      this.getChainId(params.destinationDomain),
+    ]);
+
+    const [originNativeTokenPrice, destinationNativeTokenPrice] = await Promise.all([
+      params.originNativeTokenPrice
+        ? Promise.resolve(params.originNativeTokenPrice)
+        : this.getConversionRate(originChainId),
+      params.destinationNativeTokenPrice
+        ? Promise.resolve(params.destinationNativeTokenPrice)
+        : this.getConversionRate(destinationChainId),
+    ]);
+
     const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
       {
         ...params,
+        originChainId,
+        destinationChainId,
+        originNativeTokenPrice,
+        destinationNativeTokenPrice,
         getGasPriceCallback: (domain: number) => this.chainreader.getGasPrice(domain, requestContext),
       },
       this.chainData,
@@ -542,5 +561,38 @@ export class SdkBase extends SdkShared {
     );
 
     return relayerFeeInOriginNativeAsset;
+  }
+
+  /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   *
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
+   * @param originTokenAddress - The address of the token to be bridged from origin.
+   * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
+   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   */
+  async calculateAmountReceived(
+    originDomain: string,
+    destinationDomain: string,
+    originTokenAddress: string,
+    amount: BigNumberish,
+    receiveLocal = false,
+  ): Promise<{
+    amountReceived: BigNumberish;
+    originSlippage: BigNumberish;
+    routerFee: BigNumberish;
+    destinationSlippage: BigNumberish;
+    isFastPath: boolean;
+  }> {
+    const sdkPool = await SdkPool.create(this.config);
+    return await sdkPool.calculateAmountReceived(
+      originDomain,
+      destinationDomain,
+      originTokenAddress,
+      amount,
+      receiveLocal,
+    );
   }
 }

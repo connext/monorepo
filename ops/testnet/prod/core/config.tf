@@ -141,6 +141,18 @@ locals {
           queueLimit = 10000
           subscribe  = true
         },
+        {
+          name       = "1668247156"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "2053862260"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -162,6 +174,16 @@ locals {
           exchange = "sequencerX"
           target   = "1734439522"
           keys     = ["1734439522"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1668247156"
+          keys     = ["1668247156"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "2053862260"
+          keys     = ["2053862260"]
         }
       ]
       executerTimeout = 300000
@@ -223,7 +245,7 @@ locals {
         providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
@@ -256,9 +278,10 @@ locals {
       }
     ]
     healthUrls = {
-      prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
-      processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
-      propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      prover           = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
+      processor        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+      propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
     hubDomain       = "1735353714"
     proverBatchSize = 1

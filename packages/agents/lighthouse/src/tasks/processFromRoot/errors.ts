@@ -46,11 +46,43 @@ export class ConfirmDataDoesNotMatch extends NxtpError {
   }
 }
 
+export class RollUpNodeStaked extends NxtpError {
+  constructor(
+    public readonly stakerCount: number,
+    public readonly childStakerCount: number,
+    public readonly context: any = {},
+  ) {
+    super(`Arbitrum rollup node staked!!`, {
+      ...context,
+      stakerCount,
+      childStakerCount,
+    });
+  }
+}
+
 export class CouldNotFindRelayer extends NxtpError {
   constructor(public readonly relayerType: RelayerType, public readonly context: any = {}) {
     super(`Could not find relayer with type ${relayerType}`, {
       ...context,
       relayerType,
+    });
+  }
+}
+
+export class AlreadyProcessed extends NxtpError {
+  constructor(
+    public readonly spokeDomain: number,
+    public readonly hubDomain: number,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Aleady processed for spoke ${spokeDomain} and hub ${hubDomain}`, {
+      ...context,
+      spokeDomain,
+      hubDomain,
+      requestContext,
+      methodContext,
     });
   }
 }

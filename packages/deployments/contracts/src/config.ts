@@ -132,7 +132,7 @@ export const hardhatNetworks = {
   matic: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 137,
-    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://1rpc.io/matic",
+    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://rpc.ankr.com/polygon",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -163,7 +163,7 @@ export const hardhatNetworks = {
   mumbai: {
     accounts: { mnemonic },
     chainId: 80001,
-    url: "https://rpc.ankr.com/polygon_mumbai",
+    url: "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     companionNetworks: {
       hub: "goerli",
     },

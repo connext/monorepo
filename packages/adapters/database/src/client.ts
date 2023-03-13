@@ -319,7 +319,7 @@ export const saveProcessedRootMessages = async (
       .update(
         "root_messages",
         { processed: true },
-        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.sentTimestamp!) },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.timestamp) },
       )
       .run(poolToUse);
   }
@@ -507,11 +507,15 @@ export const saveRouterBalances = async (
           router_address: router.address,
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           balance: b.balance as any,
+          locked: b.locked as any,
+          supplied: b.supplied as any,
+          removed: b.removed as any,
           fees_earned: b.feesEarned as any,
         },
         asset: {
           key: b.key,
           id: b.id,
+          decimal: b.decimal as any,
           local: b.localAsset,
           adopted: b.adoptedAsset,
           canonical_id: b.canonicalId,
