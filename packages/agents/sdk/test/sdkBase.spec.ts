@@ -369,6 +369,7 @@ describe("SdkBase", () => {
     const mockBumpTransferParams = {
       domainId: mockXTransfer.xparams.originDomain,
       transferId: mockXTransfer.transferId,
+      asset: mockXTransfer.origin!.assets.transacting.asset,
       relayerFee: "1",
     };
 
@@ -378,21 +379,44 @@ describe("SdkBase", () => {
       await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
     });
 
-    it("happy: should work", async () => {
+    it("happy-1: should work with native asset", async () => {
+      const bumpParams = { ...mockBumpTransferParams, asset: constants.AddressZero };
       sdkBase.config.signerAddress = mockConfig.signerAddress;
-      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [
-        mockBumpTransferParams.transferId,
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+        bumpParams.transferId,
+        bumpParams.asset,
+        bumpParams.relayerFee,
       ]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from(mockBumpTransferParams.relayerFee),
+        value: BigNumber.from(bumpParams.relayerFee),
         chainId,
       };
 
-      const res = await sdkBase.bumpTransfer(mockBumpTransferParams);
+      const res = await sdkBase.bumpTransfer(bumpParams);
+      expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
+    });
+    it("happy-2: should work with transacting asset", async () => {
+      const bumpParams = { ...mockBumpTransferParams, asset: mockXTransfer.origin!.assets.transacting.asset };
+      sdkBase.config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+        bumpParams.transferId,
+        bumpParams.asset,
+        bumpParams.relayerFee,
+      ]);
+
+      const mockBumpTransferTxRequest: providers.TransactionRequest = {
+        to: mockConnextAddress,
+        data,
+        from: mock.config().signerAddress,
+        value: BigNumber.from("0"),
+        chainId,
+      };
+
+      const res = await sdkBase.bumpTransfer(bumpParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
     });
   });
