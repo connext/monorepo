@@ -42,9 +42,9 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _gasCap,
     address _optimismPortal,
-    address _l2OutputOracle
+    address _l2OutputOracle,
+    uint256 _gasCap
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseOptimism(_gasCap) {
     OPTIMISM_PORTAL = IOptimismPortal(_optimismPortal);
     L2_ORACLE = IL2OutputOracle(_l2OutputOracle);
@@ -78,7 +78,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     require(_data.length == 32, "!length");
 
     bytes32 root = bytes32(_data);
-    require(processed[root], "processed");
+    require(!processed[root], "processed");
     // set root to processed
     processed[root] = true;
 
