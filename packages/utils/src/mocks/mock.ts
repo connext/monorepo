@@ -24,6 +24,7 @@ import {
   StableSwapPool,
   StableSwapExchange,
   StableSwapPoolEvent,
+  XTransferMessageStatus,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -182,6 +183,7 @@ export const mock = {
         amount?: string;
         status?: XTransferStatus;
         errorStatus?: XTransferErrorStatus;
+        messageStatus?: XTransferMessageStatus;
         asset?: string;
         transferId?: string;
         messageHash?: string;
@@ -205,6 +207,7 @@ export const mock = {
       const amount = overrides.amount ?? "1000";
       const status: XTransferStatus | undefined = overrides.status;
       const errorStatus: XTransferErrorStatus | undefined = overrides.errorStatus;
+      const messageStatus: XTransferMessageStatus = overrides.messageStatus ?? XTransferMessageStatus.XCalled;
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
@@ -245,6 +248,8 @@ export const mock = {
               relayerFee,
 
               errorStatus,
+
+              messageStatus,
 
               // Assets
               assets: {
