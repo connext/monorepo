@@ -1,7 +1,6 @@
 import commandLineArgs from "command-line-args";
 import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
 import { isAddress } from "ethers/lib/utils";
-import { config } from "dotenv";
 import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { Env, getProviderFromHardhatConfig } from "../../utils";
@@ -15,8 +14,6 @@ import {
   OwnableDeployment,
   SUPPORTED_DOMAINS,
 } from "./helpers";
-
-config();
 
 export const optionDefinitions = [
   { name: "env", type: String },

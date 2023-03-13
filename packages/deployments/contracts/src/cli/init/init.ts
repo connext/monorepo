@@ -1,6 +1,5 @@
 import * as fs from "fs";
 
-import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
@@ -24,8 +23,6 @@ import {
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
-
-config();
 
 export const optionDefinitions = [
   { name: "name", defaultOption: true },

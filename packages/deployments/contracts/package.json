@@ -75,7 +75,6 @@
     "hardhat-deploy": "0.11.24",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
-    "node-fetch": "2.6.9",
     "prettier": "2.8.4",
     "prettier-plugin-solidity": "1.1.2",
     "rimraf": "3.0.2",

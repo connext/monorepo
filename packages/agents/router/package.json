@@ -37,7 +37,6 @@
     "fastify": "4.13.0",
     "foo-foo-mq": "7.1.0",
     "graphql": "16.6.0",
-    "node-fetch": "2.6.9",
     "prom-client": "14.1.1"
   },
   "devDependencies": {

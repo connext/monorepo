@@ -1,7 +1,5 @@
-import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
 
-envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
 

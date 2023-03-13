@@ -1,6 +1,5 @@
 import { writeFileSync } from "fs";
 
-import { config } from "dotenv";
 import { Contract, providers } from "ethers";
 import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
@@ -10,8 +9,6 @@ import { Env } from "../../utils";
 import { hardhatNetworks } from "../../config";
 
 import { FORK_BLOCKS, getDeployments, SUPPORTED_CHAINS } from "./helpers";
-
-config();
 
 export const optionDefinitions = [
   { name: "env", type: String },

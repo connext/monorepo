@@ -2,14 +2,6 @@ import { Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
-import fetch, { Headers, Request, Response } from "node-fetch";
-
-if (!(globalThis as any).fetch) {
-  (globalThis as any).fetch = fetch;
-  (globalThis as any).Headers = Headers;
-  (globalThis as any).Request = Request;
-  (globalThis as any).Response = Response;
-}
 
 import { getConfig, NxtpRouterConfig } from "../../config";
 import { bindMetrics } from "../../bindings";
