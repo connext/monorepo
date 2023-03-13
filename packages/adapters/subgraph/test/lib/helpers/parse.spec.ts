@@ -17,6 +17,20 @@ import { constants, utils } from "ethers";
 
 describe("Helpers:parse", () => {
   describe("#originTransfer", () => {
+    const relayerFees = {
+      [mkAddress("0x123")]: "1",
+      [constants.AddressZero]: "2",
+    };
+    const relayerFeesForEntity = [
+      {
+        asset: mkAddress("0x123"),
+        fee: "1",
+      },
+      {
+        asset: constants.AddressZero,
+        fee: "2",
+      },
+    ];
     it("should throw if the entity is undefined", () => {
       const entity = undefined;
       expect(() => {
@@ -55,7 +69,10 @@ describe("Helpers:parse", () => {
 
     it("happy-1: should parse the originTransfer entity", () => {
       expect(
-        originTransfer(mockOriginTransferEntity, { [mockOriginTransferEntity.asset]: { symbol: "ETH", decimals: 18 } }),
+        originTransfer(
+          { ...mockOriginTransferEntity, relayerFees: relayerFeesForEntity },
+          { [mockOriginTransferEntity.asset]: { symbol: "ETH", decimals: 18 } },
+        ),
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
@@ -92,7 +109,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 5000,
           },
-          relayerFees: {},
+          relayerFees,
         },
         destination: undefined,
       });
@@ -101,7 +118,12 @@ describe("Helpers:parse", () => {
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
         originTransfer(
-          { ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined },
+          {
+            ...mockOriginTransferEntity,
+            timestamp: undefined,
+            blockNumber: undefined,
+            relayerFees: relayerFeesForEntity,
+          },
           { [constants.AddressZero]: { symbol: "ETH", decimals: 18 } },
         ),
       ).to.be.deep.eq({
@@ -140,7 +162,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 0,
           },
-          relayerFees: {},
+          relayerFees,
         },
         destination: undefined,
       });
@@ -158,6 +180,7 @@ describe("Helpers:parse", () => {
               adoptedAsset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
             },
             transactingAsset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            relayerFees: relayerFeesForEntity,
           },
           { ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]: { symbol: "USDC", decimals: 6 } },
         ),
@@ -197,7 +220,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             blockNumber: 0,
           },
-          relayerFees: {},
+          relayerFees,
         },
         destination: undefined,
       });

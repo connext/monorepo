@@ -69,7 +69,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
   const relayerFees: Record<string, string> = {};
-  if (relayerFees) {
+  if (entity.relayerFees) {
     for (const relayerFee of entity.relayerFees) {
       relayerFees[relayerFee.asset] = relayerFee.fee;
     }
