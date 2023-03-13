@@ -62,7 +62,7 @@ export const transferOwnership = async () => {
   // get default config values
   const { env: _env, domains: _domains, network: _network, desired: _desired, apply } = cmdArgs;
   const env: Env = _env ?? process.env.ENV ?? "staging";
-  const network: "testnet" | "mainnet" = _network ?? "testnet";
+  const network: "testnet" | "mainnet" = _network ?? process.env.NETWORK ?? "testnet";
   const domains = _domains ?? SUPPORTED_DOMAINS[network];
 
   // config validation
