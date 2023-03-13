@@ -1,0 +1,4 @@
+[
+  "function getL2Output(uint256) view returns (tuple(bytes32,uint128,uint128))",
+  "function startingTimestamp() view returns (uint256)"
+]

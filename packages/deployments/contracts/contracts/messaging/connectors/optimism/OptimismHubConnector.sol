@@ -11,7 +11,7 @@ import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 
-import {PredeployAddresses} from "./lib/PredeployAddresses";
+import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
 import {Hashing} from "./lib/Hashing.sol";
 import {Types} from "./lib/Types.sol";
 import {SafeCall} from "./lib/SafeCall.sol";
