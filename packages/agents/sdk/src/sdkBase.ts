@@ -473,6 +473,7 @@ export class SdkBase extends SdkShared {
    * const params = {
    *   domainId: "6648936",
    *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
+   *   asset: "0x0000000000000000000000000000000000000000" // can be either of native asset or transacting asset
    *   relayerFee: "10000",
    * };
    *
