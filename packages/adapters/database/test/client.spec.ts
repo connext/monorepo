@@ -749,7 +749,7 @@ describe("Database client", () => {
     );
 
     firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
-    expect(firstRoot).to.eq(messages[0].root);
+    expect(firstRoot!.root).to.eq(messages[0].root);
     // Index the message leaf just after the count of the previous aggregate root
     const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
     expect(lastRoot!.root).to.eq(messages[batchSize - 1].root);
