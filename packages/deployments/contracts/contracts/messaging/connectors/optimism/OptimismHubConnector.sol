@@ -92,7 +92,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
    */
   function processMessageFromRoot(Types.WithdrawalTransaction memory _tx) external {
     // verify the sender is the l2 contract
-    require(_tx.sender == PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER, "!l2 sender");
+    require(_tx.sender == PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER, "!l2sender");
 
     // verify the target is this contract
     require(_tx.target == address(this), "!this");
