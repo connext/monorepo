@@ -54,7 +54,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
       const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
-    } else {
+    } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
       const originChainId = await getChainIdFromDomain(originDomain, chainData);
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
       const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
