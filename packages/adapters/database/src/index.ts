@@ -38,6 +38,7 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getAggregateRoot,
+  getAggregateRootByRootAndDomain,
   getAggregateRootCount,
   getMessageRootIndex,
   getLatestMessageRoot,
@@ -152,6 +153,12 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
+  getAggregateRootByRootAndDomain: (
+    domain: string,
+    aggregatedRoot: string,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<ReceivedAggregateRoot | undefined>;
   getMessageRootFromIndex: (
     domain: string,
     index: number,
@@ -254,6 +261,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getUnProcessedMessages,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
+    getAggregateRootByRootAndDomain,
     getAggregateRootCount,
     getMessageRootIndex,
     getLatestMessageRoot,
