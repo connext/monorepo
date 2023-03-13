@@ -75,6 +75,15 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
   // An aggregated root has been propagated to all the spoke domains so the messageStatus is XTransferMessageStatus.AggregateRootPropagated
   // TODO: A `PropagateFailed` event isn't getting handled on the subgraph side.
   // Apparently, we should handle the `PropagateFailed` event of RootManager and exclude from the propagated roots
+  let messageStatus: XTransferMessageStatus = XTransferMessageStatus.AggregateRootPropagated;
+  const receivedAggregateRoot = await database.getAggregateRootByRootAndDomain(
+    transfer.xparams.destinationDomain,
+    aggregateRoot,
+  );
 
-  return XTransferMessageStatus.XCalled;
+  if (receivedAggregateRoot) {
+    messageStatus = XTransferMessageStatus.AggregatedRootArrivedOnSpokeDomain;
+  }
+
+  return messageStatus;
 };
