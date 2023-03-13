@@ -251,6 +251,12 @@ export function handleRelayerFeesIncreasedNativeOnly(event: TransferRelayerFeesI
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
+
+  if (transfer.bumpRelayerFeeCount === BigInt.fromI32(0)) {
+    transfer.initialRelayerFeeAsset = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    transfer.relayerFees = [] as string[];
+  }
+
   transfer.bumpRelayerFeeCount = (
     transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
   )!.plus(BigInt.fromI32(1));
@@ -261,6 +267,8 @@ export function handleRelayerFeesIncreasedNativeOnly(event: TransferRelayerFeesI
   );
   transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
   transferRelayerFee.save();
+
+  transfer.relayerFees!.push(transferRelayerFee.id);
   transfer.save();
 
   const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
@@ -287,7 +295,8 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   }
 
   if (transfer.bumpRelayerFeeCount === BigInt.fromI32(0)) {
-    transfer.initialRelayerFeeAsset = event.params.asset.toHexString();
+    transfer.initialRelayerFeeAsset = event.params.asset;
+    transfer.relayerFees = [] as string[];
   }
 
   transfer.bumpRelayerFeeCount = (
@@ -297,6 +306,8 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
   const transferRelayerFee = getOrCreateTransferRelayFee(transfer.id, event.params.asset);
   transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
   transferRelayerFee.save();
+
+  transfer.relayerFees!.push(transferRelayerFee.id);
   transfer.save();
 
   const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
