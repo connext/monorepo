@@ -45,6 +45,7 @@ export const SdkXCallParamsSchema = Type.Object({
   amount: Type.Optional(TIntegerString),
   slippage: Type.Optional(TIntegerString),
   callData: Type.Optional(Type.String()),
+  relayerFeeInNativeAsset: Type.Optional(Type.String()),
   relayerFee: Type.Optional(TIntegerString),
   receiveLocal: Type.Optional(Type.Boolean()),
   wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
@@ -56,6 +57,7 @@ export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
 export const SdkBumpTransferParamsSchema = Type.Object({
   domainId: TIntegerString,
   transferId: Type.String(),
+  asset: Type.String(),
   relayerFee: TIntegerString,
 });
 

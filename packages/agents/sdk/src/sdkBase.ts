@@ -128,7 +128,8 @@ export class SdkBase extends SdkShared {
    *   amount: "1000000"
    *   slippage: "300"
    *   callData: "0x",
-   *   relayerFee: "10000000000000"
+   *   relayerFeeInNative: "10000000000000"
+   *   relayerFeeInTransactingAsset?: "10000000000000"
    * };
    *
    * const txRequest = sdkBase.xcall(params);
@@ -147,6 +148,7 @@ export class SdkBase extends SdkShared {
       delegate: _delegate,
       amount: _amount,
       slippage: _slippage,
+      relayerFeeInNativeAsset: _relayerFeeInNativeAsset,
       relayerFee: _relayerFee,
       receiveLocal: _receiveLocal,
       wrapNativeOnOrigin,
@@ -161,8 +163,11 @@ export class SdkBase extends SdkShared {
     const amount = _amount ?? "0";
     const amountBN = BigNumber.from(amount);
     const slippage = _slippage ?? "10000";
-    const relayerFee = _relayerFee ?? "0";
-    const relayerFeeBN = BigNumber.from(relayerFee);
+    const relayerFee = _relayerFee ? BigNumber.from(_relayerFee) : constants.Zero;
+    const relayerFeeInNativeAsset = _relayerFeeInNativeAsset
+      ? BigNumber.from(_relayerFeeInNativeAsset)
+      : constants.Zero;
+
     const receiveLocal = _receiveLocal ?? false;
 
     // Ensure signer is provided.
@@ -228,24 +233,47 @@ export class SdkBase extends SdkShared {
 
     // Take the finalized xcall arguments and encode calldata.
     // NOTE: Using a tuple here to satisfy compiler for `encodeFunctionData` call below.
-    const formattedArguments: [string, string, string, string, BigNumber, string, string] = [
-      destination,
-      to,
-      asset,
-      delegate,
-      amountBN,
-      slippage,
-      callData,
-    ];
-    const xcallData = receiveLocal
-      ? this.contracts.connext.encodeFunctionData(
-          "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
-          formattedArguments,
-        )
-      : this.contracts.connext.encodeFunctionData(
-          "xcall(uint32,address,address,address,uint256,uint256,bytes)",
-          formattedArguments,
-        );
+    let xcallData: string;
+    if (relayerFee.gt(0)) {
+      const formattedArguments: [string, string, string, string, BigNumber, string, string, string] = [
+        destination,
+        to,
+        asset,
+        delegate,
+        amountBN,
+        slippage,
+        callData,
+        relayerFee.toString(),
+      ];
+      xcallData = receiveLocal
+        ? this.contracts.connext.encodeFunctionData(
+            "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+            formattedArguments,
+          )
+        : this.contracts.connext.encodeFunctionData(
+            "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+            formattedArguments,
+          );
+    } else {
+      const formattedArguments: [string, string, string, string, BigNumber, string, string] = [
+        destination,
+        to,
+        asset,
+        delegate,
+        amountBN,
+        slippage,
+        callData,
+      ];
+      xcallData = receiveLocal
+        ? this.contracts.connext.encodeFunctionData(
+            "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+            formattedArguments,
+          )
+        : this.contracts.connext.encodeFunctionData(
+            "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+            formattedArguments,
+          );
+    }
 
     let txRequest: providers.TransactionRequest;
     if (wrapNativeOnOrigin) {
@@ -279,20 +307,20 @@ export class SdkBase extends SdkShared {
       txs.push({
         to: connextContractAddress,
         data: xcallData,
-        value: relayerFeeBN,
+        value: relayerFeeInNativeAsset,
       });
 
       // 5. Format Multisend call in an ethers TransactionRequest object.
       txRequest = {
         to: multisendContractAddress,
-        value: amountBN.add(relayerFeeBN), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+        value: amountBN.add(relayerFeeInNativeAsset), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
         from: signerAddress,
         chainId,
       };
     } else {
       // Add callback and relayer fee together to get the total ETH value that should be sent.
-      const value = relayerFeeBN;
+      const value = relayerFeeInNativeAsset;
 
       // Format the ethers TransactionRequest object.
       txRequest = {
