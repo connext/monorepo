@@ -164,6 +164,35 @@ describe("SdkBase", () => {
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
+    it("happy: should work if a user wants to pay fee in transacting asset", async () => {
+      const _sdkXCallArgs = { ...sdkXCallArgs, relayerFeeInTransactingAsset: "10" };
+      const res = await sdkBase.xcall(_sdkXCallArgs);
+
+      const xcallData: string = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+        [
+          mockXCallArgs.destination,
+          mockXCallArgs.to,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          mockXCallArgs.callData,
+          "10",
+        ],
+      );
+
+      const xcallRequest: providers.TransactionRequest = {
+        to: mockConnextAddress,
+        data: xcallData,
+        from: mock.config().signerAddress,
+        value: relayerFee,
+        chainId,
+      };
+
+      expect(res).to.be.deep.eq(xcallRequest);
+    });
+
     it("happy: should use xcallIntoLocal if receiveLocal is used", async () => {
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
