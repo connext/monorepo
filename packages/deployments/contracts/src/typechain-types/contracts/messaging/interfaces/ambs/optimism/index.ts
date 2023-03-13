@@ -3,5 +3,4 @@
 /* eslint-disable */
 export type { IL2OutputOracle } from "./IL2OutputOracle";
 export type { IOptimismPortal } from "./IOptimismPortal";
-export type { IStateCommitmentChain } from "./IStateCommitmentChain";
 export type { OptimismAmb } from "./OptimismAmb";

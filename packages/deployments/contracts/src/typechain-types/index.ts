@@ -218,8 +218,6 @@ export type { IL2OutputOracle } from "./contracts/messaging/interfaces/ambs/opti
 export { IL2OutputOracle__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IL2OutputOracle__factory";
 export type { IOptimismPortal } from "./contracts/messaging/interfaces/ambs/optimism/IOptimismPortal";
 export { IOptimismPortal__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IOptimismPortal__factory";
-export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain";
-export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain__factory";
 export type { OptimismAmb } from "./contracts/messaging/interfaces/ambs/optimism/OptimismAmb";
 export { OptimismAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/OptimismAmb__factory";
 export type { IL1Messenger } from "./contracts/messaging/interfaces/ambs/zksync/IL1Messenger";

@@ -3,5 +3,4 @@
 /* eslint-disable */
 export { IL2OutputOracle__factory } from "./IL2OutputOracle__factory";
 export { IOptimismPortal__factory } from "./IOptimismPortal__factory";
-export { IStateCommitmentChain__factory } from "./IStateCommitmentChain__factory";
 export { OptimismAmb__factory } from "./OptimismAmb__factory";
