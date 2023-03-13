@@ -68,6 +68,13 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   const transactingAsset = entity.transactingAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
+  const relayerFees: Record<string, string> = {};
+  if (relayerFees) {
+    for (const relayerFee of entity.relayerFees) {
+      relayerFees[relayerFee.asset] = relayerFee.fee;
+    }
+  }
+
   return {
     // Meta Data
     transferId: entity.transferId,
@@ -96,7 +103,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       // Event Data
       messageHash: entity.messageHash,
 
-      relayerFees: entity.relayerFees ?? {},
+      relayerFees: relayerFees,
 
       // Assets
       // FIXME: https://github.com/connext/nxtp/issues/2862
