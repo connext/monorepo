@@ -462,6 +462,7 @@ export class SdkBase extends SdkShared {
    * @param params - SdkBumpTransferParams object.
    * @param params.domainId - The origin domain ID of the transfer.
    * @param params.transferId - The transfer ID.
+   * @param params.asset - The asset address you want to pay in.
    * @param params.relayerFee - The additional relayer fee to increase the transfer by, in native gas token.
    * @returns providers.TransactionRequest object.
    *
@@ -488,7 +489,7 @@ export class SdkBase extends SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domainId, transferId, relayerFee } = params;
+    const { domainId, transferId, asset, relayerFee } = params;
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
@@ -509,9 +510,13 @@ export class SdkBase extends SdkShared {
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
-    const value = BigNumber.from(relayerFee);
+    const value = asset == constants.AddressZero ? BigNumber.from(relayerFee) : constants.Zero;
 
-    const data = this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32)", [transferId]);
+    const data = this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+      transferId,
+      asset,
+      relayerFee,
+    ]);
 
     const txRequest = {
       to: ConnextContractAddress,
