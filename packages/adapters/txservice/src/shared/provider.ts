@@ -1,4 +1,4 @@
-import { chainIdToDomain, delay, domainToChainId, parseHostname } from "@connext/nxtp-utils";
+import { delay, domainToChainId, parseHostname } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
 import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
