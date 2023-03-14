@@ -12,6 +12,7 @@ import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 
 import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
+import {Encoding} from "./lib/Encoding.sol";
 import {Hashing} from "./lib/Hashing.sol";
 import {Types} from "./lib/Types.sol";
 import {SafeCall} from "./lib/SafeCall.sol";
@@ -68,25 +69,6 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   }
 
   /**
-   * @dev L2 connector calls this function to pass down latest outbound root
-   */
-  function _processMessage(bytes memory _data) internal override {
-    // ensure the l1 connector sent the message
-    require(_verifySender(mirrorConnector), "!l2Connector");
-
-    // get the data (should be the outbound root)
-    require(_data.length == 32, "!length");
-
-    bytes32 root = bytes32(_data);
-    require(!processed[root], "processed");
-    // set root to processed
-    processed[root] = true;
-
-    // update the root on the root manager
-    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
-  }
-
-  /**
    * @dev modified from: OptimismPortal contract
    * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L291
    */
@@ -99,24 +81,32 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     require(_verifyXDomainMessage(_tx), "!proof");
 
-    // Trigger the call to the target contract. We use a custom low level method
-    // SafeCall.callWithMinGas to ensure two key properties
-    //   1. Target contracts cannot force this call to run out of gas by returning a very large
-    //      amount of data (and this is OK because we don't care about the returndata here).
-    //   2. The amount of gas provided to the call to the target contract is at least the gas
-    //      limit specified by the user. If there is not enough gas in the callframe to
-    //      accomplish this, `callWithMinGas` will revert.
-    // Additionally, if there is not enough gas remaining to complete the execution after the
-    // call returns, this function will revert.
-    bool success = SafeCall.callWithMinGas(_tx.target, _tx.gasLimit, _tx.value, _tx.data);
+    // Extract the argument from the data
+    (
+      uint256 _nonce,
+      address _sender,
+      address _target,
+      uint256 _value,
+      uint256 _minGasLimit,
+      bytes memory _message
+    ) = Encoding.decodeCrossDomainMessageV1(_tx.data);
 
-    // Reverting here is useful for determining the exact gas cost to successfully execute the
-    // sub call to the target contract if the minimum gas limit specified by the user would not
-    // be sufficient to execute the sub call.
-    // address internal constant ESTIMATION_ADDRESS = address(1);
-    if (success == false && tx.origin == address(1)) {
-      revert("OptimismPortal: withdrawal failed");
-    }
+    // ensure the l2 connector sent the message
+    require(_sender == mirrorConnector, "!mirror connector");
+
+    // get the data (should be the outbound root)
+    require(_message.length == 36, "!length");
+
+    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
+    bytes29 _view = _message.ref(0);
+    bytes32 root = _view.index(_view.len() - 32, 32);
+
+    require(!processed[root], "processed");
+    // set root to processed
+    processed[root] = true;
+
+    // update the root on the root manager
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
   }
 
   /**
