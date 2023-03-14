@@ -93,6 +93,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     // ensure the l2 connector sent the message
     require(_sender == mirrorConnector, "!mirror connector");
+    require(_target == address(this), "!target");
 
     // get the data (should be the outbound root)
     require(_message.length == 36, "!length");
