@@ -4,7 +4,6 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
-import { name } from "mustache";
 
 // import Connext_DiamondProxy_1337 from "../../contracts/deployments/local_1337/Connext_DiamondProxy.json";
 // import Connext_DiamondProxy_1338 from "../../contracts/deployments/local_1338/Connext_DiamondProxy.json";
