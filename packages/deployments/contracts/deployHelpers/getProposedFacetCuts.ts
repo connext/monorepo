@@ -98,14 +98,6 @@ export const getProposedFacetCuts = async (
         action: FacetCutAction.Add,
       });
     }
-
-    if (selectorsToAdd.length > 0) {
-      console.log("trying to add:", selectorsToAdd);
-    }
-
-    if (selectorsToReplace.length > 0) {
-      console.log("trying to replace:", selectorsToReplace);
-    }
   }
 
   // Get facet selectors to delete
@@ -116,9 +108,9 @@ export const getProposedFacetCuts = async (
     }
   }
 
-  if (selectorsToDelete.length > 0) {
-    console.log("trying to remove:", selectorsToDelete);
-  }
+  // if (selectorsToDelete.length > 0) {
+  //   console.log("trying to remove:", selectorsToDelete);
+  // }
   if (selectorsToDelete.length > 0) {
     changesDetected = true;
     facetCuts.unshift({
@@ -151,7 +143,7 @@ export const getProposedFacetCuts = async (
  *
  * @param prev The abi of the contract prior to the upgrade execution
  */
-export const getUpgradedAbi = (facets: FacetOptions[], prev: any[]): any[] => {
+export const getUpgradedAbi = (facets: (FacetOptions & { abi: any[] })[], prev: any[]): any[] => {
   // Shortcircuit if no facets
   if (facets.length === 0) {
     return prev;
@@ -161,8 +153,8 @@ export const getUpgradedAbi = (facets: FacetOptions[], prev: any[]): any[] => {
   let abi = prev.concat([]);
 
   for (const facet of facets) {
-    abi = mergeABIs([abi, facet.contract.abi] as any[][], {
-      check: true,
+    abi = mergeABIs([abi, facet.abi] as any[][], {
+      check: false,
       skipSupportsInterface: false,
     });
   }
