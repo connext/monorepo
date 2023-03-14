@@ -5,9 +5,11 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismHubConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
+import {Encoding} from "../../../../contracts/messaging/connectors/optimism/lib/Encoding.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
 import {PredeployAddresses} from "../../../../contracts/messaging/connectors/optimism/lib/PredeployAddresses.sol";
-import {IOptimismPortal} from "../../../../contracts/messaging/interfaces/ambs/optimism/IOptimismPortal.sol";
+import {IOptimismPortal, ProvenWithdrawal} from "../../../../contracts/messaging/interfaces/ambs/optimism/IOptimismPortal.sol";
+import {IL2OutputOracle} from "../../../../contracts/messaging/interfaces/ambs/optimism/IL2OutputOracle.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -142,8 +144,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
     vm.prank(_amb);
 
-    vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(_data, _amb);
+    vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
 
     OptimismHubConnector(_l1Connector).processMessage(_data);
   }
@@ -180,69 +181,69 @@ contract OptimismHubConnectorTest is ConnectorHelper {
   }
 
   function test_OptimismHubConnector_processMessageFromRoot_works() public {
-    // NOTE: _target is taken from the sample message
-    address payable _target = payable(address(0));
-    // set the target to have the code at the contract we want to test so the proof works
-    vm.etch(_target, _l1Connector.code);
+    address payable _target = payable(address(_l1Connector));
     address _sender = _l2Connector;
-    // set the mirror connector on the appropriate target storage slot
-    vm.store(_target, bytes32(uint256(3)), bytes32(abi.encode(_sender)));
-    // set the commitment chain to the appropriate target storage slot
-    vm.store(_target, bytes32(uint256(5)), bytes32(abi.encode(_stateCommitmentChain)));
-    // NOTE: sample values taken from:
-    // https://blockscout.com/optimism/goerli/tx/0x440fda036d28eb547394a8689af90c5342a00a8ca2ab5117f2b85f54d1416ddd/logs
+    uint256 _value = 0;
+    uint256 _gasLimit = 0;
+    uint256 _nonce = 104500;
     bytes32 _root = bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757);
-    bytes memory _message = bytes(
-      hex"4ff746f60000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002027ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757"
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _root);
+    bytes memory _encodedData = Encoding.encodeCrossDomainMessageV1(
+      _nonce,
+      _sender,
+      _target,
+      _value,
+      _gasLimit,
+      _calldata
     );
-    uint256 _messageNonce = 104500;
 
-    // // Ensure the _verifyStateRootProof call succeeds
-    // vm.mockCall(
-    //   _stateCommitmentChain,
-    //   abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
-    //   abi.encode(true)
-    // );
+    bytes32 _mockOutputRoot = bytes32(bytes("root"));
+    uint128 _mockTimestamp = 1000;
+    uint128 _mockOutputIndex = 0;
+
+    // Ensure the provenWithdrawals call succeeds
+    ProvenWithdrawal memory provenWithdrawal = ProvenWithdrawal({
+      outputRoot: _mockOutputRoot,
+      timestamp: _mockTimestamp,
+      l2OutputIndex: _mockOutputIndex
+    });
+    Types.OutputProposal memory proposal = Types.OutputProposal({
+      outputRoot: _mockOutputRoot,
+      timestamp: _mockTimestamp,
+      l2BlockNumber: 1234
+    });
+
+    vm.mockCall(
+      _optimismPortal,
+      abi.encodeWithSelector(IOptimismPortal.provenWithdrawals.selector),
+      abi.encode(provenWithdrawal)
+    );
+
+    // Ensure
+    vm.mockCall(
+      _l2OutputOracle,
+      abi.encodeWithSelector(bytes4(keccak256(bytes("startingTimestamp()")))),
+      abi.encode(_mockTimestamp - 1)
+    );
+
+    vm.mockCall(_l2OutputOracle, abi.encodeWithSelector(IL2OutputOracle.getL2Output.selector), abi.encode(proposal));
 
     // Ensure the call to root manager succeeds
-    // vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
 
-    // // Check the call succeeds
-    // vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
-
-    // Will be called in _verifyXDomainMessage
-    // vm.mockCall(_optimismPortal, abi.encodeWithSelector(IOptimismPortal.aggregate.selector), abi.encode(true));
+    // Check the call succeeds
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root));
 
     Types.WithdrawalTransaction memory _tx = Types.WithdrawalTransaction({
-      nonce: _messageNonce,
-      sender: _sender,
+      nonce: _nonce,
+      sender: PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER,
       target: _target,
-      value: 0,
+      value: _value,
       gasLimit: 100000000000,
-      data: _message
+      data: _encodedData
     });
 
     OptimismHubConnector(_target).processMessageFromRoot(_tx);
     assertTrue(OptimismHubConnector(_target).processed(_root));
   }
-
-  // function test_OptimismHubConnector_processMessageFromRoot_failsIfStateRootUnverified() public {
-  //   utils_setHubConnectorVerifyMocks(_l2Connector);
-
-  //   address _target = _l1Connector;
-  //   address _sender = _l2Connector;
-  //   bytes memory _message;
-  //   uint256 _messageNonce;
-  //   L2MessageInclusionProof memory _proof;
-
-  //   // Ensure the _verifyStateRootProof call fails
-  //   vm.mockCall(
-  //     _stateCommitmentChain,
-  //     abi.encodeWithSelector(IStateCommitmentChain.verifyStateCommitment.selector),
-  //     abi.encode(false)
-  //   );
-
-  //   vm.expectRevert("!proof");
-  //   OptimismHubConnector(_l1Connector).processMessageFromRoot(_target, _sender, _message, _messageNonce, _proof);
-  // }
 }
