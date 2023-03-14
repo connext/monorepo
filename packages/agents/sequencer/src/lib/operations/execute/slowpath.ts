@@ -5,7 +5,6 @@ import {
   ajv,
   ExecutorDataSchema,
   ExecStatus,
-  XTransferErrorStatus,
   jsonifyError,
 } from "@connext/nxtp-utils";
 
