@@ -1021,6 +1021,7 @@ export type stagingoptimismgoerli_OriginTransfer = {
   message?: Maybe<stagingoptimismgoerli_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   relayerFees?: Maybe<Array<stagingoptimismgoerli_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1257,6 +1258,16 @@ export type stagingoptimismgoerli_OriginTransfer_filter = {
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_?: InputMaybe<stagingoptimismgoerli_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -1366,6 +1377,7 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'message__blockNumber'
   | 'bumpRelayerFeeCount'
   | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1834,6 +1846,7 @@ export type stagingoptimismgoerli_RelayerFee_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1986,6 +1999,7 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'

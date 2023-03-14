@@ -1021,6 +1021,7 @@ export type staginggoerli_OriginTransfer = {
   message?: Maybe<staginggoerli_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   relayerFees?: Maybe<Array<staginggoerli_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
   caller?: Maybe<Scalars['staginggoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1257,6 +1258,16 @@ export type staginggoerli_OriginTransfer_filter = {
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_?: InputMaybe<staginggoerli_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
@@ -1366,6 +1377,7 @@ export type staginggoerli_OriginTransfer_orderBy =
   | 'message__blockNumber'
   | 'bumpRelayerFeeCount'
   | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1834,6 +1846,7 @@ export type staginggoerli_RelayerFee_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1986,6 +1999,7 @@ export type staginggoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'

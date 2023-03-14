@@ -109,7 +109,7 @@ export function getOrCreateAssetBalance(local: Address, routerAddress: Address):
 }
 
 export function getOrCreateTransferRelayFee(transferId: string, asset: Bytes): RelayerFee {
-  const relayerFeeKey = `${transferId}-${asset}`;
+  const relayerFeeKey = `${transferId}-${asset.toHexString()}`;
   let relayerFee = RelayerFee.load(relayerFeeKey);
   if (relayerFee == null) {
     relayerFee = new RelayerFee(relayerFeeKey);

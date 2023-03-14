@@ -1021,6 +1021,7 @@ export type stagingmumbai_OriginTransfer = {
   message?: Maybe<stagingmumbai_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
   relayerFees?: Maybe<Array<stagingmumbai_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
   caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1257,6 +1258,16 @@ export type stagingmumbai_OriginTransfer_filter = {
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_?: InputMaybe<stagingmumbai_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
@@ -1366,6 +1377,7 @@ export type stagingmumbai_OriginTransfer_orderBy =
   | 'message__blockNumber'
   | 'bumpRelayerFeeCount'
   | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1834,6 +1846,7 @@ export type stagingmumbai_RelayerFee_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1986,6 +1999,7 @@ export type stagingmumbai_RelayerFeesIncrease_orderBy =
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'

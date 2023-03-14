@@ -1017,6 +1017,7 @@ type stagingmumbai_OriginTransfer {
   message: stagingmumbai_OriginMessage
   bumpRelayerFeeCount: BigInt
   relayerFees(skip: Int = 0, first: Int = 100, orderBy: stagingmumbai_RelayerFee_orderBy, orderDirection: stagingmumbai_OrderDirection, where: stagingmumbai_RelayerFee_filter): [stagingmumbai_RelayerFee!]
+  initialRelayerFeeAsset: stagingmumbai_Bytes
   caller: stagingmumbai_Bytes
   transactionHash: stagingmumbai_Bytes
   timestamp: BigInt
@@ -1244,6 +1245,16 @@ input stagingmumbai_OriginTransfer_filter {
   relayerFees_not_contains: [String!]
   relayerFees_not_contains_nocase: [String!]
   relayerFees_: stagingmumbai_RelayerFee_filter
+  initialRelayerFeeAsset: stagingmumbai_Bytes
+  initialRelayerFeeAsset_not: stagingmumbai_Bytes
+  initialRelayerFeeAsset_gt: stagingmumbai_Bytes
+  initialRelayerFeeAsset_lt: stagingmumbai_Bytes
+  initialRelayerFeeAsset_gte: stagingmumbai_Bytes
+  initialRelayerFeeAsset_lte: stagingmumbai_Bytes
+  initialRelayerFeeAsset_in: [stagingmumbai_Bytes!]
+  initialRelayerFeeAsset_not_in: [stagingmumbai_Bytes!]
+  initialRelayerFeeAsset_contains: stagingmumbai_Bytes
+  initialRelayerFeeAsset_not_contains: stagingmumbai_Bytes
   caller: stagingmumbai_Bytes
   caller_not: stagingmumbai_Bytes
   caller_gt: stagingmumbai_Bytes
@@ -1353,6 +1364,7 @@ enum stagingmumbai_OriginTransfer_orderBy {
   message__blockNumber
   bumpRelayerFeeCount
   relayerFees
+  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1925,6 +1937,7 @@ enum stagingmumbai_RelayerFee_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp
@@ -2078,6 +2091,7 @@ enum stagingmumbai_RelayerFeesIncrease_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp

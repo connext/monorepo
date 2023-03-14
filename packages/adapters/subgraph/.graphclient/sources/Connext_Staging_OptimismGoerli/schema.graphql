@@ -1017,6 +1017,7 @@ type stagingoptimismgoerli_OriginTransfer {
   message: stagingoptimismgoerli_OriginMessage
   bumpRelayerFeeCount: BigInt
   relayerFees(skip: Int = 0, first: Int = 100, orderBy: stagingoptimismgoerli_RelayerFee_orderBy, orderDirection: stagingoptimismgoerli_OrderDirection, where: stagingoptimismgoerli_RelayerFee_filter): [stagingoptimismgoerli_RelayerFee!]
+  initialRelayerFeeAsset: stagingoptimismgoerli_Bytes
   caller: stagingoptimismgoerli_Bytes
   transactionHash: stagingoptimismgoerli_Bytes
   timestamp: BigInt
@@ -1244,6 +1245,16 @@ input stagingoptimismgoerli_OriginTransfer_filter {
   relayerFees_not_contains: [String!]
   relayerFees_not_contains_nocase: [String!]
   relayerFees_: stagingoptimismgoerli_RelayerFee_filter
+  initialRelayerFeeAsset: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_not: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_gt: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_lt: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_gte: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_lte: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_in: [stagingoptimismgoerli_Bytes!]
+  initialRelayerFeeAsset_not_in: [stagingoptimismgoerli_Bytes!]
+  initialRelayerFeeAsset_contains: stagingoptimismgoerli_Bytes
+  initialRelayerFeeAsset_not_contains: stagingoptimismgoerli_Bytes
   caller: stagingoptimismgoerli_Bytes
   caller_not: stagingoptimismgoerli_Bytes
   caller_gt: stagingoptimismgoerli_Bytes
@@ -1353,6 +1364,7 @@ enum stagingoptimismgoerli_OriginTransfer_orderBy {
   message__blockNumber
   bumpRelayerFeeCount
   relayerFees
+  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1925,6 +1937,7 @@ enum stagingoptimismgoerli_RelayerFee_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp
@@ -2078,6 +2091,7 @@ enum stagingoptimismgoerli_RelayerFeesIncrease_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp

@@ -1017,6 +1017,7 @@ type staginggoerli_OriginTransfer {
   message: staginggoerli_OriginMessage
   bumpRelayerFeeCount: BigInt
   relayerFees(skip: Int = 0, first: Int = 100, orderBy: staginggoerli_RelayerFee_orderBy, orderDirection: staginggoerli_OrderDirection, where: staginggoerli_RelayerFee_filter): [staginggoerli_RelayerFee!]
+  initialRelayerFeeAsset: staginggoerli_Bytes
   caller: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   timestamp: BigInt
@@ -1244,6 +1245,16 @@ input staginggoerli_OriginTransfer_filter {
   relayerFees_not_contains: [String!]
   relayerFees_not_contains_nocase: [String!]
   relayerFees_: staginggoerli_RelayerFee_filter
+  initialRelayerFeeAsset: staginggoerli_Bytes
+  initialRelayerFeeAsset_not: staginggoerli_Bytes
+  initialRelayerFeeAsset_gt: staginggoerli_Bytes
+  initialRelayerFeeAsset_lt: staginggoerli_Bytes
+  initialRelayerFeeAsset_gte: staginggoerli_Bytes
+  initialRelayerFeeAsset_lte: staginggoerli_Bytes
+  initialRelayerFeeAsset_in: [staginggoerli_Bytes!]
+  initialRelayerFeeAsset_not_in: [staginggoerli_Bytes!]
+  initialRelayerFeeAsset_contains: staginggoerli_Bytes
+  initialRelayerFeeAsset_not_contains: staginggoerli_Bytes
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
   caller_gt: staginggoerli_Bytes
@@ -1353,6 +1364,7 @@ enum staginggoerli_OriginTransfer_orderBy {
   message__blockNumber
   bumpRelayerFeeCount
   relayerFees
+  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1925,6 +1937,7 @@ enum staginggoerli_RelayerFee_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp
@@ -2078,6 +2091,7 @@ enum staginggoerli_RelayerFeesIncrease_orderBy {
   transfer__canonicalId
   transfer__transactingAsset
   transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp
