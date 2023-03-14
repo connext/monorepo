@@ -247,6 +247,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 amount,
     bool shouldSwap
   ) public {
+    if (_relayerFee > 0) {
+      vm.expectEmit(true, true, true, true);
+      emit TransferRelayerFeesIncreased(transferId, _relayerFee, address(0), params.originSender);
+    }
+
     // Bridged asset will either local or canonical, depending on domain xcall originates on.
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
@@ -407,12 +412,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    // TODO: event manually validated, value to relayer fee vault automatically validated,
-    // this event check wont pass :(
-    // if (_relayerFee > 0) {
-    //   vm.expectEmit(true, true, true, true);
-    //   emit TransferRelayerFeesIncreased(transferId, _relayerFee, params.originSender);
-    // }
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {

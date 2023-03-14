@@ -15,14 +15,7 @@ export const getContract = (
   useStaging: boolean,
   connection?: Wallet | providers.JsonRpcProvider | zk.Wallet,
 ): Deployment => {
-  const deployments = Deployments[chain];
-  if (!deployments) {
-    throw new Error(`No deployments found for chain ${chain}!`);
-  }
-  const contracts = deployments[0]["contracts"] as { [contract: string]: any };
-  if (!contracts) {
-    throw new Error(`No contracts found under deployments for chain ${chain}!`);
-  }
+  const contracts = getDeployedContracts(+chain);
 
   const envSuffix = useStaging ? "Staging" : "";
   const isConnext = name.includes("Connext");
