@@ -83,18 +83,23 @@ export const getPropagateParams = async (
       l2SpokeConnector.address,
       l1Provider,
     );
-    const gasLimitForAutoRedeem = L1ToL2MessageGasParams.gasLimit.mul(5);
+    // multiply gasLimit by 15 to be successful in auto-redeem
+    const gasLimitForAutoRedeem = L1ToL2MessageGasParams.gasLimit.mul(15);
+
+    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(10).toString();
+    maxGas = gasLimitForAutoRedeem.toString();
+    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
+
     logger.info(`Got message gas params`, requestContext, methodContext, {
       maxFeePerGas: L1ToL2MessageGasParams.maxFeePerGas.toString(),
       maxSubmissionCost: L1ToL2MessageGasParams.maxSubmissionFee.toString(),
       gasLimit: L1ToL2MessageGasParams.gasLimit.toString(),
       gasLimitForAutoRedeem: gasLimitForAutoRedeem.toString(),
+      submissionPriceWei: submissionPriceWei.toString(),
+      maxGas: maxGas.toString(),
+      gasPriceBid: gasPriceBid.toString(),
+      callValue: callValue.toString(),
     });
-
-    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(5).toString();
-    // multiply gasLimit by 15 to be successful in auto-redeem
-    maxGas = gasLimitForAutoRedeem.toString();
-    callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
   } catch (err: unknown) {
     console.log(err);
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);

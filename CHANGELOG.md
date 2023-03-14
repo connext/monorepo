@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 1.0.3-alpha.0
+
+- [sdk] Fixed getTransfers
+
 ## Amarok 1.0.2
 
 - [sdk] more optimisation
