@@ -323,20 +323,29 @@ export class SdkBase extends SdkShared {
       const value = relayerFeeInNativeAsset;
 
       // Format the ethers TransactionRequest object.
-      txRequest = {
-        to: connextContractAddress,
-        value,
-        data: xcallData,
-        from: signerAddress,
-        chainId,
-      };
+      if (relayerFeeInNativeAsset.gt(0)) {
+        txRequest = {
+          to: connextContractAddress,
+          value,
+          data: xcallData,
+          from: signerAddress,
+          chainId,
+        };
+      } else {
+        txRequest = {
+          to: connextContractAddress,
+          data: xcallData,
+          from: signerAddress,
+          chainId,
+        };
+      }
     }
 
     this.logger.info("XCall transaction formatted.", requestContext, methodContext, {
       args: { ...params, callData, delegate },
       to: txRequest.to,
       from: txRequest.from,
-      value: txRequest.value?.toString(),
+      value: txRequest.value ? txRequest.value.toString() : "0",
     });
 
     return txRequest;
