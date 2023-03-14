@@ -110,7 +110,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // call returns, this function will revert.
     bool success = SafeCall.callWithMinGas(_tx.target, _tx.gasLimit, _tx.value, _tx.data);
 
-    // // Reverting here is useful for determining the exact gas cost to successfully execute the
+    // Reverting here is useful for determining the exact gas cost to successfully execute the
     // sub call to the target contract if the minimum gas limit specified by the user would not
     // be sufficient to execute the sub call.
     // address internal constant ESTIMATION_ADDRESS = address(1);
