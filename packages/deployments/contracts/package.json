@@ -77,7 +77,6 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@eth-optimism/contracts-bedrock": "^0.13.0",
     "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "2.1.0",
     "@matterlabs/hardhat-zksync-deploy": "^0.6.1",

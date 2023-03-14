@@ -2455,7 +2455,6 @@ __metadata:
   dependencies:
     "@arbitrum/sdk": 3.0.0-beta.12
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/contracts-bedrock": ^0.13.0
     "@eth-optimism/sdk": 1.6.9
     "@gelatonetwork/relay-context": 2.1.0
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
@@ -2717,19 +2716,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.13.0"
-  dependencies:
-    "@eth-optimism/core-utils": ^0.12.0
-    "@openzeppelin/contracts": 4.7.3
-    "@openzeppelin/contracts-upgradeable": 4.7.3
-    ethers: ^5.7.0
-    hardhat: ^2.9.6
-  checksum: f684a31d9f0df03f8e32dbfcf43945781ed3a07b9a2d3f432ff458b40bcf35fe3aeb880421c75dd8219d726ce124e9091c378785d594a57589f64ba872e9cd2d
-  languageName: node
-  linkType: hard
-
 "@eth-optimism/contracts@npm:0.5.37":
   version: 0.5.37
   resolution: "@eth-optimism/contracts@npm:0.5.37"
@@ -2764,30 +2750,6 @@ __metadata:
     bufio: ^1.0.7
     chai: ^4.3.4
   checksum: ab8dfe644eb70b877d63c4543ec18c4a3f50ed71304b052562ce7827a1a9aefb5d735d5a2de275866fed3e48726c7ae8dd8335f7da91e2e7bc2b7ddd397de678
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/core-utils@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "@eth-optimism/core-utils@npm:0.12.0"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/address": ^5.7.0
-    "@ethersproject/bignumber": ^5.7.0
-    "@ethersproject/bytes": ^5.7.0
-    "@ethersproject/constants": ^5.7.0
-    "@ethersproject/contracts": ^5.7.0
-    "@ethersproject/hash": ^5.7.0
-    "@ethersproject/keccak256": ^5.7.0
-    "@ethersproject/properties": ^5.7.0
-    "@ethersproject/providers": ^5.7.0
-    "@ethersproject/rlp": ^5.7.0
-    "@ethersproject/transactions": ^5.7.0
-    "@ethersproject/web": ^5.7.0
-    bufio: ^1.0.7
-    chai: ^4.3.4
-  checksum: 1c820107c44bdbb46becb1b00fd0dabb44f3ac8f54e6da7872a5a134411fad26f53b193225da55e79d6a8d7f0d01cc16a123db5d41ebaf02ca78360249a4b52a
   languageName: node
   linkType: hard
 
