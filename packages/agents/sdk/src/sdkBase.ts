@@ -119,6 +119,9 @@ export class SdkBase extends SdkShared {
    * ```ts
    * // call SdkBase.create(), instantiate a signer
    *
+   *
+   * [case 1] If a user wants to pay a fee in the native asset, you can put params for `xcall` method as the following.
+   *
    * const params = {
    *   origin: "6648936"
    *   destination: "1869640809"
@@ -129,12 +132,26 @@ export class SdkBase extends SdkShared {
    *   slippage: "300"
    *   callData: "0x",
    *   relayerFee: "10000000000000" // relayer fee in native asset
-   *   relayerFeeInTransactingAsset?: "10000000000000" // relayer fee in transacting asset
+   * };
+   *
+   *
+   * [case 2] If a user wants to pay a fee in the transacting asset,
+   *
+   * const params = {
+   *   origin: "6648936"
+   *   destination: "1869640809"
+   *   to: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+   *   delegate: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   amount: "1000000"
+   *   slippage: "300"
+   *   callData: "0x",
+   *   relayerFeeInTransactingAsset: "10000000000000" // relayer fee in transacting asset
    * };
    *
    * const txRequest = sdkBase.xcall(params);
    * signer.sendTransaction(txRequest);
-   * ```
+   *
    */
   async xcall(params: SdkXCallParams): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
@@ -482,7 +499,7 @@ export class SdkBase extends SdkShared {
    * const params = {
    *   domainId: "6648936",
    *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
-   *   asset: "0x0000000000000000000000000000000000000000" // can be either of native asset or transacting asset
+   *   asset: "0x0000000000000000000000000000000000000000" // can be either native asset or transacting asset
    *   relayerFee: "10000",
    * };
    *
