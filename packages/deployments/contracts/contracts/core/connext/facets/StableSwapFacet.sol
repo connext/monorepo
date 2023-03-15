@@ -331,7 +331,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256[] calldata amounts,
     uint256 minToMint,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
+  ) external nonAddLiquidityReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return s.swapStorages[key].addLiquidity(amounts, minToMint);
   }
 
