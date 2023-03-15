@@ -132,8 +132,14 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            // https://goerli.etherscan.io/address/0x9c945aC97Baf48cB784AbBB61399beB71aF7A378
-            stateCommitmentChain: "0x9c945aC97Baf48cB784AbBB61399beB71aF7A378",
+            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
+            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
+            // https://goerli.etherscan.io/address/0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0
+            l2OutputOracle: "0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },
@@ -280,8 +286,15 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            // https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments/mainnet
-            stateCommitmentChain: "0xBe5dAb4A2e9cd0F27300dB4aB94BeE3A233AEB19",
+            // TODO: should be updated to mainnet
+            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
+            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
+            // https://goerli.etherscan.io/address/0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0
+            l2OutputOracle: "0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },
