@@ -81,8 +81,11 @@ export const ORIGIN_TRANSFER_ENTITY = `
         ${ORIGIN_MESSAGE_ENTITY}
       }
 
-      # relayerFee
-      relayerFee
+      relayerFees {
+        asset
+        fee
+        id
+      }
 
       # XCalled Transaction
       caller

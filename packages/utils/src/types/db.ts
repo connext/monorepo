@@ -64,7 +64,7 @@ export const transfersCastForUrl =
     "reconcile_gas_limit",
     "reconcile_block_number",
     "reconcile_tx_origin",
-    "relayer_fee",
+    "relayer_fees",
     "error_status",
     "execute_simulation_input",
     "execute_simulation_from",
@@ -99,7 +99,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       ? {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
-          relayerFee: BigNumber.from(transfer.relayer_fee ?? "0").toString(),
+          relayerFees: transfer.relayer_fees ?? {},
           errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
           assets: {
             transacting: {

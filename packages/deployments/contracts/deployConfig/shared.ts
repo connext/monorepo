@@ -1,4 +1,5 @@
 import { BigNumber, constants, utils } from "ethers";
+import { getDeploymentName } from "../src";
 
 export type AMBInfo = {
   hub: string;
@@ -76,6 +77,32 @@ export type MessagingProtocolConfig = {
     };
   };
 };
+
+export const getFacetsToDeploy = (zksync: boolean) => [
+  {
+    // always include the loupe facet
+    name: "_DefaultDiamondLoupeFacet",
+    contract: "DiamondLoupeFacet",
+    args: [],
+    deterministic: !zksync,
+  },
+  { name: getDeploymentName("TokenFacet"), contract: "TokenFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("InboxFacet"), contract: "InboxFacet", args: [], deterministic: !zksync },
+  {
+    name: getDeploymentName("ProposedOwnableFacet"),
+    contract: "ProposedOwnableFacet",
+    args: [],
+    deterministic: !zksync,
+  },
+  { name: getDeploymentName("PortalFacet"), contract: "PortalFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [], deterministic: !zksync },
+  { name: getDeploymentName("DiamondInit"), contract: "DiamondInit", args: [], deterministic: !zksync },
+];
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
