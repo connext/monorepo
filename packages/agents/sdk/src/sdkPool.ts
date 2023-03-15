@@ -817,7 +817,7 @@ export class SdkPool extends SdkShared {
         asset: tokenAddress,
         delegate: signerAddress,
         amount: amounts[0],
-        slippage: slippage,
+        slippage: slippage ? slippage : "300",
         relayerFee: relayerFee.toString(),
         // TODO: relayerFeeInTransactingAsset:
         callData: callData,
