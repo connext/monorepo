@@ -797,11 +797,8 @@ export class SdkPool extends SdkShared {
     if (destinationDomainId) {
       const sdkBase = await SdkBase.create(this.config);
 
-      // Encode calldata for `addSwapLiquidity`
-      const callData = utils.defaultAbiCoder.encode(
-        ["bytes32", "uint256[]", "uint256", "uint256"],
-        [utils.formatBytes32String(key), amounts, minToMint, deadline],
-      );
+      // Encode calldata for `addSwapLiquidity` (just the recipient of LP tokens)
+      const callData = utils.defaultAbiCoder.encode(["address"], signerAddress);
 
       // Retrieve destination ConnextPoolLiquidity utility contract
       const receiverAddress = await this.getDeploymentAddress(destinationDomainId, "connextPoolLiquidity");
