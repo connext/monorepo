@@ -5,6 +5,7 @@
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error BaseConnextFacet__getAdoptedAsset_assetNotFound()",
   "error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted()",
+  "error BaseConnextFacet__nonAddLiquidityReentrant_reentrantCall()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__nonXCallReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin()",
