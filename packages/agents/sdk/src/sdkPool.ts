@@ -755,6 +755,75 @@ export class SdkPool extends SdkShared {
   // ------------------- Pool Operations ------------------- //
 
   /**
+   * Prepares the transaction request for xcalling and adding liquidity into a pool on another domain.
+   *
+   * @param originDomainId - The origin domain ID that the user is connected to.
+   * @param destinationDomainId - The destination domain ID of the pool to deposit into.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the token to deposit.
+   * @param slippage - Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
+   * @returns providers.TransactionRequest object.
+   */
+  async addXLiquidity(
+    originDomainId: string,
+    destinationDomainId: string,
+    tokenAddress: string,
+    amount: string,
+    slippage: string,
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomainId,
+      destinationDomainId,
+      tokenAddress,
+      amount,
+      slippage,
+    });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [sdkBase, receiverAddress] = await Promise.all([
+      SdkBase.create(this.config),
+      this.getDeploymentAddress(destinationDomainId, "connextPoolLiquidity"),
+    ]);
+
+    // Encode calldata for `addSwapLiquidity` (just the recipient of LP tokens)
+    const callData = utils.defaultAbiCoder.encode(["address"], signerAddress);
+
+    // Get relayer fee estimate
+    const relayerFee = await sdkBase.estimateRelayerFee({
+      originDomain: originDomainId,
+      destinationDomain: destinationDomainId,
+    });
+    // TODO: convert estimate if user wants to pay in transacting asset
+
+    const xCallParams = {
+      origin: originDomainId,
+      destination: destinationDomainId,
+      to: receiverAddress,
+      asset: _tokenAddress,
+      delegate: signerAddress,
+      amount: amount,
+      slippage: slippage,
+      relayerFee: relayerFee.toString(),
+      // TODO: relayerFeeInTransactingAsset:
+      callData: callData,
+      receiveLocal: true,
+      wrapNativeOnOrigin: true,
+    };
+
+    const txRequest = await sdkBase.xcall(xCallParams);
+
+    this.logger.info(`${this.addXLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
    * Prepares the transaction request for adding liquidity to a pool.
    *
    * @param domainId - The domain ID of the pool.
@@ -762,8 +831,6 @@ export class SdkPool extends SdkShared {
    * @param amounts - The amounts of the tokens to swap.
    * @param minToMint - (optional) The minimum acceptable amount of LP tokens to mint.
    * @param deadline - (optional) The deadline for the swap.
-   * @param destinationDomainId - (optional) Destination domain ID for a cross-deposit.
-   * @param slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
    * @returns providers.TransactionRequest object.
    */
   async addLiquidity(
@@ -772,8 +839,6 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     minToMint = "0",
     deadline = this.getDefaultDeadline(),
-    destinationDomainId: string | undefined = undefined,
-    slippage: string | undefined = undefined,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
@@ -786,48 +851,11 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      destinationDomainId ? this.getConnext(destinationDomainId) : this.getConnext(domainId),
+      this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-
-    let txRequest;
-
-    // Do an xchain deposit if destination chain is specified
-    if (destinationDomainId) {
-      const sdkBase = await SdkBase.create(this.config);
-
-      // Encode calldata for `addSwapLiquidity` (just the recipient of LP tokens)
-      const callData = utils.defaultAbiCoder.encode(["address"], signerAddress);
-
-      // Retrieve destination ConnextPoolLiquidity utility contract
-      const receiverAddress = await this.getDeploymentAddress(destinationDomainId, "connextPoolLiquidity");
-
-      // Get relayer fee estimate
-      const relayerFee = await sdkBase.estimateRelayerFee({
-        originDomain: domainId,
-        destinationDomain: destinationDomainId,
-      });
-      // TODO: convert estimate if user wants to pay in transacting asset
-
-      const xCallParams = {
-        origin: domainId,
-        destination: destinationDomainId,
-        to: receiverAddress,
-        asset: tokenAddress,
-        delegate: signerAddress,
-        amount: amounts[0],
-        slippage: slippage ? slippage : "300",
-        relayerFee: relayerFee.toString(),
-        // TODO: relayerFeeInTransactingAsset:
-        callData: callData,
-        receiveLocal: true,
-        wrapNativeOnOrigin: true,
-      };
-      txRequest = await sdkBase.xcall(xCallParams);
-    } else {
-      txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
-    }
+    const txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
 
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
 
