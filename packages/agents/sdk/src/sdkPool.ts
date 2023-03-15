@@ -804,10 +804,10 @@ export class SdkPool extends SdkShared {
       );
 
       // Retrieve destination ConnextPoolLiquidity utility contract
-      const receiverAddress = await this.getDeploymentAddress(destinationDomainId, "ConnextPoolLiquidity");
+      const receiverAddress = await this.getDeploymentAddress(destinationDomainId, "connextPoolLiquidity");
 
       // Get relayer fee estimate
-      const relayerFee = sdkBase.estimateRelayerFee({
+      const relayerFee = await sdkBase.estimateRelayerFee({
         originDomain: domainId,
         destinationDomain: destinationDomainId,
       });
@@ -820,8 +820,8 @@ export class SdkPool extends SdkShared {
         delegate: signerAddress,
         amount: amounts[0],
         slippage: slippage,
+        relayerFee: relayerFee.toString(),
         callData: callData,
-        relayerFee: relayerFee,
         receiveLocal: true,
         wrapNativeOnOrigin: true,
       };
