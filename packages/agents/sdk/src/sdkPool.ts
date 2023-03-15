@@ -17,6 +17,7 @@ import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
+import { SdkBase } from "./sdkBase";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -761,6 +762,8 @@ export class SdkPool extends SdkShared {
    * @param amounts - The amounts of the tokens to swap.
    * @param minToMint - (optional) The minimum acceptable amount of LP tokens to mint.
    * @param deadline - (optional) The deadline for the swap.
+   * @param destinationDomainId - (optional) Destination domain ID for the deposit.
+   * @param slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
    * @returns providers.TransactionRequest object.
    */
   async addLiquidity(
@@ -769,6 +772,8 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     minToMint = "0",
     deadline = this.getDefaultDeadline(),
+    destinationDomainId: string | undefined = undefined,
+    slippage: string | undefined = undefined,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
@@ -781,11 +786,49 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      destinationDomainId ? this.getConnext(destinationDomainId) : this.getConnext(domainId),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
+
+    let txRequest;
+
+    // Do an xchain deposit if destination chain is specified
+    if (destinationDomainId) {
+      const sdkBase = await SdkBase.create(this.config);
+
+      // Encode calldata for `addSwapLiquidity`
+      const callData = utils.defaultAbiCoder.encode(
+        ["bytes32", "uint256[]", "uint256", "uint256"],
+        [utils.formatBytes32String(key), amounts, minToMint, deadline],
+      );
+
+      // Retrieve destination ConnextPoolLiquidity utility contract
+      const receiverAddress = await this.getDeploymentAddress(destinationDomainId, "ConnextPoolLiquidity");
+
+      // Get relayer fee estimate
+      const relayerFee = sdkBase.estimateRelayerFee({
+        originDomain: domainId,
+        destinationDomain: destinationDomainId,
+      });
+
+      const xCallParams = {
+        origin: domainId,
+        destination: destinationDomainId,
+        to: receiverAddress,
+        asset: tokenAddress,
+        delegate: signerAddress,
+        amount: amounts[0],
+        slippage: slippage,
+        callData: callData,
+        relayerFee: relayerFee,
+        receiveLocal: true,
+        wrapNativeOnOrigin: true,
+      };
+      txRequest = await sdkBase.xcall(xCallParams);
+    } else {
+      txRequest = await connextContract.populateTransaction.addSwapLiquidity(key, amounts, minToMint, deadline);
+    }
 
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
 
