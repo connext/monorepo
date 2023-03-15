@@ -103,7 +103,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     const cuts = await getProposedFacetCuts(facets, currentConnext);
     if (cuts.length) {
       // There is a proposal needed
-      console.log(`Proposal needed, proposing upgrade`);
+      console.log(`Proposal needed, proposing upgrade:`, cuts);
       const proposalTx = await currentConnext.proposeDiamondCut(cuts, constants.AddressZero, "0x");
       console.log(`Proposal tx:`, proposalTx.hash);
       const receipt = await proposalTx.wait();
@@ -140,11 +140,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`upgrade failed`, e);
     }
   } else {
+    console.log(`Deploying fresh diamond..`);
     connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
       from: deployer.address,
       owner: deployer.address,
       log: true,
-      facets: facetsToDeploy,
+      facets: facetsToDeploy.filter((f) => !f.name.includes("_DefaultDiamondLoupeFacet")),
       diamondContract: "ConnextDiamond",
       defaultOwnershipFacet: false,
       defaultCutFacet: false,
