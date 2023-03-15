@@ -10,6 +10,82 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
 import "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
 
+contract ReentrantLiquidity is IERC20 {
+  bool public reentrantCall;
+  TestERC20 public token;
+
+  // reentrant call variables
+  address pool;
+  bytes32 key;
+  uint256[] amounts;
+  uint256 min;
+  uint256 blockTimestamp;
+
+  constructor() {
+    token = new TestERC20("Reenter", "R");
+  }
+
+  function setReentrantCall(bool shouldReenter) public {
+    reentrantCall = shouldReenter;
+  }
+
+  // IERC20 functions
+  function totalSupply() external view returns (uint256) {
+    return token.totalSupply();
+  }
+
+  function balanceOf(address account) external view returns (uint256) {
+    return token.balanceOf(account);
+  }
+
+  function transfer(address to, uint256 amount) external returns (bool) {
+    return token.transfer(to, amount);
+  }
+
+  function approve(address spender, uint256 amount) external returns (bool) {
+    return token.approve(spender, amount);
+  }
+
+  function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+    if (reentrantCall) {
+      // perform swap liquidity call
+      this.addLiquidity();
+    }
+    return token.transferFrom(from, to, amount);
+  }
+
+  function allowance(address owner, address spender) external view returns (uint256) {
+    return token.allowance(owner, spender);
+  }
+
+  // Add liquidity function
+  function addLiquidity() public {
+    StableSwapFacet(pool).addSwapLiquidity(key, amounts, min, blockTimestamp + 1);
+  }
+
+  function prepReentrantCall(
+    address _pool,
+    bytes32 _key,
+    uint256[] memory _amounts,
+    uint256 _min,
+    uint256 _blockTimestamp
+  ) public {
+    reentrantCall = true;
+    pool = _pool;
+    key = _key;
+    amounts = _amounts;
+    min = _min;
+    blockTimestamp = _blockTimestamp;
+  }
+
+  /**
+   * Approve any token we hold balance of
+   */
+  function approve(address spender, uint256 amount, address asset) public {
+    IERC20(asset).approve(spender, amount);
+  }
+}
+
 contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   // ============ Libraries ============
   using stdStorage for StdStorage;
@@ -418,6 +494,48 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     vm.prank(_user1);
     vm.expectRevert("mismatch pooled tokens");
     this.addSwapLiquidity(utils_calculateCanonicalHash(), amounts, 0, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__addSwapLiquidity_failsIfReentrant() public {
+    // deploy reentrant
+    ReentrantLiquidity reentrant = new ReentrantLiquidity();
+
+    // first, initialize the pool with a reentrant token
+    IERC20[] memory _pooledTokens = new IERC20[](2);
+    _pooledTokens[0] = IERC20(_local);
+    _pooledTokens[1] = IERC20(address(reentrant));
+
+    // Mint reentrant local tokens
+    TestERC20(_local).mint(address(reentrant), 100 ether);
+    reentrant.token().mint(address(this), 100 ether);
+
+    // Approve spending of local and token
+    reentrant.approve(address(this), 100 ether, _local);
+    reentrant.approve(address(this), 100 ether);
+
+    // Get key
+    bytes32 key = keccak256(abi.encode(TypeCasts.addressToBytes32(address(reentrant.token())), _canonicalDomain));
+
+    // Initialize the swap
+    uint8[] memory _decimals = new uint8[](2);
+    _decimals[0] = 18;
+    _decimals[1] = 18;
+
+    vm.startPrank(_owner);
+    this.initializeSwap(key, _pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, INITIAL_A_VALUE, SWAP_FEE, 0);
+    vm.stopPrank();
+
+    // Add liquidity with reentrant token
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 1 ether / 2;
+    amounts[1] = 3 ether / 2;
+
+    // Prep call (token will reenter on `transferFrom`)
+    reentrant.prepReentrantCall(address(this), key, amounts, 0, blockTimestamp);
+
+    // Make call
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__nonAddLiquidityReentrant_reentrantCall.selector);
+    reentrant.addLiquidity();
   }
 
   function test_StableSwapFacet__addSwapLiquidity_shouldWork() public {

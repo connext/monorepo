@@ -324,6 +324,11 @@ struct AppStorage {
    */
   // 34
   IConnectorManager xAppConnectionManager;
+  /**
+   * @notice Store the reentrancy status of add liquidity.
+   * @dev This separation allows
+   */
+  uint256 _addLiquidityStatus;
 }
 
 library LibConnextStorage {

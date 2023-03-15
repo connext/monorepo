@@ -22,6 +22,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "BaseConnextFacet__nonAddLiquidityReentrant_reentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BaseConnextFacet__nonReentrant_reentrantCall",
     type: "error",
   },

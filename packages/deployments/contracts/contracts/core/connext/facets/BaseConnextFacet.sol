@@ -20,6 +20,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
   error BaseConnextFacet__nonXCallReentrant_reentrantCall();
+  error BaseConnextFacet__nonAddLiquidityReentrant_reentrantCall();
   error BaseConnextFacet__getAdoptedAsset_assetNotFound();
   error BaseConnextFacet__getApprovedCanonicalId_notAllowlisted();
 
@@ -58,6 +59,20 @@ contract BaseConnextFacet {
     // By storing the original value once again, a refund is triggered (see
     // https://eips.ethereum.org/EIPS/eip-2200)
     s._xcallStatus = Constants.NOT_ENTERED;
+  }
+
+  modifier nonAddLiquidityReentrant() {
+    // On the first call to nonReentrant, _notEntered will be true
+    if (s._addLiquidityStatus == Constants.ENTERED) revert BaseConnextFacet__nonAddLiquidityReentrant_reentrantCall();
+
+    // Any calls to nonReentrant after this point will fail
+    s._addLiquidityStatus = Constants.ENTERED;
+
+    _;
+
+    // By storing the original value once again, a refund is triggered (see
+    // https://eips.ethereum.org/EIPS/eip-2200)
+    s._addLiquidityStatus = Constants.NOT_ENTERED;
   }
 
   /**
@@ -159,11 +174,7 @@ contract BaseConnextFacet {
     return (uint64(_origin) << 32) | _nonce;
   }
 
-  function _getLocalAsset(
-    bytes32 _key,
-    bytes32 _id,
-    uint32 _domain
-  ) internal view returns (address) {
+  function _getLocalAsset(bytes32 _key, bytes32 _id, uint32 _domain) internal view returns (address) {
     return AssetLogic.getLocalAsset(_key, _id, _domain, s);
   }
 
