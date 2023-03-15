@@ -762,7 +762,7 @@ export class SdkPool extends SdkShared {
    * @param amounts - The amounts of the tokens to swap.
    * @param minToMint - (optional) The minimum acceptable amount of LP tokens to mint.
    * @param deadline - (optional) The deadline for the swap.
-   * @param destinationDomainId - (optional) Destination domain ID for the deposit.
+   * @param destinationDomainId - (optional) Destination domain ID for a cross-deposit.
    * @param slippage - (optional) Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
    * @returns providers.TransactionRequest object.
    */
@@ -811,7 +811,7 @@ export class SdkPool extends SdkShared {
         originDomain: domainId,
         destinationDomain: destinationDomainId,
       });
-      // TODO: convert estimate to transacting asset if user wants to pay in transacting asset
+      // TODO: convert estimate if user wants to pay in transacting asset
 
       const xCallParams = {
         origin: domainId,
@@ -822,6 +822,7 @@ export class SdkPool extends SdkShared {
         amount: amounts[0],
         slippage: slippage,
         relayerFee: relayerFee.toString(),
+        // TODO: relayerFeeInTransactingAsset:
         callData: callData,
         receiveLocal: true,
         wrapNativeOnOrigin: true,
