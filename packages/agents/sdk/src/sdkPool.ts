@@ -811,6 +811,7 @@ export class SdkPool extends SdkShared {
         originDomain: domainId,
         destinationDomain: destinationDomainId,
       });
+      // TODO: convert estimate to transacting asset if user wants to pay in transacting asset
 
       const xCallParams = {
         origin: domainId,

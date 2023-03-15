@@ -19,6 +19,7 @@ export const TChainDeployments = Type.Object({
   multisend: Type.Optional(TAddress),
   unwrapper: Type.Optional(TAddress),
   stableSwap: Type.Optional(TAddress),
+  connextPoolLiquidity: Type.Optional(TAddress),
 });
 
 export type ChainDeployments = Static<typeof TChainDeployments>;
@@ -131,6 +132,15 @@ export const getEnvConfig = (
         (() => {
           if (chainDataForChain) {
             const res = deployments.unwrapper(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
+        })(),
+      connextPoolLiquidity:
+        chainConfig.deployments?.connextPoolLiquidity ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.connextPoolLiquidity(chainDataForChain.chainId);
             return res?.address;
           }
           return undefined;
