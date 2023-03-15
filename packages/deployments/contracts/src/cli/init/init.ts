@@ -135,18 +135,18 @@ export const sanitizeAndInit = async () => {
   }
 
   const networks: NetworkStack[] = [];
-  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
-    (hardhatNetwork) =>
-      Object.keys(hardhatNetwork as object).includes("chainId") &&
-      Object.keys(hardhatNetwork as object).includes("url"),
-  );
+  const filteredHardhatNetworks = Object.entries(hardhatNetworks)
+    .filter(([key, value]: [string, any]) => {
+      return typeof value.chainId !== "undefined" && typeof value.url === "string" && !key.includes("_fork");
+    })
+    .map(([_, value]: [string, any]) => value);
 
   // Get deployments for each domain if not specified in the config.
   for (const _domain of domains) {
     const domain = _domain as string;
     const chainId = domainToChainId(Number(domain));
 
-    const chainConfig = Object.values(filteredHardhatNetworks).find(
+    const chainConfig = filteredHardhatNetworks.find(
       (networkConfig: any) => networkConfig["chainId"] == chainId,
     ) as HttpNetworkUserConfig & { zksync: boolean | undefined };
 
