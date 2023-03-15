@@ -26,6 +26,7 @@ export const mock = {
           stableSwap: mkAddress("0xadd0102"),
           multisend: mkAddress("0xadd0103"),
           unwrapper: mkAddress("0xadd0104"),
+          connextPoolLiquidity: mkAddress("0xadd0105"),
         },
         gasStations: [],
       },
@@ -39,6 +40,7 @@ export const mock = {
           stableSwap: mkAddress("0xadd0202"),
           multisend: mkAddress("0xadd0203"),
           unwrapper: mkAddress("0xadd0204"),
+          connextPoolLiquidity: mkAddress("0xadd0205"),
         },
         gasStations: [],
       },
@@ -104,6 +106,7 @@ export const mock = {
         rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         unwrapper: unwrapper as unknown as ConnextContractInterfaces["unwrapper"],
         multisend: unwrapper as unknown as ConnextContractInterfaces["multisend"],
+        connextPoolLiquidity: unwrapper as unknown as ConnextContractInterfaces["connextPoolLiquidity"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -119,6 +122,7 @@ export const mock = {
         relayerProxy: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         multisend: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         unwrapper: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        connextPoolLiquidity: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },
