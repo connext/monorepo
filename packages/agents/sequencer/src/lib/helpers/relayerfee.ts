@@ -1,4 +1,4 @@
-import { XTransfer, createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { XTransfer, createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { calculateRelayerFee, getConversionRate, getDecimalsForAsset } from "../../mockable";
@@ -53,13 +53,13 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   let relayerFeePaidUsd = constants.Zero;
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
-      const originChainId = await getChainIdFromDomain(originDomain, chainData);
+      const originChainId = await domainToChainId(+originDomain, chainData);
       const nativeUsd = await getConversionRate(originChainId, undefined, logger);
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
       const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
-      const originChainId = await getChainIdFromDomain(originDomain, chainData);
+      const originChainId = domainToChainId(+originDomain);
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
       const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
         BigNumber.from(10).pow(18 - relayerFeeDecimals),
