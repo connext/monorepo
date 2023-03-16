@@ -1,22 +1,85 @@
 [
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-goerli",
+    "subgraphName": "connext/nxtp-runtime-test-goerli",
     "network": "goerli",
     "source": [
       {
         "name": "Connext",
-        "address": "0x096aC65AD03Ba3670822A24430E4B500D9A3F0Ea",
-        "startBlock": 8107134
+        "address": "0x35e8c2d5F3277eb58aA573970434C8E7a88Da22A",
+        "startBlock": 8661004
       },
       {
         "name": "Connector",
-        "address": "0x9741a6c445cfb3fe7d3d88323cc26e891463b5cb",
-        "startBlock": 8132571
+        "address": "0x745a5c100e3aAB5D683E74B98A6F04450A15997c",
+        "startBlock": 8660894
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xc41DFb64A2a04A9e8A09211F553718Baffb5A07F",
-        "startBlock": 25318421
+        "address": "0xDB8310cAa57B052ab270A573B512dc5644558f0A",
+        "startBlock": 8660893
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/nxtp-runtime-test-opt-goerli",
+    "network": "optimism-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x0Cb54Ba96eDe0c9c428B37376C75F0F9A9B31fBe",
+        "startBlock": 6741855
+      },
+      {
+        "name": "Connector",
+        "address": "0x595A76e8BF689C8f02Fa3d729a27f934d1014306",
+        "startBlock": 6741819
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x4C842999a7a75191EBe9EE4Ec6407dC258705178",
+        "startBlock": 6741815
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/nxtp-runtime-test-mumbai",
+    "network": "mumbai",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x4B98d8570ADA1D5F9401aEE61C1dF0Bedd4c38FA",
+        "startBlock": 33156295
+      },
+      {
+        "name": "Connector",
+        "address": "0x8f26fd87384b0524aAd9bB7d3be9704303bBC65e",
+        "startBlock": 33156261
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x544e3f759a35cD534c6411d0c106884488c0ADD4",
+        "startBlock": 33156257
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/nxtp-runtime-test-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x220B860812594A9F79DcC632eC716c6AF4a9E403",
+        "startBlock": 11652401
+      },
+      {
+        "name": "Connector",
+        "address": "0x471F702E7D96E541488140042bCD1206Ae55CCa5",
+        "startBlock": 11652352
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x8f26fd87384b0524aAd9bB7d3be9704303bBC65e",
+        "startBlock": 11652347
       }
     ]
   }

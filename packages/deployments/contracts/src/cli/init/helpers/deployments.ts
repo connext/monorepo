@@ -13,13 +13,13 @@ export const getDeployments = (args: {
   useStaging: boolean;
 }): DomainDeployments => {
   const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
-  const chain = chainInfo.chain;
+  const { chain, rpc, zksync } = chainInfo;
 
   let deployer;
-  if (chainInfo.zksync) {
-    deployer = (_deployer as zk.Wallet).connect(chainInfo.rpc as zk.Provider);
+  if (zksync) {
+    deployer = (_deployer as zk.Wallet).connect(rpc as zk.Provider);
   } else {
-    deployer = (_deployer as Wallet).connect(chainInfo.rpc as ethers.providers.JsonRpcProvider);
+    deployer = (_deployer as Wallet).connect(rpc as ethers.providers.JsonRpcProvider);
   }
 
   // Get all the Hub connectors, if applicable.

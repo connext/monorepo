@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as unwrapperSol from "./Unwrapper.sol";
+export { ConnextPoolLiquidity__factory } from "./ConnextPoolLiquidity__factory";

@@ -140,6 +140,8 @@ export type { SwapUtils } from "./contracts/core/connext/libraries/SwapUtils";
 export { SwapUtils__factory } from "./factories/contracts/core/connext/libraries/SwapUtils__factory";
 export type { SwapUtilsExternal } from "./contracts/core/connext/libraries/SwapUtilsExternal";
 export { SwapUtilsExternal__factory } from "./factories/contracts/core/connext/libraries/SwapUtilsExternal__factory";
+export type { ConnextPoolLiquidity } from "./contracts/core/xreceivers/ConnextPoolLiquidity";
+export { ConnextPoolLiquidity__factory } from "./factories/contracts/core/xreceivers/ConnextPoolLiquidity__factory";
 export type { IWrapper } from "./contracts/core/xreceivers/Unwrapper.sol/IWrapper";
 export { IWrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/IWrapper__factory";
 export type { Unwrapper } from "./contracts/core/xreceivers/Unwrapper.sol/Unwrapper";
