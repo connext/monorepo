@@ -1,6 +1,6 @@
 [
   "constructor(address)",
-  "event CrossLiquidityAdded(bytes32,address,uint256,uint256,address)",
+  "event CrossLiquidityAdded(bytes32 indexed,address indexed,address indexed,uint256,address,uint256)",
   "function connext() view returns (address)",
   "function xReceive(bytes32,uint256,address,address,uint32,bytes) returns (bytes)"
 ]
