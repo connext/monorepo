@@ -90,7 +90,7 @@ contract ConnextPoolLiquidity is IXReceiver {
     // Get the canonical identifier for the pool
     bytes32 key = getKey(_asset);
 
-    // Get starting lp token balance
+    // Get lp token associated with the canonical key
     address lp = connext.getSwapLPToken(key);
 
     // Add liquidity and distribute LP tokens
@@ -119,7 +119,7 @@ contract ConnextPoolLiquidity is IXReceiver {
     // Generate amounts input
     uint256[] memory amounts = generateAmounts(_key, _amount, _asset);
 
-    // Calculate the minimun to add
+    // Calculate the minimum to add
     uint256 min = connext.calculateSwapTokenAmount(_key, amounts, true);
 
     // Approve amount
@@ -128,7 +128,7 @@ contract ConnextPoolLiquidity is IXReceiver {
     // Call connext.addLiquidity
     connext.addSwapLiquidity(_key, amounts, min, block.timestamp + 1);
 
-    // Approve amount
+    // Reset approve amount to zero
     IERC20(_asset).safeApprove(address(connext), 0);
 
     // Send LP tokens to recipient in `_callData`
