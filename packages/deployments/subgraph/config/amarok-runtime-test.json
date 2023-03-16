@@ -1,6 +1,6 @@
 [
   {
-    "subgraphName": "connext/nxtp-runtime-test-goerli",
+    "subgraphName": "connext/nxtp-runtime-test-goerl",
     "network": "goerli",
     "source": [
       {
