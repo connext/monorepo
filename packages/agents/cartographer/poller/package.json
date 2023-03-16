@@ -8,7 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots,stableswap' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js' 'node dist/entryStableSwap.js'",
+    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots,stableswap' -c 'green,cyan,yellow,red' 'yarn start:transfers' 'yarn start:routers' 'yarn start:messages' 'yarn start:roots' 'yarn start:stableswap'",
     "start:transfers": "CARTOGRAPHER_SERVICE=transfers npx ts-node test/run.ts",
     "start:routers": "CARTOGRAPHER_SERVICE=routers npx ts-node test/run.ts",
     "start:messages": "CARTOGRAPHER_SERVICE=messages npx ts-node test/run.ts",
