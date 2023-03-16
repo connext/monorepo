@@ -58,7 +58,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
     bytes4[] memory facetSelectors = new bytes4[](1);
-    facetSelectors[0] = BridgeFacet.xcall.selector;
+    facetSelectors[0] = BridgeFacet.execute.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
@@ -90,7 +90,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
     bytes4[] memory facetSelectors = new bytes4[](1);
-    facetSelectors[0] = BridgeFacet.xcall.selector;
+    facetSelectors[0] = BridgeFacet.execute.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,
@@ -115,7 +115,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
     bytes4[] memory facetSelectors = new bytes4[](1);
-    facetSelectors[0] = BridgeFacet.xcall.selector;
+    facetSelectors[0] = BridgeFacet.execute.selector;
     facetCuts[0] = IDiamondCut.FacetCut({
       facetAddress: address(0),
       action: IDiamondCut.FacetCutAction.Remove,

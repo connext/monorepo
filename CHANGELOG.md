@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 1.0.3-alpha.1
+
+- [all] Support transacting asset for relayer fee on staging testnet
+
 ## Amarok 1.0.3-alpha.0
 
 - [sdk] Fixed getTransfers

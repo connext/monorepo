@@ -9,7 +9,7 @@
         "startBlock": 8162909
       },
       {
-        "name": "Connector",
+        "name": "SpokeConnector",
         "address": "0x1A1FcD6FE9372E6e9391FEDBe249A9a7E32D8Aaf",
         "startBlock": 8170989
       },
@@ -30,7 +30,7 @@
         "startBlock": 3565510
       },
       {
-        "name": "Connector",
+        "name": "SpokeConnector",
         "address": "0xc3162C1087995CC3695c8c1f704B86f8e0F37156",
         "startBlock": 3602343
       },
@@ -51,7 +51,7 @@
         "startBlock": 29883621
       },
       {
-        "name": "Connector",
+        "name": "SpokeConnector",
         "address": "0xF0BDAB8B69F14c1d91B834075235de7FFa8A1918",
         "startBlock": 29939453
       },
@@ -72,7 +72,7 @@
         "startBlock": 3161618
       },
       {
-        "name": "Connector",
+        "name": "SpokeConnector",
         "address": "0x644bbF6754527603DB30509AAB74bbeC4FD6EFaD",
         "startBlock": 3247166
       },

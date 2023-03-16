@@ -16,6 +16,7 @@ type TaskArgs = {
   connextAddress?: string;
   env?: Env;
   relayerFee?: string;
+  relayerFeeInTransacting?: string;
   receiveLocal?: string;
   runs?: number;
   accounts?: number;
@@ -30,6 +31,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("relayerFee", "Override relayer fee")
+  .addOptionalParam("relayerFeeInTransacting", "Override relayer fee in transacting asset")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("delegate", "Override for delegate address")
   .addOptionalParam("slippage", "Override for destination domain tokens out (slippage tolerance)")
@@ -48,6 +50,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         destination: _destination,
         env: _env,
         relayerFee: _relayerFee,
+        relayerFeeInTransacting: _relayerFeeInTransactingAsset,
         receiveLocal: _receiveLocal,
         delegate: _delegate,
         slippage: _slippage,
@@ -96,6 +99,7 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       // Get the relayer fee (defaults to 0)
       const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
+      const relayerFeeInTransacting = _relayerFeeInTransactingAsset ?? process.env.RELAYER_FEE_IN_TRANSACTING ?? "0";
 
       // Load contracts
       const connextName = getDeploymentName("Connext", env);
@@ -187,10 +191,18 @@ export default task("xcall", "Prepare a cross-chain tx")
         const receipts = Promise.all(
           senders.map(async (sender) => {
             const to = _to ?? process.env.TRANSFER_TO ?? sender.address;
-            const args = [destinationDomain, to, asset, delegate, amount, slippage, callData];
-            const encoded = receiveLocal
-              ? connext.interface.encodeFunctionData("xcallIntoLocal", args)
-              : connext.interface.encodeFunctionData("xcall", args);
+            const args = BigNumber.from(relayerFeeInTransacting).gt(0)
+              ? [destinationDomain, to, asset, delegate, amount, slippage, callData, relayerFeeInTransacting]
+              : [destinationDomain, to, asset, delegate, amount, slippage, callData];
+
+            const functionName = receiveLocal
+              ? BigNumber.from(relayerFeeInTransacting).gt(0)
+                ? "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+                : "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"
+              : BigNumber.from(relayerFeeInTransacting).gt(0)
+              ? "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+              : "xcall(uint32,address,address,address,uint256,uint256,bytes)";
+            const encoded = connext.interface.encodeFunctionData(functionName, args);
 
             if (showArgs) {
               console.log("  destinationDomain: ", destinationDomain);
@@ -205,14 +217,35 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("to: ", connext.address);
             }
 
-            const functionName = receiveLocal ? "xcallIntoLocal" : "xcall";
-            const tx = await connext
-              .connect(sender)
-              .functions[functionName](destinationDomain, to, asset, delegate, amount, slippage, callData, {
-                from: sender.address,
-                gasLimit: originDomain === 2053862260 ? 50_000_000 : 2_000_000,
-                value: relayerFee,
-              });
+            let tx;
+
+            if (BigNumber.from(relayerFeeInTransacting).gt(0)) {
+              tx = await connext
+                .connect(sender)
+                .functions[functionName](
+                  destinationDomain,
+                  to,
+                  asset,
+                  delegate,
+                  amount,
+                  slippage,
+                  callData,
+                  relayerFeeInTransacting,
+                  {
+                    from: sender.address,
+                    gasLimit: originDomain === 2053862260 ? 50_000_000 : 2_000_000,
+                    value: relayerFee,
+                  },
+                );
+            } else {
+              tx = await connext
+                .connect(sender)
+                .functions[functionName](destinationDomain, to, asset, delegate, amount, slippage, callData, {
+                  from: sender.address,
+                  gasLimit: originDomain === 2053862260 ? 50_000_000 : 2_000_000,
+                  value: relayerFee,
+                });
+            }
 
             console.log(`Transaction from sender: ${sender.address}`);
             console.log("  Tx: ", tx.hash);
