@@ -80,6 +80,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contractName: "Unwrapper",
     args: [connext.address, wrappedETH],
   });
+
+  /// MARK - ConnextPoolLiquidity
+  // NOTE: ConnextPoolLiquidity can be shared between staging and production environments; we do not
+  // deploy 1 for each.
+  // ConnextPoolLiquidity utility contract is used by the SDK to conveniently deposit into pools
+  // on different chains.
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "ConnextPoolLiquidity",
+    args: [connext.address],
+  });
 };
 
 export default func;
