@@ -9,7 +9,11 @@ import { getContext } from "../../sequencer";
  * @param transfer - The origin transfer entity
  */
 export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubmit: boolean; needed: string }> => {
-  const { requestContext, methodContext } = createLoggingContext(canSubmitToRelayer.name);
+  const { requestContext, methodContext } = createLoggingContext(
+    canSubmitToRelayer.name,
+    undefined,
+    transfer.transferId,
+  );
   const {
     logger,
     chainData,
@@ -49,8 +53,8 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   let relayerFeePaidUsd = constants.Zero;
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
-      const destChainId = domainToChainId(+destinationDomain);
-      const nativeUsd = await getConversionRate(destChainId, undefined, logger);
+      const originChainId = domainToChainId(+originDomain);
+      const nativeUsd = await getConversionRate(originChainId, undefined, logger);
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
       const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
