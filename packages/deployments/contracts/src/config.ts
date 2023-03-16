@@ -1,4 +1,3 @@
-import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
 import { NetworkUserConfig } from "hardhat/types";
 
@@ -7,7 +6,6 @@ export const SUPPORTED_CHAINS = {
   testnet: [5, 420, 80001, 421613],
 };
 
-envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
 const network = process.env.NETWORK ?? "testnet";

@@ -3,7 +3,6 @@ import { resolve } from "path";
 import { exec } from "child_process";
 import * as util from "util";
 
-import { config } from "dotenv";
 import { Contract, providers } from "ethers";
 import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
@@ -16,8 +15,6 @@ import { hardhatNetworks, SUPPORTED_CHAINS } from "../../config";
 import { FORK_BLOCKS, getDeployments } from "./helpers";
 
 const execAsync = util.promisify(exec);
-
-config();
 
 const DEFAULT_TAG = "relayer-fee-upgrade";
 
