@@ -24,7 +24,7 @@ export const waitForTx = async (
 ): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
   const { tx, name: _name, checkResult, deployment, chainData: _chainData } = args;
   // Try to get the desired amount of confirmations from chain data.
-  const chainData = _chainData ?? (await getChainData(true, true));
+  const chainData = _chainData ?? (await getChainData());
   const info = chainData.get(tx.chainId.toString());
 
   const prefix = `${log.prefix.base({ chain: tx.chainId, deployment })} ${_name}() `;

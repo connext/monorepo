@@ -24,7 +24,7 @@ describe("SdkRouter", () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
     nxtpRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
   });

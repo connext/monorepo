@@ -43,7 +43,7 @@ describe("SdkBase", () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
     sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
