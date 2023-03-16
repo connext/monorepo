@@ -759,9 +759,11 @@ export class SdkPool extends SdkShared {
    *
    * @param originDomainId - The origin domain ID that the user is connected to.
    * @param destinationDomainId - The destination domain ID of the pool to deposit into.
-   * @param tokenAddress - The address of local or adopted token.
+   * @param tokenAddress - The address of the token on the origin domain.
    * @param amount - The amount of the token to deposit.
    * @param slippage - Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
+   * @param relayerFee - Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
+   * @param wrapperAddress - (optional) The address of the wrapper (e.g. WETH) contract on origin domain.
    * @returns providers.TransactionRequest object.
    */
   async addXLiquidity(
@@ -770,8 +772,10 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amount: string,
     slippage: string,
+    relayerFee: string,
+    wrapperAddress?: string,
   ): Promise<providers.TransactionRequest> {
-    const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
+    const { requestContext, methodContext } = createLoggingContext(this.addXLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, {
       originDomainId,
       destinationDomainId,
@@ -792,31 +796,54 @@ export class SdkPool extends SdkShared {
     ]);
 
     // Encode calldata for `addSwapLiquidity` (just the recipient of LP tokens)
-    const callData = utils.defaultAbiCoder.encode(["address"], signerAddress);
+    const callData = utils.defaultAbiCoder.encode(["address"], [signerAddress]);
 
-    // Get relayer fee estimate
-    const relayerFee = await sdkBase.estimateRelayerFee({
-      originDomain: originDomainId,
-      destinationDomain: destinationDomainId,
-    });
+    // // Get relayer fee estimate
+    // const relayerFee = await sdkBase.estimateRelayerFee({
+    //   originDomain: originDomainId,
+    //   destinationDomain: destinationDomainId,
+    // });
     // TODO: convert estimate if user wants to pay in transacting asset
 
-    const xCallParams = {
-      origin: originDomainId,
-      destination: destinationDomainId,
-      to: receiverAddress,
-      asset: _tokenAddress,
-      delegate: signerAddress,
-      amount: amount,
-      slippage: slippage,
-      relayerFee: relayerFee.toString(),
-      // TODO: relayerFeeInTransactingAsset:
-      callData: callData,
-      receiveLocal: true,
-      wrapNativeOnOrigin: true,
-    };
-
-    const txRequest = await sdkBase.xcall(xCallParams);
+    let txRequest;
+    if (tokenAddress === constants.AddressZero) {
+      if (wrapperAddress) {
+        const xCallParams = {
+          origin: originDomainId,
+          destination: destinationDomainId,
+          to: receiverAddress,
+          asset: wrapperAddress,
+          delegate: signerAddress,
+          amount: amount,
+          slippage: slippage,
+          relayerFee: relayerFee,
+          // TODO: relayerFeeInTransactingAsset:
+          callData: callData,
+          receiveLocal: true,
+          wrapNativeOnOrigin: true,
+        };
+        txRequest = await sdkBase.xcall(xCallParams);
+        txRequest.value = BigNumber.from(relayerFee).add(BigNumber.from(amount));
+      } else {
+        throw new Error("Wrapper address is required when using native asset");
+      }
+    } else {
+      const xCallParams = {
+        origin: originDomainId,
+        destination: destinationDomainId,
+        to: receiverAddress,
+        asset: _tokenAddress,
+        delegate: signerAddress,
+        amount: amount,
+        slippage: slippage,
+        relayerFee: relayerFee.toString(),
+        // TODO: relayerFeeInTransactingAsset:
+        callData: callData,
+        receiveLocal: true,
+      };
+      txRequest = await sdkBase.xcall(xCallParams);
+      txRequest.value = BigNumber.from(relayerFee);
+    }
 
     this.logger.info(`${this.addXLiquidity.name} transaction created `, requestContext, methodContext);
 
