@@ -132,8 +132,8 @@ contract ConnextPoolLiquidity is IXReceiver {
     IERC20(_asset).safeApprove(address(connext), 0);
 
     // Send LP tokens to recipient in `_callData`
-    uint256 received = IERC20(_asset).balanceOf(address(this)) - start;
-    IERC20(_asset).safeTransfer(_recipient, received);
+    uint256 received = IERC20(_lp).balanceOf(address(this)) - start;
+    IERC20(_lp).safeTransfer(_recipient, received);
     return received;
   }
 
