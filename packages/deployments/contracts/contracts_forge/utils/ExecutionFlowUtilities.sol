@@ -21,8 +21,6 @@ import "./Mock.sol";
 import "./ForgeHelper.sol";
 import "./Messaging.sol";
 
-import "forge-std/console.sol";
-
 /**
  * @notice This contract is used to test the execution of a transfer.
  * Needs Connext and messaging layer fully deployed, either via fork or via
@@ -549,8 +547,8 @@ contract ExecutionFlowUtilities is ForgeHelper {
   function utils_executeAndAssert(
     ExecuteArgs memory args,
     bytes32 transferId,
+    uint256 executeAmt,
     uint256 bridgeOut,
-    uint256 vaultOut,
     bool usesPortals
   ) internal {
     assertTrue(address(_destinationConnext) != address(0), "destination connext not set");
@@ -583,7 +581,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
       args.params.canonicalId == bytes32("") && args.params.canonicalDomain == uint32(0)
         ? address(0)
         : _destinationLocal,
-      bridgeOut + vaultOut,
+      executeAmt,
       address(this)
     );
 
@@ -608,17 +606,25 @@ contract ExecutionFlowUtilities is ForgeHelper {
     // should *not* change iff you are using adopted assets. However, the router liquidity
     // and bridge adopted balance should drop
     if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
-      assertEq(end.bridgeLocal, initial.bridgeLocal);
+      assertEq(end.bridgeLocal, initial.bridgeLocal, "!local bridge balance");
     } // else, local checked in receiving
-    assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
+    assertEq(
+      end.bridgeReceiving,
+      usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut,
+      "!receiving asset bridge balance"
+    );
 
     // router loses the liquidity it provides (local)
     uint256 debited = isFast ? (utils_getFastTransferAmount(args.params.bridgedAmt)) / pathLen : 0;
     address[] memory stored = _destinationConnext.routedTransfers(transferId);
     if (isFast) {
       for (uint256 i; i <= pathLen - 1; i++) {
-        assertEq(stored[i], args.routers[i]);
-        assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
+        assertEq(stored[i], args.routers[i], "router !stored");
+        assertEq(
+          end.liquidity[i],
+          usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited,
+          "router liquidity incorrect"
+        );
       }
 
       uint256 sweep = isFast ? debited + (args.params.bridgedAmt % pathLen) : 0;
@@ -632,7 +638,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
     }
 
     // recipient gains (adopted/specified)
-    assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
+    assertEq(end.toReceiving, initial.toReceiving + bridgeOut);
 
     // status updated
     assertEq(
@@ -652,7 +658,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
 
   // Shortcut: no vault or portals.
   function utils_executeAndAssert(ExecuteArgs memory args, bytes32 transferId, uint256 bridgeOut) internal {
-    utils_executeAndAssert(args, transferId, bridgeOut, 0, false);
+    utils_executeAndAssert(args, transferId, bridgeOut, bridgeOut, false);
   }
 
   // ============ Reconcile helpers ============
