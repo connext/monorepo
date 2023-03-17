@@ -52,7 +52,7 @@ export interface ConnextPoolLiquidityInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "xReceive", data: BytesLike): Result;
 
   events: {
-    "CrossLiquidityAdded(bytes32,address,uint256,uint256,address)": EventFragment;
+    "CrossLiquidityAdded(bytes32,address,address,uint256,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CrossLiquidityAdded"): EventFragment;
@@ -60,13 +60,14 @@ export interface ConnextPoolLiquidityInterface extends utils.Interface {
 
 export interface CrossLiquidityAddedEventObject {
   transferId: string;
+  recipient: string;
   lp: string;
   received: BigNumber;
-  deposited: BigNumber;
-  recipient: string;
+  deposited: string;
+  depositedAmount: BigNumber;
 }
 export type CrossLiquidityAddedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, string],
+  [string, string, string, BigNumber, string, BigNumber],
   CrossLiquidityAddedEventObject
 >;
 
@@ -140,19 +141,21 @@ export interface ConnextPoolLiquidity extends BaseContract {
   };
 
   filters: {
-    "CrossLiquidityAdded(bytes32,address,uint256,uint256,address)"(
-      transferId?: null,
-      lp?: null,
+    "CrossLiquidityAdded(bytes32,address,address,uint256,address,uint256)"(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      recipient?: PromiseOrValue<string> | null,
+      lp?: PromiseOrValue<string> | null,
       received?: null,
       deposited?: null,
-      recipient?: null
+      depositedAmount?: null
     ): CrossLiquidityAddedEventFilter;
     CrossLiquidityAdded(
-      transferId?: null,
-      lp?: null,
+      transferId?: PromiseOrValue<BytesLike> | null,
+      recipient?: PromiseOrValue<string> | null,
+      lp?: PromiseOrValue<string> | null,
       received?: null,
       deposited?: null,
-      recipient?: null
+      depositedAmount?: null
     ): CrossLiquidityAddedEventFilter;
   };
 
