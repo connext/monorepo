@@ -6,27 +6,27 @@
       {
         "name": "RootManager",
         "address": "0xE10B5304dF574A0f122EBc1f70B8cF2Fd7c47e09",
-        "startBlock": 8660890
+        "startBlock": 8660885
       },
       {
         "name": "MerkleTreeManager",
         "address": "0x2C4aaca67C831C5C8a9C061b77512b14aC91906f",
-        "startBlock": 8660889
+        "startBlock": 8660885
       },
       {
         "name": "PolygonHubConnector",
         "address": "0x1015C631c8EBD732e3a0EF4E38e0E0C07367754d",
-        "startBlock": 8660898
+        "startBlock": 8660895
       },
       {
         "name": "OptimismHubConnector",
         "address": "0xB8031a5FEf7e99Ad15Be64C1dfb396A116480d3d",
-        "startBlock": 8660896
+        "startBlock": 8660890
       },
       {
         "name": "ArbitrumHubConnector",
         "address": "0x615EaFd7aF830c6855E4133Ad84E01833000B84F",
-        "startBlock": 8660899
+        "startBlock": 8660895
       }
     ]
   }
