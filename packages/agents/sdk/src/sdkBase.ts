@@ -538,20 +538,28 @@ export class SdkBase extends SdkShared {
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = asset == constants.AddressZero ? BigNumber.from(relayerFee) : constants.Zero;
+    const data = constants.AddressZero
+      ? this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32)", [transferId])
+      : this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+          transferId,
+          asset,
+          relayerFee,
+        ]);
 
-    const data = this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
-      transferId,
-      asset,
-      relayerFee,
-    ]);
-
-    const txRequest = {
-      to: ConnextContractAddress,
-      value,
-      data,
-      from: signerAddress,
-      chainId,
-    };
+    const txRequest = constants.AddressZero
+      ? {
+          to: ConnextContractAddress,
+          value,
+          data,
+          from: signerAddress,
+          chainId,
+        }
+      : {
+          to: ConnextContractAddress,
+          data,
+          from: signerAddress,
+          chainId,
+        };
 
     this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
 
