@@ -16,6 +16,7 @@ import {
   calculateRemoveSwapLiquiditySchema,
   getPoolSchema,
   getUserPoolsSchema,
+  addXLiquiditySchema,
   addLiquiditySchema,
   removeLiquiditySchema,
   swapSchema,
@@ -248,6 +249,29 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   // ------------------- Pool Operations ------------------- //
+
+  s.post(
+    "/addXLiquidity",
+    {
+      schema: {
+        body: addXLiquiditySchema,
+      },
+    },
+    async (request, reply) => {
+      const { originDomainId, destinationDomainId, tokenAddress, amount, slippage, relayerFee, wrapperAddress } =
+        request.body;
+      const res = await sdkPoolInstance.addXLiquidity(
+        originDomainId,
+        destinationDomainId,
+        tokenAddress,
+        amount,
+        slippage,
+        relayerFee,
+        wrapperAddress,
+      );
+      reply.status(200).send(res);
+    },
+  );
 
   s.post(
     "/addLiquidity",

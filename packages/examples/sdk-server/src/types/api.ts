@@ -106,6 +106,16 @@ export const getUserPoolsSchema = Type.Object({
   userAddress: Type.String(),
 });
 
+export const addXLiquiditySchema = Type.Object({
+  originDomainId: Type.String(),
+  destinationDomainId: Type.String(),
+  tokenAddress: Type.String(),
+  amount: Type.String(),
+  slippage: Type.String(),
+  relayerFee: Type.String(),
+  wrapperAddress: Type.Optional(Type.String()),
+});
+
 export const addLiquiditySchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
