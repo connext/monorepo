@@ -6,6 +6,7 @@ import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorMan
 import {IConnext} from "../contracts/core/connext/interfaces/IConnext.sol";
 import {ExecuteArgs} from "../contracts/core/connext/facets/BridgeFacet.sol";
 import {DestinationTransferStatus} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {ConnextPoolLiquidity} from "../contracts/core/xreceivers/ConnextPoolLiquidity.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
@@ -224,6 +225,45 @@ contract ConnextTest is ExecutionFlowUtilities, Deployer {
 
     // perform the test
     utils_performSlowExecutionTest(params, _originLocal, 0, amount, amount, 0, amount);
+  }
+
+  function test_Connext__oneClickLiquidityWorks() public {
+    // deploy xreceiver
+    ConnextPoolLiquidity receiver = new ConnextPoolLiquidity(address(_destinationConnext));
+    address recipient = address(0x123456654321);
+
+    // setup contracts (should hit origin swap)
+    utils_setupAssets(_other, false);
+
+    // generate transfer params
+    // NOTE: in practice, we would bridge into local. but that shouldnt impact the
+    // receiver logic
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = _originConnext.calculateSwap(
+      _canonicalKey,
+      0, // local idx always 0
+      1, // adopted idx always 1
+      amount // no min
+    );
+
+    // get expected amount out to receiver on dest
+    uint256 executeAmt = _destinationConnext.calculateSwap(
+      _canonicalKey,
+      1, // adopted idx always 1
+      0, // local idx always 0
+      utils_getFastTransferAmount(bridgedAmount)
+    );
+
+    TransferInfo memory params = utils_createTransferIdInformation(_destination, amount, bridgedAmount);
+    params.to = address(receiver);
+    params.callData = abi.encode(recipient);
+
+    // NOTE: bridgedOut would all get sent to the receiver, then deposited on connext in
+    /// add liquidity call. so we expect the amount to be 0
+    bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amount, 0);
+
+    ExecuteArgs memory args = utils_createExecuteArgs(params, 1);
+    utils_executeAndAssert(args, transferId, executeAmt, 0, false);
   }
 
   // you should be able to use a portal

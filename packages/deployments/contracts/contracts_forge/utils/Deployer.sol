@@ -63,7 +63,7 @@ contract Deployer {
   }
 
   function getTokenFacetCut(address _tokenFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory tokenFacetSelectors = new bytes4[](17);
+    bytes4[] memory tokenFacetSelectors = new bytes4[](18);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
     tokenFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
@@ -72,17 +72,18 @@ contract Deployer {
     tokenFacetSelectors[3] = getSelector("canonicalToRepresentation(bytes32)");
     tokenFacetSelectors[4] = getSelector("canonicalToRepresentation(tuple(uint32,bytes32))");
     tokenFacetSelectors[5] = TokenFacet.representationToCanonical.selector;
-    tokenFacetSelectors[6] = TokenFacet.getLocalAndAdoptedToken.selector;
-    tokenFacetSelectors[7] = getSelector("approvedAssets(bytes32)");
-    tokenFacetSelectors[8] = getSelector("approvedAssets(tuple(uint32,bytes32))");
-    tokenFacetSelectors[9] = getSelector("adoptedToLocalExternalPools(bytes32)");
-    tokenFacetSelectors[10] = getSelector("adoptedToLocalExternalPools(tuple(uint32,bytes32))");
-    tokenFacetSelectors[11] = TokenFacet.setupAsset.selector;
-    tokenFacetSelectors[12] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
-    tokenFacetSelectors[13] = TokenFacet.addStableSwapPool.selector;
-    tokenFacetSelectors[14] = getSelector("removeAssetId(bytes32,address)");
-    tokenFacetSelectors[15] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
-    tokenFacetSelectors[16] = TokenFacet.updateDetails.selector;
+    tokenFacetSelectors[6] = TokenFacet.getTokenId.selector;
+    tokenFacetSelectors[7] = TokenFacet.getLocalAndAdoptedToken.selector;
+    tokenFacetSelectors[8] = getSelector("approvedAssets(bytes32)");
+    tokenFacetSelectors[9] = getSelector("approvedAssets(tuple(uint32,bytes32))");
+    tokenFacetSelectors[10] = getSelector("adoptedToLocalExternalPools(bytes32)");
+    tokenFacetSelectors[11] = getSelector("adoptedToLocalExternalPools(tuple(uint32,bytes32))");
+    tokenFacetSelectors[12] = TokenFacet.setupAsset.selector;
+    tokenFacetSelectors[13] = TokenFacet.setupAssetWithDeployedRepresentation.selector;
+    tokenFacetSelectors[14] = TokenFacet.addStableSwapPool.selector;
+    tokenFacetSelectors[15] = getSelector("removeAssetId(bytes32,address)");
+    tokenFacetSelectors[16] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    tokenFacetSelectors[17] = TokenFacet.updateDetails.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _tokenFacet,
