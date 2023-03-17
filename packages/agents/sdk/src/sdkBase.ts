@@ -547,20 +547,21 @@ export class SdkBase extends SdkShared {
             relayerFee,
           ]);
 
-    const txRequest = constants.AddressZero
-      ? {
-          to: ConnextContractAddress,
-          value,
-          data,
-          from: signerAddress,
-          chainId,
-        }
-      : {
-          to: ConnextContractAddress,
-          data,
-          from: signerAddress,
-          chainId,
-        };
+    const txRequest =
+      asset == constants.AddressZero
+        ? {
+            to: ConnextContractAddress,
+            value,
+            data,
+            from: signerAddress,
+            chainId,
+          }
+        : {
+            to: ConnextContractAddress,
+            data,
+            from: signerAddress,
+            chainId,
+          };
 
     this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
 
