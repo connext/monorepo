@@ -1,11 +1,10 @@
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
-import { generateExitPayload } from "@connext/nxtp-utils";
+import { chainIdToDomain, generateExitPayload } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
 import { Env, getConnectorDeployments, getDeploymentName, mustGetEnv, ProtocolNetwork } from "../src/utils";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
-import { chainIdToDomain } from "../src";
 
 type TaskArgs = {
   txHash: string;

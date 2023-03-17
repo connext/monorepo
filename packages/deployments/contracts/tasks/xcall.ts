@@ -1,8 +1,9 @@
 import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { task } from "hardhat/config";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, chainIdToDomain } from "../src";
+import { canonizeId } from "../src";
 
 type TaskArgs = {
   asset?: string;

@@ -3,6 +3,7 @@ import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
   delay,
+  domainToChainId,
   getUuid,
   jsonifyError,
   Logger,
@@ -10,7 +11,6 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import {
   BadNonce,
