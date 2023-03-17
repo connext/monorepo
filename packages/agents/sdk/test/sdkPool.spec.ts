@@ -1,5 +1,13 @@
 import { reset, restore, stub } from "sinon";
-import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
+import {
+  expect,
+  getCanonicalHash,
+  getRandomBytes32,
+  DEFAULT_ROUTER_FEE,
+  encodeMultisendCall,
+  WETHAbi,
+  MultisendTransaction,
+} from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
 import { mock } from "./mock";
@@ -123,6 +131,7 @@ describe("SdkPool", () => {
       expect(sdkPool.getTokenSwapEvents).to.be.a("function");
       expect(sdkPool.getPoolData).to.be.a("function");
 
+      expect(sdkPool.addXLiquidity).to.be.a("function");
       expect(sdkPool.addLiquidity).to.be.a("function");
       expect(sdkPool.removeLiquidity).to.be.a("function");
       expect(sdkPool.swap).to.be.a("function");
@@ -133,6 +142,118 @@ describe("SdkPool", () => {
       expect(sdkPool.calculateYield).to.be.a("function");
       expect(sdkPool.getYieldData).to.be.a("function");
       expect(sdkPool.getLiquidityMiningAprPerPool).to.be.a("function");
+    });
+  });
+
+  describe("#addXLiquidity", () => {
+    const chainId = +mock.chain.A;
+    const relayerFee = BigNumber.from("1");
+    const mockConnext = mockConfig.chains[mock.domain.A].deployments!.connext;
+    const mockMultisend = mockConfig.chains[mock.domain.A].deployments!.multisend;
+    const mockConnextPoolLiquidity = mockConfig.chains[mock.domain.B].deployments!.connextPoolLiquidity;
+
+    it("happy: should work", async () => {
+      const mockParams = {
+        originDomainId: mock.domain.A,
+        destinationDomainId: mock.domain.B,
+        tokenAddress: mock.asset.A.address,
+        amount: BigNumber.from(1000000),
+        slippage: 10000,
+        callData: utils.defaultAbiCoder.encode(["address"], [mock.config().signerAddress]),
+      };
+      const xcallData: string = getConnextInterface().encodeFunctionData(
+        "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockParams.destinationDomainId,
+          mockConnextPoolLiquidity!,
+          mockParams.tokenAddress,
+          mock.config().signerAddress!,
+          mockParams.amount,
+          mockParams.slippage,
+          mockParams.callData,
+        ],
+      );
+      const mockXCallIntoLocalRequest: providers.TransactionRequest = {
+        to: mockConnext,
+        data: xcallData,
+        from: mock.config().signerAddress,
+        value: relayerFee,
+        chainId,
+      };
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+
+      const res = await sdkPool.addXLiquidity(
+        mockParams.originDomainId,
+        mockParams.destinationDomainId,
+        mockParams.tokenAddress,
+        mockParams.amount.toString(),
+        mockParams.slippage.toString(),
+        relayerFee.toString(),
+      );
+      expect(res).to.be.deep.eq(mockXCallIntoLocalRequest);
+    });
+
+    it("happy: should work with native", async () => {
+      const mockParams = {
+        originDomainId: mock.domain.A,
+        destinationDomainId: mock.domain.B,
+        tokenAddress: constants.AddressZero,
+        amount: BigNumber.from(1000000),
+        slippage: 10000,
+        callData: utils.defaultAbiCoder.encode(["address"], [mock.config().signerAddress]),
+        wrapperAddress: mock.asset.A.address,
+      };
+      const xcallData: string = getConnextInterface().encodeFunctionData(
+        "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockParams.destinationDomainId,
+          mockConnextPoolLiquidity!,
+          mockParams.wrapperAddress,
+          mock.config().signerAddress!,
+          mockParams.amount,
+          mockParams.slippage,
+          mockParams.callData,
+        ],
+      );
+      const wrapNativeOnOriginMultisendTxs = (wrapper: string, amount: BigNumber) => {
+        const weth = new utils.Interface(WETHAbi);
+        const txs: MultisendTransaction[] = [
+          {
+            to: wrapper,
+            data: weth.encodeFunctionData("deposit"),
+            value: amount,
+          },
+          {
+            to: wrapper,
+            data: weth.encodeFunctionData("approve", [mockConnext, amount]),
+          },
+          {
+            to: mockConnext,
+            data: xcallData,
+            value: relayerFee,
+          },
+        ];
+        return txs;
+      };
+      const mockXCallIntoLocalRequest: providers.TransactionRequest = {
+        to: mockMultisend,
+        data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(mockParams.wrapperAddress, mockParams.amount)),
+        from: mock.config().signerAddress,
+        value: relayerFee.add(mockParams.amount),
+        chainId,
+      };
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+
+      const res = await sdkPool.addXLiquidity(
+        mockParams.originDomainId,
+        mockParams.destinationDomainId,
+        mockParams.tokenAddress,
+        mockParams.amount.toString(),
+        mockParams.slippage.toString(),
+        relayerFee.toString(),
+        mockParams.wrapperAddress,
+      );
+      expect(res).to.be.deep.eq(mockXCallIntoLocalRequest);
     });
   });
 

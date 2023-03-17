@@ -11,6 +11,7 @@ import {
   RootManager as TRootManager,
   MultiSend as TMultisend,
   Unwrapper as TUnwrapper,
+  ConnextPoolLiquidity as TConnextPoolLiquidity,
 } from "@connext/smart-contracts";
 import RootManagerArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
 import PriceOracleArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
@@ -21,6 +22,7 @@ import RelayerProxyArtifact from "@connext/smart-contracts/artifacts/contracts/c
 import RelayerProxyHubArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
 import MultiSendArtifact from "@connext/smart-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
 import UnwrapperArtifact from "@connext/smart-contracts/artifacts/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
+import ConnextPoolLiquidityArtifact from "@connext/smart-contracts/artifacts/contracts/core/xreceivers/ConnextPoolLiquidity.sol/ConnextPoolLiquidity.json";
 import GnosisAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
 import MultichainAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
@@ -123,6 +125,12 @@ export const getDeployedUnwrapperContract = (chainId: number): { address: string
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedConnextPoolLiquidityContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts ? record[0]?.contracts["ConnextPoolLiquidity"] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
@@ -211,6 +219,9 @@ export type RootManagerPropagateWrapperGetter = (
 
 export type MultisendContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
 export type UnwrapperContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export type ConnextPoolLiquidityContractDeploymentGetter = (
+  chainId: number,
+) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
@@ -221,6 +232,7 @@ export type ConnextContractDeployments = {
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
   unwrapper: UnwrapperContractDeploymentGetter;
+  connextPoolLiquidity: ConnextPoolLiquidityContractDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -232,6 +244,7 @@ export const contractDeployments: ConnextContractDeployments = {
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
   unwrapper: getDeployedUnwrapperContract,
+  connextPoolLiquidity: getDeployedConnextPoolLiquidityContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -266,6 +279,9 @@ export const getMultisendInterface = () => new utils.Interface(MultiSendArtifact
 
 export const getUnwrapperInterface = () => new utils.Interface(UnwrapperArtifact.abi) as TUnwrapper["interface"];
 
+export const getConnextPoolLiquidityInterface = () =>
+  new utils.Interface(ConnextPoolLiquidityArtifact.abi) as TConnextPoolLiquidity["interface"];
+
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
   connext: TConnext["interface"];
@@ -277,6 +293,7 @@ export type ConnextContractInterfaces = {
   relayerProxyHub: TRelayerProxyHub["interface"];
   multisend: TMultisend["interface"];
   unwrapper: TUnwrapper["interface"];
+  connextPoolLiquidity: TConnextPoolLiquidity["interface"];
 };
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({
@@ -290,6 +307,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   relayerProxyHub: getRelayerProxyHubInterface(),
   multisend: getMultisendInterface(),
   unwrapper: getUnwrapperInterface(),
+  connextPoolLiquidity: getConnextPoolLiquidityInterface(),
 });
 
 export type AmbContractABIs = {

@@ -17,6 +17,7 @@ import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
+import { SdkBase } from "./sdkBase";
 
 /**
  * @classdesc SDK class encapsulating stableswap pool functions.
@@ -752,6 +753,102 @@ export class SdkPool extends SdkShared {
   );
 
   // ------------------- Pool Operations ------------------- //
+
+  /**
+   * Prepares the transaction request for xcalling and adding liquidity into a pool on another domain.
+   *
+   * @param originDomainId - The origin domain ID that the user is connected to.
+   * @param destinationDomainId - The destination domain ID of the pool to deposit into.
+   * @param tokenAddress - The address of the token on the origin domain.
+   * @param amount - The amount of the token to deposit.
+   * @param slippage - Maximum acceptable slippage in BPS. For example, a value of 30 means 0.3% slippage.
+   * @param relayerFee - Fee paid to relayers, in native asset on origin. Use `calculateRelayerFee` to estimate.
+   * @param wrapperAddress - (optional) The address of the wrapper (e.g. WETH) contract on origin domain.
+   * @returns providers.TransactionRequest object.
+   */
+  async addXLiquidity(
+    originDomainId: string,
+    destinationDomainId: string,
+    tokenAddress: string,
+    amount: string,
+    slippage: string,
+    relayerFee: string,
+    wrapperAddress?: string,
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.addXLiquidity.name);
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomainId,
+      destinationDomainId,
+      tokenAddress,
+      amount,
+      slippage,
+    });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [sdkBase, receiverAddress] = await Promise.all([
+      SdkBase.create(this.config),
+      this.getDeploymentAddress(destinationDomainId, "connextPoolLiquidity"),
+    ]);
+
+    // Encode calldata for `addSwapLiquidity` (just the recipient of LP tokens)
+    const callData = utils.defaultAbiCoder.encode(["address"], [signerAddress]);
+
+    // // Get relayer fee estimate
+    // const relayerFee = await sdkBase.estimateRelayerFee({
+    //   originDomain: originDomainId,
+    //   destinationDomain: destinationDomainId,
+    // });
+    // TODO: convert estimate if user wants to pay in transacting asset
+
+    let txRequest;
+    if (tokenAddress === constants.AddressZero) {
+      if (wrapperAddress) {
+        const xCallParams = {
+          origin: originDomainId,
+          destination: destinationDomainId,
+          to: receiverAddress,
+          asset: wrapperAddress,
+          delegate: signerAddress,
+          amount: amount,
+          slippage: slippage,
+          relayerFee: relayerFee,
+          // TODO: relayerFeeInTransactingAsset:
+          callData: callData,
+          receiveLocal: true,
+          wrapNativeOnOrigin: true,
+        };
+        txRequest = await sdkBase.xcall(xCallParams);
+        txRequest.value = BigNumber.from(relayerFee).add(BigNumber.from(amount));
+      } else {
+        throw new Error("Wrapper address is required when using native asset");
+      }
+    } else {
+      const xCallParams = {
+        origin: originDomainId,
+        destination: destinationDomainId,
+        to: receiverAddress,
+        asset: _tokenAddress,
+        delegate: signerAddress,
+        amount: amount,
+        slippage: slippage,
+        relayerFee: relayerFee.toString(),
+        // TODO: relayerFeeInTransactingAsset:
+        callData: callData,
+        receiveLocal: true,
+      };
+      txRequest = await sdkBase.xcall(xCallParams);
+      txRequest.value = BigNumber.from(relayerFee);
+    }
+
+    this.logger.info(`${this.addXLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
 
   /**
    * Prepares the transaction request for adding liquidity to a pool.
