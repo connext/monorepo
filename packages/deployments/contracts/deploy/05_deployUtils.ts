@@ -4,6 +4,7 @@ import { Wallet } from "ethers";
 
 import { getContract } from "../src/cli/helpers";
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { getDeploymentName } from "../src";
 
 // Helper for deploying a utility contract below and handling proper logs, etc.
 const deployContract = async (params: {
@@ -13,10 +14,11 @@ const deployContract = async (params: {
   args: any[];
 }): Promise<DeployResult | undefined> => {
   const { hre, deployer, contractName, args } = params;
-  const deployment = await hre.deployments.getOrNull(contractName);
+  const deploymentName = getDeploymentName(contractName);
+  const deployment = await hre.deployments.getOrNull(deploymentName);
   if (!deployment) {
     console.log(`Deploying ${contractName} contract...`);
-    const deployResult = await hre.deployments.deploy(contractName, {
+    const deployResult = await hre.deployments.deploy(deploymentName, {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
@@ -45,8 +47,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!_deployer) {
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
+  const env = process.env.ENV || "staging";
   const deployer = _deployer as Wallet;
   console.log("deployer: ", deployer.address);
+  console.log("env: ", env);
 
   if (SKIP_SETUP.includes(chainId)) {
     throw new Error(`Should have skipped setup for this chain (${chainId})`);
@@ -68,7 +72,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // deploy 1 for each.
   // Unwrapper utility contract is used by the SDK to conveniently unwrap WETH => ETH on the
   // transfer's destination chain after an xcall transferring WETH tokens.
-  const connext = getContract("Connext_DiamondProxy", chain.toString(), false);
+  const connext = getContract("Connext_DiamondProxy", chain.toString(), env === "Staging");
   const wrappedETH = WRAPPED_ETH_MAP.get(chain);
   if (!wrappedETH) {
     throw new Error(`Wrapped ETH contract not defined in WRAPPED_ETH_MAP for this domain!`);
