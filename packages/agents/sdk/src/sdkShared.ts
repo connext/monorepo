@@ -5,13 +5,14 @@ import {
   ChainData,
   getCanonicalHash,
   formatUrl,
+  domainToChainId,
   getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
+import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
@@ -102,7 +103,7 @@ export class SdkShared {
     async (domainId: string): Promise<number> => {
       let chainId = this.config.chains[domainId]?.chainId;
       if (!chainId) {
-        chainId = await getChainIdFromDomain(domainId, this.chainData);
+        chainId = domainToChainId(+domainId);
       }
       return chainId;
     },
@@ -259,7 +260,7 @@ export class SdkShared {
       } else {
         const entry: ConnextSupport = {
           name: domainsToChainNames[asset.domain],
-          chainId: await getChainIdFromDomain(asset.domain),
+          chainId: domainToChainId(+asset.domain),
           domainId: asset.domain,
           assets: [asset.adopted],
         };

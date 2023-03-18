@@ -1,4 +1,3 @@
-import { config as envConfig } from "dotenv";
 import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
@@ -60,8 +59,6 @@ import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
 import { hardhatNetworks } from "./src/config";
-
-envConfig();
 
 const config: HardhatUserConfig = {
   solidity: {

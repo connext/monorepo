@@ -1,8 +1,6 @@
 import { providers, BigNumber, constants, utils } from "ethers";
 
-import { ChainData, getChainData, getETHBalance, getTokenBalance, getTokenDecimals } from "..";
-
-import { getDomainFromChainId } from "./domain";
+import { ChainData, chainIdToDomain, getChainData, getETHBalance, getTokenBalance, getTokenDecimals } from "..";
 
 export const getOnchainBalance = async (
   assetId: string,
@@ -21,8 +19,8 @@ export const getDecimalsForAsset = async (
   chainData?: Map<string, ChainData>,
 ): Promise<number> => {
   if (chainData) {
-    const domainId = await getDomainFromChainId(chainId, chainData);
-    const chainInfo = chainData.get(domainId);
+    const domainId = chainIdToDomain(chainId);
+    const chainInfo = chainData.get(domainId.toString());
     const decimals = chainInfo?.assetId[assetId]?.decimals;
     if (decimals) {
       return decimals;
@@ -38,12 +36,12 @@ export const getDecimalsForAsset = async (
 export const getMainnetEquivalent = async (
   chainId: number,
   assetId: string,
-  chainData?: Map<string, ChainData>,
+  _chainData?: Map<string, ChainData>,
 ): Promise<string | undefined> => {
-  const chaindata = chainData ?? (await getChainData());
+  const chainData = _chainData ?? (await getChainData());
 
-  const domainId = await getDomainFromChainId(chainId, chainData);
-  const chainInfo = chaindata?.get(domainId);
+  const domainId = chainIdToDomain(chainId);
+  const chainInfo = chainData?.get(domainId.toString());
   const equiv = chainInfo
     ? chainInfo.assetId[utils.getAddress(assetId)] ??
       chainInfo.assetId[assetId.toLowerCase()] ??

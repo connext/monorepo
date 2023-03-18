@@ -4,7 +4,7 @@ import {
   TUrl,
   jsonifyError,
   getChainData as _getChainData,
-  getChainIdFromDomain as _getChainIdFromDomain,
+  domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
   getDecimalsForAsset as _getDecimalsForAsset,
   getGelatoEstimatedFee as _getGelatoEstimatedFee,
@@ -19,7 +19,7 @@ import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/i
 export const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
 
 export const getChainData = _getChainData;
-export const getChainIdFromDomain = _getChainIdFromDomain;
+export const domainToChainId = _domainToChainId;
 export const getConversionRate = _getConversionRate;
 export const getGelatoEstimatedFee = _getGelatoEstimatedFee;
 export const getHardcodedGasLimits = _getHardcodedGasLimits;

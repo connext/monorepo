@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
 import { constants, Contract, providers, Wallet } from "ethers";
-import { getDomainFromChainId } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
 import {
@@ -13,6 +12,7 @@ import {
   ProtocolNetwork,
 } from "../src/utils";
 import { HUB_PREFIX } from "../deployConfig/shared";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 type TaskArgs = {
   env?: Env;
@@ -67,7 +67,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
         // connector now has "L1" in the title
         // NOTE: on mainnet connector there will be no mirror chain, so just register the mainnet
         // domain
-        const domain = await getDomainFromChainId(mirrorChain ?? chain);
+        const domain = chainIdToDomain(mirrorChain ?? chain);
         console.log(`trying to enroll connector for ${domain} (${mirrorChain ?? chain})`);
 
         let stored = await rootManager.connectors(domain);
