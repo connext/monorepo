@@ -61,15 +61,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chain = network.chainId;
 
   /// MARK - MultiSend
-  // NOTE: MultiSend will be shared between staging and production environments; we do not
-  // deploy 1 for each.
   // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
   // making xcalls transferring WETH tokens.
   await deployContract({ hre, deployer, contractName: "MultiSend", args: [] });
 
   /// MARK - Unwrapper
-  // NOTE: Unwrapper can be shared between staging and production environments; we do not
-  // deploy 1 for each.
   // Unwrapper utility contract is used by the SDK to conveniently unwrap WETH => ETH on the
   // transfer's destination chain after an xcall transferring WETH tokens.
   const connext = getContract("Connext_DiamondProxy", chain.toString(), env === "staging" || env === "Staging");
@@ -86,8 +82,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
 
   /// MARK - ConnextPoolLiquidity
-  // NOTE: ConnextPoolLiquidity can be shared between staging and production environments; we do not
-  // deploy 1 for each.
   // ConnextPoolLiquidity utility contract is used by the SDK to conveniently deposit into pools
   // on different chains.
   await deployContract({
