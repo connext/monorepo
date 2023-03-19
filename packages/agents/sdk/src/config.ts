@@ -122,7 +122,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.multisend ??
         (() => {
           if (chainDataForChain) {
-            const res = deployments.multisend(chainDataForChain.chainId);
+            const res = deployments.multisend(chainDataForChain.chainId, undefined, contractPostfix);
             return res?.address;
           }
           return undefined;
@@ -131,7 +131,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.unwrapper ??
         (() => {
           if (chainDataForChain) {
-            const res = deployments.unwrapper(chainDataForChain.chainId);
+            const res = deployments.unwrapper(chainDataForChain.chainId, undefined, contractPostfix);
             return res?.address;
           }
           return undefined;
@@ -140,7 +140,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.connextPoolLiquidity ??
         (() => {
           if (chainDataForChain) {
-            const res = deployments.connextPoolLiquidity(chainDataForChain.chainId);
+            const res = deployments.connextPoolLiquidity(chainDataForChain.chainId, undefined, contractPostfix);
             return res?.address;
           }
           return undefined;

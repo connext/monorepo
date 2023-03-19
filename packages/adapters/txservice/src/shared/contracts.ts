@@ -113,21 +113,33 @@ export const getDeployedHubConnecterContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedMultisendContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedMultisendContract = (
+  chainId: number,
+  prefix = "",
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts["MultiSend"] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}MultiSend${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedUnwrapperContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedUnwrapperContract = (
+  chainId: number,
+  prefix = "",
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts["Unwrapper"] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}Unwrapper${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedConnextPoolLiquidityContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedConnextPoolLiquidityContract = (
+  chainId: number,
+  prefix = "",
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts["ConnextPoolLiquidity"] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}ConnextPoolLiquidity${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -217,10 +229,20 @@ export type RootManagerPropagateWrapperGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
-export type MultisendContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
-export type UnwrapperContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export type MultisendContractDeploymentGetter = (
+  chainId: number,
+  prefix?: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+export type UnwrapperContractDeploymentGetter = (
+  chainId: number,
+  prefix?: string,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
 export type ConnextPoolLiquidityContractDeploymentGetter = (
   chainId: number,
+  prefix?: string,
+  postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
