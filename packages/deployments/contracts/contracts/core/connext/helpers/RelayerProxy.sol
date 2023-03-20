@@ -25,6 +25,12 @@ interface ISpokeConnector {
   function send(bytes memory _encodedData) external payable;
 }
 
+interface IKeep3rV2 {
+  function isKeeper(address _keeper) external returns (bool _isKeeper);
+
+  function worked(address _keeper) external;
+}
+
 /**
  * @title RelayerProxy
  * @author Connext Labs, Inc.
@@ -35,6 +41,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   // ============ Properties ============
   address public gelatoRelayer;
   address public feeCollector;
+  IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
 
@@ -50,6 +57,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   modifier definedAddress(address _input) {
     require(_input != address(0), "empty");
     _;
+  }
+
+  // Modifier in charge of verifying if the caller is a registered keeper as well as
+  // rewarding them with an amount of KP3R equal to their gas spent + premium.
+  modifier validateAndPayWithCredits(address _keeper) {
+    require(keep3r.isKeeper(_keeper), "!keeper");
+    _;
+    keep3r.worked(_keeper); // Pays the keeper for the work.
   }
 
   // ============ Events ============
@@ -108,6 +123,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   event FeeCollectorChanged(address updated, address previous);
 
+  event Keep3rChanged(address keep3r, address oldKeep3r);
+
   // ============ Constructor ============
 
   /**
@@ -121,13 +138,15 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     address _connext,
     address _spokeConnector,
     address _gelatoRelayer,
-    address _feeCollector
+    address _feeCollector,
+    address _keep3r
   ) ProposedOwnable() {
     _setOwner(msg.sender);
     _setConnext(_connext);
     _setSpokeConnector(_spokeConnector);
     _setGelatoRelayer(_gelatoRelayer);
     _setFeeCollector(_feeCollector);
+    _setKeep3r(_keep3r);
 
     _addRelayer(_gelatoRelayer);
   }
@@ -188,6 +207,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setFeeCollector(_feeCollector);
   }
 
+  function setKeep3r(address _keep3r) external onlyOwner definedAddress(_keep3r) {
+    _setKeep3r(_keep3r);
+  }
+
   /**
    * @notice Withdraws all funds stored on this contract to msg.sender.
    */
@@ -208,12 +231,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @return transferId - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args, uint256 _fee)
-    external
-    onlyRelayer
-    nonReentrant
-    returns (bytes32 transferId)
-  {
+  function execute(
+    ExecuteArgs calldata _args,
+    uint256 _fee
+  ) external onlyRelayer nonReentrant returns (bytes32 transferId) {
     transferId = connext.execute(_args);
     transferRelayerFee(_fee);
   }
@@ -248,11 +269,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param _messageFee - Fee to be paid to the SpokeConnector for connected AMBs that require fees.
    * @param _relayerFee - Fee to be paid to relayer.
    */
-  function send(
-    bytes memory _encodedData,
-    uint256 _messageFee,
-    uint256 _relayerFee
-  ) external onlyRelayer nonReentrant {
+  function send(bytes memory _encodedData, uint256 _messageFee, uint256 _relayerFee) external onlyRelayer nonReentrant {
     spokeConnector.send{value: _messageFee}(_encodedData);
     emit FundsDeducted(_messageFee, address(this).balance);
     transferRelayerFee(_relayerFee);
@@ -311,5 +328,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setFeeCollector(address _feeCollector) internal {
     emit FeeCollectorChanged(_feeCollector, address(feeCollector));
     feeCollector = _feeCollector;
+  }
+
+  function _setKeep3r(address _keep3r) internal {
+    emit Keep3rChanged(_keep3r, address(keep3r));
+    keep3r = IKeep3rV2(_keep3r);
   }
 }

@@ -1,5 +1,5 @@
 [
-  "constructor(address,address,address,address)",
+  "constructor(address,address,address,address,address)",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
   "error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed()",
@@ -12,6 +12,7 @@
   "event FundsDeducted(uint256,uint256)",
   "event FundsReceived(uint256,uint256)",
   "event GelatoRelayerChanged(address,address)",
+  "event Keep3rChanged(address,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event RelayerAdded(address)",
@@ -25,6 +26,7 @@
   "function execute(tuple(tuple(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256) returns (bytes32)",
   "function feeCollector() view returns (address)",
   "function gelatoRelayer() view returns (address)",
+  "function keep3r() view returns (address)",
   "function owner() view returns (address)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
@@ -37,6 +39,7 @@
   "function setConnext(address)",
   "function setFeeCollector(address)",
   "function setGelatoRelayer(address)",
+  "function setKeep3r(address)",
   "function setSpokeConnector(address)",
   "function spokeConnector() view returns (address)",
   "function withdraw()"
