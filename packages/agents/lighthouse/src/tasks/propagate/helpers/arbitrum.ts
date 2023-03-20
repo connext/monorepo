@@ -88,7 +88,7 @@ export const getPropagateParams = async (
     // multiply gasLimit by 15 to be successful in auto-redeem
     const gasLimitForAutoRedeem = L1ToL2MessageGasParams.gasLimit.mul(15);
 
-    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionFee.mul(10).toString();
+    submissionPriceWei = L1ToL2MessageGasParams.maxSubmissionCost.mul(10).toString();
     maxGas = gasLimitForAutoRedeem.toString();
     callValue = BigNumber.from(submissionPriceWei).add(gasPriceBid.mul(maxGas)).toString();
 

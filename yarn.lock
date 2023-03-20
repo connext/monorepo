@@ -27,6 +27,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@arbitrum/sdk@npm:3.1.2":
+  version: 3.1.2
+  resolution: "@arbitrum/sdk@npm:3.1.2"
+  dependencies:
+    "@ethersproject/address": ^5.0.8
+    "@ethersproject/bignumber": ^5.1.1
+    "@ethersproject/bytes": ^5.0.8
+    ethers: ^5.1.0
+  checksum: 6f5a633ab566567866996860599ef498379eb2b48e428633d2c34167d63272258003c633a14f882b2b6204c7b991498751ae04f79c942ac1979fd5bf258c5a9a
+  languageName: node
+  linkType: hard
+
 "@ardatan/relay-compiler@npm:12.0.0":
   version: 12.0.0
   resolution: "@ardatan/relay-compiler@npm:12.0.0"
@@ -2442,13 +2454,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
-    "@arbitrum/sdk": 3.1.1
+    "@arbitrum/sdk": 3.1.2
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": 2.0.0
+    "@eth-optimism/sdk": 2.0.1
     "@gelatonetwork/relay-context": 2.1.0
-    "@matterlabs/hardhat-zksync-deploy": 0.6.2
-    "@matterlabs/hardhat-zksync-solc": 0.3.14
-    "@matterlabs/hardhat-zksync-verify": 0.1.3
+    "@matterlabs/hardhat-zksync-deploy": ^0.6.1
+    "@matterlabs/hardhat-zksync-solc": ^0.3.14
+    "@matterlabs/hardhat-zksync-verify": ^0.1.1
     "@nomiclabs/hardhat-ethers": 2.2.2
     "@nomiclabs/hardhat-etherscan": 3.1.6
     "@nomiclabs/hardhat-waffle": 2.0.5
@@ -2485,7 +2497,7 @@ __metadata:
     ts-node: 10.9.1
     typechain: 8.1.1
     typescript: 4.9.5
-    zksync-web3: 0.13.4
+    zksync-web3: ^0.13.0
   languageName: unknown
   linkType: soft
 
@@ -2701,6 +2713,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eth-optimism/contracts-bedrock@npm:0.13.1":
+  version: 0.13.1
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.13.1"
+  dependencies:
+    "@eth-optimism/core-utils": ^0.12.0
+    "@openzeppelin/contracts": 4.7.3
+    "@openzeppelin/contracts-upgradeable": 4.7.3
+    ethers: ^5.7.0
+    hardhat: ^2.9.6
+  checksum: 2347f7e984a39c74e65e114adc4efe5e8bf6843291c8d417df94b6616e821a4e5fc677aff875ca8edbbaea154c4d4f2cb936f0412c7b6e1eaa9010990f9f854b
+  languageName: node
+  linkType: hard
+
 "@eth-optimism/contracts@npm:0.5.40":
   version: 0.5.40
   resolution: "@eth-optimism/contracts@npm:0.5.40"
@@ -2751,6 +2776,22 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: 4b371ba69ecae2065b05513839e8c2b9d1c3a7c27c2f30ab4f4323bcbe1704ffbd17e7b9d9167916bf05f87751f0f007663a4f034143d795005ce576398fc449
+  languageName: node
+  linkType: hard
+
+"@eth-optimism/sdk@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@eth-optimism/sdk@npm:2.0.1"
+  dependencies:
+    "@eth-optimism/contracts": 0.5.40
+    "@eth-optimism/contracts-bedrock": 0.13.1
+    "@eth-optimism/core-utils": 0.12.0
+    lodash: ^4.17.21
+    merkletreejs: ^0.2.27
+    rlp: ^2.2.7
+  peerDependencies:
+    ethers: ^5
+  checksum: da64fa7c0e9a17687560ed979b5d840b8a016ab867204b13f87a25fbe2bf6dbdf615b71f13fb1b2f4386ef21057d59a12957c880011a81004018dc779f8f536f
   languageName: node
   linkType: hard
 
@@ -5177,7 +5218,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:0.6.2":
+"@matterlabs/hardhat-zksync-deploy@npm:^0.6.1":
   version: 0.6.2
   resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.2"
   dependencies:
@@ -5190,7 +5231,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-solc@npm:0.3.14":
+"@matterlabs/hardhat-zksync-solc@npm:0.3.14, @matterlabs/hardhat-zksync-solc@npm:^0.3.14":
   version: 0.3.14
   resolution: "@matterlabs/hardhat-zksync-solc@npm:0.3.14"
   dependencies:
@@ -5203,7 +5244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-verify@npm:0.1.3":
+"@matterlabs/hardhat-zksync-verify@npm:^0.1.1":
   version: 0.1.3
   resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.3"
   dependencies:
@@ -26036,7 +26077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:10.9.1, ts-node@npm:^10.2.1, ts-node@npm:^10.9.1":
+"ts-node@npm:10.9.1, ts-node@npm:^10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
   dependencies:
@@ -28781,7 +28822,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:0.13.4":
+"zksync-web3@npm:0.13.4, zksync-web3@npm:^0.13.0":
   version: 0.13.4
   resolution: "zksync-web3@npm:0.13.4"
   peerDependencies:
