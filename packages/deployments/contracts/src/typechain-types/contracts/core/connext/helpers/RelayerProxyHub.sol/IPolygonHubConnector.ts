@@ -22,35 +22,32 @@ import type {
   PromiseOrValue,
 } from "../../../../../common";
 
-export interface IKeep3rV2Interface extends utils.Interface {
+export interface IPolygonHubConnectorInterface extends utils.Interface {
   functions: {
-    "isKeeper(address)": FunctionFragment;
-    "worked(address)": FunctionFragment;
+    "receiveMessage(bytes)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "isKeeper" | "worked"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "receiveMessage"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "isKeeper",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "worked",
-    values: [PromiseOrValue<string>]
+    functionFragment: "receiveMessage",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "isKeeper", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "worked", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "receiveMessage",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export interface IKeep3rV2 extends BaseContract {
+export interface IPolygonHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IKeep3rV2Interface;
+  interface: IPolygonHubConnectorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -72,35 +69,20 @@ export interface IKeep3rV2 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    isKeeper(
-      _keeper: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    worked(
-      _keeper: PromiseOrValue<string>,
+    receiveMessage(
+      inputData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  isKeeper(
-    _keeper: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  worked(
-    _keeper: PromiseOrValue<string>,
+  receiveMessage(
+    inputData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    isKeeper(
-      _keeper: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    worked(
-      _keeper: PromiseOrValue<string>,
+    receiveMessage(
+      inputData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -108,25 +90,15 @@ export interface IKeep3rV2 extends BaseContract {
   filters: {};
 
   estimateGas: {
-    isKeeper(
-      _keeper: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    worked(
-      _keeper: PromiseOrValue<string>,
+    receiveMessage(
+      inputData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    isKeeper(
-      _keeper: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    worked(
-      _keeper: PromiseOrValue<string>,
+    receiveMessage(
+      inputData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
