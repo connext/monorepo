@@ -863,7 +863,7 @@ export class SdkPool extends SdkShared {
   }
 
   /**
-   * Returns the transaction request for removing liquidity from a pool.
+   * Returns the transaction request for removing liquidity from the pool all in one token
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
@@ -905,6 +905,61 @@ export class SdkPool extends SdkShared {
     );
 
     this.logger.info(`${this.removeLiquidityOneToken.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
+   * Returns the transaction request for removing liquidity from the pool, weighted differently than the
+   * pool's current balances.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amounts - The amounts of the each token to remove.
+   * @param maxBurnAmount - (optional) The max LP token provider is willing to pay to
+   * @param deadline - (optional) The deadline for the swap.
+   * @returns providers.TransactionRequest object.
+   */
+  async removeLiquidityImbalance(
+    domainId: string,
+    tokenAddress: string,
+    amounts: string[],
+    maxBurnAmount = "0",
+    deadline = this.getDefaultDeadline(),
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityImbalance.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, maxBurnAmount, deadline });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+
+    if (maxBurnAmount === "0" || !maxBurnAmount) {
+      const poolDataResults = await this.getPoolData({ key: key, domainId: domainId });
+      if (!poolDataResults || poolDataResults.length == 0) {
+        this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
+      }
+      const poolData = poolDataResults[0]; // there should only be one pool
+      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), signerAddress)).toString();
+    }
+
+    const txRequest = await connextContract.populateTransaction.removeSwapLiquidityImbalance(
+      key,
+      amounts,
+      maxBurnAmount,
+      deadline,
+    );
+
+    this.logger.info(`${this.removeLiquidityImbalance.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }
