@@ -155,10 +155,15 @@ contract RelayerProxyHub is RelayerProxy {
     address _feeCollector,
     address _rootManager,
     address _keep3r,
-    uint256 _propagateCooldown
+    uint256 _propagateCooldown,
+    address[] memory _hubConnectors,
+    uint32[] memory _hubConnectorChains
   ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
+    for (uint256 i = 0; i < _hubConnectors.length; i++) {
+      _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
+    }
   }
 
   // ============ Admin Functions ============
