@@ -260,6 +260,8 @@ contract RelayerProxyHub is RelayerProxy {
     require(!processedRootMessages[fromChain][l2Hash], "Already processed");
     require(hubConnectors[fromChain] != address(0), "No hub connector");
 
+    processedRootMessages[fromChain][l2Hash] = true;
+
     if (fromChain == 100 || fromChain == 10200) {
       IGnosisHubConnector.GnosisRootMessageData memory data = abi.decode(
         encodedData,
@@ -314,7 +316,5 @@ contract RelayerProxyHub is RelayerProxy {
     if (fromChain == 137 || fromChain == 80001) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
     }
-
-    processedRootMessages[fromChain][l2Hash] = true;
   }
 }
