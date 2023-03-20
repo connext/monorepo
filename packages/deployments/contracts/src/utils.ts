@@ -1,15 +1,12 @@
-import { config } from "dotenv";
 import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
-import { DeploymentsExtension } from "hardhat-deploy/types";
-
-config();
 
 export type Env = "staging" | "production" | "local";
 

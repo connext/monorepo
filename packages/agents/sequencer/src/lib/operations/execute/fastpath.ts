@@ -231,7 +231,7 @@ export const executeFastPathData = async (
   if (!canSubmit) {
     logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
       transferId,
-      relayerFee: transfer.origin.relayerFee,
+      relayerFees: transfer.origin.relayerFees,
       needed,
     });
 
@@ -247,7 +247,6 @@ export const executeFastPathData = async (
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
   if ([...Object.keys(bidsRoundMap)].length < 1) {
-    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
     throw new NoBidsSent({ bidsRoundMap });
   }
 
@@ -430,7 +429,6 @@ export const executeFastPathData = async (
       bidsRoundMap,
       transferId,
     });
-    await database.updateErrorStatus(transferId, XTransferErrorStatus.NoBidsReceived);
     throw new NoBidsSent();
   }
 

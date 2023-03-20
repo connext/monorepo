@@ -8,7 +8,6 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
-  NxtpError,
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
@@ -26,12 +25,12 @@ import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
-import { NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
+import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
-export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
+export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
 /// MARK - Make Agents
 /**
@@ -139,12 +138,21 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
 
-    const errorName =
-      (error as NxtpError).type === SlippageToleranceExceeded.name
-        ? XTransferErrorStatus.LowSlippage
-        : (error as NxtpError).type === NotEnoughRelayerFee.name
-        ? XTransferErrorStatus.LowRelayerFee
-        : XTransferErrorStatus.ExecutionError;
+    let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
+    switch (errorObj.type) {
+      case SlippageToleranceExceeded.name: {
+        errorName = XTransferErrorStatus.LowSlippage;
+        break;
+      }
+      case NotEnoughRelayerFee.name: {
+        errorName = XTransferErrorStatus.LowRelayerFee;
+        break;
+      }
+      case NoBidsSent.name: {
+        errorName = XTransferErrorStatus.NoBidsReceived;
+        break;
+      }
+    }
     await context.adapters.database.updateErrorStatus(transferId, errorName);
 
     // increase backoff in case error is one of slippage or relayer fee

@@ -268,6 +268,7 @@ Content-Type: application/json
 {
   "domainId": "1869640809",
   "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
+  "asset": "0x0000000000000000000000000000000000000000",
   "relayerFee": "100000000000"
 }
 

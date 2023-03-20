@@ -2,6 +2,23 @@
 
 ## Next Release
 
+## Amarok 1.0.3-alpha.2
+
+- [sequencer] Fix relayer fee check
+- [sdk] Fix bumpTransfer for native asset
+
+## Amarok 1.0.3-alpha.1
+
+- [all] Support transacting asset for relayer fee on staging testnet
+
+## Amarok 1.0.3-alpha.0
+
+- [sdk] Fixed getTransfers
+
+## Amarok 1.0.2
+
+- [sdk] more optimisation
+
 ## Amarok 1.0.2-alpha.0
 
 - [sdk] `calculateAmountReceived` optimizations
