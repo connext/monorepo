@@ -797,8 +797,8 @@ export class SdkPool extends SdkShared {
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amount - The amount of the token to swap.
-   * @param minAmounts - (optional) The minimum acceptable amounts of each token to burn.
+   * @param amount - The amount of the LP token to remove.
+   * @param minAmounts - (optional) The minimum amounts of each token in the pool
    * @param deadline - (optional) The deadline for the swap.
    * @returns providers.TransactionRequest object.
    */
