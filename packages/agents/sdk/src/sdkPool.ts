@@ -248,7 +248,28 @@ export class SdkPool extends SdkShared {
   }
 
   /**
-   * Calculates the amounts of underlying tokens returned.
+   *  Calculates the amounts of underlying tokens returned.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the LP token to burn on withdrawal.
+   * @returns Array containing amount of each underlying token returned, in correct index order.
+   */
+  async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
+
+    return amounts;
+  }
+
+  /**
+   * Calculate the dy, the amount of selected token that user receives
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
@@ -256,7 +277,7 @@ export class SdkPool extends SdkShared {
    * @param index - The index of the token to withdraw.
    * @returns availableTokenAmount calculated amount of underlying token
    */
-  async calculateRemoveSwapLiquidity(
+  async calculateRemoveSwapLiquidityOneToken(
     domainId: string,
     tokenAddress: string,
     amount: string,
@@ -272,31 +293,6 @@ export class SdkPool extends SdkShared {
     const available = await connextContract.calculateRemoveSwapLiquidityOneToken(key, amount, index);
 
     return available;
-  }
-
-  /**
-   * Calculate the dy, the amount of selected token that user receives and
-   *
-   * @param domainId - The domain ID of the pool.
-   * @param tokenAddress - The address of local or adopted token.
-   * @param amount - The amount of the LP token to burn on withdrawal.
-   * @returns Array containing amount of each underlying token returned, in correct index order.
-   */
-  async calculateRemoveSwapLiquidityOneToken(
-    domainId: string,
-    tokenAddress: string,
-    amount: string,
-  ): Promise<BigNumber[]> {
-    const _tokenAddress = utils.getAddress(tokenAddress);
-
-    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
-      this.getCanonicalTokenId(domainId, _tokenAddress),
-    ]);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
-
-    return amounts;
   }
 
   /**
