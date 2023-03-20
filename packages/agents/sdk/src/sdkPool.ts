@@ -253,9 +253,40 @@ export class SdkPool extends SdkShared {
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
    * @param amount - The amount of the LP token to burn on withdrawal.
+   * @param index - The index of the token to withdraw.
+   * @returns availableTokenAmount calculated amount of underlying token
+   */
+  async calculateRemoveSwapLiquidity(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    index: number,
+  ): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const available = await connextContract.calculateRemoveSwapLiquidityOneToken(key, amount, index);
+
+    return available;
+  }
+
+  /**
+   * Calculate the dy, the amount of selected token that user receives and
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the LP token to burn on withdrawal.
    * @returns Array containing amount of each underlying token returned, in correct index order.
    */
-  async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
+  async calculateRemoveSwapLiquidityOneToken(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+  ): Promise<BigNumber[]> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -827,6 +858,53 @@ export class SdkPool extends SdkShared {
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
 
     this.logger.info(`${this.removeLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
+   * Returns the transaction request for removing liquidity from a pool.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the LP token to remove.
+   * @param index - The index of the token to receive.
+   * @param minAmount - (optional) The minimum amount to withdraw
+   * @param deadline - (optional) The deadline for the swap.
+   * @returns providers.TransactionRequest object.
+   */
+  async removeLiquidityOneToken(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    index: number,
+    minAmount = "0",
+    deadline = this.getDefaultDeadline(),
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const txRequest = await connextContract.populateTransaction.removeSwapLiquidityOneToken(
+      key,
+      amount,
+      index,
+      minAmount,
+      deadline,
+    );
+
+    this.logger.info(`${this.removeLiquidityOneToken.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }
