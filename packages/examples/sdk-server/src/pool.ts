@@ -14,11 +14,13 @@ import {
   calculateSwapSchema,
   calculateTokenAmountSchema,
   calculateRemoveSwapLiquiditySchema,
+  calculateRemoveSwapLiquidityOneTokenSchema,
   getPoolSchema,
   getUserPoolsSchema,
   addLiquiditySchema,
   removeLiquidityOneTokenSchema,
   removeLiquiditySchema,
+  removeLiquidityImbalanceSchema,
   swapSchema,
   calculateCanonicalHashSchema,
   calculateAddLiquidityPriceImpactSchema,
@@ -179,6 +181,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   s.post(
+    "/calculateRemoveSwapLiquidityOneToken",
+    {
+      schema: {
+        body: calculateRemoveSwapLiquidityOneTokenSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, amount, index } = request.body;
+      const res = await sdkPoolInstance.calculateRemoveSwapLiquidityOneToken(domainId, tokenAddress, amount, index);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
     "/calculateAddLiquidityPriceImpact",
     {
       schema: {
@@ -279,6 +295,26 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
         withdrawTokenAddress,
         amount,
         minAmount,
+      );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/removeLiquidityImbalance",
+    {
+      schema: {
+        body: removeLiquidityImbalanceSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, amounts, maxBurnAmount, deadline } = request.body;
+      const res = await sdkPoolInstance.removeLiquidityImbalance(
+        domainId,
+        tokenAddress,
+        amounts,
+        maxBurnAmount,
+        deadline,
       );
       reply.status(200).send(res);
     },
