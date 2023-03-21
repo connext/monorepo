@@ -114,12 +114,22 @@ export const addLiquiditySchema = Type.Object({
   estimateGas: Type.Optional(Type.Boolean()),
 });
 
+export const removeLiquidityOneTokenSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  withdrawTokenAddress: Type.String(),
+  amount: Type.String(),
+  minAmount: Type.String(),
+  deadline: Type.Optional(Type.Number()),
+  estimateGas: Type.Optional(Type.Boolean()),
+});
+
 export const removeLiquiditySchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   amount: Type.String(),
+  minAmounts: Type.Array(Type.String()),
   deadline: Type.Optional(Type.Number()),
-  estimateGas: Type.Optional(Type.Boolean()),
 });
 
 export const swapSchema = Type.Object({

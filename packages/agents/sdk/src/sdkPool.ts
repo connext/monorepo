@@ -793,12 +793,60 @@ export class SdkPool extends SdkShared {
   }
 
   /**
+   * Returns the transaction request for removing liquidity from a pool in one token.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param withdrawTokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the token to swap.
+   * @param minAmount - (optional) The minimum acceptable amount of the token to withdraw.
+   * @param deadline - (optional) The deadline for the swap.
+   * @returns providers.TransactionRequest object.
+   */
+  async removeLiquidityOneToken(
+    domainId: string,
+    tokenAddress: string,
+    withdrawTokenAddress: string,
+    amount: string,
+    minAmount = "0",
+    deadline = this.getDefaultDeadline(),
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+    const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const txRequest = await connextContract.populateTransaction.removeSwapLiquidityOneToken(
+      key,
+      amount,
+      index,
+      minAmount,
+      deadline,
+    );
+
+    this.logger.info(`${this.removeLiquidityOneToken.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
    * Returns the transaction request for removing liquidity from a pool.
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
    * @param amount - The amount of the token to swap.
-   * @param minAmounts - (optional) The minimum acceptable amounts of each token to burn.
+   * @param minAmounts - (optional) The minimum acceptable amounts of each token to withdraw.
    * @param deadline - (optional) The deadline for the swap.
    * @returns providers.TransactionRequest object.
    */
