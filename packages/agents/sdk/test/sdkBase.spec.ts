@@ -411,11 +411,7 @@ describe("SdkBase", () => {
     it("happy-1: should work with native asset", async () => {
       const bumpParams = { ...mockBumpTransferParams, asset: constants.AddressZero };
       sdkBase.config.signerAddress = mockConfig.signerAddress;
-      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
-        bumpParams.transferId,
-        bumpParams.asset,
-        bumpParams.relayerFee,
-      ]);
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [bumpParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
@@ -441,7 +437,6 @@ describe("SdkBase", () => {
         to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from("0"),
         chainId,
       };
 
