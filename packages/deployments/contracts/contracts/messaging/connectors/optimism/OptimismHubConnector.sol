@@ -85,8 +85,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     // get the data
     // the _message should be the `HubConnector.processMessage(bytes memory)` calldata (100 bytes):
-    // - 4 byte selector
-    // - 96 bytes of data ((32 byte slot + 32 byte encoded len1) + 32 byte encoded len 2)
+    //   abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(bytes32(root)))
     require(_message.length == 100, "!length");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
