@@ -1,20 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-/**
- * @notice Represents a proven withdrawal.
- * @dev Source:
- * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol
- *
- * @custom:field outputRoot    Root of the L2 output this was proven against.
- * @custom:field timestamp     Timestamp at whcih the withdrawal was proven.
- * @custom:field l2OutputIndex Index of the output this was proven against.
- */
-struct ProvenWithdrawal {
-  bytes32 outputRoot;
-  uint128 timestamp;
-  uint128 l2OutputIndex;
-}
+import {Types} from "../../../connectors/optimism/lib/Types.sol";
 
 /**
  * @dev An informal interface. Technically not an interface but a contract, since we need to reference
@@ -22,7 +9,17 @@ struct ProvenWithdrawal {
  */
 interface IOptimismPortal {
   /**
-   * @notice A mapping of withdrawal hashes to `ProvenWithdrawal` data.
+   * @notice Proves a withdrawal transaction.
+   *
+   * @param _tx              Withdrawal transaction to finalize.
+   * @param _l2OutputIndex   L2 output index to prove against.
+   * @param _outputRootProof Inclusion proof of the L2ToL1MessagePasser contract's storage root.
+   * @param _withdrawalProof Inclusion proof of the withdrawal in L2ToL1MessagePasser contract.
    */
-  function provenWithdrawals(bytes32 _hash) external view returns (ProvenWithdrawal memory);
+  function proveWithdrawalTransaction(
+    Types.WithdrawalTransaction memory _tx,
+    uint256 _l2OutputIndex,
+    Types.OutputRootProof calldata _outputRootProof,
+    bytes[] calldata _withdrawalProof
+  ) external;
 }
