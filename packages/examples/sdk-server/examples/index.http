@@ -142,6 +142,18 @@ Content-Type: application/json
 }
 
 ##############
+### POST calculateRemoveSwapLiquidityOneToken
+POST {{baseUrl}}/calculateRemoveSwapLiquidityOneToken
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amount": "100000000000000",
+  "index": 0
+}
+
+##############
 ### POST calculateAddLiquidityPriceImpact
 POST {{baseUrl}}/calculateAddLiquidityPriceImpact
 Content-Type: application/json
@@ -248,6 +260,18 @@ Content-Type: application/json
   "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
   "amount": "100",
   "minAmounts": ["0", "0"]
+}
+
+##############
+### POST removeLiquidityImbalance
+POST {{baseUrl}}/removeLiquidityImbalance
+Content-Type: application/json
+
+{
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amounts": ["100", "100"],
+  "maxBurnAmount": "0"
 }
 
 ##############
