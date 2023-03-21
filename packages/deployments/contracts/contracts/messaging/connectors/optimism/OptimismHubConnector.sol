@@ -49,7 +49,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+  function _sendMessage(bytes memory _data, bytes memory) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
@@ -83,8 +83,11 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     require(_sender == mirrorConnector, "!mirror connector");
     require(_target == address(this), "!target");
 
-    // get the data (should be the outbound root)
-    require(_message.length == 36, "!length");
+    // get the data
+    // the _message should be the `HubConnector.processMessage(bytes memory)` calldata (100 bytes):
+    // - 4 byte selector
+    // - 96 bytes of data ((32 byte slot + 32 byte encoded len1) + 32 byte encoded len 2)
+    require(_message.length == 100, "!length");
 
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
     bytes29 _view = _message.ref(0);
@@ -147,7 +150,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     // Extract the argument from the data
     (_nonce, _sender, _target, _value, _gasLimit, _data) = abi.decode(
-      abi.encodePacked(sliced),
+      sliced,
       (uint256, address, address, uint256, uint256, bytes)
     );
   }

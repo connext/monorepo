@@ -19,7 +19,6 @@ import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
-import {ProvenWithdrawal} from "../../contracts/messaging/interfaces/ambs/optimism/IOptimismPortal.sol";
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
@@ -330,11 +329,4 @@ contract RevertingERC20 {
   function withdraw(uint256 amount) public {
     revert(REVERT_WITHDRAW_MESSAGE);
   }
-}
-
-contract MockOptimismPortal {
-  /**
-   * @notice A mapping of withdrawal hashes to `ProvenWithdrawal` data.
-   */
-  mapping(bytes32 => ProvenWithdrawal) public provenWithdrawals;
 }

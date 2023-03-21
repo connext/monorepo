@@ -17,7 +17,6 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
   // ============ Storage ============
   address _optimismPortal;
-  address _l2OutputOracle;
 
   // ============ Test set up ============
   function setUp() public {
@@ -25,22 +24,12 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     // https://blockscout.com/optimism/goerli/tx/0x440fda036d28eb547394a8689af90c5342a00a8ca2ab5117f2b85f54d1416ddd/logs
     _l2Connector = payable(address(0x15Fe056CbFd5ac3625d3987f3Db96Dc9fd09770A));
 
-    _optimismPortal = address(new MockOptimismPortal());
-    _l2OutputOracle = address(0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0);
+    _optimismPortal = address(0x1236123523526);
 
     // deploy
     _l1Connector = payable(
       address(
-        new OptimismHubConnector(
-          _l1Domain,
-          _l2Domain,
-          _amb,
-          _rootManager,
-          _l2Connector,
-          _optimismPortal,
-          _l2OutputOracle,
-          _gasCap
-        )
+        new OptimismHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _optimismPortal, _gasCap)
       )
     );
   }
@@ -154,8 +143,9 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     uint256 _gasLimit = 0;
     uint256 _nonce = 104500;
     bytes32 _root = bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757);
-    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _root);
-    bytes memory _encodedData = Encoding.encodeCrossDomainMessageV1(
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(_root));
+    bytes memory _encodedData = abi.encodeWithSignature(
+      "relayMessage(uint256,address,address,uint256,uint256,bytes)",
       _nonce,
       _sender,
       _target,
@@ -164,36 +154,16 @@ contract OptimismHubConnectorTest is ConnectorHelper {
       _calldata
     );
 
-    bytes32 _mockOutputRoot = bytes32(bytes("root"));
-    uint128 _mockTimestamp = 1000;
-    uint128 _mockOutputIndex = 0;
-
-    // Ensure the provenWithdrawals call succeeds
-    ProvenWithdrawal memory provenWithdrawal = ProvenWithdrawal({
-      outputRoot: _mockOutputRoot,
-      timestamp: _mockTimestamp,
-      l2OutputIndex: _mockOutputIndex
-    });
-    Types.OutputProposal memory proposal = Types.OutputProposal({
-      outputRoot: _mockOutputRoot,
-      timestamp: _mockTimestamp,
-      l2BlockNumber: 1234
-    });
+    // Declare empty values (proof mocked)
+    uint256 _l2OutputIndex;
+    Types.OutputRootProof memory _outputRootProof;
+    bytes[] memory _withdrawalProof;
 
     vm.mockCall(
       _optimismPortal,
-      abi.encodeWithSelector(IOptimismPortal.provenWithdrawals.selector),
-      abi.encode(provenWithdrawal)
+      abi.encodeWithSelector(IOptimismPortal.proveWithdrawalTransaction.selector),
+      abi.encode(true)
     );
-
-    // Ensure
-    vm.mockCall(
-      _l2OutputOracle,
-      abi.encodeWithSelector(bytes4(keccak256(bytes("startingTimestamp()")))),
-      abi.encode(_mockTimestamp - 1)
-    );
-
-    vm.mockCall(_l2OutputOracle, abi.encodeWithSelector(IL2OutputOracle.getL2Output.selector), abi.encode(proposal));
 
     // Ensure the call to root manager succeeds
     vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
@@ -203,14 +173,14 @@ contract OptimismHubConnectorTest is ConnectorHelper {
 
     Types.WithdrawalTransaction memory _tx = Types.WithdrawalTransaction({
       nonce: _nonce,
-      sender: PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER,
+      sender: address(0x12321231213),
       target: _target,
       value: _value,
       gasLimit: 100000000000,
       data: _encodedData
     });
 
-    OptimismHubConnector(_target).processMessageFromRoot(_tx);
+    OptimismHubConnector(_target).processMessageFromRoot(_tx, _l2OutputIndex, _outputRootProof, _withdrawalProof);
     assertTrue(OptimismHubConnector(_target).processed(_root));
   }
 }
