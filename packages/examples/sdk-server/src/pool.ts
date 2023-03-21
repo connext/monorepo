@@ -17,6 +17,7 @@ import {
   getPoolSchema,
   getUserPoolsSchema,
   addLiquiditySchema,
+  removeLiquidityOneTokenSchema,
   removeLiquiditySchema,
   swapSchema,
   calculateCanonicalHashSchema,
@@ -264,6 +265,26 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   s.post(
+    "/removeLiquidityOneToken",
+    {
+      schema: {
+        body: removeLiquidityOneTokenSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, withdrawTokenAddress, amount, minAmount } = request.body;
+      const res = await sdkPoolInstance.removeLiquidityOneToken(
+        domainId,
+        tokenAddress,
+        withdrawTokenAddress,
+        amount,
+        minAmount,
+      );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
     "/removeLiquidity",
     {
       schema: {
@@ -271,8 +292,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amount } = request.body;
-      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount);
+      const { domainId, tokenAddress, amount, minAmounts } = request.body;
+      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount, minAmounts);
       reply.status(200).send(res);
     },
   );

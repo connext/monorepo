@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Add removeLiquidityOneToken method
+
 ## Amarok 1.0.3-alpha.2
 
 - [sequencer] Fix relayer fee check
