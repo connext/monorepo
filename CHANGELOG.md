@@ -2,7 +2,7 @@
 
 ## Next Release
 
-- [sdk] Add removeLiquidityOneToken method
+- [sdk] Add removeLiquidityOneToken, removeLiquidityImbalance, calculateRemoveSwapLiquidityOneToken methods
 
 ## Amarok 1.0.3-alpha.2
 
