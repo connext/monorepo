@@ -2450,7 +2450,7 @@ __metadata:
   dependencies:
     "@arbitrum/sdk": 3.0.0-beta.12
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": 1.6.9
+    "@eth-optimism/sdk": 2.0.1
     "@gelatonetwork/relay-context": 2.1.0
     "@matterlabs/hardhat-zksync-deploy": ^0.6.1
     "@matterlabs/hardhat-zksync-solc": ^0.3.14
@@ -2707,32 +2707,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.8.3":
-  version: 0.8.3
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.8.3"
-  dependencies:
-    "@eth-optimism/core-utils": ^0.10.1
-    "@openzeppelin/contracts": 4.7.3
-    "@openzeppelin/contracts-upgradeable": 4.7.3
-    ethers: ^5.7.0
-    hardhat: ^2.9.6
-  checksum: 4d8cef14b0fa4cd3c363cd175411450625113b1701890e67b5ac3bd5ae93124cda68f5e33cfeded85d85516c0b91d30c8e067323992fabe913369ce2c2c843ac
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/contracts@npm:0.5.37":
-  version: 0.5.37
-  resolution: "@eth-optimism/contracts@npm:0.5.37"
-  dependencies:
-    "@eth-optimism/core-utils": 0.10.1
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/abstract-signer": ^5.7.0
-  peerDependencies:
-    ethers: ^5
-  checksum: 52a694838abaeadaa6b87fa37cd4936ff8db8b212c1650a8415e207b8386444a1a6e48b6cb836ea3019515e8fb3c3a9c0d0f16b261e1d880c36b428d9c0b7728
-  languageName: node
-  linkType: hard
-
 "@eth-optimism/contracts@npm:0.5.40":
   version: 0.5.40
   resolution: "@eth-optimism/contracts@npm:0.5.40"
@@ -2743,30 +2717,6 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: 11dde466c90b886efe8b5fd123fa5893187a4ff84839213d417f90ae4e45bf00b2f62d56e4ebe23ba5dd7ec33beed22c4c41e206add35fce0db073fe2dbae6ba
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/core-utils@npm:0.10.1, @eth-optimism/core-utils@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@eth-optimism/core-utils@npm:0.10.1"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/address": ^5.7.0
-    "@ethersproject/bignumber": ^5.7.0
-    "@ethersproject/bytes": ^5.7.0
-    "@ethersproject/constants": ^5.7.0
-    "@ethersproject/contracts": ^5.7.0
-    "@ethersproject/hash": ^5.7.0
-    "@ethersproject/keccak256": ^5.7.0
-    "@ethersproject/properties": ^5.7.0
-    "@ethersproject/providers": ^5.7.0
-    "@ethersproject/rlp": ^5.7.0
-    "@ethersproject/transactions": ^5.7.0
-    "@ethersproject/web": ^5.7.0
-    bufio: ^1.0.7
-    chai: ^4.3.4
-  checksum: ab8dfe644eb70b877d63c4543ec18c4a3f50ed71304b052562ce7827a1a9aefb5d735d5a2de275866fed3e48726c7ae8dd8335f7da91e2e7bc2b7ddd397de678
   languageName: node
   linkType: hard
 
@@ -2791,22 +2741,6 @@ __metadata:
     bufio: ^1.0.7
     chai: ^4.3.4
   checksum: 1c820107c44bdbb46becb1b00fd0dabb44f3ac8f54e6da7872a5a134411fad26f53b193225da55e79d6a8d7f0d01cc16a123db5d41ebaf02ca78360249a4b52a
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/sdk@npm:1.6.9":
-  version: 1.6.9
-  resolution: "@eth-optimism/sdk@npm:1.6.9"
-  dependencies:
-    "@eth-optimism/contracts": 0.5.37
-    "@eth-optimism/contracts-bedrock": 0.8.3
-    "@eth-optimism/core-utils": 0.10.1
-    lodash: ^4.17.21
-    merkletreejs: ^0.2.27
-    rlp: ^2.2.7
-  peerDependencies:
-    ethers: ^5
-  checksum: 1a80591e7ae4eb144d84c65689bb6f019996f8dab223150384030c08b26c1ccaf815ecd79490404b47b9447190b0dedd270294e758acae081c142199fd53d308
   languageName: node
   linkType: hard
 

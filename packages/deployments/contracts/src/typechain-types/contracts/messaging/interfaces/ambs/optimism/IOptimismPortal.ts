@@ -7,6 +7,8 @@ import type {
   BigNumberish,
   BytesLike,
   CallOverrides,
+  ContractTransaction,
+  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -21,32 +23,68 @@ import type {
   PromiseOrValue,
 } from "../../../../../common";
 
-export type ProvenWithdrawalStruct = {
-  outputRoot: PromiseOrValue<BytesLike>;
-  timestamp: PromiseOrValue<BigNumberish>;
-  l2OutputIndex: PromiseOrValue<BigNumberish>;
-};
+export declare namespace Types {
+  export type WithdrawalTransactionStruct = {
+    nonce: PromiseOrValue<BigNumberish>;
+    sender: PromiseOrValue<string>;
+    target: PromiseOrValue<string>;
+    value: PromiseOrValue<BigNumberish>;
+    gasLimit: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
+  };
 
-export type ProvenWithdrawalStructOutput = [string, BigNumber, BigNumber] & {
-  outputRoot: string;
-  timestamp: BigNumber;
-  l2OutputIndex: BigNumber;
-};
+  export type WithdrawalTransactionStructOutput = [
+    BigNumber,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ] & {
+    nonce: BigNumber;
+    sender: string;
+    target: string;
+    value: BigNumber;
+    gasLimit: BigNumber;
+    data: string;
+  };
+
+  export type OutputRootProofStruct = {
+    version: PromiseOrValue<BytesLike>;
+    stateRoot: PromiseOrValue<BytesLike>;
+    messagePasserStorageRoot: PromiseOrValue<BytesLike>;
+    latestBlockhash: PromiseOrValue<BytesLike>;
+  };
+
+  export type OutputRootProofStructOutput = [string, string, string, string] & {
+    version: string;
+    stateRoot: string;
+    messagePasserStorageRoot: string;
+    latestBlockhash: string;
+  };
+}
 
 export interface IOptimismPortalInterface extends utils.Interface {
   functions: {
-    "provenWithdrawals(bytes32)": FunctionFragment;
+    "proveWithdrawalTransaction((uint256,address,address,uint256,uint256,bytes),uint256,(bytes32,bytes32,bytes32,bytes32),bytes[])": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "provenWithdrawals"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "proveWithdrawalTransaction"
+  ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "provenWithdrawals",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "proveWithdrawalTransaction",
+    values: [
+      Types.WithdrawalTransactionStruct,
+      PromiseOrValue<BigNumberish>,
+      Types.OutputRootProofStruct,
+      PromiseOrValue<BytesLike>[]
+    ]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "provenWithdrawals",
+    functionFragment: "proveWithdrawalTransaction",
     data: BytesLike
   ): Result;
 
@@ -80,37 +118,52 @@ export interface IOptimismPortal extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    provenWithdrawals(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[ProvenWithdrawalStructOutput]>;
+    proveWithdrawalTransaction(
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  provenWithdrawals(
-    _hash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<ProvenWithdrawalStructOutput>;
+  proveWithdrawalTransaction(
+    _tx: Types.WithdrawalTransactionStruct,
+    _l2OutputIndex: PromiseOrValue<BigNumberish>,
+    _outputRootProof: Types.OutputRootProofStruct,
+    _withdrawalProof: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    provenWithdrawals(
-      _hash: PromiseOrValue<BytesLike>,
+    proveWithdrawalTransaction(
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
-    ): Promise<ProvenWithdrawalStructOutput>;
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    provenWithdrawals(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+    proveWithdrawalTransaction(
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    provenWithdrawals(
-      _hash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+    proveWithdrawalTransaction(
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

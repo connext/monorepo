@@ -53,13 +53,26 @@ export declare namespace Types {
     gasLimit: BigNumber;
     data: string;
   };
+
+  export type OutputRootProofStruct = {
+    version: PromiseOrValue<BytesLike>;
+    stateRoot: PromiseOrValue<BytesLike>;
+    messagePasserStorageRoot: PromiseOrValue<BytesLike>;
+    latestBlockhash: PromiseOrValue<BytesLike>;
+  };
+
+  export type OutputRootProofStructOutput = [string, string, string, string] & {
+    version: string;
+    stateRoot: string;
+    messagePasserStorageRoot: string;
+    latestBlockhash: string;
+  };
 }
 
 export interface OptimismHubConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
-    "L2_ORACLE()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "OPTIMISM_PORTAL()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
@@ -68,7 +81,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
-    "processMessageFromRoot((uint256,address,address,uint256,uint256,bytes))": FunctionFragment;
+    "processMessageFromRoot((uint256,address,address,uint256,uint256,bytes),uint256,(bytes32,bytes32,bytes32,bytes32),bytes[])": FunctionFragment;
     "processed(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -85,7 +98,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
-      | "L2_ORACLE"
       | "MIRROR_DOMAIN"
       | "OPTIMISM_PORTAL"
       | "ROOT_MANAGER"
@@ -109,7 +121,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
-  encodeFunctionData(functionFragment: "L2_ORACLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
     values?: undefined
@@ -138,7 +149,12 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
-    values: [Types.WithdrawalTransactionStruct]
+    values: [
+      Types.WithdrawalTransactionStruct,
+      PromiseOrValue<BigNumberish>,
+      Types.OutputRootProofStruct,
+      PromiseOrValue<BytesLike>[]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "processed",
@@ -177,7 +193,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "L2_ORACLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
@@ -371,8 +386,6 @@ export interface OptimismHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
-    L2_ORACLE(overrides?: CallOverrides): Promise<[string]>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
     OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<[string]>;
@@ -396,6 +409,9 @@ export interface OptimismHubConnector extends BaseContract {
 
     processMessageFromRoot(
       _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -445,8 +461,6 @@ export interface OptimismHubConnector extends BaseContract {
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
-  L2_ORACLE(overrides?: CallOverrides): Promise<string>;
-
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<string>;
@@ -470,6 +484,9 @@ export interface OptimismHubConnector extends BaseContract {
 
   processMessageFromRoot(
     _tx: Types.WithdrawalTransactionStruct,
+    _l2OutputIndex: PromiseOrValue<BigNumberish>,
+    _outputRootProof: Types.OutputRootProofStruct,
+    _withdrawalProof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -519,8 +536,6 @@ export interface OptimismHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
-    L2_ORACLE(overrides?: CallOverrides): Promise<string>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
 
     OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<string>;
@@ -542,6 +557,9 @@ export interface OptimismHubConnector extends BaseContract {
 
     processMessageFromRoot(
       _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -655,8 +673,6 @@ export interface OptimismHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
-    L2_ORACLE(overrides?: CallOverrides): Promise<BigNumber>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
     OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<BigNumber>;
@@ -680,6 +696,9 @@ export interface OptimismHubConnector extends BaseContract {
 
     processMessageFromRoot(
       _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -730,8 +749,6 @@ export interface OptimismHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    L2_ORACLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -755,6 +772,9 @@ export interface OptimismHubConnector extends BaseContract {
 
     processMessageFromRoot(
       _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -4,13 +4,11 @@ pragma solidity 0.8.17;
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 import {IOptimismPortal} from "../../interfaces/ambs/optimism/IOptimismPortal.sol";
-
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 
-import {Encoding} from "./lib/Encoding.sol";
 import {Types} from "./lib/Types.sol";
 
 import {BaseOptimism} from "./BaseOptimism.sol";
@@ -79,7 +77,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // uint256 _value,
     // uint256 _minGasLimit,
     // bytes memory _message
-    (, address _sender, address _target, , , bytes memory _message) = Encoding.decodeCrossDomainMessageV1(_tx.data);
+    (, address _sender, address _target, , , bytes memory _message) = decodeCrossDomainMessageV1(_tx.data);
 
     // ensure the l2 connector sent the message
     require(_sender == mirrorConnector, "!mirror connector");
@@ -98,5 +96,59 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+  }
+
+  /**
+   * @notice Encodes a cross domain message based on the V1 (current) encoding.
+   *
+   * @param _encodedData cross domain message.
+   * @return _nonce    Message nonce.
+   * @return _sender   Address of the sender of the message.
+   * @return _target   Address of the target of the message.
+   * @return _value    ETH value to send to the target.
+   * @return _gasLimit Gas limit to use for the message.
+   * @return _data     Data to send with the message.
+   *
+   */
+  function decodeCrossDomainMessageV1(
+    bytes memory _encodedData
+  )
+    internal
+    pure
+    returns (uint256 _nonce, address _sender, address _target, uint256 _value, uint256 _gasLimit, bytes memory _data)
+  {
+    bytes4 selector = bytes4(0);
+    assembly {
+      selector := mload(add(_encodedData, 32))
+    }
+
+    // Make sure the function selector matches
+    require(selector == bytes4(keccak256("relayMessage(uint256,address,address,uint256,uint256,bytes)")), "!selector");
+
+    uint256 start = 4;
+    uint256 len = _encodedData.length - start;
+    bytes memory sliced = new bytes(len);
+
+    assembly {
+      // Get the memory pointer to the start of the original data
+      let src := add(_encodedData, add(32, start))
+      // Get the memory pointer to the start of the new sliced data
+      let dest := add(sliced, 32)
+
+      // Copy the data from src to dest
+      for {
+        let i := 0
+      } lt(i, len) {
+        i := add(i, 32)
+      } {
+        mstore(add(dest, i), mload(add(src, i)))
+      }
+    }
+
+    // Extract the argument from the data
+    (_nonce, _sender, _target, _value, _gasLimit, _data) = abi.decode(
+      abi.encodePacked(sliced),
+      (uint256, address, address, uint256, uint256, bytes)
+    );
   }
 }

@@ -5,11 +5,8 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {OptimismHubConnector} from "../../../../contracts/messaging/connectors/optimism/OptimismHubConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
-import {Encoding} from "../../../../contracts/messaging/connectors/optimism/lib/Encoding.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
-import {PredeployAddresses} from "../../../../contracts/messaging/connectors/optimism/lib/PredeployAddresses.sol";
-import {IOptimismPortal, ProvenWithdrawal} from "../../../../contracts/messaging/interfaces/ambs/optimism/IOptimismPortal.sol";
-import {IL2OutputOracle} from "../../../../contracts/messaging/interfaces/ambs/optimism/IL2OutputOracle.sol";
+import {IOptimismPortal} from "../../../../contracts/messaging/interfaces/ambs/optimism/IOptimismPortal.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -136,7 +133,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     OptimismHubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
-  // // ============ OptimismHubConnector.processMessage ============
+  // ============ OptimismHubConnector.processMessage ============
   function test_OptimismHubConnector__processMessage_shouldWork() public {
     utils_setHubConnectorProcessMocks(_l2Connector);
     bytes32 data = bytes32(bytes("test"));
@@ -149,37 +146,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     OptimismHubConnector(_l1Connector).processMessage(_data);
   }
 
-  // // ============ OptimismHubConnector.processMessageFromRoot ============
-  function test_OptimismHubConnector__processMessageFromRoot_failsIfNotL2_CROSS_DOMAIN_MESSENGER() public {
-    bytes memory _message = abi.encodeWithSelector(Connector.processMessage.selector, bytes32(bytes("test")));
-    Types.WithdrawalTransaction memory _tx = Types.WithdrawalTransaction({
-      nonce: 1,
-      sender: address(0),
-      target: address(_l1Connector),
-      value: 0,
-      gasLimit: 21000,
-      data: _message
-    });
-
-    vm.expectRevert(bytes("!l2sender"));
-    OptimismHubConnector(_l1Connector).processMessageFromRoot(_tx);
-  }
-
-  function test_OptimismHubConnector__processMessageFromRoot_failsIfNotTarget() public {
-    bytes memory _message = abi.encodeWithSelector(Connector.processMessage.selector, bytes32(bytes("test")));
-    Types.WithdrawalTransaction memory _tx = Types.WithdrawalTransaction({
-      nonce: 1,
-      sender: PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER,
-      target: address(0),
-      value: 0,
-      gasLimit: 21000,
-      data: _message
-    });
-
-    vm.expectRevert(bytes("!this"));
-    OptimismHubConnector(_l1Connector).processMessageFromRoot(_tx);
-  }
-
+  // ============ OptimismHubConnector.processMessageFromRoot ============
   function test_OptimismHubConnector_processMessageFromRoot_works() public {
     address payable _target = payable(address(_l1Connector));
     address _sender = _l2Connector;

@@ -1,5 +1,5 @@
 [
-  "constructor(uint32,uint32,address,address,address,address,address,uint256)",
+  "constructor(uint32,uint32,address,address,address,address,uint256)",
   "error Connector__processMessage_notUsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -19,7 +19,6 @@
   "event OwnershipTransferred(address indexed,address indexed)",
   "function AMB() view returns (address)",
   "function DOMAIN() view returns (uint32)",
-  "function L2_ORACLE() view returns (address)",
   "function MIRROR_DOMAIN() view returns (uint32)",
   "function OPTIMISM_PORTAL() view returns (address)",
   "function ROOT_MANAGER() view returns (address)",
@@ -28,7 +27,7 @@
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
   "function processMessage(bytes)",
-  "function processMessageFromRoot(tuple(uint256,address,address,uint256,uint256,bytes))",
+  "function processMessageFromRoot(tuple(uint256,address,address,uint256,uint256,bytes),uint256,tuple(bytes32,bytes32,bytes32,bytes32),bytes[])",
   "function processed(bytes32) view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",

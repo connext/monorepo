@@ -13,37 +13,83 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_hash",
-        type: "bytes32",
+        components: [
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "target",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "data",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Types.WithdrawalTransaction",
+        name: "_tx",
+        type: "tuple",
       },
-    ],
-    name: "provenWithdrawals",
-    outputs: [
+      {
+        internalType: "uint256",
+        name: "_l2OutputIndex",
+        type: "uint256",
+      },
       {
         components: [
           {
             internalType: "bytes32",
-            name: "outputRoot",
+            name: "version",
             type: "bytes32",
           },
           {
-            internalType: "uint128",
-            name: "timestamp",
-            type: "uint128",
+            internalType: "bytes32",
+            name: "stateRoot",
+            type: "bytes32",
           },
           {
-            internalType: "uint128",
-            name: "l2OutputIndex",
-            type: "uint128",
+            internalType: "bytes32",
+            name: "messagePasserStorageRoot",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "latestBlockhash",
+            type: "bytes32",
           },
         ],
-        internalType: "struct ProvenWithdrawal",
-        name: "",
+        internalType: "struct Types.OutputRootProof",
+        name: "_outputRootProof",
         type: "tuple",
       },
+      {
+        internalType: "bytes[]",
+        name: "_withdrawalProof",
+        type: "bytes[]",
+      },
     ],
-    stateMutability: "view",
+    name: "proveWithdrawalTransaction",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;
