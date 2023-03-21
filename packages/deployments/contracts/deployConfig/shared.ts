@@ -161,8 +161,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
             optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
-            // https://goerli.etherscan.io/address/0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0
-            l2OutputOracle: "0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0",
             gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
