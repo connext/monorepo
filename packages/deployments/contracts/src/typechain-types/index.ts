@@ -216,8 +216,6 @@ export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichai
 export { Multichain__factory } from "./factories/contracts/messaging/interfaces/ambs/Multichain__factory";
 export type { IOptimismPortal } from "./contracts/messaging/interfaces/ambs/optimism/IOptimismPortal";
 export { IOptimismPortal__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IOptimismPortal__factory";
-export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain";
-export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/IStateCommitmentChain__factory";
 export type { OptimismAmb } from "./contracts/messaging/interfaces/ambs/optimism/OptimismAmb";
 export { OptimismAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/optimism/OptimismAmb__factory";
 export type { IL1Messenger } from "./contracts/messaging/interfaces/ambs/zksync/IL1Messenger";

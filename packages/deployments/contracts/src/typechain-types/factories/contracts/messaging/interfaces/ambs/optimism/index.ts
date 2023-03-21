@@ -2,5 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IOptimismPortal__factory } from "./IOptimismPortal__factory";
-export { IStateCommitmentChain__factory } from "./IStateCommitmentChain__factory";
 export { OptimismAmb__factory } from "./OptimismAmb__factory";

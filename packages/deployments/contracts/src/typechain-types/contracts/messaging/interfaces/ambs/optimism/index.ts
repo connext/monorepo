@@ -2,5 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IOptimismPortal } from "./IOptimismPortal";
-export type { IStateCommitmentChain } from "./IStateCommitmentChain";
 export type { OptimismAmb } from "./OptimismAmb";
