@@ -132,11 +132,18 @@ export const sanitizeAndInit = async () => {
   }
 
   const networks: NetworkStack[] = [];
-  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
-    (hardhatNetwork) =>
-      Object.keys(hardhatNetwork as object).includes("chainId") &&
-      Object.keys(hardhatNetwork as object).includes("url"),
-  );
+
+  const filteredHardhatNetworks: { [key: string]: any } = {};
+  for (const key in hardhatNetworks) {
+    const network = (hardhatNetworks as { [key: string]: any })[key];
+    if (
+      !key.includes("fork") &&
+      Object.keys(network as object).includes("chainId") &&
+      Object.keys(network as object).includes("url")
+    ) {
+      filteredHardhatNetworks[key] = network;
+    }
+  }
 
   // Get deployments for each domain if not specified in the config.
   for (const _domain of domains) {
