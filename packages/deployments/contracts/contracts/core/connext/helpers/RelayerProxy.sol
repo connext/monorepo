@@ -181,6 +181,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     for (uint256 i = 0; i < _priorityKeepers.length; i++) {
       _addPriorityKeeper(_priorityKeepers[i]);
     }
+
+    _setPriorityWindowSecs(_priorityWindowSecs);
   }
 
   // ============ Admin Functions ============

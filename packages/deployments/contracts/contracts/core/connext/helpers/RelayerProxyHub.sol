@@ -156,9 +156,21 @@ contract RelayerProxyHub is RelayerProxy {
     address _rootManager,
     address _keep3r,
     uint256 _propagateCooldown,
+    address[] memory _priorityKeepers,
+    uint32 _priorityWindowSecs,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
-  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
+  )
+    RelayerProxy(
+      _connext,
+      _spokeConnector,
+      _gelatoRelayer,
+      _feeCollector,
+      _keep3r,
+      _priorityKeepers,
+      _priorityWindowSecs
+    )
+  {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
@@ -241,6 +253,14 @@ contract RelayerProxyHub is RelayerProxy {
     lastPropagateAt = block.timestamp;
   }
 
+  /**
+   * Wraps the call to processFromRoot() on RootManager and pays with Keep3r credits. Only allowed to be called
+   * by registered Keep3r.
+   *
+   * @param _encodedData Array of encoded data for HubConnector function.
+   * @param _fromChain Chain ID of the chain the message is coming from.
+   * @param _l2Hash Hash of the message on the L2 chain.
+   */
   function processFromRootKeep3r(
     bytes calldata _encodedData,
     uint32 _fromChain,

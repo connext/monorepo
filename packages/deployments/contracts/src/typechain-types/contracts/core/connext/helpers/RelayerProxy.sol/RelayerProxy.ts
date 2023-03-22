@@ -112,6 +112,7 @@ export declare namespace ISpokeConnector {
 export interface RelayerProxyInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "addKeeper(address)": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
     "connext()": FunctionFragment;
@@ -121,10 +122,13 @@ export interface RelayerProxyInterface extends utils.Interface {
     "gelatoRelayer()": FunctionFragment;
     "keep3r()": FunctionFragment;
     "owner()": FunctionFragment;
+    "priorityKeepers(address)": FunctionFragment;
+    "priorityWindowSecs()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256,uint256)": FunctionFragment;
+    "removeKeeper(address)": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
@@ -133,6 +137,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "setFeeCollector(address)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
     "setKeep3r(address)": FunctionFragment;
+    "setPriorityWindowSecs(uint32)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -141,6 +146,7 @@ export interface RelayerProxyInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
+      | "addKeeper"
       | "addRelayer"
       | "allowedRelayer"
       | "connext"
@@ -150,10 +156,13 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "gelatoRelayer"
       | "keep3r"
       | "owner"
+      | "priorityKeepers"
+      | "priorityWindowSecs"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
       | "proveAndProcess"
+      | "removeKeeper"
       | "removeRelayer"
       | "renounceOwnership"
       | "renounced"
@@ -162,6 +171,7 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "setFeeCollector"
       | "setGelatoRelayer"
       | "setKeep3r"
+      | "setPriorityWindowSecs"
       | "setSpokeConnector"
       | "spokeConnector"
       | "withdraw"
@@ -170,6 +180,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addKeeper",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "addRelayer",
@@ -196,6 +210,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "priorityKeepers",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "priorityWindowSecs",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
@@ -213,6 +235,10 @@ export interface RelayerProxyInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeKeeper",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "removeRelayer",
@@ -248,6 +274,10 @@ export interface RelayerProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPriorityWindowSecs",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setSpokeConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -261,6 +291,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "addKeeper", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addRelayer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "allowedRelayer",
@@ -280,6 +311,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "priorityKeepers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "priorityWindowSecs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
@@ -290,6 +329,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "proveAndProcess",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeKeeper",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -313,6 +356,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setKeep3r", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setPriorityWindowSecs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setSpokeConnector",
     data: BytesLike
   ): Result;
@@ -331,6 +378,9 @@ export interface RelayerProxyInterface extends utils.Interface {
     "Keep3rChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "PriorityKeeperAdded(address)": EventFragment;
+    "PriorityKeeperRemoved(address)": EventFragment;
+    "PriorityWindowSecsChanged(uint32,uint32)": EventFragment;
     "RelayerAdded(address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
     "SpokeConnectorChanged(address,address)": EventFragment;
@@ -344,6 +394,9 @@ export interface RelayerProxyInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Keep3rChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PriorityKeeperAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PriorityKeeperRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PriorityWindowSecsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
@@ -440,6 +493,40 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface PriorityKeeperAddedEventObject {
+  keeper: string;
+}
+export type PriorityKeeperAddedEvent = TypedEvent<
+  [string],
+  PriorityKeeperAddedEventObject
+>;
+
+export type PriorityKeeperAddedEventFilter =
+  TypedEventFilter<PriorityKeeperAddedEvent>;
+
+export interface PriorityKeeperRemovedEventObject {
+  keeper: string;
+}
+export type PriorityKeeperRemovedEvent = TypedEvent<
+  [string],
+  PriorityKeeperRemovedEventObject
+>;
+
+export type PriorityKeeperRemovedEventFilter =
+  TypedEventFilter<PriorityKeeperRemovedEvent>;
+
+export interface PriorityWindowSecsChangedEventObject {
+  secs: number;
+  oldSecs: number;
+}
+export type PriorityWindowSecsChangedEvent = TypedEvent<
+  [number, number],
+  PriorityWindowSecsChangedEventObject
+>;
+
+export type PriorityWindowSecsChangedEventFilter =
+  TypedEventFilter<PriorityWindowSecsChangedEvent>;
+
 export interface RelayerAddedEventObject {
   relayer: string;
 }
@@ -500,6 +587,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    addKeeper(
+      _keeper: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     addRelayer(
       _relayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -528,6 +620,13 @@ export interface RelayerProxy extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    priorityWindowSecs(overrides?: CallOverrides): Promise<[number]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -543,6 +642,11 @@ export interface RelayerProxy extends BaseContract {
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    removeKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -584,6 +688,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setPriorityWindowSecs(
+      _priorityWindowSecs: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -597,6 +706,11 @@ export interface RelayerProxy extends BaseContract {
   };
 
   acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addKeeper(
+    _keeper: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -628,6 +742,13 @@ export interface RelayerProxy extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  priorityKeepers(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  priorityWindowSecs(overrides?: CallOverrides): Promise<number>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -643,6 +764,11 @@ export interface RelayerProxy extends BaseContract {
     _aggregatePath: PromiseOrValue<BytesLike>[],
     _aggregateIndex: PromiseOrValue<BigNumberish>,
     _fee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  removeKeeper(
+    _keeper: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -684,6 +810,11 @@ export interface RelayerProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setPriorityWindowSecs(
+    _priorityWindowSecs: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setSpokeConnector(
     _spokeConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -697,6 +828,11 @@ export interface RelayerProxy extends BaseContract {
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    addKeeper(
+      _keeper: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     addRelayer(
       _relayer: PromiseOrValue<string>,
@@ -726,6 +862,13 @@ export interface RelayerProxy extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    priorityWindowSecs(overrides?: CallOverrides): Promise<number>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -741,6 +884,11 @@ export interface RelayerProxy extends BaseContract {
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    removeKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -777,6 +925,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPriorityWindowSecs(
+      _priorityWindowSecs: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -849,6 +1002,25 @@ export interface RelayerProxy extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "PriorityKeeperAdded(address)"(
+      keeper?: null
+    ): PriorityKeeperAddedEventFilter;
+    PriorityKeeperAdded(keeper?: null): PriorityKeeperAddedEventFilter;
+
+    "PriorityKeeperRemoved(address)"(
+      keeper?: null
+    ): PriorityKeeperRemovedEventFilter;
+    PriorityKeeperRemoved(keeper?: null): PriorityKeeperRemovedEventFilter;
+
+    "PriorityWindowSecsChanged(uint32,uint32)"(
+      secs?: null,
+      oldSecs?: null
+    ): PriorityWindowSecsChangedEventFilter;
+    PriorityWindowSecsChanged(
+      secs?: null,
+      oldSecs?: null
+    ): PriorityWindowSecsChangedEventFilter;
+
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
 
@@ -867,6 +1039,11 @@ export interface RelayerProxy extends BaseContract {
 
   estimateGas: {
     acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    addKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -898,6 +1075,13 @@ export interface RelayerProxy extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    priorityWindowSecs(overrides?: CallOverrides): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -913,6 +1097,11 @@ export interface RelayerProxy extends BaseContract {
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    removeKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -954,6 +1143,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setPriorityWindowSecs(
+      _priorityWindowSecs: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -968,6 +1162,11 @@ export interface RelayerProxy extends BaseContract {
 
   populateTransaction: {
     acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -999,6 +1198,15 @@ export interface RelayerProxy extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    priorityWindowSecs(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1014,6 +1222,11 @@ export interface RelayerProxy extends BaseContract {
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeKeeper(
+      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1052,6 +1265,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPriorityWindowSecs(
+      _priorityWindowSecs: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
