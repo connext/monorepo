@@ -1,5 +1,6 @@
 [
   "constructor(address,address,address,address,address,address,uint256,address[],uint32,address[],uint32[])",
+  "error InvalidChain(uint32)",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
   "error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed()",
