@@ -143,7 +143,7 @@ contract OptimismHubConnectorTest is ConnectorHelper {
     uint256 _gasLimit = 0;
     uint256 _nonce = 104500;
     bytes32 _root = bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757);
-    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(_root));
+    bytes memory _calldata = abi.encode(_root);
     bytes memory _encodedData = abi.encodeWithSignature(
       "relayMessage(uint256,address,address,uint256,uint256,bytes)",
       _nonce,
