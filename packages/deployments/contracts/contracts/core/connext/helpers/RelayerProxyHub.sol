@@ -138,9 +138,6 @@ contract RelayerProxyHub is RelayerProxy {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
 
-  // ============ Errors ============
-  error InvalidChain(uint32 chainId);
-
   // ============ Constructor ============
 
   /**
@@ -373,7 +370,5 @@ contract RelayerProxyHub is RelayerProxy {
     if (fromChain == 137 || fromChain == 80001) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
     }
-
-    revert InvalidChain(fromChain);
   }
 }
