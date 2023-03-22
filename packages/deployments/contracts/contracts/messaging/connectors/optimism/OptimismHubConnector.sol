@@ -89,6 +89,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
 
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+    emit MessageProcessed(_message, msg.sender);
   }
 
   /**
