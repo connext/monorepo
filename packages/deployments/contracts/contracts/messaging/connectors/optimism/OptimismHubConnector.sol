@@ -79,8 +79,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     require(_target == address(this), "!target");
 
     // get the data
-    // the _message should be the `HubConnector.processMessage(bytes memory)` calldata (100 bytes):
-    //   abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(bytes32(root)))
+    // _message = abi.encodePacked(bytes32(root))
     require(_message.length == 32, "!length");
     bytes32 root = bytes32(_message);
 
