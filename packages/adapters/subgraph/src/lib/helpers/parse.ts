@@ -74,10 +74,10 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       relayerFees[relayerFee.asset] = relayerFee.fee;
     }
   } else {
-    // TODO: Remove after relayer fee upgrade is completed on mainnet
+    // TODO: Remove after all routers support multiple relayer fee assets
     // INFO: https://github.com/connext/monorepo/issues/3811
     // Handle entity from previous subgraph for backwards compatibility
-    relayerFees[transactingAsset] = entity?.relayerFee ?? "0";
+    relayerFees[constants.AddressZero] = entity?.relayerFee ?? "0";
   }
 
   return {

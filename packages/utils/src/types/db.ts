@@ -72,7 +72,7 @@ export const transfersCastForUrl =
     "execute_simulation_network",
   ].join(",");
 
-// TODO: Remove after relayer fee upgrade is completed on mainnet
+// TODO: Remove after all routers support multiple relayer fee assets
 // INFO: https://github.com/connext/monorepo/issues/3811
 // Handle entity from previous DB schema for backwards compatibility
 export const transfersCastForUrlFallback =

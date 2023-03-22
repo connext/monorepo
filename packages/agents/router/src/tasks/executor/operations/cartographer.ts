@@ -79,7 +79,7 @@ export const getReconciledTransactions = async (param: {
   const rangeIdentifier = `&limit=${pageSize}&offset=${offset}`;
   const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + timeIdentifier + rangeIdentifier);
 
-  // TODO: Remove after relayer fee upgrade is completed on mainnet
+  // TODO: Remove after all routers support multiple relayer fee assets
   // INFO: https://github.com/connext/monorepo/issues/3811
   // Handle entity from previous DB schema for backwards compatibility
   const timeIdentifierFallback = `&${transfersCastForUrlFallback}&next_execution_timestamp=lt.${getNtpTimeSeconds()}`;
