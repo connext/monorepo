@@ -252,6 +252,44 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#removeLiquidityImbalance", () => {
+    const mockParams = {
+      canonicalId: utils.formatBytes32String("0"),
+      amounts: ["100", "100"],
+      maxBurnAmount: "100",
+      deadline: 10000000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
+    };
+
+    it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
+      const data = getConnextInterface().encodeFunctionData("removeSwapLiquidityImbalance", [
+        key,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+      ]);
+
+      const mockRequest: providers.TransactionRequest = {
+        to: mockParams.connextAddress,
+        data,
+      };
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").resolves(0);
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+      );
+      expect(res).to.be.deep.eq(mockRequest);
+    });
+  });
+
   describe("#swap", () => {
     const mockParams = {
       canonicalId: utils.formatBytes32String("0"),
