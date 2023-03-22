@@ -42,7 +42,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "1.6.9"
+    "@eth-optimism/sdk": "2.0.1"
   },
   "devDependencies": {
     "@arbitrum/sdk": "3.0.0-beta.12",
