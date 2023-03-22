@@ -3,26 +3,18 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/optimism/IStateCommitmentChain.sol";
-
-import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
+import {IOptimismPortal} from "../../interfaces/ambs/optimism/IOptimismPortal.sol";
 
 import {HubConnector} from "../HubConnector.sol";
 import {Connector} from "../Connector.sol";
 
-import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
-import {OVMCodec} from "./lib/OVMCodec.sol";
-import {SecureMerkleTrie} from "./lib/SecureMerkleTrie.sol";
+import {Types} from "./lib/Types.sol";
 
 import {BaseOptimism} from "./BaseOptimism.sol";
 
 contract OptimismHubConnector is HubConnector, BaseOptimism {
-  // ============ Libraries ============
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-
   // ============ Storage ============
-  IStateCommitmentChain public immutable stateCommitmentChain;
+  IOptimismPortal public immutable OPTIMISM_PORTAL;
 
   // NOTE: This is needed because we need to track the roots we've
   // already sent across chains. When sending an optimism message, we send calldata
@@ -38,10 +30,10 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    address _stateCommitmentChain,
+    address _optimismPortal,
     uint256 _gasCap
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseOptimism(_gasCap) {
-    stateCommitmentChain = IStateCommitmentChain(_stateCommitmentChain);
+    OPTIMISM_PORTAL = IOptimismPortal(_optimismPortal);
   }
 
   // ============ Override Fns ============
@@ -52,7 +44,7 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
+  function _sendMessage(bytes memory _data, bytes memory) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
@@ -61,133 +53,96 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(gasCap));
   }
 
-  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
-  // `processMessageFromRoot` flow.
-
   /**
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L165
+   * @dev modified from: OptimismPortal contract
+   * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
    */
   function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
+    Types.WithdrawalTransaction memory _tx,
+    uint256 _l2OutputIndex,
+    Types.OutputRootProof calldata _outputRootProof,
+    bytes[] calldata _withdrawalProof
   ) external {
-    // verify the sender is the l2 contract
-    require(_sender == mirrorConnector, "!mirrorConnector");
+    OPTIMISM_PORTAL.proveWithdrawalTransaction(_tx, _l2OutputIndex, _outputRootProof, _withdrawalProof);
 
-    // verify the target is this contract
-    require(_target == address(this), "!this");
+    // Extract the argument from the data
+    // uint256 _nonce,
+    // address _sender,
+    // address _target,
+    // uint256 _value,
+    // uint256 _minGasLimit,
+    // bytes memory _message
+    (, address _sender, address _target, , , bytes memory _message) = decodeCrossDomainMessageV1(_tx.data);
 
-    // Get the encoded data
-    bytes memory xDomainData = _encodeXDomainCalldata(_target, _sender, _message, _messageNonce);
+    // ensure the l2 connector sent the message
+    require(_sender == mirrorConnector, "!mirror connector");
+    require(_target == address(this), "!target");
 
-    require(_verifyXDomainMessage(xDomainData, _proof), "!proof");
+    // get the data
+    // _message = abi.encodePacked(bytes32(root))
+    require(_message.length == 32, "!length");
+    bytes32 root = bytes32(_message);
 
-    // NOTE: optimism seems to pad the calldata sent in to include more than the expected
-    // 36 bytes, i.e. in this transaction:
-    // https://blockscout.com/optimism/goerli/tx/0x440fda036d28eb547394a8689af90c5342a00a8ca2ab5117f2b85f54d1416ddd/logs
-    // the corresponding _message is:
-    // 0x4ff746f60000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002027ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757
-    //
-    // this means the length check and byte parsing used in the `ArbitrumHubConnector` would
-    // not work here. Instead, take the back 32 bytes of the string
+    require(!processed[root], "processed");
+    // set root to processed
+    processed[root] = true;
 
-    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
-    bytes29 _view = _message.ref(0);
-    bytes32 root = _view.index(_view.len() - 32, 32);
-
-    if (!processed[root]) {
-      // set root to processed
-      processed[root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
-
-      emit MessageProcessed(abi.encode(root), msg.sender);
-    } // otherwise root was already sent to root manager
+    // update the root on the root manager
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+    emit MessageProcessed(_message, msg.sender);
   }
 
   /**
-   * Verifies that the given message is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L283-L288
-   * @param _xDomainCalldata Calldata to verify.
-   * @param _proof Inclusion proof for the message.
-   * @return Whether or not the provided message is valid.
+   * @notice Encodes a cross domain message based on the V1 (current) encoding.
+   *
+   * @param _encodedData cross domain message.
+   * @return _nonce    Message nonce.
+   * @return _sender   Address of the sender of the message.
+   * @return _target   Address of the target of the message.
+   * @return _value    ETH value to send to the target.
+   * @return _gasLimit Gas limit to use for the message.
+   * @return _data     Data to send with the message.
+   *
    */
-  function _verifyXDomainMessage(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
-    internal
-    view
-    returns (bool)
-  {
-    return (_verifyStateRootProof(_proof) && _verifyStorageProof(_xDomainCalldata, _proof));
-  }
-
-  /**
-   * Verifies that the state root within an inclusion proof is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L295-L311
-   * @param _proof Message inclusion proof.
-   * @return Whether or not the provided proof is valid.
-   */
-  function _verifyStateRootProof(L2MessageInclusionProof memory _proof) internal view returns (bool) {
-    return
-      stateCommitmentChain.verifyStateCommitment(_proof.stateRoot, _proof.stateRootBatchHeader, _proof.stateRootProof);
-  }
-
-  /**
-   * Verifies that the storage proof within an inclusion proof is valid.
-   * @dev modified from: https://github.com/ethereum-optimism/optimism/blob/9973c1da3211e094a180a8a96ba9f8bb1ab1b389/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol#L313-L357
-   * @param _xDomainCalldata Encoded message calldata.
-   * @param _proof Message inclusion proof.
-   * @return Whether or not the provided proof is valid.
-   */
-  function _verifyStorageProof(bytes memory _xDomainCalldata, L2MessageInclusionProof memory _proof)
+  function decodeCrossDomainMessageV1(
+    bytes memory _encodedData
+  )
     internal
     pure
-    returns (bool)
+    returns (uint256 _nonce, address _sender, address _target, uint256 _value, uint256 _gasLimit, bytes memory _data)
   {
-    bytes32 storageKey = keccak256(
-      abi.encodePacked(
-        keccak256(abi.encodePacked(_xDomainCalldata, PredeployAddresses.L2_CROSS_DOMAIN_MESSENGER)),
-        uint256(0)
-      )
+    bytes4 selector = bytes4(0);
+    assembly {
+      selector := mload(add(_encodedData, 32))
+    }
+
+    // Make sure the function selector matches
+    require(selector == bytes4(keccak256("relayMessage(uint256,address,address,uint256,uint256,bytes)")), "!selector");
+
+    uint256 start = 4;
+    uint256 len = _encodedData.length - start;
+    bytes memory sliced = new bytes(len);
+
+    assembly {
+      // Get the memory pointer to the start of the original data
+      let src := add(_encodedData, add(32, start))
+      // Get the memory pointer to the start of the new sliced data
+      let dest := add(sliced, 32)
+
+      // Copy the data from src to dest
+      for {
+        let i := 0
+      } lt(i, len) {
+        i := add(i, 32)
+      } {
+        mstore(add(dest, i), mload(add(src, i)))
+      }
+    }
+
+    // Extract the argument from the data
+    (_nonce, _sender, _target, _value, _gasLimit, _data) = abi.decode(
+      sliced,
+      (uint256, address, address, uint256, uint256, bytes)
     );
-
-    (bool exists, bytes memory encodedMessagePassingAccount) = SecureMerkleTrie.get(
-      abi.encodePacked(PredeployAddresses.L2_TO_L1_MESSAGE_PASSER),
-      _proof.stateTrieWitness,
-      _proof.stateRoot
-    );
-
-    require(exists == true, "Message passing predeploy has not been initialized or invalid proof provided.");
-
-    OVMCodec.EVMAccount memory account = OVMCodec.decodeEVMAccount(encodedMessagePassingAccount);
-
-    return
-      SecureMerkleTrie.verifyInclusionProof(
-        abi.encodePacked(storageKey),
-        abi.encodePacked(uint8(1)),
-        _proof.storageTrieWitness,
-        account.storageRoot
-      );
-  }
-
-  /**
-   * Generates the correct cross domain calldata for a message.
-   * @dev taken from: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/libraries/bridge/Lib_CrossDomainUtils.sol
-   * @param _target Target contract address.
-   * @param _sender Message sender address.
-   * @param _message Message to send to the target.
-   * @param _messageNonce Nonce for the provided message.
-   * @return ABI encoded cross domain calldata.
-   */
-  function _encodeXDomainCalldata(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce
-  ) internal pure returns (bytes memory) {
-    return
-      abi.encodeWithSignature("relayMessage(address,address,bytes,uint256)", _target, _sender, _message, _messageNonce);
   }
 }

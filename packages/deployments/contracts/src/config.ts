@@ -1,5 +1,8 @@
 import { utils } from "ethers";
+import { config as dotenvConfig } from "dotenv";
 import { NetworkUserConfig } from "hardhat/types";
+
+dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
   mainnet: [1, 10, 56, 100, 137, 42161],
