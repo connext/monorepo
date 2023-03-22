@@ -44,8 +44,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
+  uint32 public priorityWindowSecs;
 
   mapping(address => bool) public allowedRelayer;
+  mapping(address => bool) public priorityKeepers;
 
   // ============ Modifier ============
 
@@ -123,7 +125,31 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   event FeeCollectorChanged(address updated, address previous);
 
+  /**
+   * @notice Emitted when Keep3r address is updated by admin
+   * @param keep3r New Keep3r address in the contract
+   * @param oldKeep3r Old Keep3r address in the contract
+   */
   event Keep3rChanged(address keep3r, address oldKeep3r);
+
+  /**
+   * @notice Emitted when a new priority keeper is added by admin
+   * @param keeper Address of the added priority keeper
+   */
+  event PriorityKeeperAdded(address keeper);
+
+  /**
+   * @notice Emitted when a priority keeper is removed by admin
+   * @param keeper Address of the removed priority keeper
+   */
+  event PriorityKeeperRemoved(address keeper);
+
+  /**
+   * @notice Emitted when the priority window is updated by admin
+   * @param secs New priority window in seconds
+   * @param oldSecs Old priority window in seconds
+   */
+  event PriorityWindowSecsChanged(uint32 secs, uint32 oldSecs);
 
   // ============ Constructor ============
 
@@ -139,7 +165,9 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     address _spokeConnector,
     address _gelatoRelayer,
     address _feeCollector,
-    address _keep3r
+    address _keep3r,
+    address[] memory _priorityKeepers,
+    uint32 _priorityWindowSecs
   ) ProposedOwnable() {
     _setOwner(msg.sender);
     _setConnext(_connext);
@@ -149,6 +177,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setKeep3r(_keep3r);
 
     _addRelayer(_gelatoRelayer);
+
+    for (uint256 i = 0; i < _priorityKeepers.length; i++) {
+      _addPriorityKeeper(_priorityKeepers[i]);
+    }
   }
 
   // ============ Admin Functions ============
@@ -207,8 +239,40 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setFeeCollector(_feeCollector);
   }
 
+  /**
+   * @notice Updates the Keep3r contract address on this contract.
+   *
+   * @param _keep3r - New Keep3r contract address.
+   */
   function setKeep3r(address _keep3r) external onlyOwner definedAddress(_keep3r) {
     _setKeep3r(_keep3r);
+  }
+
+  /**
+   * @notice Adds a priority keeper.
+   *
+   * @param _keeper - New Keep3r contract address.
+   */
+  function addKeeper(address _keeper) external onlyOwner definedAddress(_keeper) {
+    _addPriorityKeeper(_keeper);
+  }
+
+  /**
+   * @notice Removes a priority keeper.
+   *
+   * @param _keeper - New Keep3r contract address.
+   */
+  function removeKeeper(address _keeper) external onlyOwner definedAddress(_keeper) {
+    _removePriorityKeeper(_keeper);
+  }
+
+  /**
+   * @notice Updates the priority window in seconds.
+   *
+   * @param _priorityWindowSecs - New priority window in seconds.
+   */
+  function setPriorityWindowSecs(uint32 _priorityWindowSecs) external onlyOwner {
+    _setPriorityWindowSecs(_priorityWindowSecs);
   }
 
   /**
@@ -333,5 +397,20 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setKeep3r(address _keep3r) internal {
     emit Keep3rChanged(_keep3r, address(keep3r));
     keep3r = IKeep3rV2(_keep3r);
+  }
+
+  function _addPriorityKeeper(address _priorityKeeper) internal {
+    emit PriorityKeeperAdded(_priorityKeeper);
+    priorityKeepers[_priorityKeeper] = true;
+  }
+
+  function _removePriorityKeeper(address _priorityKeeper) internal {
+    emit PriorityKeeperRemoved(_priorityKeeper);
+    priorityKeepers[_priorityKeeper] = false;
+  }
+
+  function _setPriorityWindowSecs(uint32 _priorityWindowSecs) internal {
+    emit PriorityWindowSecsChanged(_priorityWindowSecs, priorityWindowSecs);
+    priorityWindowSecs = _priorityWindowSecs;
   }
 }

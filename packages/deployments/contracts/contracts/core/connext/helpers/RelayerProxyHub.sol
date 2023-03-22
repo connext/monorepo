@@ -208,18 +208,45 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   // Returns a boolean that indicates if a job is workable or not.
+  // Gives the priority keeper a window to work the job before other relayers.
   function propagateWorkable() public view returns (bool _isWorkable) {
+    return block.timestamp > (lastPropagateAt + propagateCooldown + priorityWindowSecs);
+  }
+
+  // Returns a boolean that indicates if a job is workable or not by a priority keeper.
+  function propagateWorkableByPriorityKeeper() public view returns (bool _isWorkable) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
   }
 
+  /**
+   * @notice Wraps the call to propagate() on RootManager and pays with Keep3r credits. Only allowed to be called
+   * by registered Keep3r.
+   *
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
+   * @param _messageFees Array of fees in native token for an AMB if required
+   * @param _encodedData Array of encodedData: extra params for each AMB if required
+   */
   function propagateKeep3r(
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
   ) external validateAndPayWithCredits(msg.sender) nonReentrant {
-    require(propagateWorkable(), "Job is not workable");
+    if (priorityKeepers[msg.sender] == true) {
+      require(propagateWorkableByPriorityKeeper(), "Job is not workable");
+    } else {
+      require(propagateWorkable(), "Job is not workable");
+    }
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
+  }
+
+  function processFromRootKeep3r(
+    bytes calldata _encodedData,
+    uint32 _fromChain,
+    bytes32 _l2Hash
+  ) external validateAndPayWithCredits(msg.sender) {
+    _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 
   // ============ Internal Functions ============
@@ -238,6 +265,9 @@ contract RelayerProxyHub is RelayerProxy {
     hubConnectors[chain] = _hubConnector;
   }
 
+  /**
+   * @notice Calls propagate function on RootManager.
+   */
   function _propagate(
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
@@ -256,6 +286,10 @@ contract RelayerProxyHub is RelayerProxy {
     return sum;
   }
 
+  /**
+   * @notice Calls processFromRoot function on RootManager.
+   * Decodes the encodedData and calls the appropriate HubConnector function.
+   */
   function _processFromRoot(bytes calldata encodedData, uint32 fromChain, bytes32 l2Hash) internal {
     require(!processedRootMessages[fromChain][l2Hash], "Already processed");
     require(hubConnectors[fromChain] != address(0), "No hub connector");
