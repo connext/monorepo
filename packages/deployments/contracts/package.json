@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "1.2.0-alpha.0",
+  "version": "1.2.0-alpha.1",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
@@ -41,10 +41,12 @@
   ],
   "author": "Connext",
   "license": "ISC",
+  "dependencies": {
+    "@eth-optimism/sdk": "1.6.9"
+  },
   "devDependencies": {
     "@arbitrum/sdk": "3.0.0-beta.12",
     "@connext/nxtp-utils": "workspace:*",
-    "@eth-optimism/sdk": "1.6.9",
     "@gelatonetwork/relay-context": "2.1.0",
     "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
     "@matterlabs/hardhat-zksync-solc": "^0.3.14",
