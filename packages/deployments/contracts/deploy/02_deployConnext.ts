@@ -192,6 +192,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
+  // const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
@@ -227,6 +228,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         rootManager.address,
         KEEP3R_ADDRESSES[network.chainId],
         PROPAGATE_COOLDOWN,
+        [],
+        60,
         hubConnectors,
         chains,
       ],
