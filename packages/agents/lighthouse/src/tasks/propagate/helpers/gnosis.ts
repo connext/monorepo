@@ -1,5 +1,5 @@
 import { ContractInterface, utils } from "ethers";
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, getBestProvider, RequestContext } from "@connext/nxtp-utils";
 
 import { getContract, getJsonRpcProvider } from "../../../mockable";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
@@ -20,12 +20,12 @@ export const getPropagateParams = async (
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for Gnosis", requestContext, methodContext, { l2domain });
 
-  const l2RpcUrl = config.chains[l2domain]?.providers[0];
+  const l2RpcUrl = getBestProvider(config.chains[l2domain]?.providers);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+  const l1RpcUrl = getBestProvider(config.chains[config.hubDomain]?.providers);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }

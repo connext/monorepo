@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, getBestProvider, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
@@ -20,14 +20,14 @@ export const getPropagateParams = async (
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for Arbitrum", requestContext, methodContext, { l2domain });
-  const l2RpcUrl = config.chains[l2domain]?.providers[0];
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+  const l1RpcUrl = getBestProvider(config.chains[config.hubDomain]?.providers);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
