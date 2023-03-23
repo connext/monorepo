@@ -188,10 +188,18 @@ contract RelayerProxyHub is RelayerProxy {
     _setRootManager(_rootManager);
   }
 
+  /**
+   * @notice Updates the propagate cooldown.
+   * @param _propagateCooldown The new cooldown in seconds.
+   */
   function setPropagateCooldown(uint256 _propagateCooldown) external onlyOwner {
     _setPropagateCooldown(_propagateCooldown);
   }
 
+  /**
+   * @notice Updates the HubConnector address.
+   * @param _hubConnector The address of the new HubConnector on this domain.
+   */
   function setHubConnector(address _hubConnector, uint32 _chain) external onlyOwner definedAddress(_hubConnector) {
     _setHubConnector(_hubConnector, _chain);
   }
