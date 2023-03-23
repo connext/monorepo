@@ -119,6 +119,9 @@ export class SdkBase extends SdkShared {
    * ```ts
    * // call SdkBase.create(), instantiate a signer
    *
+   *
+   * [case 1] If a user wants to pay a fee in the native asset, you can put params for `xcall` method as the following.
+   *
    * const params = {
    *   origin: "6648936"
    *   destination: "1869640809"
@@ -128,12 +131,27 @@ export class SdkBase extends SdkShared {
    *   amount: "1000000"
    *   slippage: "300"
    *   callData: "0x",
-   *   relayerFee: "10000000000000"
+   *   relayerFee: "10000000000000" // relayer fee in native asset
+   * };
+   *
+   *
+   * [case 2] If a user wants to pay a fee in the transacting asset,
+   *
+   * const params = {
+   *   origin: "6648936"
+   *   destination: "1869640809"
+   *   to: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   asset: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+   *   delegate: "0x3cEe6c5c0fB713925BdA590829EA574b7b4f96b6"
+   *   amount: "1000000"
+   *   slippage: "300"
+   *   callData: "0x",
+   *   relayerFeeInTransactingAsset: "10000000000000" // relayer fee in transacting asset
    * };
    *
    * const txRequest = sdkBase.xcall(params);
    * signer.sendTransaction(txRequest);
-   * ```
+   *
    */
   async xcall(params: SdkXCallParams): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
@@ -148,6 +166,7 @@ export class SdkBase extends SdkShared {
       amount: _amount,
       slippage: _slippage,
       relayerFee: _relayerFee,
+      relayerFeeInTransactingAsset: _relayerFeeInTransactingAsset,
       receiveLocal: _receiveLocal,
       wrapNativeOnOrigin,
       unwrapNativeOnDestination,
@@ -161,8 +180,11 @@ export class SdkBase extends SdkShared {
     const amount = _amount ?? "0";
     const amountBN = BigNumber.from(amount);
     const slippage = _slippage ?? "10000";
-    const relayerFee = _relayerFee ?? "0";
-    const relayerFeeBN = BigNumber.from(relayerFee);
+    const relayerFeeInTransactingAsset = _relayerFeeInTransactingAsset
+      ? BigNumber.from(_relayerFeeInTransactingAsset)
+      : constants.Zero;
+    const relayerFeeInNativeAsset = _relayerFee ? BigNumber.from(_relayerFee) : constants.Zero;
+
     const receiveLocal = _receiveLocal ?? false;
 
     // Ensure signer is provided.
@@ -228,18 +250,47 @@ export class SdkBase extends SdkShared {
 
     // Take the finalized xcall arguments and encode calldata.
     // NOTE: Using a tuple here to satisfy compiler for `encodeFunctionData` call below.
-    const formattedArguments: [string, string, string, string, BigNumber, string, string] = [
-      destination,
-      to,
-      asset,
-      delegate,
-      amountBN,
-      slippage,
-      callData,
-    ];
-    const xcallData = receiveLocal
-      ? this.contracts.connext.encodeFunctionData("xcallIntoLocal", formattedArguments)
-      : this.contracts.connext.encodeFunctionData("xcall", formattedArguments);
+    let xcallData: string;
+    if (relayerFeeInTransactingAsset.gt(0)) {
+      const formattedArguments: [string, string, string, string, BigNumber, string, string, string] = [
+        destination,
+        to,
+        asset,
+        delegate,
+        amountBN,
+        slippage,
+        callData,
+        relayerFeeInTransactingAsset.toString(),
+      ];
+      xcallData = receiveLocal
+        ? this.contracts.connext.encodeFunctionData(
+            "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+            formattedArguments,
+          )
+        : this.contracts.connext.encodeFunctionData(
+            "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+            formattedArguments,
+          );
+    } else {
+      const formattedArguments: [string, string, string, string, BigNumber, string, string] = [
+        destination,
+        to,
+        asset,
+        delegate,
+        amountBN,
+        slippage,
+        callData,
+      ];
+      xcallData = receiveLocal
+        ? this.contracts.connext.encodeFunctionData(
+            "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+            formattedArguments,
+          )
+        : this.contracts.connext.encodeFunctionData(
+            "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+            formattedArguments,
+          );
+    }
 
     let txRequest: providers.TransactionRequest;
     if (wrapNativeOnOrigin) {
@@ -273,36 +324,45 @@ export class SdkBase extends SdkShared {
       txs.push({
         to: connextContractAddress,
         data: xcallData,
-        value: relayerFeeBN,
+        value: relayerFeeInNativeAsset,
       });
 
       // 5. Format Multisend call in an ethers TransactionRequest object.
       txRequest = {
         to: multisendContractAddress,
-        value: amountBN.add(relayerFeeBN), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
+        value: amountBN.add(relayerFeeInNativeAsset), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
         from: signerAddress,
         chainId,
       };
     } else {
       // Add callback and relayer fee together to get the total ETH value that should be sent.
-      const value = relayerFeeBN;
+      const value = relayerFeeInNativeAsset;
 
       // Format the ethers TransactionRequest object.
-      txRequest = {
-        to: connextContractAddress,
-        value,
-        data: xcallData,
-        from: signerAddress,
-        chainId,
-      };
+      if (relayerFeeInNativeAsset.gt(0)) {
+        txRequest = {
+          to: connextContractAddress,
+          value,
+          data: xcallData,
+          from: signerAddress,
+          chainId,
+        };
+      } else {
+        txRequest = {
+          to: connextContractAddress,
+          data: xcallData,
+          from: signerAddress,
+          chainId,
+        };
+      }
     }
 
     this.logger.info("XCall transaction formatted.", requestContext, methodContext, {
       args: { ...params, callData, delegate },
       to: txRequest.to,
       from: txRequest.from,
-      value: txRequest.value?.toString(),
+      value: txRequest.value ? txRequest.value.toString() : "0",
     });
 
     return txRequest;
@@ -428,6 +488,7 @@ export class SdkBase extends SdkShared {
    * @param params - SdkBumpTransferParams object.
    * @param params.domainId - The origin domain ID of the transfer.
    * @param params.transferId - The transfer ID.
+   * @param params.asset - The asset address you want to pay in.
    * @param params.relayerFee - The additional relayer fee to increase the transfer by, in native gas token.
    * @returns providers.TransactionRequest object.
    *
@@ -438,6 +499,7 @@ export class SdkBase extends SdkShared {
    * const params = {
    *   domainId: "6648936",
    *   transferId: "0xdd252f58a45dc78fee1ac12a628782bda6a98315b286aadf76e4d7322bf135ca",
+   *   asset: "0x0000000000000000000000000000000000000000" // can be either native asset or transacting asset
    *   relayerFee: "10000",
    * };
    *
@@ -454,7 +516,7 @@ export class SdkBase extends SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domainId, transferId, relayerFee } = params;
+    const { domainId, transferId, asset, relayerFee } = params;
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
@@ -475,17 +537,31 @@ export class SdkBase extends SdkShared {
     const ConnextContractAddress = (await this.getConnext(domainId)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
-    const value = BigNumber.from(relayerFee);
+    const value = asset == constants.AddressZero ? BigNumber.from(relayerFee) : constants.Zero;
+    const data =
+      asset == constants.AddressZero
+        ? this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32)", [transferId])
+        : this.contracts.connext.encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+            transferId,
+            asset,
+            relayerFee,
+          ]);
 
-    const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
-
-    const txRequest = {
-      to: ConnextContractAddress,
-      value,
-      data,
-      from: signerAddress,
-      chainId,
-    };
+    const txRequest =
+      asset == constants.AddressZero
+        ? {
+            to: ConnextContractAddress,
+            value,
+            data,
+            from: signerAddress,
+            chainId,
+          }
+        : {
+            to: ConnextContractAddress,
+            data,
+            from: signerAddress,
+            chainId,
+          };
 
     this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
 
@@ -493,16 +569,17 @@ export class SdkBase extends SdkShared {
   }
 
   /**
-   * Calculates an estimated relayer fee in the native asset of the origin domain to be used in xcall.
+   * Calculates an estimated relayer fee in either the native asset of the origin domain or the USD price to be used in xcall.
    *
    * @param params - SdkEstimateRelayerFeeParams object.
    * @param params.originDomain - The origin domain ID of the transfer.
    * @param params.destinationDomain - The destination domain ID of the transfer.
+   * @param params.priceIn - `native` or `usd`, the currency to return the relayer fee in.`
    * @param params.callDataGasAmount - (optional) The gas amount needed for calldata.
-   * @param params.originNativetokenPrice - (optional) The USD price of the origin native token.
+   * @param params.originNativeTokenPrice - (optional) The USD price of the origin native token.
    * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
    * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
-   * @returns The relayer fee in native asset of the origin domain.
+   * @returns The relayer fee in either native asset of the origin domain or USD (18 decimal fidelity).
    *
    * @example
    * ```ts

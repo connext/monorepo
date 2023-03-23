@@ -3,7 +3,9 @@ pragma solidity 0.8.17;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ForgeHelper} from "../utils/ForgeHelper.sol";
+import {Deployer} from "./Deployer.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+import {IDiamondLoupe} from "../../contracts/core/connext/interfaces/IDiamondLoupe.sol";
 import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
 
 import "forge-std/console.sol";
@@ -22,17 +24,15 @@ abstract contract MotherForker is ForgeHelper {
 
   // ============ Storage ============
 
-  string[2][] public NETWORKS; // [[name, rpc], [name, rpc], ...]
-  uint256[] public FORKED_CHAIN_IDS;
+  // All chain ids to fork
+  uint256[] public NETWORK_IDS;
 
   // Hardcode the path to the file
   string public PROPOSAL_FILE_PATH = "/cuts.json";
-  // Hardcode the chains to fork based on env
-  // key is keccak of chain id as string
-  mapping(bytes32 => bool) public isForkedChain;
 
   mapping(uint256 => uint256) public forkIdsByChain;
   mapping(uint256 => uint256) public chainsByForkId;
+  mapping(uint256 => string) public forkRpcsByChain;
 
   struct ForkInfo {
     address connext;
@@ -42,23 +42,14 @@ abstract contract MotherForker is ForgeHelper {
   mapping(uint256 => ForkInfo) public forkInfo;
 
   // ============ Utils ==================
+
   /**
    * @notice Create a fork for each network.
    */
   function utils_createForks() private {
-    NETWORKS = vm.rpcUrls();
-    // get the block for the fork
     string memory json = utils_readProposalJson();
-    for (uint256 i; i < NETWORKS.length; i++) {
-      // before creating a fork, check if it is whitelisted
-      bytes32 key = keccak256(abi.encode(NETWORKS[i][0]));
-      if (!isForkedChain[key]) {
-        continue;
-      }
-      // get the block to fork from
-      string memory blockKey = string.concat(".", NETWORKS[i][0], ".forkBlock");
-      uint256 start = json.readUint(blockKey);
-      uint256 forkId = vm.createSelectFork(NETWORKS[i][1], start);
+    for (uint256 i; i < NETWORK_IDS.length; i++) {
+      uint256 forkId = vm.createSelectFork(forkRpcsByChain[NETWORK_IDS[i]]);
       // update the mappings
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;
@@ -74,6 +65,43 @@ abstract contract MotherForker is ForgeHelper {
     vm.selectFork(forkId);
   }
 
+  function utils_loadNetworkFromJson() private {
+    string memory json = utils_readProposalJson();
+    uint256[] memory chains = json.readUintArray(".chains");
+    string[] memory rpcs = json.readStringArray(".rpcs");
+    // FIXME: forking from gnosis mainnet gives this internal forge error:
+    //
+    // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
+    // (code: -32002, message: No state available for block 0x0ba985b09fec8fd02467a9dbfe0cbd6546a96e897c0576125e17896641b29b8d,
+    //  data: None)) address=0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38
+    //
+    // where the `0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38` is the `DEFAULT_SENDER` forge address found in
+    // Base.sol. Need to debug/report to figure out why this is failing.
+    //
+    // In the meantime, we can just skip this chain
+    uint256 gnosisIdx = 10_000;
+    for (uint256 i; i < chains.length; i++) {
+      // see above
+      if (chains[i] == 100) {
+        // set the idx
+        gnosisIdx = i;
+      }
+      // Add to networks
+      NETWORK_IDS.push(chains[i]);
+      forkRpcsByChain[chains[i]] = rpcs[i];
+    }
+
+    // Put gnosis chain last, and remove from array
+    if (gnosisIdx != 10_000) {
+      // remove from rpcs mapping
+      delete forkRpcsByChain[chains[gnosisIdx]];
+
+      // remove from chain ids array
+      NETWORK_IDS[gnosisIdx] = NETWORK_IDS[NETWORK_IDS.length - 1];
+      NETWORK_IDS.pop();
+    }
+  }
+
   /**
    * @notice Generate the diamond cut proposal by running `propose` via cli:
    *     `ywc propose`
@@ -86,39 +114,8 @@ abstract contract MotherForker is ForgeHelper {
     args[3] = "propose";
     vm.ffi(args);
 
-    // load the supported chains based on output
-    string memory json = utils_readProposalJson();
-    uint256[] memory chains = json.readUintArray(".chains");
-    // FIXME: forking from gnosis mainnet gives this internal forge error:
-    //
-    // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
-    // (code: -32002, message: No state available for block 0x0ba985b09fec8fd02467a9dbfe0cbd6546a96e897c0576125e17896641b29b8d,
-    //  data: None)) address=0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38
-    //
-    // where the `0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38` is the `DEFAULT_SENDER` forge address found in
-    // Base.sol. Need to debug/report to figure out why this is failing.
-    //
-    // In the meantime, we can just skip this chain
-    uint256 gnosisIdx = 10_000;
-    FORKED_CHAIN_IDS = new uint256[](chains.length);
-    for (uint256 i; i < chains.length; i++) {
-      // see above
-      if (chains[i] == 100) {
-        // set the idx
-        gnosisIdx = i;
-      }
-      FORKED_CHAIN_IDS[i] = chains[i];
-      if (i != gnosisIdx) {
-        bytes32 key = keccak256(abi.encode(chains[i].toString()));
-        isForkedChain[key] = true;
-      }
-    }
-
-    // Put gnosis chain last, and remove from array
-    if (gnosisIdx != 10_000) {
-      FORKED_CHAIN_IDS[gnosisIdx] = FORKED_CHAIN_IDS[FORKED_CHAIN_IDS.length - 1];
-      FORKED_CHAIN_IDS.pop();
-    }
+    // Load the chain ids and the network rpcs
+    utils_loadNetworkFromJson();
   }
 
   /**
@@ -131,6 +128,14 @@ abstract contract MotherForker is ForgeHelper {
     return json;
   }
 
+  function utils_generateCuts(uint256 forkId) private {
+    // switch to active fork
+    vm.selectFork(forkId);
+    // Get existing facets
+    address connext = forkInfo[forkId].connext;
+    IDiamondLoupe.Facet[] memory existing = IConnext(connext).facets();
+  }
+
   /**
    * @notice Loads the forkInfo (connext address and proposed cuts) from the proposal file
    * @dev Should be called after utils_generateProposalFile + utils_createForks
@@ -138,8 +143,10 @@ abstract contract MotherForker is ForgeHelper {
   function utils_loadForkInfo() private {
     string memory json = utils_readProposalJson();
 
-    for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
-      uint256 chainId = FORKED_CHAIN_IDS[i];
+    // Find all the facets that must be deployed from the json
+
+    for (uint256 i; i < NETWORK_IDS.length; i++) {
+      uint256 chainId = NETWORK_IDS[i];
       uint256 forkId = forkIdsByChain[chainId];
 
       // update connext address
@@ -198,7 +205,7 @@ abstract contract MotherForker is ForgeHelper {
     utils_generateProposalFile();
     // make sure the forks are created
     utils_createForks();
-    // load the fork info into
+    // load the fork info into mapping
     utils_loadForkInfo();
   }
 
@@ -206,8 +213,8 @@ abstract contract MotherForker is ForgeHelper {
    * @notice This function applies the upgrades to all Connext instances across all forks
    */
   function utils_upgradeDiamonds() internal {
-    for (uint256 i; i < FORKED_CHAIN_IDS.length; i++) {
-      uint256 forkId = forkIdsByChain[FORKED_CHAIN_IDS[i]];
+    for (uint256 i; i < NETWORK_IDS.length; i++) {
+      uint256 forkId = forkIdsByChain[NETWORK_IDS[i]];
       vm.selectFork(forkId);
       utils_upgradeDiamond(forkId);
     }
@@ -232,10 +239,10 @@ abstract contract MotherForker is ForgeHelper {
     vm.prank(connext.owner());
     connext.proposeDiamondCut(cuts, address(0), bytes(""));
 
-    // roll forward and accept
+    // roll forward and accept if needed
     uint256 acceptance = connext.getAcceptanceTime(cuts, address(0), bytes(""));
     while (block.timestamp < acceptance) {
-      vm.rollFork(forkId, 43200 + block.number);
+      vm.rollFork(forkId, 3000 + block.number);
     }
     vm.prank(connext.owner());
     connext.diamondCut(cuts, address(0), bytes(""));

@@ -6,6 +6,7 @@ import {
   formatUrl,
   convertFromDbTransfer,
   transfersCastForUrl,
+  transfersCastForUrlFallback,
   getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
@@ -77,8 +78,18 @@ export const getReconciledTransactions = async (param: {
   const timeIdentifier = `&${transfersCastForUrl}&next_execution_timestamp=lt.${getNtpTimeSeconds()}`;
   const rangeIdentifier = `&limit=${pageSize}&offset=${offset}`;
   const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier + timeIdentifier + rangeIdentifier);
-  logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
+
+  // TODO: Remove after all routers support multiple relayer fee assets
+  // INFO: https://github.com/connext/monorepo/issues/3811
+  // Handle entity from previous DB schema for backwards compatibility
+  const timeIdentifierFallback = `&${transfersCastForUrlFallback}&next_execution_timestamp=lt.${getNtpTimeSeconds()}`;
+  const uriFallback = formatUrl(
+    config.cartographerUrl,
+    "transfers?",
+    statusIdentifier + timeIdentifierFallback + rangeIdentifier,
+  );
   try {
+    logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
     const response = await axiosGet(uri);
     if (response.data.length > 0) {
       data = [...data, ...response.data];
@@ -86,8 +97,18 @@ export const getReconciledTransactions = async (param: {
       nextPage = false;
     }
   } catch (error: any) {
-    nextPage = false;
-    throw new CartoApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
+    try {
+      logger.debug("Getting transactions from URI", requestContext, methodContext, { uriFallback });
+      const response = await axiosGet(uriFallback);
+      if (response.data.length > 0) {
+        data = [...data, ...response.data];
+      } else {
+        nextPage = false;
+      }
+    } catch (error: any) {
+      nextPage = false;
+      throw new CartoApiRequestFailed({ uriFallback, error: jsonifyError(error as NxtpError) });
+    }
   }
 
   return { data, nextPage };
