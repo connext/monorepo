@@ -1,4 +1,4 @@
-import { createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainIdFromDomain, getBestProvider } from "@connext/nxtp-utils";
 
 import { getContext } from "../sendOutboundRoot";
 import { ExtraSendOutboundRootParam } from "../operations/sendOutboundRoot";
@@ -12,12 +12,12 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
     adapters: { deployments, contracts, chainreader, ambs },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getSendOutboundRootParams.name);
-  const l2RpcUrl = config.chains[l2domain]?.providers[0];
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
