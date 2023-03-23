@@ -15,7 +15,7 @@ export const generateExitPayload = async (
   burnTxHash: string,
   eventSignature: string,
   providers?: Map<string, string[]>,
-): Promise<string | undefined> => {
+): Promise<{ payload: string | undefined; hash: string | undefined }> => {
   const allChainData = await getChainData();
 
   if (!allChainData.has(domain)) {
@@ -37,6 +37,7 @@ export const generateExitPayload = async (
 
   let result;
   let isCheckpointed;
+  let exitHash;
 
   // loop over rpcs to retry in case of an in case of an rpc error
   for (let i = 0; i < maxRetries; i++) {
@@ -56,6 +57,13 @@ export const generateExitPayload = async (
         throw new Error("Null receipt received");
       }
       if (!isCheckpointed) {
+        throw new InfoError(MaticJsErrorType.TxNotCheckpointed, "Burn transaction has not been checkpointed yet");
+      }
+
+      // build exit hash
+      try {
+        exitHash = await maticClient.exitUtil.getExitHash(burnTxHash, 0, eventSignature);
+      } catch (error: any) {
         throw new InfoError(MaticJsErrorType.TxNotCheckpointed, "Burn transaction has not been checkpointed yet");
       }
 
@@ -88,5 +96,8 @@ export const generateExitPayload = async (
       }
     }
   }
-  return result;
+  return {
+    payload: result,
+    hash: exitHash,
+  };
 };

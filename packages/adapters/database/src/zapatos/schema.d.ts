@@ -210,6 +210,24 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       fees_earned: number;
+      /**
+      * **asset_balances.supplied**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      supplied: number;
+      /**
+      * **asset_balances.removed**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      removed: number;
+      /**
+      * **asset_balances.locked**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      locked: number;
     }
     export interface JSONSelectable {
       /**
@@ -242,6 +260,24 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       fees_earned: number;
+      /**
+      * **asset_balances.supplied**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      supplied: number;
+      /**
+      * **asset_balances.removed**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      removed: number;
+      /**
+      * **asset_balances.locked**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      locked: number;
     }
     export interface Whereable {
       /**
@@ -274,6 +310,24 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.supplied**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      supplied?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.removed**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      removed?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.locked**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      locked?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -306,6 +360,24 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **asset_balances.supplied**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      supplied?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **asset_balances.removed**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      removed?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **asset_balances.locked**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      locked?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -338,6 +410,24 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `0`
       */
       fees_earned?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **asset_balances.supplied**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      supplied?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **asset_balances.removed**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      removed?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **asset_balances.locked**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      locked?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'asset_balances_pkey';
     export type Column = keyof Selectable;
@@ -395,6 +485,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **assets.decimal**
+      * - `numeric` in database
+      * - Nullable, default: `0`
+      */
+      decimal: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -439,6 +535,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id: string | null;
+      /**
+      * **assets.decimal**
+      * - `numeric` in database
+      * - Nullable, default: `0`
+      */
+      decimal: number | null;
     }
     export interface Whereable {
       /**
@@ -483,6 +585,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **assets.decimal**
+      * - `numeric` in database
+      * - Nullable, default: `0`
+      */
+      decimal?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -527,6 +635,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **assets.decimal**
+      * - `numeric` in database
+      * - Nullable, default: `0`
+      */
+      decimal?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -571,6 +685,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **assets.decimal**
+      * - `numeric` in database
+      * - Nullable, default: `0`
+      */
+      decimal?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'assets_pkey';
     export type Column = keyof Selectable;
@@ -1157,18 +1277,6 @@ declare module 'zapatos/schema' {
       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
-      /**
       * **daily_transfer_metrics.transfer_count**
       * - `int8` in database
       * - Nullable, no default
@@ -1186,24 +1294,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       zero_amount_transfer_count: db.Int8String | null;
-      /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      xcalled_transfer_count: db.Int8String | null;
-      /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      executed_transfer_count: db.Int8String | null;
-      /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      reconciled_transfer_count: db.Int8String | null;
       /**
       * **daily_transfer_metrics.completedfast_transfer_count**
       * - `int8` in database
@@ -1261,18 +1351,6 @@ declare module 'zapatos/schema' {
       */
       destination_chain: string | null;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
-      /**
       * **daily_transfer_metrics.transfer_count**
       * - `int8` in database
       * - Nullable, no default
@@ -1290,24 +1368,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       zero_amount_transfer_count: number | null;
-      /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      xcalled_transfer_count: number | null;
-      /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      executed_transfer_count: number | null;
-      /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      reconciled_transfer_count: number | null;
       /**
       * **daily_transfer_metrics.completedfast_transfer_count**
       * - `int8` in database
@@ -1365,18 +1425,6 @@ declare module 'zapatos/schema' {
       */
       destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **daily_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **daily_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **daily_transfer_metrics.transfer_count**
       * - `int8` in database
       * - Nullable, no default
@@ -1394,24 +1442,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **daily_transfer_metrics.xcalled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      xcalled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **daily_transfer_metrics.executed_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      executed_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **daily_transfer_metrics.reconciled_transfer_count**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-      reconciled_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_metrics.completedfast_transfer_count**
       * - `int8` in database
@@ -1736,11 +1766,11 @@ declare module 'zapatos/schema' {
     export type Table = 'hourly_transfer_metrics';
     export interface Selectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour: Date | null;
+      transfer_date: Date | null;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1753,18 +1783,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain: string | null;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database
@@ -1840,11 +1858,11 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour: db.TimestampTzString | null;
+      transfer_date: db.DateString | null;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1857,18 +1875,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain: string | null;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router: string | null;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset: string | null;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database
@@ -1944,11 +1950,11 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **hourly_transfer_metrics.transfer_hour**
-      * - `timestamptz` in database
+      * **hourly_transfer_metrics.transfer_date**
+      * - `date` in database
       * - Nullable, no default
       */
-      transfer_hour?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
+      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_metrics.origin_chain**
       * - `varchar` in database
@@ -1961,18 +1967,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **hourly_transfer_metrics.router**
-      * - `text` in database
-      * - Nullable, no default
-      */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **hourly_transfer_metrics.asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_metrics.transfer_count**
       * - `int8` in database
@@ -3376,6 +3370,157 @@ declare module 'zapatos/schema' {
   }
 
   /**
+   * **router_liquidity**
+   * - View in database
+   */
+  export namespace router_liquidity {
+    export type Table = 'router_liquidity';
+    export interface Selectable {
+      /**
+      * **router_liquidity.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain: string | null;
+      /**
+      * **router_liquidity.local**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      local: string | null;
+      /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted: string | null;
+      /**
+      * **router_liquidity.total_balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance: number | null;
+      /**
+      * **router_liquidity.total_locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked: number | null;
+      /**
+      * **router_liquidity.total_supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied: number | null;
+      /**
+      * **router_liquidity.total_removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **router_liquidity.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain: string | null;
+      /**
+      * **router_liquidity.local**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      local: string | null;
+      /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted: string | null;
+      /**
+      * **router_liquidity.total_balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance: number | null;
+      /**
+      * **router_liquidity.total_locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked: number | null;
+      /**
+      * **router_liquidity.total_supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied: number | null;
+      /**
+      * **router_liquidity.total_removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **router_liquidity.domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.local**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      local?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.adopted**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      adopted?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_balance**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **router_tvl**
    * - View in database
    */
@@ -3592,6 +3737,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       fees_earned: number | null;
+      /**
+      * **routers_with_balances.locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked: number | null;
+      /**
+      * **routers_with_balances.supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied: number | null;
+      /**
+      * **routers_with_balances.removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed: number | null;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -3672,6 +3841,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       fees_earned: number | null;
+      /**
+      * **routers_with_balances.locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked: number | null;
+      /**
+      * **routers_with_balances.supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied: number | null;
+      /**
+      * **routers_with_balances.removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed: number | null;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal: number | null;
     }
     export interface Whereable {
       /**
@@ -3752,6 +3945,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       fees_earned?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.locked**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.supplied**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.removed**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.decimal**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimal?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -5915,12 +6132,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee: string | null;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -5974,6 +6185,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
     }
     export interface JSONSelectable {
       /**
@@ -6283,12 +6500,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee: string | null;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -6342,6 +6553,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
     }
     export interface Whereable {
       /**
@@ -6651,12 +6868,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -6710,6 +6921,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -7019,12 +7236,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -7078,6 +7289,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7387,12 +7604,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -7446,6 +7657,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
@@ -7768,11 +7985,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee: string | null;
+      relayer_fees: db.JSONValue | null;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -8112,11 +8329,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee: string | null;
+      relayer_fees: db.JSONValue | null;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -8456,11 +8673,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -8800,11 +9017,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -9144,11 +9361,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -9187,23 +9404,469 @@ declare module 'zapatos/schema' {
     export type SQL = SQLExpression | SQLExpression[];
   }
 
+  /**
+   * **weekly_connext_metrics**
+   * - View in database
+   */
+  export namespace weekly_connext_metrics {
+    export type Table = 'weekly_connext_metrics';
+    export interface Selectable {
+      /**
+      * **weekly_connext_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date: Date | null;
+      /**
+      * **weekly_connext_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count: db.Int8String | null;
+      /**
+      * **weekly_connext_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count: db.Int8String | null;
+      /**
+      * **weekly_connext_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_connext_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_connext_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **weekly_connext_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date: db.DateString | null;
+      /**
+      * **weekly_connext_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count: number | null;
+      /**
+      * **weekly_connext_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count: number | null;
+      /**
+      * **weekly_connext_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count: number | null;
+      /**
+      * **weekly_connext_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count: number | null;
+      /**
+      * **weekly_connext_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count: number | null;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **weekly_connext_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_connext_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **weekly_transfer_metrics**
+   * - View in database
+   */
+  export namespace weekly_transfer_metrics {
+    export type Table = 'weekly_transfer_metrics';
+    export interface Selectable {
+      /**
+      * **weekly_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date: Date | null;
+      /**
+      * **weekly_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **weekly_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **weekly_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count: db.Int8String | null;
+      /**
+      * **weekly_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count: db.Int8String | null;
+      /**
+      * **weekly_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_transfer_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_transfer_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count: db.Int8String | null;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **weekly_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date: db.DateString | null;
+      /**
+      * **weekly_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **weekly_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **weekly_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count: number | null;
+      /**
+      * **weekly_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count: number | null;
+      /**
+      * **weekly_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count: number | null;
+      /**
+      * **weekly_transfer_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count: number | null;
+      /**
+      * **weekly_transfer_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count: number | null;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs: number | null;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **weekly_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+      transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      unique_user_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.completedfast_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedfast_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.completedslow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      completedslow_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.fastpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fastpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **weekly_transfer_metrics.slowpath_avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slowpath_avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
-    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
-    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
-    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
-    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
-    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
-    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
-    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
+    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_liquidity.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table | weekly_connext_metrics.Table | weekly_transfer_metrics.Table;
+    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_liquidity.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable | weekly_connext_metrics.Selectable | weekly_transfer_metrics.Selectable;
+    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_liquidity.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable | weekly_connext_metrics.JSONSelectable | weekly_transfer_metrics.JSONSelectable;
+    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_liquidity.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable | weekly_connext_metrics.Whereable | weekly_transfer_metrics.Whereable;
+    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_liquidity.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable | weekly_connext_metrics.Insertable | weekly_transfer_metrics.Insertable;
+    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_liquidity.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable | weekly_connext_metrics.Updatable | weekly_transfer_metrics.Updatable;
+    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_liquidity.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex | weekly_connext_metrics.UniqueIndex | weekly_transfer_metrics.UniqueIndex;
+    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_liquidity.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column | weekly_connext_metrics.Column | weekly_transfer_metrics.Column;
   
     export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
+    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
+    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
   }
 
 
@@ -9248,6 +9911,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.Selectable;
     "received_aggregate_roots": received_aggregate_roots.Selectable;
     "root_messages": root_messages.Selectable;
+    "router_liquidity": router_liquidity.Selectable;
     "router_tvl": router_tvl.Selectable;
     "routers": routers.Selectable;
     "routers_with_balances": routers_with_balances.Selectable;
@@ -9260,6 +9924,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.Selectable;
     "transfers": transfers.Selectable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Selectable;
+    "weekly_connext_metrics": weekly_connext_metrics.Selectable;
+    "weekly_transfer_metrics": weekly_transfer_metrics.Selectable;
   }[T];
 
   export type JSONSelectableForTable<T extends Table> = {
@@ -9280,6 +9946,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.JSONSelectable;
     "received_aggregate_roots": received_aggregate_roots.JSONSelectable;
     "root_messages": root_messages.JSONSelectable;
+    "router_liquidity": router_liquidity.JSONSelectable;
     "router_tvl": router_tvl.JSONSelectable;
     "routers": routers.JSONSelectable;
     "routers_with_balances": routers_with_balances.JSONSelectable;
@@ -9292,6 +9959,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.JSONSelectable;
     "transfers": transfers.JSONSelectable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.JSONSelectable;
+    "weekly_connext_metrics": weekly_connext_metrics.JSONSelectable;
+    "weekly_transfer_metrics": weekly_transfer_metrics.JSONSelectable;
   }[T];
 
   export type WhereableForTable<T extends Table> = {
@@ -9312,6 +9981,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.Whereable;
     "received_aggregate_roots": received_aggregate_roots.Whereable;
     "root_messages": root_messages.Whereable;
+    "router_liquidity": router_liquidity.Whereable;
     "router_tvl": router_tvl.Whereable;
     "routers": routers.Whereable;
     "routers_with_balances": routers_with_balances.Whereable;
@@ -9324,6 +9994,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.Whereable;
     "transfers": transfers.Whereable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Whereable;
+    "weekly_connext_metrics": weekly_connext_metrics.Whereable;
+    "weekly_transfer_metrics": weekly_transfer_metrics.Whereable;
   }[T];
 
   export type InsertableForTable<T extends Table> = {
@@ -9344,6 +10016,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.Insertable;
     "received_aggregate_roots": received_aggregate_roots.Insertable;
     "root_messages": root_messages.Insertable;
+    "router_liquidity": router_liquidity.Insertable;
     "router_tvl": router_tvl.Insertable;
     "routers": routers.Insertable;
     "routers_with_balances": routers_with_balances.Insertable;
@@ -9356,6 +10029,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.Insertable;
     "transfers": transfers.Insertable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Insertable;
+    "weekly_connext_metrics": weekly_connext_metrics.Insertable;
+    "weekly_transfer_metrics": weekly_transfer_metrics.Insertable;
   }[T];
 
   export type UpdatableForTable<T extends Table> = {
@@ -9376,6 +10051,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.Updatable;
     "received_aggregate_roots": received_aggregate_roots.Updatable;
     "root_messages": root_messages.Updatable;
+    "router_liquidity": router_liquidity.Updatable;
     "router_tvl": router_tvl.Updatable;
     "routers": routers.Updatable;
     "routers_with_balances": routers_with_balances.Updatable;
@@ -9388,6 +10064,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.Updatable;
     "transfers": transfers.Updatable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Updatable;
+    "weekly_connext_metrics": weekly_connext_metrics.Updatable;
+    "weekly_transfer_metrics": weekly_transfer_metrics.Updatable;
   }[T];
 
   export type UniqueIndexForTable<T extends Table> = {
@@ -9408,6 +10086,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.UniqueIndex;
     "received_aggregate_roots": received_aggregate_roots.UniqueIndex;
     "root_messages": root_messages.UniqueIndex;
+    "router_liquidity": router_liquidity.UniqueIndex;
     "router_tvl": router_tvl.UniqueIndex;
     "routers": routers.UniqueIndex;
     "routers_with_balances": routers_with_balances.UniqueIndex;
@@ -9420,6 +10099,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.UniqueIndex;
     "transfers": transfers.UniqueIndex;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.UniqueIndex;
+    "weekly_connext_metrics": weekly_connext_metrics.UniqueIndex;
+    "weekly_transfer_metrics": weekly_transfer_metrics.UniqueIndex;
   }[T];
 
   export type ColumnForTable<T extends Table> = {
@@ -9440,6 +10121,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.Column;
     "received_aggregate_roots": received_aggregate_roots.Column;
     "root_messages": root_messages.Column;
+    "router_liquidity": router_liquidity.Column;
     "router_tvl": router_tvl.Column;
     "routers": routers.Column;
     "routers_with_balances": routers_with_balances.Column;
@@ -9452,6 +10134,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.Column;
     "transfers": transfers.Column;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Column;
+    "weekly_connext_metrics": weekly_connext_metrics.Column;
+    "weekly_transfer_metrics": weekly_transfer_metrics.Column;
   }[T];
 
   export type SQLForTable<T extends Table> = {
@@ -9472,6 +10156,7 @@ declare module 'zapatos/schema' {
     "propagated_roots": propagated_roots.SQL;
     "received_aggregate_roots": received_aggregate_roots.SQL;
     "root_messages": root_messages.SQL;
+    "router_liquidity": router_liquidity.SQL;
     "router_tvl": router_tvl.SQL;
     "routers": routers.SQL;
     "routers_with_balances": routers_with_balances.SQL;
@@ -9484,6 +10169,8 @@ declare module 'zapatos/schema' {
     "transfer_volume": transfer_volume.SQL;
     "transfers": transfers.SQL;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.SQL;
+    "weekly_connext_metrics": weekly_connext_metrics.SQL;
+    "weekly_transfer_metrics": weekly_transfer_metrics.SQL;
   }[T];
 
 }

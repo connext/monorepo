@@ -1,6 +1,6 @@
 {
   "name": "@connext/lighthouse",
-  "version": "0.2.7",
+  "version": "1.2.0-alpha.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@eth-optimism/sdk": "1.6.9",
+    "@eth-optimism/sdk": "2.0.1",
     "@sinclair/typebox": "0.25.21",
     "@types/aws-lambda": "8.10.110",
     "datadog-lambda-js": "6.86.0",

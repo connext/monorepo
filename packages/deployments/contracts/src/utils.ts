@@ -1,15 +1,12 @@
-import { config } from "dotenv";
 import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
-import { DeploymentsExtension } from "hardhat-deploy/types";
-
-config();
 
 export type Env = "staging" | "production" | "local";
 
@@ -92,7 +89,7 @@ const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 export const getDeploymentName = (_contractName: string, _env?: string, _networkName?: string) => {
   const env = mustGetEnv(_env);
   let contractName = _contractName;
-  console.log(contractName, _env, _networkName);
+
   if (contractName.includes("Multichain")) {
     const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
     contractName = contractName.replace("Multichain", networkName);
@@ -163,8 +160,16 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub), env);
-    const spokeName = getDeploymentName(getConnectorName(protocol, chainId), env);
+    const hubName = getDeploymentName(
+      getConnectorName(protocol, chainId, protocol.hub),
+      env,
+      protocol.configs[chainId].networkName,
+    );
+    const spokeName = getDeploymentName(
+      getConnectorName(protocol, chainId),
+      env,
+      protocol.configs[chainId].networkName,
+    );
     connectors.push({
       chain: protocol.hub,
       name: hubName,
@@ -204,7 +209,11 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
 
 export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpcProvider => {
   // Get the provider address from the hardhat config on given chain
-  const url = (Object.values(hardhatNetworks).find((n: any) => n?.chainId === chainId) as any)?.url;
+  const url = (
+    Object.entries(hardhatNetworks).find(
+      ([name, network]: [string, any]) => network?.chainId === chainId && !name.includes("fork"),
+    ) as any
+  )[1]?.url;
   if (!url) {
     throw new Error(`No provider url found for ${chainId}`);
   }
@@ -257,7 +266,7 @@ export const queryOptimismMessageStatus = async (
     const receipt = await tx.wait();
     console.log("relay message tx mined:", receipt.transactionHash);
   }
-  return mapping[status];
+  return (mapping as any)[status] as string;
 };
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(

@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-subgraph",
-  "version": "0.2.7",
+  "version": "1.2.0-alpha.1",
   "license": "UNLICENSED",
   "scripts": {
     "graph": "graph",
@@ -45,7 +45,7 @@
     "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.39.0",
+    "@graphprotocol/graph-cli": "0.42.4",
     "@graphprotocol/graph-ts": "0.29.3",
     "@protofire/subgraph-toolkit": "0.1.2",
     "@types/js-yaml": "4.0.5",

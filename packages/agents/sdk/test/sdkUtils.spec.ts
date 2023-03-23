@@ -3,7 +3,7 @@ import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus } from 
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, UriInvalid } from "../src/lib/errors";
+import { UriInvalid } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -20,8 +20,8 @@ describe("SdkUtils", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
     stub(SharedFns, "axiosGetRequest").resolves({});
 
     nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
@@ -41,11 +41,6 @@ describe("SdkUtils", () => {
       expect(nxtpUtils.getRoutersData).to.be.a("function");
       expect(nxtpUtils.getAssetsData).to.be.a("function");
       expect(nxtpUtils.getTransfers).to.be.a("function");
-    });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(SdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
@@ -182,6 +177,15 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransfers({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getRouterLiquidity", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getRouterLiquidity();
+
+      expect(res).to.not.be.undefined;
     });
   });
 });

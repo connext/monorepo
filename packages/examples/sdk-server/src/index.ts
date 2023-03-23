@@ -3,11 +3,12 @@ import * as fs from "fs";
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk";
+import { getBestProvider } from "@connext/nxtp-utils";
 
-import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
+import { baseRoutes } from "./base";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -44,7 +45,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const chains = configJson.chains;
   for (const key in chains) {
     const chain = chains[key];
-    const url: string = chain.providers[0];
+    const url = await getBestProvider(chain.providers as string[]);
     const provider = new ethers.providers.JsonRpcProvider(url);
     configuredProviders[key] = provider;
   }

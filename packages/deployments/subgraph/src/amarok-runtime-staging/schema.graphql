@@ -1,6 +1,7 @@
 type Asset @entity {
   id: ID! # local asset address
   key: Bytes
+  decimal: BigInt
   canonicalId: Bytes
   canonicalDomain: BigInt
   adoptedAsset: Bytes
@@ -18,6 +19,9 @@ type AssetStatus @entity {
 type AssetBalance @entity {
   id: ID! # `key-router_address`
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: Router!
   asset: Asset!
   feesEarned: BigInt!
@@ -68,6 +72,13 @@ enum TransferStatus {
   CompletedFast
 }
 
+type RelayerFee @entity {
+  id: ID!
+  transfer: OriginTransfer!
+  fee: BigInt!
+  asset: Bytes!
+}
+
 type OriginTransfer @entity {
   id: ID!
 
@@ -100,8 +111,9 @@ type OriginTransfer @entity {
   message: OriginMessage
 
   # Relayer Fee paid by user
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
+  relayerFees: [RelayerFee!]
+  initialRelayerFeeAsset: Bytes
 
   # XCalled Transaction
   caller: Bytes
@@ -226,6 +238,7 @@ type RelayerFeesIncrease @entity {
 
   transfer: OriginTransfer!
   increase: BigInt
+  asset: Bytes
 
   # _bumpTransfer Transaction
   caller: Bytes!

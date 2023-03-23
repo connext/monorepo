@@ -68,6 +68,7 @@ export type stagingoptimismgoerli_AggregateRoot_orderBy =
 export type stagingoptimismgoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  decimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -79,6 +80,9 @@ export type stagingoptimismgoerli_Asset = {
 export type stagingoptimismgoerli_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
+  locked: Scalars['BigInt'];
+  supplied: Scalars['BigInt'];
+  removed: Scalars['BigInt'];
   router: stagingoptimismgoerli_Router;
   asset: stagingoptimismgoerli_Asset;
   feesEarned: Scalars['BigInt'];
@@ -101,6 +105,30 @@ export type stagingoptimismgoerli_AssetBalance_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked?: InputMaybe<Scalars['BigInt']>;
+  locked_not?: InputMaybe<Scalars['BigInt']>;
+  locked_gt?: InputMaybe<Scalars['BigInt']>;
+  locked_lt?: InputMaybe<Scalars['BigInt']>;
+  locked_gte?: InputMaybe<Scalars['BigInt']>;
+  locked_lte?: InputMaybe<Scalars['BigInt']>;
+  locked_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied?: InputMaybe<Scalars['BigInt']>;
+  supplied_not?: InputMaybe<Scalars['BigInt']>;
+  supplied_gt?: InputMaybe<Scalars['BigInt']>;
+  supplied_lt?: InputMaybe<Scalars['BigInt']>;
+  supplied_gte?: InputMaybe<Scalars['BigInt']>;
+  supplied_lte?: InputMaybe<Scalars['BigInt']>;
+  supplied_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed?: InputMaybe<Scalars['BigInt']>;
+  removed_not?: InputMaybe<Scalars['BigInt']>;
+  removed_gt?: InputMaybe<Scalars['BigInt']>;
+  removed_lt?: InputMaybe<Scalars['BigInt']>;
+  removed_gte?: InputMaybe<Scalars['BigInt']>;
+  removed_lte?: InputMaybe<Scalars['BigInt']>;
+  removed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -160,6 +188,9 @@ export type stagingoptimismgoerli_AssetBalance_filter = {
 export type stagingoptimismgoerli_AssetBalance_orderBy =
   | 'id'
   | 'amount'
+  | 'locked'
+  | 'supplied'
+  | 'removed'
   | 'router'
   | 'router__id'
   | 'router__isActive'
@@ -170,6 +201,7 @@ export type stagingoptimismgoerli_AssetBalance_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -224,6 +256,14 @@ export type stagingoptimismgoerli_Asset_filter = {
   key_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
   key_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  decimal?: InputMaybe<Scalars['BigInt']>;
+  decimal_not?: InputMaybe<Scalars['BigInt']>;
+  decimal_gt?: InputMaybe<Scalars['BigInt']>;
+  decimal_lt?: InputMaybe<Scalars['BigInt']>;
+  decimal_gte?: InputMaybe<Scalars['BigInt']>;
+  decimal_lte?: InputMaybe<Scalars['BigInt']>;
+  decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -300,6 +340,7 @@ export type stagingoptimismgoerli_Asset_filter = {
 export type stagingoptimismgoerli_Asset_orderBy =
   | 'id'
   | 'key'
+  | 'decimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -791,6 +832,7 @@ export type stagingoptimismgoerli_DestinationTransfer_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -977,8 +1019,9 @@ export type stagingoptimismgoerli_OriginTransfer = {
   asset?: Maybe<stagingoptimismgoerli_Asset>;
   transactingAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   message?: Maybe<stagingoptimismgoerli_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<stagingoptimismgoerli_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -986,6 +1029,15 @@ export type stagingoptimismgoerli_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
+};
+
+
+export type stagingoptimismgoerli_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_RelayerFee_filter>;
 };
 
 export type stagingoptimismgoerli_OriginTransfer_filter = {
@@ -1191,14 +1243,6 @@ export type stagingoptimismgoerli_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<stagingoptimismgoerli_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1207,6 +1251,23 @@ export type stagingoptimismgoerli_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<stagingoptimismgoerli_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -1297,6 +1358,7 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1313,8 +1375,9 @@ export type stagingoptimismgoerli_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1340,6 +1403,8 @@ export type Query = {
   stagingoptimismgoerli_relayers: Array<stagingoptimismgoerli_Relayer>;
   stagingoptimismgoerli_sequencer?: Maybe<stagingoptimismgoerli_Sequencer>;
   stagingoptimismgoerli_sequencers: Array<stagingoptimismgoerli_Sequencer>;
+  stagingoptimismgoerli_relayerFee?: Maybe<stagingoptimismgoerli_RelayerFee>;
+  stagingoptimismgoerli_relayerFees: Array<stagingoptimismgoerli_RelayerFee>;
   stagingoptimismgoerli_originTransfer?: Maybe<stagingoptimismgoerli_OriginTransfer>;
   stagingoptimismgoerli_originTransfers: Array<stagingoptimismgoerli_OriginTransfer>;
   stagingoptimismgoerli_destinationTransfer?: Maybe<stagingoptimismgoerli_DestinationTransfer>;
@@ -1502,6 +1567,24 @@ export type Querystagingoptimismgoerli_sequencersArgs = {
   orderBy?: InputMaybe<stagingoptimismgoerli_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
   where?: InputMaybe<stagingoptimismgoerli_Sequencer_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingoptimismgoerli_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingoptimismgoerli_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_RelayerFee_filter>;
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1679,10 +1762,106 @@ export type stagingoptimismgoerli_Relayer = {
   relayer?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
 };
 
+export type stagingoptimismgoerli_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: stagingoptimismgoerli_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['stagingoptimismgoerli_Bytes'];
+};
+
+export type stagingoptimismgoerli_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingoptimismgoerli_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_RelayerFee_filter>>>;
+};
+
+export type stagingoptimismgoerli_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type stagingoptimismgoerli_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: stagingoptimismgoerli_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller: Scalars['stagingoptimismgoerli_Bytes'];
   transactionHash: Scalars['stagingoptimismgoerli_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1729,6 +1908,16 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingoptimismgoerli_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingoptimismgoerli_Bytes']>;
@@ -1809,8 +1998,8 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1819,6 +2008,7 @@ export type stagingoptimismgoerli_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2132,6 +2322,7 @@ export type stagingoptimismgoerli_RouterDailyTVL_orderBy =
   | 'asset'
   | 'asset__id'
   | 'asset__key'
+  | 'asset__decimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -2461,6 +2652,8 @@ export type Subscription = {
   stagingoptimismgoerli_relayers: Array<stagingoptimismgoerli_Relayer>;
   stagingoptimismgoerli_sequencer?: Maybe<stagingoptimismgoerli_Sequencer>;
   stagingoptimismgoerli_sequencers: Array<stagingoptimismgoerli_Sequencer>;
+  stagingoptimismgoerli_relayerFee?: Maybe<stagingoptimismgoerli_RelayerFee>;
+  stagingoptimismgoerli_relayerFees: Array<stagingoptimismgoerli_RelayerFee>;
   stagingoptimismgoerli_originTransfer?: Maybe<stagingoptimismgoerli_OriginTransfer>;
   stagingoptimismgoerli_originTransfers: Array<stagingoptimismgoerli_OriginTransfer>;
   stagingoptimismgoerli_destinationTransfer?: Maybe<stagingoptimismgoerli_DestinationTransfer>;
@@ -2623,6 +2816,24 @@ export type Subscriptionstagingoptimismgoerli_sequencersArgs = {
   orderBy?: InputMaybe<stagingoptimismgoerli_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
   where?: InputMaybe<stagingoptimismgoerli_Sequencer_filter>;
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingoptimismgoerli_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingoptimismgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingoptimismgoerli_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingoptimismgoerli_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<stagingoptimismgoerli_RelayerFee_filter>;
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2866,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingoptimismgoerli_sequencers: InContextSdkMethod<Query['stagingoptimismgoerli_sequencers'], Querystagingoptimismgoerli_sequencersArgs, MeshContext>,
   /** null **/
+  stagingoptimismgoerli_relayerFee: InContextSdkMethod<Query['stagingoptimismgoerli_relayerFee'], Querystagingoptimismgoerli_relayerFeeArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_relayerFees: InContextSdkMethod<Query['stagingoptimismgoerli_relayerFees'], Querystagingoptimismgoerli_relayerFeesArgs, MeshContext>,
+  /** null **/
   stagingoptimismgoerli_originTransfer: InContextSdkMethod<Query['stagingoptimismgoerli_originTransfer'], Querystagingoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_originTransfers: InContextSdkMethod<Query['stagingoptimismgoerli_originTransfers'], Querystagingoptimismgoerli_originTransfersArgs, MeshContext>,
@@ -2942,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   stagingoptimismgoerli_sequencer: InContextSdkMethod<Subscription['stagingoptimismgoerli_sequencer'], Subscriptionstagingoptimismgoerli_sequencerArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_sequencers: InContextSdkMethod<Subscription['stagingoptimismgoerli_sequencers'], Subscriptionstagingoptimismgoerli_sequencersArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_relayerFee: InContextSdkMethod<Subscription['stagingoptimismgoerli_relayerFee'], Subscriptionstagingoptimismgoerli_relayerFeeArgs, MeshContext>,
+  /** null **/
+  stagingoptimismgoerli_relayerFees: InContextSdkMethod<Subscription['stagingoptimismgoerli_relayerFees'], Subscriptionstagingoptimismgoerli_relayerFeesArgs, MeshContext>,
   /** null **/
   stagingoptimismgoerli_originTransfer: InContextSdkMethod<Subscription['stagingoptimismgoerli_originTransfer'], Subscriptionstagingoptimismgoerli_originTransferArgs, MeshContext>,
   /** null **/

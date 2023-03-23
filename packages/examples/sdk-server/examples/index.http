@@ -14,12 +14,12 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/1735353714
+POST {{baseUrl}}/sendTransaction/1735356532
 Content-Type: application/json
 
 {
-  "data": "0xfd5bd5fe00000000000000000000000000000000000000000000000000000000676f65720000000000000000000000007ea6ea49b0b0ae9c5db7907d139d9cd3439862a10000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1000000000000000000000000d2ad711861ab345977b7379c81165708c8717ff1",
-  "to": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649"
+  "data": "0xb6618dff292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f0000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018701103416",
+  "to": "0xEE725087E0a39010E7341642ec4DeE76b61acA21"
 }
 
 ##############
@@ -62,8 +62,11 @@ POST {{baseUrl}}/estimateRelayerFee
 Content-Type: application/json
 
 {
-  "origin": "1735353714",
-  "destination": "9991"
+  "originDomain": "6648936",
+  "destinationDomain": "1869640809",
+  "originNativeTokenPrice": 1500,
+  "destinationNativeTokenPrice": 1000,
+  "destinationGasPrice": "50"
 }
 
 ##############
@@ -136,6 +139,18 @@ Content-Type: application/json
   "domainId": "1869640809",
   "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
   "amount": "100000000000000" 
+}
+
+##############
+### POST calculateRemoveSwapLiquidityOneToken
+POST {{baseUrl}}/calculateRemoveSwapLiquidityOneToken
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+  "amount": "100000000000000",
+  "index": 0
 }
 
 ##############
@@ -223,14 +238,40 @@ Content-Type: application/json
 }
 
 ##############
+### POST removeLiquidityOneToken
+POST {{baseUrl}}/removeLiquidityOneToken
+Content-Type: application/json
+
+{
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "withdrawTokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amount": "100",
+  "minAmount": "0"
+}
+
+##############
 ### POST removeLiquidity
 POST {{baseUrl}}/removeLiquidity
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "amount": "10000"
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amount": "100",
+  "minAmounts": ["0", "0"]
+}
+
+##############
+### POST removeLiquidityImbalance
+POST {{baseUrl}}/removeLiquidityImbalance
+Content-Type: application/json
+
+{
+  "domainId": "1735356532",
+  "tokenAddress": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+  "amounts": ["100", "100"],
+  "maxBurnAmount": "0"
 }
 
 ##############
@@ -265,6 +306,7 @@ Content-Type: application/json
 {
   "domainId": "1869640809",
   "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
+  "asset": "0x0000000000000000000000000000000000000000",
   "relayerFee": "100000000000"
 }
 
@@ -320,7 +362,7 @@ Content-Type: application/json
 
 ##############
 ### GET checkRouterLiquidity
-GET {{baseUrl}}/checkRouterLiquidity/6648936/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/4
+GET {{baseUrl}}/checkRouterLiquidity/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/4
 
 ##############
 ### GET getBlockNumberFromUnixTimestamp

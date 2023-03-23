@@ -1,6 +1,6 @@
-import { createLoggingContext, getChainIdFromDomain, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId, NxtpError } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
+import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup, getBestProvider } from "../../../mockable";
 import {
   getSendOutboundRootParamsBnb,
   getSendOutboundRootParamsConsensys,
@@ -30,7 +30,6 @@ export const sendOutboundRoot = async () => {
   const {
     logger,
     config,
-    chainData,
     adapters: { chainreader, contracts, relayers },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(sendOutboundRoot.name);
@@ -40,7 +39,7 @@ export const sendOutboundRoot = async () => {
 
     // Check if outbound root already sent!
     const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
-    const l2Provider = config.chains[domain].providers[0];
+    const l2Provider = await getBestProvider(config.chains[domain].providers);
     logger.info("Checking if outboundroot already sent", requestContext, methodContext, {
       domain,
       spokeConnectorAddress,
@@ -95,7 +94,7 @@ export const sendOutboundRoot = async () => {
 
     const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("send", [encodedData, fee, "0"]);
 
-    const chainId = await getChainIdFromDomain(domain, chainData);
+    const chainId = domainToChainId(+domain);
     try {
       const { taskId } = await sendWithRelayerWithBackup(
         chainId,

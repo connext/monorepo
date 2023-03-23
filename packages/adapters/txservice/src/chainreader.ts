@@ -7,8 +7,8 @@ import {
   encodeMultisendCall,
   MultisendTransactionOperation,
   createMethodContext,
+  domainToChainId,
 } from "@connext/nxtp-utils";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {

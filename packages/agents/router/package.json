@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.7",
+  "version": "1.2.0-alpha.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,7 +37,6 @@
     "fastify": "4.13.0",
     "foo-foo-mq": "7.1.0",
     "graphql": "16.6.0",
-    "node-fetch": "2.6.9",
     "prom-client": "14.1.1"
   },
   "devDependencies": {

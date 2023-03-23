@@ -2,6 +2,62 @@
 
 ## Next Release
 
+## Amarok 1.2.0-alpha.0
+
+- [sdk] Add removeLiquidityOneToken, removeLiquidityImbalance, calculateRemoveSwapLiquidityOneToken methods
+
+## Amarok 1.0.3-alpha.2
+
+- [sequencer] Fix relayer fee check
+- [sdk] Fix bumpTransfer for native asset
+
+## Amarok 1.0.3-alpha.1
+
+- [all] Support transacting asset for relayer fee on staging testnet
+
+## Amarok 1.0.3-alpha.0
+
+- [sdk] Fixed getTransfers
+
+## Amarok 1.0.2
+
+- [sdk] more optimisation
+
+## Amarok 1.0.2-alpha.0
+
+- [sdk] `calculateAmountReceived` optimizations
+
+## Amarok 1.0.1
+
+- [sdk] Fixed active liquidity fast path determination
+
+## Amarok 1.0.0
+
+- [sdk] Maintain `calculateAmountReceived` backwards caompatibility, accessible in both SdkPool and SdkBase
+
+## Amarok 1.0.0-alpha.0
+
+- [sdk] Moved core function `calculateAmountReceived` to SdkBase
+- [sdk] `calculateAmountReceived` now provides isFastPath determination
+
+## Amarok 0.2.8-alpha.2
+
+- [sdk] fixes for optimisation gas fee estimation
+- [sdk] Multiple optimizations for relayer fee calculation
+  - config setup creates chainData once
+  - parallelize async calls
+  - added optional params for token prices and gas prices
+- [sdk] router liquidity visualisation
+- [subgraph][carto] add decimals to Assets
+- [subgraph][carto] supplied, locked, removed liquidity for Router
+- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
+- [utils] Added CDN for chainData JSON file to make globally available.
+
+## Amarok 0.2.8-alpha.1
+
+- [sdk] support for debugging simulation support for explorer.
+- [all] support of Consesys ZKevm is live on testnet.
+
 ## Amarok 0.2.7
 
 - [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version

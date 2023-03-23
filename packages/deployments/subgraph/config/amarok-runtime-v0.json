@@ -157,8 +157,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xEe8608Cc250c8f9aAc5045930Fc9661F64464774",
-        "startBlock": 3613083
+        "address": "0x8073a764c4651a9BE132032d7B5E3B319311904E",
+        "startBlock": 7067115
       },
       {
         "name": "MerkleTreeManager",
@@ -225,8 +225,8 @@
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xD9cEE6032096A053075F5764ef6e1B0D5191b949",
-        "startBlock": 1253169
+        "address": "0x571BaF5E320E636d6F78422C3034c21681d727a1",
+        "startBlock": 1372083
       }
     ]
   },

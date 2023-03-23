@@ -10,7 +10,7 @@ export const XTransferStatus = {
   CompletedFast: "CompletedFast",
   CompletedSlow: "CompletedSlow",
 } as const;
-export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
+export type XTransferStatus = (typeof XTransferStatus)[keyof typeof XTransferStatus];
 
 export const XTransferErrorStatus = {
   LowSlippage: "LowSlippage",
@@ -18,7 +18,7 @@ export const XTransferErrorStatus = {
   ExecutionError: "ExecutionError",
   NoBidsReceived: "NoBidsReceived",
 } as const;
-export type XTransferErrorStatus = typeof XTransferErrorStatus[keyof typeof XTransferErrorStatus];
+export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -51,7 +51,7 @@ export const XTransferOriginSchema = Type.Object({
     }),
   }),
 
-  relayerFee: TIntegerString,
+  relayerFees: Type.Record(Type.String(), TIntegerString),
 
   // XCall Transaction
   xcall: Type.Intersect([XTransferMethodCallSchema]),
@@ -178,6 +178,7 @@ export const XCallArgsSchema = Type.Object({
   amount: TIntegerString,
   slippage: TIntegerString,
   callData: Type.String(),
+  relayerFee: Type.Optional(Type.String()),
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -207,6 +208,7 @@ export type ReconciledTransaction = {
 export const AssetSchema = Type.Object({
   id: TAddress,
   key: Type.String(),
+  decimal: TIntegerString,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
@@ -219,6 +221,9 @@ export const AssetBalanceSchema = Type.Intersect([
   AssetSchema,
   Type.Object({
     balance: TIntegerString,
+    locked: TIntegerString,
+    supplied: TIntegerString,
+    removed: TIntegerString,
     feesEarned: TIntegerString,
     domain: Type.String(),
   }),
@@ -240,6 +245,7 @@ export const RelayerFeesIncreaseSchema = Type.Object({
   id: Type.String(),
   transferId: TBytes32,
   increase: TIntegerString,
+  asset: TAddress,
   domain: Type.String(),
   timestamp: TIntegerString,
 });

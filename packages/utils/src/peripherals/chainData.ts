@@ -1,5 +1,3 @@
-import * as fs from "fs";
-
 import { fetchJson } from "../ethers";
 
 export const CHAIN_ID = {
@@ -98,25 +96,20 @@ export const chainDataToMap = (data: any, ignoreMissing = true): Map<string, Cha
   return chainData;
 };
 
-export const getChainData = async (useCached?: boolean, ignoreMissing?: boolean): Promise<Map<string, ChainData>> => {
-  if (useCached && fs.existsSync("./chaindata.json")) {
-    console.info("Using cached chain data.");
-    const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
-    return chainDataToMap(data, ignoreMissing);
-  }
-
-  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+export const getChainData = async (): Promise<Map<string, ChainData>> => {
+  const url = "https://chaindata.connext.ninja";
   try {
     const data = await fetchJson(url);
-    return chainDataToMap(data, ignoreMissing);
+    return chainDataToMap(data);
   } catch (err: unknown) {
-    // Check to see if we have the chain data cached locally.
-    if (fs.existsSync("./chaindata.json")) {
-      console.info("Using cached chain data.");
-      const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
-      return chainDataToMap(data, ignoreMissing);
+    const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+    try {
+      const data = await fetchJson(url);
+      return chainDataToMap(data);
+    } catch (err: unknown) {
+      // Check to see if we have the chain data cached locally.
+      // It could be dangerous to let any agent start without chain data.
+      throw new Error("Could not get chain data, and no cached chain data was available.");
     }
-    // It could be dangerous to let any agent start without chain data.
-    throw new Error("Could not get chain data, and no cached chain data was available.");
   }
 };

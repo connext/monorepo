@@ -10,69 +10,73 @@ import * as ChainDataFns from "../../src/peripherals/chainData";
 const mockProvider = new providers.JsonRpcProvider("https://mock.io");
 const mockChainData = chainDataToMap([
   {
-    name: "Ethereum Testnet Rinkeby",
-    chainId: 4,
-    domainId: "2000",
+    name: "Ethereum Testnet Görli",
+    chainId: 5,
     type: "testnet",
     confirmations: 1,
-    shortName: "rin",
-    network: "rinkeby",
+    domainId: "1735353714",
+    network: "goerli",
     nativeCurrency: {
-      name: "Rinkeby Ether",
-      symbol: "RIN",
+      name: "Görli Ether",
+      symbol: "GOR",
       decimals: 18,
     },
     assetId: {
       "0x0000000000000000000000000000000000000000": {
         symbol: "ETH",
         mainnetEquivalent: "0x0000000000000000000000000000000000000000",
-        decimals: 18,
       },
-      "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be": {
-        symbol: "PAID",
-        mainnetEquivalent: "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787",
-        decimals: 18,
-      },
-      "0xD92E713d051C37EbB2561803a3b5FBAbc4962431": {
-        symbol: "USDT",
-        mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-      },
-      "0xb6f6bae73e69e9b70bf6fc56f4f510eb699711a8": {
-        symbol: "Test1",
-        mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-      },
-      "0XE787030AEBB7095128ACE4B880DAB2237F0F50F8": {
-        symbol: "Test2",
-        mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-      },
-    },
-  },
-  {
-    name: "Ethereum Testnet Kovan",
-    chainId: 42,
-    domainId: "3000",
-    type: "testnet",
-    confirmations: 1,
-    shortName: "kov",
-    chain: "ETH",
-    network: "kovan",
-    networkId: 42,
-    assetId: {
-      "0x0000000000000000000000000000000000000000": {
-        symbol: "ETH",
+      "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6": {
+        name: "Wrapped Ether",
+        symbol: "WETH",
         mainnetEquivalent: "0x0000000000000000000000000000000000000000",
-        decimals: 6,
+        decimals: 18,
+      },
+      "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a": {
+        symbol: "fUSDCx",
+        mainnetEquivalent: "0x1BA8603DA702602A8657980e825A6DAa03Dee93a",
+        decimals: 18,
       },
       "0x04dfd3cfca0e110b6b3c2e7d2384a851d1665988": {
         symbol: "PAID",
         mainnetEquivalent: "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787",
-        decimals: 18,
       },
-      "0xD92E713d051C37EbB2561803a3b5FBAbc4962431": {
-        symbol: "USDT",
-        decimals: 6,
+      "0x7a652687E2f9167cdC9831C0f9B5C3Ff5E5Bc5C7": {
+        symbol: "PROPS",
+        mainnetEquivalent: "0x6fe56c0bcdd471359019fcbc48863d6c3e9d4f41",
+      },
+      "0x07DDC851a1bee757335EBcd7B14348359fDaB60f": {
+        symbol: "PLOTX",
+        mainnetEquivalent: "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb",
       },
     },
+    rpc: ["https://ethereum-goerli-rpc.allthatnode.com/", "https://goerli.infura.io/v3/${INFURA_API_KEY}"],
+    subgraph: ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-v1-runtime"],
+    analyticsSubgraph: ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-v1-analytics"],
+    faucets: ["https://goerli-faucet.slock.it/?address=${ADDRESS}", "https://faucet.goerli.mudit.blog"],
+    subgraphs: {
+      runtime: [
+        {
+          query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli",
+          health: "https://api.thegraph.com/index-node/graphql",
+        },
+      ],
+      analytics: [
+        {
+          query: "",
+          health: "",
+        },
+      ],
+    },
+    infoURL: "https://goerli.net/#about",
+    explorers: [
+      {
+        name: "etherscan",
+        url: "https://goerli.etherscan.io",
+        icon: "etherscan",
+        standard: "EIP3091",
+      },
+    ],
   },
 ]);
 describe("Helpers:Asset", () => {
@@ -119,16 +123,18 @@ describe("Helpers:Asset", () => {
       expect(res).to.be.eq(18);
     });
 
-    it("should get 18 decimals for BNB with the `chainData` arugment", async () => {
-      const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
-      const res = await getDecimalsForAsset(assetId, 4, mockProvider, mockChainData);
+    it("should get 18 decimals for WETH with the `chainData` arugment", async () => {
+      const assetId = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+      const res = await getDecimalsForAsset(assetId, 5, mockProvider, mockChainData);
       expect(res).to.be.eq(18);
     });
+
     it("should get decimals from onchain if decimals doesn't exist in chainData", async () => {
       const assetId = "0xb6F6BAe73E69e9B70bF6Fc56f4f510eb699711A8";
-      const res = await getDecimalsForAsset(assetId, 4, mockProvider, mockChainData);
+      const res = await getDecimalsForAsset(assetId, 5, mockProvider, mockChainData);
       expect(res).to.be.eq(6);
     });
+
     it("should get decimals from onchain", async () => {
       const assetId = mkAddress("0x111");
       const res = await getDecimalsForAsset(assetId, 1, mockProvider);
@@ -144,35 +150,16 @@ describe("Helpers:Asset", () => {
       restore();
       reset();
     });
-    it("should get decimals from the `chainData` argument", async () => {
-      const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
-      const res = await getMainnetEquivalent(4, assetId, mockChainData);
-      expect(res.toLowerCase()).to.be.eq("0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787");
-    });
-    it("should get decimals for upper address", async () => {
-      const assetId = "0xe787030AebB7095128aCE4B880dab2237f0F50F8";
-      const res = await getMainnetEquivalent(4, assetId, mockChainData);
-      expect(res.toLowerCase()).to.be.eq("0xdac17f958d2ee523a2206206994597c13d831ec7");
-    });
-    it("should get decimals for lower address", async () => {
-      const assetId = "0xb6F6BAe73E69e9B70bF6Fc56f4f510eb699711A8";
-      const res = await getMainnetEquivalent(4, assetId, mockChainData);
-      expect(res.toLowerCase()).to.be.eq("0xdac17f958d2ee523a2206206994597c13d831ec7");
-    });
 
     it("should get decimals from the `chainData` argument", async () => {
-      const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
-      const res = await getMainnetEquivalent(4, assetId, mockChainData);
-      expect(res.toLowerCase()).to.be.eq("0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787");
+      const assetId = "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a";
+      const res = await getMainnetEquivalent(5, assetId, mockChainData);
+      expect(res!.toLowerCase()).to.be.eq("0x1ba8603da702602a8657980e825a6daa03dee93a");
     });
-    it("should get decimals using `getChainData` function", async () => {
-      const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
-      const res = await getMainnetEquivalent(4, assetId);
-      expect(res.toLowerCase()).to.be.eq("0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787");
-    });
+
     it("should return undefined if mainnetEquivalent doesn't exist", async () => {
       const assetId = "0xD92E713d051C37EbB2561803a3b5FBAbc4962431";
-      const res = await getMainnetEquivalent(42, assetId, mockChainData);
+      const res = await getMainnetEquivalent(5, assetId, mockChainData);
       expect(res).to.be.undefined;
     });
   });

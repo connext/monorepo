@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { providers, BigNumber, BigNumberish, constants, utils } from "ethers";
 import {
-  getChainData,
   Logger,
   createLoggingContext,
   ChainData,
-  DEFAULT_ROUTER_FEE,
   formatUrl,
   StableSwapExchange,
+  DEFAULT_ROUTER_FEE,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
-import { SignerAddressMissing, ChainDataUndefined, ParamsInvalid } from "./lib/errors";
+import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { Pool, PoolAsset, AssetData } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
@@ -69,12 +68,7 @@ export class SdkPool extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkPool> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
 
     const logger = _logger
       ? _logger.child({ name: "SdkPool" })
@@ -125,6 +119,107 @@ export class SdkPool extends SdkShared {
   }
 
   /**
+   * Calculates the estimated amount received on the destination domain for a bridge transaction.
+   *
+   * @param originDomain - The domain ID of the origin chain.
+   * @param destinationDomain - The domain ID of the destination chain.
+   * @param originTokenAddress - The address of the token to be bridged from origin.
+   * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
+   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   */
+  async calculateAmountReceived(
+    originDomain: string,
+    destinationDomain: string,
+    originTokenAddress: string,
+    amount: BigNumberish,
+    receiveLocal = false,
+  ): Promise<{
+    amountReceived: BigNumberish;
+    originSlippage: BigNumberish;
+    routerFee: BigNumberish;
+    destinationSlippage: BigNumberish;
+    isFastPath: boolean;
+  }> {
+    const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
+    const _originTokenAddress = utils.getAddress(originTokenAddress);
+    this.logger.info("Method start", requestContext, methodContext, {
+      originDomain,
+      destinationDomain,
+      _originTokenAddress,
+      amount,
+    });
+
+    const [originPool, [canonicalDomain, canonicalId], isNextAsset] = await Promise.all([
+      this.getPool(originDomain, _originTokenAddress),
+      this.getCanonicalTokenId(originDomain, _originTokenAddress),
+      this.isNextAsset(_originTokenAddress),
+    ]);
+
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    if (!destinationAssetData) {
+      throw new Error("Origin token cannot be bridged to any token on this destination domain");
+    }
+
+    // Swap IFF supplied origin token is an adopted asset
+    let originAmountReceived = amount;
+    if (!isNextAsset && originPool) {
+      originAmountReceived = await this.calculateSwap(
+        originDomain,
+        _originTokenAddress,
+        originPool.adopted.index,
+        originPool.local.index,
+        amount,
+      );
+    }
+
+    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
+
+    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
+    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
+    let destinationAmountReceived = destinationAmount;
+
+    const promises: Promise<any>[] = [];
+
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    // promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+
+    // Swap IFF desired destination token is an adopted asset
+    if (!receiveLocal && destinationPool) {
+      promises.push(
+        this.calculateSwap(
+          destinationDomain,
+          destinationAssetData.local,
+          destinationPool.local.index,
+          destinationPool.adopted.index,
+          destinationAmount,
+        ),
+      );
+    }
+
+    const [destinationAmountReceivedSwap] = await Promise.all(promises);
+    destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
+    const isFastPath = true;
+    // if (activeLiquidity.length > 0) {
+    //   isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
+    // }
+    const destinationSlippage = BigNumber.from(
+      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+    );
+
+    return {
+      amountReceived: destinationAmountReceived,
+      originSlippage,
+      routerFee,
+      destinationSlippage,
+      isFastPath,
+    };
+  }
+
+  /**
    * Calculates the minimum LP token amount from deposits or withdrawals.
    *
    * @param domainId - The domain ID of the pool.
@@ -153,7 +248,7 @@ export class SdkPool extends SdkShared {
   }
 
   /**
-   * Calculates the amounts of underlying tokens returned.
+   *  Calculates the amounts of underlying tokens returned.
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
@@ -171,6 +266,33 @@ export class SdkPool extends SdkShared {
     const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
 
     return amounts;
+  }
+
+  /**
+   * Calculate the dy, the amount of selected token that user receives
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the LP token to burn on withdrawal.
+   * @param index - The index of the token to withdraw.
+   * @returns availableTokenAmount calculated amount of underlying token
+   */
+  async calculateRemoveSwapLiquidityOneToken(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    index: number,
+  ): Promise<BigNumber> {
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const available = await connextContract.calculateRemoveSwapLiquidityOneToken(key, amount, index);
+
+    return available;
   }
 
   /**
@@ -317,93 +439,6 @@ export class SdkPool extends SdkShared {
       BigNumber.from(10).pow(18),
       false,
     );
-  }
-
-  /**
-   * Calculates the estimated amount received on the destination domain for a bridge transaction.
-   *
-   * @param originDomain - The domain ID of the origin chain.
-   * @param destinationDomain - The domain ID of the destination chain.
-   * @param originTokenAddress - The address of the token to be bridged from origin.
-   * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
-   * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
-   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
-   */
-  async calculateAmountReceived(
-    originDomain: string,
-    destinationDomain: string,
-    originTokenAddress: string,
-    amount: BigNumberish,
-    receiveLocal = false,
-  ): Promise<{
-    amountReceived: BigNumberish;
-    originSlippage: BigNumberish;
-    routerFee: BigNumberish;
-    destinationSlippage: BigNumberish;
-  }> {
-    const { requestContext, methodContext } = createLoggingContext(this.calculateAmountReceived.name);
-
-    const _originTokenAddress = utils.getAddress(originTokenAddress);
-
-    this.logger.info("Method start", requestContext, methodContext, {
-      originDomain,
-      destinationDomain,
-      _originTokenAddress,
-      amount,
-    });
-
-    // Calculate origin swap
-    const originPool = await this.getPool(originDomain, _originTokenAddress);
-    let originAmountReceived = amount;
-
-    // Swap IFF supplied origin token is an adopted asset
-    if (!(await this.isNextAsset(_originTokenAddress)) && originPool) {
-      originAmountReceived = await this.calculateSwap(
-        originDomain,
-        _originTokenAddress,
-        originPool.adopted.index,
-        originPool.local.index,
-        amount,
-      );
-    }
-
-    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
-    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
-    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
-
-    // Calculate destination swap
-    const [canonicalDomain, canonicalId] = await this.getCanonicalTokenId(originDomain, _originTokenAddress);
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
-    if (!destinationAssetData) {
-      throw new Error("Origin token cannot be bridged to any token on this destination domain");
-    }
-
-    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
-    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
-    let destinationAmountReceived = destinationAmount;
-
-    // Swap IFF desired destination token is an adopted asset
-    if (!receiveLocal && destinationPool) {
-      destinationAmountReceived = await this.calculateSwap(
-        destinationDomain,
-        destinationAssetData.local,
-        destinationPool.local.index,
-        destinationPool.adopted.index,
-        destinationAmount,
-      );
-    }
-
-    const destinationSlippage = BigNumber.from(
-      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
-    );
-
-    return {
-      amountReceived: destinationAmountReceived,
-      originSlippage,
-      routerFee,
-      destinationSlippage,
-    };
   }
 
   /**
@@ -785,12 +820,60 @@ export class SdkPool extends SdkShared {
   }
 
   /**
+   * Returns the transaction request for removing liquidity from a pool in one token.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param withdrawTokenAddress - The address of local or adopted token.
+   * @param amount - The amount of the token to swap.
+   * @param minAmount - (optional) The minimum acceptable amount of the token to withdraw.
+   * @param deadline - (optional) The deadline for the swap.
+   * @returns providers.TransactionRequest object.
+   */
+  async removeLiquidityOneToken(
+    domainId: string,
+    tokenAddress: string,
+    withdrawTokenAddress: string,
+    amount: string,
+    minAmount = "0",
+    deadline = this.getDefaultDeadline(),
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+    const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+    const txRequest = await connextContract.populateTransaction.removeSwapLiquidityOneToken(
+      key,
+      amount,
+      index,
+      minAmount,
+      deadline,
+    );
+
+    this.logger.info(`${this.removeLiquidityOneToken.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
    * Returns the transaction request for removing liquidity from a pool.
    *
    * @param domainId - The domain ID of the pool.
    * @param tokenAddress - The address of local or adopted token.
-   * @param amount - The amount of the token to swap.
-   * @param minAmounts - (optional) The minimum acceptable amounts of each token to burn.
+   * @param amount - The amount of the LP token to remove.
+   * @param minAmounts - (optional) The minimum amounts of each token in the pool
    * @param deadline - (optional) The deadline for the swap.
    * @returns providers.TransactionRequest object.
    */
@@ -818,7 +901,62 @@ export class SdkPool extends SdkShared {
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidity(key, amount, minAmounts, deadline);
 
-    this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
+    this.logger.info(`${this.removeLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
+   * Returns the transaction request for removing liquidity from the pool, weighted differently than the
+   * pool's current balances.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param amounts - The amounts of the each token to remove.
+   * @param maxBurnAmount - (optional) The max LP token provider is willing to pay to
+   * @param deadline - (optional) The deadline for the swap.
+   * @returns providers.TransactionRequest object.
+   */
+  async removeLiquidityImbalance(
+    domainId: string,
+    tokenAddress: string,
+    amounts: string[],
+    maxBurnAmount = "0",
+    deadline = this.getDefaultDeadline(),
+  ): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityImbalance.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, maxBurnAmount, deadline });
+
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
+      this.getConnext(domainId),
+      this.getCanonicalTokenId(domainId, _tokenAddress),
+    ]);
+    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+
+    if (maxBurnAmount === "0" || !maxBurnAmount) {
+      const poolDataResults = await this.getPoolData({ key: key, domainId: domainId });
+      if (!poolDataResults || poolDataResults.length == 0) {
+        this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
+      }
+      const poolData = poolDataResults[0]; // there should only be one pool
+      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), signerAddress)).toString();
+    }
+
+    const txRequest = await connextContract.populateTransaction.removeSwapLiquidityImbalance(
+      key,
+      amounts,
+      maxBurnAmount,
+      deadline,
+    );
+
+    this.logger.info(`${this.removeLiquidityImbalance.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }

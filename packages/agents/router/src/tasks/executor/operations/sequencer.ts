@@ -5,9 +5,9 @@ import {
   jsonifyError,
   NxtpError,
   formatUrl,
-  getChainIdFromDomain,
   ExecutorPostDataRequest,
   ExecutorData,
+  domainToChainId,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../executor";
@@ -23,7 +23,6 @@ export const sendExecuteSlowToSequencer = async (
 ): Promise<void> => {
   const {
     logger,
-    chainData,
     config,
     adapters: { chainreader },
     routerAddress,
@@ -32,7 +31,7 @@ export const sendExecuteSlowToSequencer = async (
   const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToSequencer.name, _requestContext);
   logger.debug(`Method start: ${sendExecuteSlowToSequencer.name}`, requestContext, methodContext, { args });
 
-  const destinationChainId = await getChainIdFromDomain(args.params.destinationDomain, chainData);
+  const destinationChainId = domainToChainId(+args.params.destinationDomain);
   const destinationConnextAddress = config.chains[args.params.destinationDomain].deployments.connext;
 
   // Validate the bid's fulfill call will succeed on chain.

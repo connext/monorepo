@@ -14,16 +14,18 @@ import {
   calculateSwapSchema,
   calculateTokenAmountSchema,
   calculateRemoveSwapLiquiditySchema,
+  calculateRemoveSwapLiquidityOneTokenSchema,
   getPoolSchema,
   getUserPoolsSchema,
   addLiquiditySchema,
+  removeLiquidityOneTokenSchema,
   removeLiquiditySchema,
+  removeLiquidityImbalanceSchema,
   swapSchema,
   calculateCanonicalHashSchema,
   calculateAddLiquidityPriceImpactSchema,
   calculateRemoveLiquidityPriceImpactSchema,
   calculateSwapPriceImpactSchema,
-  calculateAmountReceivedSchema,
   getTokenPriceSchema,
   getYieldStatsForDaysSchema,
   getYieldDataSchema,
@@ -179,6 +181,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   s.post(
+    "/calculateRemoveSwapLiquidityOneToken",
+    {
+      schema: {
+        body: calculateRemoveSwapLiquidityOneTokenSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, amount, index } = request.body;
+      const res = await sdkPoolInstance.calculateRemoveSwapLiquidityOneToken(domainId, tokenAddress, amount, index);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
     "/calculateAddLiquidityPriceImpact",
     {
       schema: {
@@ -216,26 +232,6 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     async (request, reply) => {
       const { domainId, amountX, tokenX, tokenY } = request.body;
       const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.post(
-    "/calculateAmountReceived",
-    {
-      schema: {
-        body: calculateAmountReceivedSchema,
-      },
-    },
-    async (request, reply) => {
-      const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal } = request.body;
-      const res = await sdkPoolInstance.calculateAmountReceived(
-        originDomain,
-        destinationDomain,
-        originTokenAddress,
-        amount,
-        receiveLocal,
-      );
       reply.status(200).send(res);
     },
   );
@@ -285,6 +281,46 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
   );
 
   s.post(
+    "/removeLiquidityOneToken",
+    {
+      schema: {
+        body: removeLiquidityOneTokenSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, withdrawTokenAddress, amount, minAmount } = request.body;
+      const res = await sdkPoolInstance.removeLiquidityOneToken(
+        domainId,
+        tokenAddress,
+        withdrawTokenAddress,
+        amount,
+        minAmount,
+      );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/removeLiquidityImbalance",
+    {
+      schema: {
+        body: removeLiquidityImbalanceSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress, amounts, maxBurnAmount, deadline } = request.body;
+      const res = await sdkPoolInstance.removeLiquidityImbalance(
+        domainId,
+        tokenAddress,
+        amounts,
+        maxBurnAmount,
+        deadline,
+      );
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
     "/removeLiquidity",
     {
       schema: {
@@ -292,8 +328,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amount } = request.body;
-      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount);
+      const { domainId, tokenAddress, amount, minAmounts } = request.body;
+      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount, minAmounts);
       reply.status(200).send(res);
     },
   );
