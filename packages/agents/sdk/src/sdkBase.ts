@@ -200,7 +200,7 @@ export class SdkBase extends SdkShared {
       });
     }
     if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
-      throw new SlippageInvalid(slippage, context);
+      throw new SlippageInvalid(slippage, params);
     }
     if (to === constants.AddressZero) {
       throw new ParamsInvalid("Valid recipient `to` address must be provided; received address(0) as recipient.");
@@ -404,7 +404,7 @@ export class SdkBase extends SdkShared {
 
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
-      throw new SlippageInvalid(_newSlippage, context);
+      throw new SlippageInvalid(_newSlippage, params);
     }
 
     const validateInput = ajv.compile(SdkUpdateSlippageParamsSchema);
