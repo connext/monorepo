@@ -3,7 +3,7 @@
 // // tests to succeed. This value should be after the contracts are configured, and at least
 // // a week prior to the current block.
 
-// Last updated: March 6 2023
+// Last updated: March 23 2023
 export const FORK_BLOCKS = {
   // MAINNETS
   1: 16712100,
@@ -13,8 +13,10 @@ export const FORK_BLOCKS = {
   137: 39744675,
   42161: 65091853,
   // TESTNETS
-  5: 8622550,
-  420: 6454570,
-  80001: 32886110,
-  421613: 10527175,
+  5: 8622550, // goerli
+  280: 1266677, // zksync2
+  420: 6454570, // opt-goerli
+  59140: 98565, // consensys zkevm
+  80001: 32886110, // mumbai
+  421613: 10527175, // arbitrum-goerli
 };
