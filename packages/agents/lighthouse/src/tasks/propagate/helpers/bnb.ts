@@ -1,10 +1,10 @@
 import { ContractInterface } from "ethers";
-import { createLoggingContext, getBestProvider, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getContext } from "../propagate";
-import { getContract, getJsonRpcProvider } from "../../../mockable";
+import { getContract, getJsonRpcProvider, getBestProvider } from "../../../mockable";
 
 export const getPropagateParams = async (
   l2domain: string,

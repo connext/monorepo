@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { generateExitPayload as _generateExitPayload } from "@connext/nxtp-utils";
+import { generateExitPayload as _generateExitPayload, getBestProvider as _getBestProvider } from "@connext/nxtp-utils";
 import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
 import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
@@ -71,3 +71,5 @@ export const getContract = (address: string, abi: ContractInterface, provider?: 
 export const getInterface = (abi: any[]) => new ethers.utils.Interface(abi);
 
 export const getBaseFee = _getBaseFee;
+
+export const getBestProvider = _getBestProvider;

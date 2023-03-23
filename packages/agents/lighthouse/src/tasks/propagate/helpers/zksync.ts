@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
-import { createLoggingContext, getBestProvider, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider, getZkSyncWeb3Provider } from "../../../mockable";
+import { getContract, getJsonRpcProvider, getZkSyncWeb3Provider, getBestProvider } from "../../../mockable";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getContext } from "../propagate";

@@ -1,6 +1,6 @@
-import { createLoggingContext, domainToChainId, getBestProvider, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId, NxtpError } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
+import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup, getBestProvider } from "../../../mockable";
 import {
   getSendOutboundRootParamsBnb,
   getSendOutboundRootParamsConsensys,
