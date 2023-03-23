@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - staging
+      - testnet-prod
       - prod
   pull_request:
   create:
