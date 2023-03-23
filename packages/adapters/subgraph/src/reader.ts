@@ -321,6 +321,7 @@ export class SubgraphReader {
     try {
       query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
       query = getOriginTransfersByIdsFallbackQuery(prefix, [`"${transferId}"`]);
     }
     const response = await execute(query);
@@ -380,6 +381,7 @@ export class SubgraphReader {
     try {
       xcalledXQuery = getOriginTransfersQuery(agents);
     } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
       xcalledXQuery = getOriginTransfersFallbackQuery(agents);
     }
     const response = await execute(xcalledXQuery);
@@ -528,6 +530,7 @@ export class SubgraphReader {
     try {
       xcalledXQuery = getOriginTransfersQuery(agents);
     } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
       xcalledXQuery = getOriginTransfersFallbackQuery(agents);
     }
     const response = await execute(xcalledXQuery);
@@ -662,6 +665,7 @@ export class SubgraphReader {
     try {
       originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
     } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
       originTransfersQuery = getOriginTransfersByIdsFallbackQuery(prefix, quotedTransferIds);
     }
     const response = await execute(originTransfersQuery);
