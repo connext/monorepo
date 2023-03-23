@@ -45,7 +45,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const chains = configJson.chains;
   for (const key in chains) {
     const chain = chains[key];
-    const url: string = await getBestProvider(chain.providers as string[]);
+    const url = await getBestProvider(chain.providers as string[]);
     const provider = new ethers.providers.JsonRpcProvider(url);
     configuredProviders[key] = provider;
   }

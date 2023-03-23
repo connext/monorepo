@@ -27,7 +27,7 @@ export const getPropagateParams = async (
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = getBestProvider(config.chains[config.hubDomain]?.providers);
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }

@@ -39,7 +39,7 @@ export const sendOutboundRoot = async () => {
 
     // Check if outbound root already sent!
     const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
-    const l2Provider = getBestProvider(config.chains[domain].providers);
+    const l2Provider = await getBestProvider(config.chains[domain].providers);
     logger.info("Checking if outboundroot already sent", requestContext, methodContext, {
       domain,
       spokeConnectorAddress,
