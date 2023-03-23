@@ -5,7 +5,7 @@ import { BigNumber, constants, providers } from "ethers";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import * as Mockable from "../../../../src/mockable";
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/arbitrum";
-import { getInterfaceMock, propagateCtxMock } from "../../../globalTestHook";
+import { getBestProviderMock, getInterfaceMock, propagateCtxMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 
@@ -27,6 +27,7 @@ describe("Helpers: Arbitrum ", () => {
   describe("#getPropagateParams", () => {
     it("should throw an error if no provider for spoke domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.B];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
