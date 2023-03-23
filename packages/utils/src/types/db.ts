@@ -72,6 +72,69 @@ export const transfersCastForUrl =
     "execute_simulation_network",
   ].join(",");
 
+// TODO: Remove after all routers support multiple relayer fee assets
+// INFO: https://github.com/connext/monorepo/issues/3811
+// Handle entity from previous DB schema for backwards compatibility
+export const transfersCastForUrlFallback =
+  "select=" +
+  [
+    "transfer_id",
+    "nonce",
+    "to",
+    "call_data",
+    "origin_domain",
+    "canonical_domain",
+    "canonical_id",
+    "destination_domain",
+    "bridged_amt",
+    "normalized_in",
+    "origin_sender",
+    "origin_chain",
+    "origin_transacting_asset",
+    "origin_transacting_amount",
+    "origin_bridged_asset",
+    "origin_bridged_amount",
+    "xcall_caller",
+    "xcall_transaction_hash",
+    "xcall_timestamp",
+    "xcall_gas_price",
+    "xcall_gas_limit",
+    "xcall_block_number",
+    "xcall_tx_origin",
+    "destination_chain",
+    "receive_local",
+    "status",
+    "routers",
+    "delegate",
+    "slippage",
+    "updated_slippage",
+    "destination_transacting_asset",
+    "destination_transacting_amount",
+    "destination_local_asset",
+    "destination_local_amount",
+    "execute_caller",
+    "execute_transaction_hash",
+    "execute_timestamp",
+    "execute_gas_price",
+    "execute_gas_limit",
+    "execute_block_number",
+    "execute_origin_sender",
+    "execute_tx_origin",
+    "reconcile_caller",
+    "reconcile_transaction_hash",
+    "reconcile_timestamp",
+    "reconcile_gas_price",
+    "reconcile_gas_limit",
+    "reconcile_block_number",
+    "reconcile_tx_origin",
+    "relayer_fee",
+    "error_status",
+    "execute_simulation_input",
+    "execute_simulation_from",
+    "execute_simulation_to",
+    "execute_simulation_network",
+  ].join(",");
+
 /**
  * Converts a transfer from the cartographer db through either DB queries or Postgrest into the XTransfer type
  * @param transfer - the transfer from the cartographer db as a JSON object
