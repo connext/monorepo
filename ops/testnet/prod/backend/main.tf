@@ -92,6 +92,7 @@ module "cartographer-routers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "routers" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-transfers-lambda-cron" {
@@ -103,6 +104,7 @@ module "cartographer-transfers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-messages-lambda-cron" {
@@ -114,6 +116,7 @@ module "cartographer-messages-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "messages" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-roots-lambda-cron" {
@@ -125,6 +128,7 @@ module "cartographer-roots-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "roots" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-stableswap-lambda-cron" {
@@ -136,6 +140,7 @@ module "cartographer-stableswap-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "stableswap" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 
