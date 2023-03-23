@@ -1,10 +1,16 @@
-import { createLoggingContext, NxtpError, getBestProvider, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
-import { getJsonRpcProvider, getL1ToL2MessageGasEstimator, getBaseFee, getInterface } from "../../../mockable";
+import {
+  getJsonRpcProvider,
+  getL1ToL2MessageGasEstimator,
+  getBaseFee,
+  getInterface,
+  getBestProvider,
+} from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (

@@ -1,9 +1,9 @@
-import { createLoggingContext, getChainIdFromDomain, getBestProvider } from "@connext/nxtp-utils";
+import { createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
 
 import { getContext } from "../sendOutboundRoot";
 import { ExtraSendOutboundRootParam } from "../operations/sendOutboundRoot";
 import { NoProviderForDomain, NoSpokeConnector } from "../../propagate/errors";
-import { getInterface } from "../../../mockable";
+import { getInterface, getBestProvider } from "../../../mockable";
 
 export const getSendOutboundRootParams = async (l2domain: string): Promise<ExtraSendOutboundRootParam> => {
   const {
