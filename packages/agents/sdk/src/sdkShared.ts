@@ -17,6 +17,17 @@ import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
+declare global {
+  interface Window {
+    ethereum?: providers.ExternalProvider;
+    web3?: {
+      currentProvider: providers.ExternalProvider;
+    };
+  }
+}
+
+declare const window: Window;
+
 /**
  * @classdesc SDK class encapsulating shared logic to be inherited.
  *
@@ -44,12 +55,17 @@ export class SdkShared {
   );
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
+   * If a web3 provider is detected in a browser environment, it will be used instead.
    *
    * @param domainId - The domain ID.
    * @returns providers.StaticJsonRpcProvider object.
    */
   getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
-    return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
+    if (typeof window !== "undefined" && (window.ethereum || window.web3)) {
+      return new providers.Web3Provider(window.ethereum || window.web3!.currentProvider);
+    } else {
+      return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
+    }
   });
 
   getDeploymentAddress = memoize(
