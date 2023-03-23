@@ -24,8 +24,8 @@ export const fetchJson = utils.fetchJson;
  * @param rpcUrls - The source list
  * @returns - The best RPC URL
  */
-export const getBestProvider = async (rpcUrls: string[]): Promise<string> => {
-  let bestProvider = "";
+export const getBestProvider = async (rpcUrls: string[]): Promise<string | undefined> => {
+  let bestProvider: string | undefined = undefined;
   let bestLatency = Infinity;
 
   for (const url of rpcUrls) {
