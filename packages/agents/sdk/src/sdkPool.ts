@@ -186,11 +186,6 @@ export class SdkPool extends SdkShared {
 
     const promises: Promise<any>[] = [];
 
-    // Determine if fast liquidity is available (pre-destination-swap amount)
-    if (checkFastLiquidity) {
-      promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
-    }
-
     // Swap IFF desired destination token is an adopted asset
     if (!receiveLocal && destinationPool) {
       promises.push(
@@ -204,7 +199,12 @@ export class SdkPool extends SdkShared {
       );
     }
 
-    const [activeLiquidity, destinationAmountReceivedSwap] = await Promise.all(promises);
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    if (checkFastLiquidity) {
+      promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+    }
+
+    const [destinationAmountReceivedSwap, activeLiquidity] = await Promise.all(promises);
     destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
 
     // Default true, set to false if fast liquidity is not available
