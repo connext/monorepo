@@ -73,8 +73,16 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     }
     const port = +forkConfig.url.split("http://")[1].split(":")[1];
     const command = `anvil --fork-url ${config.url} --fork-block-number ${forkBlock} --port ${port} --block-time 2 >/dev/null 2>&1 &`;
-    console.log(`\ntrying to create fork:`, command);
+    console.log(`\ntrying to create fork ${chain}:`, command);
     await execAsync(command);
+    // sanity check: chainids match
+    const forkN = await new providers.JsonRpcProvider(forkConfig.url as string).getNetwork();
+    const n = await new providers.JsonRpcProvider(config.url as string).getNetwork();
+    if (n.chainId !== forkN.chainId) {
+      console.log("forking from", config.url);
+      console.log("forking chain", chain);
+      throw new Error(`fork (${forkN.chainId}) / network (${n.chainId}) chain id mismatch`);
+    }
     // update network info
     networkInfo[chain] = {
       default: { name, config, rpc: config.url! },
@@ -95,7 +103,7 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     const copy = `cp -R ${sourceDirectory} ${forkDirectory}`;
     console.log(`\ntrying to copy over deployments:`, copy);
     await execAsync(copy);
-    console.log(`completed deployment on ${chain}`);
+    console.log(`completed copying deployment on ${chain}`);
 
     // run preflight
     await preflight(tag, networkInfo[chain]);
