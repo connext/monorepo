@@ -25,8 +25,8 @@ contract RelayerProxyTest is ForgeHelper {
   address _gelatoRelayer = address(123444412);
   address _feeCollector = address(12335555);
   address _keep3r = address(12335556);
-  address[] _priorityKeepers = new address[](1);
-  uint32 _priorityWindowSecs = 60;
+  address _autonolas = address(12335557);
+  uint8 _autonolasPriority = 4;
 
   RelayerProxy proxy;
 
@@ -48,16 +48,14 @@ contract RelayerProxyTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);
 
-    _priorityKeepers[0] = address(12335557);
-
     proxy = new RelayerProxy(
       _connext,
       _spokeConnector,
       _gelatoRelayer,
       _feeCollector,
       _keep3r,
-      _priorityKeepers,
-      _priorityWindowSecs
+      _autonolas,
+      _autonolasPriority
     );
   }
 

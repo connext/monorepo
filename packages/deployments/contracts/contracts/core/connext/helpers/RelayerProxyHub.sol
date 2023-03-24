@@ -155,22 +155,12 @@ contract RelayerProxyHub is RelayerProxy {
     address _feeCollector,
     address _rootManager,
     address _keep3r,
+    address _autonolas,
+    uint8 _autonolasPriority,
     uint256 _propagateCooldown,
-    address[] memory _priorityKeepers,
-    uint32 _priorityWindowSecs,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
-  )
-    RelayerProxy(
-      _connext,
-      _spokeConnector,
-      _gelatoRelayer,
-      _feeCollector,
-      _keep3r,
-      _priorityKeepers,
-      _priorityWindowSecs
-    )
-  {
+  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r, _autonolas, _autonolasPriority) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
@@ -227,14 +217,8 @@ contract RelayerProxyHub is RelayerProxy {
     transferRelayerFee(_relayerFee);
   }
 
-  // Returns a boolean that indicates if a job is workable or not.
-  // Gives the priority keeper a window to work the job before other relayers.
+  // Returns a boolean that indicates if the propagate job is workable or not.
   function propagateWorkable() public view returns (bool _isWorkable) {
-    return block.timestamp > (lastPropagateAt + propagateCooldown + priorityWindowSecs);
-  }
-
-  // Returns a boolean that indicates if a job is workable or not by a priority keeper.
-  function propagateWorkableByPriorityKeeper() public view returns (bool _isWorkable) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
   }
 
@@ -252,11 +236,9 @@ contract RelayerProxyHub is RelayerProxy {
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
   ) external validateAndPayWithCredits(msg.sender) nonReentrant {
-    if (priorityKeepers[msg.sender] == true) {
-      require(propagateWorkableByPriorityKeeper(), "Job is not workable");
-    } else {
-      require(propagateWorkable(), "Job is not workable");
-    }
+    require(isWorkableBySender(msg.sender), "Job is not workable by sender");
+    require(propagateWorkable(), "Job is not workable");
+
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
   }
@@ -274,6 +256,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint32 _fromChain,
     bytes32 _l2Hash
   ) external validateAndPayWithCredits(msg.sender) {
+    require(isWorkableBySender(msg.sender), "Job is not workable by sender");
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 

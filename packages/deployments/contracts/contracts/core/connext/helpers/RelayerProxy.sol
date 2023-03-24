@@ -44,7 +44,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
-  uint32 public priorityWindowSecs;
+  // special consideration for Autonolas keeper
+  address public autonolas;
+  // number between 0 and 9 to determine priority that Autonolas has for jobs
+  uint8 public autonolasPriority;
 
   mapping(address => bool) public allowedRelayer;
   mapping(address => bool) public priorityKeepers;
@@ -127,29 +130,24 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   /**
    * @notice Emitted when Keep3r address is updated by admin
-   * @param keep3r New Keep3r address in the contract
-   * @param oldKeep3r Old Keep3r address in the contract
+   * @param updated New Keep3r address in the contract
+   * @param previous Old Keep3r address in the contract
    */
-  event Keep3rChanged(address keep3r, address oldKeep3r);
+  event Keep3rChanged(address updated, address previous);
 
   /**
-   * @notice Emitted when a new priority keeper is added by admin
-   * @param keeper Address of the added priority keeper
+   * @notice Emitted when Autonolas address is updated by admin
+   * @param updated New Autonolas address in the contract
+   * @param previous Old Autonolas address in the contract
    */
-  event PriorityKeeperAdded(address keeper);
+  event AutonolasChanged(address updated, address previous);
 
   /**
-   * @notice Emitted when a priority keeper is removed by admin
-   * @param keeper Address of the removed priority keeper
+   * @notice Emitted when Autonolas priority is updated by admin
+   * @param updated New Autonolas priority in the contract
+   * @param previous Old Autonolas priority in the contract
    */
-  event PriorityKeeperRemoved(address keeper);
-
-  /**
-   * @notice Emitted when the priority window is updated by admin
-   * @param secs New priority window in seconds
-   * @param oldSecs Old priority window in seconds
-   */
-  event PriorityWindowSecsChanged(uint32 secs, uint32 oldSecs);
+  event AutonolasPriorityChanged(uint8 updated, uint8 previous);
 
   // ============ Constructor ============
 
@@ -166,8 +164,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     address _gelatoRelayer,
     address _feeCollector,
     address _keep3r,
-    address[] memory _priorityKeepers,
-    uint32 _priorityWindowSecs
+    address _autonolas,
+    uint8 _autonolasPriority
   ) ProposedOwnable() {
     _setOwner(msg.sender);
     _setConnext(_connext);
@@ -175,14 +173,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setGelatoRelayer(_gelatoRelayer);
     _setFeeCollector(_feeCollector);
     _setKeep3r(_keep3r);
+    _setAutonolas(_autonolas);
+    _setAutonolasPriority(_autonolasPriority);
 
     _addRelayer(_gelatoRelayer);
-
-    for (uint256 i = 0; i < _priorityKeepers.length; i++) {
-      _addPriorityKeeper(_priorityKeepers[i]);
-    }
-
-    _setPriorityWindowSecs(_priorityWindowSecs);
   }
 
   // ============ Admin Functions ============
@@ -251,30 +245,19 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   /**
-   * @notice Adds a priority keeper.
-   *
-   * @param _keeper - New Keep3r contract address.
+   * @notice Updates the Autonolas contract address on this contract.
+   * @param _autonolas - New Autonolas contract address.
    */
-  function addKeeper(address _keeper) external onlyOwner definedAddress(_keeper) {
-    _addPriorityKeeper(_keeper);
+  function setAutonolas(address _autonolas) external onlyOwner definedAddress(_autonolas) {
+    _setAutonolas(_autonolas);
   }
 
   /**
-   * @notice Removes a priority keeper.
-   *
-   * @param _keeper - New Keep3r contract address.
+   * @notice Updates the Autonolas priority on this contract.
+   * @param _autonolasPriority - New Autonolas priority.
    */
-  function removeKeeper(address _keeper) external onlyOwner definedAddress(_keeper) {
-    _removePriorityKeeper(_keeper);
-  }
-
-  /**
-   * @notice Updates the priority window in seconds.
-   *
-   * @param _priorityWindowSecs - New priority window in seconds.
-   */
-  function setPriorityWindowSecs(uint32 _priorityWindowSecs) external onlyOwner {
-    _setPriorityWindowSecs(_priorityWindowSecs);
+  function setAutonolasPriority(uint8 _autonolasPriority) external onlyOwner {
+    _setAutonolasPriority(_autonolasPriority);
   }
 
   /**
@@ -287,6 +270,19 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   // ============ External Functions ============
+
+  /**
+   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
+   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2, and 3.
+   * @param sender The address of the caller
+   */
+  function isWorkableBySender(address sender) public view returns (bool) {
+    if (sender == autonolas) {
+      return block.number % 10 <= autonolasPriority;
+    } else {
+      return block.number % 10 > autonolasPriority;
+    }
+  }
 
   /**
    * @notice Wraps the call to execute() on Connext and pays either the caller or hardcoded relayer from this
@@ -401,18 +397,13 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     keep3r = IKeep3rV2(_keep3r);
   }
 
-  function _addPriorityKeeper(address _priorityKeeper) internal {
-    emit PriorityKeeperAdded(_priorityKeeper);
-    priorityKeepers[_priorityKeeper] = true;
+  function _setAutonolas(address _autonolas) internal {
+    emit AutonolasChanged(_autonolas, autonolas);
+    autonolas = _autonolas;
   }
 
-  function _removePriorityKeeper(address _priorityKeeper) internal {
-    emit PriorityKeeperRemoved(_priorityKeeper);
-    priorityKeepers[_priorityKeeper] = false;
-  }
-
-  function _setPriorityWindowSecs(uint32 _priorityWindowSecs) internal {
-    emit PriorityWindowSecsChanged(_priorityWindowSecs, priorityWindowSecs);
-    priorityWindowSecs = _priorityWindowSecs;
+  function _setAutonolasPriority(uint8 _autonolasPriority) internal {
+    emit AutonolasPriorityChanged(_autonolasPriority, autonolasPriority);
+    autonolasPriority = _autonolasPriority;
   }
 }
