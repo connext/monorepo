@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 2.0.0-alpha.0
+
+- [all] Testnet support for relayer fee in transacting asset
+
 ## Amarok 1.2.0-alpha.0
 
 - [sdk] Add removeLiquidityOneToken, removeLiquidityImbalance, calculateRemoveSwapLiquidityOneToken methods
