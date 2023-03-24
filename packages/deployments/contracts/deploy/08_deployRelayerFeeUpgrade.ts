@@ -23,10 +23,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("zksync: ", zksync);
 
   // Deploy BridgeFacet
-  console.log("Deploying BridgeFacet...");
   const contractName = "BridgeFacet";
+  const deploymentName = getDeploymentName(contractName);
+  console.log("Deploying BridgeFacet...");
 
-  const deployment = await hre.deployments.deploy(getDeploymentName(contractName), {
+  const deployment = await hre.deployments.deploy(deploymentName, {
     contract: contractName,
     args: [],
     from: deployer.address,
@@ -34,9 +35,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     skipIfAlreadyDeployed: true,
     // deterministicDeployment: true,
   });
-  console.log(`deployed ${getDeploymentName(contractName)} at ${deployment.address}`);
-
-  // TODO: export && verify
+  console.log(`deployed ${deploymentName} at ${deployment.address}`);
 };
 func.tags = ["relayer-fee-upgrade"];
 
