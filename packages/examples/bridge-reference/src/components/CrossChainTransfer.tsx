@@ -101,38 +101,34 @@ export const CrossChainTransfer = () => {
         <SelectChain
           onSelect={(c) => {
             const _source_chain: Chain | undefined = c;
-            const _destination_chain = c === bridge.destination_chain ? bridge.source_chain : bridge.destination_chain;
+            console.log(`selected chain: ${c?.name}`);
 
             setBridge({
               ...bridge,
               source_chain: _source_chain,
-              destination_chain: _destination_chain,
             });
 
             getBalances(_source_chain);
-            getBalances(_destination_chain);
           }}
-          source_chain={bridge.source_chain}
-          destination_chain={bridge.destination_chain}
           chain_terminus={ChainTerminus.origin}
+          chain={bridge.source_chain}
         />
         <SelectChain
           onSelect={(c) => {
-            const _source_chain = c === bridge.source_chain ? bridge.destination_chain : bridge.source_chain;
+            // const _source_chain = c === bridge.source_chain ? bridge.destination_chain : bridge.source_chain;
+            console.log(`selected chain: ${c?.name}`);
             const _destination_chain: Chain | undefined = c;
 
             setBridge({
               ...bridge,
-              source_chain: _source_chain,
               destination_chain: _destination_chain,
             });
 
-            getBalances(_source_chain);
+            // getBalances(_source_chain);
             getBalances(_destination_chain);
           }}
-          source_chain={bridge.source_chain}
-          destination_chain={bridge.destination_chain}
           chain_terminus={ChainTerminus.destination}
+          chain={bridge.destination_chain}
         />
       </div>
       <SelectAsset
