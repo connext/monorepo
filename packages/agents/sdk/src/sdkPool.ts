@@ -126,6 +126,7 @@ export class SdkPool extends SdkShared {
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
    * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
@@ -134,6 +135,7 @@ export class SdkPool extends SdkShared {
     originTokenAddress: string,
     amount: BigNumberish,
     receiveLocal = false,
+    checkFastLiquidity = false,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -185,7 +187,9 @@ export class SdkPool extends SdkShared {
     const promises: Promise<any>[] = [];
 
     // Determine if fast liquidity is available (pre-destination-swap amount)
-    // promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+    if (checkFastLiquidity) {
+      promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+    }
 
     // Swap IFF desired destination token is an adopted asset
     if (!receiveLocal && destinationPool) {
@@ -200,12 +204,14 @@ export class SdkPool extends SdkShared {
       );
     }
 
-    const [destinationAmountReceivedSwap] = await Promise.all(promises);
+    const [activeLiquidity, destinationAmountReceivedSwap] = await Promise.all(promises);
     destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
-    const isFastPath = true;
-    // if (activeLiquidity.length > 0) {
-    //   isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
-    // }
+
+    // Default true, set to false if fast liquidity is not available
+    let isFastPath = true;
+    if (activeLiquidity?.length > 0) {
+      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
+    }
     const destinationSlippage = BigNumber.from(
       destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
     );

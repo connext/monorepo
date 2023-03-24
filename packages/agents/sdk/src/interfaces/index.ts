@@ -98,6 +98,7 @@ export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
   originTokenAddress: Type.String(),
   amount: Type.String(),
   receiveLocal: Type.Optional(Type.Boolean()),
+  checkFastLiquidity: Type.Optional(Type.Boolean()),
 });
 
 export type SdkCalculateAmountReceivedParams = Static<typeof SdkUpdateSlippageParamsSchema>;
