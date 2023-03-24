@@ -64,6 +64,19 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _;
   }
 
+  /**
+   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
+   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2, and 3.
+   * @param _sender The address of the caller
+   */
+  modifier isWorkableBySender(address _sender) {
+    require(
+      _sender == autonolas ? block.number % 10 <= autonolasPriority : block.number % 10 > autonolasPriority,
+      "!workable"
+    );
+    _;
+  }
+
   // Modifier in charge of verifying if the caller is a registered keeper as well as
   // rewarding them with an amount of KP3R equal to their gas spent + premium.
   modifier validateAndPayWithCredits(address _keeper) {
@@ -270,19 +283,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   // ============ External Functions ============
-
-  /**
-   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
-   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2, and 3.
-   * @param sender The address of the caller
-   */
-  function isWorkableBySender(address sender) public view returns (bool) {
-    if (sender == autonolas) {
-      return block.number % 10 <= autonolasPriority;
-    } else {
-      return block.number % 10 > autonolasPriority;
-    }
-  }
 
   /**
    * @notice Wraps the call to execute() on Connext and pays either the caller or hardcoded relayer from this

@@ -133,6 +133,12 @@ contract RelayerProxyHub is RelayerProxy {
   mapping(uint32 => mapping(bytes32 => bool)) public processedRootMessages;
   mapping(uint32 => address) public hubConnectors;
 
+  // ============ Modifiers ============
+  modifier propagateWorkable() {
+    require(block.timestamp > (lastPropagateAt + propagateCooldown), "Propagate job not workable");
+    _;
+  }
+
   // ============ Events ============
   event RootManagerChanged(address rootManager, address oldRootManager);
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
@@ -217,11 +223,6 @@ contract RelayerProxyHub is RelayerProxy {
     transferRelayerFee(_relayerFee);
   }
 
-  // Returns a boolean that indicates if the propagate job is workable or not.
-  function propagateWorkable() public view returns (bool _isWorkable) {
-    return block.timestamp > (lastPropagateAt + propagateCooldown);
-  }
-
   /**
    * @notice Wraps the call to propagate() on RootManager and pays with Keep3r credits. Only allowed to be called
    * by registered Keep3r.
@@ -235,10 +236,7 @@ contract RelayerProxyHub is RelayerProxy {
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
-  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
-    require(isWorkableBySender(msg.sender), "Job is not workable by sender");
-    require(propagateWorkable(), "Job is not workable");
-
+  ) external propagateWorkable isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
   }
@@ -255,8 +253,7 @@ contract RelayerProxyHub is RelayerProxy {
     bytes calldata _encodedData,
     uint32 _fromChain,
     bytes32 _l2Hash
-  ) external validateAndPayWithCredits(msg.sender) {
-    require(isWorkableBySender(msg.sender), "Job is not workable by sender");
+  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) {
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 
