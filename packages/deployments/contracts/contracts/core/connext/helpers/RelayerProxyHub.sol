@@ -135,7 +135,9 @@ contract RelayerProxyHub is RelayerProxy {
 
   // ============ Modifiers ============
   modifier propagateWorkable() {
-    require(block.timestamp > (lastPropagateAt + propagateCooldown), "Propagate job not workable");
+    if (block.timestamp <= (lastPropagateAt + propagateCooldown)) {
+      revert RelayerProxyHub__propagateWorkable_failed(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
     _;
   }
 
@@ -143,6 +145,11 @@ contract RelayerProxyHub is RelayerProxy {
   event RootManagerChanged(address rootManager, address oldRootManager);
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
+
+  // ============ Errors ============
+  error RelayerProxyHub__propagateWorkable_failed(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
+  error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
 
   // ============ Constructor ============
 
@@ -299,8 +306,12 @@ contract RelayerProxyHub is RelayerProxy {
    * Decodes the encodedData and calls the appropriate HubConnector function.
    */
   function _processFromRoot(bytes calldata encodedData, uint32 fromChain, bytes32 l2Hash) internal {
-    require(!processedRootMessages[fromChain][l2Hash], "Already processed");
-    require(hubConnectors[fromChain] != address(0), "No hub connector");
+    if (processedRootMessages[fromChain][l2Hash]) {
+      revert RelayerProxyHub__processFromRoot_alreadyProcessed(fromChain, l2Hash);
+    }
+    if (hubConnectors[fromChain] == address(0)) {
+      revert RelayerProxyHub__processFromRoot_noHubConnector(fromChain);
+    }
 
     processedRootMessages[fromChain][l2Hash] = true;
 

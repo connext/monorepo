@@ -55,12 +55,16 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   // ============ Modifier ============
 
   modifier onlyRelayer() {
-    require(allowedRelayer[msg.sender], "!relayer");
+    if (!allowedRelayer[msg.sender]) {
+      revert RelayerProxy__onlyRelayer_notRelayer(msg.sender);
+    }
     _;
   }
 
   modifier definedAddress(address _input) {
-    require(_input != address(0), "empty");
+    if (_input == address(0)) {
+      revert RelayerProxy__definedAddress_empty(_input);
+    }
     _;
   }
 
@@ -70,17 +74,18 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param _sender The address of the caller
    */
   modifier isWorkableBySender(address _sender) {
-    require(
-      _sender == autonolas ? block.number % 10 <= autonolasPriority : block.number % 10 > autonolasPriority,
-      "!workable"
-    );
+    if (_sender == autonolas ? block.number % 10 > autonolasPriority : block.number % 10 <= autonolasPriority) {
+      revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
+    }
     _;
   }
 
   // Modifier in charge of verifying if the caller is a registered keeper as well as
   // rewarding them with an amount of KP3R equal to their gas spent + premium.
   modifier validateAndPayWithCredits(address _keeper) {
-    require(keep3r.isKeeper(_keeper), "!keeper");
+    if (!keep3r.isKeeper(_keeper)) {
+      revert RelayerProxy__validateAndPayWithCredits_notKeep3r(_keeper);
+    }
     _;
     keep3r.worked(_keeper); // Pays the keeper for the work.
   }
@@ -161,6 +166,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param previous Old Autonolas priority in the contract
    */
   event AutonolasPriorityChanged(uint8 updated, uint8 previous);
+
+  // ============ Error ============
+  error RelayerProxy__addRelayer_relayerAdded(address _relayer);
+  error RelayerProxy__removeRelayer_relayerNotAdded(address _relayer);
+  error RelayerProxy__onlyRelayer_notRelayer(address _sender);
+  error RelayerProxy__definedAddress_empty(address _address);
+  error RelayerProxy__isWorkableBySender_notWorkable(address _sender);
+  error RelayerProxy__validateAndPayWithCredits_notKeep3r(address _sender);
 
   // ============ Constructor ============
 
@@ -359,14 +372,18 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   function _addRelayer(address _relayer) internal {
-    require(!allowedRelayer[_relayer], "added");
+    if (allowedRelayer[_relayer]) {
+      revert RelayerProxy__addRelayer_relayerAdded(_relayer);
+    }
 
     allowedRelayer[_relayer] = true;
     emit RelayerAdded(_relayer);
   }
 
   function _removeRelayer(address _relayer) internal {
-    require(allowedRelayer[_relayer], "!added");
+    if (!allowedRelayer[_relayer]) {
+      revert RelayerProxy__removeRelayer_relayerNotAdded(_relayer);
+    }
 
     allowedRelayer[_relayer] = false;
     emit RelayerRemoved(_relayer);
