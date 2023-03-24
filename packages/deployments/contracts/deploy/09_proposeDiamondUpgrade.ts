@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 
+import { config as dotenvConfig } from "dotenv";
 import { Contract, Wallet, constants } from "ethers";
 import { DeployFunction, DeploymentSubmission } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -8,6 +9,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getFacetsToDeploy } from "../deployConfig";
 import { getProposedFacetCuts, FacetOptions, getUpgradedAbi } from "../deployHelpers";
 import { getDeploymentName } from "../src";
+
+dotenvConfig();
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -107,6 +110,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     // Reset acceptance time
     acceptanceTime = (await connext.getAcceptanceTime(generated, constants.AddressZero, "0x")).toNumber();
+  }
+
+  // Check to see if the proposal should be accepted automatically
+  const accept = process.env.ACCEPT_PROPOSAL === "true";
+  const upgradeData = connext.interface.encodeFunctionData("diamondCut", [generated, constants.AddressZero, "0x"]);
+  if (!accept) {
+    console.log(`Not attempting upgrade acceptance. upgrade tx:`, {
+      to: connext.address,
+      data: upgradeData,
+      from: deployer.address,
+    });
+    return;
   }
 
   // Attempt to accept the proposal if possible
