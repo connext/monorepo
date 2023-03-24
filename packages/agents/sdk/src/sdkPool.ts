@@ -1282,11 +1282,7 @@ export class SdkPool extends SdkShared {
     > => {
       const _tokenAddress = utils.getAddress(tokenAddress);
 
-      const provider = this.getProvider(domainId);
-      const block = await provider.getBlock("latest");
-      const endTimestamp = block.timestamp;
-
-      const yieldStats = await this.getYieldStatsForDays(domainId, _tokenAddress, endTimestamp, days);
+      const yieldStats = await this.getYieldStatsForDays(domainId, _tokenAddress, Date.now(), days);
 
       if (yieldStats) {
         const {
