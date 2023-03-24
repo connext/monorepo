@@ -210,7 +210,8 @@ export class SdkPool extends SdkShared {
     // Default true, set to false if fast liquidity is not available
     let isFastPath = true;
     if (activeLiquidity?.length > 0) {
-      isFastPath = BigNumber.from(activeLiquidity[0].total_balance).mul(70).div(100).gt(destinationAmount);
+      const total_balance: string = activeLiquidity[0].total_balance.toString();
+      isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(destinationAmount);
     }
     const destinationSlippage = BigNumber.from(
       destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
@@ -223,6 +224,23 @@ export class SdkPool extends SdkShared {
       destinationSlippage,
       isFastPath,
     };
+  }
+
+  /**
+   * Helper function to convert a number string in scientific notation to BigInt.
+   *
+   * @param scientificNotationString - The number string in scientific notation.
+   * @returns BigInt result.
+   */
+  scientificToBigInt(scientificNotationString: string) {
+    const [coeff, exp] = scientificNotationString.split("e").map((item) => parseFloat(item));
+    const decimalParts = coeff.toString().split(".");
+    const numDecimals = decimalParts[1]?.length || 0;
+
+    const bigIntCoeff = BigInt(decimalParts.join(""));
+    const bigIntExp = BigInt(exp - numDecimals);
+
+    return bigIntCoeff * BigInt(10) ** bigIntExp;
   }
 
   /**
