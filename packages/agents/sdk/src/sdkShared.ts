@@ -68,10 +68,12 @@ export class SdkShared {
       const desiredChainId = await this.getChainId(domainId);
 
       if (browserChainId === desiredChainId) {
+        this.logger.info(`Using browser provider for domain: ${domainId}`);
         return browserProvider;
       }
     }
 
+    this.logger.info(`Using static provider for domain: ${domainId}`);
     return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
   }
 

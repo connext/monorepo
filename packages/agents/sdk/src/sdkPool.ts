@@ -484,7 +484,7 @@ export class SdkPool extends SdkShared {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const erc20Contract = await this.getERC20(domainId, _tokenAddress);
-    const amount = erc20Contract.totalSupply();
+    const amount = await erc20Contract.totalSupply();
 
     return amount;
   }
@@ -501,7 +501,7 @@ export class SdkPool extends SdkShared {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const erc20Contract = await this.getERC20(domainId, _tokenAddress);
-    const balance = erc20Contract.balanceOf(userAddress);
+    const balance = await erc20Contract.balanceOf(userAddress);
 
     return balance;
   }
