@@ -1,3 +1,5 @@
+import { utils } from "ethers";
+
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
@@ -82,31 +84,29 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "1735353714",
         address: "0x5c8279211C48abb8b2c104b493561e1EcFB9a595",
         decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0xA923FfCD26F13F3eC0eb9b5792403B919313Eb39",
-          adopted: "0xA923FfCD26F13F3eC0eb9b5792403B919313Eb39",
+          adopted: "0x1956831c14d2e193386159837644F193D12b2755",
+          local: "0x1956831c14d2e193386159837644F193D12b2755",
         },
         /// MUMBAI
         "9991": {
-          local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-          adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+          adopted: "0xfA2F9cE589b30F1E4C8Bf20BcB496032087baaF0",
+          local: "0xfA2F9cE589b30F1E4C8Bf20BcB496032087baaF0",
         },
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0x316C21387C95723112aB4206e38B806a194a8a53",
-          adopted: "0x316C21387C95723112aB4206e38B806a194a8a53",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
         /// ZKSYNC-TEST
         "2053862260": {
-          local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
         /// CONSENSYS-ZKEVM-TEST
         "1668247156": {
-          local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
       },
