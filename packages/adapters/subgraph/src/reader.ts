@@ -34,7 +34,9 @@ import {
   getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
   getOriginTransfersByIdsQuery,
+  getOriginTransfersByIdsFallbackQuery,
   getOriginTransfersQuery,
+  getOriginTransfersFallbackQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
   getAssetBalancesRoutersQuery,
@@ -315,7 +317,13 @@ export class SubgraphReader {
     const { config } = getContext();
     const prefix: string = getPrefixForDomain(domain);
 
-    const query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
+    let query = undefined;
+    try {
+      query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
+    } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
+      query = getOriginTransfersByIdsFallbackQuery(prefix, [`"${transferId}"`]);
+    }
     const response = await execute(query);
     const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
     return transfers.length === 1 ? parser.originTransfer(transfers[0], config.assetId[domain]) : undefined;
@@ -369,7 +377,13 @@ export class SubgraphReader {
   public async getOriginTransfers(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
-    const xcalledXQuery = getOriginTransfersQuery(agents);
+    let xcalledXQuery = undefined;
+    try {
+      xcalledXQuery = getOriginTransfersQuery(agents);
+    } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
+      xcalledXQuery = getOriginTransfersFallbackQuery(agents);
+    }
     const response = await execute(xcalledXQuery);
     const transfers: any[] = [];
     for (const key of response.keys()) {
@@ -512,7 +526,13 @@ export class SubgraphReader {
   }> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
-    const xcalledXQuery = getOriginTransfersQuery(agents);
+    let xcalledXQuery = undefined;
+    try {
+      xcalledXQuery = getOriginTransfersQuery(agents);
+    } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
+      xcalledXQuery = getOriginTransfersFallbackQuery(agents);
+    }
     const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
@@ -641,7 +661,13 @@ export class SubgraphReader {
     if (transferIds.length == 0) return [];
     const quotedTransferIds = transferIds.map((id) => `"${id}"`);
 
-    const originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
+    let originTransfersQuery = undefined;
+    try {
+      originTransfersQuery = getOriginTransfersByIdsQuery(prefix, quotedTransferIds);
+    } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
+      originTransfersQuery = getOriginTransfersByIdsFallbackQuery(prefix, quotedTransferIds);
+    }
     const response = await execute(originTransfersQuery);
     const _transfers: any[] = [];
     for (const key of response.keys()) {

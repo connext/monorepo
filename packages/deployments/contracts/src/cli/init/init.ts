@@ -1,13 +1,12 @@
 import * as fs from "fs";
 
-import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
-import { ajv, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, domainToChainId } from "../../domain";
+import { canonizeId } from "../../domain";
 import { hardhatNetworks } from "../../config";
 
 import {
@@ -24,8 +23,6 @@ import {
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
-
-config();
 
 export const optionDefinitions = [
   { name: "name", defaultOption: true },
@@ -135,11 +132,18 @@ export const sanitizeAndInit = async () => {
   }
 
   const networks: NetworkStack[] = [];
-  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
-    (hardhatNetwork) =>
-      Object.keys(hardhatNetwork as object).includes("chainId") &&
-      Object.keys(hardhatNetwork as object).includes("url"),
-  );
+
+  const filteredHardhatNetworks: { [key: string]: any } = {};
+  for (const key in hardhatNetworks) {
+    const network = (hardhatNetworks as { [key: string]: any })[key];
+    if (
+      !key.includes("fork") &&
+      Object.keys(network as object).includes("chainId") &&
+      Object.keys(network as object).includes("url")
+    ) {
+      filteredHardhatNetworks[key] = network;
+    }
+  }
 
   // Get deployments for each domain if not specified in the config.
   for (const _domain of domains) {
@@ -234,7 +238,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
-  const chainData = await getChainData(true);
+  const chainData = await getChainData();
 
   /// ********************* Messaging **********************
   /// MARK - Messaging

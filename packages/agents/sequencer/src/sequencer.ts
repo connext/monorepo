@@ -30,7 +30,7 @@ import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./li
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
-export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
+export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
 /// MARK - Make Agents
 /**

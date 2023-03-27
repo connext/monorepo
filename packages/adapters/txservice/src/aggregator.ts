@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   createRequestContext,
   delay,
+  domainToChainId,
   ERC20Abi,
   jsonifyError,
   Logger,
@@ -9,7 +10,6 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {

@@ -271,7 +271,6 @@ CREATE TABLE public.transfers (
     xcall_tx_origin character(42),
     execute_tx_origin character(42),
     reconcile_tx_origin character(42),
-    relayer_fee character varying(255),
     error_status character varying(255),
     backoff integer DEFAULT 32 NOT NULL,
     next_execution_timestamp integer DEFAULT 0 NOT NULL,
@@ -280,7 +279,8 @@ CREATE TABLE public.transfers (
     execute_simulation_from character(42),
     execute_simulation_to character(42),
     execute_simulation_network character varying(255),
-    error_message character varying(255)
+    error_message character varying(255),
+    relayer_fees jsonb
 );
 
 
@@ -735,7 +735,7 @@ CREATE VIEW public.transfers_with_ttr_ttv AS
     tf.xcall_tx_origin,
     tf.execute_tx_origin,
     tf.reconcile_tx_origin,
-    tf.relayer_fee,
+    tf.relayer_fees,
     tf.error_status,
     tf.backoff,
     tf.next_execution_timestamp,
@@ -1100,4 +1100,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230307090110'),
     ('20230307092333'),
     ('20230307171914'),
-    ('20230308162843');
+    ('20230308162843'),
+    ('20230310035445');

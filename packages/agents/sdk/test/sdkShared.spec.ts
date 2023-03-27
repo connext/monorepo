@@ -39,7 +39,7 @@ describe("SdkShared", () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
   });
