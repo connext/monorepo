@@ -131,6 +131,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "propagate(address[],uint256[],bytes[],uint256)": FunctionFragment;
     "propagateCooldown()": FunctionFragment;
     "propagateKeep3r(address[],uint256[],bytes[])": FunctionFragment;
+    "propagateWorkable()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -176,6 +177,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "propagate"
       | "propagateCooldown"
       | "propagateKeep3r"
+      | "propagateWorkable"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -276,6 +278,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BytesLike>[]
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "propagateWorkable",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -417,6 +423,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "propagateKeep3r",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "propagateWorkable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -809,6 +819,8 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    propagateWorkable(overrides?: CallOverrides): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -983,6 +995,8 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  propagateWorkable(overrides?: CallOverrides): Promise<boolean>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1154,6 +1168,8 @@ export interface RelayerProxyHub extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    propagateWorkable(overrides?: CallOverrides): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -1448,6 +1464,8 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    propagateWorkable(overrides?: CallOverrides): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1622,6 +1640,8 @@ export interface RelayerProxyHub extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    propagateWorkable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,

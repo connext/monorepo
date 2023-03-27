@@ -165,7 +165,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
-  const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
+  // const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
