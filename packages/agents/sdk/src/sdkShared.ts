@@ -17,6 +17,17 @@ import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
+declare global {
+  interface Window {
+    ethereum?: providers.ExternalProvider;
+    web3?: {
+      currentProvider: providers.ExternalProvider;
+    };
+  }
+}
+
+declare const window: Window;
+
 /**
  * @classdesc SDK class encapsulating shared logic to be inherited.
  *
@@ -42,15 +53,29 @@ export class SdkShared {
     },
     { promise: true, maxAge: 1 * 60 * 1000 }, // maxAge: 1 min
   );
+
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
+   * If a web3 provider is detected in a browser environment that matches the requested domain, it will be used instead.
    *
    * @param domainId - The domain ID.
    * @returns providers.StaticJsonRpcProvider object.
    */
-  getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
-    return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
-  });
+  async getProvider(domainId: string): Promise<providers.StaticJsonRpcProvider> {
+    if (typeof window !== "undefined" && window.ethereum) {
+      const browserProvider = new providers.Web3Provider(window.ethereum);
+      const browserChainId = (await browserProvider.getNetwork()).chainId;
+      const desiredChainId = await this.getChainId(domainId);
+
+      if (browserChainId === desiredChainId) {
+        this.logger.info(`Using browser provider for domain: ${domainId}`);
+        return browserProvider;
+      }
+    }
+
+    this.logger.info(`Using static provider for domain: ${domainId}`);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+  }
 
   getDeploymentAddress = memoize(
     async (domainId: string, deploymentName: keyof ChainDeployments): Promise<string> => {
@@ -73,7 +98,7 @@ export class SdkShared {
     async (domainId: string): Promise<Connext> => {
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = this.getProvider(domainId);
+      const provider = await this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -85,13 +110,10 @@ export class SdkShared {
    * @param domainId - The domain ID.
    * @returns ERC20 Contract object.
    */
-  getERC20 = memoize(
-    async (domainId: string, tokenAddress: string): Promise<IERC20> => {
-      const provider = this.getProvider(domainId);
-      return IERC20__factory.connect(tokenAddress, provider);
-    },
-    { promise: true },
-  );
+  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
+    const provider = await this.getProvider(domainId);
+    return IERC20__factory.connect(tokenAddress, provider);
+  }
 
   /**
    * Returns the chain ID for a specified domain.
