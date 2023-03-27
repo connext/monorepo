@@ -46,7 +46,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   ISpokeConnector public spokeConnector;
   // special consideration for Autonolas keeper
   address public autonolas;
-  // number between 0 and 9 to determine priority that Autonolas has for jobs
+  // number between 0 and 10 to determine priority that Autonolas has for jobs
+  // 0 is disabled, 10 will work for every block
   uint8 public autonolasPriority;
 
   mapping(address => bool) public allowedRelayer;
@@ -70,11 +71,12 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   /**
    * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
-   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2, and 3.
+   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2.
+   * Priority 0 disables Autonolas priority completely.
    * @param _sender The address of the caller
    */
   modifier isWorkableBySender(address _sender) {
-    if (_sender == autonolas ? block.number % 10 > autonolasPriority : block.number % 10 <= autonolasPriority) {
+    if (_sender == autonolas ? block.number % 10 > autonolasPriority - 1 : block.number % 10 <= autonolasPriority - 1) {
       revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
     }
     _;
