@@ -5,7 +5,8 @@ import {
   ChainData,
   getCanonicalHash,
   formatUrl,
-  domainToChainId,
+  chainIdToDomain as _chainIdToDomain,
+  domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
@@ -103,7 +104,7 @@ export class SdkShared {
     async (domainId: string): Promise<number> => {
       let chainId = this.config.chains[domainId]?.chainId;
       if (!chainId) {
-        chainId = domainToChainId(+domainId);
+        chainId = _domainToChainId(+domainId);
       }
       return chainId;
     },
@@ -118,6 +119,26 @@ export class SdkShared {
    */
   static domainToChainName(domainId: string) {
     return domainsToChainNames[domainId];
+  }
+
+  /**
+   * Returns a domain id for a chain id.
+   *
+   * @param chainId A chain id number
+   * @returns A domain number in number
+   */
+  static chainIdToDomain(chainId: number): number {
+    return _chainIdToDomain(chainId);
+  }
+
+  /**
+   * Returns a chain id for a domain id
+   *
+   * @param domainId A domain id number
+   * @returns A chain id
+   */
+  static domainToChainId(domainId: number): number {
+    return _domainToChainId(domainId);
   }
 
   /**
@@ -260,7 +281,7 @@ export class SdkShared {
       } else {
         const entry: ConnextSupport = {
           name: domainsToChainNames[asset.domain],
-          chainId: domainToChainId(+asset.domain),
+          chainId: _domainToChainId(+asset.domain),
           domainId: asset.domain,
           assets: [asset.adopted],
         };
