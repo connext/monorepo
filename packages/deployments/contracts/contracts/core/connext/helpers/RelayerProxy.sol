@@ -76,7 +76,10 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param _sender The address of the caller
    */
   modifier isWorkableBySender(address _sender) {
-    if (_sender == autonolas ? block.number % 10 > autonolasPriority - 1 : block.number % 10 <= autonolasPriority - 1) {
+    if (
+      autonolasPriority != 0 &&
+      (_sender == autonolas ? block.number % 10 > autonolasPriority - 1 : block.number % 10 <= autonolasPriority - 1)
+    ) {
       revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
     }
     _;
