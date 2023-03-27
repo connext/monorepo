@@ -38,6 +38,7 @@ export let sendWithRelayerWithBackupStub: SinonStub<
   Promise<{ taskId: string }>
 >;
 export let getInterfaceMock: SinonStub;
+export let getBestProviderMock: SinonStub;
 
 export const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 export const mockAxiosSuccessResponse = { isAxiosError: false, code: 200, data: [] };
@@ -64,6 +65,8 @@ export const mochaHooks = {
 
     sendOutboundRootCtxMock = mock.sendOuboundRootCtx();
     stub(SendOutboundRootFns, "getContext").returns(sendOutboundRootCtxMock);
+
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://test.rpc.com");
 
     sendWithRelayerWithBackupStub = stub(Mockable, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,

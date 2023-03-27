@@ -8,6 +8,7 @@ import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
+import { getBestProvider } from "@connext/nxtp-utils";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -44,7 +45,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const chains = configJson.chains;
   for (const key in chains) {
     const chain = chains[key];
-    const url: string = chain.providers[0];
+    const url = await getBestProvider(chain.providers as string[]);
     const provider = new ethers.providers.JsonRpcProvider(url);
     configuredProviders[key] = provider;
   }

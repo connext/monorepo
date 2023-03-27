@@ -1,6 +1,6 @@
 import { createLoggingContext, getChainIdFromDomain, NxtpError } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
+import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup, getBestProvider } from "../../../mockable";
 import {
   getSendOutboundRootParamsBnb,
   getSendOutboundRootParamsConsensys,
@@ -40,7 +40,7 @@ export const sendOutboundRoot = async () => {
 
     // Check if outbound root already sent!
     const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
-    const l2Provider = config.chains[domain].providers[0];
+    const l2Provider = await getBestProvider(config.chains[domain].providers);
     logger.info("Checking if outboundroot already sent", requestContext, methodContext, {
       domain,
       spokeConnectorAddress,
