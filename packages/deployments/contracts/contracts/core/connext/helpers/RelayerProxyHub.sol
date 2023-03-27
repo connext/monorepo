@@ -133,14 +133,6 @@ contract RelayerProxyHub is RelayerProxy {
   mapping(uint32 => mapping(bytes32 => bool)) public processedRootMessages;
   mapping(uint32 => address) public hubConnectors;
 
-  // ============ Modifiers ============
-  modifier propagateWorkable() {
-    if (block.timestamp <= (lastPropagateAt + propagateCooldown)) {
-      revert RelayerProxyHub__propagateWorkable_failed(block.timestamp, lastPropagateAt + propagateCooldown);
-    }
-    _;
-  }
-
   // ============ Events ============
   event RootManagerChanged(address rootManager, address oldRootManager);
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
@@ -209,6 +201,10 @@ contract RelayerProxyHub is RelayerProxy {
 
   // ============ External Functions ============
 
+  function propagateWorkable() public view returns (bool) {
+    return block.timestamp > (lastPropagateAt + propagateCooldown);
+  }
+
   /**
    * @notice Wraps the call to propagate() on RootManager and pays either the caller or hardcoded relayer
    * from this contract's balance for completing the transaction.
@@ -243,7 +239,10 @@ contract RelayerProxyHub is RelayerProxy {
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
-  ) external propagateWorkable isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
+  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
+    if (!propagateWorkable()) {
+      revert RelayerProxyHub__propagateWorkable_failed(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
   }

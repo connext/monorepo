@@ -52,6 +52,7 @@
   "function propagate(address[],uint256[],bytes[],uint256)",
   "function propagateCooldown() view returns (uint256)",
   "function propagateKeep3r(address[],uint256[],bytes[])",
+  "function propagateWorkable() view returns (bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
