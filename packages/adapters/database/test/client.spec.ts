@@ -18,6 +18,7 @@ import {
   RelayerType,
   SlippageUpdate,
   getNtpTimeSeconds,
+  XTransferMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -61,6 +62,7 @@ import {
   updateErrorStatus,
   markRootMessagesProcessed,
   updateSlippage,
+  getPendingTransfersByMessageStatus,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -1110,5 +1112,22 @@ describe("Database client", () => {
     expect(queryRes.rows[0].processed).to.eq(true);
     queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
     expect(queryRes.rows[0].processed).to.eq(false);
+  });
+
+  it("should get pending transfers by message status", async () => {
+    const originDomain = "1337";
+    const transfers: XTransfer[] = [
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.SpokeRootSent }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.SpokeRootSent }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.AggregateRootPropagated }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.Processed }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.Processed }),
+    ];
+    await saveTransfers(transfers, pool);
+    let pendingTransfers = await getPendingTransfersByMessageStatus(originDomain, 0, 100, "ASC", pool);
+    expect(pendingTransfers.length).to.be.eq(6);
   });
 });
