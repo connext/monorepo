@@ -190,7 +190,8 @@ export const mock = {
         nonce?: number;
         user?: string;
         routers?: string[];
-        relayerFee?: string;
+        relayerFee?: string; // deprecated
+        relayerFees?: { [asset: string]: string };
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -215,6 +216,9 @@ export const mock = {
       const routers = overrides.routers ?? [mock.address.router];
       const messageHash: string = overrides.messageHash ?? getRandomBytes32();
       const relayerFee: string = overrides.relayerFee ?? "0";
+      const relayerFees: { [asset: string]: string } = overrides.relayerFees ?? {
+        [constants.AddressZero]: relayerFee ?? "0",
+      };
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
@@ -245,7 +249,7 @@ export const mock = {
 
               messageHash,
 
-              relayerFee,
+              relayerFees,
 
               errorStatus,
 

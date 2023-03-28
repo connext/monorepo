@@ -2,6 +2,27 @@
 
 ## Next Release
 
+- [sdk] Uses browser provider for calls, if detected
+- [sdk] Added optional flag `checkFastLiquidity` to `calculateAmountReceived`
+- [contracts] Added HARD token to testnet
+
+## Amarok 2.0.0-alpha.0
+
+- [all] Testnet support for relayer fee in transacting asset
+
+## Amarok 1.2.0-alpha.0
+
+- [sdk] Add removeLiquidityOneToken, removeLiquidityImbalance, calculateRemoveSwapLiquidityOneToken methods
+
+## Amarok 1.0.3-alpha.2
+
+- [sequencer] Fix relayer fee check
+- [sdk] Fix bumpTransfer for native asset
+
+## Amarok 1.0.3-alpha.1
+
+- [all] Support transacting asset for relayer fee on staging testnet
+
 ## Amarok 1.0.3-alpha.0
 
 - [sdk] Fixed getTransfers

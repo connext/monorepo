@@ -188,6 +188,7 @@ export interface ConnextInterface extends utils.Interface {
     "addSequencer(address)": FunctionFragment;
     "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
+    "bumpTransfer(bytes32,address,uint256)": FunctionFragment;
     "domain()": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
@@ -201,6 +202,8 @@ export interface ConnextInterface extends utils.Interface {
     "transferStatus(bytes32)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
     "xcall(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)": FunctionFragment;
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)": FunctionFragment;
     "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -312,7 +315,8 @@ export interface ConnextInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addSequencer"
       | "approvedSequencers"
-      | "bumpTransfer"
+      | "bumpTransfer(bytes32)"
+      | "bumpTransfer(bytes32,address,uint256)"
       | "domain"
       | "enrollRemoteRouter"
       | "execute"
@@ -325,8 +329,10 @@ export interface ConnextInterface extends utils.Interface {
       | "setXAppConnectionManager"
       | "transferStatus"
       | "xAppConnectionManager"
-      | "xcall"
-      | "xcallIntoLocal"
+      | "xcall(uint32,address,address,address,uint256,uint256,bytes)"
+      | "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+      | "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+      | "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"
       | "diamondCut"
       | "getAcceptanceTime"
       | "proposeDiamondCut"
@@ -442,8 +448,16 @@ export interface ConnextInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "bumpTransfer",
+    functionFragment: "bumpTransfer(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "bumpTransfer(bytes32,address,uint256)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
@@ -488,7 +502,7 @@ export interface ConnextInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "xcall",
+    functionFragment: "xcall(uint32,address,address,address,uint256,uint256,bytes)",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
@@ -500,7 +514,33 @@ export interface ConnextInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "xcallIntoLocal",
+    functionFragment: "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
@@ -1024,7 +1064,11 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "bumpTransfer",
+    functionFragment: "bumpTransfer(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "bumpTransfer(bytes32,address,uint256)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
@@ -1063,9 +1107,20 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "xAppConnectionManager",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "xcallIntoLocal",
+    functionFragment: "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
@@ -1443,7 +1498,7 @@ export interface ConnextInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "SlippageUpdated(bytes32,uint256)": EventFragment;
-    "TransferRelayerFeesIncreased(bytes32,uint256,address)": EventFragment;
+    "TransferRelayerFeesIncreased(bytes32,uint256,address,address)": EventFragment;
     "XAppConnectionManagerSet(address,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address,bytes)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -1658,10 +1713,11 @@ export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 export interface TransferRelayerFeesIncreasedEventObject {
   transferId: string;
   increase: BigNumber;
+  asset: string;
   caller: string;
 }
 export type TransferRelayerFeesIncreasedEvent = TypedEvent<
-  [string, BigNumber, string],
+  [string, BigNumber, string, string],
   TransferRelayerFeesIncreasedEventObject
 >;
 
@@ -2268,9 +2324,16 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    bumpTransfer(
+    "bumpTransfer(bytes32)"(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "bumpTransfer(bytes32,address,uint256)"(
+      _transferId: PromiseOrValue<BytesLike>,
+      _relayerFeeAsset: PromiseOrValue<string>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     domain(overrides?: CallOverrides): Promise<[number]>;
@@ -2326,7 +2389,7 @@ export interface Connext extends BaseContract {
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<[string]>;
 
-    xcall(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -2337,7 +2400,31 @@ export interface Connext extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    xcallIntoLocal(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -2921,9 +3008,16 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  bumpTransfer(
+  "bumpTransfer(bytes32)"(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "bumpTransfer(bytes32,address,uint256)"(
+    _transferId: PromiseOrValue<BytesLike>,
+    _relayerFeeAsset: PromiseOrValue<string>,
+    _relayerFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   domain(overrides?: CallOverrides): Promise<number>;
@@ -2979,7 +3073,7 @@ export interface Connext extends BaseContract {
 
   xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
-  xcall(
+  "xcall(uint32,address,address,address,uint256,uint256,bytes)"(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
     _asset: PromiseOrValue<string>,
@@ -2990,7 +3084,31 @@ export interface Connext extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  xcallIntoLocal(
+  "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
+    _relayerFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+    _destination: PromiseOrValue<BigNumberish>,
+    _to: PromiseOrValue<string>,
+    _asset: PromiseOrValue<string>,
+    _delegate: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
+    _relayerFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"(
     _destination: PromiseOrValue<BigNumberish>,
     _to: PromiseOrValue<string>,
     _asset: PromiseOrValue<string>,
@@ -3566,8 +3684,15 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    bumpTransfer(
+    "bumpTransfer(bytes32)"(
       _transferId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "bumpTransfer(bytes32,address,uint256)"(
+      _transferId: PromiseOrValue<BytesLike>,
+      _relayerFeeAsset: PromiseOrValue<string>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3624,7 +3749,7 @@ export interface Connext extends BaseContract {
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<string>;
 
-    xcall(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -3635,7 +3760,31 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    xcallIntoLocal(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -4279,14 +4428,16 @@ export interface Connext extends BaseContract {
       slippage?: null
     ): SlippageUpdatedEventFilter;
 
-    "TransferRelayerFeesIncreased(bytes32,uint256,address)"(
+    "TransferRelayerFeesIncreased(bytes32,uint256,address,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       increase?: null,
+      asset?: null,
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
     TransferRelayerFeesIncreased(
       transferId?: PromiseOrValue<BytesLike> | null,
       increase?: null,
+      asset?: null,
       caller?: null
     ): TransferRelayerFeesIncreasedEventFilter;
 
@@ -4764,9 +4915,16 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    bumpTransfer(
+    "bumpTransfer(bytes32)"(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "bumpTransfer(bytes32,address,uint256)"(
+      _transferId: PromiseOrValue<BytesLike>,
+      _relayerFeeAsset: PromiseOrValue<string>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domain(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4822,7 +4980,7 @@ export interface Connext extends BaseContract {
 
     xAppConnectionManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    xcall(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -4833,7 +4991,31 @@ export interface Connext extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    xcallIntoLocal(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -5410,9 +5592,16 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    bumpTransfer(
+    "bumpTransfer(bytes32)"(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "bumpTransfer(bytes32,address,uint256)"(
+      _transferId: PromiseOrValue<BytesLike>,
+      _relayerFeeAsset: PromiseOrValue<string>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -5470,7 +5659,7 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    xcall(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,
@@ -5481,7 +5670,31 @@ export interface Connext extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    xcallIntoLocal(
+    "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"(
+      _destination: PromiseOrValue<BigNumberish>,
+      _to: PromiseOrValue<string>,
+      _asset: PromiseOrValue<string>,
+      _delegate: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
+      _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)"(
       _destination: PromiseOrValue<BigNumberish>,
       _to: PromiseOrValue<string>,
       _asset: PromiseOrValue<string>,

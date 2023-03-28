@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { BiMessageError, BiMessageCheck, BiMessageDetail } from "react-icons/bi";
 import { FaSpinner } from "react-icons/fa";
+import { FixedNumber, utils } from "ethers";
 
 import { useWallet } from "../contexts/Wallet";
 import { useAssets } from "../contexts/Assets";
@@ -23,9 +24,11 @@ type Props = {
 
 type Response = { status: string; message: string; tx_hash?: string };
 
+const GAS_LIMIT_ADJUSTMENT = Number(process.env.GAS_LIMIT_ADJUSTMENT) || 1;
+
 export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props) => {
   const {
-    state: { web3_provider, provider, chain_id },
+    state: { web3_provider, provider, chain_id, signer },
   } = useWallet();
 
   const {
@@ -57,13 +60,110 @@ export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props)
     setCalling(true);
 
     if (sdk) {
-      console.log("SDK exists, let's call addLiquidty!");
       const source_chain_data = chains?.find((c) => c?.id === chain?.id);
       const source_asset_data = assets?.find((a) => a?.id === asset?.id);
       const source_contract_data = source_asset_data?.contracts?.find(
         (c) => c?.chain_id === source_chain_data?.chain_id,
       );
-      console.log(source_contract_data);
+      const source_symbol = source_contract_data?.symbol || source_asset_data?.symbol;
+
+      let failed = false;
+
+      try {
+        const approve_request = await sdk.sdkPool.approveIfNeeded(
+          source_chain_data!.domain_id!,
+          source_contract_data!.contract_address!,
+          utils.parseUnits(amount.toString() || "0", source_contract_data?.decimals || 18).toString(),
+          false,
+        );
+
+        if (approve_request) {
+          setApproving(true);
+
+          const approve_response = await signer.sendTransaction(approve_request);
+          const tx_hash = approve_response?.hash;
+
+          setApproveResponse({
+            status: "pending",
+            message: `Wait for ${source_symbol} approval`,
+            tx_hash,
+          });
+
+          setApproveProcessing(true);
+          const approve_receipt = await signer.provider.waitForTransaction(tx_hash);
+
+          setApproveResponse(
+            approve_receipt?.status
+              ? undefined
+              : {
+                  status: "failed",
+                  message: `Failed to approve ${source_symbol}`,
+                  tx_hash,
+                },
+          );
+          failed = !approve_receipt?.status;
+          setApproveProcessing(false);
+          setApproving(false);
+        } else {
+          setApproving(false);
+        }
+      } catch (error: any) {
+        setApproveResponse({
+          status: "failed",
+          message: error?.data?.message || error?.message,
+        });
+
+        failed = true;
+        setApproveProcessing(false);
+        setApproving(false);
+      }
+
+      if (!failed) {
+        try {
+          const add_liquidity_request = await sdk.sdkPool.addLiquidity(
+            source_chain_data!.domain_id!,
+            source_contract_data!.contract_address!,
+            ["0", "0"], // TODO: add amounts
+          );
+          console.log(add_liquidity_request);
+          if (add_liquidity_request) {
+            let gasLimit: string = await signer.estimateGas(add_liquidity_request);
+            if (gasLimit) {
+              gasLimit = FixedNumber.fromString(gasLimit.toString())
+                .mulUnsafe(FixedNumber.fromString(GAS_LIMIT_ADJUSTMENT.toString()))
+                .round(0)
+                .toString()
+                .replace(".0", "");
+              add_liquidity_request.gasLimit = gasLimit;
+            }
+            console.log("we sending?");
+            const xcall_response = await signer.sendTransaction(add_liquidity_request);
+            const tx_hash = xcall_response?.hash;
+
+            setCallProcessing(true);
+
+            const xcall_receipt = await signer.provider.waitForTransaction(tx_hash);
+
+            setAddLiquidity(xcall_receipt);
+
+            failed = !xcall_receipt?.status;
+
+            setAddLiquidityResponse({
+              status: failed ? "failed" : "success",
+              message: failed
+                ? "Failed to send transaction"
+                : `Add liquidity transaction detected, waiting for execution`,
+              tx_hash,
+            });
+          }
+        } catch (error: any) {
+          setAddLiquidityResponse({
+            status: "failed",
+            message: error?.data?.message || error?.message,
+          });
+          failed = true;
+        }
+      }
     }
 
     setCallProcessing(false);
@@ -204,7 +304,10 @@ export const AddLiquidityButton = ({ chain, asset, amount, getBalances }: Props)
         )
       ) : web3_provider ? (
         <button
-          disabled={true}
+          disabled={disabled}
+          onClick={() => {
+            callAddLiquidity();
+          }}
           className="w-full bg-slate-100 dark:bg-slate-900 cursor-not-allowed rounded-xl text-slate-400 dark:text-slate-500 text-base sm:text-lg text-center py-3 sm:py-4 px-2 sm:px-3"
         >
           Add Liquidity

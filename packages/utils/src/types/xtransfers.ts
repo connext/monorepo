@@ -63,7 +63,7 @@ export const XTransferOriginSchema = Type.Object({
     }),
   }),
 
-  relayerFee: TIntegerString,
+  relayerFees: Type.Record(Type.String(), TIntegerString),
 
   // XCall Transaction
   xcall: Type.Intersect([XTransferMethodCallSchema]),
@@ -190,6 +190,7 @@ export const XCallArgsSchema = Type.Object({
   amount: TIntegerString,
   slippage: TIntegerString,
   callData: Type.String(),
+  relayerFee: Type.Optional(Type.String()),
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -256,6 +257,7 @@ export const RelayerFeesIncreaseSchema = Type.Object({
   id: Type.String(),
   transferId: TBytes32,
   increase: TIntegerString,
+  asset: TAddress,
   domain: Type.String(),
   timestamp: TIntegerString,
 });

@@ -3,7 +3,7 @@ import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus } from 
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, UriInvalid } from "../src/lib/errors";
+import { UriInvalid } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -21,7 +21,7 @@ describe("SdkUtils", () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(SharedFns, "domainToChainId").returns(chainId);
     stub(SharedFns, "axiosGetRequest").resolves({});
 
     nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);

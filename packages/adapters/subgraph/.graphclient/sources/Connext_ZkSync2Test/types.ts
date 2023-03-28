@@ -1019,8 +1019,9 @@ export type zksync2test_OriginTransfer = {
   asset?: Maybe<zksync2test_Asset>;
   transactingAsset?: Maybe<Scalars['zksync2test_Bytes']>;
   message?: Maybe<zksync2test_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<zksync2test_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['zksync2test_Bytes']>;
   caller?: Maybe<Scalars['zksync2test_Bytes']>;
   transactionHash?: Maybe<Scalars['zksync2test_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1028,6 +1029,15 @@ export type zksync2test_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['zksync2test_Bytes']>;
+};
+
+
+export type zksync2test_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<zksync2test_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<zksync2test_OrderDirection>;
+  where?: InputMaybe<zksync2test_RelayerFee_filter>;
 };
 
 export type zksync2test_OriginTransfer_filter = {
@@ -1233,14 +1243,6 @@ export type zksync2test_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<zksync2test_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1249,6 +1251,23 @@ export type zksync2test_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<zksync2test_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller_not?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller_gt?: InputMaybe<Scalars['zksync2test_Bytes']>;
@@ -1356,8 +1375,9 @@ export type zksync2test_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1383,6 +1403,8 @@ export type Query = {
   zksync2test_relayers: Array<zksync2test_Relayer>;
   zksync2test_sequencer?: Maybe<zksync2test_Sequencer>;
   zksync2test_sequencers: Array<zksync2test_Sequencer>;
+  zksync2test_relayerFee?: Maybe<zksync2test_RelayerFee>;
+  zksync2test_relayerFees: Array<zksync2test_RelayerFee>;
   zksync2test_originTransfer?: Maybe<zksync2test_OriginTransfer>;
   zksync2test_originTransfers: Array<zksync2test_OriginTransfer>;
   zksync2test_destinationTransfer?: Maybe<zksync2test_DestinationTransfer>;
@@ -1545,6 +1567,24 @@ export type Queryzksync2test_sequencersArgs = {
   orderBy?: InputMaybe<zksync2test_Sequencer_orderBy>;
   orderDirection?: InputMaybe<zksync2test_OrderDirection>;
   where?: InputMaybe<zksync2test_Sequencer_filter>;
+  block?: InputMaybe<zksync2test_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryzksync2test_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<zksync2test_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryzksync2test_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<zksync2test_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<zksync2test_OrderDirection>;
+  where?: InputMaybe<zksync2test_RelayerFee_filter>;
   block?: InputMaybe<zksync2test_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1722,10 +1762,106 @@ export type zksync2test_Relayer = {
   relayer?: Maybe<Scalars['zksync2test_Bytes']>;
 };
 
+export type zksync2test_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: zksync2test_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['zksync2test_Bytes'];
+};
+
+export type zksync2test_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<zksync2test_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_not?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<zksync2test_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<zksync2test_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<zksync2test_RelayerFee_filter>>>;
+};
+
+export type zksync2test_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type zksync2test_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: zksync2test_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['zksync2test_Bytes']>;
   caller: Scalars['zksync2test_Bytes'];
   transactionHash: Scalars['zksync2test_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1908,16 @@ export type zksync2test_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_not?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['zksync2test_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller_not?: InputMaybe<Scalars['zksync2test_Bytes']>;
   caller_gt?: InputMaybe<Scalars['zksync2test_Bytes']>;
@@ -1852,8 +1998,8 @@ export type zksync2test_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1862,6 +2008,7 @@ export type zksync2test_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2505,6 +2652,8 @@ export type Subscription = {
   zksync2test_relayers: Array<zksync2test_Relayer>;
   zksync2test_sequencer?: Maybe<zksync2test_Sequencer>;
   zksync2test_sequencers: Array<zksync2test_Sequencer>;
+  zksync2test_relayerFee?: Maybe<zksync2test_RelayerFee>;
+  zksync2test_relayerFees: Array<zksync2test_RelayerFee>;
   zksync2test_originTransfer?: Maybe<zksync2test_OriginTransfer>;
   zksync2test_originTransfers: Array<zksync2test_OriginTransfer>;
   zksync2test_destinationTransfer?: Maybe<zksync2test_DestinationTransfer>;
@@ -2667,6 +2816,24 @@ export type Subscriptionzksync2test_sequencersArgs = {
   orderBy?: InputMaybe<zksync2test_Sequencer_orderBy>;
   orderDirection?: InputMaybe<zksync2test_OrderDirection>;
   where?: InputMaybe<zksync2test_Sequencer_filter>;
+  block?: InputMaybe<zksync2test_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionzksync2test_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<zksync2test_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionzksync2test_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<zksync2test_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<zksync2test_OrderDirection>;
+  where?: InputMaybe<zksync2test_RelayerFee_filter>;
   block?: InputMaybe<zksync2test_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2910,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   zksync2test_sequencers: InContextSdkMethod<Query['zksync2test_sequencers'], Queryzksync2test_sequencersArgs, MeshContext>,
   /** null **/
+  zksync2test_relayerFee: InContextSdkMethod<Query['zksync2test_relayerFee'], Queryzksync2test_relayerFeeArgs, MeshContext>,
+  /** null **/
+  zksync2test_relayerFees: InContextSdkMethod<Query['zksync2test_relayerFees'], Queryzksync2test_relayerFeesArgs, MeshContext>,
+  /** null **/
   zksync2test_originTransfer: InContextSdkMethod<Query['zksync2test_originTransfer'], Queryzksync2test_originTransferArgs, MeshContext>,
   /** null **/
   zksync2test_originTransfers: InContextSdkMethod<Query['zksync2test_originTransfers'], Queryzksync2test_originTransfersArgs, MeshContext>,
@@ -2986,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   zksync2test_sequencer: InContextSdkMethod<Subscription['zksync2test_sequencer'], Subscriptionzksync2test_sequencerArgs, MeshContext>,
   /** null **/
   zksync2test_sequencers: InContextSdkMethod<Subscription['zksync2test_sequencers'], Subscriptionzksync2test_sequencersArgs, MeshContext>,
+  /** null **/
+  zksync2test_relayerFee: InContextSdkMethod<Subscription['zksync2test_relayerFee'], Subscriptionzksync2test_relayerFeeArgs, MeshContext>,
+  /** null **/
+  zksync2test_relayerFees: InContextSdkMethod<Subscription['zksync2test_relayerFees'], Subscriptionzksync2test_relayerFeesArgs, MeshContext>,
   /** null **/
   zksync2test_originTransfer: InContextSdkMethod<Subscription['zksync2test_originTransfer'], Subscriptionzksync2test_originTransferArgs, MeshContext>,
   /** null **/
