@@ -2,8 +2,8 @@
 name: Enhancement
 about: This is intentional new work. We want to intentionally add, improve, optimize
   something.
-title: As a ____ user, I want ___ in order to ___.
-labels: "enhancement \U0001F9D8"
+title: "[Title] What would you like us to build or improve? "
+labels: ''
 assignees: ''
 
 ---
@@ -11,12 +11,12 @@ assignees: ''
 ## Problem
 _What problem are we solving and why does it matter, ser?_ 
 
+## Impact
+_Why does this matter? Who does it impact? How much does it impact them? What is the urgency?_
 
 ## Proposed Solution
-_Thoughts on solution design. We should do <insert idea> to solve this problem._
-- [ ] Subtask 1
-
+_[OPTIONAL] Thoughts on solution design. We could do <insert idea> to solve this problem._
 
 ## Acceptance Criteria
-_From an end tester and/or user perspective, the below criteria must be met to consider this done:_
-- [ ] X happens
+_From an end user perspective, the below criteria must be met to consider this done:_
+- [ ]
