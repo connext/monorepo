@@ -83,7 +83,7 @@ locals {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
       "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -227,7 +227,7 @@ locals {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
       "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
@@ -257,7 +257,7 @@ locals {
         providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
       }
       "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -313,7 +313,7 @@ locals {
         providers = ["https://rpc.goerli.linea.build/"]
       }
       "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     environment   = var.stage
