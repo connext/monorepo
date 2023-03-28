@@ -14,7 +14,7 @@ export const FORK_BLOCKS = {
   42161: 65091853,
   // TESTNETS
   5: 8622550, // goerli
-  280: 1266677, // zksync2
+  280: 2860225, // zksync2
   420: 6454570, // opt-goerli
   59140: 98565, // consensys zkevm
   80001: 32886110, // mumbai
