@@ -3,7 +3,7 @@ name: Enhancement
 about: This is intentional new work. We want to intentionally add, improve, optimize
   something.
 title: "[Title] What would you like us to build or improve? "
-labels: ''
+labels: "Enhance \U0001F9D8"
 assignees: ''
 
 ---
