@@ -9,7 +9,7 @@ assignees: ''
 ---
 
 ## Problem
-_What problem are we solving and why does it matter, ser?_ 
+_What problem are we solving?_ 
 
 ## Impact
 _Why does this matter? Who does it impact? How much does it impact them? What is the urgency?_
