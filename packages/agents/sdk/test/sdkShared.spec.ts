@@ -27,6 +27,16 @@ const mockAssetData = {
   id: mock.asset.A.address,
 };
 
+const mockOtherAssetData = {
+  local: mock.asset.B.address,
+  adopted: mock.asset.A.address,
+  canonical_id: utils.formatBytes32String("1"),
+  canonical_domain: mock.domain.A,
+  domain: mock.domain.B,
+  key: mockAssetKey,
+  id: mock.asset.B.address,
+};
+
 const chainId = 1337;
 
 describe("SdkShared", () => {
@@ -61,6 +71,7 @@ describe("SdkShared", () => {
       expect(sdkShared.getAssetsData).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
+      expect(sdkShared.getAssetsWithSameCanonical).to.be.a("function");
       expect(sdkShared.getActiveLiquidity).to.be.a("function");
       expect(sdkShared.getSupported).to.be.a("function");
       expect(sdkShared.isNextAsset).to.be.a("function");
@@ -217,6 +228,20 @@ describe("SdkShared", () => {
       stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
       const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.B, mockAssetKey);
       expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#getAssetsWithSameCanonical", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal([mockAssetData]);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.B, mkAddress("0xaa"));
+      expect(res).to.be.deep.equal([]);
     });
   });
 
