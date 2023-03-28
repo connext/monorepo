@@ -957,18 +957,15 @@ export const getPendingTransfersByMessageStatus = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
-  const pendingMessageStatus = [
-    XTransferMessageStatus.XCalled,
-    XTransferMessageStatus.SpokeRootSent,
-    XTransferMessageStatus.SpokeRootArrivedOnHub,
-    XTransferMessageStatus.AggregateRootPropagated,
-    XTransferMessageStatus.AggregatedRootArrivedOnSpokeDomain,
-  ];
+  const completedMessageStatus = [XTransferMessageStatus.Processed];
 
   const x = await db
     .select(
       "transfers",
-      { message_status: db.conditions.isIn(pendingMessageStatus), origin_domain: domain },
+      {
+        message_status: db.conditions.or(db.conditions.isNull, db.conditions.isNotIn(completedMessageStatus)),
+        origin_domain: domain,
+      },
       { limit, offset, order: { by: "nonce", direction: orderDirection, nulls: "LAST" } },
     )
     .run(poolToUse);

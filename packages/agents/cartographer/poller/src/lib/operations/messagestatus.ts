@@ -13,7 +13,6 @@ export const updateMessageStatus = async () => {
     const limit = 100;
     logger.debug("Updating message status", requestContext, methodContext, { domain, limit });
     const pendingTransfersByMessageStatus = await database.getPendingTransfersByMessageStatus(domain, 0, limit);
-
     const updatedTransfers = await Promise.all(
       pendingTransfersByMessageStatus.map(async (transfer) => {
         const messageStatus = await getMessageStatus(transfer);
@@ -29,7 +28,6 @@ export const updateMessageStatus = async () => {
 export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMessageStatus> => {
   const {
     adapters: { database },
-    logger,
   } = getContext();
   const messageHash = transfer.origin?.messageHash;
   if (!messageHash) {
