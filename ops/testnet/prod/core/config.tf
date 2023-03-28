@@ -310,7 +310,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+        providers = ["https://rpc.goerli.linea.build/"]
       }
       "2053862260" = {
         providers = ["https://zksync2-testnet.zksync.dev"]
