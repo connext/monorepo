@@ -16,7 +16,8 @@ export const updateMessageStatus = async () => {
     const updatedTransfers = await Promise.all(
       pendingTransfersByMessageStatus.map(async (transfer) => {
         const messageStatus = await getMessageStatus(transfer);
-        const _transfer = { ...transfer, messageStatus };
+        let _transfer = transfer;
+        if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
         return _transfer;
       }),
     );
@@ -56,7 +57,7 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
   if (!processed) {
     // A root message exist. this means sendOutboundRoot task executed on the spoke domain
     // 1. A spoke root got sent to the hub domain, the root might still be getting processed by AMB/LH processFromRoot task
-    // 2. A spoke root got arrived at the hub domain, the root_messages table sync might still be in progress
+    // 2. A spoke root got arrived at the hub domain, the root_me ssages table sync might still be in progress
 
     return XTransferMessageStatus.SpokeRootSent;
   }
