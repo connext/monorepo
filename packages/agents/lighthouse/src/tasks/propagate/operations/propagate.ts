@@ -5,7 +5,7 @@ import {
   RequestContext,
   RootManagerMeta,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, ContractInterface } from "ethers";
 
 import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
@@ -70,6 +70,7 @@ export const propagate = async () => {
   }
   const l1Provider = getJsonRpcProvider(l1RpcUrl);
   const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
+
   const [lastPropagateAt, propagateCooldown] = await Promise.all([
     relayerProxyContract.lastPropagateAt(),
     relayerProxyContract.propagateCooldown(),
