@@ -5,7 +5,7 @@ import {
   RequestContext,
   RootManagerMeta,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, ContractInterface } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
