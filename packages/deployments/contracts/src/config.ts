@@ -96,7 +96,7 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: urlOverride || process.env.OPTIMSIM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
+    url: urlOverride || process.env.OPTIMISM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
