@@ -1,4 +1,4 @@
-import { createLoggingContext, XTransfer, XTransferMessageStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, RootMessage, XTransfer, XTransferMessageStatus } from "@connext/nxtp-utils";
 import { getContext } from "../../shared";
 
 export const updateMessageStatus = async () => {
@@ -44,17 +44,16 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     // A message has been proven and processed
     return XTransferMessageStatus.Processed;
   }
-  console.log({ transfer, index: message.origin.index });
-  const rootMessage = await database.getMessageRootFromIndex(transfer.xparams.originDomain, message.origin.index);
-  console.log({ rootMessage });
-  if (!rootMessage) {
+  const rootMessages = await database.getMessageRootsFromIndex(transfer.xparams.originDomain, message.origin.index);
+  if (rootMessages.length == 0) {
     // there are 2 possible reasons
     // 1. sendOutboundRoot didn't happen on the spoke domain
     // 2. sendOutboundRoot happened but the root_messages table sync might still be in progress.
     return XTransferMessageStatus.XCalled;
   }
 
-  const processed = rootMessage.processed;
+  // const processed = rootMessage.processed;
+  const processed = rootMessages.map((i) => i.processed).includes(true);
   if (!processed) {
     // A root message exist. this means sendOutboundRoot task executed on the spoke domain
     // 1. A spoke root got sent to the hub domain, the root might still be getting processed by AMB/LH processFromRoot task
@@ -64,7 +63,12 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
   }
 
   // A message root from the spoke domain got arrived at the hub domain successfully
-  const aggregateRoot = await database.getAggregateRoot(rootMessage.root);
+  let aggregateRoot: string | undefined = undefined;
+  for (const rootMessage of rootMessages) {
+    aggregateRoot = await database.getAggregateRoot(rootMessage.root);
+    if (aggregateRoot) break;
+  }
+  //const aggregateRoot = await database.getAggregateRoot(rootMessage.root);
   if (!aggregateRoot) {
     // An aggregated root doesn't exist.
     // 1. A message root arrived at the hub domain but has been neither dequeued/propagated
