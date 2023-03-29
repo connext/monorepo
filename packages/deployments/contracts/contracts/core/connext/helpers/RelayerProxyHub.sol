@@ -6,8 +6,19 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
-import {IRootManager} from "../../../messaging/interfaces/IRootManager.sol";
 import {RelayerProxy} from "./RelayerProxy.sol";
+
+interface IRootManager {
+  function lastPropagatedRoot() external view returns (bytes32);
+
+  function propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData
+  ) external payable;
+
+  function dequeue() external returns (bytes32, uint256);
+}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -201,8 +212,16 @@ contract RelayerProxyHub is RelayerProxy {
 
   // ============ External Functions ============
 
-  function propagateWorkable() public view returns (bool) {
-    return block.timestamp > (lastPropagateAt + propagateCooldown);
+  /**
+   * @notice Checks if the RootManager has a workable root. Calls the rootManager's dequeue() function to check if the
+   * RootManager has a sendable root. This is an expensive function so it should only be called off-chain to determine
+   * if the relayer should call the propagate() function.
+   *
+   * @return True if the RootManager has a workable root.
+   */
+  function propagateWorkable() public returns (bool) {
+    (bytes32 _aggregateRoot, ) = rootManager.dequeue();
+    return rootManager.lastPropagatedRoot() != _aggregateRoot && _propagateWorkable();
   }
 
   /**
@@ -240,7 +259,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
   ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
-    if (!propagateWorkable()) {
+    if (!_propagateWorkable()) {
       revert RelayerProxyHub__propagateWorkable_failed(block.timestamp, lastPropagateAt + propagateCooldown);
     }
     _propagate(_connectors, _messageFees, _encodedData);
@@ -277,6 +296,10 @@ contract RelayerProxyHub is RelayerProxy {
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
     emit HubConnectorChanged(_hubConnector, hubConnectors[chain], chain);
     hubConnectors[chain] = _hubConnector;
+  }
+
+  function _propagateWorkable() internal view returns (bool) {
+    return block.timestamp > (lastPropagateAt + propagateCooldown);
   }
 
   /**
