@@ -144,7 +144,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer.address,
       owner: deployer.address,
       log: true,
-      facets: facetsToDeploy,
+      facets: [],
       diamondContract: "ConnextDiamond",
       defaultOwnershipFacet: false,
       defaultCutFacet: false,

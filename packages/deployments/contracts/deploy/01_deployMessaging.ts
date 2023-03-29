@@ -49,6 +49,9 @@ const formatConnectorArgs = (
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
   ];
   if (isHub) {
+    if (config.prefix.includes("Optimism")) {
+      hubArgs.push(config.processGas);
+    }
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
@@ -64,6 +67,9 @@ const formatConnectorArgs = (
     watcherManager!,
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
+  if (config.prefix.includes("Optimism")) {
+    constructorArgs.push(config.processGas);
+  }
   console.log(
     `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),

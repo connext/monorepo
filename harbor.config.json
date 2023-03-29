@@ -10,9 +10,11 @@
                         "./node_modules",
                         "./packages/deployments/contracts/src",
                         "./packages/deployments/contracts/deployConfig",
+                        "./packages/deployments/contracts/deployHelpers",
                         "./packages/deployments/contracts/deployments.json",
                         "./packages/deployments/contracts/abi",
-                        "./packages/deployments/contracts/cicdResources/deployments"
+                        "./packages/deployments/contracts/cicdResources/deployments",
+                        "./packages"
                     ],
                     "tags": "local"
                 },
@@ -56,9 +58,11 @@
                         "./node_modules",
                         "./packages/deployments/contracts/src",
                         "./packages/deployments/contracts/deployConfig",
+                        "./packages/deployments/contracts/deployHelpers",
                         "./packages/deployments/contracts/deployments.json",
                         "./packages/deployments/contracts/abi",
-                        "./packages/deployments/contracts/cicdResources/deployments"
+                        "./packages/deployments/contracts/cicdResources/deployments",
+                        "./packages"
                     ],
                     "tags": "local"
                 },
@@ -252,7 +256,7 @@
         },
         {
             "name": "relayer",
-            "image": "ghcr.io/connext/relayer:$sha_default",
+            "image": "public.ecr.aws/k9v9y2b9/nxtp-relayer:latest",
             "ports": [
                 8080
             ],
