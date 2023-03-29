@@ -174,6 +174,20 @@ describe("SdkShared", () => {
     });
   });
 
+  describe("#domainToChainId", () => {
+    it("happy: should work", async () => {
+      const chainId = SdkShared.domainToChainId(133712);
+      expect(chainId).to.be.eq(1337);
+    });
+  });
+
+  describe("#chainIdToDomain", () => {
+    it("happy: should work", async () => {
+      const domain = SdkShared.chainIdToDomain(1337);
+      expect(domain).to.be.eq(133712);
+    });
+  });
+
   describe("#getBlockNumberFromUnixTimestamp", () => {
     it("happy: should work", async () => {
       const height = 1234;
