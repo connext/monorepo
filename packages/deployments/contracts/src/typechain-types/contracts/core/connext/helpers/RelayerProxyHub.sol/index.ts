@@ -5,5 +5,6 @@ export type { IArbitrumHubConnector } from "./IArbitrumHubConnector";
 export type { IGnosisHubConnector } from "./IGnosisHubConnector";
 export type { IOptimismHubConnector } from "./IOptimismHubConnector";
 export type { IPolygonHubConnector } from "./IPolygonHubConnector";
+export type { IRootManager } from "./IRootManager";
 export type { IZkSyncHubConnector } from "./IZkSyncHubConnector";
 export type { RelayerProxyHub } from "./RelayerProxyHub";

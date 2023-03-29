@@ -819,7 +819,9 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    propagateWorkable(overrides?: CallOverrides): Promise<[boolean]>;
+    propagateWorkable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -995,7 +997,9 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  propagateWorkable(overrides?: CallOverrides): Promise<boolean>;
+  propagateWorkable(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -1464,7 +1468,9 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    propagateWorkable(overrides?: CallOverrides): Promise<BigNumber>;
+    propagateWorkable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -1641,7 +1647,9 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    propagateWorkable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    propagateWorkable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
