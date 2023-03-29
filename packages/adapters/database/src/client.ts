@@ -260,7 +260,9 @@ export const saveTransfers = async (
       _transfer.error_status = undefined;
     }
 
-    if (!_transfer.message_status) _transfer.message_status = XTransferMessageStatus.XCalled;
+    if (!_transfer.message_status) {
+      _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
+    }
 
     const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
     return transfer;
