@@ -15,6 +15,7 @@ import {
   StableSwapPoolEvent,
   RouterDailyTVL,
   SlippageUpdate,
+  Asset,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -61,6 +62,7 @@ import {
   updateSlippage,
   markRootMessagesProcessed,
   updateExecuteSimulationData,
+  saveAssets,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -96,6 +98,7 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveAssets: (assets: Asset[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getRootMessages: (
     processed: boolean | undefined,
@@ -227,6 +230,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersWithDestinationPending,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
+    saveAssets,
     saveMessages,
     getRootMessages,
     saveSentRootMessages,

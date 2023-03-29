@@ -61,6 +61,7 @@ import {
   updateErrorStatus,
   markRootMessagesProcessed,
   updateSlippage,
+  saveAssets,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -1110,5 +1111,23 @@ describe("Database client", () => {
     expect(queryRes.rows[0].processed).to.eq(true);
     queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
     expect(queryRes.rows[0].processed).to.eq(false);
+  });
+
+  it("should save assets", async () => {
+    const assets = [mock.entity.asset(), mock.entity.asset(), mock.entity.asset()];
+    await saveAssets(assets, pool);
+    let queryRes = await pool.query("SELECT * FROM assets");
+    assets.forEach((asset) => {
+      expect(queryRes.rows).to.deep.include({
+        local: asset.localAsset,
+        adopted: asset.adoptedAsset,
+        domain: asset.domain,
+        key: asset.key,
+        id: asset.id,
+        decimal: asset.decimal,
+        canonical_id: asset.canonicalId,
+        canonical_domain: asset.canonicalDomain,
+      });
+    });
   });
 });
