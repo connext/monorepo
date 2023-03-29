@@ -337,6 +337,31 @@ export class SdkShared {
   }
 
   /**
+   * Retrieve the assets with same canonical id.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The local or adopted address.
+   * @returns The array of asset data on the other domains with same canonical id.
+   */
+  async getAssetsWithSameCanonical(domainId: string, tokenAddress: string): Promise<AssetData[]> {
+    const assetsData = await this.getAssetsData();
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
+      );
+    });
+
+    const otherAssets = assetsData.filter((data) => {
+      return asset?.canonical_domain == data.canonical_domain && asset.canonical_id == data.canonical_id;
+    });
+
+    return otherAssets;
+  }
+
+  /**
    * Retrieve the asset data for a specific domain and key.
    *
    * @param domainId - The domain ID.
