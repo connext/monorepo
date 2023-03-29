@@ -125,6 +125,7 @@ describe("SdkPool", () => {
 
       expect(sdkPool.addLiquidity).to.be.a("function");
       expect(sdkPool.removeLiquidity).to.be.a("function");
+      expect(sdkPool.removeLiquidityOneToken).to.be.a("function");
       expect(sdkPool.swap).to.be.a("function");
 
       expect(sdkPool.getPool).to.be.a("function");
@@ -173,6 +174,47 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#removeLiquidityOneToken", () => {
+    const mockParams = {
+      canonicalId: utils.formatBytes32String("0"),
+      amount: "100",
+      minAmount: "0",
+      index: 0,
+      deadline: 10000000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
+    };
+
+    it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
+      const data = getConnextInterface().encodeFunctionData("removeSwapLiquidityOneToken", [
+        key,
+        mockParams.amount,
+        mockParams.index,
+        mockParams.minAmount,
+        mockParams.deadline,
+      ]);
+
+      const mockRequest: providers.TransactionRequest = {
+        to: mockParams.connextAddress,
+        data,
+      };
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").resolves(0);
+
+      const res = await sdkPool.removeLiquidityOneToken(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockPool.local.address,
+        mockParams.amount,
+        mockParams.minAmount,
+        mockParams.deadline,
+      );
+      expect(res).to.be.deep.eq(mockRequest);
+    });
+  });
+
   describe("#removeLiquidity", () => {
     const mockParams = {
       canonicalId: utils.formatBytes32String("0"),
@@ -204,6 +246,44 @@ describe("SdkPool", () => {
         mockPool.local.address,
         mockParams.amount,
         mockParams.minAmounts,
+        mockParams.deadline,
+      );
+      expect(res).to.be.deep.eq(mockRequest);
+    });
+  });
+
+  describe("#removeLiquidityImbalance", () => {
+    const mockParams = {
+      canonicalId: utils.formatBytes32String("0"),
+      amounts: ["100", "100"],
+      maxBurnAmount: "100",
+      deadline: 10000000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
+    };
+
+    it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
+      const data = getConnextInterface().encodeFunctionData("removeSwapLiquidityImbalance", [
+        key,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+      ]);
+
+      const mockRequest: providers.TransactionRequest = {
+        to: mockParams.connextAddress,
+        data,
+      };
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").resolves(0);
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
         mockParams.deadline,
       );
       expect(res).to.be.deep.eq(mockRequest);

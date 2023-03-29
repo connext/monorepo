@@ -154,6 +154,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
+        "0xbe7bc00382a50a711d037eaecad799bb8805dfa8", // Minerva
+        "0x63Cda9C42db542bb91a7175E38673cFb00D402b0", // Consensys Mesh
         "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c", // Connext
         "0x97b9dcB1AA34fE5F12b728D9166ae353d1e7f5C4", // P2P
         "0x8cb19ce8eedf740389d428879a876a3b030b9170", // BWare

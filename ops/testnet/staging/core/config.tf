@@ -91,6 +91,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -142,6 +145,12 @@ locals {
           subscribe  = true
         },
         {
+          name       = "2053862260"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
           name       = "1734439522"
           limit      = 1
           queueLimit = 10000
@@ -163,6 +172,11 @@ locals {
           exchange = "sequencerX"
           target   = "9991"
           keys     = ["9991"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "2053862260"
+          keys     = ["2053862260"]
         },
         {
           exchange = "sequencerX"
@@ -207,6 +221,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -230,6 +247,9 @@ locals {
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -275,6 +295,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "2053862260" = {
+        providers = ["https://zksync2-testnet.zksync.dev"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
@@ -284,7 +307,7 @@ locals {
     server = {
       adminToken = var.admin_token_watcher
     }
-    logLevel = "debug"
+    logLevel    = "debug"
     environment = "staging"
     chains = {
       "1735353714" = {

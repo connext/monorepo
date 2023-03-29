@@ -3,12 +3,11 @@ import * as fs from "fs";
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk";
+import { getBestProvider } from "@connext/nxtp-utils";
 
-import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
-import { getBestProvider } from "@connext/nxtp-utils";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();

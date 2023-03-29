@@ -1,5 +1,10 @@
-import { domainToChainId } from "@connext/smart-contracts";
-import { createLoggingContext, getCanonicalHash, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  getCanonicalHash,
+  jsonifyError,
+  RequestContext,
+  domainToChainId,
+} from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, constants } from "ethers";
 
 import { ConnextInterface, getErc20Interface } from "../mockable";

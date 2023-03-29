@@ -6132,12 +6132,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee: string | null;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -6191,6 +6185,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
     }
     export interface JSONSelectable {
       /**
@@ -6500,12 +6500,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee: string | null;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -6559,6 +6553,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
     }
     export interface Whereable {
       /**
@@ -6868,12 +6868,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -6927,6 +6921,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -7236,12 +7236,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -7295,6 +7289,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7604,12 +7604,6 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.relayer_fee**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
       * **transfers.error_status**
       * - `varchar` in database
       * - Nullable, no default
@@ -7663,6 +7657,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
@@ -7985,11 +7985,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee: string | null;
+      relayer_fees: db.JSONValue | null;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -8329,11 +8329,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin: string | null;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee: string | null;
+      relayer_fees: db.JSONValue | null;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -8673,11 +8673,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -9017,11 +9017,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database
@@ -9361,11 +9361,11 @@ declare module 'zapatos/schema' {
       */
       reconcile_tx_origin?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers_with_ttr_ttv.relayer_fee**
-      * - `varchar` in database
+      * **transfers_with_ttr_ttv.relayer_fees**
+      * - `jsonb` in database
       * - Nullable, no default
       */
-      relayer_fee?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers_with_ttr_ttv.error_status**
       * - `varchar` in database

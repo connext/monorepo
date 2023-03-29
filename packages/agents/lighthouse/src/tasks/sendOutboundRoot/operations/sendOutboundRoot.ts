@@ -1,4 +1,4 @@
-import { createLoggingContext, getChainIdFromDomain, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId, NxtpError } from "@connext/nxtp-utils";
 
 import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup, getBestProvider } from "../../../mockable";
 import {
@@ -30,7 +30,6 @@ export const sendOutboundRoot = async () => {
   const {
     logger,
     config,
-    chainData,
     adapters: { chainreader, contracts, relayers },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(sendOutboundRoot.name);
@@ -95,7 +94,7 @@ export const sendOutboundRoot = async () => {
 
     const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("send", [encodedData, fee, "0"]);
 
-    const chainId = await getChainIdFromDomain(domain, chainData);
+    const chainId = domainToChainId(+domain);
     try {
       const { taskId } = await sendWithRelayerWithBackup(
         chainId,

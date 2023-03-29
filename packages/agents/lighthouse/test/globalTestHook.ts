@@ -76,6 +76,8 @@ export const mochaHooks = {
       encodeFunctionData: () => "0xdeadbeef",
       decodeFunctionResult: () => [BigNumber.from(42)],
     } as any);
+
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://example.com");
   },
   afterEach() {
     restore();

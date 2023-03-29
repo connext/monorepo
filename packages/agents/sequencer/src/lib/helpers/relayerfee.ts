@@ -1,7 +1,7 @@
-import { XTransfer, createLoggingContext } from "@connext/nxtp-utils";
+import { XTransfer, createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { calculateRelayerFee } from "../../mockable";
+import { calculateRelayerFee, getConversionRate, getDecimalsForAsset } from "../../mockable";
 import { getContext } from "../../sequencer";
 
 /**
@@ -9,7 +9,11 @@ import { getContext } from "../../sequencer";
  * @param transfer - The origin transfer entity
  */
 export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubmit: boolean; needed: string }> => {
-  const { requestContext } = createLoggingContext(canSubmitToRelayer.name);
+  const { requestContext, methodContext } = createLoggingContext(
+    canSubmitToRelayer.name,
+    undefined,
+    transfer.transferId,
+  );
   const {
     logger,
     chainData,
@@ -29,24 +33,48 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     return { canSubmit: true, needed: "0" };
   }
 
-  if (!origin?.relayerFee) {
+  if (!origin?.relayerFees) {
     return { canSubmit: false, needed: "0" };
   }
 
-  const estimatedRelayerFee = await calculateRelayerFee(
+  const relayerFeeAssets = Object.keys(origin.relayerFees);
+
+  const estimatedRelayerFeeUsd = await calculateRelayerFee(
     {
       originDomain,
       destinationDomain,
-      originNativeToken: constants.AddressZero,
-      destinationNativeToken: constants.AddressZero,
+      priceIn: "usd",
       getGasPriceCallback: (domain: number) => chainreader.getGasPrice(domain, requestContext),
     },
     chainData,
     logger,
   );
 
-  const minimumFeeNeeded = estimatedRelayerFee.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
-  const canSubmit = BigNumber.from(origin.relayerFee).gte(minimumFeeNeeded);
+  let relayerFeePaidUsd = constants.Zero;
+  for (const asset of relayerFeeAssets) {
+    if (asset === constants.AddressZero) {
+      const originChainId = domainToChainId(+originDomain);
+      const nativeUsd = await getConversionRate(originChainId, undefined, logger);
+      const nativeFee = BigNumber.from(origin.relayerFees[asset]);
+      const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
+      relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
+    } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
+      const originChainId = domainToChainId(+originDomain);
+      const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
+      const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
+        BigNumber.from(10).pow(18 - relayerFeeDecimals),
+      );
+      relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
+    }
+  }
+
+  const minimumFeeNeeded = estimatedRelayerFeeUsd.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
+  const canSubmit = relayerFeePaidUsd.gte(minimumFeeNeeded);
+  logger.info("Relayer fee check", requestContext, methodContext, {
+    relayerFeePaidUsd: relayerFeePaidUsd.toString(),
+    minimumFeeNeeded: minimumFeeNeeded.toString(),
+    canSubmit,
+  });
 
   return { canSubmit, needed: minimumFeeNeeded.toString() };
 };
