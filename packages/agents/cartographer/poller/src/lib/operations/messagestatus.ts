@@ -51,7 +51,6 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     // 2. sendOutboundRoot happened but the root_messages table sync might still be in progress.
     return XTransferMessageStatus.XCalled;
   }
-
   // const processed = rootMessage.processed;
   const processed = rootMessages.map((i) => i.processed).includes(true);
   if (!processed) {
