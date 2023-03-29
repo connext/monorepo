@@ -63,6 +63,7 @@ import {
   markRootMessagesProcessed,
   updateSlippage,
   getPendingTransfersByMessageStatus,
+  getMessageRootsFromIndex,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -731,7 +732,9 @@ describe("Database client", () => {
     await saveProcessedRootMessages(messages, pool);
 
     let firstRoot = await getMessageRootAggregatedFromIndex(messages[0].spokeDomain, 0, pool);
+    const messageRoots = await getMessageRootsFromIndex(messages[0].spokeDomain, 0, pool);
     expect(firstRoot).to.eq(undefined);
+    expect(messageRoots).to.be.deep.eq(messages.map((i) => ({ ...i, count: i.count.toString(), processed: true })));
 
     const roots: AggregatedRoot[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
