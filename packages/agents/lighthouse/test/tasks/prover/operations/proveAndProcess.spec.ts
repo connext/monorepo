@@ -49,7 +49,7 @@ describe("Operations: ProveAndProcess", () => {
 
   describe("#processMessages", () => {
     beforeEach(() => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves({
+      (proverCtxMock.adapters.database.getMessageRootAggregatedFromIndex as SinonStub).resolves({
         ...mockRootMessage,
         root: mockXMessage1.origin.root,
       });
@@ -79,7 +79,7 @@ describe("Operations: ProveAndProcess", () => {
 
   describe("#processMessages with exceptions", () => {
     beforeEach(() => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves({
+      (proverCtxMock.adapters.database.getMessageRootAggregatedFromIndex as SinonStub).resolves({
         ...mockRootMessage,
         root: mockXMessage1.origin.root,
       });
@@ -91,7 +91,7 @@ describe("Operations: ProveAndProcess", () => {
     });
 
     it("should catch error", async () => {
-      (proverCtxMock.adapters.database.getMessageRootFromIndex as SinonStub).resolves();
+      (proverCtxMock.adapters.database.getMessageRootAggregatedFromIndex as SinonStub).resolves();
       await expect(
         processMessages(
           [mockXMessage1],

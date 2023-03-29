@@ -697,7 +697,7 @@ export const getAggregateRootByRootAndDomain = async (
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
 };
 
-export const getMessageRootFromIndex = async (
+export const getMessageRootAggregatedFromIndex = async (
   spoke_domain: string,
   index: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -708,6 +708,19 @@ export const getMessageRootFromIndex = async (
     s.root_messages.SQL,
     s.root_messages.Selectable[]
   >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
+    spoke_domain,
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
+  return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
+};
+
+export const getMessageRootFromIndex = async (
+  spoke_domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the first published outbound root that contains the index, for a given domain
+  const root = await db.sql<s.root_messages.SQL, s.root_messages.Selectable[]>`select * from ${"root_messages"} ${{
     spoke_domain,
   }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;

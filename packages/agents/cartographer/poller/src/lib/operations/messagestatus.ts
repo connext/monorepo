@@ -44,8 +44,12 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     // A message has been proven and processed
     return XTransferMessageStatus.Processed;
   }
-
-  const rootMessage = await database.getMessageRootFromIndex(transfer.xparams.originDomain, message.origin.index);
+  console.log({ transfer, index: message.origin.index });
+  const rootMessage = await database.getMessageRootAggregatedFromIndex(
+    transfer.xparams.originDomain,
+    message.origin.index,
+  );
+  console.log({ rootMessage });
   if (!rootMessage) {
     // there are 2 possible reasons
     // 1. sendOutboundRoot didn't happen on the spoke domain

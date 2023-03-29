@@ -43,6 +43,7 @@ import {
   getMessageRootIndex,
   getLatestMessageRoot,
   getLatestAggregateRoot,
+  getMessageRootAggregatedFromIndex,
   getMessageRootFromIndex,
   getMessageRootCount,
   getSpokeNode,
@@ -159,6 +160,11 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
+  getMessageRootAggregatedFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessage | undefined>;
   getMessageRootFromIndex: (
     domain: string,
     index: number,
@@ -266,6 +272,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageRootIndex,
     getLatestMessageRoot,
     getLatestAggregateRoot,
+    getMessageRootAggregatedFromIndex,
     getMessageRootFromIndex,
     getMessageRootCount,
     getSpokeNode,

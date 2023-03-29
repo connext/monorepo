@@ -53,7 +53,7 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getAggregateRoot,
-  getMessageRootFromIndex,
+  getMessageRootAggregatedFromIndex,
   getMessageRootCount,
   transaction,
   getCompletedTransfersByMessageHashes,
@@ -730,7 +730,7 @@ describe("Database client", () => {
     await saveSentRootMessages(messages, pool);
     await saveProcessedRootMessages(messages, pool);
 
-    let firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    let firstRoot = await getMessageRootAggregatedFromIndex(messages[0].spokeDomain, 0, pool);
     expect(firstRoot).to.eq(undefined);
 
     const roots: AggregatedRoot[] = [];
@@ -750,10 +750,14 @@ describe("Database client", () => {
       }),
     );
 
-    firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    firstRoot = await getMessageRootAggregatedFromIndex(messages[0].spokeDomain, 0, pool);
     expect(firstRoot!.root).to.eq(messages[0].root);
     // Index the message leaf just after the count of the previous aggregate root
-    const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
+    const lastRoot = await getMessageRootAggregatedFromIndex(
+      messages[batchSize - 1].spokeDomain,
+      2 * (batchSize - 2) + 1,
+      pool,
+    );
     expect(lastRoot!.root).to.eq(messages[batchSize - 1].root);
   });
 
@@ -938,7 +942,7 @@ describe("Database client", () => {
 
   it("should return undefined", async () => {
     expect(await getTransferByTransferId("", pool)).to.eq(undefined);
-    expect((await getMessageRootFromIndex("", 10000000, pool))?.root).to.eq(undefined);
+    expect((await getMessageRootAggregatedFromIndex("", 10000000, pool))?.root).to.eq(undefined);
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
@@ -973,8 +977,8 @@ describe("Database client", () => {
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
-    await expect(getMessageRootFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
-      .rejected;
+    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually
+      .not.be.rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
