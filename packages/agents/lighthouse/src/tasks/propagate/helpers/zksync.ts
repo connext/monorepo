@@ -84,7 +84,7 @@ export const getPropagateParams = async (
   const l2Provider = getZkSyncWeb3Provider(l2RpcUrl);
 
   const gasPrice = await l1Provider.getGasPrice();
-  const gasLimit = BigNumber.from(10000000);
+  const gasLimit = BigNumber.from(5000000);
   const gasPerPubdataByte = BigNumber.from(800);
 
   const zkSyncContract = getContract(await l2Provider.getMainContractAddress(), ZKSYNC_ABI, l1Provider);
