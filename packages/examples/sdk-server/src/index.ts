@@ -8,6 +8,7 @@ import { getBestProvider } from "@connext/nxtp-utils";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
+import { baseRoutes } from "./base";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
