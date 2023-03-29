@@ -540,7 +540,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-watcher-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.build-and-push-watcher-image.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
