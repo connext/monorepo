@@ -64,6 +64,8 @@ export const propagate = async () => {
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
 
   // Check if LH should propagate as backup of keep3r
+  logger.info("Checking if LH propagate workable", requestContext, methodContext);
+
   const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
