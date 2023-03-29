@@ -45,10 +45,7 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     return XTransferMessageStatus.Processed;
   }
   console.log({ transfer, index: message.origin.index });
-  const rootMessage = await database.getMessageRootAggregatedFromIndex(
-    transfer.xparams.originDomain,
-    message.origin.index,
-  );
+  const rootMessage = await database.getMessageRootFromIndex(transfer.xparams.originDomain, message.origin.index);
   console.log({ rootMessage });
   if (!rootMessage) {
     // there are 2 possible reasons

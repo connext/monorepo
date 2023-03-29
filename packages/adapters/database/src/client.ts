@@ -722,7 +722,10 @@ export const getMessageRootFromIndex = async (
 ): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
   // Find the first published outbound root that contains the index, for a given domain
-  const root = await db.sql<s.root_messages.SQL, s.root_messages.Selectable[]>`select * from ${"root_messages"} ${{
+  const root = await db.sql<
+    s.root_messages.SQL,
+    s.root_messages.Selectable[]
+  >`select * from ${"root_messages"} where ${{
     spoke_domain,
   }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
