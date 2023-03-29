@@ -374,7 +374,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
       emit XCalled(
         keccak256(abi.encode(params)),
         params.nonce,
-        keccak256(messageBody),
+        messageHash,
         params,
         asset,
         amount,
@@ -396,7 +396,7 @@ contract ExecutionFlowUtilities is ForgeHelper {
         params.callData
       );
       // Compare returned transfer ID to expected transfer ID from expected call params.
-      assertEq(ret, keccak256(abi.encode(params)));
+      assertEq(ret, keccak256(abi.encode(params)), "returned transfer id != expected");
     }
 
     // Check balances if applicable.
@@ -417,9 +417,9 @@ contract ExecutionFlowUtilities is ForgeHelper {
       //   // meaning the balance should only change by the amount swapped
       //   asset == _originLocal ? initial.bridgeLocal : initial.bridgeLocal - params.bridgedAmt
       // );
-      assertEq(end.bridgeNative, initial.bridgeNative + relayerFee);
-      assertEq(end.callerTransacting, initial.callerTransacting - amount);
-      assertEq(end.callerNative, initial.callerNative - relayerFee);
+      assertEq(end.bridgeNative, initial.bridgeNative + relayerFee, "invalid bridge native asset balance");
+      assertEq(end.callerTransacting, initial.callerTransacting - amount, "invalid caller transacting amount");
+      assertEq(end.callerNative, initial.callerNative - relayerFee, "invalid caller native asset balance");
     }
 
     return ret;
