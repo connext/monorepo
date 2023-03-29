@@ -154,6 +154,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
+        "0x22831e4f21ce65b33ef45df0e212b5bebf130e5a", // BlockTech
         "0xbe7bc00382a50a711d037eaecad799bb8805dfa8", // Minerva
         "0x63Cda9C42db542bb91a7175E38673cFb00D402b0", // Consensys Mesh
         "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c", // Connext
