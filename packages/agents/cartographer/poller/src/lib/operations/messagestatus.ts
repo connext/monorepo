@@ -16,7 +16,7 @@ export const updateMessageStatus = async () => {
     const updatedTransfers = await Promise.all(
       pendingTransfersByMessageStatus.map(async (transfer) => {
         const messageStatus = await getMessageStatus(transfer);
-        let _transfer = transfer;
+        const _transfer = transfer;
         if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
         return _transfer;
       }),
