@@ -5,7 +5,8 @@ import {
   ChainData,
   getCanonicalHash,
   formatUrl,
-  domainToChainId,
+  chainIdToDomain as _chainIdToDomain,
+  domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
@@ -125,7 +126,7 @@ export class SdkShared {
     async (domainId: string): Promise<number> => {
       let chainId = this.config.chains[domainId]?.chainId;
       if (!chainId) {
-        chainId = domainToChainId(+domainId);
+        chainId = _domainToChainId(+domainId);
       }
       return chainId;
     },
@@ -140,6 +141,26 @@ export class SdkShared {
    */
   static domainToChainName(domainId: string) {
     return domainsToChainNames[domainId];
+  }
+
+  /**
+   * Returns a domain id for a chain id.
+   *
+   * @param chainId A chain id number
+   * @returns A domain number in number
+   */
+  static chainIdToDomain(chainId: number): number {
+    return _chainIdToDomain(chainId);
+  }
+
+  /**
+   * Returns a chain id for a domain id
+   *
+   * @param domainId A domain id number
+   * @returns A chain id
+   */
+  static domainToChainId(domainId: number): number {
+    return _domainToChainId(domainId);
   }
 
   /**
@@ -282,7 +303,7 @@ export class SdkShared {
       } else {
         const entry: ConnextSupport = {
           name: domainsToChainNames[asset.domain],
-          chainId: domainToChainId(+asset.domain),
+          chainId: _domainToChainId(+asset.domain),
           domainId: asset.domain,
           assets: [asset.adopted],
         };
@@ -313,6 +334,31 @@ export class SdkShared {
     });
 
     return asset;
+  }
+
+  /**
+   * Retrieve the assets with same canonical id.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The local or adopted address.
+   * @returns The array of asset data on the other domains with same canonical id.
+   */
+  async getAssetsWithSameCanonical(domainId: string, tokenAddress: string): Promise<AssetData[]> {
+    const assetsData = await this.getAssetsData();
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
+      );
+    });
+
+    const otherAssets = assetsData.filter((data) => {
+      return asset?.canonical_domain == data.canonical_domain && asset.canonical_id == data.canonical_id;
+    });
+
+    return otherAssets;
   }
 
   /**
