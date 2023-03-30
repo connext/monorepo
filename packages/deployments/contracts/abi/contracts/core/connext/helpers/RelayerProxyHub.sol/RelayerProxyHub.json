@@ -9,7 +9,7 @@
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32,bytes32)",
   "error RelayerProxyHub__processFromRoot_noHubConnector(uint32)",
-  "error RelayerProxyHub__propagateWorkable_failed(uint256,uint256)",
+  "error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256,uint256)",
   "error RelayerProxy__addRelayer_relayerAdded(address)",
   "error RelayerProxy__definedAddress_empty(address)",
   "error RelayerProxy__isWorkableBySender_notWorkable(address)",

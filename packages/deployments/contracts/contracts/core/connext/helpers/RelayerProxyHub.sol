@@ -150,7 +150,7 @@ contract RelayerProxyHub is RelayerProxy {
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
 
   // ============ Errors ============
-  error RelayerProxyHub__propagateWorkable_failed(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
 
@@ -221,7 +221,7 @@ contract RelayerProxyHub is RelayerProxy {
    */
   function propagateWorkable() public returns (bool) {
     (bytes32 _aggregateRoot, ) = rootManager.dequeue();
-    return rootManager.lastPropagatedRoot() != _aggregateRoot && _propagateWorkable();
+    return (rootManager.lastPropagatedRoot() != _aggregateRoot) && _propagateCooledDown();
   }
 
   /**
@@ -259,8 +259,8 @@ contract RelayerProxyHub is RelayerProxy {
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
   ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
-    if (!_propagateWorkable()) {
-      revert RelayerProxyHub__propagateWorkable_failed(block.timestamp, lastPropagateAt + propagateCooldown);
+    if (!_propagateCooledDown()) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
@@ -298,7 +298,7 @@ contract RelayerProxyHub is RelayerProxy {
     hubConnectors[chain] = _hubConnector;
   }
 
-  function _propagateWorkable() internal view returns (bool) {
+  function _propagateCooledDown() internal view returns (bool) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
   }
 

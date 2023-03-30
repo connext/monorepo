@@ -71,8 +71,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   /**
    * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
-   * For example, if priority is 3, then Autonolas will be able to work on blocks 0, 1, 2.
-   * Priority 0 disables Autonolas priority completely.
+   * For example, if priority is 3, then sender will not be able to work on blocks 0, 1, 2, unless they are Autonolas.
+   * Priority 0 disables Autonolas priority completely."
    * @param _sender The address of the caller
    */
   modifier isWorkableBySender(address _sender) {
