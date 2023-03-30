@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - staging
+      - testnet-prod
       - prod
   pull_request:
   create:
@@ -115,7 +116,7 @@ jobs:
           fi
 
   build-and-push-router-publisher-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-publisher
@@ -157,7 +158,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-router-subscriber-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-subscriber
@@ -199,7 +200,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-router-executor-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-executor
@@ -241,7 +242,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-sequencer-publisher-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-publisher
@@ -283,7 +284,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-sequencer-subscriber-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-subscriber
@@ -325,7 +326,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-cartographer-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
@@ -369,7 +370,7 @@ jobs:
           docker push ghcr.io/connext/cartographer:$IMAGE_TAG
 
   build-and-push-lighthouse-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
@@ -414,7 +415,7 @@ jobs:
           docker push ghcr.io/connext/lighthouse:$IMAGE_TAG
 
   build-and-push-relayer-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/relayer
@@ -456,7 +457,7 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   build-and-push-watcher-image:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/watcher
@@ -607,7 +608,7 @@ jobs:
       watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
 
   terraform-infra:
-    if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     needs: [smoke-tests]
     env:
@@ -772,7 +773,7 @@ jobs:
       relayer-tags: ${{ needs.smoke-tests.outputs.relayer-tags }}
 
   terraform-services-core-prod-testnet:
-    if: github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/testnet-prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -843,7 +844,7 @@ jobs:
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
 
   terraform-services-backend-prod-testnet:
-    if: github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/testnet-prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext

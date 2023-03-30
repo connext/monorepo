@@ -200,7 +200,7 @@ export class SdkBase extends SdkShared {
       });
     }
     if (parseInt(slippage) < 0 || parseInt(slippage) > 10000) {
-      throw new SlippageInvalid(slippage, context);
+      throw new SlippageInvalid(slippage, params);
     }
     if (to === constants.AddressZero) {
       throw new ParamsInvalid("Valid recipient `to` address must be provided; received address(0) as recipient.");
@@ -404,7 +404,7 @@ export class SdkBase extends SdkShared {
 
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
-      throw new SlippageInvalid(_newSlippage, context);
+      throw new SlippageInvalid(_newSlippage, params);
     }
 
     const validateInput = ajv.compile(SdkUpdateSlippageParamsSchema);
@@ -648,6 +648,7 @@ export class SdkBase extends SdkShared {
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
+   * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
    * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
@@ -656,6 +657,7 @@ export class SdkBase extends SdkShared {
     originTokenAddress: string,
     amount: BigNumberish,
     receiveLocal = false,
+    checkFastLiquidity = false,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -670,6 +672,7 @@ export class SdkBase extends SdkShared {
       originTokenAddress,
       amount,
       receiveLocal,
+      checkFastLiquidity,
     );
   }
 }

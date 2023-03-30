@@ -195,11 +195,12 @@ POST {{baseUrl}}/calculateAmountReceived
 Content-Type: application/json
 
 {
-  "originDomain": "1869640809",
-  "destinationDomain": "1886350457",
-  "originTokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "originDomain": "1735356532",
+  "destinationDomain": "9991",
+  "originTokenAddress": "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
   "amount": "100000",
-  "receiveLocal": false
+  "receiveLocal": false,
+  "checkFastLiquidity": true
 }
 
 ##############
@@ -212,8 +213,8 @@ POST {{baseUrl}}/getPool
 Content-Type: application/json
 
 {
-  "domainId": "9991",
-  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+"domainId": "9991",
+"tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -222,8 +223,8 @@ POST {{baseUrl}}/getUserPools
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "userAddress": "{{yourAddress}}"
+"domainId": "1869640809",
+"userAddress": "{{yourAddress}}"
 }
 
 ##############
@@ -232,9 +233,9 @@ POST {{baseUrl}}/addLiquidity
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "amounts": ["10000", "10000"]
+"domainId": "1869640809",
+"tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+"amounts": ["10000", "10000"]
 }
 
 ##############

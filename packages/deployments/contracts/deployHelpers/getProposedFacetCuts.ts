@@ -131,7 +131,7 @@ export const getProposedFacetCuts = async (
   const acceptanceTime = await current.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
     // console.log(`cut has already been proposed`);
-    return []; // already proposed, nothing to do
+    return facetCuts;
   }
   // console.log("calling propose with", facetCuts);
 
