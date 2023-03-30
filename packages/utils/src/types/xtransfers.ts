@@ -1,8 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TAddress, TBytes32, TIntegerString } from ".";
+import { TAddress, TBytes32, TIntegerString } from "./primitives";
 
-// dear Jake, please stop changing this to enum
 export const XTransferStatus = {
   XCalled: "XCalled",
   Executed: "Executed",
@@ -19,6 +18,16 @@ export const XTransferErrorStatus = {
   NoBidsReceived: "NoBidsReceived",
 } as const;
 export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
+
+export const XTransferMessageStatus = {
+  XCalled: "XCalled",
+  SpokeRootSent: "SpokeRootSent",
+  SpokeRootArrivedOnHub: "SpokeRootArrivedOnHub",
+  AggregateRootPropagated: "AggregateRootPropagated",
+  AggregatedRootArrivedOnSpokeDomain: "AggregatedRootArrivedOnSpokeDomain",
+  Processed: "Processed",
+} as const;
+export type XTransferMessageStatus = (typeof XTransferMessageStatus)[keyof typeof XTransferMessageStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -38,6 +47,9 @@ export const XTransferOriginSchema = Type.Object({
 
   // Failure reason
   errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
+
+  // message status
+  messageStatus: Type.Optional(Type.Enum(XTransferMessageStatus)),
 
   // Assets
   assets: Type.Object({
