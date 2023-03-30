@@ -275,7 +275,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
           hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
           // PolygonZkEVMBridge on polygon-zkevm
-          // https://explorer.public.zkevm-test.net/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+          // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
           spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
         },
         processGas: DEFAULT_PROCESS_GAS,

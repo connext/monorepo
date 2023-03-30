@@ -251,8 +251,8 @@ export const hardhatNetworks = {
     },
     verify: {
       etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://explorer.public.zkevm-test.net",
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-testnet-zkevm.polygonscan.com",
       },
     },
   },
