@@ -242,45 +242,45 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* Messaging **********************
   /// MARK - Messaging
-  await setupMessaging(protocol);
+  // await setupMessaging(protocol);
 
-  /// ********************* CONNEXT *********************
-  /// MARK - Enroll Handlers
-  console.log("\n\nENROLLING HANDLERS");
-  for (let i = 0; i < protocol.networks.length; i++) {
-    const targetNetwork = protocol.networks[i];
-    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    for (const remoteNetwork of remoteNetworks) {
-      const desiredConnextion = remoteNetwork.deployments.Connext.address;
-      await updateIfNeeded({
-        deployment: targetNetwork.deployments.Connext,
-        desired: desiredConnextion,
-        read: { method: "remote", args: [remoteNetwork.domain] },
-        write: {
-          method: "enrollRemoteRouter",
-          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-        },
-        chainData,
-      });
-    }
-  }
+  // /// ********************* CONNEXT *********************
+  // /// MARK - Enroll Handlers
+  // console.log("\n\nENROLLING HANDLERS");
+  // for (let i = 0; i < protocol.networks.length; i++) {
+  //   const targetNetwork = protocol.networks[i];
+  //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+  //   for (const remoteNetwork of remoteNetworks) {
+  //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
+  //     await updateIfNeeded({
+  //       deployment: targetNetwork.deployments.Connext,
+  //       desired: desiredConnextion,
+  //       read: { method: "remote", args: [remoteNetwork.domain] },
+  //       write: {
+  //         method: "enrollRemoteRouter",
+  //         args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+  //       },
+  //       chainData,
+  //     });
+  //   }
+  // }
 
   /// MARK - Set relayerFeeVault
-  console.log("\n\nENROLLING RELAYER FEE VAULT");
-  for (const network of protocol.networks) {
-    const {
-      relayerFeeVault,
-      deployments: { Connext },
-    } = network;
+  // console.log("\n\nENROLLING RELAYER FEE VAULT");
+  // for (const network of protocol.networks) {
+  //   const {
+  //     relayerFeeVault,
+  //     deployments: { Connext },
+  //   } = network;
 
-    await updateIfNeeded({
-      deployment: Connext,
-      desired: relayerFeeVault,
-      read: { method: "relayerFeeVault" },
-      write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
-      chainData,
-    });
-  }
+  //   await updateIfNeeded({
+  //     deployment: Connext,
+  //     desired: relayerFeeVault,
+  //     read: { method: "relayerFeeVault" },
+  //     write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
+  //     chainData,
+  //   });
+  // }
 
   /// ********************* Relayer Proxy **********************
   /// MARK - relayer proxy
@@ -334,49 +334,49 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
-  console.log("\n\nREGISTER ASSETS");
-  // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
-  // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
-  // If so, initialize stableswap pool with `initializeSwap`.
-  // Call `setupAsset` for each domain. This will:
-  // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
-  // - Set up mapping for stableswap pool if applicable.
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
-  }
+  // console.log("\n\nREGISTER ASSETS");
+  // // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
+  // // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
+  // // If so, initialize stableswap pool with `initializeSwap`.
+  // // Call `setupAsset` for each domain. This will:
+  // // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
+  // // - Set up mapping for stableswap pool if applicable.
+  // for (const asset of protocol.assets) {
+  //   await setupAsset({
+  //     asset,
+  //     networks: protocol.networks,
+  //     chainData,
+  //   });
+  // }
 
   /// ********************* AGENTS **********************
   if (protocol.agents) {
     /// MARK - Watchers
-    if (protocol.agents.watchers) {
-      if (protocol.agents.watchers.allowlist) {
-        console.log("\n\nWHITELIST WATCHERS");
+    // if (protocol.agents.watchers) {
+    //   if (protocol.agents.watchers.allowlist) {
+    //     console.log("\n\nWHITELIST WATCHERS");
 
-        // Get hub domain for specific use.
-        const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
+    //     // Get hub domain for specific use.
+    //     const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
 
-        /// MARK - Contracts
-        // Convenience setup for contracts.
-        const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
+    //     /// MARK - Contracts
+    //     // Convenience setup for contracts.
+    //     const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
 
-        // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-        // Allowlist watchers in RootManager.
-        for (const watcher of protocol.agents.watchers.allowlist) {
-          await updateIfNeeded({
-            deployment: WatcherManager,
-            desired: true,
-            read: { method: "isWatcher", args: [watcher] },
-            write: { method: "addWatcher", args: [watcher] },
-            chainData,
-          });
-        }
-      }
-      // TODO: Blacklist/remove watchers.
-    }
+    //     // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+    //     // Allowlist watchers in RootManager.
+    //     for (const watcher of protocol.agents.watchers.allowlist) {
+    //       await updateIfNeeded({
+    //         deployment: WatcherManager,
+    //         desired: true,
+    //         read: { method: "isWatcher", args: [watcher] },
+    //         write: { method: "addWatcher", args: [watcher] },
+    //         chainData,
+    //       });
+    //     }
+    //   }
+    //   // TODO: Blacklist/remove watchers.
+    // }
 
     /// MARK - Relayers
     if (protocol.agents.relayers) {
@@ -437,45 +437,45 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       // TODO: Blacklist/remove relayers.
     }
 
-    /// MARK - Sequencers
-    if (protocol.agents.sequencers) {
-      if (protocol.agents.sequencers.allowlist) {
-        console.log("\n\nWHITELIST SEQUENCERS");
-        // Allowlist named sequencers.
-        for (const sequencer of protocol.agents.sequencers.allowlist) {
-          for (const network of protocol.networks) {
-            await updateIfNeeded({
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "approvedSequencers", args: [sequencer] },
-              write: { method: "addSequencer", args: [sequencer] },
-              chainData,
-            });
-          }
-        }
-      }
-      // TODO: Blacklist/remove sequencers.
-    }
+    // /// MARK - Sequencers
+    // if (protocol.agents.sequencers) {
+    //   if (protocol.agents.sequencers.allowlist) {
+    //     console.log("\n\nWHITELIST SEQUENCERS");
+    //     // Allowlist named sequencers.
+    //     for (const sequencer of protocol.agents.sequencers.allowlist) {
+    //       for (const network of protocol.networks) {
+    //         await updateIfNeeded({
+    //           deployment: network.deployments.Connext,
+    //           desired: true,
+    //           read: { method: "approvedSequencers", args: [sequencer] },
+    //           write: { method: "addSequencer", args: [sequencer] },
+    //           chainData,
+    //         });
+    //       }
+    //     }
+    //   }
+    //   // TODO: Blacklist/remove sequencers.
+    // }
 
     /// MARK - Routers
-    if (protocol.agents.routers) {
-      if (protocol.agents.routers.allowlist) {
-        console.log("\n\nWHITELIST ROUTERS");
-        // Allowlist connext routers.
-        for (const router of protocol.agents.routers.allowlist) {
-          for (const network of protocol.networks) {
-            await updateIfNeeded({
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "getRouterApproval", args: [router] },
-              // TODO: Should we enable configuring owner and recipient for this script, too?
-              write: { method: "approveRouter", args: [router] },
-              chainData,
-            });
-          }
-        }
-      }
-      // TODO: Blacklist/remove routers.
-    }
+    // if (protocol.agents.routers) {
+    //   if (protocol.agents.routers.allowlist) {
+    //     console.log("\n\nWHITELIST ROUTERS");
+    //     // Allowlist connext routers.
+    //     for (const router of protocol.agents.routers.allowlist) {
+    //       for (const network of protocol.networks) {
+    //         await updateIfNeeded({
+    //           deployment: network.deployments.Connext,
+    //           desired: true,
+    //           read: { method: "getRouterApproval", args: [router] },
+    //           // TODO: Should we enable configuring owner and recipient for this script, too?
+    //           write: { method: "approveRouter", args: [router] },
+    //           chainData,
+    //         });
+    //       }
+    //     }
+    //   }
+    //   // TODO: Blacklist/remove routers.
+    // }
   }
 };
