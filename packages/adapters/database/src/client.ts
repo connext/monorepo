@@ -20,6 +20,7 @@ import {
   RouterDailyTVL,
   SlippageUpdate,
   XTransferMessageStatus,
+  Asset,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -545,6 +546,23 @@ export const saveRouterBalances = async (
       )
       .run(poolToUse);
   }
+};
+
+export const saveAssets = async (assets: Asset[], _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const dbAssets: s.assets.Insertable[] = assets.map((asset) => {
+    return {
+      key: asset.key,
+      id: asset.id,
+      decimal: asset.decimal as any,
+      local: asset.localAsset,
+      adopted: asset.adoptedAsset,
+      canonical_id: asset.canonicalId,
+      canonical_domain: asset.canonicalDomain,
+      domain: asset.domain,
+    };
+  });
+  await db.upsert("assets", dbAssets, ["canonical_id", "domain"]).run(poolToUse);
 };
 
 export const transaction = async (

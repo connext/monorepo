@@ -226,6 +226,7 @@ export const AssetSchema = Type.Object({
   canonicalDomain: Type.String(),
   localAsset: TAddress,
   blockNumber: Type.String(),
+  domain: Type.String(),
 });
 export type Asset = Static<typeof AssetSchema>;
 
@@ -237,7 +238,6 @@ export const AssetBalanceSchema = Type.Intersect([
     supplied: TIntegerString,
     removed: TIntegerString,
     feesEarned: TIntegerString,
-    domain: Type.String(),
   }),
 ]);
 export type AssetBalance = Static<typeof AssetBalanceSchema>;
