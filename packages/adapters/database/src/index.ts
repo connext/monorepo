@@ -66,6 +66,7 @@ import {
   updateExecuteSimulationData,
   getPendingTransfersByMessageStatus,
   getMessageByLeaf,
+  saveAssets,
 } from "./client";
 
 export * as db from "zapatos/db";
