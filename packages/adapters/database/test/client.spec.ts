@@ -18,6 +18,7 @@ import {
   RelayerType,
   SlippageUpdate,
   getNtpTimeSeconds,
+  XTransferMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -52,7 +53,7 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getAggregateRoot,
-  getMessageRootFromIndex,
+  getMessageRootAggregatedFromIndex,
   getMessageRootCount,
   transaction,
   getCompletedTransfersByMessageHashes,
@@ -61,6 +62,8 @@ import {
   updateErrorStatus,
   markRootMessagesProcessed,
   updateSlippage,
+  getPendingTransfersByMessageStatus,
+  getMessageRootsFromIndex,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -728,8 +731,10 @@ describe("Database client", () => {
     await saveSentRootMessages(messages, pool);
     await saveProcessedRootMessages(messages, pool);
 
-    let firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
+    let firstRoot = await getMessageRootAggregatedFromIndex(messages[0].spokeDomain, 0, pool);
+    const messageRoots = await getMessageRootsFromIndex(messages[0].spokeDomain, 0, pool);
     expect(firstRoot).to.eq(undefined);
+    expect(messageRoots).to.be.deep.eq(messages.map((i) => ({ ...i, count: i.count.toString(), processed: true })));
 
     const roots: AggregatedRoot[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
@@ -748,11 +753,15 @@ describe("Database client", () => {
       }),
     );
 
-    firstRoot = await getMessageRootFromIndex(messages[0].spokeDomain, 0, pool);
-    expect(firstRoot).to.eq(messages[0].root);
+    firstRoot = await getMessageRootAggregatedFromIndex(messages[0].spokeDomain, 0, pool);
+    expect(firstRoot!.root).to.eq(messages[0].root);
     // Index the message leaf just after the count of the previous aggregate root
-    const lastRoot = await getMessageRootFromIndex(messages[batchSize - 1].spokeDomain, 2 * (batchSize - 2) + 1, pool);
-    expect(lastRoot).to.eq(messages[batchSize - 1].root);
+    const lastRoot = await getMessageRootAggregatedFromIndex(
+      messages[batchSize - 1].spokeDomain,
+      2 * (batchSize - 2) + 1,
+      pool,
+    );
+    expect(lastRoot!.root).to.eq(messages[batchSize - 1].root);
   });
 
   it("should not set processed to false", async () => {
@@ -936,7 +945,7 @@ describe("Database client", () => {
 
   it("should return undefined", async () => {
     expect(await getTransferByTransferId("", pool)).to.eq(undefined);
-    expect(await getMessageRootFromIndex("", 10000000, pool)).to.eq(undefined);
+    expect((await getMessageRootAggregatedFromIndex("", 10000000, pool))?.root).to.eq(undefined);
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
@@ -971,8 +980,8 @@ describe("Database client", () => {
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
-    await expect(getMessageRootFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
-      .rejected;
+    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually
+      .not.be.rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
@@ -1110,5 +1119,22 @@ describe("Database client", () => {
     expect(queryRes.rows[0].processed).to.eq(true);
     queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
     expect(queryRes.rows[0].processed).to.eq(false);
+  });
+
+  it("should get pending transfers by message status", async () => {
+    const originDomain = "1337";
+    const transfers: XTransfer[] = [
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.XCalled }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.SpokeRootSent }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.SpokeRootSent }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.AggregateRootPropagated }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.Processed }),
+      mock.entity.xtransfer({ originDomain, messageStatus: XTransferMessageStatus.Processed }),
+    ];
+    await saveTransfers(transfers, pool);
+    let pendingTransfers = await getPendingTransfersByMessageStatus(originDomain, 0, 100, "ASC", pool);
+    expect(pendingTransfers.length).to.be.eq(6);
   });
 });

@@ -184,7 +184,7 @@ sources:
   - name: Connext_ConsensysTest
     handler:
       graphql:
-        endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-consensys-test
+        endpoint: https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/connext/amarok-runtime-v0-consensys-test
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
