@@ -436,6 +436,18 @@ export const getRouterQuery = (prefix: string, router: string): string => {
   `;
 };
 
+export const getAssetsQuery = (prefix: string): string => {
+  const queryString = `
+    ${prefix}_assets {
+      ${ASSET_ENTITY}
+    }`;
+  return gql`
+    query GetAssets { 
+      ${queryString}
+    }
+  `;
+};
+
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
     ${prefix}_assets(where: { id: "${local}" }) {

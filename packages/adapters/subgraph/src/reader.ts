@@ -57,6 +57,7 @@ import {
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getAssetsQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
@@ -252,6 +253,16 @@ export class SubgraphReader {
     const response = await execute(query);
     const router = [...response.values()][0] ? [...response.values()][0][0] : undefined;
     return !!router?.id;
+  }
+
+  public async getAssets(domain: string): Promise<Asset[]> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain);
+
+    const query = getAssetsQuery(prefix);
+    const response = await execute(query);
+    const assets: Asset[] = [...response.values()].map((v) => v.flat()).flat();
+    return assets.map((asset) => ({ ...asset, domain }));
   }
 
   /**
