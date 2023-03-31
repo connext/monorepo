@@ -9,6 +9,14 @@ import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProx
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
 
+const KEEP3R_ADDRESSES: Record<number, string> = {
+  1: "0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC",
+  5: "0x85063437C02Ba7F4f82F898859e4992380DEd3bb",
+};
+
+const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
+const AUTONOLAS_PRIORITY = 0;
+
 /**
  * Hardhat task defining the contract deployments for Connext
  *
@@ -50,114 +58,115 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
-  const connectorName = getConnectorName(protocol, +chainId);
-  const connectorManagerDeployment = await hre.deployments.getOrNull(
-    getDeploymentName(connectorName, undefined, protocol.configs[Number(chainId)].networkName),
-  );
-  if (!connectorManagerDeployment) {
-    throw new Error(`${connectorName} not deployed`);
-  }
+  // const connectorName = getConnectorName(protocol, +chainId);
+  // const connectorManagerDeployment = await hre.deployments.getOrNull(
+  //   getDeploymentName(connectorName, undefined, protocol.configs[Number(chainId)].networkName),
+  // );
+  // if (!connectorManagerDeployment) {
+  //   throw new Error(`${connectorName} not deployed`);
+  // }
 
-  const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-  });
+  // const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  // });
 
-  if (lpTokenDeployment.newlyDeployed) {
-    await hre.deployments.execute(
-      "LPToken",
-      { from: deployer.address, log: true },
-      "initialize",
-      "Connext Stable LP Token",
-      "ConnextStableLPToken",
-    );
-  }
+  // if (lpTokenDeployment.newlyDeployed) {
+  //   await hre.deployments.execute(
+  //     "LPToken",
+  //     { from: deployer.address, log: true },
+  //     "initialize",
+  //     "Connext Stable LP Token",
+  //     "ConnextStableLPToken",
+  //   );
+  // }
 
-  // Deploy connext diamond contract
-  console.log("Deploying connext diamond...");
-  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
+  // // Deploy connext diamond contract
+  // console.log("Deploying connext diamond...");
+  // const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
-  // Get all the facet options
-  const facetsToDeploy = getFacetsToDeploy(zksync);
-  const facets: (FacetOptions & { abi: any[] })[] = [];
-  for (const facet of facetsToDeploy) {
-    const deployment = await hre.deployments.getOrNull(facet.name);
-    if (!deployment) {
-      throw new Error(`Failed to get deployment for ${facet.name}`);
-    }
-    facets.push({
-      abi: deployment.abi,
-      name: facet.name,
-      contract: new Contract(deployment.address, deployment.abi),
-    });
-  }
+  // // Get all the facet options
+  // const facetsToDeploy = getFacetsToDeploy(zksync);
+  // const facets: (FacetOptions & { abi: any[] })[] = [];
+  // for (const facet of facetsToDeploy) {
+  //   const deployment = await hre.deployments.getOrNull(facet.name);
+  //   if (!deployment) {
+  //     throw new Error(`Failed to get deployment for ${facet.name}`);
+  //   }
+  //   facets.push({
+  //     abi: deployment.abi,
+  //     name: facet.name,
+  //     contract: new Contract(deployment.address, deployment.abi),
+  //   });
+  // }
 
-  let connext;
-  if (isDiamondUpgrade) {
-    console.log("proposing upgrade...");
+  // let connext;
+  // if (isDiamondUpgrade) {
+  //   console.log("proposing upgrade...");
 
-    connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
-    const currentConnext = new Contract(connext.address, connext.abi, deployer);
+  //   connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
+  //   const currentConnext = new Contract(connext.address, connext.abi, deployer);
 
-    const cuts = await getProposedFacetCuts(facets, currentConnext);
-    if (cuts.length) {
-      // There is a proposal needed
-      console.log(`Proposal needed, proposing upgrade`);
-      const proposalTx = await currentConnext.proposeDiamondCut(cuts, constants.AddressZero, "0x");
-      console.log(`Proposal tx:`, proposalTx.hash);
-      const receipt = await proposalTx.wait();
-      console.log(`Upgrade to diamond proposed`, receipt.transactionHash);
-    } else {
-      console.log(`No upgrade needed, using previous deployment`);
-    }
+  //   const cuts = await getProposedFacetCuts(facets, currentConnext);
+  //   if (cuts.length) {
+  //     // There is a proposal needed
+  //     console.log(`Proposal needed, proposing upgrade`);
+  //     const proposalTx = await currentConnext.proposeDiamondCut(cuts, constants.AddressZero, "0x");
+  //     console.log(`Proposal tx:`, proposalTx.hash);
+  //     const receipt = await proposalTx.wait();
+  //     console.log(`Upgrade to diamond proposed`, receipt.transactionHash);
+  //   } else {
+  //     console.log(`No upgrade needed, using previous deployment`);
+  //   }
 
-    // Fallthrough after proposal, will either work or fail depending on delay
-    try {
-      if (cuts.length) {
-        const contract = new Contract(connext.address, connext.abi, deployer);
-        const acceptanceTime = (await contract.getAcceptanceTime(cuts, constants.AddressZero, "0x")).toNumber();
-        const currentTimeStamp = Math.floor(Date.now() / 1000);
-        if (acceptanceTime > currentTimeStamp) {
-          console.log(`delay not elapsed. still wait for ${acceptanceTime - currentTimeStamp} sec`);
-        } else {
-          const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
-          console.log("upgrade transaction", upgradeTx.hash);
-          const receipt = await upgradeTx.wait();
-          console.log("upgrade receipt", receipt);
+  //   // Fallthrough after proposal, will either work or fail depending on delay
+  //   try {
+  //     if (cuts.length) {
+  //       const contract = new Contract(connext.address, connext.abi, deployer);
+  //       const acceptanceTime = (await contract.getAcceptanceTime(cuts, constants.AddressZero, "0x")).toNumber();
+  //       const currentTimeStamp = Math.floor(Date.now() / 1000);
+  //       if (acceptanceTime > currentTimeStamp) {
+  //         console.log(`delay not elapsed. still wait for ${acceptanceTime - currentTimeStamp} sec`);
+  //       } else {
+  //         const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
+  //         console.log("upgrade transaction", upgradeTx.hash);
+  //         const receipt = await upgradeTx.wait();
+  //         console.log("upgrade receipt", receipt);
 
-          // Save updated abi to Connext Deployment if cuts were performed
-          const diamondDeployment: DeploymentSubmission = {
-            ...connext,
-            abi: cuts.length ? getUpgradedAbi(facets, connext.abi) : connext.abi,
-          };
+  //         // Save updated abi to Connext Deployment if cuts were performed
+  //         const diamondDeployment: DeploymentSubmission = {
+  //           ...connext,
+  //           abi: cuts.length ? getUpgradedAbi(facets, connext.abi) : connext.abi,
+  //         };
 
-          await hre.deployments.save(getDeploymentName("Connext"), diamondDeployment);
-          console.log("upgraded abi");
-        }
-      }
-    } catch (e: any) {
-      console.log(`upgrade failed`, e);
-    }
-  } else {
-    connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
-      from: deployer.address,
-      owner: deployer.address,
-      log: true,
-      facets: facetsToDeploy,
-      diamondContract: "ConnextDiamond",
-      defaultOwnershipFacet: false,
-      defaultCutFacet: false,
-      execute: isDiamondUpgrade
-        ? undefined
-        : {
-            contract: "DiamondInit",
-            methodName: "init",
-            args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
-          },
-    });
-  }
+  //         await hre.deployments.save(getDeploymentName("Connext"), diamondDeployment);
+  //         console.log("upgraded abi");
+  //       }
+  //     }
+  //   } catch (e: any) {
+  //     console.log(`upgrade failed`, e);
+  //   }
+  // } else {
+  //   connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
+  //     from: deployer.address,
+  //     owner: deployer.address,
+  //     log: true,
+  //     facets: facetsToDeploy,
+  //     diamondContract: "ConnextDiamond",
+  //     defaultOwnershipFacet: false,
+  //     defaultCutFacet: false,
+  //     execute: isDiamondUpgrade
+  //       ? undefined
+  //       : {
+  //           contract: "DiamondInit",
+  //           methodName: "init",
+  //           args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
+  //         },
+  //   });
+  // }
 
+  const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
@@ -168,13 +177,36 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     getDeploymentName(getConnectorName(protocol, +chainId), undefined, protocol.configs[Number(chainId)].networkName),
   );
 
+  const { configs } = protocol;
+
   if (protocol.hub === network.chainId) {
+    const chains = [];
+    const hubConnectors = [];
+    for (const spokeChain of Object.keys(configs)) {
+      const contract = getConnectorName(protocol, +spokeChain, protocol.hub);
+      const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
+      const hubConnector = await hre.ethers.getContract(deploymentName);
+      chains.push(+spokeChain);
+      hubConnectors.push(hubConnector.address);
+    }
     const rootManager = await hre.ethers.getContract(getDeploymentName("RootManager"));
     const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
       from: deployer.address,
       log: true,
       contract: "RelayerProxyHub",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, rootManager.address],
+      args: [
+        connextAddress,
+        spokeConnector.address,
+        gelatoRelayer,
+        feeCollector,
+        rootManager.address,
+        KEEP3R_ADDRESSES[network.chainId],
+        constants.AddressZero,
+        AUTONOLAS_PRIORITY,
+        PROPAGATE_COOLDOWN,
+        hubConnectors,
+        chains,
+      ],
     });
 
     console.log("relayerProxyHub: ", relayerProxyHub.address);
@@ -225,4 +257,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-func.dependencies = ["Messaging", "Facets"];
+// func.dependencies = ["Messaging", "Facets"];
