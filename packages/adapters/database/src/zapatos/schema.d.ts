@@ -6186,6 +6186,12 @@ declare module 'zapatos/schema' {
       */
       error_message: string | null;
       /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
+      /**
       * **transfers.relayer_fees**
       * - `jsonb` in database
       * - Nullable, no default
@@ -6553,6 +6559,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message: string | null;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
       /**
       * **transfers.relayer_fees**
       * - `jsonb` in database
@@ -6922,6 +6934,12 @@ declare module 'zapatos/schema' {
       */
       error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
       * **transfers.relayer_fees**
       * - `jsonb` in database
       * - Nullable, no default
@@ -7290,6 +7308,12 @@ declare module 'zapatos/schema' {
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
       * **transfers.relayer_fees**
       * - `jsonb` in database
       * - Nullable, no default
@@ -7657,6 +7681,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       error_message?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.relayer_fees**
       * - `jsonb` in database

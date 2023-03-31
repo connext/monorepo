@@ -19,6 +19,7 @@ import {
   StableSwapPoolEvent,
   RouterDailyTVL,
   SlippageUpdate,
+  XTransferMessageStatus,
   Asset,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -53,8 +54,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     canonical_id: transfer.xparams?.canonicalId,
     relayer_fees: transfer.origin?.relayerFees,
     error_status: transfer.origin?.errorStatus,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-
+    message_status: transfer.origin?.messageStatus,
     origin_chain: transfer.origin?.chain,
     origin_transacting_asset: transfer.origin?.assets.transacting.asset,
     origin_transacting_amount: transfer.origin?.assets.transacting.amount,
@@ -259,6 +259,10 @@ export const saveTransfers = async (
       _transfer.status == XTransferStatus.CompletedSlow
     ) {
       _transfer.error_status = undefined;
+    }
+
+    if (!_transfer.message_status) {
+      _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
     }
 
     const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
@@ -609,6 +613,17 @@ export const getUnProcessedMessagesByIndex = async (
   return messages.map(convertFromDbMessage);
 };
 
+export const getMessageByLeaf = async (
+  origin_domain: string,
+  leaf: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.selectOne("messages", { origin_domain, leaf }).run(poolToUse);
+
+  return message ? convertFromDbMessage(message) : undefined;
+};
+
 export const getAggregateRoot = async (
   messageRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -687,11 +702,28 @@ export const getLatestAggregateRoot = async (
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
 };
 
-export const getMessageRootFromIndex = async (
+export const getAggregateRootByRootAndDomain = async (
+  domain: string,
+  aggregatedRoot: string,
+  orderDirection: "ASC" | "DESC" = "DESC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<ReceivedAggregateRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db
+    .selectOne(
+      "received_aggregate_roots",
+      { domain: domain, root: aggregatedRoot },
+      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+    )
+    .run(poolToUse);
+  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+};
+
+export const getMessageRootAggregatedFromIndex = async (
   spoke_domain: string,
   index: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
+): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
   // Find the first published outbound root that contains the index, for a given domain
   const root = await db.sql<
@@ -700,7 +732,23 @@ export const getMessageRootFromIndex = async (
   >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
     spoke_domain,
   }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
-  return root.length > 0 ? convertFromDbRootMessage(root[0]).root : undefined;
+  return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
+};
+
+export const getMessageRootsFromIndex = async (
+  spoke_domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  // Find the first published outbound root that contains the index, for a given domain
+  const root = await db.sql<
+    s.root_messages.SQL,
+    s.root_messages.Selectable[]
+  >`select * from ${"root_messages"} where ${{
+    spoke_domain,
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 10`.run(poolToUse);
+  return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
 export const getMessageRootCount = async (
@@ -937,4 +985,27 @@ export const updateExecuteSimulationData = async (
       { transfer_id: transferId },
     )
     .run(poolToUse);
+};
+
+export const getPendingTransfersByMessageStatus = async (
+  domain: string,
+  offset: number,
+  limit: number,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+  const completedMessageStatus = [XTransferMessageStatus.Processed];
+
+  const x = await db
+    .select(
+      "transfers",
+      {
+        message_status: db.conditions.or(db.conditions.isNull, db.conditions.isNotIn(completedMessageStatus)),
+        origin_domain: domain,
+      },
+      { limit, offset, order: { by: "nonce", direction: orderDirection, nulls: "LAST" } },
+    )
+    .run(poolToUse);
+  return x.map(convertFromDbTransfer);
 };
