@@ -64,6 +64,7 @@ import {
   updateSlippage,
   getPendingTransfersByMessageStatus,
   getMessageRootsFromIndex,
+  saveAssets,
 } from "../src/client";
 
 describe("Database client", () => {
