@@ -1,6 +1,6 @@
-import { L1ToL2MessageStatus, L1TransactionReceipt } from "@arbitrum/sdk";
-import { Contract, providers, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { task } from "hardhat/config";
+import { axiosGet } from "@connext/nxtp-utils";
 
 import {
   Env,
@@ -9,7 +9,6 @@ import {
   mustGetEnv,
   ProtocolNetwork,
 } from "../../src/utils";
-import { getSpokeConnector } from "../../src/cli/helpers";
 import { getContract } from "../../src/cli/helpers";
 import { IPolygonZkEVMBridge__factory } from "../../src";
 
@@ -21,38 +20,27 @@ type TaskArgs = {
 
 const apiUrl = "https://bridge-api.public.zkevm-test.net";
 
-export const getDeposits = (
-  address: string,
-  limit = 100,
-  offset = 0,
-): Promise<{
-  deposits: any[];
-  total: number;
-}> => {
-  return fetch(`${apiUrl}/bridges/${address}?limit=${limit}&offset=${offset}`)
-    .then((response) => response.json()) // one extra step
-    .then((data) => {
-      return {
-        deposits: data.deposits !== undefined ? data.deposits : [],
-        total: data.total_cnt !== undefined ? data.total_cnt : 0,
-      };
-    })
-    .catch((error) => console.error(error));
+export const getDeposits = async (address: string, limit = 100, offset = 0) => {
+  try {
+    const res = await axiosGet(`${apiUrl}/bridges/${address}?limit=${limit}&offset=${offset}`);
+    return {
+      deposits: res.data.deposits !== undefined ? res.data.deposits : [],
+      total: res.data.total_cnt !== undefined ? res.data.total_cnt : 0,
+    };
+  } catch (e: any) {
+    console.log(e);
+    return null;
+  }
 };
 
-export interface MerkleProof {
-  mainExitRoot: string;
-  merkleProof: string[];
-  rollupExitRoot: string;
-}
-
-export const getMerkleProof = (depositCount: string, networkId: number): Promise<MerkleProof> => {
-  return fetch(`${apiUrl}/merkle-proof?deposit_cnt=${depositCount}&net_id=${networkId}`)
-    .then((response) => response.json()) // one extra step
-    .then((data) => {
-      return data.proof;
-    })
-    .catch((error) => console.error(error));
+export const getMerkleProof = async (depositCount: string, networkId: number) => {
+  try {
+    const res = await axiosGet(`${apiUrl}/merkle-proof?deposit_cnt=${depositCount}&net_id=${networkId}`);
+    return res.data.proof;
+  } catch (e: any) {
+    console.log(e);
+    return null;
+  }
 };
 
 const claimFromPolygonZk = async (
@@ -61,42 +49,24 @@ const claimFromPolygonZk = async (
   l1BridgeContract: Contract,
   l2BridgeContract: Contract,
 ) => {
-  // // Get all deposits to Spoke Connector
+  // // Get all deposits
   const spokeDeposits = await getDeposits(l2Connector.address);
-  const claimableSpokeDeposits = spokeDeposits.deposits.filter((d) => d.ready_for_claim && d.claim_tx_hash === "");
-  for (const deposit of claimableSpokeDeposits) {
-    const proof = await getMerkleProof(deposit.deposit_cnt, deposit.network_id);
-    console.log(deposit, proof);
-
-    console.log("Claiming L1 -> L2 message", deposit.tx_hash, deposit.metadata);
-
-    const tx = await l2BridgeContract.claimMessage(
-      proof.merkle_proof,
-      deposit.deposit_cnt,
-      proof.main_exit_root,
-      proof.rollup_exit_root,
-      deposit.orig_net,
-      deposit.orig_addr,
-      deposit.dest_net,
-      deposit.dest_addr,
-      deposit.amount,
-      deposit.metadata,
-    );
-    console.log(tx);
-    const receipt = await tx.wait();
-    console.log("tx mined", receipt);
-  }
-
-  // // Get all deposits to Spoke Connector
   const hubDeposits = await getDeposits(l1Connector.address);
-  const claimableHubDeposits = hubDeposits.deposits.filter((d) => d.ready_for_claim && d.claim_tx_hash === "");
-  for (const deposit of claimableHubDeposits) {
+  const claimableDeposits = (spokeDeposits?.deposits || [])
+    .concat(hubDeposits?.deposits || [])
+    .filter((d: any) => d.ready_for_claim && d.claim_tx_hash === "");
+
+  for (const deposit of claimableDeposits) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const proof = await getMerkleProof(deposit.deposit_cnt, deposit.network_id);
     console.log(deposit, proof);
+    if (!proof) {
+      continue;
+    }
 
-    console.log("Claiming L2 -> L1 message", deposit.tx_hash, deposit.metadata);
+    console.log("Claiming message", deposit.orig_net, deposit.dest_net, deposit.tx_hash, deposit.metadata);
 
-    const tx = await l1BridgeContract.claimMessage(
+    const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
       proof.merkle_proof,
       deposit.deposit_cnt,
       proof.main_exit_root,
