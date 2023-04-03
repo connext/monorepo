@@ -46,12 +46,12 @@ export type { TransparentUpgradeableProxy } from "./@openzeppelin/contracts/prox
 export { TransparentUpgradeableProxy__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy__factory";
 export type { Pausable } from "./@openzeppelin/contracts/security/Pausable";
 export { Pausable__factory } from "./factories/@openzeppelin/contracts/security/Pausable__factory";
-export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
-export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { IERC20Permit } from "./@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol/IERC20Permit";
 export { IERC20Permit__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol/IERC20Permit__factory";
 export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata";
 export { IERC20Metadata__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata__factory";
+export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
+export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { IArbSys } from "./@openzeppelin/contracts/vendor/arbitrum/IArbSys";
 export { IArbSys__factory } from "./factories/@openzeppelin/contracts/vendor/arbitrum/IArbSys__factory";
 export type { IBridge } from "./@openzeppelin/contracts/vendor/arbitrum/IBridge";
@@ -130,6 +130,8 @@ export type { IBridgeToken } from "./contracts/core/connext/interfaces/IBridgeTo
 export { IBridgeToken__factory } from "./factories/contracts/core/connext/interfaces/IBridgeToken__factory";
 export type { IConnext } from "./contracts/core/connext/interfaces/IConnext";
 export { IConnext__factory } from "./factories/contracts/core/connext/interfaces/IConnext__factory";
+export type { IDiamondCut } from "./contracts/core/connext/interfaces/IDiamondCut";
+export { IDiamondCut__factory } from "./factories/contracts/core/connext/interfaces/IDiamondCut__factory";
 export type { IDiamondLoupe } from "./contracts/core/connext/interfaces/IDiamondLoupe";
 export { IDiamondLoupe__factory } from "./factories/contracts/core/connext/interfaces/IDiamondLoupe__factory";
 export type { IERC165 } from "./contracts/core/connext/interfaces/IERC165";
