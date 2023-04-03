@@ -19,6 +19,7 @@ export const getTokenDecimals = async (assetId: string, provider: providers.Prov
 };
 
 export const fetchJson = utils.fetchJson;
+
 /**
  * Gets the best RPC URL between several options by comparing latencies
  * @param rpcUrls - The source list

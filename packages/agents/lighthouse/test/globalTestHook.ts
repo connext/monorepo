@@ -66,6 +66,8 @@ export const mochaHooks = {
     sendOutboundRootCtxMock = mock.sendOuboundRootCtx();
     stub(SendOutboundRootFns, "getContext").returns(sendOutboundRootCtxMock);
 
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://test.rpc.com");
+
     sendWithRelayerWithBackupStub = stub(Mockable, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
       relayerType: RelayerType.Mock,

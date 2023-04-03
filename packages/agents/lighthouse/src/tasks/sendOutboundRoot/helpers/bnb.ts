@@ -11,12 +11,12 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
     adapters: { deployments, contracts, chainreader, ambs },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getSendOutboundRootParams.name);
-  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers);
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers);
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
