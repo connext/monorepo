@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "1.1.0-alpha.0",
+  "version": "2.0.0-alpha.0",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -14,6 +14,7 @@
     "start:messages": "CARTOGRAPHER_SERVICE=messages npx ts-node test/run.ts",
     "start:roots": "CARTOGRAPHER_SERVICE=roots npx ts-node test/run.ts",
     "start:stableswap": "CARTOGRAPHER_SERVICE=stableswap npx ts-node test/run.ts",
+    "start:messagestatus": "CARTOGRAPHER_SERVICE=messagestatus npx ts-node test/run.ts",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",

@@ -1,9 +1,12 @@
 import { utils } from "ethers";
+import { config as dotenvConfig } from "dotenv";
 import { NetworkUserConfig } from "hardhat/types";
+
+dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
   mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 420, 80001, 421613],
+  testnet: [5, 280, 420, 59140, 80001, 421613],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -195,7 +198,10 @@ export const hardhatNetworks = {
   mumbai: {
     accounts: { mnemonic },
     chainId: 80001,
-    url: "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     companionNetworks: {
       hub: "goerli",
     },

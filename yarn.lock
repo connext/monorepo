@@ -1988,7 +1988,7 @@ __metadata:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": 2.0.0
+    "@eth-optimism/sdk": 2.0.1
     "@graphql-codegen/cli": 3.0.0
     "@sinclair/typebox": 0.25.21
     "@types/aws-lambda": 8.10.110
@@ -2015,7 +2015,7 @@ __metadata:
     ts-mocha: 10.0.0
     typescript: 4.9.5
     zapatos: 6.1.4
-    zksync-web3: 0.13.4
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -2458,9 +2458,9 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 2.0.1
     "@gelatonetwork/relay-context": 2.1.0
-    "@matterlabs/hardhat-zksync-deploy": ^0.6.1
+    "@matterlabs/hardhat-zksync-deploy": ^0.6.2
     "@matterlabs/hardhat-zksync-solc": ^0.3.14
-    "@matterlabs/hardhat-zksync-verify": ^0.1.1
+    "@matterlabs/hardhat-zksync-verify": ^0.1.2
     "@nomiclabs/hardhat-ethers": 2.2.2
     "@nomiclabs/hardhat-etherscan": 3.1.6
     "@nomiclabs/hardhat-waffle": 2.0.5
@@ -2497,7 +2497,7 @@ __metadata:
     ts-node: 10.9.1
     typechain: 8.1.1
     typescript: 4.9.5
-    zksync-web3: ^0.13.0
+    zksync-web3: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -2700,19 +2700,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.13.0":
-  version: 0.13.0
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.13.0"
-  dependencies:
-    "@eth-optimism/core-utils": ^0.12.0
-    "@openzeppelin/contracts": 4.7.3
-    "@openzeppelin/contracts-upgradeable": 4.7.3
-    ethers: ^5.7.0
-    hardhat: ^2.9.6
-  checksum: f684a31d9f0df03f8e32dbfcf43945781ed3a07b9a2d3f432ff458b40bcf35fe3aeb880421c75dd8219d726ce124e9091c378785d594a57589f64ba872e9cd2d
-  languageName: node
-  linkType: hard
-
 "@eth-optimism/contracts-bedrock@npm:0.13.1":
   version: 0.13.1
   resolution: "@eth-optimism/contracts-bedrock@npm:0.13.1"
@@ -2760,22 +2747,6 @@ __metadata:
     bufio: ^1.0.7
     chai: ^4.3.4
   checksum: 1c820107c44bdbb46becb1b00fd0dabb44f3ac8f54e6da7872a5a134411fad26f53b193225da55e79d6a8d7f0d01cc16a123db5d41ebaf02ca78360249a4b52a
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/sdk@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@eth-optimism/sdk@npm:2.0.0"
-  dependencies:
-    "@eth-optimism/contracts": 0.5.40
-    "@eth-optimism/contracts-bedrock": 0.13.0
-    "@eth-optimism/core-utils": 0.12.0
-    lodash: ^4.17.21
-    merkletreejs: ^0.2.27
-    rlp: ^2.2.7
-  peerDependencies:
-    ethers: ^5
-  checksum: 4b371ba69ecae2065b05513839e8c2b9d1c3a7c27c2f30ab4f4323bcbe1704ffbd17e7b9d9167916bf05f87751f0f007663a4f034143d795005ce576398fc449
   languageName: node
   linkType: hard
 
@@ -5218,7 +5189,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-deploy@npm:^0.6.1":
+"@matterlabs/hardhat-zksync-deploy@npm:^0.6.2":
   version: 0.6.2
   resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.2"
   dependencies:
@@ -5244,7 +5215,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@matterlabs/hardhat-zksync-verify@npm:^0.1.1":
+"@matterlabs/hardhat-zksync-verify@npm:^0.1.2":
   version: 0.1.3
   resolution: "@matterlabs/hardhat-zksync-verify@npm:0.1.3"
   dependencies:
@@ -28822,12 +28793,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:0.13.4, zksync-web3@npm:^0.13.0":
-  version: 0.13.4
-  resolution: "zksync-web3@npm:0.13.4"
+"zksync-web3@npm:^0.14.3":
+  version: 0.14.3
+  resolution: "zksync-web3@npm:0.14.3"
   peerDependencies:
     ethers: ^5.7.0
-  checksum: 628d91a2c699d8977ba560f271d1f78692f3b65e9fd2aa2fd568460040c4dc4cf230aba6382283f5d8d7f3f0b796ebf5ea09d39b78be1d869702dea1a45baf40
+  checksum: e89760c13e01ec43433e1e38a473138948c6a8d3a825c0f0aa6328eb7d28c63037a5ee4c922c1fd7d9580d2bf2cbbf2c7911f5e4d872f856dc591850a7e6f260
   languageName: node
   linkType: hard
 

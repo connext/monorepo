@@ -4,7 +4,13 @@ import { BigNumber, constants, utils } from "ethers";
 import { getContext } from "../propagate";
 import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
-import { getJsonRpcProvider, getL1ToL2MessageGasEstimator, getBaseFee, getInterface } from "../../../mockable";
+import {
+  getJsonRpcProvider,
+  getL1ToL2MessageGasEstimator,
+  getBaseFee,
+  getInterface,
+  getBestProvider,
+} from "../../../mockable";
 
 // example at https://github.com/OffchainLabs/arbitrum-tutorials/blob/master/packages/greeter/scripts/exec.js
 export const getPropagateParams = async (
@@ -20,14 +26,14 @@ export const getPropagateParams = async (
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for Arbitrum", requestContext, methodContext, { l2domain });
-  const l2RpcUrl = config.chains[l2domain]?.providers[0];
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
 
   // must be ETH mainnet for arbitrum SDK
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }

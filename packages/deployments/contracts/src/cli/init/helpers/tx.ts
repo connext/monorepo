@@ -86,8 +86,8 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
     if (chain === 137) {
       return await contract[write.method](...write.args, {
-        gasLimit: 2000000,
-        gasPrice: "100000000000",
+        gasLimit: 5000000,
+        gasPrice: "500000000000",
       });
     } else if (chain == 280) {
       return await contract[write.method](...write.args, {

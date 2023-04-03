@@ -114,12 +114,16 @@ export interface RelayerProxyInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
+    "autonolas()": FunctionFragment;
+    "autonolasPriority()": FunctionFragment;
     "connext()": FunctionFragment;
     "delay()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
     "feeCollector()": FunctionFragment;
     "gelatoRelayer()": FunctionFragment;
+    "keep3r()": FunctionFragment;
     "owner()": FunctionFragment;
+    "priorityKeepers(address)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -128,9 +132,12 @@ export interface RelayerProxyInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send(bytes,uint256,uint256)": FunctionFragment;
+    "setAutonolas(address)": FunctionFragment;
+    "setAutonolasPriority(uint8)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setFeeCollector(address)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
+    "setKeep3r(address)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -141,12 +148,16 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "addRelayer"
       | "allowedRelayer"
+      | "autonolas"
+      | "autonolasPriority"
       | "connext"
       | "delay"
       | "execute"
       | "feeCollector"
       | "gelatoRelayer"
+      | "keep3r"
       | "owner"
+      | "priorityKeepers"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -155,9 +166,12 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "send"
+      | "setAutonolas"
+      | "setAutonolasPriority"
       | "setConnext"
       | "setFeeCollector"
       | "setGelatoRelayer"
+      | "setKeep3r"
       | "setSpokeConnector"
       | "spokeConnector"
       | "withdraw"
@@ -175,6 +189,11 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "allowedRelayer",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "autonolas", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "autonolasPriority",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "connext", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -189,7 +208,12 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "priorityKeepers",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -227,6 +251,14 @@ export interface RelayerProxyInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setAutonolas",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAutonolasPriority",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setConnext",
     values: [PromiseOrValue<string>]
   ): string;
@@ -236,6 +268,10 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setGelatoRelayer",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setKeep3r",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -257,6 +293,11 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "allowedRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "autonolas", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "autonolasPriority",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -268,7 +309,12 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "priorityKeepers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -292,6 +338,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setAutonolas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAutonolasPriority",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setConnext", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setFeeCollector",
@@ -301,6 +355,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "setGelatoRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setKeep3r", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSpokeConnector",
     data: BytesLike
@@ -312,11 +367,14 @@ export interface RelayerProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
+    "AutonolasChanged(address,address)": EventFragment;
+    "AutonolasPriorityChanged(uint8,uint8)": EventFragment;
     "ConnextChanged(address,address)": EventFragment;
     "FeeCollectorChanged(address,address)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "GelatoRelayerChanged(address,address)": EventFragment;
+    "Keep3rChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RelayerAdded(address)": EventFragment;
@@ -324,17 +382,44 @@ export interface RelayerProxyInterface extends utils.Interface {
     "SpokeConnectorChanged(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AutonolasChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AutonolasPriorityChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnextChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GelatoRelayerChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Keep3rChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
 }
+
+export interface AutonolasChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type AutonolasChangedEvent = TypedEvent<
+  [string, string],
+  AutonolasChangedEventObject
+>;
+
+export type AutonolasChangedEventFilter =
+  TypedEventFilter<AutonolasChangedEvent>;
+
+export interface AutonolasPriorityChangedEventObject {
+  updated: number;
+  previous: number;
+}
+export type AutonolasPriorityChangedEvent = TypedEvent<
+  [number, number],
+  AutonolasPriorityChangedEventObject
+>;
+
+export type AutonolasPriorityChangedEventFilter =
+  TypedEventFilter<AutonolasPriorityChangedEvent>;
 
 export interface ConnextChangedEventObject {
   updated: string;
@@ -392,6 +477,17 @@ export type GelatoRelayerChangedEvent = TypedEvent<
 
 export type GelatoRelayerChangedEventFilter =
   TypedEventFilter<GelatoRelayerChangedEvent>;
+
+export interface Keep3rChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type Keep3rChangedEvent = TypedEvent<
+  [string, string],
+  Keep3rChangedEventObject
+>;
+
+export type Keep3rChangedEventFilter = TypedEventFilter<Keep3rChangedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -486,6 +582,10 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    autonolas(overrides?: CallOverrides): Promise<[string]>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<[number]>;
+
     connext(overrides?: CallOverrides): Promise<[string]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -500,7 +600,14 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<[string]>;
 
+    keep3r(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -538,6 +645,16 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -550,6 +667,11 @@ export interface RelayerProxy extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -579,6 +701,10 @@ export interface RelayerProxy extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  autonolas(overrides?: CallOverrides): Promise<string>;
+
+  autonolasPriority(overrides?: CallOverrides): Promise<number>;
+
   connext(overrides?: CallOverrides): Promise<string>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -593,7 +719,14 @@ export interface RelayerProxy extends BaseContract {
 
   gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
+  keep3r(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
+
+  priorityKeepers(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -631,6 +764,16 @@ export interface RelayerProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setAutonolas(
+    _autonolas: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setAutonolasPriority(
+    _autonolasPriority: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setConnext(
     _connext: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -643,6 +786,11 @@ export interface RelayerProxy extends BaseContract {
 
   setGelatoRelayer(
     _gelatoRelayer: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setKeep3r(
+    _keep3r: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -670,6 +818,10 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    autonolas(overrides?: CallOverrides): Promise<string>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<number>;
+
     connext(overrides?: CallOverrides): Promise<string>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -684,7 +836,14 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
+    keep3r(overrides?: CallOverrides): Promise<string>;
+
     owner(overrides?: CallOverrides): Promise<string>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -720,6 +879,16 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -735,6 +904,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setSpokeConnector(
       _spokeConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -746,6 +920,24 @@ export interface RelayerProxy extends BaseContract {
   };
 
   filters: {
+    "AutonolasChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): AutonolasChangedEventFilter;
+    AutonolasChanged(
+      updated?: null,
+      previous?: null
+    ): AutonolasChangedEventFilter;
+
+    "AutonolasPriorityChanged(uint8,uint8)"(
+      updated?: null,
+      previous?: null
+    ): AutonolasPriorityChangedEventFilter;
+    AutonolasPriorityChanged(
+      updated?: null,
+      previous?: null
+    ): AutonolasPriorityChangedEventFilter;
+
     "ConnextChanged(address,address)"(
       updated?: null,
       previous?: null
@@ -781,6 +973,12 @@ export interface RelayerProxy extends BaseContract {
       updated?: null,
       previous?: null
     ): GelatoRelayerChangedEventFilter;
+
+    "Keep3rChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): Keep3rChangedEventFilter;
+    Keep3rChanged(updated?: null, previous?: null): Keep3rChangedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -829,6 +1027,10 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    autonolas(overrides?: CallOverrides): Promise<BigNumber>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<BigNumber>;
+
     connext(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -843,7 +1045,14 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<BigNumber>;
 
+    keep3r(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -881,6 +1090,16 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -893,6 +1112,11 @@ export interface RelayerProxy extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -923,6 +1147,10 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    autonolas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     connext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -937,7 +1165,14 @@ export interface RelayerProxy extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -975,6 +1210,16 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -987,6 +1232,11 @@ export interface RelayerProxy extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

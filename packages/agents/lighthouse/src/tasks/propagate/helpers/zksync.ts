@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
-import { getContract, getJsonRpcProvider, getZkSyncWeb3Provider } from "../../../mockable";
+import { getContract, getJsonRpcProvider, getZkSyncWeb3Provider, getBestProvider } from "../../../mockable";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { getContext } from "../propagate";
@@ -52,12 +52,12 @@ export const getPropagateParams = async (
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for ZkSync", requestContext, methodContext, { l2domain });
 
-  const l2RpcUrl = config.chains[l2domain]?.providers[0];
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);
   }
-  const l1RpcUrl = config.chains[config.hubDomain]?.providers[0];
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
   if (!l1RpcUrl) {
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
@@ -84,7 +84,7 @@ export const getPropagateParams = async (
   const l2Provider = getZkSyncWeb3Provider(l2RpcUrl);
 
   const gasPrice = await l1Provider.getGasPrice();
-  const gasLimit = BigNumber.from(10000000);
+  const gasLimit = BigNumber.from(5000000);
   const gasPerPubdataByte = BigNumber.from(800);
 
   const zkSyncContract = getContract(await l2Provider.getMainContractAddress(), ZKSYNC_ABI, l1Provider);

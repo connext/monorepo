@@ -25,7 +25,19 @@ variable "stage" {
 variable "container_env_vars" {
   description = "env vars for running container"
 }
+
 variable "schedule_expression" {
   description = "how to schedule the cron job"
   default     = "cron(* * * * ? *)"
+}
+
+variable "timeout" {
+  description = "timeout for lambda"
+  default     = 500
+}
+
+
+variable "memory_size" {
+  description = "memory size for lambda"
+  default     = 10240
 }

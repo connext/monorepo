@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "1.1.0-alpha.0",
+  "version": "2.0.0-alpha.0",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -9,6 +9,7 @@
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "test-sdkbase": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkBase.spec.ts'",
+    "test-sdkpool": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkPool.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",

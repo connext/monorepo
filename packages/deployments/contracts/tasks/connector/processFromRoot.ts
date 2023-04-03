@@ -3,7 +3,7 @@ import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
 import { BigNumber, BigNumberish, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
-import { CrossChainMessenger } from "@eth-optimism/sdk";
+import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { FetchedEvent } from "@arbitrum/sdk/dist/lib/utils/eventFetcher";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 import { NODE_INTERFACE_ADDRESS } from "@arbitrum/sdk/dist/lib/dataEntities/constants";
@@ -153,14 +153,56 @@ const processFromOptimismRoot = async (
   //   uint256 _messageNonce, -> ?
   //   L2MessageInclusionProof memory _proof -> taken from sdk
 
+  // Determine if this is using bedrock or not
+  const isBedrock = protocolConfig.hub !== 1;
+
   // create the messenger
   const messenger = new CrossChainMessenger({
     l2ChainId: spoke,
     l2SignerOrProvider: spokeProvider,
     l1ChainId: protocolConfig.hub,
     l1SignerOrProvider: hubProvider,
-    bedrock: protocolConfig.hub !== 1,
+    bedrock: isBedrock,
   });
+
+  if (isBedrock) {
+    const status = await messenger.getMessageStatus(sendHash);
+    if (status !== MessageStatus.READY_TO_PROVE) {
+      throw new Error(`Optimism message status is not ready to prove: ${status}`);
+    }
+    // get the message
+    const resolved = await messenger.toCrossChainMessage(sendHash);
+    const {
+      messageNonce: nonce,
+      sender,
+      target,
+      value,
+      message: data,
+      minGasLimit: gasLimit,
+    } = await messenger.toLowLevelMessage(resolved);
+
+    // get the tx
+    const tx = {
+      nonce: nonce.toString(),
+      sender,
+      target,
+      value,
+      gasLimit,
+      data,
+    };
+    console.log("withdrawal tx", tx);
+
+    // get the proof
+    const proof = await messenger.getBedrockMessageProof(sendHash);
+    console.log("L2 message proof:", proof);
+    if (!proof) {
+      throw new Error(`no proof`);
+    }
+    const { l2OutputIndex, outputRootProof, withdrawalProof } = proof;
+
+    // Format arguments
+    return [tx, l2OutputIndex, outputRootProof, withdrawalProof];
+  }
 
   // check to make sure you can prove
   let root;
