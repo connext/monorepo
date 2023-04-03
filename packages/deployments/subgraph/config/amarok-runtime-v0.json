@@ -250,5 +250,26 @@
         "startBlock": 88563
       }
     ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
+    "network": "polygonzk-test",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2",
+        "startBlock": 485026
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x27842eA2c3d472cE345315B2A8aE26039Fc53a2D",
+        "startBlock": 484972
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
+        "startBlock": 484732
+      }
+    ]
   }
 ]
