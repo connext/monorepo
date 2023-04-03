@@ -88,6 +88,11 @@ export const setupAsset = async (args: {
 
     // Run setupAsset.
     const desiredAdopted = representation.adopted;
+    if (desiredAdopted === constants.AddressZero) {
+      console.log(`Desired Adopted is Zero Address. Skipping`);
+      continue;
+    }
+
     let setupAssetDone = true;
     try {
       const adopted: undefined | string = await getValue({

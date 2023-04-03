@@ -1,0 +1,22 @@
+[
+  "error AlreadyClaimed()",
+  "error AmountDoesNotMatchMsgValue()",
+  "error DestinationNetworkInvalid()",
+  "error EtherTransferFailed()",
+  "error GlobalExitRootInvalid()",
+  "error InvalidSmtProof()",
+  "error MessageFailed()",
+  "error MsgValueNotZero()",
+  "error NotValidAmount()",
+  "error NotValidOwner()",
+  "error NotValidSignature()",
+  "error NotValidSpender()",
+  "error OnlyPolygonZkEVM()",
+  "function activateEmergencyState()",
+  "function bridgeAsset(uint32,address,uint256,address,bool,bytes) payable",
+  "function bridgeMessage(uint32,address,bool,bytes) payable",
+  "function claimAsset(bytes32[32],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+  "function claimMessage(bytes32[32],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+  "function deactivateEmergencyState()",
+  "function updateGlobalExitRoot()"
+]
