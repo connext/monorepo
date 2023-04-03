@@ -1,4 +1,4 @@
-import { createLoggingContext, RouterDailyTVL, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
+import { Asset, createLoggingContext, RouterDailyTVL, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
@@ -33,6 +33,31 @@ export const updateRouters = async () => {
 
     logger.debug("Saved balances", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
+};
+
+export const updateAssets = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateAssets.name);
+
+  const assets: Asset[] = [];
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("asset_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving assets", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const _assets = await subgraph.getAssets(domain);
+    assets.push(..._assets);
+  }
+  await database.saveAssets(assets);
+  logger.debug("Saved assets", requestContext, methodContext, { assets: assets.length });
 };
 
 export const updateDailyRouterTvl = async () => {

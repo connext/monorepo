@@ -7,7 +7,6 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
-    "2053862260", /// ZKSYNC-TEST
     "1668247156", /// CONSENSYS-ZKEVM-TEST
   ],
   assets: [

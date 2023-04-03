@@ -2,7 +2,14 @@ import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
-import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
+import {
+  AssetBalance,
+  RouterBalance,
+  XTransfer,
+  XTransferErrorStatus,
+  XTransferMessageStatus,
+  XTransferStatus,
+} from "./xtransfers";
 
 export const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
@@ -64,8 +71,74 @@ export const transfersCastForUrl =
     "reconcile_gas_limit",
     "reconcile_block_number",
     "reconcile_tx_origin",
+    "relayer_fees",
+    "error_status",
+    "execute_simulation_input",
+    "execute_simulation_from",
+    "execute_simulation_to",
+    "execute_simulation_network",
+  ].join(",");
+
+// TODO: Remove after all routers support multiple relayer fee assets
+// INFO: https://github.com/connext/monorepo/issues/3811
+// Handle entity from previous DB schema for backwards compatibility
+export const transfersCastForUrlFallback =
+  "select=" +
+  [
+    "transfer_id",
+    "nonce",
+    "to",
+    "call_data",
+    "origin_domain",
+    "canonical_domain",
+    "canonical_id",
+    "destination_domain",
+    "bridged_amt",
+    "normalized_in",
+    "origin_sender",
+    "origin_chain",
+    "origin_transacting_asset",
+    "origin_transacting_amount",
+    "origin_bridged_asset",
+    "origin_bridged_amount",
+    "xcall_caller",
+    "xcall_transaction_hash",
+    "xcall_timestamp",
+    "xcall_gas_price",
+    "xcall_gas_limit",
+    "xcall_block_number",
+    "xcall_tx_origin",
+    "destination_chain",
+    "receive_local",
+    "status",
+    "routers",
+    "delegate",
+    "slippage",
+    "updated_slippage",
+    "destination_transacting_asset",
+    "destination_transacting_amount",
+    "destination_local_asset",
+    "destination_local_amount",
+    "execute_caller",
+    "execute_transaction_hash",
+    "execute_timestamp",
+    "execute_gas_price",
+    "execute_gas_limit",
+    "execute_block_number",
+    "execute_origin_sender",
+    "execute_tx_origin",
+    "reconcile_caller",
+    "reconcile_transaction_hash",
+    "reconcile_timestamp",
+    "reconcile_gas_price",
+    "reconcile_gas_limit",
+    "reconcile_block_number",
+    "reconcile_tx_origin",
     "relayer_fee",
     "error_status",
+    "message_status",
+    "message_hash",
+    "execute_simulation",
     "execute_simulation_input",
     "execute_simulation_from",
     "execute_simulation_to",
@@ -99,8 +172,9 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       ? {
           chain: transfer.origin_chain,
           messageHash: transfer.message_hash,
-          relayerFee: BigNumber.from(transfer.relayer_fee ?? "0").toString(),
+          relayerFees: transfer.relayer_fees ?? {},
           errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
+          messageStatus: (transfer.message_status as XTransferMessageStatus) ?? XTransferMessageStatus.XCalled,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),

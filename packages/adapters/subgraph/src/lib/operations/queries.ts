@@ -81,7 +81,55 @@ export const ORIGIN_TRANSFER_ENTITY = `
         ${ORIGIN_MESSAGE_ENTITY}
       }
 
-      # relayerFee
+      relayerFees {
+        asset
+        fee
+        id
+      }
+
+      # XCalled Transaction
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+      txOrigin
+`;
+
+export const ORIGIN_TRANSFER_ENTITY_FALLBACK = `
+      id
+      chainId
+      transferId
+      nonce
+      status
+      messageHash
+    
+      # TransferInfo
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
+      transactingAsset
+
+      # Message
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
+
       relayerFee
 
       # XCalled Transaction
@@ -388,6 +436,18 @@ export const getRouterQuery = (prefix: string, router: string): string => {
   `;
 };
 
+export const getAssetsQuery = (prefix: string): string => {
+  const queryString = `
+    ${prefix}_assets {
+      ${ASSET_ENTITY}
+    }`;
+  return gql`
+    query GetAssets { 
+      ${queryString}
+    }
+  `;
+};
+
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
     ${prefix}_assets(where: { id: "${local}" }) {
@@ -443,6 +503,16 @@ export const getOriginTransfersByIdsQuery = (prefix: string, transferIds: string
   `;
 };
 
+export const getOriginTransfersByIdsFallbackQuery = (prefix: string, transferIds: string[]): string => {
+  const queryStr = `
+    ${prefix}_originTransfers(where: { transferId_in: [${transferIds}] }) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
+  return gql`
+    query GetOriginTransfers {
+      ${queryStr}
+    }
+  `;
+};
+
 export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashes: string[]): string => {
   const queryStr = `
     ${prefix}_originTransfers(where: { transactionHash_in: [${hashes}] }) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -473,6 +543,26 @@ const originTransferQueryString = (
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
+const originTransferQueryFallbackString = (
+  prefix: string,
+  originDomain: string,
+  fromNonce: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `${prefix}_originTransfers(
+    where: {
+      originDomain: ${originDomain},
+      nonce_gte: ${fromNonce},
+      destinationDomain_in: [${destinationDomains}]
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: blockNumber,
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
+};
+
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
 
@@ -482,6 +572,34 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
       combinedQuery += originTransferQueryString(
+        prefix,
+        domain,
+        agents.get(domain)!.latestNonce,
+        domains,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetOriginTransfers { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getOriginTransfersFallbackQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += originTransferQueryFallbackString(
         prefix,
         domain,
         agents.get(domain)!.latestNonce,

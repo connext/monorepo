@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -24,12 +25,23 @@ import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
+/**
+ * @notice Defines the fields needed for an asset transfer
+ * @param asset - The address of the asset
+ * @param amount - The amount of the asset
+ */
+struct AssetTransfer {
+  address asset;
+  uint256 amount;
+}
+
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using BridgeMessage for bytes29;
+  using SafeERC20 for IERC20Metadata;
 
   // ========== Custom Errors ===========
 
@@ -127,9 +139,10 @@ contract BridgeFacet is BaseConnextFacet {
    * `xcall` and `bumpTransfer`
    * @param transferId - The unique identifier of the crosschain transaction
    * @param increase - The additional amount fees increased by
+   * @param asset - The asset the fee was increased with
    * @param caller - The account that called the function
    */
-  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address caller);
+  event TransferRelayerFeesIncreased(bytes32 indexed transferId, uint256 increase, address asset, address caller);
 
   /**
    * @notice Emitted when `forceUpdateSlippage` is called by user-delegated EOA
@@ -313,7 +326,7 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, AssetTransfer(_asset, _amount), AssetTransfer(address(0), msg.value));
   }
 
   function xcallIntoLocal(
@@ -346,7 +359,75 @@ contract BridgeFacet is BaseConnextFacet {
       normalizedIn: 0,
       canonicalId: bytes32(0)
     });
-    return _xcall(params, _asset, _amount);
+    return _xcall(params, AssetTransfer(_asset, _amount), AssetTransfer(address(0), msg.value));
+  }
+
+  function xcall(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData,
+    uint256 _relayerFee
+  ) external nonXCallReentrant returns (bytes32) {
+    // NOTE: Here, we fill in as much information as we can for the TransferInfo.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
+    TransferInfo memory params = TransferInfo({
+      to: _to,
+      callData: _callData,
+      originDomain: s.domain,
+      destinationDomain: _destination,
+      delegate: _delegate,
+      // `receiveLocal: false` indicates we should always deliver the adopted asset on the
+      // destination chain, swapping from the local asset if needed.
+      receiveLocal: false,
+      slippage: _slippage,
+      originSender: msg.sender,
+      // The following values should be assigned in _xcall.
+      nonce: 0,
+      canonicalDomain: 0,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      canonicalId: bytes32(0)
+    });
+    return _xcall(params, AssetTransfer(_asset, _amount), AssetTransfer(_asset, _relayerFee));
+  }
+
+  function xcallIntoLocal(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData,
+    uint256 _relayerFee
+  ) external nonXCallReentrant returns (bytes32) {
+    // NOTE: Here, we fill in as much information as we can for the TransferInfo.
+    // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
+    // `normalizedIn`, `bridgedAmt`, canonical info, etc).
+    TransferInfo memory params = TransferInfo({
+      to: _to,
+      callData: _callData,
+      originDomain: s.domain,
+      destinationDomain: _destination,
+      delegate: _delegate,
+      // `receiveLocal: true` indicates we should always deliver the local asset on the
+      // destination chain, and NOT swap into any adopted assets.
+      receiveLocal: true,
+      slippage: _slippage,
+      originSender: msg.sender,
+      // The following values should be assigned in _xcall.
+      nonce: 0,
+      canonicalDomain: 0,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      canonicalId: bytes32(0)
+    });
+    return _xcall(params, AssetTransfer(_asset, _amount), AssetTransfer(_asset, _relayerFee));
   }
 
   /**
@@ -402,15 +483,27 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
-    _bumpTransfer(_transferId);
+    _bumpTransfer(_transferId, address(0), msg.value);
   }
 
-  function _bumpTransfer(bytes32 _transferId) internal {
-    address relayerVault = s.relayerFeeVault;
-    if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
-    Address.sendValue(payable(relayerVault), msg.value);
-
-    emit TransferRelayerFeesIncreased(_transferId, msg.value, msg.sender);
+  /**
+   * @notice Anyone can call this function on the origin domain t o increase the relayer fee for
+   * a given transfer using a specific asset.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _relayerFeeAsset - The asset you are bumping fee with
+   * @param _relayerFee - The amount you want to bump transfer fee with
+   */
+  function bumpTransfer(
+    bytes32 _transferId,
+    address _relayerFeeAsset,
+    uint256 _relayerFee
+  ) external nonReentrant whenNotPaused {
+    if (_relayerFee == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+    // check that the asset is whitelisted (the following reverts if asset
+    // is not approved)
+    _getApprovedCanonicalId(_relayerFeeAsset);
+    // handle transferring asset to the relayer fee vault
+    _bumpTransfer(_transferId, _relayerFeeAsset, _relayerFee);
   }
 
   /**
@@ -480,9 +573,17 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _xcall(
     TransferInfo memory _params,
-    address _asset,
-    uint256 _amount
-  ) internal whenNotPaused returns (bytes32) {
+    AssetTransfer memory _asset,
+    AssetTransfer memory _relayer
+  )
+    internal
+    // address _asset,
+    // uint256 _amount,
+    // address _relayerFeeAsset,
+    // uint256 _relayerFee
+    whenNotPaused
+    returns (bytes32)
+  {
     // Sanity checks.
     bytes32 remoteInstance;
     {
@@ -490,7 +591,7 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: We support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. In that edge case, address(0) will not be registered as a supported asset, but should
       // pass the `isLocalOrigin` check
-      if (_asset == address(0) && _amount != 0) {
+      if (_asset.asset == address(0) && _asset.amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -521,10 +622,10 @@ contract BridgeFacet is BaseConnextFacet {
       // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
       // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
       // allowlisted.
-      if (_asset != address(0)) {
+      if (_asset.asset != address(0)) {
         // Retrieve the canonical token information.
         bytes32 key;
-        (canonical, key) = _getApprovedCanonicalId(_asset);
+        (canonical, key) = _getApprovedCanonicalId(_asset.asset);
 
         // Get the token config.
         TokenConfig storage config = AssetLogic.getConfig(key);
@@ -546,7 +647,7 @@ contract BridgeFacet is BaseConnextFacet {
           if (isCanonical && cap > 0) {
             // NOTE: this method includes router liquidity as part of the caps,
             // not only the minted amount
-            uint256 newCustodiedAmount = config.custodied + _amount;
+            uint256 newCustodiedAmount = config.custodied + _asset.amount;
             if (newCustodiedAmount > cap) {
               revert BridgeFacet__xcall_capReached();
             }
@@ -558,20 +659,26 @@ contract BridgeFacet is BaseConnextFacet {
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
 
-        if (_amount > 0) {
+        if (_asset.amount > 0) {
           // Transfer funds of input asset to the contract from the user.
-          AssetLogic.handleIncomingAsset(_asset, _amount);
+          AssetLogic.handleIncomingAsset(_asset.asset, _asset.amount);
 
           // Swap to the local asset from adopted if applicable.
-          _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(key, _asset, local, _amount, _params.slippage);
+          _params.bridgedAmt = AssetLogic.swapToLocalAssetIfNeeded(
+            key,
+            _asset.asset,
+            local,
+            _asset.amount,
+            _params.slippage
+          );
 
           // Get the normalized amount in (amount sent in by user in 18 decimals).
           // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
           // adopted or local assets
           _params.normalizedIn = AssetLogic.normalizeDecimals(
-            _asset == local ? config.representationDecimals : config.adoptedDecimals,
+            _asset.asset == local ? config.representationDecimals : config.adoptedDecimals,
             Constants.DEFAULT_NORMALIZED_DECIMALS,
-            _amount
+            _asset.amount
           );
         }
       }
@@ -584,14 +691,47 @@ contract BridgeFacet is BaseConnextFacet {
     // Handle the relayer fee.
     // NOTE: This has to be done *after* transferring in + swapping assets because
     // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    if (msg.value > 0) {
-      _bumpTransfer(transferId);
+    if (_relayer.amount > 0) {
+      _bumpTransfer(transferId, _relayer.asset, _relayer.amount);
     }
 
     // Send the crosschain message.
-    _sendMessageAndEmit(transferId, _params, _asset, _amount, remoteInstance, canonical, local, isCanonical);
+    _sendMessageAndEmit(
+      transferId,
+      _params,
+      _asset.asset,
+      _asset.amount,
+      remoteInstance,
+      canonical,
+      local,
+      isCanonical
+    );
 
     return transferId;
+  }
+
+  /**
+   * @notice An internal function to handle the bumping of transfers
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _relayerFeeAsset - The asset you are bumping fee with
+   * @param _relayerFee - The amount you want to bump transfer fee with
+   */
+  function _bumpTransfer(bytes32 _transferId, address _relayerFeeAsset, uint256 _relayerFee) internal {
+    address relayerVault = s.relayerFeeVault;
+    if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
+    if (_relayerFeeAsset == address(0)) {
+      Address.sendValue(payable(relayerVault), _relayerFee);
+    } else {
+      // Pull funds from user to this contract
+      // NOTE: could transfer to `relayerFeeVault`, but that would be unintuitive for user
+      // approvals
+      AssetLogic.handleIncomingAsset(_relayerFeeAsset, _relayerFee);
+
+      // Transfer asset to relayerVault.
+      AssetLogic.handleOutgoingAsset(_relayerFeeAsset, relayerVault, _relayerFee);
+    }
+
+    emit TransferRelayerFeesIncreased(_transferId, _relayerFee, _relayerFeeAsset, msg.sender);
   }
 
   /**
@@ -696,11 +836,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _numerator Numerator
    * @param _denominator Denominator
    */
-  function _muldiv(
-    uint256 _amount,
-    uint256 _numerator,
-    uint256 _denominator
-  ) private pure returns (uint256) {
+  function _muldiv(uint256 _amount, uint256 _numerator, uint256 _denominator) private pure returns (uint256) {
     return (_amount * _numerator) / _denominator;
   }
 
@@ -715,14 +851,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _key,
     bool _isFast,
     ExecuteArgs calldata _args
-  )
-    private
-    returns (
-      uint256,
-      address,
-      address
-    )
-  {
+  ) private returns (uint256, address, address) {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 

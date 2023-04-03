@@ -38,6 +38,7 @@ export let sendWithRelayerWithBackupStub: SinonStub<
   Promise<{ taskId: string }>
 >;
 export let getInterfaceMock: SinonStub;
+export let getBestProviderMock: SinonStub;
 
 export const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 export const mockAxiosSuccessResponse = { isAxiosError: false, code: 200, data: [] };
@@ -73,6 +74,8 @@ export const mochaHooks = {
       encodeFunctionData: () => "0xdeadbeef",
       decodeFunctionResult: () => [BigNumber.from(42)],
     } as any);
+
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://example.com");
   },
   afterEach() {
     restore();

@@ -5,6 +5,7 @@ import { bindRouters } from "./routers";
 import { bindMessages } from "./messages";
 import { bindRoots } from "./roots";
 import { bindStableSwap } from "./stableswap";
+import { bindMessageStatus } from "./messagestatus";
 
 export const bind = async (context: AppContext) => {
   switch (context.config.service) {
@@ -22,6 +23,9 @@ export const bind = async (context: AppContext) => {
       break;
     case "stableswap":
       await bindStableSwap(context);
+      break;
+    case "messagestatus":
+      await bindMessageStatus(context);
       break;
   }
 };

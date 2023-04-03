@@ -1,9 +1,8 @@
 import commandLineArgs from "command-line-args";
 import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
 import { isAddress } from "ethers/lib/utils";
-import { config } from "dotenv";
+import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
-import { chainIdToDomain, domainToChainId } from "../../domain";
 import { Env, getProviderFromHardhatConfig } from "../../utils";
 import { hardhatNetworks } from "../../config";
 import { Deployment } from "../types";
@@ -16,8 +15,6 @@ import {
   OwnableDeployment,
   SUPPORTED_DOMAINS,
 } from "./helpers";
-
-config();
 
 export const optionDefinitions = [
   { name: "env", type: String },
@@ -83,8 +80,8 @@ export const transferOwnership = async () => {
       throw new Error(`No hardhat network config provider found for chain ${chain}`);
     }
     const deployments = getOwnableDeployments(
-      chain,
-      wallet.connect(getProviderFromHardhatConfig(chain)),
+      chain as number,
+      wallet.connect(getProviderFromHardhatConfig(chain as number)),
       HUBS[network] === +domain,
       env,
     );

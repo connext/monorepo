@@ -263,6 +263,7 @@ module "lighthouse_prover_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
   schedule_expression = "rate(30 minutes)"
+  memory_size         = 512
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -274,6 +275,7 @@ module "lighthouse_process_from_root_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(5 minutes)"
+  memory_size         = 512
 }
 
 
@@ -286,6 +288,7 @@ module "lighthouse_propagate_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
   schedule_expression = "rate(30 minutes)"
+  memory_size         = 1024
 }
 
 module "lighthouse_sendoutboundroot_cron" {
@@ -297,6 +300,7 @@ module "lighthouse_sendoutboundroot_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
   schedule_expression = "rate(30 minutes)"
+  memory_size         = 512
 }
 
 module "relayer" {
