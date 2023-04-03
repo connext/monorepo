@@ -2015,7 +2015,7 @@ __metadata:
     ts-mocha: 10.0.0
     typescript: 4.9.5
     zapatos: 6.1.4
-    zksync-web3: ^0.14.3
+    zksync-web3: 0.14.3
   languageName: unknown
   linkType: soft
 
@@ -28793,7 +28793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.14.3":
+"zksync-web3@npm:0.14.3, zksync-web3@npm:^0.14.3":
   version: 0.14.3
   resolution: "zksync-web3@npm:0.14.3"
   peerDependencies:
