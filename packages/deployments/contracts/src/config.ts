@@ -96,7 +96,7 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://mainnet.optimism.io",
+    url: process.env.OPTIMSIM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -238,7 +238,21 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://blockscout.chiadochain.net/api",
+        apiUrl: "https://blockscout.chiadochain.net",
+      },
+    },
+  },
+  "polygonzk-testnet": {
+    accounts: { mnemonic },
+    chainId: 1442,
+    url: urlOverride || process.env.POLYGONZK_TESTNET_PROVIDER_URL || "https://rpc.public.zkevm-test.net",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-testnet-zkevm.polygonscan.com",
       },
     },
   },
@@ -255,7 +269,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://zksync2-testnet.zkscan.io/api",
+        apiUrl: "https://zksync2-testnet.zkscan.io",
       },
     },
   },

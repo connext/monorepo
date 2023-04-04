@@ -24,6 +24,7 @@ import {
   StableSwapPool,
   StableSwapExchange,
   StableSwapPoolEvent,
+  Asset,
   XTransferMessageStatus,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
@@ -165,6 +166,18 @@ export const mock = {
       executorVersion: "0.0.1",
       routerAddress: mock.address.router,
       encodedData: "0xabcde",
+      ...overrides,
+    }),
+    asset: (overrides: Partial<Asset> = {}): Asset => ({
+      adoptedAsset: getRandomAddress(),
+      blockNumber: "1",
+      canonicalDomain: mock.domain.A,
+      canonicalId: getRandomBytes32(),
+      decimal: "18",
+      domain: mock.domain.A,
+      id: getRandomAddress(),
+      key: getRandomBytes32(),
+      localAsset: getRandomAddress(),
       ...overrides,
     }),
     xtransfer: (
