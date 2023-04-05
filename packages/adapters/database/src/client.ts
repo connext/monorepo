@@ -711,7 +711,7 @@ export const getPendingAggregateRoots = async (
 ): Promise<Snapshot[]> => {
   const poolToUse = _pool ?? pool;
   const snapshots = await db.select("snapshots", { processed: false }, { limit: 100 }).run(poolToUse);
-  return snapshots ? convertFromDbSnapshot(snapshots) : [];
+  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshot) : [];
 };
 
 export const getAggregateRootByRootAndDomain = async (
@@ -773,6 +773,16 @@ export const getMessageRootCount = async (
   // This will be the count at the time messageRoot was sent
   const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
   return message ? convertFromDbMessage(message).origin?.index : undefined;
+};
+
+export const getMessageByRoot = async (
+  domain: string,
+  messageRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
+  return message ? convertFromDbMessage(message) : undefined;
 };
 
 export const getSpokeNode = async (

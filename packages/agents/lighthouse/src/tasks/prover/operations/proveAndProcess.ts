@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import {
   createLoggingContext,
   jsonifyError,
@@ -17,11 +18,14 @@ import {
   NoAggregatedRoot,
   NoAggregateRootCount,
   NoMessageRootIndex,
+  NoMessageRoot,
+  NoBaseAggregateRootCount,
   NoMessageRootCount,
   NoMessageRootProof,
   NoMessageProof,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
+  NoDomainInSnapshot,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
@@ -163,7 +167,7 @@ export const processMessages = async (
   targetMessageRoot: string,
   // mode: string, //TODO: Needed ?Default
   _requestContext: RequestContext,
-  snapshot?: Snapshot, //TODO: Snapshot tyep
+  snapshot?: Snapshot,
 ) => {
   const {
     logger,
@@ -178,34 +182,35 @@ export const processMessages = async (
   if (messageRootCount === undefined) {
     throw new NoMessageRootCount(originDomain, targetMessageRoot);
   }
-  // Index of messageRoot leaf node in aggregate tree.
-  // TODO: Is this mapping needed in op mode
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
-  if (messageRootIndex === undefined) {
-    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
-  }
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
   let aggregateRootCount = undefined;
   let targetAggregateRoot: string | undefined = "";
-  if (snapshot.aggreateRoot) {
-    targetAggregateRoot = snapshot.aggreateRoot as string;
+  let messageRootIndex = undefined;
+  if (snapshot && snapshot.aggregateRoot) {
+    targetAggregateRoot = snapshot.aggregateRoot as string;
     const baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
     if (!baseAggregateRootCount) {
       // TODO: What if the system was never in slow mode ?
       throw new NoBaseAggregateRootCount(snapshot.baseAggregateRoot);
     }
-    aggregateRootCount = baseAggregateRootCount + 1;
+    aggregateRootCount = baseAggregateRootCount + snapshot.roots.length;
+    messageRootIndex = baseAggregateRootCount + snapshot.roots.indexOf(targetMessageRoot);
   } else {
     targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
     if (!targetAggregateRoot) {
       throw new NoAggregatedRoot();
     }
     aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+    // Index of messageRoot leaf node in aggregate tree.
+    messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   }
   if (!aggregateRootCount) {
     throw new NoAggregateRootCount(targetAggregateRoot);
+  }
+  if (messageRootIndex === undefined) {
+    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
   }
 
   // Count of leafs in aggregate tree at targetAggregateRoot.
@@ -370,39 +375,44 @@ export const proveAndProcessOpMode = async () => {
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
 
-  // Batch size of proofs to send to relayer.
+  //TODO: Prob can be just the latest in op mode too
+  const snapshots: Snapshot[] = await database
+    .getPendingAggregateRoots
+    // destinationDomain,
+    ();
+  if (snapshots.length > 0) {
+    logger.debug("Got pending snapshots", requestContext, methodContext, {
+      snapshots,
+    });
+  } else {
+    logger.debug("No pending snapshots to process.", requestContext, methodContext, {
+      snapshots,
+    });
+    return;
+  }
 
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        //TODO: Prob can be just the latest in op mode too
-        const pendingAggregateRoots: Snapshot[] | undefined = await database.getPendingAggregateRoots(
-          destinationDomain,
-        );
-        if (!pendingAggregateRoots) {
-          //TODO: Error
-          throw new NoReceivedAggregateRoot(destinationDomain);
-        }
-        logger.debug("Got pending aggregate roots for domain", requestContext, methodContext, {
-          destinationDomain,
-          pendingAggregateRoots,
-        });
-
         await Promise.all(
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
               //TODO: Filter all snapshots that are of this origin and destination pair
-              const messageRoots = [];
-              const messageRoot = "";
+              // const messageRoots = [];
+              const snapshot = snapshots[0];
+              const domainIndex = snapshot.domains.indexOf(originDomain);
+              if (domainIndex === -1) {
+                throw new NoDomainInSnapshot(originDomain, snapshot);
+              }
+              const messageRoot = snapshot.roots[domainIndex];
 
               try {
-                //TODO: XMessage ?
-                const message: XMessage | undefined = await database.getMessageRoot(messageRoot);
+                const message: XMessage | undefined = await database.getMessageByRoot(originDomain, messageRoot);
                 if (!message) {
-                  throw new NoMessageRoot(originDomain);
+                  throw new NoMessageRoot(originDomain, messageRoot);
                 }
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
@@ -417,13 +427,13 @@ export const proveAndProcessOpMode = async () => {
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    message.origin.index, //WILL THIS WORK ?
+                    message.origin.index,
                     offset,
                     config.proverBatchSize,
                   );
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
-                    `${originDomain}-${destinationDomain}-${offset}-${message.root}`,
+                    `${originDomain}-${destinationDomain}-${offset}-${message.origin.root}`,
                   );
                   if (unprocessed.length > 0) {
                     logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
@@ -439,8 +449,8 @@ export const proveAndProcessOpMode = async () => {
                       destinationDomain,
                       message.origin.root,
                       // "OPTIMISTIC",
-                      snapshot.aggreateRoot,
                       subContext,
+                      snapshot,
                     );
                     offset += unprocessed.length;
                     logger.info(

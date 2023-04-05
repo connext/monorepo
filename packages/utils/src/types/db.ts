@@ -415,9 +415,9 @@ export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
     domains: snapshot.domains,
     processed: snapshot.processed,
     status: snapshot.status,
-    propagateTimestamp: snapshot.propagate_timestammp,
-    propagateTaskId: snapshot.propagate_task_id,
-    relayerType: snapshot.relayer_type,
+    propagateTimestamp: snapshot.propagate_timestammp ?? undefined,
+    propagateTaskId: snapshot.propagate_task_id ?? undefined,
+    relayerType: snapshot.relayer_type ?? undefined,
   };
 };
 

@@ -68,6 +68,7 @@ import {
   updateExecuteSimulationData,
   getPendingTransfersByMessageStatus,
   getMessageByLeaf,
+  getMessageByRoot,
   saveAssets,
 } from "./client";
 
@@ -242,6 +243,11 @@ export type Database = {
     leaf: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
+  getMessageByRoot: (
+    origin_domain: string,
+    messageRoot: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage | undefined>;
 };
 
 export let pool: Pool;
@@ -305,6 +311,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     updateExecuteSimulationData,
     getPendingTransfersByMessageStatus,
     getMessageByLeaf,
+    getMessageByRoot,
   };
 };
 
