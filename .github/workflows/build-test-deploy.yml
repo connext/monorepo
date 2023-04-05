@@ -99,11 +99,11 @@ jobs:
           fi
 
           workspaces=(
-            "packages/nxtp-utils:@connext/nxtp-utils"
-            "packages/smart-contracts:@connext/smart-contracts"
-            "packages/nxtp-txservice:@connext/nxtp-txservice"
-            "packages/nxtp-adapters-subgraph:@connext/nxtp-adapters-subgraph"
-            "packages/nxtp-adapters-cache:@connext/nxtp-adapters-cache"
+            "packages/utils:@connext/nxtp-utils"
+            "packages/deployments/contracts:@connext/smart-contracts"
+            "packages/adapters/txservice:@connext/nxtp-txservice"
+            "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
+            "packages/adapters/cache:@connext/nxtp-adapters-cache"
             "packages/agents/sdk:@connext/sdk"
           )
 
@@ -142,8 +142,8 @@ jobs:
           fi
 
           workspaces=(
-            "packages/nxtp-utils:@connext/nxtp-utils"
-            "packages/smart-contracts:@connext/smart-contracts"
+            "packages/utils:@connext/nxtp-utils"
+            "packages/deployments/contracts:@connext/smart-contracts"
           )
 
           for entry in "${workspaces[@]}"; do
