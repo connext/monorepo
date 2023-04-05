@@ -24,6 +24,8 @@ import {
   StableSwapPool,
   StableSwapExchange,
   StableSwapPoolEvent,
+  Asset,
+  XTransferMessageStatus,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -166,6 +168,18 @@ export const mock = {
       encodedData: "0xabcde",
       ...overrides,
     }),
+    asset: (overrides: Partial<Asset> = {}): Asset => ({
+      adoptedAsset: getRandomAddress(),
+      blockNumber: "1",
+      canonicalDomain: mock.domain.A,
+      canonicalId: getRandomBytes32(),
+      decimal: "18",
+      domain: mock.domain.A,
+      id: getRandomAddress(),
+      key: getRandomBytes32(),
+      localAsset: getRandomAddress(),
+      ...overrides,
+    }),
     xtransfer: (
       overrides: {
         originDomain?: string;
@@ -182,13 +196,15 @@ export const mock = {
         amount?: string;
         status?: XTransferStatus;
         errorStatus?: XTransferErrorStatus;
+        messageStatus?: XTransferMessageStatus;
         asset?: string;
         transferId?: string;
         messageHash?: string;
         nonce?: number;
         user?: string;
         routers?: string[];
-        relayerFee?: string;
+        relayerFee?: string; // deprecated
+        relayerFees?: { [asset: string]: string };
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -205,6 +221,7 @@ export const mock = {
       const amount = overrides.amount ?? "1000";
       const status: XTransferStatus | undefined = overrides.status;
       const errorStatus: XTransferErrorStatus | undefined = overrides.errorStatus;
+      const messageStatus: XTransferMessageStatus = overrides.messageStatus ?? XTransferMessageStatus.XCalled;
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
@@ -212,6 +229,9 @@ export const mock = {
       const routers = overrides.routers ?? [mock.address.router];
       const messageHash: string = overrides.messageHash ?? getRandomBytes32();
       const relayerFee: string = overrides.relayerFee ?? "0";
+      const relayerFees: { [asset: string]: string } = overrides.relayerFees ?? {
+        [constants.AddressZero]: relayerFee ?? "0",
+      };
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
@@ -242,9 +262,11 @@ export const mock = {
 
               messageHash,
 
-              relayerFee,
+              relayerFees,
 
               errorStatus,
+
+              messageStatus,
 
               // Assets
               assets: {

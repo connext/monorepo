@@ -132,47 +132,6 @@ export const Wallet = ({
         });
       }
 
-      if (window.clover) {
-        providerOptions["custom-clover"] = {
-          display: {
-            name: "Clover",
-            logo: "/logos/wallets/clover.png", // todo: add logo
-          },
-          package: async () => {
-            let provider = null;
-            if (typeof window.clover !== "undefined") {
-              provider = window.clover;
-              try {
-                await provider.request({ method: "eth_requestAccounts" });
-              } catch (error: unknown) {
-                throw new Error("User Rejected");
-              }
-            } else if (typeof window.ethereum !== "undefined") {
-              provider = window.ethereum;
-              try {
-                await provider.request({ method: "eth_requestAccounts" });
-              } catch (error: unknown) {
-                throw new Error("User Rejected");
-              }
-            } else if (window.web3) {
-              provider = window.web3.currentProvider;
-            } else if (window.celo) {
-              provider = window.celo;
-            } else {
-              throw new Error("No Web3 Provider found");
-            }
-            return provider;
-          },
-          connector: async (ProviderPackage, options) => {
-            const provider = new ProviderPackage(options);
-            try {
-              await provider.enable();
-            } catch (error: unknown) {}
-            return provider;
-          },
-        };
-      }
-
       web3Modal = new Web3Modal({
         network: (defaultChainId && chainIdToNetwork(defaultChainId)) || "mainnet",
         cacheProvider: true,

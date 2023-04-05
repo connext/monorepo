@@ -151,28 +151,15 @@ contract MockPool is IAavePool {
     fails = _fails;
   }
 
-  function mintUnbacked(
-    address asset,
-    uint256 amount,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external override {
+  function mintUnbacked(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external override {
     TestERC20(asset).mint(address(this), amount);
   }
 
-  function backUnbacked(
-    address asset,
-    uint256 amount,
-    uint256 fee
-  ) external override {
+  function backUnbacked(address asset, uint256 amount, uint256 fee) external override {
     require(!fails, "fail");
   }
 
-  function withdraw(
-    address asset,
-    uint256 amount,
-    address to
-  ) external override returns (uint256) {
+  function withdraw(address asset, uint256 amount, address to) external override returns (uint256) {
     TestERC20(asset).transfer(msg.sender, amount);
     return amount;
   }
@@ -203,11 +190,7 @@ contract FeeERC20 is ERC20 {
     return true;
   }
 
-  function transferFrom(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) public override returns (bool) {
+  function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
     uint256 toTransfer = amount - fee;
     _burn(sender, fee);
     _transfer(sender, recipient, toTransfer);

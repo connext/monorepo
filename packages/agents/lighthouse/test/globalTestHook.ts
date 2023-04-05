@@ -66,8 +66,6 @@ export const mochaHooks = {
     sendOutboundRootCtxMock = mock.sendOuboundRootCtx();
     stub(SendOutboundRootFns, "getContext").returns(sendOutboundRootCtxMock);
 
-    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://test.rpc.com");
-
     sendWithRelayerWithBackupStub = stub(Mockable, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
       relayerType: RelayerType.Mock,
@@ -76,6 +74,8 @@ export const mochaHooks = {
       encodeFunctionData: () => "0xdeadbeef",
       decodeFunctionResult: () => [BigNumber.from(42)],
     } as any);
+
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://example.com");
   },
   afterEach() {
     restore();

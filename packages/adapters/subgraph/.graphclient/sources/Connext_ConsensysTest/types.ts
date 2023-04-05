@@ -38,6 +38,10 @@ export type consensystest_AggregateRoot_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   root?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -52,6 +56,8 @@ export type consensystest_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_AggregateRoot_filter>>>;
 };
 
 export type consensystest_AggregateRoot_orderBy =
@@ -62,6 +68,7 @@ export type consensystest_AggregateRoot_orderBy =
 export type consensystest_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['consensystest_Bytes']>;
+  decimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['consensystest_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['consensystest_Bytes']>;
@@ -73,6 +80,9 @@ export type consensystest_Asset = {
 export type consensystest_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
+  locked: Scalars['BigInt'];
+  supplied: Scalars['BigInt'];
+  removed: Scalars['BigInt'];
   router: consensystest_Router;
   asset: consensystest_Asset;
   feesEarned: Scalars['BigInt'];
@@ -95,6 +105,30 @@ export type consensystest_AssetBalance_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked?: InputMaybe<Scalars['BigInt']>;
+  locked_not?: InputMaybe<Scalars['BigInt']>;
+  locked_gt?: InputMaybe<Scalars['BigInt']>;
+  locked_lt?: InputMaybe<Scalars['BigInt']>;
+  locked_gte?: InputMaybe<Scalars['BigInt']>;
+  locked_lte?: InputMaybe<Scalars['BigInt']>;
+  locked_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied?: InputMaybe<Scalars['BigInt']>;
+  supplied_not?: InputMaybe<Scalars['BigInt']>;
+  supplied_gt?: InputMaybe<Scalars['BigInt']>;
+  supplied_lt?: InputMaybe<Scalars['BigInt']>;
+  supplied_gte?: InputMaybe<Scalars['BigInt']>;
+  supplied_lte?: InputMaybe<Scalars['BigInt']>;
+  supplied_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed?: InputMaybe<Scalars['BigInt']>;
+  removed_not?: InputMaybe<Scalars['BigInt']>;
+  removed_gt?: InputMaybe<Scalars['BigInt']>;
+  removed_lt?: InputMaybe<Scalars['BigInt']>;
+  removed_gte?: InputMaybe<Scalars['BigInt']>;
+  removed_lte?: InputMaybe<Scalars['BigInt']>;
+  removed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -147,11 +181,16 @@ export type consensystest_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_AssetBalance_filter>>>;
 };
 
 export type consensystest_AssetBalance_orderBy =
   | 'id'
   | 'amount'
+  | 'locked'
+  | 'supplied'
+  | 'removed'
   | 'router'
   | 'asset'
   | 'feesEarned';
@@ -176,6 +215,8 @@ export type consensystest_AssetStatus_filter = {
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_AssetStatus_filter>>>;
 };
 
 export type consensystest_AssetStatus_orderBy =
@@ -193,12 +234,28 @@ export type consensystest_Asset_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   key?: InputMaybe<Scalars['consensystest_Bytes']>;
   key_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  key_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  key_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  key_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  key_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   key_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   key_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   key_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  decimal?: InputMaybe<Scalars['BigInt']>;
+  decimal_not?: InputMaybe<Scalars['BigInt']>;
+  decimal_gt?: InputMaybe<Scalars['BigInt']>;
+  decimal_lt?: InputMaybe<Scalars['BigInt']>;
+  decimal_gte?: InputMaybe<Scalars['BigInt']>;
+  decimal_lte?: InputMaybe<Scalars['BigInt']>;
+  decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -213,12 +270,20 @@ export type consensystest_Asset_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adoptedAsset?: InputMaybe<Scalars['consensystest_Bytes']>;
   adoptedAsset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  adoptedAsset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  adoptedAsset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  adoptedAsset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  adoptedAsset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   adoptedAsset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   adoptedAsset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   localAsset?: InputMaybe<Scalars['consensystest_Bytes']>;
   localAsset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  localAsset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  localAsset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  localAsset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  localAsset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   localAsset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   localAsset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   localAsset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -254,11 +319,14 @@ export type consensystest_Asset_filter = {
   status_?: InputMaybe<consensystest_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_Asset_filter>>>;
 };
 
 export type consensystest_Asset_orderBy =
   | 'id'
   | 'key'
+  | 'decimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -312,24 +380,38 @@ export type consensystest_ConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['consensystest_Bytes']>;
   amb_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   rootManager?: InputMaybe<Scalars['consensystest_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['consensystest_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_ConnectorMeta_filter>>>;
 };
 
 export type consensystest_ConnectorMeta_orderBy =
@@ -407,6 +489,10 @@ export type consensystest_DestinationTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -456,12 +542,20 @@ export type consensystest_DestinationTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   to_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -472,6 +566,10 @@ export type consensystest_DestinationTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['consensystest_Bytes']>;
   callData_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -494,6 +592,10 @@ export type consensystest_DestinationTransfer_filter = {
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['consensystest_Bytes']>;
   originSender_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -516,6 +618,10 @@ export type consensystest_DestinationTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -559,12 +665,20 @@ export type consensystest_DestinationTransfer_filter = {
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedCaller?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedCaller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedCaller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedCaller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedCaller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedCaller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedCaller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedCaller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedCaller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedCaller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTransactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTransactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTransactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTransactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTransactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTransactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTransactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedTransactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedTransactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -603,18 +717,30 @@ export type consensystest_DestinationTransfer_filter = {
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxOrigin?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTxOrigin_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTxOrigin_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTxOrigin_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTxOrigin_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  executedTxOrigin_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTxOrigin_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedTxOrigin_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   executedTxOrigin_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   executedTxOrigin_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledCaller?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledCaller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledCaller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledCaller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledCaller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledCaller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledCaller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledCaller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledCaller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledCaller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTransactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTransactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTransactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTransactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTransactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTransactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTransactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledTransactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -653,12 +779,18 @@ export type consensystest_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxOrigin?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTxOrigin_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTxOrigin_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTxOrigin_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTxOrigin_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  reconciledTxOrigin_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTxOrigin_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   reconciledTxOrigin_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_DestinationTransfer_filter>>>;
 };
 
 export type consensystest_DestinationTransfer_orderBy =
@@ -728,6 +860,10 @@ export type consensystest_OriginMessage_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   transferId?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -742,6 +878,10 @@ export type consensystest_OriginMessage_filter = {
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   leaf?: InputMaybe<Scalars['consensystest_Bytes']>;
   leaf_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  leaf_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  leaf_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  leaf_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  leaf_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   leaf_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   leaf_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   leaf_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -756,18 +896,30 @@ export type consensystest_OriginMessage_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   message?: InputMaybe<Scalars['consensystest_Bytes']>;
   message_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  message_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  message_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  message_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  message_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   message_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   message_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   message_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   root?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -803,6 +955,8 @@ export type consensystest_OriginMessage_filter = {
   rootCount_?: InputMaybe<consensystest_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_OriginMessage_filter>>>;
 };
 
 export type consensystest_OriginMessage_orderBy =
@@ -837,9 +991,11 @@ export type consensystest_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['consensystest_Bytes']>;
   asset?: Maybe<consensystest_Asset>;
+  transactingAsset?: Maybe<Scalars['consensystest_Bytes']>;
   message?: Maybe<consensystest_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<consensystest_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['consensystest_Bytes']>;
   caller?: Maybe<Scalars['consensystest_Bytes']>;
   transactionHash?: Maybe<Scalars['consensystest_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -847,6 +1003,15 @@ export type consensystest_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['consensystest_Bytes']>;
+};
+
+
+export type consensystest_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<consensystest_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<consensystest_OrderDirection>;
+  where?: InputMaybe<consensystest_RelayerFee_filter>;
 };
 
 export type consensystest_OriginTransfer_filter = {
@@ -868,6 +1033,10 @@ export type consensystest_OriginTransfer_filter = {
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transferId?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transferId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transferId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -886,6 +1055,10 @@ export type consensystest_OriginTransfer_filter = {
   status_not_in?: InputMaybe<Array<consensystest_TransferStatus>>;
   messageHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   messageHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  messageHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  messageHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  messageHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  messageHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   messageHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   messageHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   messageHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -916,12 +1089,20 @@ export type consensystest_OriginTransfer_filter = {
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   to?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  to_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   to_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   to_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   to_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   delegate_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   delegate_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   delegate_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -932,6 +1113,10 @@ export type consensystest_OriginTransfer_filter = {
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   callData?: InputMaybe<Scalars['consensystest_Bytes']>;
   callData_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   callData_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   callData_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -946,6 +1131,10 @@ export type consensystest_OriginTransfer_filter = {
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['consensystest_Bytes']>;
   originSender_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   originSender_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   originSender_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   originSender_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -968,6 +1157,10 @@ export type consensystest_OriginTransfer_filter = {
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   canonicalId_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -993,6 +1186,16 @@ export type consensystest_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<consensystest_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1014,14 +1217,6 @@ export type consensystest_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<consensystest_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1030,14 +1225,39 @@ export type consensystest_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<consensystest_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -1076,12 +1296,18 @@ export type consensystest_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txOrigin?: InputMaybe<Scalars['consensystest_Bytes']>;
   txOrigin_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  txOrigin_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  txOrigin_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  txOrigin_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  txOrigin_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   txOrigin_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   txOrigin_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   txOrigin_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   txOrigin_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_OriginTransfer_filter>>>;
 };
 
 export type consensystest_OriginTransfer_orderBy =
@@ -1104,9 +1330,11 @@ export type consensystest_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'transactingAsset'
   | 'message'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1132,6 +1360,8 @@ export type Query = {
   consensystest_relayers: Array<consensystest_Relayer>;
   consensystest_sequencer?: Maybe<consensystest_Sequencer>;
   consensystest_sequencers: Array<consensystest_Sequencer>;
+  consensystest_relayerFee?: Maybe<consensystest_RelayerFee>;
+  consensystest_relayerFees: Array<consensystest_RelayerFee>;
   consensystest_originTransfer?: Maybe<consensystest_OriginTransfer>;
   consensystest_originTransfers: Array<consensystest_OriginTransfer>;
   consensystest_destinationTransfer?: Maybe<consensystest_DestinationTransfer>;
@@ -1294,6 +1524,24 @@ export type Queryconsensystest_sequencersArgs = {
   orderBy?: InputMaybe<consensystest_Sequencer_orderBy>;
   orderDirection?: InputMaybe<consensystest_OrderDirection>;
   where?: InputMaybe<consensystest_Sequencer_filter>;
+  block?: InputMaybe<consensystest_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryconsensystest_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<consensystest_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryconsensystest_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<consensystest_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<consensystest_OrderDirection>;
+  where?: InputMaybe<consensystest_RelayerFee_filter>;
   block?: InputMaybe<consensystest_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1471,10 +1719,78 @@ export type consensystest_Relayer = {
   relayer?: Maybe<Scalars['consensystest_Bytes']>;
 };
 
+export type consensystest_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: consensystest_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['consensystest_Bytes'];
+};
+
+export type consensystest_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<consensystest_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_RelayerFee_filter>>>;
+};
+
+export type consensystest_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'fee'
+  | 'asset';
+
 export type consensystest_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: consensystest_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['consensystest_Bytes']>;
   caller: Scalars['consensystest_Bytes'];
   transactionHash: Scalars['consensystest_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1521,14 +1837,32 @@ export type consensystest_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -1567,12 +1901,15 @@ export type consensystest_RelayerFeesIncrease_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_RelayerFeesIncrease_filter>>>;
 };
 
 export type consensystest_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1595,12 +1932,18 @@ export type consensystest_Relayer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   relayer?: InputMaybe<Scalars['consensystest_Bytes']>;
   relayer_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  relayer_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  relayer_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  relayer_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  relayer_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   relayer_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   relayer_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   relayer_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   relayer_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_Relayer_filter>>>;
 };
 
 export type consensystest_Relayer_orderBy =
@@ -1632,6 +1975,8 @@ export type consensystest_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_RootCount_filter>>>;
 };
 
 export type consensystest_RootCount_orderBy =
@@ -1679,6 +2024,10 @@ export type consensystest_RootMessageSent_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   root?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  root_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   root_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -1693,12 +2042,20 @@ export type consensystest_RootMessageSent_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -1737,6 +2094,8 @@ export type consensystest_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_RootMessageSent_filter>>>;
 };
 
 export type consensystest_RootMessageSent_orderBy =
@@ -1848,6 +2207,8 @@ export type consensystest_RouterDailyTVL_filter = {
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_RouterDailyTVL_filter>>>;
 };
 
 export type consensystest_RouterDailyTVL_orderBy =
@@ -1872,18 +2233,30 @@ export type consensystest_Router_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   owner?: InputMaybe<Scalars['consensystest_Bytes']>;
   owner_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  owner_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  owner_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  owner_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  owner_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   owner_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   owner_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   owner_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   owner_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   recipient?: InputMaybe<Scalars['consensystest_Bytes']>;
   recipient_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  recipient_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  recipient_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  recipient_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  recipient_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   recipient_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   recipient_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   recipient_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   recipient_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   proposedOwner?: InputMaybe<Scalars['consensystest_Bytes']>;
   proposedOwner_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  proposedOwner_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  proposedOwner_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  proposedOwner_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  proposedOwner_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   proposedOwner_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   proposedOwner_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   proposedOwner_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -1899,6 +2272,8 @@ export type consensystest_Router_filter = {
   assetBalances_?: InputMaybe<consensystest_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_Router_filter>>>;
 };
 
 export type consensystest_Router_orderBy =
@@ -1931,12 +2306,18 @@ export type consensystest_Sequencer_filter = {
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   sequencer?: InputMaybe<Scalars['consensystest_Bytes']>;
   sequencer_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  sequencer_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  sequencer_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  sequencer_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  sequencer_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   sequencer_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   sequencer_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   sequencer_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   sequencer_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_Sequencer_filter>>>;
 };
 
 export type consensystest_Sequencer_orderBy =
@@ -1969,12 +2350,18 @@ export type consensystest_Setting_filter = {
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_Setting_filter>>>;
 };
 
 export type consensystest_Setting_orderBy =
@@ -2034,12 +2421,20 @@ export type consensystest_SlippageUpdate_filter = {
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   caller?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['consensystest_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['consensystest_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['consensystest_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['consensystest_Bytes']>;
@@ -2078,6 +2473,8 @@ export type consensystest_SlippageUpdate_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<consensystest_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<consensystest_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<consensystest_SlippageUpdate_filter>>>;
 };
 
 export type consensystest_SlippageUpdate_orderBy =
@@ -2108,6 +2505,8 @@ export type Subscription = {
   consensystest_relayers: Array<consensystest_Relayer>;
   consensystest_sequencer?: Maybe<consensystest_Sequencer>;
   consensystest_sequencers: Array<consensystest_Sequencer>;
+  consensystest_relayerFee?: Maybe<consensystest_RelayerFee>;
+  consensystest_relayerFees: Array<consensystest_RelayerFee>;
   consensystest_originTransfer?: Maybe<consensystest_OriginTransfer>;
   consensystest_originTransfers: Array<consensystest_OriginTransfer>;
   consensystest_destinationTransfer?: Maybe<consensystest_DestinationTransfer>;
@@ -2270,6 +2669,24 @@ export type Subscriptionconsensystest_sequencersArgs = {
   orderBy?: InputMaybe<consensystest_Sequencer_orderBy>;
   orderDirection?: InputMaybe<consensystest_OrderDirection>;
   where?: InputMaybe<consensystest_Sequencer_filter>;
+  block?: InputMaybe<consensystest_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionconsensystest_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<consensystest_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionconsensystest_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<consensystest_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<consensystest_OrderDirection>;
+  where?: InputMaybe<consensystest_RelayerFee_filter>;
   block?: InputMaybe<consensystest_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2453,6 +2870,8 @@ export type consensystest__Block_ = {
   hash?: Maybe<Scalars['consensystest_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */
@@ -2510,6 +2929,10 @@ export type _SubgraphErrorPolicy_ =
   consensystest_sequencer: InContextSdkMethod<Query['consensystest_sequencer'], Queryconsensystest_sequencerArgs, MeshContext>,
   /** null **/
   consensystest_sequencers: InContextSdkMethod<Query['consensystest_sequencers'], Queryconsensystest_sequencersArgs, MeshContext>,
+  /** null **/
+  consensystest_relayerFee: InContextSdkMethod<Query['consensystest_relayerFee'], Queryconsensystest_relayerFeeArgs, MeshContext>,
+  /** null **/
+  consensystest_relayerFees: InContextSdkMethod<Query['consensystest_relayerFees'], Queryconsensystest_relayerFeesArgs, MeshContext>,
   /** null **/
   consensystest_originTransfer: InContextSdkMethod<Query['consensystest_originTransfer'], Queryconsensystest_originTransferArgs, MeshContext>,
   /** null **/
@@ -2587,6 +3010,10 @@ export type _SubgraphErrorPolicy_ =
   consensystest_sequencer: InContextSdkMethod<Subscription['consensystest_sequencer'], Subscriptionconsensystest_sequencerArgs, MeshContext>,
   /** null **/
   consensystest_sequencers: InContextSdkMethod<Subscription['consensystest_sequencers'], Subscriptionconsensystest_sequencersArgs, MeshContext>,
+  /** null **/
+  consensystest_relayerFee: InContextSdkMethod<Subscription['consensystest_relayerFee'], Subscriptionconsensystest_relayerFeeArgs, MeshContext>,
+  /** null **/
+  consensystest_relayerFees: InContextSdkMethod<Subscription['consensystest_relayerFees'], Subscriptionconsensystest_relayerFeesArgs, MeshContext>,
   /** null **/
   consensystest_originTransfer: InContextSdkMethod<Subscription['consensystest_originTransfer'], Subscriptionconsensystest_originTransferArgs, MeshContext>,
   /** null **/

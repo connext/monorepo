@@ -5,16 +5,29 @@ import {
   ChainData,
   getCanonicalHash,
   formatUrl,
+  chainIdToDomain as _chainIdToDomain,
+  domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/smart-contracts";
 import memoize from "memoizee";
 
-import { parseConnextLog, validateUri, axiosGetRequest, getChainIdFromDomain } from "./lib/helpers";
+import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+
+declare global {
+  interface Window {
+    ethereum?: providers.ExternalProvider;
+    web3?: {
+      currentProvider: providers.ExternalProvider;
+    };
+  }
+}
+
+declare const window: Window;
 
 /**
  * @classdesc SDK class encapsulating shared logic to be inherited.
@@ -41,15 +54,29 @@ export class SdkShared {
     },
     { promise: true, maxAge: 1 * 60 * 1000 }, // maxAge: 1 min
   );
+
   /**
    * Returns the provider specified in the SDK configuration for a specific domain.
+   * If a web3 provider is detected in a browser environment that matches the requested domain, it will be used instead.
    *
    * @param domainId - The domain ID.
    * @returns providers.StaticJsonRpcProvider object.
    */
-  getProvider = memoize((domainId: string): providers.StaticJsonRpcProvider => {
-    return new providers.StaticJsonRpcProvider(this.config.chains[domainId].providers[0]);
-  });
+  async getProvider(domainId: string): Promise<providers.StaticJsonRpcProvider> {
+    if (typeof window !== "undefined" && window.ethereum) {
+      const browserProvider = new providers.Web3Provider(window.ethereum);
+      const browserChainId = (await browserProvider.getNetwork()).chainId;
+      const desiredChainId = await this.getChainId(domainId);
+
+      if (browserChainId === desiredChainId) {
+        this.logger.info(`Using browser provider for domain: ${domainId}`);
+        return browserProvider;
+      }
+    }
+
+    this.logger.info(`Using static provider for domain: ${domainId}`);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+  }
 
   getDeploymentAddress = memoize(
     async (domainId: string, deploymentName: keyof ChainDeployments): Promise<string> => {
@@ -72,7 +99,7 @@ export class SdkShared {
     async (domainId: string): Promise<Connext> => {
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = this.getProvider(domainId);
+      const provider = await this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -84,13 +111,10 @@ export class SdkShared {
    * @param domainId - The domain ID.
    * @returns ERC20 Contract object.
    */
-  getERC20 = memoize(
-    async (domainId: string, tokenAddress: string): Promise<IERC20> => {
-      const provider = this.getProvider(domainId);
-      return IERC20__factory.connect(tokenAddress, provider);
-    },
-    { promise: true },
-  );
+  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
+    const provider = await this.getProvider(domainId);
+    return IERC20__factory.connect(tokenAddress, provider);
+  }
 
   /**
    * Returns the chain ID for a specified domain.
@@ -102,7 +126,7 @@ export class SdkShared {
     async (domainId: string): Promise<number> => {
       let chainId = this.config.chains[domainId]?.chainId;
       if (!chainId) {
-        chainId = await getChainIdFromDomain(domainId, this.chainData);
+        chainId = _domainToChainId(+domainId);
       }
       return chainId;
     },
@@ -117,6 +141,26 @@ export class SdkShared {
    */
   static domainToChainName(domainId: string) {
     return domainsToChainNames[domainId];
+  }
+
+  /**
+   * Returns a domain id for a chain id.
+   *
+   * @param chainId A chain id number
+   * @returns A domain number in number
+   */
+  static chainIdToDomain(chainId: number): number {
+    return _chainIdToDomain(chainId);
+  }
+
+  /**
+   * Returns a chain id for a domain id
+   *
+   * @param domainId A domain id number
+   * @returns A chain id
+   */
+  static domainToChainId(domainId: number): number {
+    return _domainToChainId(domainId);
   }
 
   /**
@@ -259,7 +303,7 @@ export class SdkShared {
       } else {
         const entry: ConnextSupport = {
           name: domainsToChainNames[asset.domain],
-          chainId: await getChainIdFromDomain(asset.domain),
+          chainId: _domainToChainId(+asset.domain),
           domainId: asset.domain,
           assets: [asset.adopted],
         };
@@ -290,6 +334,31 @@ export class SdkShared {
     });
 
     return asset;
+  }
+
+  /**
+   * Retrieve the assets with same canonical id.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The local or adopted address.
+   * @returns The array of asset data on the other domains with same canonical id.
+   */
+  async getAssetsWithSameCanonical(domainId: string, tokenAddress: string): Promise<AssetData[]> {
+    const assetsData = await this.getAssetsData();
+    const _tokenAddress = utils.getAddress(tokenAddress);
+
+    const asset = assetsData.find((assetData) => {
+      return (
+        domainId === assetData.domain &&
+        (utils.getAddress(assetData.local) == _tokenAddress || utils.getAddress(assetData.adopted) == _tokenAddress)
+      );
+    });
+
+    const otherAssets = assetsData.filter((data) => {
+      return asset?.canonical_domain == data.canonical_domain && asset.canonical_id == data.canonical_id;
+    });
+
+    return otherAssets;
   }
 
   /**

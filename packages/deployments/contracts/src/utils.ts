@@ -1,15 +1,12 @@
-import { config } from "dotenv";
 import { BigNumber, constants, Contract, ContractInterface, providers, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
-import { DeploymentsExtension } from "hardhat-deploy/types";
-
-config();
 
 export type Env = "staging" | "production" | "local";
 
@@ -38,6 +35,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "80001": ProtocolNetwork.TESTNET,
   "97": ProtocolNetwork.TESTNET,
   "421613": ProtocolNetwork.TESTNET,
+  "1442": ProtocolNetwork.TESTNET,
   "280": ProtocolNetwork.TESTNET,
   "59140": ProtocolNetwork.TESTNET,
 
@@ -211,7 +209,11 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
 
 export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpcProvider => {
   // Get the provider address from the hardhat config on given chain
-  const url = (Object.values(hardhatNetworks).find((n: any) => n?.chainId === chainId) as any)?.url;
+  const url = (
+    Object.entries(hardhatNetworks).find(
+      ([name, network]: [string, any]) => network?.chainId === chainId && !name.includes("fork"),
+    ) as any
+  )[1]?.url;
   if (!url) {
     throw new Error(`No provider url found for ${chainId}`);
   }
@@ -264,7 +266,7 @@ export const queryOptimismMessageStatus = async (
     const receipt = await tx.wait();
     console.log("relay message tx mined:", receipt.transactionHash);
   }
-  return mapping[status];
+  return (mapping as any)[status] as string;
 };
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(

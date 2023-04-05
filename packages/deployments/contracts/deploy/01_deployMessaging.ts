@@ -2,8 +2,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -33,8 +34,8 @@ const formatConnectorArgs = (
 
   const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
 
-  const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
-  const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
+  const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
+  const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
 
   const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 
@@ -48,9 +49,6 @@ const formatConnectorArgs = (
     ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
   ];
   if (isHub) {
-    if (config.prefix.includes("Optimism")) {
-      hubArgs.push(config.processGas);
-    }
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
@@ -66,9 +64,6 @@ const formatConnectorArgs = (
     watcherManager!,
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
-  if (config.prefix.includes("Optimism")) {
-    constructorArgs.push(config.processGas);
-  }
   console.log(
     `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
@@ -233,6 +228,7 @@ const handleDeploySpoke = async (
       !contract.includes("Polygon") &&
       !contract.includes("Gnosis") &&
       !contract.includes("Arbitrum") &&
+      !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
       !contract.includes("Consensys") &&
       !contract.includes("Multichain")) ||

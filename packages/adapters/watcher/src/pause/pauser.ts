@@ -1,5 +1,5 @@
-import { domainToChainId, ConnextInterface } from "@connext/smart-contracts";
-import { createMethodContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { ConnextInterface } from "@connext/smart-contracts";
+import { createMethodContext, domainToChainId, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { PauseResponse, Verifier } from "../types";

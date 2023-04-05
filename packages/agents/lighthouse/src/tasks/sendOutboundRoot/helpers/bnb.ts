@@ -1,4 +1,4 @@
-import { createLoggingContext, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
 
 import { getContext } from "../sendOutboundRoot";
 import { ExtraSendOutboundRootParam } from "../operations/sendOutboundRoot";
@@ -8,7 +8,6 @@ import { getInterface, getBestProvider } from "../../../mockable";
 export const getSendOutboundRootParams = async (l2domain: string): Promise<ExtraSendOutboundRootParam> => {
   const {
     config,
-    chainData,
     adapters: { deployments, contracts, chainreader, ambs },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getSendOutboundRootParams.name);
@@ -22,8 +21,8 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
     throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const l2ChainId = await getChainIdFromDomain(l2domain, chainData);
-  const hubChainId = await getChainIdFromDomain(config.hubDomain, chainData);
+  const l2ChainId = domainToChainId(+l2domain);
+  const hubChainId = domainToChainId(+config.hubDomain);
 
   const l2SpokeConnector = deployments.spokeConnector(
     l2ChainId,

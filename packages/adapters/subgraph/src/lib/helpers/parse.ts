@@ -68,6 +68,18 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
   const transactingAsset = entity.transactingAsset ?? constants.AddressZero;
   const originDecimals = getDecimals(asset, transactingAsset as string);
 
+  const relayerFees: Record<string, string> = {};
+  if (entity.relayerFees) {
+    for (const relayerFee of entity.relayerFees) {
+      relayerFees[relayerFee.asset] = relayerFee.fee;
+    }
+  } else {
+    // TODO: Remove after all routers support multiple relayer fee assets
+    // INFO: https://github.com/connext/monorepo/issues/3811
+    // Handle entity from previous subgraph for backwards compatibility
+    relayerFees[constants.AddressZero] = entity?.relayerFee ?? "0";
+  }
+
   return {
     // Meta Data
     transferId: entity.transferId,
@@ -96,7 +108,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
       // Event Data
       messageHash: entity.messageHash,
 
-      relayerFee: entity.relayerFee ?? "0",
+      relayerFees: relayerFees,
 
       // Assets
       // FIXME: https://github.com/connext/nxtp/issues/2862
@@ -613,6 +625,7 @@ export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
     increase: entity.increase,
     transferId: entity.transfer.id,
     timestamp: entity.timestamp,
+    asset: entity.asset,
     domain: entity.domain,
   };
 };
