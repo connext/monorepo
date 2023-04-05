@@ -20,6 +20,17 @@ CREATE TYPE public.action_type AS ENUM (
 
 
 --
+-- Name: snapshot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.snapshot_status AS ENUM (
+    'Proposed',
+    'Finalized',
+    'Propagated'
+);
+
+
+--
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -280,6 +291,7 @@ CREATE TABLE public.transfers (
     execute_simulation_to character(42),
     execute_simulation_network character varying(255),
     error_message character varying(255),
+    message_status character varying(255),
     relayer_fees jsonb
 );
 
@@ -595,6 +607,24 @@ CREATE VIEW public.router_tvl AS
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
+);
+
+
+--
+-- Name: snapshots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshots (
+    id character varying(255) NOT NULL,
+    aggregate_root character(66) NOT NULL,
+    base_aggregate_root character(66) NOT NULL,
+    roots character(66)[] DEFAULT (ARRAY[]::bpchar[])::character(66)[] NOT NULL,
+    domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
+    propagate_timestamp_secs integer,
+    propagate_task_id character(66),
+    relayer_type text
 );
 
 
@@ -947,6 +977,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_key UNIQUE (id);
+
+
+--
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1100,5 +1138,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230307090110'),
     ('20230307092333'),
     ('20230307171914'),
+    ('20230308083252'),
     ('20230308162843'),
-    ('20230310035445');
+    ('20230310035445'),
+    ('20230405050248');

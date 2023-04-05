@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
+import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot, Snapshot } from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import {
   AssetBalance,
@@ -403,6 +403,21 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
     root: message.root,
     domain: message.domain,
     blockNumber: message.block_number,
+  };
+};
+
+export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
+  return {
+    id: snapshot.id,
+    aggregateRoot: snapshot.aggregate_root,
+    baseAggregateRoot: snapshot.base_aggregate_root,
+    roots: snapshot.roots,
+    domains: snapshot.domains,
+    processed: snapshot.processed,
+    status: snapshot.status,
+    propagateTimestamp: snapshot.propagate_timestammp,
+    propagateTaskId: snapshot.propagate_task_id,
+    relayerType: snapshot.relayer_type,
   };
 };
 

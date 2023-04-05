@@ -10,9 +10,11 @@ import {
   convertFromDbAggregatedRoot,
   convertFromDbPropagatedRoot,
   convertFromDbReceivedAggregateRoot,
+  convertFromDbSnapshot,
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  Snapshot,
   StableSwapPool,
   StableSwapExchange,
   XTransferErrorStatus,
@@ -700,6 +702,16 @@ export const getLatestAggregateRoot = async (
     )
     .run(poolToUse);
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+};
+
+export const getPendingAggregateRoots = async (
+  // domain: string,
+  // orderDirection: "ASC" | "DESC" = "DESC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot[]> => {
+  const poolToUse = _pool ?? pool;
+  const snapshots = await db.select("snapshots", { processed: false }, { limit: 100 }).run(poolToUse);
+  return snapshots ? convertFromDbSnapshot(snapshots) : [];
 };
 
 export const getAggregateRootByRootAndDomain = async (

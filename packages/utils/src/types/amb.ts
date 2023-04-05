@@ -91,3 +91,17 @@ export const ReceivedAggregateRootSchema = Type.Object({
   blockNumber: Type.Number(),
 });
 export type ReceivedAggregateRoot = Static<typeof ReceivedAggregateRootSchema>;
+
+export const SnapshotSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  baseAggregateRoot: Type.String(),
+  roots: Type.Array(Type.String()),
+  domains: Type.Array(Type.String()),
+  processed: Type.Boolean(),
+  status: Type.String(),
+  propagateTimestamp: Type.Optional(Type.Number()),
+  propagateTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
+});
+export type Snapshot = Static<typeof SnapshotSchema>;

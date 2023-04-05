@@ -9,6 +9,7 @@ import {
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
+  Snapshot,
 } from "@connext/nxtp-utils";
 
 import {
@@ -160,7 +161,9 @@ export const processMessages = async (
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
+  // mode: string, //TODO: Needed ?Default
   _requestContext: RequestContext,
+  snapshot?: Snapshot, //TODO: Snapshot tyep
 ) => {
   const {
     logger,
@@ -176,6 +179,7 @@ export const processMessages = async (
     throw new NoMessageRootCount(originDomain, targetMessageRoot);
   }
   // Index of messageRoot leaf node in aggregate tree.
+  // TODO: Is this mapping needed in op mode
   const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   if (messageRootIndex === undefined) {
     throw new NoMessageRootIndex(originDomain, targetMessageRoot);
@@ -183,16 +187,28 @@ export const processMessages = async (
 
   // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
   // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
-  if (!targetAggregateRoot) {
-    throw new NoAggregatedRoot();
+  let aggregateRootCount = undefined;
+  let targetAggregateRoot: string | undefined = "";
+  if (snapshot.aggreateRoot) {
+    targetAggregateRoot = snapshot.aggreateRoot as string;
+    const baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
+    if (!baseAggregateRootCount) {
+      // TODO: What if the system was never in slow mode ?
+      throw new NoBaseAggregateRootCount(snapshot.baseAggregateRoot);
+    }
+    aggregateRootCount = baseAggregateRootCount + 1;
+  } else {
+    targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
+    if (!targetAggregateRoot) {
+      throw new NoAggregatedRoot();
+    }
+    aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
   }
-
-  // Count of leafs in aggregate tree at targetAggregateRoot.
-  const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
   if (!aggregateRootCount) {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
+
+  // Count of leafs in aggregate tree at targetAggregateRoot.
   // TODO: Move to per domain storage adapters in context
   const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
   const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
@@ -341,4 +357,133 @@ export const processMessages = async (
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
+};
+
+export const proveAndProcessOpMode = async () => {
+  const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
+  const {
+    logger,
+    adapters: { database },
+    config,
+  } = getContext();
+
+  // Only process configured chains.
+  const domains: string[] = Object.keys(config.chains);
+
+  // Batch size of proofs to send to relayer.
+
+  // Process messages
+  // Batch messages to be processed by origin_domain and destination_domain.
+  await Promise.all(
+    domains.map(async (destinationDomain) => {
+      try {
+        //TODO: Prob can be just the latest in op mode too
+        const pendingAggregateRoots: Snapshot[] | undefined = await database.getPendingAggregateRoots(
+          destinationDomain,
+        );
+        if (!pendingAggregateRoots) {
+          //TODO: Error
+          throw new NoReceivedAggregateRoot(destinationDomain);
+        }
+        logger.debug("Got pending aggregate roots for domain", requestContext, methodContext, {
+          destinationDomain,
+          pendingAggregateRoots,
+        });
+
+        await Promise.all(
+          domains
+            .filter((domain) => domain != destinationDomain)
+            .map(async (originDomain) => {
+              //TODO: Filter all snapshots that are of this origin and destination pair
+              const messageRoots = [];
+              const messageRoot = "";
+
+              try {
+                //TODO: XMessage ?
+                const message: XMessage | undefined = await database.getMessageRoot(messageRoot);
+                if (!message) {
+                  throw new NoMessageRoot(originDomain);
+                }
+                // Paginate through all unprocessed messages from the domain
+                let offset = 0;
+                let end = false;
+                while (!end) {
+                  logger.info(
+                    "Getting unprocessed messages for origin and destination pair",
+                    requestContext,
+                    methodContext,
+                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+                  );
+                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                    originDomain,
+                    destinationDomain,
+                    message.origin.index, //WILL THIS WORK ?
+                    offset,
+                    config.proverBatchSize,
+                  );
+                  const subContext = createRequestContext(
+                    "processUnprocessedMessages",
+                    `${originDomain}-${destinationDomain}-${offset}-${message.root}`,
+                  );
+                  if (unprocessed.length > 0) {
+                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      offset,
+                    });
+                    // Batch process messages from the same origin domain
+                    await processMessages(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      message.origin.root,
+                      // "OPTIMISTIC",
+                      snapshot.aggreateRoot,
+                      subContext,
+                    );
+                    offset += unprocessed.length;
+                    logger.info(
+                      "Processed unprocessed messages for origin and destination pair",
+                      subContext,
+                      methodContext,
+                      {
+                        unprocessed,
+                        originDomain,
+                        destinationDomain,
+                        offset,
+                      },
+                    );
+                  } else {
+                    // End the loop if no more messages are found
+                    end = true;
+                    if (offset === 0) {
+                      logger.info(
+                        "Reached end of unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
+                  }
+                }
+              } catch (err: unknown) {
+                logger.error(
+                  "Error processing messages",
+                  requestContext,
+                  methodContext,
+                  jsonifyError(err as NxtpError),
+                );
+              }
+            }),
+        );
+      } catch (err: unknown) {
+        logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
+      }
+    }),
+  );
 };

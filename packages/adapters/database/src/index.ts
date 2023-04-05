@@ -16,6 +16,7 @@ import {
   RouterDailyTVL,
   SlippageUpdate,
   Asset,
+  Snapshot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -44,6 +45,7 @@ import {
   getMessageRootIndex,
   getLatestMessageRoot,
   getLatestAggregateRoot,
+  getPendingAggregateRoots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
@@ -157,6 +159,11 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
+  getPendingAggregateRoots: (
+    // domain: string,
+    // orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<Snapshot[]>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -276,6 +283,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageRootIndex,
     getLatestMessageRoot,
     getLatestAggregateRoot,
+    getPendingAggregateRoots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
