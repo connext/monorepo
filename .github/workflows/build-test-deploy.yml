@@ -10,10 +10,10 @@ on:
   pull_request:
   create:
     tag:
-      - "sdk:v*"
-      - "contracts:v*"
-      - "router:v*"
-      - "watcher:v*"
+      - "sdk-v*"
+      - "contracts-v*"
+      - "router-v*"
+      - "watcher-v*"
 
 jobs:
   build-and-test:
@@ -85,30 +85,26 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Extract version from package.json
-        run: echo "VERSION=$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
-
-      - name: Determine tags based on version
-        id: version_type
-        run: |
-          if [[ "$VERSION" == *"-alpha"* ]]; then
-            echo "::set-output name=tag::alpha"
-          elif [[ "$VERSION" == *"-beta"* ]]; then
-            echo "::set-output name=tag::beta"
-          fi
-
-      - name: Publish SDK
+      - name: Extract version, determine tag, and publish SDK
         if: ${{ startsWith(github.ref, 'refs/tags/sdk-v') }}
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [[ "${{ steps.version_type.outputs.tag }}" ]]; then
-            yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-txservice npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-adapters-cache npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/sdk npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+          VERSION=$(cat packages/agents/sdk/package.json | jq -r '.version')
+
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            tag="alpha"
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            tag="beta"
+          fi
+
+          if [[ "$tag" ]]; then
+            yarn workspace @connext/nxtp-utils npm publish --access public --tag $tag
+            yarn workspace @connext/smart-contracts npm publish --access public --tag $tag
+            yarn workspace @connext/nxtp-txservice npm publish --access public --tag $tag
+            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public --tag $tag
+            yarn workspace @connext/nxtp-adapters-cache npm publish --access public --tag $tag
+            yarn workspace @connext/sdk npm publish --access public --tag $tag
           else
             yarn workspace @connext/nxtp-utils npm publish --access public
             yarn workspace @connext/smart-contracts npm publish --access public
@@ -118,14 +114,22 @@ jobs:
             yarn workspace @connext/sdk npm publish --access public
           fi
 
-      - name: Publish Contracts
+      - name: Extract version, determine tag, and publish contracts
         if: ${{ startsWith(github.ref, 'refs/tags/contracts-v') }}
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [[ "${{ steps.version_type.outputs.tag }}" ]]; then
-            yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
+          VERSION=$(cat packages/deployments/contracts/package.json | jq -r '.version')
+
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            tag="alpha"
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            tag="beta"
+          fi
+
+          if [[ "$tag" ]]; then
+            yarn workspace @connext/nxtp-utils npm publish --access public --tag $tag
+            yarn workspace @connext/smart-contracts npm publish --access public --tag $tag
           else
             yarn workspace @connext/nxtp-utils npm publish --access public
             yarn workspace @connext/smart-contracts npm publish --access public
