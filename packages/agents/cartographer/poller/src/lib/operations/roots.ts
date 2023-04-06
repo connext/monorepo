@@ -4,6 +4,9 @@ import {
   PropagatedRoot,
   ReceivedAggregateRoot,
   Snapshot,
+  OptimisticRootProposed,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
@@ -100,7 +103,7 @@ export const updateFinalizedRoots = async () => {
       limit: limit,
     });
 
-    const roots: string[] = await subgraph.getFinalizedRootsByDomain([{ hub, index: offset, limit }]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([{ hub, index: offset, limit }]);
 
     // Reset offset at the end of the cycle.
     // TODO: Pagination criteria off by one ?
@@ -137,7 +140,9 @@ export const updatePropagatedOptmisticRoots = async () => {
       limit: limit,
     });
 
-    const snapshots: Snapshot[] = await subgraph.getPropagatedOptimisticRootsByDomain([{ hub, index: offset, limit }]);
+    const snapshots: OptimisticRootPropagated[] = await subgraph.getPropagatedOptimisticRootsByDomain([
+      { hub, index: offset, limit },
+    ]);
 
     // Reset offset at the end of the cycle.
     // TODO: Pagination criteria off by one ?

@@ -622,7 +622,7 @@ CREATE TABLE public.snapshots (
     domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
     processed boolean DEFAULT false NOT NULL,
     status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
-    propagate_timestamp_secs integer,
+    propagate_timestamp integer,
     propagate_task_id character(66),
     relayer_type text
 );

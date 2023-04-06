@@ -816,11 +816,11 @@ export class SubgraphReader {
   }
 
   /**
-   * Gets all the aggregated rootsstarting with index for a given domain
+   * Gets all the proposed snapshots
    */
   public async getProposedSnapshotsByDomain(
     params: { hub: string; index: number; limit: number }[],
-  ): Promise<AggregatedRoot[]> {
+  ): Promise<OptimisticRootProposed[]> {
     const { parser, execute } = getHelpers();
     const proposedSnapshotsByDomainQuery = getProposedSnapshotsByDomainQuery(params);
     const response = await execute(proposedSnapshotsByDomainQuery);
@@ -844,11 +844,11 @@ export class SubgraphReader {
   }
 
   /**
-   * Gets all the aggregated rootsstarting with index for a given domain
+   * Gets all the finalized roots
    */
   public async getFinalizedRootsByDomain(
     params: { hub: string; index: number; limit: number }[],
-  ): Promise<AggregatedRoot[]> {
+  ): Promise<OptimisticRootFinalized[]> {
     const { parser, execute } = getHelpers();
     const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params);
     const response = await execute(finalizedRootsByDomainQuery);
@@ -872,11 +872,11 @@ export class SubgraphReader {
   }
 
   /**
-   * Gets all the aggregated rootsstarting with index for a given domain
+   * Gets all the propagated optimistic aggregate roots
    */
   public async getPropagatedOptimisticRootsByDomain(
     params: { hub: string; index: number; limit: number }[],
-  ): Promise<AggregatedRoot[]> {
+  ): Promise<OptimisticRootPropagated[]> {
     const { parser, execute } = getHelpers();
     const propagatedRootsByDomainQuery = getPropagatedOptimisticRootsByDomainQuery(params);
     const response = await execute(propagatedRootsByDomainQuery);

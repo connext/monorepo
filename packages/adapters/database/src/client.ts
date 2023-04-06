@@ -23,6 +23,8 @@ import {
   SlippageUpdate,
   XTransferMessageStatus,
   Asset,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -226,6 +228,21 @@ const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Inse
     router: tvl.router,
     day: new Date(tvl.timestamp * 1000),
     balance: tvl.balance,
+  };
+};
+
+const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
+  return {
+    id: snapshot.id,
+    aggregate_root: snapshot.aggregateRoot,
+    base_aggregate_root: snapshot.baseAggregateRoot,
+    roots: snapshot.roots,
+    domains: snapshot.domains,
+    processed: snapshot.processed,
+    status: snapshot.status as s.snapshot_status,
+    propagate_timestamp: snapshot.propagateTimestamp,
+    propagate_task_id: snapshot.propagateTaskId ?? undefined,
+    relayer_type: snapshot.relayerType ?? undefined,
   };
 };
 
@@ -712,6 +729,42 @@ export const getPendingAggregateRoots = async (
   const poolToUse = _pool ?? pool;
   const snapshots = await db.select("snapshots", { processed: false }, { limit: 100 }).run(poolToUse);
   return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshot) : [];
+};
+
+export const saveProposedSnapshots = async (
+  _snapshots: Snapshot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const snapshots: s.snapshots.Insertable[] = _snapshots.map((m) => convertToDbSnapshot(m)).map(sanitizeNull);
+
+  await db.upsert("snapshots", snapshots, ["id"]).run(poolToUse);
+};
+
+export const saveFinalizedRoots = async (
+  roots: OptimisticRootFinalized[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+    }),
+  );
+};
+
+export const savePropagatedOptimisticRoots = async (
+  roots: OptimisticRootPropagated[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+    }),
+  );
 };
 
 export const getAggregateRootByRootAndDomain = async (

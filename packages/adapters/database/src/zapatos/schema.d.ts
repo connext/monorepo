@@ -4090,11 +4090,11 @@ declare module 'zapatos/schema' {
       */
       status: snapshot_status;
       /**
-      * **snapshots.propagate_timestamp_secs**
+      * **snapshots.propagate_timestamp**
       * - `int4` in database
       * - Nullable, no default
       */
-      propagate_timestamp_secs: number | null;
+      propagate_timestamp: number | null;
       /**
       * **snapshots.propagate_task_id**
       * - `bpchar` in database
@@ -4152,11 +4152,11 @@ declare module 'zapatos/schema' {
       */
       status: snapshot_status;
       /**
-      * **snapshots.propagate_timestamp_secs**
+      * **snapshots.propagate_timestamp**
       * - `int4` in database
       * - Nullable, no default
       */
-      propagate_timestamp_secs: number | null;
+      propagate_timestamp: number | null;
       /**
       * **snapshots.propagate_task_id**
       * - `bpchar` in database
@@ -4214,11 +4214,11 @@ declare module 'zapatos/schema' {
       */
       status?: snapshot_status | db.Parameter<snapshot_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, snapshot_status | db.Parameter<snapshot_status> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **snapshots.propagate_timestamp_secs**
+      * **snapshots.propagate_timestamp**
       * - `int4` in database
       * - Nullable, no default
       */
-      propagate_timestamp_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      propagate_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **snapshots.propagate_task_id**
       * - `bpchar` in database
@@ -4276,11 +4276,11 @@ declare module 'zapatos/schema' {
       */
       status?: snapshot_status | db.Parameter<snapshot_status> | db.DefaultType | db.SQLFragment;
       /**
-      * **snapshots.propagate_timestamp_secs**
+      * **snapshots.propagate_timestamp**
       * - `int4` in database
       * - Nullable, no default
       */
-      propagate_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      propagate_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **snapshots.propagate_task_id**
       * - `bpchar` in database
@@ -4338,11 +4338,11 @@ declare module 'zapatos/schema' {
       */
       status?: snapshot_status | db.Parameter<snapshot_status> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, snapshot_status | db.Parameter<snapshot_status> | db.DefaultType | db.SQLFragment>;
       /**
-      * **snapshots.propagate_timestamp_secs**
+      * **snapshots.propagate_timestamp**
       * - `int4` in database
       * - Nullable, no default
       */
-      propagate_timestamp_secs?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      propagate_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **snapshots.propagate_task_id**
       * - `bpchar` in database

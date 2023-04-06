@@ -23,5 +23,5 @@ CREATE TABLE public.snapshots (
 
 -- migrate:down
 
-DROP TYPE public.snapshot_status;
 DROP TABLE public.snapshots ;
+DROP TYPE public.snapshot_status;
