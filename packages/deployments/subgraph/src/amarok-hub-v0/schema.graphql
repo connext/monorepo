@@ -26,6 +26,33 @@ type RootManagerMeta @entity {
   connectors: [Bytes!]
 }
 
+type RootManagerMode @entity {
+  id: ID! # "ROOT_MANAGER_MODE_ID"
+  mode: String!
+}
+
+type OptimisticRootProposed @entity {
+  id: ID!
+  disputeCliff: BigInt!
+  aggregateRoot: Bytes!
+  snapshotsRoots: [Bytes!]
+  domains: [uint32!]
+  baseAggregateRoot: Bytes!
+}
+
+type OptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+}
+
+type OptimisticRootPropagated @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  domainsHash: Bytes!
+  timestamp: BigInt!
+}
+
 # POLYGON
 type PolygonConnectorMeta @entity {
   id: ID! # "PolygonConnectorMeta"
