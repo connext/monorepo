@@ -33,10 +33,12 @@ abstract contract MotherForker is ForgeHelper {
   mapping(uint256 => uint256) public forkIdsByChain;
   mapping(uint256 => uint256) public chainsByForkId;
   mapping(uint256 => string) public forkRpcsByChain;
+  mapping(uint256 => uint256) public forkBlocksByChain;
 
   struct ForkInfo {
     address connext;
     bytes[] encodedCuts; // an array of all facet cuts to propose
+    mapping(address => bytes) facetCode;
   }
 
   mapping(uint256 => ForkInfo) public forkInfo;
@@ -47,9 +49,15 @@ abstract contract MotherForker is ForgeHelper {
    * @notice Create a fork for each network.
    */
   function utils_createForks() private {
-    string memory json = utils_readProposalJson();
     for (uint256 i; i < NETWORK_IDS.length; i++) {
-      uint256 forkId = vm.createSelectFork(forkRpcsByChain[NETWORK_IDS[i]]);
+      // read the block to fork
+      uint256 forkBlock = forkBlocksByChain[NETWORK_IDS[i]];
+      uint256 forkId;
+      if (forkBlock > 0) {
+        forkId = vm.createSelectFork(forkRpcsByChain[NETWORK_IDS[i]], forkBlock);
+      } else {
+        forkId = vm.createSelectFork(forkRpcsByChain[NETWORK_IDS[i]]);
+      }
       // update the mappings
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;
@@ -69,6 +77,7 @@ abstract contract MotherForker is ForgeHelper {
     string memory json = utils_readProposalJson();
     uint256[] memory chains = json.readUintArray(".chains");
     string[] memory rpcs = json.readStringArray(".rpcs");
+    uint256[] memory forkBlocks = json.readUintArray(".forkBlocks");
     // FIXME: forking from gnosis mainnet gives this internal forge error:
     //
     // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
@@ -89,6 +98,7 @@ abstract contract MotherForker is ForgeHelper {
       // Add to networks
       NETWORK_IDS.push(chains[i]);
       forkRpcsByChain[chains[i]] = rpcs[i];
+      forkBlocksByChain[chains[i]] = forkBlocks[i];
     }
 
     // Put gnosis chain last, and remove from array
@@ -103,22 +113,6 @@ abstract contract MotherForker is ForgeHelper {
   }
 
   /**
-   * @notice Generate the diamond cut proposal by running `propose` via cli:
-   *     `ywc propose`
-   */
-  function utils_generateProposalFile() private {
-    string[] memory args = new string[](4);
-    args[0] = "yarn";
-    args[1] = "workspace";
-    args[2] = "@connext/smart-contracts";
-    args[3] = "propose";
-    vm.ffi(args);
-
-    // Load the chain ids and the network rpcs
-    utils_loadNetworkFromJson();
-  }
-
-  /**
    * @notice Read the proposal json file and return the string contents
    */
   function utils_readProposalJson() private view returns (string memory) {
@@ -128,17 +122,9 @@ abstract contract MotherForker is ForgeHelper {
     return json;
   }
 
-  function utils_generateCuts(uint256 forkId) private {
-    // switch to active fork
-    vm.selectFork(forkId);
-    // Get existing facets
-    address connext = forkInfo[forkId].connext;
-    IDiamondLoupe.Facet[] memory existing = IConnext(connext).facets();
-  }
-
   /**
    * @notice Loads the forkInfo (connext address and proposed cuts) from the proposal file
-   * @dev Should be called after utils_generateProposalFile + utils_createForks
+   * @dev Should be called after utils_loadNetworkFromJson + utils_createForks
    */
   function utils_loadForkInfo() private {
     string memory json = utils_readProposalJson();
@@ -192,6 +178,9 @@ abstract contract MotherForker is ForgeHelper {
 
         // encode the cut and store
         forkInfo[forkId].encodedCuts[j] = abi.encode(cut);
+
+        // update the mapping
+        forkInfo[forkId].facetCode[cut.facetAddress] = json.readBytes(string.concat(cutsKey, ".code"));
       }
     }
   }
@@ -201,8 +190,8 @@ abstract contract MotherForker is ForgeHelper {
    * loads the fork info into the contract.
    */
   function utils_setupForkingEnv() internal {
-    // make sure the proposal file is generated (will also determine chains to fork)
-    utils_generateProposalFile();
+    // load info from proposal file
+    utils_loadNetworkFromJson();
     // make sure the forks are created
     utils_createForks();
     // load the fork info into mapping
@@ -215,7 +204,6 @@ abstract contract MotherForker is ForgeHelper {
   function utils_upgradeDiamonds() internal {
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       uint256 forkId = forkIdsByChain[NETWORK_IDS[i]];
-      vm.selectFork(forkId);
       utils_upgradeDiamond(forkId);
     }
   }
@@ -224,6 +212,7 @@ abstract contract MotherForker is ForgeHelper {
    * @notice This function applies the upgrades to a single Connext instance
    */
   function utils_upgradeDiamond(uint256 forkId) private {
+    vm.selectFork(forkId);
     ForkInfo storage info = forkInfo[forkId];
     IConnext connext = IConnext(info.connext);
     if (info.encodedCuts.length == 0) {
@@ -233,18 +222,43 @@ abstract contract MotherForker is ForgeHelper {
     IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](info.encodedCuts.length);
     for (uint256 i; i < info.encodedCuts.length; i++) {
       cuts[i] = abi.decode(info.encodedCuts[i], (IDiamondCut.FacetCut));
+      // make all facets persistent
+      vm.makePersistent(cuts[i].facetAddress);
+      // etch code
+      vm.etch(cuts[i].facetAddress, info.facetCode[cuts[i].facetAddress]);
     }
-
+    // make connext persistent
+    vm.makePersistent(info.connext);
     // propose upgrade
     vm.prank(connext.owner());
     connext.proposeDiamondCut(cuts, address(0), bytes(""));
-
-    // roll forward and accept if needed
+    // roll forward and accept
     uint256 acceptance = connext.getAcceptanceTime(cuts, address(0), bytes(""));
-    while (block.timestamp < acceptance) {
-      vm.rollFork(forkId, 3000 + block.number);
-    }
+    utils_rollForkTo(acceptance + 1);
+    require(block.timestamp >= acceptance, "acceptance time not reached");
     vm.prank(connext.owner());
     connext.diamondCut(cuts, address(0), bytes(""));
+    // revoke connext persistent
+    vm.revokePersistent(info.connext);
+  }
+
+  function utils_rollForkTo(uint256 timestamp) private {
+    // get blocktime
+    uint256 pre = block.timestamp;
+    if (pre >= timestamp) {
+      return;
+    }
+    require(pre < timestamp, "cannot rewind");
+    uint256 warp = timestamp - block.timestamp;
+    vm.rollFork(1 + block.number);
+    uint256 blocktime = block.timestamp - pre;
+
+    uint256 rolls = blocktime == 0 ? (warp * 3) / 2 : warp / blocktime;
+    vm.rollFork(rolls + block.number);
+    // ensure at timestamp
+    uint256 step = (rolls * 3) / 2;
+    while (block.timestamp < timestamp) {
+      vm.rollFork(25 + step + block.number);
+    }
   }
 }
