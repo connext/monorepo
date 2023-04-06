@@ -1,5 +1,13 @@
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  createLoggingContext,
+  Logger,
+  RelayerType,
+  sendHeartbeat,
+  RootManagerMode,
+  ModeType,
+} from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
@@ -84,14 +92,15 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     );
 
     // Start the propagate task.
-    // TODO: Should be utils, hit subgraphs
-    // TODO: Subgraph or RPC or both with failback
-    // const opMode = await getCurrentMode();
-    const opMode = false;
-    if (opMode) {
+    const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    if (rootManagerMode.mode === ModeType.OptimisticMode) {
+      context.logger.info("In Optimistic Mode", requestContext, methodContext);
       await finalizeAndPropagate();
-    } else {
+    } else if (rootManagerMode.mode === ModeType.SlowMode) {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
       await propagate();
+    } else {
+      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
     }
     if (context.config.healthUrls.propagate) {
       await sendHeartbeat(context.config.healthUrls.propagate, context.logger);

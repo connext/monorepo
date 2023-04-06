@@ -88,6 +88,5 @@ export function handleSnapshotRootSaved(event: SnapshotRootSaved): void {
   message.count = event.params.count;
 
   message.timestamp = event.block.timestamp;
-  message.blockNumber = event.block.number;
   message.save();
 }

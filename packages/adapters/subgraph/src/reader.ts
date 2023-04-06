@@ -23,6 +23,9 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   RouterDailyTVL,
+  OptimisticRootProposed,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -62,6 +65,7 @@ import {
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getRootManagerModeQuery,
   getRouterDailyTVLQuery,
   getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
@@ -812,6 +816,90 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getProposedSnapshotsByDomain(
+    params: { hub: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSnapshotsByDomainQuery = getProposedSnapshotsByDomainQuery(params);
+    const response = await execute(proposedSnapshotsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const proposedRoots: OptimisticRootProposed[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.proposedRoot);
+
+    return proposedRoots;
+  }
+
+  /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getFinalizedRootsByDomain(
+    params: { hub: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params);
+    const response = await execute(finalizedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const finalizedRoots: OptimisticRootFinalized[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.finalizedRoot);
+
+    return finalizedRoots;
+  }
+
+  /**
+   * Gets all the aggregated rootsstarting with index for a given domain
+   */
+  public async getPropagatedOptimisticRootsByDomain(
+    params: { hub: string; index: number; limit: number }[],
+  ): Promise<AggregatedRoot[]> {
+    const { parser, execute } = getHelpers();
+    const propagatedRootsByDomainQuery = getPropagatedOptimisticRootsByDomainQuery(params);
+    const response = await execute(propagatedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const propagatedRoots: OptimisticRootPropagated[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.propagatedOptimisticRoot);
+
+    return propagatedRoots;
+  }
+
+  /**
    * Gets all the propagated rootsstarting with index for a given domain
    */
   public async getGetPropagatedRoots(domain: string, count: number, limit: number): Promise<PropagatedRoot[]> {
@@ -866,6 +954,15 @@ export class SubgraphReader {
     const response = await execute(rootManagerMetaQuery);
     const values = [...response.values()];
     return parser.rootManagerMeta(values[0][0]);
+  }
+
+  public async getRootManagerMode(hub: string): Promise<RootManagerMode> {
+    const { parser, execute } = getHelpers();
+    const rootManagerModeQuery = getRootManagerModeQuery(hub);
+
+    const response = await execute(rootManagerModeQuery);
+    const values = [...response.values()];
+    return parser.rootManagerMode(values[0][0]);
   }
   /**
    * Gets all the received roots starting with blocknumber for a given domain

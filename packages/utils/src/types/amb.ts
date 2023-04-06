@@ -84,6 +84,12 @@ export const RootManagerMetaSchema = Type.Object({
 });
 export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;
 
+export const RootManagerModeSchema = Type.Object({
+  id: Type.String(),
+  mode: Type.String(),
+});
+export type RootManagerMode = Static<typeof RootManagerModeSchema>;
+
 export const ReceivedAggregateRootSchema = Type.Object({
   id: Type.String(),
   root: Type.String(),
@@ -105,3 +111,34 @@ export const SnapshotSchema = Type.Object({
   relayerType: Type.Optional(Type.String()),
 });
 export type Snapshot = Static<typeof SnapshotSchema>;
+
+export const ModeType = {
+  SlowMode: "SLOW_MODE",
+  OptimisticMode: "OPTIMISTIC_MODE",
+} as const;
+export type Mode = (typeof ModeType)[keyof typeof ModeType];
+
+export const OptimisticRootProposedSchema = Type.Object({
+  id: Type.String(),
+  disputeCliff: Type.Number(),
+  aggregateRoot: Type.String(),
+  snapshotsRoots: Type.Array(Type.String()),
+  domains: Type.Array(Type.Number()),
+  baseAggregateRoot: Type.String(),
+});
+export type OptimisticRootProposed = Static<typeof OptimisticRootProposedSchema>;
+
+export const OptimisticRootFinalizedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootFinalized = Static<typeof OptimisticRootFinalizedSchema>;
+
+export const OptimisticRootPropagatedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  domainsHash: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootPropagated = Static<typeof OptimisticRootPropagatedSchema>;

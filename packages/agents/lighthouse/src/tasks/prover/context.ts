@@ -4,6 +4,7 @@ import { Database } from "@connext/nxtp-adapters-database";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 
 import { NxtpLighthouseConfig } from "../../config";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 export type ProverContext = {
   logger: Logger;
@@ -13,6 +14,7 @@ export type ProverContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
+    subgraph: SubgraphReader;
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;

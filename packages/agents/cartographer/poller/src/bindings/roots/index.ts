@@ -1,16 +1,29 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../shared";
-import { updateAggregatedRoots, updatePropagatedRoots, updateReceivedAggregateRoots } from "../../lib/operations/roots";
+import {
+  updateAggregatedRoots,
+  updatePropagatedRoots,
+  updateReceivedAggregateRoots,
+  updateProposedSnapshots,
+  updateFinalizedRoots,
+  updatePropagatedOptmisticRoots,
+} from "../../lib/operations/roots";
 
 export const bindRoots = async (context: AppContext) => {
   const { logger } = context;
   const { requestContext, methodContext } = createLoggingContext(bindRoots.name);
   try {
     logger.debug("Bind roots polling loop start", requestContext, methodContext);
+    //Slow mode data
     await updateAggregatedRoots();
     await updatePropagatedRoots();
     await updateReceivedAggregateRoots();
+
+    //Optimistic mode data
+    await updateProposedSnapshots();
+    await updateFinalizedRoots();
+    await updatePropagatedOptmisticRoots();
     logger.debug("Bind roots polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(

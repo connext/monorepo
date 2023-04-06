@@ -206,9 +206,11 @@ export const processMessages = async (
     // Index of messageRoot leaf node in aggregate tree.
     messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
   }
+
   if (!aggregateRootCount) {
     throw new NoAggregateRootCount(targetAggregateRoot);
   }
+
   if (messageRootIndex === undefined) {
     throw new NoMessageRootIndex(originDomain, targetMessageRoot);
   }
@@ -448,7 +450,6 @@ export const proveAndProcessOpMode = async () => {
                       originDomain,
                       destinationDomain,
                       message.origin.root,
-                      // "OPTIMISTIC",
                       subContext,
                       snapshot,
                     );
