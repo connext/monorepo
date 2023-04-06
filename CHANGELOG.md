@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 2.0.0-alpha.4
+
+- [all] Workflow changes
+
 ## Amarok 2.0.0-alpha.1
 
 - [sdk] Uses browser provider for calls, if detected
