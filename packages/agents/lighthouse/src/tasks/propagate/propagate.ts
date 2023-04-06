@@ -6,7 +6,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { NxtpLighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
-import { propagate } from "./operations";
+import { propagate, finalizeAndPropagate } from "./operations";
 
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
@@ -84,7 +84,15 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     );
 
     // Start the propagate task.
-    await propagate();
+    // TODO: Should be utils, hit subgraphs
+    // TODO: Subgraph or RPC or both with failback
+    // const opMode = await getCurrentMode();
+    const opMode = false;
+    if (opMode) {
+      await finalizeAndPropagate();
+    } else {
+      await propagate();
+    }
     if (context.config.healthUrls.propagate) {
       await sendHeartbeat(context.config.healthUrls.propagate, context.logger);
     }

@@ -84,7 +84,13 @@ export const makeSendOutboundRoot = async (config: NxtpLighthouseConfig, chainDa
     );
 
     // Start the sendOutboundRoot task.
-    await sendOutboundRoot();
+    const opRoot = true;
+    if (opRoot) {
+      context.logger.info("In Optimistic Mode. No Op", requestContext, methodContext);
+    } else {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
+      await sendOutboundRoot();
+    }
     if (context.config.healthUrls.sendOutboundRoot) {
       await sendHeartbeat(context.config.healthUrls.sendOutboundRoot, context.logger);
     }

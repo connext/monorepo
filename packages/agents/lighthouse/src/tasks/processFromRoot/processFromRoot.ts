@@ -79,7 +79,13 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
     );
 
     // Start the processor.
-    await processFromRoot();
+    const opRoot = true;
+    if (opRoot) {
+      context.logger.info("In Optimistic Mode. No Op", requestContext, methodContext);
+    } else {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
+      await processFromRoot();
+    }
     if (context.config.healthUrls.processor) {
       await sendHeartbeat(context.config.healthUrls.processor, context.logger);
     }
