@@ -3,7 +3,6 @@ locals {
     "arn:aws:iam::679752396206:user/eddie",
     "arn:aws:iam::679752396206:user/carlo",
     "arn:aws:iam::679752396206:user/rahul",
-    "arn:aws:iam::679752396206:user/jake",
     "arn:aws:iam::679752396206:user/layne",
     "arn:aws:iam::679752396206:user/sanchay",
     "arn:aws:iam::679752396206:user/arjun",

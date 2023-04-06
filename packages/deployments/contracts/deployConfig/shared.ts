@@ -268,6 +268,28 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
+      1442: {
+        prefix: "PolygonZk",
+        ambs: {
+          // PolygonZkEVMBridge on goerli
+          // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+          hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+          // PolygonZkEVMBridge on polygon-zkevm
+          // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
+          spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            mirrorNetworkId: "1",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
+          },
+        },
+      },
       5: {
         prefix: "Mainnet",
         ambs: {

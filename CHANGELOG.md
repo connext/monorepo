@@ -2,9 +2,16 @@
 
 ## Next Release
 
+## Amarok 2.0.0-alpha.4
+
+- [all] Workflow changes
+
+## Amarok 2.0.0-alpha.1
+
 - [sdk] Uses browser provider for calls, if detected
 - [sdk] Added optional flag `checkFastLiquidity` to `calculateAmountReceived`
 - [contracts] Added HARD token to testnet
+- [contracts] Log proposal transactions
 
 ## Amarok 2.0.0-alpha.0
 
