@@ -191,8 +191,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -243,8 +243,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -295,8 +295,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -562,8 +562,8 @@ jobs:
       - name: Remove watcher from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *watcher:* ]]; then
-            new_tag=${tag/watcher:/}
+          if [[ $tag == *watcher-* ]]; then
+            new_tag=${tag/watcher-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
