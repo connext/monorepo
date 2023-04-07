@@ -13,6 +13,7 @@
     "start:process": "LIGHTHOUSE_SERVICE=process node --enable-source-maps dist/tasks/run.js",
     "start:propagate": "LIGHTHOUSE_SERVICE=propagate node --enable-source-maps dist/tasks/run.js",
     "start:sendoutboundroot": "LIGHTHOUSE_SERVICE=sendoutboundroot node --enable-source-maps dist/tasks/run.js",
+    "start:propose": "LIGHTHOUSE_SERVICE=propose node --enable-source-maps dist/tasks/run.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",

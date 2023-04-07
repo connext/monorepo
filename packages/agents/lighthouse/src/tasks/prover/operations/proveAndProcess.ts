@@ -221,6 +221,7 @@ export const processMessages = async (
   const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
+  //TODO: Switch for optimistic hub
   const hubSMT = new SparseMerkleTree(hubStore);
 
   // process messages

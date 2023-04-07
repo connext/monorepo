@@ -664,13 +664,35 @@ export const getAggregateRoot = async (
 };
 
 export const getAggregateRootCount = async (
-  aggreateRoot: string,
+  received_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
-  return root ? convertFromDbPropagatedRoot(root).count : undefined;
+  const root = await db.selectOne("aggregated_roots", { received_root }).run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
+export const getAggregateRoots = async (
+  count: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  // Get the leaf count at the aggregated root
+  const roots = await db
+    .select("aggregated_roots", { domain_index: dc.lte(count) }, { order: { by: "domain_index", direction: "ASC" } })
+    .run(poolToUse);
+  return roots.length > 0 ? roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot) : [];
+};
+
+export const getBaseAggregateRoot = async (
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db
+    .select("aggregated_roots", {}, { limit: 1, order: { by: "domain_index", direction: "DESC" } })
+    .run(poolToUse);
+  return root.length > 0 ? convertFromDbAggregatedRoot(root[0]).receivedRoot : undefined;
 };
 
 export const getMessageRootIndex = async (
