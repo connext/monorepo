@@ -58,6 +58,7 @@ export type AssetInfo = {
 
 export enum ReportEventType {
   Pause = "Pause",
+  Switch = "Switch",
   Rpc = "Rpc",
   Tx = "Tx",
 }

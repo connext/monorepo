@@ -216,3 +216,5 @@ export class WatcherAdapter {
     });
   }
 }
+
+export class OpModeMonitor {}
