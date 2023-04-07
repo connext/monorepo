@@ -865,7 +865,7 @@ jobs:
       relayer-tags: ${{ needs.smoke-tests.outputs.relayer-tags }}
 
   terraform-services-core-prod-testnet:
-    if: github.ref == 'refs/heads/testnet-prod'
+    if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -936,7 +936,7 @@ jobs:
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
 
   terraform-services-backend-prod-testnet:
-    if: github.ref == 'refs/heads/testnet-prod'
+    if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
