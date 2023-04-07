@@ -56,5 +56,5 @@ POST {{routerUrl}}/clear-cache
 Content-Type: application/json
 
 {
-  "adminToken": "unspanktheunbanked"
+  "adminToken": "{{adminToken}}"
 }
