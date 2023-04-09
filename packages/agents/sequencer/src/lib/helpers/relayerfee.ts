@@ -62,7 +62,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
       // origin native token to asset price
       const originNativePriceAsset = await getConversionRate(originChainId, asset, logger);
-      const priceAssetUsd = originNativePriceUsd / originNativePriceAsset;
+      const priceAssetUsd = originNativePriceAsset === 0 ? 0 : originNativePriceUsd / originNativePriceAsset;
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
       const relayerFeePaid = BigNumber.from(origin.relayerFees[asset])
         .mul(Math.floor(priceAssetUsd * 1000))
