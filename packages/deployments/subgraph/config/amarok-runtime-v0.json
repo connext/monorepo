@@ -157,8 +157,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xEe8608Cc250c8f9aAc5045930Fc9661F64464774",
-        "startBlock": 3613083
+        "address": "0x8073a764c4651a9BE132032d7B5E3B319311904E",
+        "startBlock": 7067115
       },
       {
         "name": "MerkleTreeManager",
@@ -248,6 +248,27 @@
         "name": "MerkleTreeManager",
         "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
         "startBlock": 88563
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
+    "network": "polygonzk-test",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2",
+        "startBlock": 485026
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x27842eA2c3d472cE345315B2A8aE26039Fc53a2D",
+        "startBlock": 484972
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
+        "startBlock": 484732
       }
     ]
   }

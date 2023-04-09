@@ -1,6 +1,7 @@
 @relayerUrl = http://localhost:8080
 @relayerUrl = https://relayer.testnet.staging.connext.ninja
-@relayerUrl = https://relayer.mainnet.connext.ninja
+@relayerUrl = https://relayer.testnet.connext.ninja
+# @relayerUrl = https://relayer.mainnet.connext.ninja
 @adminToken = blablah
 
 ### PING
@@ -10,7 +11,7 @@ GET {{relayerUrl}}/ping
 GET {{relayerUrl}}/config
 
 ### STATUS
-GET {{relayerUrl}}/tasks/status/0x3d6af6cc0137a16fce7f91641f5ef5c8250915387bbdeee3af7a7bb306a36a4f
+GET {{relayerUrl}}/tasks/status/0x29728df54116f4f8f1b82252314900528a447f03bee11862879a1a66aaffaf9d
 
 ### RELAY
 POST {{relayerUrl}}/relays/1

@@ -457,7 +457,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       // TODO: Blacklist/remove sequencers.
     }
 
-    /// MARK - Routers
+    //   /// MARK - Routers
     if (protocol.agents.routers) {
       if (protocol.agents.routers.allowlist) {
         console.log("\n\nWHITELIST ROUTERS");

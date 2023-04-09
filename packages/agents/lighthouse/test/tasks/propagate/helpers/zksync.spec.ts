@@ -4,7 +4,7 @@ import { NoProviderForDomain, NoSpokeConnector, NoHubConnector } from "../../../
 
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/zksync";
 import * as Mockable from "../../../../src/mockable";
-import { propagateCtxMock } from "../../../globalTestHook";
+import { getBestProviderMock, propagateCtxMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { BigNumber, utils } from "ethers";
 
@@ -26,6 +26,7 @@ describe("Helpers: ZkSync", () => {
 
     it("should throw an error if no provider for spoke domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.B];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
@@ -33,6 +34,7 @@ describe("Helpers: ZkSync", () => {
 
     it("should throw an error if no provider for hub domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.A];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
@@ -57,7 +59,7 @@ describe("Helpers: ZkSync", () => {
       expect(data).to.deep.eq({
         _connector: "",
         _fee: "0",
-        _encodedData: utils.defaultAbiCoder.encode(["uint256"], ["10000000"]),
+        _encodedData: utils.defaultAbiCoder.encode(["uint256"], ["5000000"]),
       });
     });
   });

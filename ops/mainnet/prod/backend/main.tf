@@ -93,6 +93,7 @@ module "cartographer-routers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "routers" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-transfers-lambda-cron" {
@@ -104,6 +105,7 @@ module "cartographer-transfers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-messages-lambda-cron" {
@@ -115,6 +117,7 @@ module "cartographer-messages-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "messages" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-roots-lambda-cron" {
@@ -126,6 +129,7 @@ module "cartographer-roots-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "roots" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "cartographer-stableswap-lambda-cron" {
@@ -137,6 +141,19 @@ module "cartographer-stableswap-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "stableswap" })
   schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
+}
+
+module "cartographer-messagestatus-lambda-cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-cartographer"
+  docker_image_tag    = var.cartographer_image_tag
+  container_family    = "cartographer-messagestatus"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "messagestatus" })
+  schedule_expression = "rate(1 minute)"
+  memory_size         = 1024
 }
 
 module "network" {

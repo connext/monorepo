@@ -15,6 +15,7 @@ import {
   StableSwapPoolEvent,
   RouterDailyTVL,
   SlippageUpdate,
+  Asset,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -38,11 +39,13 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getAggregateRoot,
+  getAggregateRootByRootAndDomain,
   getAggregateRootCount,
   getMessageRootIndex,
   getLatestMessageRoot,
   getLatestAggregateRoot,
-  getMessageRootFromIndex,
+  getMessageRootAggregatedFromIndex,
+  getMessageRootsFromIndex,
   getMessageRootCount,
   getSpokeNode,
   getSpokeNodes,
@@ -61,6 +64,9 @@ import {
   updateSlippage,
   markRootMessagesProcessed,
   updateExecuteSimulationData,
+  getPendingTransfersByMessageStatus,
+  getMessageByLeaf,
+  saveAssets,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -96,6 +102,7 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveAssets: (assets: Asset[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getRootMessages: (
     processed: boolean | undefined,
@@ -150,11 +157,22 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
-  getMessageRootFromIndex: (
+  getAggregateRootByRootAndDomain: (
+    domain: string,
+    aggregatedRoot: string,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<ReceivedAggregateRoot | undefined>;
+  getMessageRootAggregatedFromIndex: (
     domain: string,
     index: number,
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  ) => Promise<RootMessage | undefined>;
+  getMessageRootsFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessage[]>;
   getMessageRootCount: (
     domain: string,
     messageRoot: string,
@@ -205,6 +223,18 @@ export type Database = {
     executeSimulationNetwork: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  getPendingTransfersByMessageStatus: (
+    domain: string,
+    offset: number,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XTransfer[]>;
+  getMessageByLeaf: (
+    origin_domain: string,
+    leaf: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage | undefined>;
 };
 
 export let pool: Pool;
@@ -227,6 +257,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersWithDestinationPending,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
+    saveAssets,
     saveMessages,
     getRootMessages,
     saveSentRootMessages,
@@ -240,11 +271,13 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getUnProcessedMessages,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
+    getAggregateRootByRootAndDomain,
     getAggregateRootCount,
     getMessageRootIndex,
     getLatestMessageRoot,
     getLatestAggregateRoot,
-    getMessageRootFromIndex,
+    getMessageRootAggregatedFromIndex,
+    getMessageRootsFromIndex,
     getMessageRootCount,
     getSpokeNode,
     getSpokeNodes,
@@ -262,6 +295,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveRouterDailyTVL,
     updateSlippage,
     updateExecuteSimulationData,
+    getPendingTransfersByMessageStatus,
+    getMessageByLeaf,
   };
 };
 

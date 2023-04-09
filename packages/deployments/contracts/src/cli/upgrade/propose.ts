@@ -3,7 +3,7 @@ import { resolve } from "path";
 import { exec } from "child_process";
 import * as util from "util";
 
-import { Contract, providers } from "ethers";
+import { constants, Contract, providers } from "ethers";
 import commandLineArgs from "command-line-args";
 import { FacetCut } from "hardhat-deploy/types";
 import { HardhatUserConfig } from "hardhat/types";
@@ -11,6 +11,8 @@ import { HardhatUserConfig } from "hardhat/types";
 import { getProposedFacetCuts } from "../../../deployHelpers/getProposedFacetCuts";
 import { Env, getDeploymentName } from "../../utils";
 import { hardhatNetworks, SUPPORTED_CHAINS } from "../../config";
+import { delay } from "../../domain";
+import { DiamondCutFacet__factory } from "../../typechain-types";
 
 import { FORK_BLOCKS, getDeployments } from "./helpers";
 
@@ -54,7 +56,7 @@ const preflight = async (tag: string, networkInfo: ForkContext) => {
   throw new Error(`Ensure no preflight needed for ${tag}`);
 };
 
-const deployAgainstForks = async (chains: number[], tag: string): Promise<string[]> => {
+const deployAgainstForks = async (chains: number[], tag: string): Promise<Record<number, ForkContext>> => {
   // for each chain, start an anvil fork and store the rpc url
   const networkInfo: Record<number, ForkContext> = {};
 
@@ -73,8 +75,24 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     }
     const port = +forkConfig.url.split("http://")[1].split(":")[1];
     const command = `anvil --fork-url ${config.url} --fork-block-number ${forkBlock} --port ${port} --block-time 2 >/dev/null 2>&1 &`;
-    console.log(`\ntrying to create fork:`, command);
+    console.log(`\ntrying to create fork ${chain}:`, command);
     await execAsync(command);
+
+    // sanity check: provider functional
+    let match = false;
+    let attempt = 0;
+    while (!match && attempt < 5) {
+      try {
+        const forkN = await new providers.JsonRpcProvider(forkConfig.url as string).getNetwork();
+        const n = await new providers.JsonRpcProvider(config.url as string).getNetwork();
+        if (n.chainId === forkN.chainId) {
+          match = true;
+        }
+      } catch (e: any) {}
+      await delay(750);
+      attempt++;
+    }
+
     // update network info
     networkInfo[chain] = {
       default: { name, config, rpc: config.url! },
@@ -95,7 +113,7 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     const copy = `cp -R ${sourceDirectory} ${forkDirectory}`;
     console.log(`\ntrying to copy over deployments:`, copy);
     await execAsync(copy);
-    console.log(`completed deployment on ${chain}`);
+    console.log(`completed copying deployment on ${chain}`);
 
     // run preflight
     await preflight(tag, networkInfo[chain]);
@@ -114,8 +132,8 @@ const deployAgainstForks = async (chains: number[], tag: string): Promise<string
     console.log(`completed deployment of facets on ${chain}`);
   }
 
-  // return fork rpcs
-  return Object.values(networkInfo).map((info) => info.fork.rpc);
+  // return rpcs
+  return networkInfo;
 };
 
 export const getDiamondUpgradeProposal = async () => {
@@ -142,13 +160,18 @@ export const getDiamondUpgradeProposal = async () => {
 
   // deploy all the facets against a fork of the chain. when proposing, will use the
   // current `Connext` deployment on the mirroring fork chain
-  const rpcs = await deployAgainstForks(chains, tag as string);
+  const completeNetwork = await deployAgainstForks(chains, tag as string);
 
-  const chainCuts: Record<number, { proposal: FacetCut[]; connext: string; numberOfCuts: number }> & {
+  const forkBlocks = chains.map((c) => (FORK_BLOCKS as any)[c] ?? 0);
+  const chainCuts: Record<
+    number,
+    { proposal: (FacetCut & { code: string })[]; connext: string; numberOfCuts: number }
+  > & {
     chains: number[];
     rpcs: string[];
+    forkBlocks: number[];
     passed: false;
-  } = { chains, rpcs, passed: false };
+  } = { forkBlocks, chains, rpcs: Object.values(completeNetwork).map((n) => n.default.rpc), passed: false };
   for (const chain of chains) {
     // get the hardhat config
     const [, config]: any = Object.entries(hardhatNetworks).find(
@@ -175,13 +198,30 @@ export const getDiamondUpgradeProposal = async () => {
     // forked chain
     const connext = new Contract(Connext.address, Connext.abi, forkProvider);
 
+    // get excluded facets
+    const excludedFacets = facetOptions
+      .filter((f) => f.name.includes("DiamondLoupeFacet"))
+      .map((c) => c.contract.address);
+
     // get the proposed cut
-    const namedCuts = await getProposedFacetCuts(facetOptions, connext);
+    const namedCuts = await getProposedFacetCuts(facetOptions, connext, excludedFacets);
     // write to file without `name` field (matching contract call)
+    const proposal = await Promise.all(
+      namedCuts.map(async (n) => {
+        const match = facetOptions.find((f) => f.name.toLowerCase() === n.name.toLowerCase());
+        if (!match) {
+          throw new Error(`Could not find match for ${n.name}`);
+        }
+        return {
+          ...n,
+          code: await forkProvider.getCode(n.facetAddress),
+        };
+      }),
+    );
     chainCuts[chain] = {
       numberOfCuts: namedCuts.length,
       connext: Connext.address,
-      proposal: namedCuts,
+      proposal,
     };
   }
 
@@ -197,7 +237,27 @@ export const getDiamondUpgradeProposal = async () => {
   if (stderr) {
     console.log("forge stderr", stderr);
   } else {
-    // write that tests passed to file
+    // write the proposals to file
+    // write that tests passed + proposal txs to file
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passed: _p, rpcs: _r, chains: _c, forkBlocks: _f, ...proposals } = chainCuts;
+    const txs = Object.entries(proposals).map(([chain, value]) => {
+      const data = DiamondCutFacet__factory.createInterface().encodeFunctionData("proposeDiamondCut", [
+        value.proposal.map((p) => ({
+          facetAddress: p.facetAddress,
+          action: p.action,
+          functionSelectors: p.functionSelectors,
+        })),
+        constants.AddressZero,
+        "0x",
+      ]);
+      return {
+        chain,
+        to: value.connext,
+        data,
+      };
+    });
+    writeFileSync("proposals.json", JSON.stringify(txs), { encoding: "utf-8" });
     writeFileSync("cuts.json", JSON.stringify({ ...chainCuts, passed: true }), { encoding: "utf-8" });
   }
 

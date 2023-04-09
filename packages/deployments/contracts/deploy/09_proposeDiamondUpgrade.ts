@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 
+import { config as dotenvConfig } from "dotenv";
 import { Contract, Wallet, constants } from "ethers";
 import { DeployFunction, DeploymentSubmission } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -8,6 +9,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getFacetsToDeploy } from "../deployConfig";
 import { getProposedFacetCuts, FacetOptions, getUpgradedAbi } from "../deployHelpers";
 import { getDeploymentName } from "../src";
+
+dotenvConfig();
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -39,6 +42,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Get all the facet options
   const facetsToDeploy = getFacetsToDeploy(zksync);
+
   const facets: (FacetOptions & { abi: any[] })[] = [];
   for (const facet of facetsToDeploy) {
     const deployment = await hre.deployments.getOrNull(facet.name);
@@ -52,8 +56,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
+  // get excluded facets
+  const excludedFacets = facets.filter((f) => f.name.includes("DiamondLoupeFacet")).map((c) => c.contract.address);
+
   // Determine the cuts
-  const generated = await getProposedFacetCuts(facets, connext);
+  const generated = await getProposedFacetCuts(facets, connext, excludedFacets);
   console.log("cuts: ", generated);
 
   if (!generated.length) {
@@ -100,6 +107,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (acceptanceTime === 0) {
     // Has not yet been proposed, propose
     console.log(`Proposal needed, proposing upgrade`);
+    console.log(`proposal tx:`, {
+      to: connext.address,
+      chain: network.chainId,
+      data: connext.interface.encodeFunctionData("proposeDiamondCut", [generated, constants.AddressZero, "0x"]),
+    });
+
+    if ((await connext.owner()).toLowerCase() !== deployer.address.toLowerCase()) {
+      console.log(`deployer is not owner, cannot submit txs`);
+      return;
+    }
+
     const proposalTx = await connext.proposeDiamondCut(generated, constants.AddressZero, "0x");
     console.log(`Proposal tx:`, proposalTx.hash);
     const proposal = await proposalTx.wait();
@@ -107,6 +125,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     // Reset acceptance time
     acceptanceTime = (await connext.getAcceptanceTime(generated, constants.AddressZero, "0x")).toNumber();
+  }
+
+  // Check to see if the proposal should be accepted automatically
+  const accept = process.env.ACCEPT_PROPOSAL === "true";
+  const upgradeData = connext.interface.encodeFunctionData("diamondCut", [generated, constants.AddressZero, "0x"]);
+  if (!accept) {
+    console.log(`Not attempting upgrade acceptance. upgrade tx:`, {
+      to: connext.address,
+      data: upgradeData,
+      from: deployer.address,
+    });
+    return;
   }
 
   // Attempt to accept the proposal if possible

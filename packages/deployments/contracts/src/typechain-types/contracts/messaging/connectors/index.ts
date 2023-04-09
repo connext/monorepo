@@ -15,6 +15,8 @@ import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygon from "./polygon";
 export type { polygon };
+import type * as polygonzk from "./polygonzk";
+export type { polygonzk };
 import type * as zksync from "./zksync";
 export type { zksync };
 export type { Connector } from "./Connector";

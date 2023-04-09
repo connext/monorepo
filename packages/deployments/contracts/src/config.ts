@@ -6,7 +6,7 @@ dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
   mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 420, 80001, 421613],
+  testnet: [5, 280, 420, 59140, 80001, 421613],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -96,7 +96,7 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://mainnet.optimism.io",
+    url: urlOverride || process.env.OPTIMISM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -156,7 +156,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
-    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
+    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.ankr.com/gnosis",
     verify: {
       etherscan: {
         apiKey: process.env.GNOSISSCAN_API_KEY!,
@@ -186,7 +186,7 @@ export const hardhatNetworks = {
   "arbitrum-one": {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 42161,
-    url: "https://arb1.arbitrum.io/rpc",
+    url: urlOverride || process.env.ARB1_PROVIDER_URL || "https://arb1.arbitrum.io/rpc",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -198,7 +198,10 @@ export const hardhatNetworks = {
   mumbai: {
     accounts: { mnemonic },
     chainId: 80001,
-    url: "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     companionNetworks: {
       hub: "goerli",
     },
@@ -235,7 +238,21 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://blockscout.chiadochain.net/api",
+        apiUrl: "https://blockscout.chiadochain.net",
+      },
+    },
+  },
+  "polygonzk-testnet": {
+    accounts: { mnemonic },
+    chainId: 1442,
+    url: urlOverride || process.env.POLYGONZK_TESTNET_PROVIDER_URL || "https://rpc.public.zkevm-test.net",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-testnet-zkevm.polygonscan.com",
       },
     },
   },
@@ -252,7 +269,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://zksync2-testnet.zkscan.io/api",
+        apiUrl: "https://zksync2-testnet.zkscan.io",
       },
     },
   },

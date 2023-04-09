@@ -27,6 +27,7 @@ export type FacetOptions = {
 export const getProposedFacetCuts = async (
   facets: FacetOptions[],
   current: Contract, // currently deployed contract to upgrade
+  exclude: string[] = [], // facets to *NOT* upgrade.
 ): Promise<FacetCut[]> => {
   // Get existing facets + selectors
   const oldFacets: { facetAddress: string; functionSelectors: string[] }[] = await current.facets();
@@ -121,22 +122,28 @@ export const getProposedFacetCuts = async (
     });
   }
 
+  // Remove excluded facets
+  const e = exclude.map((x) => x.toLowerCase());
+  const filtered = facetCuts.filter((cut) => {
+    return !e.includes(cut.facetAddress.toLowerCase());
+  });
+
   // If no changes detected, do nothing
-  if (!changesDetected || facetCuts.length === 0) {
+  if (!changesDetected || filtered.length === 0) {
     // console.log(`no diamond upgrade proposal needed`);
     return []; // no cuts to propose
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
-  const acceptanceTime = await current.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
+  const acceptanceTime = await current.getAcceptanceTime(filtered, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
     // console.log(`cut has already been proposed`);
-    return []; // already proposed, nothing to do
+    return filtered;
   }
-  // console.log("calling propose with", facetCuts);
+  // console.log("calling propose with", filtered);
 
   // Propose facet cut
-  return facetCuts;
+  return filtered;
 };
 
 /**
