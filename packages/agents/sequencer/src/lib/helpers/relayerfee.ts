@@ -51,19 +51,23 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   );
 
   let relayerFeePaidUsd = constants.Zero;
+  const originChainId = domainToChainId(+originDomain);
+  // origin native token to usdc
+  const originNativePriceUsd = await getConversionRate(originChainId, undefined, logger);
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
-      const originChainId = domainToChainId(+originDomain);
-      const nativeUsd = await getConversionRate(originChainId, undefined, logger);
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
-      const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
+      const relayerFeePaid = nativeFee.mul(Math.floor(originNativePriceUsd * 1000)).div(1000);
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
-      const originChainId = domainToChainId(+originDomain);
+      // origin native token to asset price
+      const originNativePriceAsset = await getConversionRate(originChainId, asset, logger);
+      const priceAssetUsd = originNativePriceUsd / originNativePriceAsset;
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
-      const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
-        BigNumber.from(10).pow(18 - relayerFeeDecimals),
-      );
+      const relayerFeePaid = BigNumber.from(origin.relayerFees[asset])
+        .mul(Math.floor(priceAssetUsd * 1000))
+        .div(1000)
+        .mul(BigNumber.from(10).pow(18 - relayerFeeDecimals));
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     }
   }
