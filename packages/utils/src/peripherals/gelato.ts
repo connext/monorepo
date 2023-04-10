@@ -59,7 +59,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/conversionRate`;
   if (to) {
-    apiEndpoint = apiEndpoint.concat(`/to=${to}`);
+    apiEndpoint = apiEndpoint.concat(`?to=${to}`);
   }
 
   let totalRetries = 5;
