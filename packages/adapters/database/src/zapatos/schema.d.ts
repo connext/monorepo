@@ -602,7 +602,7 @@ declare module 'zapatos/schema' {
       */
       price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'asset_prices_pkey';
+    export type UniqueIndex = 'asset_prices_canonical_id_canonical_domain_timestamp_key' | 'asset_prices_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -6373,9 +6373,9 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.asset_usd_price**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      asset_usd_price: number;
+      asset_usd_price: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -6753,9 +6753,9 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.asset_usd_price**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      asset_usd_price: number;
+      asset_usd_price: number | null;
     }
     export interface Whereable {
       /**
@@ -7133,7 +7133,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.asset_usd_price**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
       asset_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
@@ -7513,9 +7513,9 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.asset_usd_price**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      asset_usd_price?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      asset_usd_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7893,9 +7893,9 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.asset_usd_price**
       * - `numeric` in database
-      * - `NOT NULL`, default: `0`
+      * - Nullable, default: `0`
       */
-      asset_usd_price?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      asset_usd_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
