@@ -19,7 +19,7 @@ export const getPropagateParams = async (
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for BNB", requestContext, methodContext, { l2domain });
-  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers);
+  const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
 
   if (!l2RpcUrl) {
     throw new NoProviderForDomain(l2domain, requestContext, methodContext);

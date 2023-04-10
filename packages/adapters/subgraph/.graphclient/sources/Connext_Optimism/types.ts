@@ -1019,8 +1019,9 @@ export type optimism_OriginTransfer = {
   asset?: Maybe<optimism_Asset>;
   transactingAsset?: Maybe<Scalars['optimism_Bytes']>;
   message?: Maybe<optimism_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<optimism_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['optimism_Bytes']>;
   caller?: Maybe<Scalars['optimism_Bytes']>;
   transactionHash?: Maybe<Scalars['optimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1028,6 +1029,15 @@ export type optimism_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['optimism_Bytes']>;
+};
+
+
+export type optimism_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RelayerFee_filter>;
 };
 
 export type optimism_OriginTransfer_filter = {
@@ -1233,14 +1243,6 @@ export type optimism_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<optimism_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1249,6 +1251,23 @@ export type optimism_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<optimism_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1356,8 +1375,9 @@ export type optimism_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1383,6 +1403,8 @@ export type Query = {
   optimism_relayers: Array<optimism_Relayer>;
   optimism_sequencer?: Maybe<optimism_Sequencer>;
   optimism_sequencers: Array<optimism_Sequencer>;
+  optimism_relayerFee?: Maybe<optimism_RelayerFee>;
+  optimism_relayerFees: Array<optimism_RelayerFee>;
   optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
   optimism_originTransfers: Array<optimism_OriginTransfer>;
   optimism_destinationTransfer?: Maybe<optimism_DestinationTransfer>;
@@ -1545,6 +1567,24 @@ export type Queryoptimism_sequencersArgs = {
   orderBy?: InputMaybe<optimism_Sequencer_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Sequencer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RelayerFee_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1722,10 +1762,106 @@ export type optimism_Relayer = {
   relayer?: Maybe<Scalars['optimism_Bytes']>;
 };
 
+export type optimism_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: optimism_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['optimism_Bytes'];
+};
+
+export type optimism_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<optimism_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_RelayerFee_filter>>>;
+};
+
+export type optimism_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type optimism_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: optimism_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['optimism_Bytes']>;
   caller: Scalars['optimism_Bytes'];
   transactionHash: Scalars['optimism_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1908,16 @@ export type optimism_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['optimism_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['optimism_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['optimism_Bytes']>;
   caller?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_not?: InputMaybe<Scalars['optimism_Bytes']>;
   caller_gt?: InputMaybe<Scalars['optimism_Bytes']>;
@@ -1852,8 +1998,8 @@ export type optimism_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1862,6 +2008,7 @@ export type optimism_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2505,6 +2652,8 @@ export type Subscription = {
   optimism_relayers: Array<optimism_Relayer>;
   optimism_sequencer?: Maybe<optimism_Sequencer>;
   optimism_sequencers: Array<optimism_Sequencer>;
+  optimism_relayerFee?: Maybe<optimism_RelayerFee>;
+  optimism_relayerFees: Array<optimism_RelayerFee>;
   optimism_originTransfer?: Maybe<optimism_OriginTransfer>;
   optimism_originTransfers: Array<optimism_OriginTransfer>;
   optimism_destinationTransfer?: Maybe<optimism_DestinationTransfer>;
@@ -2667,6 +2816,24 @@ export type Subscriptionoptimism_sequencersArgs = {
   orderBy?: InputMaybe<optimism_Sequencer_orderBy>;
   orderDirection?: InputMaybe<optimism_OrderDirection>;
   where?: InputMaybe<optimism_Sequencer_filter>;
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimism_OrderDirection>;
+  where?: InputMaybe<optimism_RelayerFee_filter>;
   block?: InputMaybe<optimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2910,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimism_sequencers: InContextSdkMethod<Query['optimism_sequencers'], Queryoptimism_sequencersArgs, MeshContext>,
   /** null **/
+  optimism_relayerFee: InContextSdkMethod<Query['optimism_relayerFee'], Queryoptimism_relayerFeeArgs, MeshContext>,
+  /** null **/
+  optimism_relayerFees: InContextSdkMethod<Query['optimism_relayerFees'], Queryoptimism_relayerFeesArgs, MeshContext>,
+  /** null **/
   optimism_originTransfer: InContextSdkMethod<Query['optimism_originTransfer'], Queryoptimism_originTransferArgs, MeshContext>,
   /** null **/
   optimism_originTransfers: InContextSdkMethod<Query['optimism_originTransfers'], Queryoptimism_originTransfersArgs, MeshContext>,
@@ -2986,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_sequencer: InContextSdkMethod<Subscription['optimism_sequencer'], Subscriptionoptimism_sequencerArgs, MeshContext>,
   /** null **/
   optimism_sequencers: InContextSdkMethod<Subscription['optimism_sequencers'], Subscriptionoptimism_sequencersArgs, MeshContext>,
+  /** null **/
+  optimism_relayerFee: InContextSdkMethod<Subscription['optimism_relayerFee'], Subscriptionoptimism_relayerFeeArgs, MeshContext>,
+  /** null **/
+  optimism_relayerFees: InContextSdkMethod<Subscription['optimism_relayerFees'], Subscriptionoptimism_relayerFeesArgs, MeshContext>,
   /** null **/
   optimism_originTransfer: InContextSdkMethod<Subscription['optimism_originTransfer'], Subscriptionoptimism_originTransferArgs, MeshContext>,
   /** null **/

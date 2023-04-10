@@ -276,7 +276,7 @@ module "lighthouse_process_from_root_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(30 minutes)"
-  memory_size         = 1024
+  memory_size         = 1536
 }
 
 

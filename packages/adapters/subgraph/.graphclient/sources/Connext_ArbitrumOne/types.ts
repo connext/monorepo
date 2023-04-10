@@ -1019,8 +1019,9 @@ export type arbitrumone_OriginTransfer = {
   asset?: Maybe<arbitrumone_Asset>;
   transactingAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
   message?: Maybe<arbitrumone_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<arbitrumone_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
   caller?: Maybe<Scalars['arbitrumone_Bytes']>;
   transactionHash?: Maybe<Scalars['arbitrumone_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1028,6 +1029,15 @@ export type arbitrumone_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['arbitrumone_Bytes']>;
+};
+
+
+export type arbitrumone_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RelayerFee_filter>;
 };
 
 export type arbitrumone_OriginTransfer_filter = {
@@ -1233,14 +1243,6 @@ export type arbitrumone_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<arbitrumone_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1249,6 +1251,23 @@ export type arbitrumone_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<arbitrumone_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
@@ -1356,8 +1375,9 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1383,6 +1403,8 @@ export type Query = {
   arbitrumone_relayers: Array<arbitrumone_Relayer>;
   arbitrumone_sequencer?: Maybe<arbitrumone_Sequencer>;
   arbitrumone_sequencers: Array<arbitrumone_Sequencer>;
+  arbitrumone_relayerFee?: Maybe<arbitrumone_RelayerFee>;
+  arbitrumone_relayerFees: Array<arbitrumone_RelayerFee>;
   arbitrumone_originTransfer?: Maybe<arbitrumone_OriginTransfer>;
   arbitrumone_originTransfers: Array<arbitrumone_OriginTransfer>;
   arbitrumone_destinationTransfer?: Maybe<arbitrumone_DestinationTransfer>;
@@ -1545,6 +1567,24 @@ export type Queryarbitrumone_sequencersArgs = {
   orderBy?: InputMaybe<arbitrumone_Sequencer_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Sequencer_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RelayerFee_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1722,10 +1762,106 @@ export type arbitrumone_Relayer = {
   relayer?: Maybe<Scalars['arbitrumone_Bytes']>;
 };
 
+export type arbitrumone_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: arbitrumone_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['arbitrumone_Bytes'];
+};
+
+export type arbitrumone_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<arbitrumone_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RelayerFee_filter>>>;
+};
+
+export type arbitrumone_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type arbitrumone_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: arbitrumone_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['arbitrumone_Bytes']>;
   caller: Scalars['arbitrumone_Bytes'];
   transactionHash: Scalars['arbitrumone_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1908,16 @@ export type arbitrumone_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
@@ -1852,8 +1998,8 @@ export type arbitrumone_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1862,6 +2008,7 @@ export type arbitrumone_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2505,6 +2652,8 @@ export type Subscription = {
   arbitrumone_relayers: Array<arbitrumone_Relayer>;
   arbitrumone_sequencer?: Maybe<arbitrumone_Sequencer>;
   arbitrumone_sequencers: Array<arbitrumone_Sequencer>;
+  arbitrumone_relayerFee?: Maybe<arbitrumone_RelayerFee>;
+  arbitrumone_relayerFees: Array<arbitrumone_RelayerFee>;
   arbitrumone_originTransfer?: Maybe<arbitrumone_OriginTransfer>;
   arbitrumone_originTransfers: Array<arbitrumone_OriginTransfer>;
   arbitrumone_destinationTransfer?: Maybe<arbitrumone_DestinationTransfer>;
@@ -2667,6 +2816,24 @@ export type Subscriptionarbitrumone_sequencersArgs = {
   orderBy?: InputMaybe<arbitrumone_Sequencer_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_Sequencer_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RelayerFee_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2910,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumone_sequencers: InContextSdkMethod<Query['arbitrumone_sequencers'], Queryarbitrumone_sequencersArgs, MeshContext>,
   /** null **/
+  arbitrumone_relayerFee: InContextSdkMethod<Query['arbitrumone_relayerFee'], Queryarbitrumone_relayerFeeArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFees: InContextSdkMethod<Query['arbitrumone_relayerFees'], Queryarbitrumone_relayerFeesArgs, MeshContext>,
+  /** null **/
   arbitrumone_originTransfer: InContextSdkMethod<Query['arbitrumone_originTransfer'], Queryarbitrumone_originTransferArgs, MeshContext>,
   /** null **/
   arbitrumone_originTransfers: InContextSdkMethod<Query['arbitrumone_originTransfers'], Queryarbitrumone_originTransfersArgs, MeshContext>,
@@ -2986,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_sequencer: InContextSdkMethod<Subscription['arbitrumone_sequencer'], Subscriptionarbitrumone_sequencerArgs, MeshContext>,
   /** null **/
   arbitrumone_sequencers: InContextSdkMethod<Subscription['arbitrumone_sequencers'], Subscriptionarbitrumone_sequencersArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFee: InContextSdkMethod<Subscription['arbitrumone_relayerFee'], Subscriptionarbitrumone_relayerFeeArgs, MeshContext>,
+  /** null **/
+  arbitrumone_relayerFees: InContextSdkMethod<Subscription['arbitrumone_relayerFees'], Subscriptionarbitrumone_relayerFeesArgs, MeshContext>,
   /** null **/
   arbitrumone_originTransfer: InContextSdkMethod<Subscription['arbitrumone_originTransfer'], Subscriptionarbitrumone_originTransferArgs, MeshContext>,
   /** null **/

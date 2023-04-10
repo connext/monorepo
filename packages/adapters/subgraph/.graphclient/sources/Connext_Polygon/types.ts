@@ -1019,8 +1019,9 @@ export type polygon_OriginTransfer = {
   asset?: Maybe<polygon_Asset>;
   transactingAsset?: Maybe<Scalars['polygon_Bytes']>;
   message?: Maybe<polygon_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<polygon_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['polygon_Bytes']>;
   caller?: Maybe<Scalars['polygon_Bytes']>;
   transactionHash?: Maybe<Scalars['polygon_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1028,6 +1029,15 @@ export type polygon_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['polygon_Bytes']>;
+};
+
+
+export type polygon_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_RelayerFee_filter>;
 };
 
 export type polygon_OriginTransfer_filter = {
@@ -1233,14 +1243,6 @@ export type polygon_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<polygon_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1249,6 +1251,23 @@ export type polygon_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<polygon_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   caller?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_not?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_gt?: InputMaybe<Scalars['polygon_Bytes']>;
@@ -1356,8 +1375,9 @@ export type polygon_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1383,6 +1403,8 @@ export type Query = {
   polygon_relayers: Array<polygon_Relayer>;
   polygon_sequencer?: Maybe<polygon_Sequencer>;
   polygon_sequencers: Array<polygon_Sequencer>;
+  polygon_relayerFee?: Maybe<polygon_RelayerFee>;
+  polygon_relayerFees: Array<polygon_RelayerFee>;
   polygon_originTransfer?: Maybe<polygon_OriginTransfer>;
   polygon_originTransfers: Array<polygon_OriginTransfer>;
   polygon_destinationTransfer?: Maybe<polygon_DestinationTransfer>;
@@ -1545,6 +1567,24 @@ export type Querypolygon_sequencersArgs = {
   orderBy?: InputMaybe<polygon_Sequencer_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_Sequencer_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_RelayerFee_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1722,10 +1762,106 @@ export type polygon_Relayer = {
   relayer?: Maybe<Scalars['polygon_Bytes']>;
 };
 
+export type polygon_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: polygon_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['polygon_Bytes'];
+};
+
+export type polygon_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<polygon_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_RelayerFee_filter>>>;
+};
+
+export type polygon_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type polygon_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: polygon_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['polygon_Bytes']>;
   caller: Scalars['polygon_Bytes'];
   transactionHash: Scalars['polygon_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1908,16 @@ export type polygon_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
   caller?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_not?: InputMaybe<Scalars['polygon_Bytes']>;
   caller_gt?: InputMaybe<Scalars['polygon_Bytes']>;
@@ -1852,8 +1998,8 @@ export type polygon_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1862,6 +2008,7 @@ export type polygon_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2505,6 +2652,8 @@ export type Subscription = {
   polygon_relayers: Array<polygon_Relayer>;
   polygon_sequencer?: Maybe<polygon_Sequencer>;
   polygon_sequencers: Array<polygon_Sequencer>;
+  polygon_relayerFee?: Maybe<polygon_RelayerFee>;
+  polygon_relayerFees: Array<polygon_RelayerFee>;
   polygon_originTransfer?: Maybe<polygon_OriginTransfer>;
   polygon_originTransfers: Array<polygon_OriginTransfer>;
   polygon_destinationTransfer?: Maybe<polygon_DestinationTransfer>;
@@ -2667,6 +2816,24 @@ export type Subscriptionpolygon_sequencersArgs = {
   orderBy?: InputMaybe<polygon_Sequencer_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_Sequencer_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_RelayerFee_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2910,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   polygon_sequencers: InContextSdkMethod<Query['polygon_sequencers'], Querypolygon_sequencersArgs, MeshContext>,
   /** null **/
+  polygon_relayerFee: InContextSdkMethod<Query['polygon_relayerFee'], Querypolygon_relayerFeeArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFees: InContextSdkMethod<Query['polygon_relayerFees'], Querypolygon_relayerFeesArgs, MeshContext>,
+  /** null **/
   polygon_originTransfer: InContextSdkMethod<Query['polygon_originTransfer'], Querypolygon_originTransferArgs, MeshContext>,
   /** null **/
   polygon_originTransfers: InContextSdkMethod<Query['polygon_originTransfers'], Querypolygon_originTransfersArgs, MeshContext>,
@@ -2986,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   polygon_sequencer: InContextSdkMethod<Subscription['polygon_sequencer'], Subscriptionpolygon_sequencerArgs, MeshContext>,
   /** null **/
   polygon_sequencers: InContextSdkMethod<Subscription['polygon_sequencers'], Subscriptionpolygon_sequencersArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFee: InContextSdkMethod<Subscription['polygon_relayerFee'], Subscriptionpolygon_relayerFeeArgs, MeshContext>,
+  /** null **/
+  polygon_relayerFees: InContextSdkMethod<Subscription['polygon_relayerFees'], Subscriptionpolygon_relayerFeesArgs, MeshContext>,
   /** null **/
   polygon_originTransfer: InContextSdkMethod<Subscription['polygon_originTransfer'], Subscriptionpolygon_originTransferArgs, MeshContext>,
   /** null **/

@@ -29,6 +29,10 @@ input consensystest_AggregateRoot_filter {
   id_not_in: [ID!]
   root: consensystest_Bytes
   root_not: consensystest_Bytes
+  root_gt: consensystest_Bytes
+  root_lt: consensystest_Bytes
+  root_gte: consensystest_Bytes
+  root_lte: consensystest_Bytes
   root_in: [consensystest_Bytes!]
   root_not_in: [consensystest_Bytes!]
   root_contains: consensystest_Bytes
@@ -43,6 +47,8 @@ input consensystest_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_AggregateRoot_filter]
+  or: [consensystest_AggregateRoot_filter]
 }
 
 enum consensystest_AggregateRoot_orderBy {
@@ -54,6 +60,7 @@ enum consensystest_AggregateRoot_orderBy {
 type consensystest_Asset {
   id: ID!
   key: consensystest_Bytes
+  decimal: BigInt
   canonicalId: consensystest_Bytes
   canonicalDomain: BigInt
   adoptedAsset: consensystest_Bytes
@@ -65,6 +72,9 @@ type consensystest_Asset {
 type consensystest_AssetBalance {
   id: ID!
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: consensystest_Router!
   asset: consensystest_Asset!
   feesEarned: BigInt!
@@ -87,6 +97,30 @@ input consensystest_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -139,11 +173,16 @@ input consensystest_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_AssetBalance_filter]
+  or: [consensystest_AssetBalance_filter]
 }
 
 enum consensystest_AssetBalance_orderBy {
   id
   amount
+  locked
+  supplied
+  removed
   router
   asset
   feesEarned
@@ -169,6 +208,8 @@ input consensystest_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_AssetStatus_filter]
+  or: [consensystest_AssetStatus_filter]
 }
 
 enum consensystest_AssetStatus_orderBy {
@@ -187,12 +228,28 @@ input consensystest_Asset_filter {
   id_not_in: [ID!]
   key: consensystest_Bytes
   key_not: consensystest_Bytes
+  key_gt: consensystest_Bytes
+  key_lt: consensystest_Bytes
+  key_gte: consensystest_Bytes
+  key_lte: consensystest_Bytes
   key_in: [consensystest_Bytes!]
   key_not_in: [consensystest_Bytes!]
   key_contains: consensystest_Bytes
   key_not_contains: consensystest_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: consensystest_Bytes
   canonicalId_not: consensystest_Bytes
+  canonicalId_gt: consensystest_Bytes
+  canonicalId_lt: consensystest_Bytes
+  canonicalId_gte: consensystest_Bytes
+  canonicalId_lte: consensystest_Bytes
   canonicalId_in: [consensystest_Bytes!]
   canonicalId_not_in: [consensystest_Bytes!]
   canonicalId_contains: consensystest_Bytes
@@ -207,12 +264,20 @@ input consensystest_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: consensystest_Bytes
   adoptedAsset_not: consensystest_Bytes
+  adoptedAsset_gt: consensystest_Bytes
+  adoptedAsset_lt: consensystest_Bytes
+  adoptedAsset_gte: consensystest_Bytes
+  adoptedAsset_lte: consensystest_Bytes
   adoptedAsset_in: [consensystest_Bytes!]
   adoptedAsset_not_in: [consensystest_Bytes!]
   adoptedAsset_contains: consensystest_Bytes
   adoptedAsset_not_contains: consensystest_Bytes
   localAsset: consensystest_Bytes
   localAsset_not: consensystest_Bytes
+  localAsset_gt: consensystest_Bytes
+  localAsset_lt: consensystest_Bytes
+  localAsset_gte: consensystest_Bytes
+  localAsset_lte: consensystest_Bytes
   localAsset_in: [consensystest_Bytes!]
   localAsset_not_in: [consensystest_Bytes!]
   localAsset_contains: consensystest_Bytes
@@ -248,11 +313,14 @@ input consensystest_Asset_filter {
   status_: consensystest_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_Asset_filter]
+  or: [consensystest_Asset_filter]
 }
 
 enum consensystest_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -313,24 +381,38 @@ input consensystest_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: consensystest_Bytes
   amb_not: consensystest_Bytes
+  amb_gt: consensystest_Bytes
+  amb_lt: consensystest_Bytes
+  amb_gte: consensystest_Bytes
+  amb_lte: consensystest_Bytes
   amb_in: [consensystest_Bytes!]
   amb_not_in: [consensystest_Bytes!]
   amb_contains: consensystest_Bytes
   amb_not_contains: consensystest_Bytes
   rootManager: consensystest_Bytes
   rootManager_not: consensystest_Bytes
+  rootManager_gt: consensystest_Bytes
+  rootManager_lt: consensystest_Bytes
+  rootManager_gte: consensystest_Bytes
+  rootManager_lte: consensystest_Bytes
   rootManager_in: [consensystest_Bytes!]
   rootManager_not_in: [consensystest_Bytes!]
   rootManager_contains: consensystest_Bytes
   rootManager_not_contains: consensystest_Bytes
   mirrorConnector: consensystest_Bytes
   mirrorConnector_not: consensystest_Bytes
+  mirrorConnector_gt: consensystest_Bytes
+  mirrorConnector_lt: consensystest_Bytes
+  mirrorConnector_gte: consensystest_Bytes
+  mirrorConnector_lte: consensystest_Bytes
   mirrorConnector_in: [consensystest_Bytes!]
   mirrorConnector_not_in: [consensystest_Bytes!]
   mirrorConnector_contains: consensystest_Bytes
   mirrorConnector_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_ConnectorMeta_filter]
+  or: [consensystest_ConnectorMeta_filter]
 }
 
 enum consensystest_ConnectorMeta_orderBy {
@@ -400,6 +482,10 @@ input consensystest_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: consensystest_Bytes
   transferId_not: consensystest_Bytes
+  transferId_gt: consensystest_Bytes
+  transferId_lt: consensystest_Bytes
+  transferId_gte: consensystest_Bytes
+  transferId_lte: consensystest_Bytes
   transferId_in: [consensystest_Bytes!]
   transferId_not_in: [consensystest_Bytes!]
   transferId_contains: consensystest_Bytes
@@ -449,12 +535,20 @@ input consensystest_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: consensystest_Bytes
   to_not: consensystest_Bytes
+  to_gt: consensystest_Bytes
+  to_lt: consensystest_Bytes
+  to_gte: consensystest_Bytes
+  to_lte: consensystest_Bytes
   to_in: [consensystest_Bytes!]
   to_not_in: [consensystest_Bytes!]
   to_contains: consensystest_Bytes
   to_not_contains: consensystest_Bytes
   delegate: consensystest_Bytes
   delegate_not: consensystest_Bytes
+  delegate_gt: consensystest_Bytes
+  delegate_lt: consensystest_Bytes
+  delegate_gte: consensystest_Bytes
+  delegate_lte: consensystest_Bytes
   delegate_in: [consensystest_Bytes!]
   delegate_not_in: [consensystest_Bytes!]
   delegate_contains: consensystest_Bytes
@@ -465,6 +559,10 @@ input consensystest_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: consensystest_Bytes
   callData_not: consensystest_Bytes
+  callData_gt: consensystest_Bytes
+  callData_lt: consensystest_Bytes
+  callData_gte: consensystest_Bytes
+  callData_lte: consensystest_Bytes
   callData_in: [consensystest_Bytes!]
   callData_not_in: [consensystest_Bytes!]
   callData_contains: consensystest_Bytes
@@ -487,6 +585,10 @@ input consensystest_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: consensystest_Bytes
   originSender_not: consensystest_Bytes
+  originSender_gt: consensystest_Bytes
+  originSender_lt: consensystest_Bytes
+  originSender_gte: consensystest_Bytes
+  originSender_lte: consensystest_Bytes
   originSender_in: [consensystest_Bytes!]
   originSender_not_in: [consensystest_Bytes!]
   originSender_contains: consensystest_Bytes
@@ -509,6 +611,10 @@ input consensystest_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: consensystest_Bytes
   canonicalId_not: consensystest_Bytes
+  canonicalId_gt: consensystest_Bytes
+  canonicalId_lt: consensystest_Bytes
+  canonicalId_gte: consensystest_Bytes
+  canonicalId_lte: consensystest_Bytes
   canonicalId_in: [consensystest_Bytes!]
   canonicalId_not_in: [consensystest_Bytes!]
   canonicalId_contains: consensystest_Bytes
@@ -552,12 +658,20 @@ input consensystest_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: consensystest_Bytes
   executedCaller_not: consensystest_Bytes
+  executedCaller_gt: consensystest_Bytes
+  executedCaller_lt: consensystest_Bytes
+  executedCaller_gte: consensystest_Bytes
+  executedCaller_lte: consensystest_Bytes
   executedCaller_in: [consensystest_Bytes!]
   executedCaller_not_in: [consensystest_Bytes!]
   executedCaller_contains: consensystest_Bytes
   executedCaller_not_contains: consensystest_Bytes
   executedTransactionHash: consensystest_Bytes
   executedTransactionHash_not: consensystest_Bytes
+  executedTransactionHash_gt: consensystest_Bytes
+  executedTransactionHash_lt: consensystest_Bytes
+  executedTransactionHash_gte: consensystest_Bytes
+  executedTransactionHash_lte: consensystest_Bytes
   executedTransactionHash_in: [consensystest_Bytes!]
   executedTransactionHash_not_in: [consensystest_Bytes!]
   executedTransactionHash_contains: consensystest_Bytes
@@ -596,18 +710,30 @@ input consensystest_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: consensystest_Bytes
   executedTxOrigin_not: consensystest_Bytes
+  executedTxOrigin_gt: consensystest_Bytes
+  executedTxOrigin_lt: consensystest_Bytes
+  executedTxOrigin_gte: consensystest_Bytes
+  executedTxOrigin_lte: consensystest_Bytes
   executedTxOrigin_in: [consensystest_Bytes!]
   executedTxOrigin_not_in: [consensystest_Bytes!]
   executedTxOrigin_contains: consensystest_Bytes
   executedTxOrigin_not_contains: consensystest_Bytes
   reconciledCaller: consensystest_Bytes
   reconciledCaller_not: consensystest_Bytes
+  reconciledCaller_gt: consensystest_Bytes
+  reconciledCaller_lt: consensystest_Bytes
+  reconciledCaller_gte: consensystest_Bytes
+  reconciledCaller_lte: consensystest_Bytes
   reconciledCaller_in: [consensystest_Bytes!]
   reconciledCaller_not_in: [consensystest_Bytes!]
   reconciledCaller_contains: consensystest_Bytes
   reconciledCaller_not_contains: consensystest_Bytes
   reconciledTransactionHash: consensystest_Bytes
   reconciledTransactionHash_not: consensystest_Bytes
+  reconciledTransactionHash_gt: consensystest_Bytes
+  reconciledTransactionHash_lt: consensystest_Bytes
+  reconciledTransactionHash_gte: consensystest_Bytes
+  reconciledTransactionHash_lte: consensystest_Bytes
   reconciledTransactionHash_in: [consensystest_Bytes!]
   reconciledTransactionHash_not_in: [consensystest_Bytes!]
   reconciledTransactionHash_contains: consensystest_Bytes
@@ -646,12 +772,18 @@ input consensystest_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: consensystest_Bytes
   reconciledTxOrigin_not: consensystest_Bytes
+  reconciledTxOrigin_gt: consensystest_Bytes
+  reconciledTxOrigin_lt: consensystest_Bytes
+  reconciledTxOrigin_gte: consensystest_Bytes
+  reconciledTxOrigin_lte: consensystest_Bytes
   reconciledTxOrigin_in: [consensystest_Bytes!]
   reconciledTxOrigin_not_in: [consensystest_Bytes!]
   reconciledTxOrigin_contains: consensystest_Bytes
   reconciledTxOrigin_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_DestinationTransfer_filter]
+  or: [consensystest_DestinationTransfer_filter]
 }
 
 enum consensystest_DestinationTransfer_orderBy {
@@ -723,6 +855,10 @@ input consensystest_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: consensystest_Bytes
   transferId_not: consensystest_Bytes
+  transferId_gt: consensystest_Bytes
+  transferId_lt: consensystest_Bytes
+  transferId_gte: consensystest_Bytes
+  transferId_lte: consensystest_Bytes
   transferId_in: [consensystest_Bytes!]
   transferId_not_in: [consensystest_Bytes!]
   transferId_contains: consensystest_Bytes
@@ -737,6 +873,10 @@ input consensystest_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: consensystest_Bytes
   leaf_not: consensystest_Bytes
+  leaf_gt: consensystest_Bytes
+  leaf_lt: consensystest_Bytes
+  leaf_gte: consensystest_Bytes
+  leaf_lte: consensystest_Bytes
   leaf_in: [consensystest_Bytes!]
   leaf_not_in: [consensystest_Bytes!]
   leaf_contains: consensystest_Bytes
@@ -751,18 +891,30 @@ input consensystest_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: consensystest_Bytes
   message_not: consensystest_Bytes
+  message_gt: consensystest_Bytes
+  message_lt: consensystest_Bytes
+  message_gte: consensystest_Bytes
+  message_lte: consensystest_Bytes
   message_in: [consensystest_Bytes!]
   message_not_in: [consensystest_Bytes!]
   message_contains: consensystest_Bytes
   message_not_contains: consensystest_Bytes
   root: consensystest_Bytes
   root_not: consensystest_Bytes
+  root_gt: consensystest_Bytes
+  root_lt: consensystest_Bytes
+  root_gte: consensystest_Bytes
+  root_lte: consensystest_Bytes
   root_in: [consensystest_Bytes!]
   root_not_in: [consensystest_Bytes!]
   root_contains: consensystest_Bytes
   root_not_contains: consensystest_Bytes
   transactionHash: consensystest_Bytes
   transactionHash_not: consensystest_Bytes
+  transactionHash_gt: consensystest_Bytes
+  transactionHash_lt: consensystest_Bytes
+  transactionHash_gte: consensystest_Bytes
+  transactionHash_lte: consensystest_Bytes
   transactionHash_in: [consensystest_Bytes!]
   transactionHash_not_in: [consensystest_Bytes!]
   transactionHash_contains: consensystest_Bytes
@@ -798,6 +950,8 @@ input consensystest_OriginMessage_filter {
   rootCount_: consensystest_RootCount_filter
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_OriginMessage_filter]
+  or: [consensystest_OriginMessage_filter]
 }
 
 enum consensystest_OriginMessage_orderBy {
@@ -833,9 +987,11 @@ type consensystest_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: consensystest_Bytes
   asset: consensystest_Asset
+  transactingAsset: consensystest_Bytes
   message: consensystest_OriginMessage
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: consensystest_RelayerFee_orderBy, orderDirection: consensystest_OrderDirection, where: consensystest_RelayerFee_filter): [consensystest_RelayerFee!]
+  initialRelayerFeeAsset: consensystest_Bytes
   caller: consensystest_Bytes
   transactionHash: consensystest_Bytes
   timestamp: BigInt
@@ -864,6 +1020,10 @@ input consensystest_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: consensystest_Bytes
   transferId_not: consensystest_Bytes
+  transferId_gt: consensystest_Bytes
+  transferId_lt: consensystest_Bytes
+  transferId_gte: consensystest_Bytes
+  transferId_lte: consensystest_Bytes
   transferId_in: [consensystest_Bytes!]
   transferId_not_in: [consensystest_Bytes!]
   transferId_contains: consensystest_Bytes
@@ -882,6 +1042,10 @@ input consensystest_OriginTransfer_filter {
   status_not_in: [consensystest_TransferStatus!]
   messageHash: consensystest_Bytes
   messageHash_not: consensystest_Bytes
+  messageHash_gt: consensystest_Bytes
+  messageHash_lt: consensystest_Bytes
+  messageHash_gte: consensystest_Bytes
+  messageHash_lte: consensystest_Bytes
   messageHash_in: [consensystest_Bytes!]
   messageHash_not_in: [consensystest_Bytes!]
   messageHash_contains: consensystest_Bytes
@@ -912,12 +1076,20 @@ input consensystest_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: consensystest_Bytes
   to_not: consensystest_Bytes
+  to_gt: consensystest_Bytes
+  to_lt: consensystest_Bytes
+  to_gte: consensystest_Bytes
+  to_lte: consensystest_Bytes
   to_in: [consensystest_Bytes!]
   to_not_in: [consensystest_Bytes!]
   to_contains: consensystest_Bytes
   to_not_contains: consensystest_Bytes
   delegate: consensystest_Bytes
   delegate_not: consensystest_Bytes
+  delegate_gt: consensystest_Bytes
+  delegate_lt: consensystest_Bytes
+  delegate_gte: consensystest_Bytes
+  delegate_lte: consensystest_Bytes
   delegate_in: [consensystest_Bytes!]
   delegate_not_in: [consensystest_Bytes!]
   delegate_contains: consensystest_Bytes
@@ -928,6 +1100,10 @@ input consensystest_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: consensystest_Bytes
   callData_not: consensystest_Bytes
+  callData_gt: consensystest_Bytes
+  callData_lt: consensystest_Bytes
+  callData_gte: consensystest_Bytes
+  callData_lte: consensystest_Bytes
   callData_in: [consensystest_Bytes!]
   callData_not_in: [consensystest_Bytes!]
   callData_contains: consensystest_Bytes
@@ -942,6 +1118,10 @@ input consensystest_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: consensystest_Bytes
   originSender_not: consensystest_Bytes
+  originSender_gt: consensystest_Bytes
+  originSender_lt: consensystest_Bytes
+  originSender_gte: consensystest_Bytes
+  originSender_lte: consensystest_Bytes
   originSender_in: [consensystest_Bytes!]
   originSender_not_in: [consensystest_Bytes!]
   originSender_contains: consensystest_Bytes
@@ -964,6 +1144,10 @@ input consensystest_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: consensystest_Bytes
   canonicalId_not: consensystest_Bytes
+  canonicalId_gt: consensystest_Bytes
+  canonicalId_lt: consensystest_Bytes
+  canonicalId_gte: consensystest_Bytes
+  canonicalId_lte: consensystest_Bytes
   canonicalId_in: [consensystest_Bytes!]
   canonicalId_not_in: [consensystest_Bytes!]
   canonicalId_contains: consensystest_Bytes
@@ -989,6 +1173,16 @@ input consensystest_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: consensystest_Asset_filter
+  transactingAsset: consensystest_Bytes
+  transactingAsset_not: consensystest_Bytes
+  transactingAsset_gt: consensystest_Bytes
+  transactingAsset_lt: consensystest_Bytes
+  transactingAsset_gte: consensystest_Bytes
+  transactingAsset_lte: consensystest_Bytes
+  transactingAsset_in: [consensystest_Bytes!]
+  transactingAsset_not_in: [consensystest_Bytes!]
+  transactingAsset_contains: consensystest_Bytes
+  transactingAsset_not_contains: consensystest_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1010,14 +1204,6 @@ input consensystest_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: consensystest_OriginMessage_filter
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1026,14 +1212,39 @@ input consensystest_OriginTransfer_filter {
   bumpRelayerFeeCount_lte: BigInt
   bumpRelayerFeeCount_in: [BigInt!]
   bumpRelayerFeeCount_not_in: [BigInt!]
+  relayerFees: [String!]
+  relayerFees_not: [String!]
+  relayerFees_contains: [String!]
+  relayerFees_contains_nocase: [String!]
+  relayerFees_not_contains: [String!]
+  relayerFees_not_contains_nocase: [String!]
+  relayerFees_: consensystest_RelayerFee_filter
+  initialRelayerFeeAsset: consensystest_Bytes
+  initialRelayerFeeAsset_not: consensystest_Bytes
+  initialRelayerFeeAsset_gt: consensystest_Bytes
+  initialRelayerFeeAsset_lt: consensystest_Bytes
+  initialRelayerFeeAsset_gte: consensystest_Bytes
+  initialRelayerFeeAsset_lte: consensystest_Bytes
+  initialRelayerFeeAsset_in: [consensystest_Bytes!]
+  initialRelayerFeeAsset_not_in: [consensystest_Bytes!]
+  initialRelayerFeeAsset_contains: consensystest_Bytes
+  initialRelayerFeeAsset_not_contains: consensystest_Bytes
   caller: consensystest_Bytes
   caller_not: consensystest_Bytes
+  caller_gt: consensystest_Bytes
+  caller_lt: consensystest_Bytes
+  caller_gte: consensystest_Bytes
+  caller_lte: consensystest_Bytes
   caller_in: [consensystest_Bytes!]
   caller_not_in: [consensystest_Bytes!]
   caller_contains: consensystest_Bytes
   caller_not_contains: consensystest_Bytes
   transactionHash: consensystest_Bytes
   transactionHash_not: consensystest_Bytes
+  transactionHash_gt: consensystest_Bytes
+  transactionHash_lt: consensystest_Bytes
+  transactionHash_gte: consensystest_Bytes
+  transactionHash_lte: consensystest_Bytes
   transactionHash_in: [consensystest_Bytes!]
   transactionHash_not_in: [consensystest_Bytes!]
   transactionHash_contains: consensystest_Bytes
@@ -1072,12 +1283,18 @@ input consensystest_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: consensystest_Bytes
   txOrigin_not: consensystest_Bytes
+  txOrigin_gt: consensystest_Bytes
+  txOrigin_lt: consensystest_Bytes
+  txOrigin_gte: consensystest_Bytes
+  txOrigin_lte: consensystest_Bytes
   txOrigin_in: [consensystest_Bytes!]
   txOrigin_not_in: [consensystest_Bytes!]
   txOrigin_contains: consensystest_Bytes
   txOrigin_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_OriginTransfer_filter]
+  or: [consensystest_OriginTransfer_filter]
 }
 
 enum consensystest_OriginTransfer_orderBy {
@@ -1100,9 +1317,11 @@ enum consensystest_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  transactingAsset
   message
-  relayerFee
   bumpRelayerFeeCount
+  relayerFees
+  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1321,6 +1540,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [consensystest_Sequencer!]!
+  consensystest_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: consensystest_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): consensystest_RelayerFee
+  consensystest_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: consensystest_RelayerFee_orderBy
+    orderDirection: consensystest_OrderDirection
+    where: consensystest_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: consensystest_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [consensystest_RelayerFee!]!
   consensystest_originTransfer(
     id: ID!
     """
@@ -1565,10 +1810,79 @@ type consensystest_Relayer {
   relayer: consensystest_Bytes
 }
 
+type consensystest_RelayerFee {
+  id: ID!
+  transfer: consensystest_OriginTransfer!
+  fee: BigInt!
+  asset: consensystest_Bytes!
+}
+
+input consensystest_RelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: consensystest_OriginTransfer_filter
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  asset: consensystest_Bytes
+  asset_not: consensystest_Bytes
+  asset_gt: consensystest_Bytes
+  asset_lt: consensystest_Bytes
+  asset_gte: consensystest_Bytes
+  asset_lte: consensystest_Bytes
+  asset_in: [consensystest_Bytes!]
+  asset_not_in: [consensystest_Bytes!]
+  asset_contains: consensystest_Bytes
+  asset_not_contains: consensystest_Bytes
+  """Filter for the block changed event."""
+  _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_RelayerFee_filter]
+  or: [consensystest_RelayerFee_filter]
+}
+
+enum consensystest_RelayerFee_orderBy {
+  id
+  transfer
+  fee
+  asset
+}
+
 type consensystest_RelayerFeesIncrease {
   id: ID!
   transfer: consensystest_OriginTransfer!
   increase: BigInt
+  asset: consensystest_Bytes
   caller: consensystest_Bytes!
   transactionHash: consensystest_Bytes!
   timestamp: BigInt!
@@ -1615,14 +1929,32 @@ input consensystest_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
+  asset: consensystest_Bytes
+  asset_not: consensystest_Bytes
+  asset_gt: consensystest_Bytes
+  asset_lt: consensystest_Bytes
+  asset_gte: consensystest_Bytes
+  asset_lte: consensystest_Bytes
+  asset_in: [consensystest_Bytes!]
+  asset_not_in: [consensystest_Bytes!]
+  asset_contains: consensystest_Bytes
+  asset_not_contains: consensystest_Bytes
   caller: consensystest_Bytes
   caller_not: consensystest_Bytes
+  caller_gt: consensystest_Bytes
+  caller_lt: consensystest_Bytes
+  caller_gte: consensystest_Bytes
+  caller_lte: consensystest_Bytes
   caller_in: [consensystest_Bytes!]
   caller_not_in: [consensystest_Bytes!]
   caller_contains: consensystest_Bytes
   caller_not_contains: consensystest_Bytes
   transactionHash: consensystest_Bytes
   transactionHash_not: consensystest_Bytes
+  transactionHash_gt: consensystest_Bytes
+  transactionHash_lt: consensystest_Bytes
+  transactionHash_gte: consensystest_Bytes
+  transactionHash_lte: consensystest_Bytes
   transactionHash_in: [consensystest_Bytes!]
   transactionHash_not_in: [consensystest_Bytes!]
   transactionHash_contains: consensystest_Bytes
@@ -1661,12 +1993,15 @@ input consensystest_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_RelayerFeesIncrease_filter]
+  or: [consensystest_RelayerFeesIncrease_filter]
 }
 
 enum consensystest_RelayerFeesIncrease_orderBy {
   id
   transfer
   increase
+  asset
   caller
   transactionHash
   timestamp
@@ -1690,12 +2025,18 @@ input consensystest_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: consensystest_Bytes
   relayer_not: consensystest_Bytes
+  relayer_gt: consensystest_Bytes
+  relayer_lt: consensystest_Bytes
+  relayer_gte: consensystest_Bytes
+  relayer_lte: consensystest_Bytes
   relayer_in: [consensystest_Bytes!]
   relayer_not_in: [consensystest_Bytes!]
   relayer_contains: consensystest_Bytes
   relayer_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_Relayer_filter]
+  or: [consensystest_Relayer_filter]
 }
 
 enum consensystest_Relayer_orderBy {
@@ -1728,6 +2069,8 @@ input consensystest_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_RootCount_filter]
+  or: [consensystest_RootCount_filter]
 }
 
 enum consensystest_RootCount_orderBy {
@@ -1776,6 +2119,10 @@ input consensystest_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: consensystest_Bytes
   root_not: consensystest_Bytes
+  root_gt: consensystest_Bytes
+  root_lt: consensystest_Bytes
+  root_gte: consensystest_Bytes
+  root_lte: consensystest_Bytes
   root_in: [consensystest_Bytes!]
   root_not_in: [consensystest_Bytes!]
   root_contains: consensystest_Bytes
@@ -1790,12 +2137,20 @@ input consensystest_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: consensystest_Bytes
   caller_not: consensystest_Bytes
+  caller_gt: consensystest_Bytes
+  caller_lt: consensystest_Bytes
+  caller_gte: consensystest_Bytes
+  caller_lte: consensystest_Bytes
   caller_in: [consensystest_Bytes!]
   caller_not_in: [consensystest_Bytes!]
   caller_contains: consensystest_Bytes
   caller_not_contains: consensystest_Bytes
   transactionHash: consensystest_Bytes
   transactionHash_not: consensystest_Bytes
+  transactionHash_gt: consensystest_Bytes
+  transactionHash_lt: consensystest_Bytes
+  transactionHash_gte: consensystest_Bytes
+  transactionHash_lte: consensystest_Bytes
   transactionHash_in: [consensystest_Bytes!]
   transactionHash_not_in: [consensystest_Bytes!]
   transactionHash_contains: consensystest_Bytes
@@ -1834,6 +2189,8 @@ input consensystest_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_RootMessageSent_filter]
+  or: [consensystest_RootMessageSent_filter]
 }
 
 enum consensystest_RootMessageSent_orderBy {
@@ -1937,6 +2294,8 @@ input consensystest_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_RouterDailyTVL_filter]
+  or: [consensystest_RouterDailyTVL_filter]
 }
 
 enum consensystest_RouterDailyTVL_orderBy {
@@ -1962,18 +2321,30 @@ input consensystest_Router_filter {
   isActive_not_in: [Boolean!]
   owner: consensystest_Bytes
   owner_not: consensystest_Bytes
+  owner_gt: consensystest_Bytes
+  owner_lt: consensystest_Bytes
+  owner_gte: consensystest_Bytes
+  owner_lte: consensystest_Bytes
   owner_in: [consensystest_Bytes!]
   owner_not_in: [consensystest_Bytes!]
   owner_contains: consensystest_Bytes
   owner_not_contains: consensystest_Bytes
   recipient: consensystest_Bytes
   recipient_not: consensystest_Bytes
+  recipient_gt: consensystest_Bytes
+  recipient_lt: consensystest_Bytes
+  recipient_gte: consensystest_Bytes
+  recipient_lte: consensystest_Bytes
   recipient_in: [consensystest_Bytes!]
   recipient_not_in: [consensystest_Bytes!]
   recipient_contains: consensystest_Bytes
   recipient_not_contains: consensystest_Bytes
   proposedOwner: consensystest_Bytes
   proposedOwner_not: consensystest_Bytes
+  proposedOwner_gt: consensystest_Bytes
+  proposedOwner_lt: consensystest_Bytes
+  proposedOwner_gte: consensystest_Bytes
+  proposedOwner_lte: consensystest_Bytes
   proposedOwner_in: [consensystest_Bytes!]
   proposedOwner_not_in: [consensystest_Bytes!]
   proposedOwner_contains: consensystest_Bytes
@@ -1989,6 +2360,8 @@ input consensystest_Router_filter {
   assetBalances_: consensystest_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_Router_filter]
+  or: [consensystest_Router_filter]
 }
 
 enum consensystest_Router_orderBy {
@@ -2022,12 +2395,18 @@ input consensystest_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: consensystest_Bytes
   sequencer_not: consensystest_Bytes
+  sequencer_gt: consensystest_Bytes
+  sequencer_lt: consensystest_Bytes
+  sequencer_gte: consensystest_Bytes
+  sequencer_lte: consensystest_Bytes
   sequencer_in: [consensystest_Bytes!]
   sequencer_not_in: [consensystest_Bytes!]
   sequencer_contains: consensystest_Bytes
   sequencer_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_Sequencer_filter]
+  or: [consensystest_Sequencer_filter]
 }
 
 enum consensystest_Sequencer_orderBy {
@@ -2061,12 +2440,18 @@ input consensystest_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: consensystest_Bytes
   caller_not: consensystest_Bytes
+  caller_gt: consensystest_Bytes
+  caller_lt: consensystest_Bytes
+  caller_gte: consensystest_Bytes
+  caller_lte: consensystest_Bytes
   caller_in: [consensystest_Bytes!]
   caller_not_in: [consensystest_Bytes!]
   caller_contains: consensystest_Bytes
   caller_not_contains: consensystest_Bytes
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_Setting_filter]
+  or: [consensystest_Setting_filter]
 }
 
 enum consensystest_Setting_orderBy {
@@ -2127,12 +2512,20 @@ input consensystest_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: consensystest_Bytes
   caller_not: consensystest_Bytes
+  caller_gt: consensystest_Bytes
+  caller_lt: consensystest_Bytes
+  caller_gte: consensystest_Bytes
+  caller_lte: consensystest_Bytes
   caller_in: [consensystest_Bytes!]
   caller_not_in: [consensystest_Bytes!]
   caller_contains: consensystest_Bytes
   caller_not_contains: consensystest_Bytes
   transactionHash: consensystest_Bytes
   transactionHash_not: consensystest_Bytes
+  transactionHash_gt: consensystest_Bytes
+  transactionHash_lt: consensystest_Bytes
+  transactionHash_gte: consensystest_Bytes
+  transactionHash_lte: consensystest_Bytes
   transactionHash_in: [consensystest_Bytes!]
   transactionHash_not_in: [consensystest_Bytes!]
   transactionHash_contains: consensystest_Bytes
@@ -2171,6 +2564,8 @@ input consensystest_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: consensystest_BlockChangedFilter
+  and: [consensystest_SlippageUpdate_filter]
+  or: [consensystest_SlippageUpdate_filter]
 }
 
 enum consensystest_SlippageUpdate_orderBy {
@@ -2394,6 +2789,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [consensystest_Sequencer!]!
+  consensystest_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: consensystest_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): consensystest_RelayerFee
+  consensystest_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: consensystest_RelayerFee_orderBy
+    orderDirection: consensystest_OrderDirection
+    where: consensystest_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: consensystest_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [consensystest_RelayerFee!]!
   consensystest_originTransfer(
     id: ID!
     """
@@ -2645,6 +3066,8 @@ type consensystest__Block_ {
   hash: consensystest_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
