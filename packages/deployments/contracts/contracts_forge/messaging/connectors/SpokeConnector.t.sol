@@ -182,7 +182,7 @@ contract SpokeConnector_Dispatch is Base {
   event SnapshotRootSaved(uint256 snapshotId, bytes32 root, uint256 count);
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
-  address allowedCaller = label(newAddress(), "allowedCaller");
+  address allowedCaller = makeAddr("allowedCaller");
   uint256 snapshotId = block.timestamp / SNAPSHOT_DURATION;
 
   function setUp() public virtual override {

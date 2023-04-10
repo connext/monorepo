@@ -51,7 +51,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event AggregateRootProposed(
     uint256 snapshotId,
-    uint256 disputeCliff,
+    uint256 endOfDispute,
     bytes32 aggregateRoot,
     bytes32 baseRoot,
     bytes32[] snapshotsRoots,
@@ -70,7 +70,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_SlowModeOn();
 
-  error RootManager_OptimsiticModeOn();
+  error RootManager_OptimisticModeOn();
 
   error RootManager_ProposeInProgress();
 
@@ -78,7 +78,19 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_EmptyFinalizedOptimisticRoot();
 
+  error RootManager_OldAggregateRoot();
+
   // ============ Properties ============
+
+  /**
+   * @notice The time watchers have to detect and invalidate the proposed root.
+   */
+  uint256 public constant DISPUTE_TIME = 30 minutes;
+
+  /**
+   * @notice Duration of the snapshot
+   */
+  uint256 public constant SNAPSHOT_DURATION = 30 minutes;
 
   /**
    * @notice Maximum number of values to dequeue from the queue in one sitting (one call of `propagate`
@@ -87,20 +99,23 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   uint128 public constant DEQUEUE_MAX = 100;
 
   /**
-   * @notice The time that the system has in order to detect and invalidate the proposed root.
-   */
-  uint256 public constant DISPUTE_TIME = 30 minutes;
-
-  /**
-   * @notice Duration of the snapshot
-   */
-  uint256 public SNAPSHOT_DURATION = 30 minutes;
-
-  /**
    * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
    * the validity and pause if necessary.
    */
   uint256 public delayBlocks;
+
+  /**
+   * @notice The amount of inserted leaves prior to switching to optimistic mode
+   * @dev Used to prevent the propagation of an old aggregate root right after switching to Slow mode.
+   * After switching back to slow mode, if the count didnt change from previous slow mode, we consider the root as an old one since
+   * probably lot of optimistic roots have been propagated.
+   * Example: Propagation in slow mode happens, switch to Op Mode, multiple propagations happen, switch back to Slow mode.
+   * If at this point someone calls propagate and the queue is empty or non of elemenets are ready, _slowPropagate will
+   * call the dequeue function which will return the old root and count before Op mode was activated. And since multiple
+   * propagations happened while in optimistic mode, the lastPropagatedRoot will be different than the old but current MERKLE.root
+   * which will lead to propagating a deprecated root.
+   */
+  uint256 public lastCountBeforeOpMode;
 
   /**
    * @notice True if the system is working in optimistic mode. Otherwise is working in slow mode
@@ -112,6 +127,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * aggregate roots in `propagate`.
    */
   bytes32 public lastPropagatedRoot;
+
+  /**
+  @notice The last finalized optimistic aggregate root.
+   */
+  bytes32 public finalizedOptimisticAggregateRoot;
 
   /**
    * @notice Queue used for management of verification for inbound roots from spoke chains. Once
@@ -128,31 +148,26 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   ProposedData public proposedAggregateRoot;
 
   /**
-  @notice The last finalized optimistic aggregate root.
-   */
-  bytes32 public finalizedOptimisticAggregateRoot;
-
-  /**
-   * @dev This is used for the `onlyProposers` modifier, which gates who
-   * can propose new roots using `proposeAggregateRoot`.
-   */
-  mapping(address => bool) public allowlistedProposers;
-
-  /**
    * @notice MerkleTreeManager contract instance. Will hold the active tree of aggregated inbound roots.
    * The root of this tree will be distributed crosschain to all spoke domains.
    */
   MerkleTreeManager public immutable MERKLE;
 
   /**
+   * @notice This is used for the `onlyProposers` modifier, which gates who
+   * can propose new roots using `proposeAggregateRoot`.
+   */
+  mapping(address => bool) public allowlistedProposers;
+
+  /**
    * @notice Struct to store the proposed data
    * @dev The list of the snapshots roots and the domains must be in the
    * same order as the roots insertions on the tree.
-   * @param disputeCliff The timestamp when the dispute period is over
+   * @param endOfDispute The timestamp when the dispute period is over
    * @param aggregateRoot The new aggregate root
    */
   struct ProposedData {
-    uint256 disputeCliff;
+    uint256 endOfDispute;
     bytes32 aggregateRoot;
   }
 
@@ -294,16 +309,17 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   /**
    * @notice Propose a new aggregate root
-   * @dev snapshotId, snapshotRoots and domains are needed for validation and DA for off-chain agents.
-   * In the case of domains we need to check which are the current valid domains at that moment and store them on the
-   * propose data.
+   * @dev snapshotId, snapshotRoots and domains are needed for validation and data availability for off-chain agents.
+   * In the case of domains we need to check which are the current valid domains at the time of proposing.
    * This is gonna be used by the off-chain scripts to know which domains to check when validating each proposition.
    * This is to avoid problems if a new domain is added in the middle of an on-going propose.
+   * Domains should be in the same order as they are in this contract.
+   * Snapshot roots provided should be in order of insertion and should respect the domains order.
    *
    * @param _snapshotId The snapshot id used
    * @param _aggregateRoot The new aggregate root
-   * @param _snapshotsRoots The array with all snapshots roots used to generate the aggregateRoot in order of insertion
-   * @param _domains The array with all the domains in the correct order
+   * @param _snapshotsRoots Array of snapshot roots inserted
+   * @param _domains Array of all the domains
    */
   function proposeAggregateRoot(
     uint256 _snapshotId,
@@ -311,27 +327,25 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains
   ) external onlyProposer onlyOptimisticMode checkDomains(_domains) {
-    if (_snapshotId == 0 || _aggregateRoot == 0) revert RootManager_InvalidAggregateRoot();
     if (_snapshotId != block.timestamp / SNAPSHOT_DURATION) revert RootManager_InvalidSnapshotId(_snapshotId);
     if (proposedAggregateRoot.aggregateRoot > 0) revert RootManager_ProposeInProgress();
 
-    uint256 _disputeCliff = block.timestamp + DISPUTE_TIME;
-    bytes32 _baseRoot = MERKLE.root();
-    proposedAggregateRoot = ProposedData(_disputeCliff, _aggregateRoot);
+    uint256 _endOfDispute = block.timestamp + DISPUTE_TIME;
+    proposedAggregateRoot = ProposedData(_endOfDispute, _aggregateRoot);
 
-    emit AggregateRootProposed(_snapshotId, _disputeCliff, _aggregateRoot, _baseRoot, _snapshotsRoots, _domains);
+    emit AggregateRootProposed(_snapshotId, _endOfDispute, _aggregateRoot, MERKLE.root(), _snapshotsRoots, _domains);
   }
 
   /**
    * @notice Finalizes the proposed aggregate root. This makes the current proposed root the new validated and
    * ready to propagate root.
-   * @dev The system has to be in optimistic mode and the dispute cliff over.
+   * @dev The system has to be in optimistic mode and the end of dispute reached.
    * Finalized root will stop being monitored by off-chain agents.
    */
   function finalize() public onlyOptimisticMode {
     ProposedData memory _proposedAggregateRoot = proposedAggregateRoot;
     if (_proposedAggregateRoot.aggregateRoot == 0) revert RootManager_InvalidAggregateRoot();
-    if (_proposedAggregateRoot.disputeCliff > block.timestamp) revert RootManager_ProposeInProgress();
+    if (_proposedAggregateRoot.endOfDispute > block.timestamp) revert RootManager_ProposeInProgress();
 
     finalizedOptimisticAggregateRoot = _proposedAggregateRoot.aggregateRoot;
     delete proposedAggregateRoot;
@@ -435,7 +449,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   ) internal {
     delete finalizedOptimisticAggregateRoot;
     (bytes32 _aggregateRoot, uint256 _count) = dequeue();
-
+    if (_count <= lastCountBeforeOpMode) revert RootManager_OldAggregateRoot();
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
     emit RootPropagated(_aggregateRoot, _count, domainsHash);
   }
@@ -493,7 +507,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external whenNotPaused onlyConnector(_domain) {
-    if (optimisticMode) revert RootManager_OptimsiticModeOn();
+    if (optimisticMode) revert RootManager_OptimisticModeOn();
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootReceived(_domain, _inbound, lastIndex);
   }
@@ -526,7 +540,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice Owner can set the system in slow mode and clear the proposed aggregate root.
+   * @notice Watcher can set the system in slow mode.
+   * @dev Clear the proposed aggregate root.
    */
   function activateSlowMode() external onlyWatcher onlyOptimisticMode {
     optimisticMode = false;
@@ -539,13 +554,14 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Owner can set the system to optimistic mode.
    * @dev Elements in the queue will be discarded.
    * To save gas we are not deleting the elements from the queue, but moving the last counter to first - 1
-   * so we can reassing new elements to those positions in the future.
+   * so we can reassign new elements to those positions in the future.
    * Discarded roots will be included on the upcoming optimistic aggregateRoot.
    */
   function activateOptimisticMode() external onlyOwner {
-    if (optimisticMode) revert RootManager_OptimsiticModeOn();
+    if (optimisticMode) revert RootManager_OptimisticModeOn();
 
     pendingInboundRoots.last = pendingInboundRoots.first - 1;
+    lastCountBeforeOpMode = MERKLE.count();
 
     optimisticMode = true;
     emit OptimisticModeActivated();

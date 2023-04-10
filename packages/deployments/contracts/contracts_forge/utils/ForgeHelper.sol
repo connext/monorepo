@@ -7,7 +7,6 @@ import "forge-std/console.sol";
 abstract contract ForgeHelper is Test {
   using stdStorage for StdStorage;
   address public constant NATIVE_ASSET = address(0);
-  bytes32 internal nextAddressSeed = keccak256(abi.encodePacked("address"));
 
   /// @notice          compute the future address where a contract will be deployed, based on the deployer nonce and address
   ///                  see https://ethereum.stackexchange.com/questions/24248/how-to-calculate-an-ethereum-contracts-address-during-its-creation-using-the-so
@@ -31,16 +30,5 @@ abstract contract ForgeHelper is Test {
       mstore(0, _hash)
       _address := mload(0)
     }
-  }
-
-  function newAddress() internal returns (address) {
-    address payable nextAddress = payable(address(uint160(uint256(nextAddressSeed))));
-    nextAddressSeed = keccak256(abi.encodePacked(nextAddressSeed));
-    return nextAddress;
-  }
-
-  function label(address addy, string memory name) internal returns (address) {
-      vm.label(addy, name);
-      return addy;
   }
 }
