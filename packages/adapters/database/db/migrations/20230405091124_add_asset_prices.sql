@@ -12,7 +12,5 @@ GRANT SELECT ON public.asset_prices to query;
 GRANT SELECT ON public.asset_prices to reader;
 
 
-ALTER TABLE transfers ADD column asset_usd_price numeric DEFAULT 0;
-
 -- migrate:down
 DROP TABLE IF EXISTS public.asset_prices;
