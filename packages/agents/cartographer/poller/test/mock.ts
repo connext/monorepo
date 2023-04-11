@@ -48,7 +48,15 @@ export const mockChainData = chainDataToMap([
     confirmations: 1,
     shortName: "lt-1337",
     network: "lt-1337",
-    assetId: {},
+    assetId: {
+      [mkAddress("0xb")]: {
+        name: "Wrapped Ether",
+        symbol: "WETH",
+        mainnetEquivalent: mkAddress("0xb"),
+        decimals: 18,
+        coingeckoId: "ethereum",
+      },
+    },
   },
   {
     name: "Local Testnet 1338",

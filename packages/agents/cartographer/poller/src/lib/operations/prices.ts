@@ -1,13 +1,7 @@
-import {
-  AssetPrice,
-  axiosGet,
-  createLoggingContext,
-  getNtpTimeSeconds,
-  jsonifyError,
-  NxtpError,
-} from "@connext/nxtp-utils";
+import { AssetPrice, createLoggingContext, getNtpTimeSeconds, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
+import { axiosGet } from "../../mockable";
 
 const ASSET_PRICE_START_TIMESTAMP = 1671660155;
 
@@ -24,6 +18,7 @@ export const updateAssetPrices = async () => {
     logger.error("Error getting the assets. Empty Assets!!", requestContext, methodContext, undefined);
     return;
   }
+
   const canonicalDomain = assets[0].canonicalDomain;
   const assetsOnCanonical = assets
     .filter((a) => a.domain === canonicalDomain)
