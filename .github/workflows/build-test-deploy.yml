@@ -10,10 +10,10 @@ on:
   pull_request:
   create:
     tag:
-      - "sdk:v*"
-      - "contracts:v*"
-      - "router:v*"
-      - "watcher:v*"
+      - "sdk-v*"
+      - "contracts-v*"
+      - "router-v*"
+      - "watcher-v*"
 
 jobs:
   build-and-test:
@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
@@ -54,7 +54,7 @@ jobs:
           version: nightly
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "yarn"
@@ -85,51 +85,87 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Extract version from package.json
-        run: echo "VERSION=$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
-
-      - name: Determine tags based on version
-        id: version_type
+      - name: Extract version, determine tag, and publish SDK
+        if: ${{ startsWith(github.ref, 'refs/tags/sdk-v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          VERSION=$(cat packages/agents/sdk/package.json | jq -r '.version')
+
           if [[ "$VERSION" == *"-alpha"* ]]; then
-            echo "::set-output name=tag::alpha"
+            tag="alpha"
           elif [[ "$VERSION" == *"-beta"* ]]; then
-            echo "::set-output name=tag::beta"
+            tag="beta"
           fi
 
-      - name: Publish SDK
-        if: ${{ startsWith(github.ref, 'refs/tags/sdk:v') }}
+          workspaces=(
+            "packages/utils:@connext/nxtp-utils"
+            "packages/deployments/contracts:@connext/smart-contracts"
+            "packages/adapters/txservice:@connext/nxtp-txservice"
+            "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
+            "packages/adapters/cache:@connext/nxtp-adapters-cache"
+            "packages/agents/sdk:@connext/sdk"
+          )
+
+          for entry in "${workspaces[@]}"; do
+            IFS=":"; read -ra split_entry <<< "$entry"
+            directory="${split_entry[0]}"
+            workspace="${split_entry[1]}"
+            subpackage_version=$(cat $directory/package.json | jq -r '.version')
+
+            echo "Checking $workspace for existing version..."
+            published_version=$(npm view $workspace version)
+
+            if [[ "$published_version" != "$subpackage_version" ]]; then
+              echo "Publishing $workspace with version $subpackage_version"
+              if [[ "$tag" ]]; then
+                yarn workspace $workspace npm publish --access public --tag $tag
+              else
+                yarn workspace $workspace npm publish --access public
+              fi
+            else
+              echo "Skipping $workspace as version $subpackage_version already exists"
+            fi
+          done
+
+      - name: Extract version, determine tag, and publish contracts
+        if: ${{ startsWith(github.ref, 'refs/tags/contracts-v') }}
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [[ "${{ steps.version_type.outputs.tag }}" ]]; then
-            yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-txservice npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/nxtp-adapters-cache npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/sdk npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          else
-            yarn workspace @connext/nxtp-utils npm publish --access public
-            yarn workspace @connext/smart-contracts npm publish --access public
-            yarn workspace @connext/nxtp-txservice npm publish --access public
-            yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
-            yarn workspace @connext/nxtp-adapters-cache npm publish --access public
-            yarn workspace @connext/sdk npm publish --access public
+          VERSION=$(cat packages/deployments/contracts/package.json | jq -r '.version')
+
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            tag="alpha"
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            tag="beta"
           fi
 
-      - name: Publish Contracts
-        if: ${{ startsWith(github.ref, 'refs/tags/contracts:v') }}
-        env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [[ "${{ steps.version_type.outputs.tag }}" ]]; then
-            yarn workspace @connext/nxtp-utils npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-            yarn workspace @connext/smart-contracts npm publish --access public --tag ${{ steps.version_type.outputs.tag }}
-          else
-            yarn workspace @connext/nxtp-utils npm publish --access public
-            yarn workspace @connext/smart-contracts npm publish --access public
-          fi
+          workspaces=(
+            "packages/utils:@connext/nxtp-utils"
+            "packages/deployments/contracts:@connext/smart-contracts"
+          )
+
+          for entry in "${workspaces[@]}"; do
+            IFS=":"; read -ra split_entry <<< "$entry"
+            directory="${split_entry[0]}"
+            workspace="${split_entry[1]}"
+            subpackage_version=$(cat $directory/package.json | jq -r '.version')
+
+            echo "Checking $workspace for existing version..."
+            published_version=$(npm view $workspace version)
+
+            if [[ "$published_version" != "$subpackage_version" ]]; then
+              echo "Publishing $workspace with version $subpackage_version"
+              if [[ "$tag" ]]; then
+                yarn workspace $workspace npm publish --access public --tag $tag
+              else
+                yarn workspace $workspace npm publish --access public
+              fi
+            else
+              echo "Skipping $workspace as version $subpackage_version already exists"
+            fi
+          done
 
   build-and-push-router-publisher-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
@@ -143,7 +179,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -155,8 +191,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -195,7 +231,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -207,8 +243,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -247,7 +283,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -259,8 +295,8 @@ jobs:
       - name: Remove router from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *router:* ]]; then
-            new_tag=${tag/router:/}
+          if [[ $tag == *router-* ]]; then
+            new_tag=${tag/router-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -299,7 +335,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -341,7 +377,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -381,7 +417,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -425,7 +461,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -472,7 +508,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -514,7 +550,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -526,8 +562,8 @@ jobs:
       - name: Remove watcher from version tag
         run: |
           tag=${{ github.ref_name }}
-          if [[ $tag == *watcher:* ]]; then
-            new_tag=${tag/watcher:/}
+          if [[ $tag == *watcher-* ]]; then
+            new_tag=${tag/watcher-/}
             echo "::set-output name=docker_tag::$new_tag"
           else
             echo "::set-output name=docker_tag::''"
@@ -585,7 +621,7 @@ jobs:
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: run smoke tests
         run: |
@@ -637,10 +673,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "18"
 
@@ -680,7 +716,7 @@ jobs:
           terraform_version: 1.1.7
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -724,7 +760,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -787,7 +823,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -829,7 +865,7 @@ jobs:
       relayer-tags: ${{ needs.smoke-tests.outputs.relayer-tags }}
 
   terraform-services-core-prod-testnet:
-    if: github.ref == 'refs/heads/testnet-prod'
+    if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -858,7 +894,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -900,7 +936,7 @@ jobs:
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
 
   terraform-services-backend-prod-testnet:
-    if: github.ref == 'refs/heads/testnet-prod'
+    if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -923,7 +959,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -988,7 +1024,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1
@@ -1050,7 +1086,7 @@ jobs:
           version: "3.7.2"
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: Fooji/create-aws-profile-action@v1

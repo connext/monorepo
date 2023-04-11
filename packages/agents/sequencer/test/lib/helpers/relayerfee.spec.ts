@@ -72,15 +72,18 @@ describe("Helpers:RelayerFee", () => {
     });
 
     it("should return true if relayer fee is enough both native and usd", async () => {
-      getConversionRateStub.resolves(100);
+      // scenario: transfering weth on xdai
+      getDecimalsForAssetStub.resolves(18);
+      getConversionRateStub.onCall(0).resolves(0.9992302253800343); // 1 XDAI = 1 USD
+      getConversionRateStub.onCall(1).resolves(0.0005429445181187423); // $1 = 0.0054 ETH ($1,840.35)
       const transactingAsset = mkAddress("0xaaa");
       const transfer = mock.entity.xtransfer({
-        relayerFees: { [constants.AddressZero]: "1", [transactingAsset]: "60" },
+        relayerFees: { [constants.AddressZero]: "184095455962097", [transactingAsset]: "525094043977850" },
         asset: transactingAsset,
       }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("60000000000100"));
+      calculateRelayerFeeStub.resolves(BigNumber.from("163985699539200000"));
       const res = await canSubmitToRelayer(transfer);
-      expect(res).to.be.deep.eq({ canSubmit: true, needed: "48000000000080" });
+      expect(res).to.be.deep.eq({ canSubmit: true, needed: "131188559631360000" });
     });
 
     it("should return false if relayerFee isn't enough USD", async () => {

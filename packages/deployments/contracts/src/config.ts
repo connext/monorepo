@@ -96,7 +96,7 @@ export const hardhatNetworks = {
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: process.env.OPTIMSIM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
+    url: urlOverride || process.env.OPTIMISM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -156,7 +156,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
-    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
+    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.ankr.com/gnosis",
     verify: {
       etherscan: {
         apiKey: process.env.GNOSISSCAN_API_KEY!,
@@ -186,7 +186,7 @@ export const hardhatNetworks = {
   "arbitrum-one": {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 42161,
-    url: "https://arb1.arbitrum.io/rpc",
+    url: urlOverride || process.env.ARB1_PROVIDER_URL || "https://arb1.arbitrum.io/rpc",
     companionNetworks: {
       hub: "mainnet",
     },
