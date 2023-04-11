@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../shared";
-import { updateAssetPrices } from "../../lib/operations";
+import { updateAssetPrices, updateHistoricAssetPrices } from "../../lib/operations";
 
 export const bindPrices = async (context: AppContext) => {
   const { logger } = context;
@@ -9,6 +9,7 @@ export const bindPrices = async (context: AppContext) => {
   try {
     logger.debug("Bind asset usd prices polling loop start", requestContext, methodContext);
     await updateAssetPrices();
+    await updateHistoricAssetPrices();
     logger.debug("Bind asset usd prices polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
