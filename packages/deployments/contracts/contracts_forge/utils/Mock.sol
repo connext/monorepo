@@ -268,6 +268,18 @@ contract MockSpokeConnector is SpokeConnector {
   function _verifySender(address _expected) internal override returns (bool) {
     return verified;
   }
+
+  function setSnapshotRoot(uint256 _snapshotId, bytes32 _root) external {
+    snapshotRoots[_snapshotId] = _root;
+  }
+
+  function count() external returns (uint256) {
+    return MERKLE.count();
+  }
+
+  function lastCompletedSnapshotId() external view returns (uint256) {
+    return _getLastCompletedSnapshotId();
+  }
 }
 
 contract MockHubConnector is HubConnector {

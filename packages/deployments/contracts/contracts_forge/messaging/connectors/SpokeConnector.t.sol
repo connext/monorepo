@@ -7,10 +7,12 @@ import {WatcherManager} from "../../../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../../../contracts/messaging/MerkleTreeManager.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
 import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.sol";
+import {TypeCasts} from "../../../contracts/shared/libraries/TypeCasts.sol";
+import {MerkleLib} from "../../../contracts/messaging/libraries/MerkleLib.sol";
 
 import "../../utils/ForgeHelper.sol";
 
-contract SpokeConnectorTest is ForgeHelper {
+contract Base is ForgeHelper {
   event MessageSent(bytes data, bytes encodedData, address caller);
 
   using stdStorage for StdStorage;
@@ -25,6 +27,7 @@ contract SpokeConnectorTest is ForgeHelper {
 
   uint32 _destinationDomain = uint32(456);
   address _destinationAMB = address(456);
+  address _destinationAddress = address(456);
 
   uint32 _mainnetDomain = uint32(345);
   address _destinationMainnetAMB = address(456456);
@@ -35,9 +38,10 @@ contract SpokeConnectorTest is ForgeHelper {
 
   uint256 PROCESS_GAS = 850_000;
   uint256 RESERVE_GAS = 15_000;
+  uint256 SNAPSHOT_DURATION = 30 minutes;
 
   // ============ Setup ============
-  function setUp() public {
+  function setUp() public virtual {
     utils_deployAndSetup();
   }
 
@@ -67,6 +71,12 @@ contract SpokeConnectorTest is ForgeHelper {
   function utils_mockIsWatcher_true(address watcher) public {
     vm.prank(owner);
     _watcherManager.addWatcher(watcher);
+  }
+}
+
+contract SpokeConnector_General is Base {
+  function test_SpokeConnector__snapshotPeriod() public {
+    assertEq(spokeConnector.SNAPSHOT_DURATION(), SNAPSHOT_DURATION);
   }
 
   function test_SpokeConnector__setRateLimitBlocks_works() public {
@@ -165,5 +175,152 @@ contract SpokeConnectorTest is ForgeHelper {
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, proof, 0);
     spokeConnector.proveAndProcess(proofs, bytes32(""), proof, 0);
+  }
+}
+
+contract SpokeConnector_Dispatch is Base {
+  event SnapshotRootSaved(uint256 snapshotId, bytes32 root, uint256 count);
+  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+
+  address allowedCaller = makeAddr("allowedCaller");
+  uint256 snapshotId = block.timestamp / SNAPSHOT_DURATION;
+
+  function setUp() public virtual override {
+    super.setUp();
+
+    address _arborist = address(spokeConnector);
+
+    vm.startPrank(owner);
+    _merkle.initialize(_arborist);
+    spokeConnector.addSender(allowedCaller);
+    vm.stopPrank();
+  }
+
+  function test_shouldSetASnapshotRoot() public {
+    bytes32 _expectedRoot = spokeConnector.outboundRoot();
+
+    // set snapshot root to zero to guarantee that dispatch will save the snapshot root in storage
+    MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, bytes32(0));
+
+    vm.prank(allowedCaller);
+    spokeConnector.dispatch(_destinationDomain, TypeCasts.addressToBytes32(_destinationAddress), bytes("data"));
+
+    bytes32 _snapshotRoot = spokeConnector.snapshotRoots(snapshotId);
+
+    assertEq(_snapshotRoot, _expectedRoot);
+  }
+
+  function test_shouldNotSaveTheSnapshotRoot(bytes32 _root) public {
+    vm.assume(_root > 0);
+
+    // set a random root to the snapshotId
+    MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, _root);
+
+    vm.prank(allowedCaller);
+    // should not modify the snapshotId's root set previously
+    spokeConnector.dispatch(_destinationDomain, TypeCasts.addressToBytes32(_destinationAddress), bytes("message"));
+
+    bytes32 _snapshotRoot = spokeConnector.snapshotRoots(snapshotId);
+
+    assertEq(_snapshotRoot, _root);
+  }
+
+  function test_emitEventIfSnapshotRootHasBeenSaved() public {
+    bytes32 _expectedRoot = spokeConnector.outboundRoot();
+    uint256 _count = MockSpokeConnector(payable(address(spokeConnector))).count();
+
+    // set snapshot root to zero to guarantee that dispatch will save the snapshot root in storage
+    MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, bytes32(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit SnapshotRootSaved(snapshotId, _expectedRoot, _count);
+
+    vm.prank(allowedCaller);
+    spokeConnector.dispatch(_destinationDomain, TypeCasts.addressToBytes32(_destinationAddress), bytes("message"));
+  }
+
+  function test_messageHasBeenDispatchedProperly(
+    uint32 destinationDomain,
+    bytes32 recipientAddress,
+    bytes memory messageBody,
+    bytes32 root,
+    uint256 count
+  ) public {
+    vm.assume(count > 0);
+    // set snapshot root to zero to guarantee that dispatch will save the snapshot root in storage
+    MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, bytes32(0));
+
+    bytes memory expectedMessage = abi.encodePacked(
+      _originDomain,
+      TypeCasts.addressToBytes32(allowedCaller),
+      uint32(0),
+      destinationDomain,
+      recipientAddress,
+      messageBody
+    );
+    bytes32 expectedMessageHash = keccak256(expectedMessage);
+    vm.mockCall(
+      address(_merkle),
+      abi.encodeWithSignature("insert(bytes32)", expectedMessageHash),
+      abi.encode(root, count)
+    );
+
+    vm.prank(allowedCaller);
+    (bytes32 messageHash, bytes memory message) = spokeConnector.dispatch(
+      destinationDomain,
+      recipientAddress,
+      messageBody
+    );
+
+    assertEq(messageHash, expectedMessageHash);
+    assertEq(message, expectedMessage);
+  }
+
+  function test_emitEventIfDispatch(
+    uint32 _destinationDomain,
+    bytes32 _recipientAddress,
+    bytes memory _messageBody,
+    bytes32 _root,
+    uint256 _count
+  ) public {
+    vm.assume(_count > 0);
+    // set snapshot root to zero to guarantee that dispatch will save the snapshot root in storage
+    MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, bytes32(0));
+
+    vm.expectEmit(true, true, true, true);
+
+    bytes memory _message = abi.encodePacked(
+      _originDomain,
+      TypeCasts.addressToBytes32(allowedCaller),
+      uint32(0),
+      _destinationDomain,
+      _recipientAddress,
+      _messageBody
+    );
+    bytes32 _messageHash = keccak256(_message);
+    vm.mockCall(address(_merkle), abi.encodeWithSignature("insert(bytes32)", _messageHash), abi.encode(_root, _count));
+
+    emit Dispatch(_messageHash, _count - 1, _root, _message);
+
+    vm.prank(allowedCaller);
+    spokeConnector.dispatch(_destinationDomain, _recipientAddress, _messageBody);
+  }
+}
+
+contract SpokeConnector_GetLastCompletedSnapshotId is Base {
+  function test_getLastCompletedSnapshotIdExternal(uint128 _snapshotId) public {
+    vm.assume(_snapshotId > 0);
+
+    vm.warp(SNAPSHOT_DURATION * _snapshotId);
+    assertEq(spokeConnector.getLastCompletedSnapshotId(), _snapshotId);
+  }
+}
+
+contract SpokeConnector_LastCompletedSnapshotId is Base {
+  function test_getlastCompletedSnapshotIdInternal(uint128 _snapshotId) public {
+    vm.assume(_snapshotId > 0);
+
+    vm.warp(SNAPSHOT_DURATION * _snapshotId);
+    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastCompletedSnapshotId(), _snapshotId);
   }
 }
