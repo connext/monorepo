@@ -5,16 +5,14 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   NxtpError,
-  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
 export const updateAssetPrices = async () => {
   const {
-    adapters: { subgraph, database },
+    adapters: { database },
     logger,
-    domains,
     chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateAssetPrices.name);
