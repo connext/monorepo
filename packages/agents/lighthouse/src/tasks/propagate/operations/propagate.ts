@@ -171,8 +171,7 @@ export const finalizeAndPropagate = async () => {
   });
 
   // TODO:
-  //const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("propagate", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
     _connectors,
     _fees,
     _encodedData,
