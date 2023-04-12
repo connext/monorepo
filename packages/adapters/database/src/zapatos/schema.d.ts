@@ -1714,6 +1714,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **daily_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -1758,6 +1764,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **daily_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface Whereable {
       /**
@@ -1802,6 +1814,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -2275,6 +2293,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **hourly_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -2319,6 +2343,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **hourly_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface Whereable {
       /**
@@ -2363,6 +2393,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **hourly_transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -5913,6 +5949,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -5945,6 +5987,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume: number | null;
+      /**
+      * **transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price: number | null;
     }
     export interface Whereable {
       /**
@@ -5977,6 +6025,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.avg_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -6370,12 +6424,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees: db.JSONValue | null;
-      /**
-      * **transfers.asset_usd_price**
-      * - `numeric` in database
-      * - Nullable, default: `0`
-      */
-      asset_usd_price: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -6750,12 +6798,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees: db.JSONValue | null;
-      /**
-      * **transfers.asset_usd_price**
-      * - `numeric` in database
-      * - Nullable, default: `0`
-      */
-      asset_usd_price: number | null;
     }
     export interface Whereable {
       /**
@@ -7130,12 +7172,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.asset_usd_price**
-      * - `numeric` in database
-      * - Nullable, default: `0`
-      */
-      asset_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -7510,12 +7546,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.asset_usd_price**
-      * - `numeric` in database
-      * - Nullable, default: `0`
-      */
-      asset_usd_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -7890,14 +7920,1167 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.asset_usd_price**
-      * - `numeric` in database
-      * - Nullable, default: `0`
-      */
-      asset_usd_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **transfers_with_price**
+   * - View in database
+   */
+  export namespace transfers_with_price {
+    export type Table = 'transfers_with_price';
+    export interface Selectable {
+      /**
+      * **transfers_with_price.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id: string | null;
+      /**
+      * **transfers_with_price.nonce**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      nonce: db.Int8String | null;
+      /**
+      * **transfers_with_price.to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      to: string | null;
+      /**
+      * **transfers_with_price.call_data**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      call_data: string | null;
+      /**
+      * **transfers_with_price.origin_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_domain: string | null;
+      /**
+      * **transfers_with_price.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_domain: string | null;
+      /**
+      * **transfers_with_price.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+      receive_local: boolean | null;
+      /**
+      * **transfers_with_price.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **transfers_with_price.origin_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_asset: string | null;
+      /**
+      * **transfers_with_price.origin_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount: string | null;
+      /**
+      * **transfers_with_price.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset: string | null;
+      /**
+      * **transfers_with_price.origin_bridged_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount: string | null;
+      /**
+      * **transfers_with_price.xcall_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_caller: string | null;
+      /**
+      * **transfers_with_price.xcall_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.xcall_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_timestamp: number | null;
+      /**
+      * **transfers_with_price.xcall_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_price: string | null;
+      /**
+      * **transfers_with_price.xcall_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_limit: string | null;
+      /**
+      * **transfers_with_price.xcall_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_block_number: number | null;
+      /**
+      * **transfers_with_price.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **transfers_with_price.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+      status: transfer_status | null;
+      /**
+      * **transfers_with_price.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers: string[] | null;
+      /**
+      * **transfers_with_price.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset: string | null;
+      /**
+      * **transfers_with_price.destination_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount: string | null;
+      /**
+      * **transfers_with_price.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset: string | null;
+      /**
+      * **transfers_with_price.destination_local_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_local_amount: string | null;
+      /**
+      * **transfers_with_price.execute_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_caller: string | null;
+      /**
+      * **transfers_with_price.execute_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.execute_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_timestamp: number | null;
+      /**
+      * **transfers_with_price.execute_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_price: string | null;
+      /**
+      * **transfers_with_price.execute_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_limit: string | null;
+      /**
+      * **transfers_with_price.execute_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_block_number: number | null;
+      /**
+      * **transfers_with_price.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender: string | null;
+      /**
+      * **transfers_with_price.reconcile_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_caller: string | null;
+      /**
+      * **transfers_with_price.reconcile_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.reconcile_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_timestamp: number | null;
+      /**
+      * **transfers_with_price.reconcile_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_price: string | null;
+      /**
+      * **transfers_with_price.reconcile_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_limit: string | null;
+      /**
+      * **transfers_with_price.reconcile_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_block_number: number | null;
+      /**
+      * **transfers_with_price.update_time**
+      * - `timestamp` in database
+      * - Nullable, no default
+      */
+      update_time: Date | null;
+      /**
+      * **transfers_with_price.delegate**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      delegate: string | null;
+      /**
+      * **transfers_with_price.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      message_hash: string | null;
+      /**
+      * **transfers_with_price.canonical_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      canonical_domain: string | null;
+      /**
+      * **transfers_with_price.slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slippage: number | null;
+      /**
+      * **transfers_with_price.origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_sender: string | null;
+      /**
+      * **transfers_with_price.bridged_amt**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      bridged_amt: string | null;
+      /**
+      * **transfers_with_price.normalized_in**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      normalized_in: string | null;
+      /**
+      * **transfers_with_price.canonical_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      canonical_id: string | null;
+      /**
+      * **transfers_with_price.router_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      router_fee: string | null;
+      /**
+      * **transfers_with_price.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers_with_price.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers_with_price.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
+      /**
+      * **transfers_with_price.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status: string | null;
+      /**
+      * **transfers_with_price.backoff**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      backoff: number | null;
+      /**
+      * **transfers_with_price.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp: number | null;
+      /**
+      * **transfers_with_price.updated_slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      updated_slippage: number | null;
+      /**
+      * **transfers_with_price.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network: string | null;
+      /**
+      * **transfers_with_price.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message: string | null;
+      /**
+      * **transfers_with_price.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
+      /**
+      * **transfers_with_price.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
+      /**
+      * **transfers_with_price.asset_usd_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      asset_usd_price: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **transfers_with_price.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id: string | null;
+      /**
+      * **transfers_with_price.nonce**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      nonce: number | null;
+      /**
+      * **transfers_with_price.to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      to: string | null;
+      /**
+      * **transfers_with_price.call_data**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      call_data: string | null;
+      /**
+      * **transfers_with_price.origin_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_domain: string | null;
+      /**
+      * **transfers_with_price.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_domain: string | null;
+      /**
+      * **transfers_with_price.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+      receive_local: boolean | null;
+      /**
+      * **transfers_with_price.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **transfers_with_price.origin_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_asset: string | null;
+      /**
+      * **transfers_with_price.origin_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount: string | null;
+      /**
+      * **transfers_with_price.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset: string | null;
+      /**
+      * **transfers_with_price.origin_bridged_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount: string | null;
+      /**
+      * **transfers_with_price.xcall_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_caller: string | null;
+      /**
+      * **transfers_with_price.xcall_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.xcall_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_timestamp: number | null;
+      /**
+      * **transfers_with_price.xcall_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_price: string | null;
+      /**
+      * **transfers_with_price.xcall_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_limit: string | null;
+      /**
+      * **transfers_with_price.xcall_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_block_number: number | null;
+      /**
+      * **transfers_with_price.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **transfers_with_price.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+      status: transfer_status | null;
+      /**
+      * **transfers_with_price.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers: string[] | null;
+      /**
+      * **transfers_with_price.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset: string | null;
+      /**
+      * **transfers_with_price.destination_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount: string | null;
+      /**
+      * **transfers_with_price.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset: string | null;
+      /**
+      * **transfers_with_price.destination_local_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_local_amount: string | null;
+      /**
+      * **transfers_with_price.execute_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_caller: string | null;
+      /**
+      * **transfers_with_price.execute_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.execute_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_timestamp: number | null;
+      /**
+      * **transfers_with_price.execute_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_price: string | null;
+      /**
+      * **transfers_with_price.execute_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_limit: string | null;
+      /**
+      * **transfers_with_price.execute_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_block_number: number | null;
+      /**
+      * **transfers_with_price.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender: string | null;
+      /**
+      * **transfers_with_price.reconcile_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_caller: string | null;
+      /**
+      * **transfers_with_price.reconcile_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_transaction_hash: string | null;
+      /**
+      * **transfers_with_price.reconcile_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_timestamp: number | null;
+      /**
+      * **transfers_with_price.reconcile_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_price: string | null;
+      /**
+      * **transfers_with_price.reconcile_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_limit: string | null;
+      /**
+      * **transfers_with_price.reconcile_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_block_number: number | null;
+      /**
+      * **transfers_with_price.update_time**
+      * - `timestamp` in database
+      * - Nullable, no default
+      */
+      update_time: db.TimestampString | null;
+      /**
+      * **transfers_with_price.delegate**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      delegate: string | null;
+      /**
+      * **transfers_with_price.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      message_hash: string | null;
+      /**
+      * **transfers_with_price.canonical_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      canonical_domain: string | null;
+      /**
+      * **transfers_with_price.slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slippage: number | null;
+      /**
+      * **transfers_with_price.origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_sender: string | null;
+      /**
+      * **transfers_with_price.bridged_amt**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      bridged_amt: string | null;
+      /**
+      * **transfers_with_price.normalized_in**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      normalized_in: string | null;
+      /**
+      * **transfers_with_price.canonical_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      canonical_id: string | null;
+      /**
+      * **transfers_with_price.router_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      router_fee: string | null;
+      /**
+      * **transfers_with_price.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin: string | null;
+      /**
+      * **transfers_with_price.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin: string | null;
+      /**
+      * **transfers_with_price.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin: string | null;
+      /**
+      * **transfers_with_price.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status: string | null;
+      /**
+      * **transfers_with_price.backoff**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      backoff: number | null;
+      /**
+      * **transfers_with_price.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp: number | null;
+      /**
+      * **transfers_with_price.updated_slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      updated_slippage: number | null;
+      /**
+      * **transfers_with_price.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to: string | null;
+      /**
+      * **transfers_with_price.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network: string | null;
+      /**
+      * **transfers_with_price.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message: string | null;
+      /**
+      * **transfers_with_price.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status: string | null;
+      /**
+      * **transfers_with_price.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees: db.JSONValue | null;
+      /**
+      * **transfers_with_price.asset_usd_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      asset_usd_price: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **transfers_with_price.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.nonce**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.call_data**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      call_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+      receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_bridged_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      xcall_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      xcall_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_transacting_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.destination_local_amount**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_local_amount?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      execute_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_gas_price**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_price?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_gas_limit**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      reconcile_gas_limit?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      reconcile_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.update_time**
+      * - `timestamp` in database
+      * - Nullable, no default
+      */
+      update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.delegate**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      delegate?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      message_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.canonical_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      slippage?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.bridged_amt**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      bridged_amt?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.normalized_in**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      normalized_in?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.canonical_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.router_fee**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      router_fee?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.xcall_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      xcall_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.reconcile_tx_origin**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      reconcile_tx_origin?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.error_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.backoff**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      backoff?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.next_execution_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      next_execution_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.updated_slippage**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      updated_slippage?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_simulation_input**
+      * - `text` in database
+      * - Nullable, no default
+      */
+      execute_simulation_input?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_simulation_from**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_from?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_simulation_to**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.execute_simulation_network**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      execute_simulation_network?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.error_message**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      error_message?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.message_status**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      message_status?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.relayer_fees**
+      * - `jsonb` in database
+      * - Nullable, no default
+      */
+      relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.asset_usd_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      asset_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -10086,20 +11269,20 @@ declare module 'zapatos/schema' {
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = aggregated_roots.Table | asset_balances.Table | asset_prices.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_liquidity.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table | weekly_connext_metrics.Table | weekly_transfer_metrics.Table;
-    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | asset_prices.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_liquidity.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable | weekly_connext_metrics.Selectable | weekly_transfer_metrics.Selectable;
-    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | asset_prices.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_liquidity.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable | weekly_connext_metrics.JSONSelectable | weekly_transfer_metrics.JSONSelectable;
-    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | asset_prices.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_liquidity.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable | weekly_connext_metrics.Whereable | weekly_transfer_metrics.Whereable;
-    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | asset_prices.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_liquidity.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable | weekly_connext_metrics.Insertable | weekly_transfer_metrics.Insertable;
-    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | asset_prices.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_liquidity.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable | weekly_connext_metrics.Updatable | weekly_transfer_metrics.Updatable;
-    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | asset_prices.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_liquidity.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex | weekly_connext_metrics.UniqueIndex | weekly_transfer_metrics.UniqueIndex;
-    export type Column = aggregated_roots.Column | asset_balances.Column | asset_prices.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_liquidity.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column | weekly_connext_metrics.Column | weekly_transfer_metrics.Column;
+    export type Table = aggregated_roots.Table | asset_balances.Table | asset_prices.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_liquidity.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_price.Table | transfers_with_ttr_ttv.Table | weekly_connext_metrics.Table | weekly_transfer_metrics.Table;
+    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | asset_prices.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_liquidity.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_price.Selectable | transfers_with_ttr_ttv.Selectable | weekly_connext_metrics.Selectable | weekly_transfer_metrics.Selectable;
+    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | asset_prices.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_liquidity.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_price.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable | weekly_connext_metrics.JSONSelectable | weekly_transfer_metrics.JSONSelectable;
+    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | asset_prices.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_liquidity.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_price.Whereable | transfers_with_ttr_ttv.Whereable | weekly_connext_metrics.Whereable | weekly_transfer_metrics.Whereable;
+    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | asset_prices.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_liquidity.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_price.Insertable | transfers_with_ttr_ttv.Insertable | weekly_connext_metrics.Insertable | weekly_transfer_metrics.Insertable;
+    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | asset_prices.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_liquidity.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_price.Updatable | transfers_with_ttr_ttv.Updatable | weekly_connext_metrics.Updatable | weekly_transfer_metrics.Updatable;
+    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | asset_prices.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_liquidity.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_price.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex | weekly_connext_metrics.UniqueIndex | weekly_transfer_metrics.UniqueIndex;
+    export type Column = aggregated_roots.Column | asset_balances.Column | asset_prices.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_liquidity.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_price.Column | transfers_with_ttr_ttv.Column | weekly_connext_metrics.Column | weekly_transfer_metrics.Column;
   
     export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
+    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
+    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
   }
 
 
@@ -10157,6 +11340,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.Selectable;
     "transfer_volume": transfer_volume.Selectable;
     "transfers": transfers.Selectable;
+    "transfers_with_price": transfers_with_price.Selectable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Selectable;
     "weekly_connext_metrics": weekly_connext_metrics.Selectable;
     "weekly_transfer_metrics": weekly_transfer_metrics.Selectable;
@@ -10193,6 +11377,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.JSONSelectable;
     "transfer_volume": transfer_volume.JSONSelectable;
     "transfers": transfers.JSONSelectable;
+    "transfers_with_price": transfers_with_price.JSONSelectable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.JSONSelectable;
     "weekly_connext_metrics": weekly_connext_metrics.JSONSelectable;
     "weekly_transfer_metrics": weekly_transfer_metrics.JSONSelectable;
@@ -10229,6 +11414,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.Whereable;
     "transfer_volume": transfer_volume.Whereable;
     "transfers": transfers.Whereable;
+    "transfers_with_price": transfers_with_price.Whereable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Whereable;
     "weekly_connext_metrics": weekly_connext_metrics.Whereable;
     "weekly_transfer_metrics": weekly_transfer_metrics.Whereable;
@@ -10265,6 +11451,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.Insertable;
     "transfer_volume": transfer_volume.Insertable;
     "transfers": transfers.Insertable;
+    "transfers_with_price": transfers_with_price.Insertable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Insertable;
     "weekly_connext_metrics": weekly_connext_metrics.Insertable;
     "weekly_transfer_metrics": weekly_transfer_metrics.Insertable;
@@ -10301,6 +11488,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.Updatable;
     "transfer_volume": transfer_volume.Updatable;
     "transfers": transfers.Updatable;
+    "transfers_with_price": transfers_with_price.Updatable;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Updatable;
     "weekly_connext_metrics": weekly_connext_metrics.Updatable;
     "weekly_transfer_metrics": weekly_transfer_metrics.Updatable;
@@ -10337,6 +11525,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.UniqueIndex;
     "transfer_volume": transfer_volume.UniqueIndex;
     "transfers": transfers.UniqueIndex;
+    "transfers_with_price": transfers_with_price.UniqueIndex;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.UniqueIndex;
     "weekly_connext_metrics": weekly_connext_metrics.UniqueIndex;
     "weekly_transfer_metrics": weekly_transfer_metrics.UniqueIndex;
@@ -10373,6 +11562,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.Column;
     "transfer_volume": transfer_volume.Column;
     "transfers": transfers.Column;
+    "transfers_with_price": transfers_with_price.Column;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.Column;
     "weekly_connext_metrics": weekly_connext_metrics.Column;
     "weekly_transfer_metrics": weekly_transfer_metrics.Column;
@@ -10409,6 +11599,7 @@ declare module 'zapatos/schema' {
     "transfer_count": transfer_count.SQL;
     "transfer_volume": transfer_volume.SQL;
     "transfers": transfers.SQL;
+    "transfers_with_price": transfers_with_price.SQL;
     "transfers_with_ttr_ttv": transfers_with_ttr_ttv.SQL;
     "weekly_connext_metrics": weekly_connext_metrics.SQL;
     "weekly_transfer_metrics": weekly_transfer_metrics.SQL;
