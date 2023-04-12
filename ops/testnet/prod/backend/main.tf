@@ -163,7 +163,7 @@ module "cartographer-prices-lambda-cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "prices" })
-  schedule_expression = "rate(30 minute)"
+  schedule_expression = "rate(15 minutes)"
   memory_size         = 1024
 }
 
