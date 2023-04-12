@@ -3,6 +3,7 @@ import { BigNumber, constants } from "ethers";
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import {
+  Asset,
   AssetBalance,
   RouterBalance,
   XTransfer,
@@ -234,6 +235,25 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           },
         }
       : undefined,
+  };
+};
+
+/**
+ * Converts asset from the cartographer db through either DB queries or Postgrest into the Asset type
+ * @param asset - the asset from the cartographer db as a JSON object
+ * @returns an Asset object
+ */
+export const convertFromDbAsset = (asset: any): Asset => {
+  return {
+    key: asset.key,
+    id: asset.id,
+    decimal: asset.decimal,
+    localAsset: asset.local,
+    adoptedAsset: asset.adopted,
+    canonicalId: asset.canonical_id,
+    canonicalDomain: asset.canonical_domain,
+    domain: asset.domain,
+    blockNumber: asset.block_number,
   };
 };
 

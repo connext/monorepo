@@ -16,6 +16,7 @@ import {
   RouterDailyTVL,
   SlippageUpdate,
   Asset,
+  AssetPrice,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -67,6 +68,8 @@ import {
   getPendingTransfersByMessageStatus,
   getMessageByLeaf,
   saveAssets,
+  getAssets,
+  saveAssetPrice,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -103,6 +106,8 @@ export type Database = {
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveAssets: (assets: Asset[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getAssets: (limit?: number, offset?: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<Asset[]>;
+  saveAssetPrice: (prices: AssetPrice[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getRootMessages: (
     processed: boolean | undefined,
@@ -258,6 +263,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveAssets,
+    getAssets,
+    saveAssetPrice,
     saveMessages,
     getRootMessages,
     saveSentRootMessages,

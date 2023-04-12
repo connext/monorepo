@@ -26,6 +26,7 @@ import {
   StableSwapPoolEvent,
   Asset,
   XTransferMessageStatus,
+  AssetPrice,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -178,6 +179,13 @@ export const mock = {
       id: getRandomAddress(),
       key: getRandomBytes32(),
       localAsset: getRandomAddress(),
+      ...overrides,
+    }),
+    assetPrice: (overrides: Partial<AssetPrice> = {}): AssetPrice => ({
+      canonicalDomain: mock.domain.A,
+      canonicalId: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000 - 60),
+      price: 1234,
       ...overrides,
     }),
     xtransfer: (
