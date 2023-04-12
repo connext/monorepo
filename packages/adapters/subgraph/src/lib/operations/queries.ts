@@ -1015,6 +1015,31 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
   `;
 };
 
+export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_snapshotRootSaved( 
+      first: ${param.limit}, 
+      where: { 
+        id_gte: ${param.snapshotId}
+      }
+      orderBy: id, 
+      orderDirection: asc
+    ) {
+      ${SAVED_SNAPSHOT_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetSavedSnapshots {
+      ${combinedQuery}
+    }
+  `;
+};
+
 export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp: number; limit: number }[]) => {
   const { config } = getContext();
   let combinedQuery = "";

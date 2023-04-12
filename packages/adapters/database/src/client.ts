@@ -25,6 +25,7 @@ import {
   Asset,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  SnapshotRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -148,6 +149,15 @@ const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Ins
     aggregate_root: root.aggregate,
     domains_hash: root.domainsHash,
     leaf_count: root.count,
+  };
+};
+
+const convertToDbSnapshotRoot = (root: SnapshotRoot): s.snapshot_roots.Insertable => {
+  return {
+    id: root.id,
+    root: root.root,
+    spoke_domain: root.spokeDomain,
+    count: root.count,
   };
 };
 
@@ -385,6 +395,17 @@ export const savePropagatedRoots = async (
 
   // use upsert here. if the root exists, we don't want to overwrite anything
   await db.upsert("propagated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const saveSnapshotRoots = async (
+  _roots: SnapshotRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.snapshot_roots.Insertable[] = _roots.map((r) => convertToDbSnapshotRoot(r)).map(sanitizeNull);
+
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("snapshot_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (

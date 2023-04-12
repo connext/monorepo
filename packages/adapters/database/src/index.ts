@@ -17,6 +17,9 @@ import {
   SlippageUpdate,
   Asset,
   Snapshot,
+  SnapshotRoot,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -36,6 +39,10 @@ import {
   getRootMessages,
   saveAggregatedRoots,
   savePropagatedRoots,
+  saveSnapshotRoots,
+  saveProposedSnapshots,
+  saveFinalizedRoots,
+  savePropagatedOptimisticRoots,
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
@@ -122,6 +129,13 @@ export type Database = {
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
   saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveProposedSnapshots: (_snapshots: Snapshot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveSnapshotRoots: (roots: SnapshotRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveFinalizedRoots: (roots: OptimisticRootFinalized[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  savePropagatedOptimisticRoots: (
+    roots: OptimisticRootPropagated[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
   saveReceivedAggregateRoot: (
     roots: ReceivedAggregateRoot[],
     _pool?: Pool | TxnClientForRepeatableRead,
@@ -284,6 +298,10 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     transaction,
     saveAggregatedRoots,
     savePropagatedRoots,
+    saveSnapshotRoots,
+    saveProposedSnapshots,
+    saveFinalizedRoots,
+    savePropagatedOptimisticRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
     getUnProcessedMessagesByIndex,

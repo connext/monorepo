@@ -128,6 +128,16 @@ export const OptimisticRootProposedSchema = Type.Object({
 });
 export type OptimisticRootProposed = Static<typeof OptimisticRootProposedSchema>;
 
+export const SnapshotRootSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.Number(),
+  root: Type.String(),
+  count: Type.Number(),
+  timestamp: Type.Number(),
+  blockNumber: Type.Number(),
+});
+export type SnapshotRoot = Static<typeof SnapshotRootSchema>;
+
 export const OptimisticRootFinalizedSchema = Type.Object({
   id: Type.String(),
   aggregateRoot: Type.String(),

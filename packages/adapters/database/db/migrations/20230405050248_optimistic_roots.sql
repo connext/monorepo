@@ -21,7 +21,16 @@ CREATE TABLE public.snapshots (
     relayer_type text
 );
 
+CREATE TABLE public.snapshot_roots (
+    id character varying(255) NOT NULL UNIQUE,
+    spoke_domain integer NOT NULL,
+    root character(66) NOT NULL,
+    count integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL
+);
+
 -- migrate:down
 
 DROP TABLE public.snapshots ;
+DROP TABLE public.snapshot_roots ;
 DROP TYPE public.snapshot_status;

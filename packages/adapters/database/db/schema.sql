@@ -611,6 +611,19 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: snapshot_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshot_roots (
+    id character varying(255) NOT NULL,
+    spoke_domain integer NOT NULL,
+    root character(66) NOT NULL,
+    count integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL
+);
+
+
+--
 -- Name: snapshots; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -974,6 +987,14 @@ ALTER TABLE ONLY public.routers
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: snapshot_roots snapshot_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshot_roots
+    ADD CONSTRAINT snapshot_roots_id_key UNIQUE (id);
 
 
 --

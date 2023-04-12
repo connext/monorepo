@@ -4,6 +4,7 @@ import {
   PropagatedRoot,
   ReceivedAggregateRoot,
   Snapshot,
+  SnapshotRoot,
   OptimisticRootProposed,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
@@ -66,13 +67,16 @@ export const updateProposedSnapshots = async () => {
       limit: limit,
     });
 
-    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([{ hub, index: offset, limit }]);
+    const snapshots: OptimisticRootProposed[] = await subgraph.getProposedSnapshotsByDomain([
+      { hub, snapshotId: offset, limit },
+    ]);
 
     // Reset offset at the end of the cycle.
     // TODO: Pagination criteria off by one ?
     const newOffset = snapshots.length == 0 ? 0 : offset + snapshots.length - 1;
     if (offset === 0 || newOffset > offset) {
-      await database.saveProposedSnapshots(snapshots);
+      // TODO: fix types
+      // await database.saveProposedSnapshots(snapshots);
 
       await database.saveCheckPoint("proposed_optimistic_root" + hub, newOffset);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {
@@ -103,7 +107,9 @@ export const updateFinalizedRoots = async () => {
       limit: limit,
     });
 
-    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([{ hub, index: offset, limit }]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
+      { hub, timestamp: offset, limit },
+    ]);
 
     // Reset offset at the end of the cycle.
     // TODO: Pagination criteria off by one ?
@@ -141,7 +147,7 @@ export const updatePropagatedOptmisticRoots = async () => {
     });
 
     const snapshots: OptimisticRootPropagated[] = await subgraph.getPropagatedOptimisticRootsByDomain([
-      { hub, index: offset, limit },
+      { hub, timestamp: offset, limit },
     ]);
 
     // Reset offset at the end of the cycle.
@@ -178,7 +184,9 @@ export const retrieveSavedSnapshotRoot = async () => {
       limit: limit,
     });
 
-    const roots: SnapshotRoot[] = await subgraph.getSavedSnapshotRootsByDomain([{ domain, offset, limit }]);
+    const roots: SnapshotRoot[] = await subgraph.getSavedSnapshotRootsByDomain([
+      { hub: domain, snapshotId: offset, limit },
+    ]);
 
     // Reset offset at the end of the cycle.
     const newOffset = roots.length == 0 ? 0 : Math.max(...roots.map((root) => root.timestamp ?? 0));

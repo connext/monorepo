@@ -32,17 +32,18 @@ export const switchAndAlert = async (
   logger.warn("Switched to slow mode, alerting", requestContext, methodContext, { result });
   await monitor.alert(
     {
-      domains,
-      errors: result.map((p) => p.error),
-      reason,
-      timestamp: Date.now(),
-      event: ReportEventType.Switch,
-      logger,
-      relevantTransactions: result.map((p) => p.relevantTransaction),
-      requestContext,
-      rpcs: Object.entries(config.chains)
-        .map((chain) => chain[1].providers)
-        .flat(),
+      // TODO: Setup alert params
+      // domains,
+      // errors: result.map((p) => p.error),
+      // reason,
+      // timestamp: Date.now(),
+      // event: ReportEventType.Switch,
+      // logger,
+      // relevantTransactions: result.map((p) => p.relevantTransaction),
+      // requestContext,
+      // rpcs: Object.entries(config.chains)
+      //   .map((chain) => chain[1].providers)
+      //   .flat(),
     },
     config,
   );

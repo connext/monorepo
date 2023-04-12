@@ -4041,6 +4041,179 @@ declare module 'zapatos/schema' {
   }
 
   /**
+   * **snapshot_roots**
+   * - Table in database
+   */
+  export namespace snapshot_roots {
+    export type Table = 'snapshot_roots';
+    export interface Selectable {
+      /**
+      * **snapshot_roots.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string;
+      /**
+      * **snapshot_roots.spoke_domain**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      spoke_domain: number;
+      /**
+      * **snapshot_roots.root**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      root: string;
+      /**
+      * **snapshot_roots.count**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      count: number;
+      /**
+      * **snapshot_roots.processed**
+      * - `bool` in database
+      * - `NOT NULL`, default: `false`
+      */
+      processed: boolean;
+    }
+    export interface JSONSelectable {
+      /**
+      * **snapshot_roots.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string;
+      /**
+      * **snapshot_roots.spoke_domain**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      spoke_domain: number;
+      /**
+      * **snapshot_roots.root**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      root: string;
+      /**
+      * **snapshot_roots.count**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      count: number;
+      /**
+      * **snapshot_roots.processed**
+      * - `bool` in database
+      * - `NOT NULL`, default: `false`
+      */
+      processed: boolean;
+    }
+    export interface Whereable {
+      /**
+      * **snapshot_roots.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshot_roots.spoke_domain**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      spoke_domain?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshot_roots.root**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshot_roots.count**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      count?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshot_roots.processed**
+      * - `bool` in database
+      * - `NOT NULL`, default: `false`
+      */
+      processed?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **snapshot_roots.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **snapshot_roots.spoke_domain**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      spoke_domain: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **snapshot_roots.root**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      root: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **snapshot_roots.count**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      count: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **snapshot_roots.processed**
+      * - `bool` in database
+      * - `NOT NULL`, default: `false`
+      */
+      processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **snapshot_roots.id**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **snapshot_roots.spoke_domain**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      spoke_domain?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **snapshot_roots.root**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      root?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **snapshot_roots.count**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      count?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **snapshot_roots.processed**
+      * - `bool` in database
+      * - `NOT NULL`, default: `false`
+      */
+      processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'snapshot_roots_id_key';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **snapshots**
    * - Table in database
    */
@@ -10210,20 +10383,20 @@ declare module 'zapatos/schema' {
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_liquidity.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | snapshots.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table | weekly_connext_metrics.Table | weekly_transfer_metrics.Table;
-    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_liquidity.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | snapshots.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable | weekly_connext_metrics.Selectable | weekly_transfer_metrics.Selectable;
-    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_liquidity.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | snapshots.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable | weekly_connext_metrics.JSONSelectable | weekly_transfer_metrics.JSONSelectable;
-    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_liquidity.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | snapshots.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable | weekly_connext_metrics.Whereable | weekly_transfer_metrics.Whereable;
-    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_liquidity.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | snapshots.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable | weekly_connext_metrics.Insertable | weekly_transfer_metrics.Insertable;
-    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_liquidity.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | snapshots.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable | weekly_connext_metrics.Updatable | weekly_transfer_metrics.Updatable;
-    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_liquidity.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | snapshots.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex | weekly_connext_metrics.UniqueIndex | weekly_transfer_metrics.UniqueIndex;
-    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_liquidity.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | snapshots.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column | weekly_connext_metrics.Column | weekly_transfer_metrics.Column;
+    export type Table = aggregated_roots.Table | asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_swap_tvl.Table | daily_swap_volume.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_swap_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | merkle_cache.Table | messages.Table | propagated_roots.Table | received_aggregate_roots.Table | root_messages.Table | router_liquidity.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | snapshot_roots.Table | snapshots.Table | stableswap_exchanges.Table | stableswap_lp_balances.Table | stableswap_pool_events.Table | stableswap_pools.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table | weekly_connext_metrics.Table | weekly_transfer_metrics.Table;
+    export type Selectable = aggregated_roots.Selectable | asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_swap_tvl.Selectable | daily_swap_volume.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_swap_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | merkle_cache.Selectable | messages.Selectable | propagated_roots.Selectable | received_aggregate_roots.Selectable | root_messages.Selectable | router_liquidity.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | snapshot_roots.Selectable | snapshots.Selectable | stableswap_exchanges.Selectable | stableswap_lp_balances.Selectable | stableswap_pool_events.Selectable | stableswap_pools.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable | weekly_connext_metrics.Selectable | weekly_transfer_metrics.Selectable;
+    export type JSONSelectable = aggregated_roots.JSONSelectable | asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_swap_tvl.JSONSelectable | daily_swap_volume.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_swap_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | merkle_cache.JSONSelectable | messages.JSONSelectable | propagated_roots.JSONSelectable | received_aggregate_roots.JSONSelectable | root_messages.JSONSelectable | router_liquidity.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | snapshot_roots.JSONSelectable | snapshots.JSONSelectable | stableswap_exchanges.JSONSelectable | stableswap_lp_balances.JSONSelectable | stableswap_pool_events.JSONSelectable | stableswap_pools.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable | weekly_connext_metrics.JSONSelectable | weekly_transfer_metrics.JSONSelectable;
+    export type Whereable = aggregated_roots.Whereable | asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_swap_tvl.Whereable | daily_swap_volume.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_swap_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | merkle_cache.Whereable | messages.Whereable | propagated_roots.Whereable | received_aggregate_roots.Whereable | root_messages.Whereable | router_liquidity.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | snapshot_roots.Whereable | snapshots.Whereable | stableswap_exchanges.Whereable | stableswap_lp_balances.Whereable | stableswap_pool_events.Whereable | stableswap_pools.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable | weekly_connext_metrics.Whereable | weekly_transfer_metrics.Whereable;
+    export type Insertable = aggregated_roots.Insertable | asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_swap_tvl.Insertable | daily_swap_volume.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_swap_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | merkle_cache.Insertable | messages.Insertable | propagated_roots.Insertable | received_aggregate_roots.Insertable | root_messages.Insertable | router_liquidity.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | snapshot_roots.Insertable | snapshots.Insertable | stableswap_exchanges.Insertable | stableswap_lp_balances.Insertable | stableswap_pool_events.Insertable | stableswap_pools.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable | weekly_connext_metrics.Insertable | weekly_transfer_metrics.Insertable;
+    export type Updatable = aggregated_roots.Updatable | asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_swap_tvl.Updatable | daily_swap_volume.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_swap_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | merkle_cache.Updatable | messages.Updatable | propagated_roots.Updatable | received_aggregate_roots.Updatable | root_messages.Updatable | router_liquidity.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | snapshot_roots.Updatable | snapshots.Updatable | stableswap_exchanges.Updatable | stableswap_lp_balances.Updatable | stableswap_pool_events.Updatable | stableswap_pools.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable | weekly_connext_metrics.Updatable | weekly_transfer_metrics.Updatable;
+    export type UniqueIndex = aggregated_roots.UniqueIndex | asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_swap_tvl.UniqueIndex | daily_swap_volume.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_swap_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | merkle_cache.UniqueIndex | messages.UniqueIndex | propagated_roots.UniqueIndex | received_aggregate_roots.UniqueIndex | root_messages.UniqueIndex | router_liquidity.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | snapshot_roots.UniqueIndex | snapshots.UniqueIndex | stableswap_exchanges.UniqueIndex | stableswap_lp_balances.UniqueIndex | stableswap_pool_events.UniqueIndex | stableswap_pools.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex | weekly_connext_metrics.UniqueIndex | weekly_transfer_metrics.UniqueIndex;
+    export type Column = aggregated_roots.Column | asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_swap_tvl.Column | daily_swap_volume.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_swap_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | merkle_cache.Column | messages.Column | propagated_roots.Column | received_aggregate_roots.Column | root_messages.Column | router_liquidity.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | snapshot_roots.Column | snapshots.Column | stableswap_exchanges.Column | stableswap_lp_balances.Column | stableswap_pool_events.Column | stableswap_pools.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column | weekly_connext_metrics.Column | weekly_transfer_metrics.Column;
   
-    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, snapshots.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
+    export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, snapshot_roots.Table, snapshots.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
     export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, snapshots.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
+    export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, snapshot_roots.Table, snapshots.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
   }
 
 
@@ -10273,6 +10446,7 @@ declare module 'zapatos/schema' {
     "routers": routers.Selectable;
     "routers_with_balances": routers_with_balances.Selectable;
     "schema_migrations": schema_migrations.Selectable;
+    "snapshot_roots": snapshot_roots.Selectable;
     "snapshots": snapshots.Selectable;
     "stableswap_exchanges": stableswap_exchanges.Selectable;
     "stableswap_lp_balances": stableswap_lp_balances.Selectable;
@@ -10309,6 +10483,7 @@ declare module 'zapatos/schema' {
     "routers": routers.JSONSelectable;
     "routers_with_balances": routers_with_balances.JSONSelectable;
     "schema_migrations": schema_migrations.JSONSelectable;
+    "snapshot_roots": snapshot_roots.JSONSelectable;
     "snapshots": snapshots.JSONSelectable;
     "stableswap_exchanges": stableswap_exchanges.JSONSelectable;
     "stableswap_lp_balances": stableswap_lp_balances.JSONSelectable;
@@ -10345,6 +10520,7 @@ declare module 'zapatos/schema' {
     "routers": routers.Whereable;
     "routers_with_balances": routers_with_balances.Whereable;
     "schema_migrations": schema_migrations.Whereable;
+    "snapshot_roots": snapshot_roots.Whereable;
     "snapshots": snapshots.Whereable;
     "stableswap_exchanges": stableswap_exchanges.Whereable;
     "stableswap_lp_balances": stableswap_lp_balances.Whereable;
@@ -10381,6 +10557,7 @@ declare module 'zapatos/schema' {
     "routers": routers.Insertable;
     "routers_with_balances": routers_with_balances.Insertable;
     "schema_migrations": schema_migrations.Insertable;
+    "snapshot_roots": snapshot_roots.Insertable;
     "snapshots": snapshots.Insertable;
     "stableswap_exchanges": stableswap_exchanges.Insertable;
     "stableswap_lp_balances": stableswap_lp_balances.Insertable;
@@ -10417,6 +10594,7 @@ declare module 'zapatos/schema' {
     "routers": routers.Updatable;
     "routers_with_balances": routers_with_balances.Updatable;
     "schema_migrations": schema_migrations.Updatable;
+    "snapshot_roots": snapshot_roots.Updatable;
     "snapshots": snapshots.Updatable;
     "stableswap_exchanges": stableswap_exchanges.Updatable;
     "stableswap_lp_balances": stableswap_lp_balances.Updatable;
@@ -10453,6 +10631,7 @@ declare module 'zapatos/schema' {
     "routers": routers.UniqueIndex;
     "routers_with_balances": routers_with_balances.UniqueIndex;
     "schema_migrations": schema_migrations.UniqueIndex;
+    "snapshot_roots": snapshot_roots.UniqueIndex;
     "snapshots": snapshots.UniqueIndex;
     "stableswap_exchanges": stableswap_exchanges.UniqueIndex;
     "stableswap_lp_balances": stableswap_lp_balances.UniqueIndex;
@@ -10489,6 +10668,7 @@ declare module 'zapatos/schema' {
     "routers": routers.Column;
     "routers_with_balances": routers_with_balances.Column;
     "schema_migrations": schema_migrations.Column;
+    "snapshot_roots": snapshot_roots.Column;
     "snapshots": snapshots.Column;
     "stableswap_exchanges": stableswap_exchanges.Column;
     "stableswap_lp_balances": stableswap_lp_balances.Column;
@@ -10525,6 +10705,7 @@ declare module 'zapatos/schema' {
     "routers": routers.SQL;
     "routers_with_balances": routers_with_balances.SQL;
     "schema_migrations": schema_migrations.SQL;
+    "snapshot_roots": snapshot_roots.SQL;
     "snapshots": snapshots.SQL;
     "stableswap_exchanges": stableswap_exchanges.SQL;
     "stableswap_lp_balances": stableswap_lp_balances.SQL;

@@ -12,6 +12,7 @@ import {
   OptimisticRootProposed,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  SnapshotRoot,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -404,6 +405,30 @@ export const proposedRoot = (entity: any): OptimisticRootProposed => {
     snapshotsRoots: entity.snapshotsRoots,
     domains: entity.domains,
     baseAggregateRoot: entity.baseAggregateRoot,
+  };
+};
+
+export const snapshotRoot = (entity: any): SnapshotRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `snapshotRoot` entity parser: snapshotRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "root", "count", "timestamp", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `snapshotRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    root: entity.root,
+    count: entity.count,
+    timestamp: entity.timestamp,
+    blockNumber: entity.blockNumber,
   };
 };
 
