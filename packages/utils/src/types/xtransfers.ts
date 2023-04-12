@@ -242,6 +242,14 @@ export const AssetBalanceSchema = Type.Intersect([
 ]);
 export type AssetBalance = Static<typeof AssetBalanceSchema>;
 
+export const AssetPriceSchema = Type.Object({
+  canonicalId: Type.String(),
+  canonicalDomain: Type.String(),
+  timestamp: Type.Number(),
+  price: Type.Number(),
+});
+export type AssetPrice = Static<typeof AssetPriceSchema>;
+
 export const RouterBalanceSchema = Type.Object({ router: TAddress, assets: Type.Array(AssetBalanceSchema) });
 export type RouterBalance = Static<typeof RouterBalanceSchema>;
 
