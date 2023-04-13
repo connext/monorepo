@@ -93,6 +93,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -119,6 +120,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "setGasCap"
       | "setMirrorConnector"
       | "verifySender"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -193,6 +195,10 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
@@ -255,8 +261,13 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
@@ -266,6 +277,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -274,6 +286,17 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface GasCapUpdatedEventObject {
   _previous: BigNumber;
@@ -461,6 +484,11 @@ export interface OptimismHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -539,6 +567,11 @@ export interface OptimismHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
 
@@ -611,9 +644,23 @@ export interface OptimismHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
     "GasCapUpdated(uint256,uint256)"(
       _previous?: null,
       _updated?: null
@@ -754,6 +801,11 @@ export interface OptimismHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -830,6 +882,11 @@ export interface OptimismHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -7,11 +7,13 @@
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event GasCapUpdated(uint256,uint256)",
+  "event GasFloorUpdated(uint256,uint256)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function MIRROR_CHAIN_ID() view returns (uint256)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
+  "function floor() view returns (uint256)",
   "function gasCap() view returns (uint256)",
   "function owner() view returns (address)",
   "function proposeNewOwner(address)",
@@ -19,5 +21,6 @@
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function setGasCap(uint256)"
+  "function setGasCap(uint256)",
+  "function setGasFloor(uint256)"
 ]

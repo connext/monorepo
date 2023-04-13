@@ -32,6 +32,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     "MIRROR_CHAIN_ID()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
+    "floor()": FunctionFragment;
     "gasCap()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -40,6 +41,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
+    "setGasFloor(uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -47,6 +49,7 @@ export interface GnosisBaseInterface extends utils.Interface {
       | "MIRROR_CHAIN_ID"
       | "acceptProposedOwner"
       | "delay"
+      | "floor"
       | "gasCap"
       | "owner"
       | "proposeNewOwner"
@@ -55,6 +58,7 @@ export interface GnosisBaseInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "setGasCap"
+      | "setGasFloor"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -66,6 +70,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "floor", values?: undefined): string;
   encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -86,6 +91,10 @@ export interface GnosisBaseInterface extends utils.Interface {
     functionFragment: "setGasCap",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setGasFloor",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "MIRROR_CHAIN_ID",
@@ -96,6 +105,7 @@ export interface GnosisBaseInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "floor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -113,14 +123,20 @@ export interface GnosisBaseInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setGasFloor",
+    data: BytesLike
+  ): Result;
 
   events: {
     "GasCapUpdated(uint256,uint256)": EventFragment;
+    "GasFloorUpdated(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasFloorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
@@ -135,6 +151,17 @@ export type GasCapUpdatedEvent = TypedEvent<
 >;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
+
+export interface GasFloorUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type GasFloorUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasFloorUpdatedEventObject
+>;
+
+export type GasFloorUpdatedEventFilter = TypedEventFilter<GasFloorUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -194,6 +221,8 @@ export interface GnosisBase extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    floor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -217,6 +246,11 @@ export interface GnosisBase extends BaseContract {
       _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
@@ -226,6 +260,8 @@ export interface GnosisBase extends BaseContract {
   ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  floor(overrides?: CallOverrides): Promise<BigNumber>;
 
   gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -251,12 +287,19 @@ export interface GnosisBase extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setGasFloor(
+    _floor: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
 
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -279,6 +322,11 @@ export interface GnosisBase extends BaseContract {
       _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -287,6 +335,15 @@ export interface GnosisBase extends BaseContract {
       _updated?: null
     ): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+
+    "GasFloorUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
+    GasFloorUpdated(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -314,6 +371,8 @@ export interface GnosisBase extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -337,6 +396,11 @@ export interface GnosisBase extends BaseContract {
       _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -347,6 +411,8 @@ export interface GnosisBase extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    floor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -369,6 +435,11 @@ export interface GnosisBase extends BaseContract {
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

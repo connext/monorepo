@@ -58,13 +58,13 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "floor()": FunctionFragment;
     "gasCap()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
@@ -86,6 +86,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
+    "setGasFloor(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
@@ -111,13 +112,13 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "floor"
       | "gasCap"
       | "home"
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
       | "mirrorConnector"
-      | "nonces"
       | "outboundRoot"
       | "owner"
       | "pause"
@@ -139,6 +140,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "sentMessageRoots"
       | "setDelayBlocks"
       | "setGasCap"
+      | "setGasFloor"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
@@ -196,6 +198,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "floor", values?: undefined): string;
   encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
@@ -213,10 +216,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nonces",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "outboundRoot",
@@ -293,6 +292,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setGasFloor",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -356,6 +359,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "floor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
@@ -371,7 +375,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "outboundRoot",
     data: BytesLike
@@ -436,6 +439,10 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setGasFloor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
   ): Result;
@@ -469,6 +476,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "FundsWithdrawn(address,uint256)": EventFragment;
     "GasCapUpdated(uint256,uint256)": EventFragment;
+    "GasFloorUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageProven(bytes32,bytes32,uint256)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
@@ -492,6 +500,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasFloorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProven"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -587,6 +596,17 @@ export type GasCapUpdatedEvent = TypedEvent<
 >;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
+
+export interface GasFloorUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type GasFloorUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasFloorUpdatedEventObject
+>;
+
+export type GasFloorUpdatedEventFilter = TypedEventFilter<GasFloorUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -804,6 +824,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    floor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
@@ -818,11 +840,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
@@ -909,6 +926,11 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -982,6 +1004,8 @@ export interface GnosisSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  floor(overrides?: CallOverrides): Promise<BigNumber>;
+
   gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
   home(overrides?: CallOverrides): Promise<string>;
@@ -996,11 +1020,6 @@ export interface GnosisSpokeConnector extends BaseContract {
   localDomain(overrides?: CallOverrides): Promise<number>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-  nonces(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
 
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1087,6 +1106,11 @@ export interface GnosisSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setGasFloor(
+    _floor: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1158,6 +1182,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
@@ -1172,11 +1198,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<number>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1259,6 +1280,11 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1291,14 +1317,18 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   filters: {
     "AggregateRootReceived(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootReceivedEventFilter;
-    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
 
     "AggregateRootRemoved(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootRemovedEventFilter;
-    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
 
     "AggregateRootVerified(bytes32)"(
       root?: PromiseOrValue<BytesLike> | null
@@ -1317,15 +1347,15 @@ export interface GnosisSpokeConnector extends BaseContract {
     ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
     Dispatch(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
 
@@ -1343,6 +1373,15 @@ export interface GnosisSpokeConnector extends BaseContract {
       _updated?: null
     ): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+
+    "GasFloorUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
+    GasFloorUpdated(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -1416,11 +1455,15 @@ export interface GnosisSpokeConnector extends BaseContract {
     Paused(account?: null): PausedEventFilter;
 
     "Process(bytes32,bool,bytes)"(
-      leaf?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
       returnData?: null
     ): ProcessEventFilter;
-    Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
+    Process(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      success?: null,
+      returnData?: null
+    ): ProcessEventFilter;
 
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
@@ -1431,11 +1474,17 @@ export interface GnosisSpokeConnector extends BaseContract {
       newRateLimit?: null
     ): SendRateLimitUpdatedEventFilter;
 
-    "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
-    SenderAdded(sender?: null): SenderAddedEventFilter;
+    "SenderAdded(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderAddedEventFilter;
+    SenderAdded(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
 
-    "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: null): SenderRemovedEventFilter;
+    "SenderRemoved(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
+    SenderRemoved(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
@@ -1490,6 +1539,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1504,11 +1555,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1595,6 +1641,11 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1669,6 +1720,8 @@ export interface GnosisSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    floor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1683,11 +1736,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1771,6 +1819,11 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

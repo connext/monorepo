@@ -62,7 +62,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
@@ -112,7 +111,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
       | "lastSentBlock"
       | "localDomain"
       | "mirrorConnector"
-      | "nonces"
       | "outboundRoot"
       | "owner"
       | "pause"
@@ -202,10 +200,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nonces",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "outboundRoot",
@@ -351,7 +345,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "outboundRoot",
     data: BytesLike
@@ -781,11 +774,6 @@ export interface SpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
-
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -950,11 +938,6 @@ export interface SpokeConnector extends BaseContract {
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-  nonces(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -1117,11 +1100,6 @@ export interface SpokeConnector extends BaseContract {
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -1230,14 +1208,18 @@ export interface SpokeConnector extends BaseContract {
 
   filters: {
     "AggregateRootReceived(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootReceivedEventFilter;
-    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
 
     "AggregateRootRemoved(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootRemovedEventFilter;
-    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
 
     "AggregateRootVerified(bytes32)"(
       root?: PromiseOrValue<BytesLike> | null
@@ -1256,15 +1238,15 @@ export interface SpokeConnector extends BaseContract {
     ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
     Dispatch(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
 
@@ -1349,11 +1331,15 @@ export interface SpokeConnector extends BaseContract {
     Paused(account?: null): PausedEventFilter;
 
     "Process(bytes32,bool,bytes)"(
-      leaf?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
       returnData?: null
     ): ProcessEventFilter;
-    Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
+    Process(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      success?: null,
+      returnData?: null
+    ): ProcessEventFilter;
 
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
@@ -1364,11 +1350,17 @@ export interface SpokeConnector extends BaseContract {
       newRateLimit?: null
     ): SendRateLimitUpdatedEventFilter;
 
-    "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
-    SenderAdded(sender?: null): SenderAddedEventFilter;
+    "SenderAdded(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderAddedEventFilter;
+    SenderAdded(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
 
-    "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: null): SenderRemovedEventFilter;
+    "SenderRemoved(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
+    SenderRemoved(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
@@ -1433,11 +1425,6 @@ export interface SpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1603,11 +1590,6 @@ export interface SpokeConnector extends BaseContract {
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
