@@ -5,11 +5,16 @@ import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Nod
 
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromArbitrumRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
-import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../../../../src/tasks/processFromRoot/errors";
-import { constants } from "ethers";
+import {
+  ConfirmDataDoesNotMatch,
+  NoRootAvailable,
+  RollUpNodeStaked,
+} from "../../../../src/tasks/processFromRoot/errors";
+import { BigNumber, constants } from "ethers";
 
 class MockJsonRpcProvider {
   public getTransactionReceipt = stub().resolves({ hello: "world" });
+  public getBlockNumber = stub().resolves(1232132);
 }
 
 let isDataAvailableStub: SinonStub<any[], any>;
@@ -60,7 +65,11 @@ describe("Helpers: Arbitrum", () => {
       return { constructOutboxProof: stub().resolves({ proof: ["hello", "world"] }) } as any;
     });
     confirmData = stub().returns([
-      { confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34" },
+      {
+        confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34",
+        stakerCount: BigNumber.from(1),
+        childStakerCount: BigNumber.from(1),
+      },
     ]);
     stub(MockableFns, "RollupUserLogic__factory").value({
       createInterface: stub().returns({
@@ -86,6 +95,7 @@ describe("Helpers: Arbitrum", () => {
         blockNumber: 1,
         hubProvider: "hello",
         sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
         _requestContext: createRequestContext("foo"),
       }),
     ).to.be.rejectedWith(NoRootAvailable);
@@ -103,9 +113,58 @@ describe("Helpers: Arbitrum", () => {
         hubDomainId: "2",
         hubProvider: "hello",
         sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
         _requestContext: createRequestContext("foo"),
       }),
     ).to.be.rejectedWith(ConfirmDataDoesNotMatch);
+  });
+
+  it("should throw error if stakerCount == 0", async () => {
+    confirmData.returns([
+      {
+        confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34",
+        stakerCount: BigNumber.from(0),
+        childStakerCount: BigNumber.from(1),
+      },
+    ]);
+    await expect(
+      getProcessFromArbitrumRootArgs({
+        spokeChainId: 42161,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 1,
+        blockNumber: 1,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
+        _requestContext: createRequestContext("foo"),
+      }),
+    ).to.be.rejectedWith(RollUpNodeStaked);
+  });
+
+  it("should throw error if childStakerCount == 0", async () => {
+    confirmData.returns([
+      {
+        confirmData: "0x950ed348e2b49c023a3402410751876c1ea3d07c85b315cec0aae5a46e546b34",
+        stakerCount: BigNumber.from(1),
+        childStakerCount: BigNumber.from(0),
+      },
+    ]);
+    await expect(
+      getProcessFromArbitrumRootArgs({
+        spokeChainId: 42161,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 1,
+        blockNumber: 1,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
+        _requestContext: createRequestContext("foo"),
+      }),
+    ).to.be.rejectedWith(RollUpNodeStaked);
   });
 
   it("should work", async () => {
@@ -117,6 +176,7 @@ describe("Helpers: Arbitrum", () => {
       hubDomainId: "2",
       hubProvider: "hello",
       sendHash: mkHash("0xbaa"),
+      message: mkHash("0xaa"),
       blockNumber: 1,
       _requestContext: createRequestContext("foo"),
     });

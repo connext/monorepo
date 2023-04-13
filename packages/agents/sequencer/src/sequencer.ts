@@ -25,11 +25,12 @@ import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
+import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
-const slippageErrorMsg = "execution reverted: dy < minDy";
+export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
 /// MARK - Make Agents
 /**
@@ -137,12 +138,26 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     const errorObj = jsonifyError(error as Error);
     context.logger.error("Error executing:", requestContext, methodContext, errorObj);
 
-    if (errorObj.message && errorObj.message == slippageErrorMsg) {
-      const transfer = await context.adapters.cache.transfers.getTransfer(transferId);
-      if (transfer && transfer.origin) {
-        transfer.origin.errorStatus = XTransferErrorStatus.LowSlippage;
-        await context.adapters.database.saveTransfers([transfer]);
+    let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
+    switch (errorObj.type) {
+      case SlippageToleranceExceeded.name: {
+        errorName = XTransferErrorStatus.LowSlippage;
+        break;
       }
+      case NotEnoughRelayerFee.name: {
+        errorName = XTransferErrorStatus.LowRelayerFee;
+        break;
+      }
+      case NoBidsSent.name: {
+        errorName = XTransferErrorStatus.NoBidsReceived;
+        break;
+      }
+    }
+    await context.adapters.database.updateErrorStatus(transferId, errorName);
+
+    // increase backoff in case error is one of slippage or relayer fee
+    if (messageType === MessageType.ExecuteSlow) {
+      await context.adapters.database.increaseBackoff(transferId);
     }
 
     process.exit(1);

@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, OriginTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, OriginTransfer, getNtpTimeSeconds, XTransfer } from "@connext/nxtp-utils";
 
 import { MQ_EXCHANGE, XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
@@ -43,8 +43,35 @@ export const retryXCalls = async (): Promise<void> => {
     const pageSize = 100;
     for (let offset = 0; offset < domainPending.length; offset += pageSize) {
       const pending = domainPending.slice(offset, pageSize);
+
+      const originTransfersFromSubgraph: XTransfer[] = await subgraph.getOriginTransfersByDomain(domain, pending);
+
       const originTransfers = (
-        await Promise.all(pending.flatMap((transferId) => cache.transfers.getTransfer(transferId)))
+        await Promise.all(
+          originTransfersFromSubgraph.flatMap(async (transfer) => {
+            const cacheTransfer = await cache.transfers.getTransfer(transfer.transferId);
+            if (JSON.stringify(transfer) === JSON.stringify(cacheTransfer)) {
+              const bidStatus = await cache.transfers.getBidStatus(transfer.transferId);
+              // Remove from pending xcalls that are not ready for retry
+              if (bidStatus !== undefined) {
+                const startTime = Number(bidStatus.timestamp);
+                const elapsedTime = getNtpTimeSeconds() - startTime;
+                const waitTime = Math.pow(2, bidStatus.attempts);
+                if (elapsedTime > waitTime) {
+                  return transfer;
+                }
+                // Not yet ready for retry
+                return;
+              }
+            } else {
+              await cache.transfers.storeTransfers([transfer], false);
+              // Reset bid status on change in origin transfer
+              await cache.transfers.pruneBidStatusByIds([transfer.transferId]);
+            }
+            // Ready for retry
+            return transfer;
+          }),
+        )
       ).filter((i) => !!i);
 
       const destinationTransfers = await subgraph.getDestinationTransfers(originTransfers as OriginTransfer[]);
@@ -56,6 +83,7 @@ export const retryXCalls = async (): Promise<void> => {
         });
 
         await cache.transfers.pruneTransfersByIds(transferIdsToRemove);
+        await cache.transfers.pruneBidStatusByIds(transferIdsToRemove);
       }
 
       const transfersToPublish = originTransfers.filter(
@@ -76,6 +104,7 @@ export const retryXCalls = async (): Promise<void> => {
               type: XCALL_MESSAGE_TYPE,
               routingKey: XCALL_QUEUE,
             });
+            await cache.transfers.setBidStatus(transfer?.transferId as string);
             logger.debug("Published transfer to mq", _requestContext, _methodContext, { transfer });
           } catch (err: unknown) {
             logger.error("Error publishing to mq", _requestContext, _methodContext, jsonifyError(err as Error));

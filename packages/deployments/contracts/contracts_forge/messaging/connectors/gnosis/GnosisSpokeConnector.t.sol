@@ -9,6 +9,8 @@ import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
 contract GnosisSpokeConnectorTest is ConnectorHelper {
+  // ============ Events ============
+  event GasFloorUpdated(uint256 previous, uint256 updated);
   // setup chain ids
   uint256 _mirrorChainId = 1238786754;
   uint256 _chainId = 123213;
@@ -50,6 +52,28 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.messageSender.selector), abi.encode(_sender));
   }
 
+  // ============ GnosisSpokeConnector.setGasFloor ============
+  function test_GnosisSpokeConnector__setGasFloor_failsIfLt100() public {
+    vm.expectRevert(bytes("<100"));
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(20);
+  }
+
+  function test_GnosisSpokeConnector__setGasFloor_failsIfNoChange() public {
+    vm.expectRevert(bytes("<100"));
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(20);
+  }
+
+  function test_GnosisSpokeConnector__setGasFloor_shouldWork() public {
+    vm.expectEmit(true, true, true, true);
+    emit GasFloorUpdated(100, 200);
+
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(200);
+    assertEq(GnosisSpokeConnector(_l2Connector).floor(), 200);
+  }
+
   // ============ GnosisSpokeConnector.verifySender ============
   function test_GnosisSpokeConnector__verifySender_shouldWorkIfTrue() public {
     address expected = address(111);
@@ -77,6 +101,20 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
   }
 
   // ============ GnosisSpokeConnector._sendMessage ============
+  function test_GnosisSpokeConnector__sendMessage_failsIfGasBelowFloor() public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.requireToPassMessage.selector), abi.encode(123));
+
+    // encoded data
+    bytes memory _encodedData = abi.encode(50);
+
+    // should revert getting gas cap
+    vm.expectRevert("<floor");
+
+    vm.prank(_rootManager);
+    GnosisSpokeConnector(_l2Connector).send(_encodedData);
+  }
+
   function test_GnosisSpokeConnector__sendMessage_shouldWork() public {
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.requireToPassMessage.selector), abi.encode(123));

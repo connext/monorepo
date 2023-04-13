@@ -157,8 +157,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xEe8608Cc250c8f9aAc5045930Fc9661F64464774",
-        "startBlock": 3613083
+        "address": "0x8073a764c4651a9BE132032d7B5E3B319311904E",
+        "startBlock": 7067115
       },
       {
         "name": "MerkleTreeManager",
@@ -206,6 +206,69 @@
         "name": "MerkleTreeManager",
         "address": "0x88D6229f1d6f3512aeAF5e0790af91606ADbC7dc",
         "startBlock": 3268960
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v0-zksynct",
+    "network": "zkSync2-testnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB0694fEcEdd88e5590A563aDb5f194d2dE30F0b6",
+        "startBlock": 1166677
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xb664Ba7D8808099Ac5eEFD4dd03cBc1DBB33Ba1b",
+        "startBlock": 1372088
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x571BaF5E320E636d6F78422C3034c21681d727a1",
+        "startBlock": 1372083
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-consensys-test",
+    "network": "consensys-test",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xfdb6B853C1945Dbffe78A3091BeBB9A928234fA3",
+        "startBlock": 88565
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x8ab0903e4E6aE8BD82FB88D409A8d9d940299bb5",
+        "startBlock": 88564
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
+        "startBlock": 88563
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
+    "network": "polygonzk-test",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2",
+        "startBlock": 485026
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x27842eA2c3d472cE345315B2A8aE26039Fc53a2D",
+        "startBlock": 484972
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
+        "startBlock": 484732
       }
     ]
   }

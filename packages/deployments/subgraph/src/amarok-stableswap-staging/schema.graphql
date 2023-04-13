@@ -33,7 +33,7 @@ type StableSwap @entity {
 
   swapFee: BigInt
   adminFee: BigInt
-  pooledTokens: [PooledToken!]!
+  pooledTokens: [Bytes!]!
   tokenPrecisionMultipliers: [BigInt!]!
   balances: [BigInt!]!
   adminFees: [BigInt!]!
@@ -72,6 +72,8 @@ type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
   fees: [BigInt!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
+  balances: [BigInt!]!
 
   block: BigInt!
   timestamp: BigInt!
@@ -86,6 +88,8 @@ type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
   fees: [BigInt!]
   invariant: BigInt
   lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
+  balances: [BigInt!]!
 
   block: BigInt!
   timestamp: BigInt!
@@ -100,6 +104,8 @@ type StableSwapExchange @entity {
   tokensBought: BigInt!
   soldId: BigInt!
   tokensSold: BigInt!
+  balances: [BigInt!]!
+  fee: BigInt!
 
   block: BigInt!
   timestamp: BigInt!

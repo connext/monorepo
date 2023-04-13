@@ -1,6 +1,14 @@
-import { Signer, providers, BigNumber, constants } from "ethers";
-import { createLoggingContext, Logger, RequestContext, getNtpTimeSeconds } from "@connext/nxtp-utils";
-import { domainToChainId } from "@connext/smart-contracts";
+import { Signer, providers, BigNumber, constants, utils } from "ethers";
+import {
+  createLoggingContext,
+  Logger,
+  RequestContext,
+  getNtpTimeSeconds,
+  encodeMultisendCall,
+  MultisendTransactionOperation,
+  createMethodContext,
+  domainToChainId,
+} from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {
@@ -11,6 +19,8 @@ import {
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
   WriteTransaction,
+  getDeployedMultisendContract,
+  MultireadTransaction,
 } from "./shared";
 import { RpcProviderAggregator } from "./aggregator";
 
@@ -62,6 +72,82 @@ export class ChainReader {
    */
   public async readTx(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
     return await this.getProvider(tx.domain).readContract(tx, blockTag);
+  }
+
+  /**
+   * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
+   *
+   * @param params.domain - Chain to read transaction on.
+   * @param params.txs - ReadTransaction(s) we will be executing using a static call.
+   * @param params.resultTypes - A list of result types we should use when decoding the multisend response
+   * (e.g. ["uint256", "address", "string", "tuple(uint256 b, string c) d"]).
+   * @param params.multisendContract - (optional) The multisend contract address. If not provided, we will
+   * query the multisend for this chain internally.
+   * @param params.blockTag - (optional) Block tag to query, defaults to latest.
+   *
+   * @returns Decoded return values based on the expected result types.
+   */
+  public async multiread(params: {
+    domain: number;
+    txs: MultireadTransaction[];
+    multisendContract?: string;
+    blockTag?: providers.BlockTag;
+    requestContext?: RequestContext;
+  }): Promise<utils.Result> {
+    const { domain, txs, multisendContract, blockTag } = params;
+
+    const chainId = domainToChainId(domain);
+    const multisend = multisendContract ?? getDeployedMultisendContract(chainId)?.address;
+
+    if (!multisend) {
+      this.logger.warn(
+        "No MultiSend contract deployment found; unable to do an optimized multiread.",
+        params.requestContext,
+        createMethodContext(this.multiread.name),
+        {
+          domain,
+          chainId,
+          multisend,
+        },
+      );
+      // Resort to just doing an inefficient Promise.all (1 RPC request per tx specified).
+      const provider = this.getProvider(domain);
+      const result = await Promise.all(
+        txs.map(async (tx) => {
+          return await provider.readContract(
+            {
+              ...tx,
+              domain,
+            },
+            blockTag ?? "latest",
+          );
+        }),
+      );
+      // Decode results and flatten array to make them sequential.
+      return result.map((r, i) => utils.defaultAbiCoder.decode(txs[i].resultTypes, r)).flat();
+    }
+
+    // Format calldata.
+    const data = encodeMultisendCall(
+      txs.map((tx) => ({
+        operation: MultisendTransactionOperation.CALL,
+        to: tx.to,
+        data: tx.data,
+      })),
+    );
+
+    // Make the static call.
+    const result = await this.getProvider(domain).readContract(
+      {
+        domain,
+        to: multisend,
+        data,
+      },
+      blockTag ?? "latest",
+    );
+    // Decode the result to fit with the expected result types.
+    const resultTypes = txs.map((tx) => tx.resultTypes).flat();
+    return utils.defaultAbiCoder.decode(resultTypes, result);
   }
 
   /**

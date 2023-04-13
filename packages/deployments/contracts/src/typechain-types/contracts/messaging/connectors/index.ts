@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
+import type * as consensys from "./consensys";
+export type { consensys };
 import type * as gnosis from "./gnosis";
 export type { gnosis };
 import type * as mainnet from "./mainnet";
@@ -13,6 +15,8 @@ import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygon from "./polygon";
 export type { polygon };
+import type * as polygonzk from "./polygonzk";
+export type { polygonzk };
 import type * as zksync from "./zksync";
 export type { zksync };
 export type { Connector } from "./Connector";

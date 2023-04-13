@@ -10,12 +10,16 @@ import { mock, mockTaskId } from "./mock";
 import * as ProverFns from "../src/tasks/prover/prover";
 import * as ProcessFromRootFns from "../src/tasks/processFromRoot/processFromRoot";
 import * as PropagateFns from "../src/tasks/propagate/propagate";
+import * as SendOutboundRootFns from "../src/tasks/sendOutboundRoot/sendOutboundRoot";
 import * as Mockable from "../src/mockable";
 import { PropagateContext } from "../src/tasks/propagate/context";
+import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
+import { BigNumber } from "ethers";
 
 export let proverCtxMock: ProverContext;
 export let processFromRootCtxMock: ProcessFromRootContext;
 export let propagateCtxMock: PropagateContext;
+export let sendOutboundRootCtxMock: SendOutboundRootContext;
 
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let existsSyncStub: SinonStub;
@@ -33,6 +37,8 @@ export let sendWithRelayerWithBackupStub: SinonStub<
   ],
   Promise<{ taskId: string }>
 >;
+export let getInterfaceMock: SinonStub;
+export let getBestProviderMock: SinonStub;
 
 export const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 export const mockAxiosSuccessResponse = { isAxiosError: false, code: 200, data: [] };
@@ -57,9 +63,19 @@ export const mochaHooks = {
     propagateCtxMock = mock.propagateCtx();
     stub(PropagateFns, "getContext").returns(propagateCtxMock);
 
+    sendOutboundRootCtxMock = mock.sendOuboundRootCtx();
+    stub(SendOutboundRootFns, "getContext").returns(sendOutboundRootCtxMock);
+
     sendWithRelayerWithBackupStub = stub(Mockable, "sendWithRelayerWithBackup").resolves({
       taskId: mockTaskId,
+      relayerType: RelayerType.Mock,
     });
+    getInterfaceMock = stub(Mockable, "getInterface").returns({
+      encodeFunctionData: () => "0xdeadbeef",
+      decodeFunctionResult: () => [BigNumber.from(42)],
+    } as any);
+
+    getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://example.com");
   },
   afterEach() {
     restore();

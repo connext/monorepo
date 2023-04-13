@@ -1,11 +1,21 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi } from "@connext/nxtp-utils";
+import {
+  encodeMultisendCall,
+  expect,
+  MultisendTransaction,
+  WETHAbi,
+  mkAddress,
+  DEFAULT_ROUTER_FEE,
+} from "@connext/nxtp-utils";
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
-import { providers, BigNumber, utils } from "ethers";
+import { providers, BigNumber, utils, constants } from "ethers";
 import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";
+import { SdkUtils } from "../src/sdkUtils";
+import { SdkPool } from "../src/sdkPool";
+import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
-import { CannotUnwrapOnDestination, SignerAddressMissing } from "../src/lib/errors";
+import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -22,6 +32,8 @@ const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
   let sdkBase: SdkBase;
+  let sdkUtils: SdkUtils;
+  let sdkPool: SdkPool;
   let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
@@ -30,10 +42,12 @@ describe("SdkBase", () => {
     chainreader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
+    sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
+    sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
     (sdkBase as any).chainreader = chainreader;
   });
 
@@ -52,6 +66,7 @@ describe("SdkBase", () => {
       expect(sdkBase.bumpTransfer).to.be.a("function");
       expect(sdkBase.updateSlippage).to.be.a("function");
       expect(sdkBase.estimateRelayerFee).to.be.a("function");
+      expect(sdkBase.calculateAmountReceived).to.be.a("function");
     });
   });
 
@@ -62,24 +77,30 @@ describe("SdkBase", () => {
     let relayerFee = BigNumber.from("1");
 
     const mockXCallArgs = mock.entity.xcallArgs();
-    const standardXCallData: string = getConnextInterface().encodeFunctionData("xcall", [
-      mockXCallArgs.destination,
-      mockXCallArgs.to,
-      mockXCallArgs.asset,
-      mockXCallArgs.delegate,
-      mockXCallArgs.amount,
-      mockXCallArgs.slippage,
-      mockXCallArgs.callData,
-    ]);
-    const standardXCallIntoLocalData: string = getConnextInterface().encodeFunctionData("xcallIntoLocal", [
-      mockXCallArgs.destination,
-      mockXCallArgs.to,
-      mockXCallArgs.asset,
-      mockXCallArgs.delegate,
-      mockXCallArgs.amount,
-      mockXCallArgs.slippage,
-      mockXCallArgs.callData,
-    ]);
+    const standardXCallData: string = getConnextInterface().encodeFunctionData(
+      "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+      [
+        mockXCallArgs.destination,
+        mockXCallArgs.to,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        mockXCallArgs.callData,
+      ],
+    );
+    const standardXCallIntoLocalData: string = getConnextInterface().encodeFunctionData(
+      "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)",
+      [
+        mockXCallArgs.destination,
+        mockXCallArgs.to,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        mockXCallArgs.callData,
+      ],
+    );
 
     const mockXCallRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
@@ -143,6 +164,35 @@ describe("SdkBase", () => {
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
+    it("happy: should work if a user wants to pay fee in transacting asset", async () => {
+      const _sdkXCallArgs = { ...sdkXCallArgs, relayerFeeInTransactingAsset: "10" };
+      const res = await sdkBase.xcall(_sdkXCallArgs);
+
+      const xcallData: string = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)",
+        [
+          mockXCallArgs.destination,
+          mockXCallArgs.to,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          mockXCallArgs.callData,
+          "10",
+        ],
+      );
+
+      const xcallRequest: providers.TransactionRequest = {
+        to: mockConnextAddress,
+        data: xcallData,
+        from: mock.config().signerAddress,
+        value: relayerFee,
+        chainId,
+      };
+
+      expect(res).to.be.deep.eq(xcallRequest);
+    });
+
     it("happy: should use xcallIntoLocal if receiveLocal is used", async () => {
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
@@ -196,17 +246,20 @@ describe("SdkBase", () => {
 
     it("happy: handle unwrapNativeOnDestination", async () => {
       // Format the xcall for the unwrapNativeOnDestination case.
-      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
-        mockXCallArgs.destination,
-        // The `to` argument becomes the Unwrapper contract address.
-        mockUnwrapperAddress,
-        mockXCallArgs.asset,
-        mockXCallArgs.delegate,
-        mockXCallArgs.amount,
-        mockXCallArgs.slippage,
-        // For the Unwrapper contract, we provide the original recipient as argument.
-        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
-      ]);
+      const xcallData = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXCallArgs.destination,
+          // The `to` argument becomes the Unwrapper contract address.
+          mockUnwrapperAddress,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          // For the Unwrapper contract, we provide the original recipient as argument.
+          utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
+        ],
+      );
 
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
@@ -229,17 +282,20 @@ describe("SdkBase", () => {
       const txs = wrapNativeOnOriginMultisendTxs(asset!, amount);
 
       // Format the xcall for the unwrapNativeOnDestination case.
-      const xcallData = getConnextInterface().encodeFunctionData("xcall", [
-        mockXCallArgs.destination,
-        // The `to` argument becomes the Unwrapper contract address.
-        mockUnwrapperAddress,
-        mockXCallArgs.asset,
-        mockXCallArgs.delegate,
-        mockXCallArgs.amount,
-        mockXCallArgs.slippage,
-        // For the Unwrapper contract, we provide the original recipient as argument.
-        utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
-      ]);
+      const xcallData = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXCallArgs.destination,
+          // The `to` argument becomes the Unwrapper contract address.
+          mockUnwrapperAddress,
+          mockXCallArgs.asset,
+          mockXCallArgs.delegate,
+          mockXCallArgs.amount,
+          mockXCallArgs.slippage,
+          // For the Unwrapper contract, we provide the original recipient as argument.
+          utils.defaultAbiCoder.encode(["address"], [sdkXCallArgs.to]),
+        ],
+      );
       txs[2].data = xcallData;
 
       const expectedTxRequest: providers.TransactionRequest = {
@@ -293,15 +349,18 @@ describe("SdkBase", () => {
 
       stub(sdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
       const mockXcallArgs = mock.entity.xcallArgs();
-      const data = getConnextInterface().encodeFunctionData("xcall", [
-        mockXcallArgs.destination,
-        mockXcallArgs.to,
-        mockXcallArgs.asset,
-        mockXcallArgs.delegate,
-        mockXcallArgs.amount,
-        mockXcallArgs.slippage,
-        mockXcallArgs.callData,
-      ]);
+      const data = getConnextInterface().encodeFunctionData(
+        "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+        [
+          mockXcallArgs.destination,
+          mockXcallArgs.to,
+          mockXcallArgs.asset,
+          mockXcallArgs.delegate,
+          mockXcallArgs.amount,
+          mockXcallArgs.slippage,
+          mockXcallArgs.callData,
+        ],
+      );
 
       const mockXCallRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
@@ -339,6 +398,7 @@ describe("SdkBase", () => {
     const mockBumpTransferParams = {
       domainId: mockXTransfer.xparams.originDomain,
       transferId: mockXTransfer.transferId,
+      asset: mockXTransfer.origin!.assets.transacting.asset,
       relayerFee: "1",
     };
 
@@ -348,19 +408,39 @@ describe("SdkBase", () => {
       await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
     });
 
-    it("happy: should work", async () => {
+    it("happy-1: should work with native asset", async () => {
+      const bumpParams = { ...mockBumpTransferParams, asset: constants.AddressZero };
       sdkBase.config.signerAddress = mockConfig.signerAddress;
-      const data = getConnextInterface().encodeFunctionData("bumpTransfer", [mockBumpTransferParams.transferId]);
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [bumpParams.transferId]);
 
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from(mockBumpTransferParams.relayerFee),
+        value: BigNumber.from(bumpParams.relayerFee),
         chainId,
       };
 
-      const res = await sdkBase.bumpTransfer(mockBumpTransferParams);
+      const res = await sdkBase.bumpTransfer(bumpParams);
+      expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
+    });
+    it("happy-2: should work with transacting asset", async () => {
+      const bumpParams = { ...mockBumpTransferParams, asset: mockXTransfer.origin!.assets.transacting.asset };
+      sdkBase.config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32,address,uint256)", [
+        bumpParams.transferId,
+        bumpParams.asset,
+        bumpParams.relayerFee,
+      ]);
+
+      const mockBumpTransferTxRequest: providers.TransactionRequest = {
+        to: mockConnextAddress,
+        data,
+        from: mock.config().signerAddress,
+        chainId,
+      };
+
+      const res = await sdkBase.bumpTransfer(bumpParams);
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
     });
   });
@@ -373,6 +453,32 @@ describe("SdkBase", () => {
       transferId: mockXTransfer.transferId,
       slippage: "100",
     };
+
+    const mockUpdateSlippageParamsWrongDomain = {
+      domainId: mockXTransfer.xparams.originDomain,
+      transferId: mockXTransfer.transferId,
+      slippage: "100",
+    };
+
+    it("happy: should work", async () => {
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.not.be.undefined;
+    });
+
+    it("should error if not updated on destination domain", async () => {
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
+    });
+
+    it("should error if not updated by delegate", async () => {
+      (sdkBase as any).config.signerAddress = mkAddress("0xbeef");
+
+      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
+    });
 
     it("should error if signerAddress is undefined", async () => {
       (sdkBase as any).config.signerAddress = undefined;
@@ -398,6 +504,59 @@ describe("SdkBase", () => {
       });
       expect(calculateRelayerFeeStub.callCount).to.be.eq(1);
       expect(relayerFee.toString()).to.be.eq("100");
+    });
+  });
+
+  describe("#calculateAmountReceived", () => {
+    const localAsset: PoolAsset = {
+      address: mock.asset.A.address,
+      name: mock.asset.A.name,
+      symbol: mock.asset.A.symbol,
+      decimals: 18,
+      index: 0,
+      balance: BigNumber.from("100"),
+    };
+
+    const adoptedAsset: PoolAsset = {
+      address: mock.asset.B.address,
+      name: mock.asset.B.name,
+      symbol: mock.asset.B.symbol,
+      decimals: 18,
+      index: 1,
+      balance: BigNumber.from("100"),
+    };
+
+    const mockPool: Pool = {
+      domainId: mock.domain.A,
+      name: "TSTB Pool",
+      symbol: "TSTB-TSTA",
+      local: localAsset,
+      adopted: adoptedAsset,
+      lpTokenAddress: utils.formatBytes32String("asdf"),
+      canonicalHash: utils.formatBytes32String("13337"),
+      swapFee: "4000000",
+      adminFee: "0",
+    };
+
+    const mockResponse = {
+      amountReceived: "100",
+      originSlippage: "1",
+      routerFee: "1",
+      destinationSlippage: "1",
+      isFastPath: true,
+    };
+
+    it("happy: should work with local origin asset and local destination asset", async () => {
+      stub(sdkPool, "calculateAmountReceived").resolves(mockResponse);
+      const res = await sdkBase.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.local.address,
+        "100",
+        true,
+      );
+
+      expect(res).to.equal(mockResponse);
     });
   });
 });

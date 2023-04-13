@@ -10,7 +10,7 @@ export class Web3SignerApi {
     SIGN: "api/v1/eth1/sign",
     SERVER_STATUS: "upcheck",
     PUBLIC_KEY: "api/v1/eth1/publicKeys",
-  };
+  } as const;
 
   constructor(private readonly url: string) {}
 

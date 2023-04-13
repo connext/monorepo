@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-subgraph",
-  "version": "0.2.1-rc.19",
+  "version": "2.0.0-alpha.1",
   "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -36,24 +36,24 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@graphprotocol/client-cli": "2.2.15",
-    "@graphql-mesh/transform-prefix": "0.12.4",
-    "@graphql-mesh/transform-rename": "0.14.4",
-    "@graphql-mesh/transform-type-merging": "0.5.3",
-    "@sinclair/typebox": "0.25.16",
-    "@typescript-eslint/eslint-plugin": "5.47.0",
+    "@graphprotocol/client-cli": "2.2.18",
+    "@graphql-mesh/transform-prefix": "0.12.12",
+    "@graphql-mesh/transform-rename": "0.14.12",
+    "@graphql-mesh/transform-type-merging": "0.5.11",
+    "@sinclair/typebox": "0.25.21",
+    "@typescript-eslint/eslint-plugin": "5.52.0",
     "ethers": "5.7.2",
     "graphql": "16.6.0",
     "graphql-request": "5.1.0",
     "graphql-tag": "2.12.6"
   },
   "devDependencies": {
-    "eslint": "8.30.0",
+    "eslint": "8.34.0",
     "nyc": "15.1.0",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
-    "tslib": "2.4.1",
-    "typescript": "4.9.4"
+    "tslib": "2.5.0",
+    "typescript": "4.9.5"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.2.0-alpha.29"

@@ -21,10 +21,12 @@ import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
+import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "forge-std/console.sol";
+import "./Messaging.sol";
 
 contract MockXAppConnectionManager is IConnectorManager {
   MockHome _home;
@@ -57,8 +59,8 @@ contract MockXAppConnectionManager is IConnectorManager {
 
 contract MockHome is IOutbox {
   uint32 public domain;
-  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
-  bytes public MESSAGE_BODY = bytes("test message");
+
+  mapping(uint32 => uint32) public _nonces;
 
   constructor(uint32 _domain) {
     domain = _domain;
@@ -68,13 +70,24 @@ contract MockHome is IOutbox {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external returns (bytes32, bytes memory) {
-    1 == 1;
-    return (MESSAGE_HASH, bytes("test message"));
+  ) external view returns (bytes32, bytes memory) {
+    bytes memory dispatched = MessagingUtils.formatDispatchedMessage(
+      domain,
+      _destinationDomain,
+      _nonces[_destinationDomain],
+      msg.sender,
+      TypeCasts.bytes32ToAddress(_recipientAddress),
+      _messageBody
+    );
+    return (keccak256(dispatched), dispatched);
   }
 
-  function localDomain() external returns (uint32) {
+  function localDomain() external view returns (uint32) {
     return domain;
+  }
+
+  function nonces(uint32 _domain) external view returns (uint32) {
+    return _nonces[_domain];
   }
 }
 
@@ -138,28 +151,15 @@ contract MockPool is IAavePool {
     fails = _fails;
   }
 
-  function mintUnbacked(
-    address asset,
-    uint256 amount,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external override {
+  function mintUnbacked(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external override {
     TestERC20(asset).mint(address(this), amount);
   }
 
-  function backUnbacked(
-    address asset,
-    uint256 amount,
-    uint256 fee
-  ) external override {
+  function backUnbacked(address asset, uint256 amount, uint256 fee) external override {
     require(!fails, "fail");
   }
 
-  function withdraw(
-    address asset,
-    uint256 amount,
-    address to
-  ) external override returns (uint256) {
+  function withdraw(address asset, uint256 amount, address to) external override returns (uint256) {
     TestERC20(asset).transfer(msg.sender, amount);
     return amount;
   }
@@ -190,11 +190,7 @@ contract FeeERC20 is ERC20 {
     return true;
   }
 
-  function transferFrom(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) public override returns (bool) {
+  function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
     uint256 toTransfer = amount - fee;
     _burn(sender, fee);
     _transfer(sender, recipient, toTransfer);

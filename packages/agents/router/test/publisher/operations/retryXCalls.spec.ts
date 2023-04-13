@@ -43,6 +43,7 @@ describe("Operations:retryXCalls", () => {
       ];
       (mockPubContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
       (mockPubContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves(mockDestSubgraphResponse);
+      (mockPubContext.adapters.subgraph.getOriginTransfersByDomain as SinonStub).resolves(mockDestSubgraphResponse);
       (mockPubContext.adapters.cache.transfers.getPending as SinonStub).callsFake((domain: string) => [
         mockOriginSubgraphResponse[0].transferId,
         mockOriginSubgraphResponse[1].transferId,

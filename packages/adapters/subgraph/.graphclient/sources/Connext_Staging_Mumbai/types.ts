@@ -56,6 +56,8 @@ export type stagingmumbai_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_AggregateRoot_filter>>>;
 };
 
 export type stagingmumbai_AggregateRoot_orderBy =
@@ -66,6 +68,7 @@ export type stagingmumbai_AggregateRoot_orderBy =
 export type stagingmumbai_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  decimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
@@ -77,6 +80,9 @@ export type stagingmumbai_Asset = {
 export type stagingmumbai_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
+  locked: Scalars['BigInt'];
+  supplied: Scalars['BigInt'];
+  removed: Scalars['BigInt'];
   router: stagingmumbai_Router;
   asset: stagingmumbai_Asset;
   feesEarned: Scalars['BigInt'];
@@ -99,6 +105,30 @@ export type stagingmumbai_AssetBalance_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked?: InputMaybe<Scalars['BigInt']>;
+  locked_not?: InputMaybe<Scalars['BigInt']>;
+  locked_gt?: InputMaybe<Scalars['BigInt']>;
+  locked_lt?: InputMaybe<Scalars['BigInt']>;
+  locked_gte?: InputMaybe<Scalars['BigInt']>;
+  locked_lte?: InputMaybe<Scalars['BigInt']>;
+  locked_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied?: InputMaybe<Scalars['BigInt']>;
+  supplied_not?: InputMaybe<Scalars['BigInt']>;
+  supplied_gt?: InputMaybe<Scalars['BigInt']>;
+  supplied_lt?: InputMaybe<Scalars['BigInt']>;
+  supplied_gte?: InputMaybe<Scalars['BigInt']>;
+  supplied_lte?: InputMaybe<Scalars['BigInt']>;
+  supplied_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed?: InputMaybe<Scalars['BigInt']>;
+  removed_not?: InputMaybe<Scalars['BigInt']>;
+  removed_gt?: InputMaybe<Scalars['BigInt']>;
+  removed_lt?: InputMaybe<Scalars['BigInt']>;
+  removed_gte?: InputMaybe<Scalars['BigInt']>;
+  removed_lte?: InputMaybe<Scalars['BigInt']>;
+  removed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -151,13 +181,32 @@ export type stagingmumbai_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_AssetBalance_filter>>>;
 };
 
 export type stagingmumbai_AssetBalance_orderBy =
   | 'id'
   | 'amount'
+  | 'locked'
+  | 'supplied'
+  | 'removed'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
 
 export type stagingmumbai_AssetStatus = {
@@ -180,6 +229,8 @@ export type stagingmumbai_AssetStatus_filter = {
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_AssetStatus_filter>>>;
 };
 
 export type stagingmumbai_AssetStatus_orderBy =
@@ -205,6 +256,14 @@ export type stagingmumbai_Asset_filter = {
   key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
   key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  decimal?: InputMaybe<Scalars['BigInt']>;
+  decimal_not?: InputMaybe<Scalars['BigInt']>;
+  decimal_gt?: InputMaybe<Scalars['BigInt']>;
+  decimal_lt?: InputMaybe<Scalars['BigInt']>;
+  decimal_gte?: InputMaybe<Scalars['BigInt']>;
+  decimal_lte?: InputMaybe<Scalars['BigInt']>;
+  decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
@@ -274,17 +333,22 @@ export type stagingmumbai_Asset_filter = {
   status_?: InputMaybe<stagingmumbai_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_Asset_filter>>>;
 };
 
 export type stagingmumbai_Asset_orderBy =
   | 'id'
   | 'key'
+  | 'decimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
   | 'blockNumber'
-  | 'status';
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type stagingmumbai_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -362,6 +426,8 @@ export type stagingmumbai_ConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_ConnectorMeta_filter>>>;
 };
 
 export type stagingmumbai_ConnectorMeta_orderBy =
@@ -739,6 +805,8 @@ export type stagingmumbai_DestinationTransfer_filter = {
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_DestinationTransfer_filter>>>;
 };
 
 export type stagingmumbai_DestinationTransfer_orderBy =
@@ -762,6 +830,14 @@ export type stagingmumbai_DestinationTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -903,6 +979,8 @@ export type stagingmumbai_OriginMessage_filter = {
   rootCount_?: InputMaybe<stagingmumbai_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_OriginMessage_filter>>>;
 };
 
 export type stagingmumbai_OriginMessage_orderBy =
@@ -915,7 +993,9 @@ export type stagingmumbai_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type stagingmumbai_OriginTransfer = {
   id: Scalars['ID'];
@@ -937,9 +1017,11 @@ export type stagingmumbai_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['stagingmumbai_Bytes']>;
   asset?: Maybe<stagingmumbai_Asset>;
+  transactingAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
   message?: Maybe<stagingmumbai_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<stagingmumbai_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
   caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
   transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -947,6 +1029,15 @@ export type stagingmumbai_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['stagingmumbai_Bytes']>;
+};
+
+
+export type stagingmumbai_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RelayerFee_filter>;
 };
 
 export type stagingmumbai_OriginTransfer_filter = {
@@ -1121,6 +1212,16 @@ export type stagingmumbai_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<stagingmumbai_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1142,14 +1243,6 @@ export type stagingmumbai_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1158,6 +1251,23 @@ export type stagingmumbai_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<stagingmumbai_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   caller_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
@@ -1222,6 +1332,8 @@ export type stagingmumbai_OriginTransfer_filter = {
   txOrigin_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_OriginTransfer_filter>>>;
 };
 
 export type stagingmumbai_OriginTransfer_orderBy =
@@ -1244,9 +1356,28 @@ export type stagingmumbai_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'transactingAsset'
   | 'message'
-  | 'relayerFee'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1264,12 +1395,16 @@ export type Query = {
   stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
   stagingmumbai_router?: Maybe<stagingmumbai_Router>;
   stagingmumbai_routers: Array<stagingmumbai_Router>;
+  stagingmumbai_routerDailyTVL?: Maybe<stagingmumbai_RouterDailyTVL>;
+  stagingmumbai_routerDailyTVLs: Array<stagingmumbai_RouterDailyTVL>;
   stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
   stagingmumbai_settings: Array<stagingmumbai_Setting>;
   stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
   stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
   stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
   stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
+  stagingmumbai_relayerFee?: Maybe<stagingmumbai_RelayerFee>;
+  stagingmumbai_relayerFees: Array<stagingmumbai_RelayerFee>;
   stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
   stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
   stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
@@ -1284,6 +1419,10 @@ export type Query = {
   stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
   stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
   stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_relayerFeesIncrease?: Maybe<stagingmumbai_RelayerFeesIncrease>;
+  stagingmumbai_relayerFeesIncreases: Array<stagingmumbai_RelayerFeesIncrease>;
+  stagingmumbai_slippageUpdate?: Maybe<stagingmumbai_SlippageUpdate>;
+  stagingmumbai_slippageUpdates: Array<stagingmumbai_SlippageUpdate>;
   /** Access to subgraph metadata */
   stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
 };
@@ -1361,6 +1500,24 @@ export type Querystagingmumbai_routersArgs = {
 };
 
 
+export type Querystagingmumbai_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RouterDailyTVL_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingmumbai_settingArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmumbai_Block_height>;
@@ -1410,6 +1567,24 @@ export type Querystagingmumbai_sequencersArgs = {
   orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_Sequencer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RelayerFee_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1541,6 +1716,42 @@ export type Querystagingmumbai_rootMessageSentsArgs = {
 };
 
 
+export type Querystagingmumbai_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_SlippageUpdate_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingmumbai__metaArgs = {
   block?: InputMaybe<stagingmumbai_Block_height>;
 };
@@ -1550,6 +1761,260 @@ export type stagingmumbai_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['stagingmumbai_Bytes']>;
 };
+
+export type stagingmumbai_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: stagingmumbai_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_RelayerFee_filter>>>;
+};
+
+export type stagingmumbai_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
+export type stagingmumbai_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: stagingmumbai_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  caller: Scalars['stagingmumbai_Bytes'];
+  transactionHash: Scalars['stagingmumbai_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type stagingmumbai_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_RelayerFeesIncrease_filter>>>;
+};
+
+export type stagingmumbai_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'increase'
+  | 'asset'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type stagingmumbai_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1576,6 +2041,8 @@ export type stagingmumbai_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_Relayer_filter>>>;
 };
 
 export type stagingmumbai_Relayer_orderBy =
@@ -1607,6 +2074,8 @@ export type stagingmumbai_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_RootCount_filter>>>;
 };
 
 export type stagingmumbai_RootCount_orderBy =
@@ -1724,6 +2193,8 @@ export type stagingmumbai_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_RootMessageSent_filter>>>;
 };
 
 export type stagingmumbai_RootMessageSent_orderBy =
@@ -1757,6 +2228,108 @@ export type stagingmumbai_RouterassetBalancesArgs = {
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
 };
+
+export type stagingmumbai_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: stagingmumbai_Router;
+  asset: stagingmumbai_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type stagingmumbai_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<stagingmumbai_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_RouterDailyTVL_filter>>>;
+};
+
+export type stagingmumbai_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
 
 export type stagingmumbai_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1812,6 +2385,8 @@ export type stagingmumbai_Router_filter = {
   assetBalances_?: InputMaybe<stagingmumbai_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_Router_filter>>>;
 };
 
 export type stagingmumbai_Router_orderBy =
@@ -1854,6 +2429,8 @@ export type stagingmumbai_Sequencer_filter = {
   sequencer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_Sequencer_filter>>>;
 };
 
 export type stagingmumbai_Sequencer_orderBy =
@@ -1896,12 +2473,167 @@ export type stagingmumbai_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_Setting_filter>>>;
 };
 
 export type stagingmumbai_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
+
+export type stagingmumbai_SlippageUpdate = {
+  id: Scalars['ID'];
+  transfer: stagingmumbai_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['stagingmumbai_Bytes'];
+  transactionHash: Scalars['stagingmumbai_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type stagingmumbai_SlippageUpdate_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmumbai_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmumbai_SlippageUpdate_filter>>>;
+};
+
+export type stagingmumbai_SlippageUpdate_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type Subscription = {
   stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
@@ -1912,12 +2644,16 @@ export type Subscription = {
   stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
   stagingmumbai_router?: Maybe<stagingmumbai_Router>;
   stagingmumbai_routers: Array<stagingmumbai_Router>;
+  stagingmumbai_routerDailyTVL?: Maybe<stagingmumbai_RouterDailyTVL>;
+  stagingmumbai_routerDailyTVLs: Array<stagingmumbai_RouterDailyTVL>;
   stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
   stagingmumbai_settings: Array<stagingmumbai_Setting>;
   stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
   stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
   stagingmumbai_sequencer?: Maybe<stagingmumbai_Sequencer>;
   stagingmumbai_sequencers: Array<stagingmumbai_Sequencer>;
+  stagingmumbai_relayerFee?: Maybe<stagingmumbai_RelayerFee>;
+  stagingmumbai_relayerFees: Array<stagingmumbai_RelayerFee>;
   stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
   stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
   stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
@@ -1932,6 +2668,10 @@ export type Subscription = {
   stagingmumbai_rootCounts: Array<stagingmumbai_RootCount>;
   stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
   stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_relayerFeesIncrease?: Maybe<stagingmumbai_RelayerFeesIncrease>;
+  stagingmumbai_relayerFeesIncreases: Array<stagingmumbai_RelayerFeesIncrease>;
+  stagingmumbai_slippageUpdate?: Maybe<stagingmumbai_SlippageUpdate>;
+  stagingmumbai_slippageUpdates: Array<stagingmumbai_SlippageUpdate>;
   /** Access to subgraph metadata */
   stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
 };
@@ -2009,6 +2749,24 @@ export type Subscriptionstagingmumbai_routersArgs = {
 };
 
 
+export type Subscriptionstagingmumbai_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RouterDailyTVL_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmumbai_settingArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmumbai_Block_height>;
@@ -2058,6 +2816,24 @@ export type Subscriptionstagingmumbai_sequencersArgs = {
   orderBy?: InputMaybe<stagingmumbai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
   where?: InputMaybe<stagingmumbai_Sequencer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RelayerFee_filter>;
   block?: InputMaybe<stagingmumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2189,6 +2965,42 @@ export type Subscriptionstagingmumbai_rootMessageSentsArgs = {
 };
 
 
+export type Subscriptionstagingmumbai_relayerFeesIncreaseArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_relayerFeesIncreasesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_slippageUpdateArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_slippageUpdatesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_SlippageUpdate_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmumbai__metaArgs = {
   block?: InputMaybe<stagingmumbai_Block_height>;
 };
@@ -2249,6 +3061,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmumbai_routers: InContextSdkMethod<Query['stagingmumbai_routers'], Querystagingmumbai_routersArgs, MeshContext>,
   /** null **/
+  stagingmumbai_routerDailyTVL: InContextSdkMethod<Query['stagingmumbai_routerDailyTVL'], Querystagingmumbai_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_routerDailyTVLs: InContextSdkMethod<Query['stagingmumbai_routerDailyTVLs'], Querystagingmumbai_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   stagingmumbai_setting: InContextSdkMethod<Query['stagingmumbai_setting'], Querystagingmumbai_settingArgs, MeshContext>,
   /** null **/
   stagingmumbai_settings: InContextSdkMethod<Query['stagingmumbai_settings'], Querystagingmumbai_settingsArgs, MeshContext>,
@@ -2260,6 +3076,10 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_sequencer: InContextSdkMethod<Query['stagingmumbai_sequencer'], Querystagingmumbai_sequencerArgs, MeshContext>,
   /** null **/
   stagingmumbai_sequencers: InContextSdkMethod<Query['stagingmumbai_sequencers'], Querystagingmumbai_sequencersArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFee: InContextSdkMethod<Query['stagingmumbai_relayerFee'], Querystagingmumbai_relayerFeeArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFees: InContextSdkMethod<Query['stagingmumbai_relayerFees'], Querystagingmumbai_relayerFeesArgs, MeshContext>,
   /** null **/
   stagingmumbai_originTransfer: InContextSdkMethod<Query['stagingmumbai_originTransfer'], Querystagingmumbai_originTransferArgs, MeshContext>,
   /** null **/
@@ -2288,6 +3108,14 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_rootMessageSent: InContextSdkMethod<Query['stagingmumbai_rootMessageSent'], Querystagingmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingmumbai_rootMessageSents: InContextSdkMethod<Query['stagingmumbai_rootMessageSents'], Querystagingmumbai_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFeesIncrease: InContextSdkMethod<Query['stagingmumbai_relayerFeesIncrease'], Querystagingmumbai_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFeesIncreases: InContextSdkMethod<Query['stagingmumbai_relayerFeesIncreases'], Querystagingmumbai_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_slippageUpdate: InContextSdkMethod<Query['stagingmumbai_slippageUpdate'], Querystagingmumbai_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_slippageUpdates: InContextSdkMethod<Query['stagingmumbai_slippageUpdates'], Querystagingmumbai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmumbai__meta: InContextSdkMethod<Query['stagingmumbai__meta'], Querystagingmumbai__metaArgs, MeshContext>
   };
@@ -2314,6 +3142,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmumbai_routers: InContextSdkMethod<Subscription['stagingmumbai_routers'], Subscriptionstagingmumbai_routersArgs, MeshContext>,
   /** null **/
+  stagingmumbai_routerDailyTVL: InContextSdkMethod<Subscription['stagingmumbai_routerDailyTVL'], Subscriptionstagingmumbai_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_routerDailyTVLs: InContextSdkMethod<Subscription['stagingmumbai_routerDailyTVLs'], Subscriptionstagingmumbai_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
   stagingmumbai_setting: InContextSdkMethod<Subscription['stagingmumbai_setting'], Subscriptionstagingmumbai_settingArgs, MeshContext>,
   /** null **/
   stagingmumbai_settings: InContextSdkMethod<Subscription['stagingmumbai_settings'], Subscriptionstagingmumbai_settingsArgs, MeshContext>,
@@ -2325,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_sequencer: InContextSdkMethod<Subscription['stagingmumbai_sequencer'], Subscriptionstagingmumbai_sequencerArgs, MeshContext>,
   /** null **/
   stagingmumbai_sequencers: InContextSdkMethod<Subscription['stagingmumbai_sequencers'], Subscriptionstagingmumbai_sequencersArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFee: InContextSdkMethod<Subscription['stagingmumbai_relayerFee'], Subscriptionstagingmumbai_relayerFeeArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFees: InContextSdkMethod<Subscription['stagingmumbai_relayerFees'], Subscriptionstagingmumbai_relayerFeesArgs, MeshContext>,
   /** null **/
   stagingmumbai_originTransfer: InContextSdkMethod<Subscription['stagingmumbai_originTransfer'], Subscriptionstagingmumbai_originTransferArgs, MeshContext>,
   /** null **/
@@ -2353,6 +3189,14 @@ export type _SubgraphErrorPolicy_ =
   stagingmumbai_rootMessageSent: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSent'], Subscriptionstagingmumbai_rootMessageSentArgs, MeshContext>,
   /** null **/
   stagingmumbai_rootMessageSents: InContextSdkMethod<Subscription['stagingmumbai_rootMessageSents'], Subscriptionstagingmumbai_rootMessageSentsArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFeesIncrease: InContextSdkMethod<Subscription['stagingmumbai_relayerFeesIncrease'], Subscriptionstagingmumbai_relayerFeesIncreaseArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_relayerFeesIncreases: InContextSdkMethod<Subscription['stagingmumbai_relayerFeesIncreases'], Subscriptionstagingmumbai_relayerFeesIncreasesArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_slippageUpdate: InContextSdkMethod<Subscription['stagingmumbai_slippageUpdate'], Subscriptionstagingmumbai_slippageUpdateArgs, MeshContext>,
+  /** null **/
+  stagingmumbai_slippageUpdates: InContextSdkMethod<Subscription['stagingmumbai_slippageUpdates'], Subscriptionstagingmumbai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmumbai__meta: InContextSdkMethod<Subscription['stagingmumbai__meta'], Subscriptionstagingmumbai__metaArgs, MeshContext>
   };

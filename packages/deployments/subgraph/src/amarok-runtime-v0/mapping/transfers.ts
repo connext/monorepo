@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 import {
   XCalled,
@@ -8,9 +8,16 @@ import {
   TransferRelayerFeesIncreased,
   SlippageUpdated,
 } from "../../../generated/Connext/Connext";
-import { Router, OriginTransfer, DestinationTransfer, OriginMessage } from "../../../generated/schema";
+import { Router, OriginTransfer, DestinationTransfer, OriginMessage, SlippageUpdate } from "../../../generated/schema";
 
-import { getChainId, getOrCreateAsset, getOrCreateAssetBalance } from "./helper";
+import {
+  getChainId,
+  getOrCreateAsset,
+  getOrCreateAssetBalance,
+  getOrCreateTransferRelayFee,
+  getOrCreateTransferRelayFeeIncrease,
+  getRouterDailyTVL,
+} from "./helper";
 
 /// MARK - Connext Bridge
 /**
@@ -50,6 +57,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.canonicalId = event.params.params.canonicalId;
   transfer.canonicalDomain = event.params.params.canonicalDomain;
   transfer.asset = getOrCreateAsset(event.params.local).id;
+  transfer.transactingAsset = event.params.asset;
 
   // Message
   let message = OriginMessage.load(event.params.messageHash.toHex());
@@ -116,6 +124,13 @@ export function handleExecuted(event: Executed): void {
       assetBalance.feesEarned = assetBalance.feesEarned.plus(feesTaken.div(BigInt.fromI32(num)));
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, event.params.args.routers[i], event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.balance = assetBalance.amount;
+        routerTvl.save();
+      }
     }
 
     transfer.routersFee = feesTaken;
@@ -190,6 +205,13 @@ export function handleReconciled(event: Reconciled): void {
       const assetBalance = getOrCreateAssetBalance(event.params.local, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
+
+      // update router tvl
+      const routerTvl = getRouterDailyTVL(event.params.local, Address.fromString(router), event.block.timestamp);
+      if (routerTvl) {
+        routerTvl.balance = assetBalance.amount;
+        routerTvl.save();
+      }
     }
   }
 
@@ -223,6 +245,44 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
+export function handleRelayerFeesIncreasedNativeOnly(event: TransferRelayerFeesIncreased): void {
+  let transfer = OriginTransfer.load(event.params.transferId.toHexString());
+
+  if (transfer == null) {
+    transfer = new OriginTransfer(event.params.transferId.toHexString());
+  }
+
+  if (transfer.bumpRelayerFeeCount === BigInt.fromI32(0)) {
+    transfer.initialRelayerFeeAsset = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+  }
+
+  transfer.bumpRelayerFeeCount = (
+    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
+  )!.plus(BigInt.fromI32(1));
+
+  const transferRelayerFee = getOrCreateTransferRelayFee(
+    transfer.id,
+    Bytes.fromHexString("0x0000000000000000000000000000000000000000"),
+  );
+  transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
+  transferRelayerFee.save();
+
+  transfer.relayerFees = transfer.relayerFees
+    ? transfer.relayerFees!.concat([transferRelayerFee.id])
+    : [transferRelayerFee.id];
+  transfer.save();
+
+  const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
+    event.params.transferId.toHexString(),
+    "0x0000000000000000000000000000000000000000",
+    event,
+  );
+  relayerFeesIncrease.transfer = transfer.id;
+  relayerFeesIncrease.increase = event.params.increase;
+  relayerFeesIncrease.asset = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+  relayerFeesIncrease.save();
+}
+
 /**
  * Updates subgraph records when TransferRelayerFeesIncreased events are emitted
  *
@@ -235,9 +295,33 @@ export function handleRelayerFeesIncreased(event: TransferRelayerFeesIncreased):
     transfer = new OriginTransfer(event.params.transferId.toHexString());
   }
 
-  transfer.relayerFee = transfer.relayerFee!.plus(event.params.increase);
-  transfer.bumpRelayerFeeCount = transfer.bumpRelayerFeeCount!.plus(BigInt.fromI32(1));
+  if (transfer.bumpRelayerFeeCount === BigInt.fromI32(0)) {
+    transfer.initialRelayerFeeAsset = event.params.asset;
+  }
+
+  transfer.bumpRelayerFeeCount = (
+    transfer.bumpRelayerFeeCount ? transfer.bumpRelayerFeeCount : BigInt.fromI32(0)
+  )!.plus(BigInt.fromI32(1));
+
+  const transferRelayerFee = getOrCreateTransferRelayFee(transfer.id, event.params.asset);
+  transferRelayerFee.fee = transferRelayerFee.fee.plus(event.params.increase);
+  transferRelayerFee.save();
+
+  transfer.relayerFees = transfer.relayerFees
+    ? transfer.relayerFees!.concat([transferRelayerFee.id])
+    : [transferRelayerFee.id];
   transfer.save();
+
+  const relayerFeesIncrease = getOrCreateTransferRelayFeeIncrease(
+    event.params.transferId.toHexString(),
+    event.params.asset.toHexString(),
+    event,
+  );
+
+  relayerFeesIncrease.transfer = transfer.id;
+  relayerFeesIncrease.increase = event.params.increase;
+  relayerFeesIncrease.asset = event.params.asset;
+  relayerFeesIncrease.save();
 }
 
 /**
@@ -252,7 +336,30 @@ export function handleSlippageUpdated(event: SlippageUpdated): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
-  transfer.slippage = event.params.slippage;
-  transfer.bumpSlippageCount = transfer.bumpSlippageCount!.plus(BigInt.fromI32(1));
+  transfer.bumpSlippageCount = transfer.bumpSlippageCount
+    ? transfer.bumpSlippageCount!.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(1);
   transfer.save();
+
+  // should never be more than 1 but just in case theres somehow multiple in the same tx
+  let slippageUpdate = SlippageUpdate.load(
+    `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+  );
+  if (slippageUpdate == null) {
+    slippageUpdate = new SlippageUpdate(
+      `${event.params.transferId.toHexString()}-${event.transaction.hash.toHexString()}`,
+    );
+  }
+
+  slippageUpdate.transfer = transfer.id;
+  slippageUpdate.slippage = event.params.slippage;
+
+  // tx
+  slippageUpdate.caller = event.transaction.from;
+  slippageUpdate.blockNumber = event.block.number;
+  slippageUpdate.timestamp = event.block.timestamp;
+  slippageUpdate.transactionHash = event.transaction.hash;
+  slippageUpdate.gasLimit = event.transaction.gasLimit;
+  slippageUpdate.gasPrice = event.transaction.gasPrice;
+  slippageUpdate.save();
 }

@@ -9,11 +9,21 @@ import {
   Logger,
   mock,
   chainDataToMap,
+  mkBytes32,
+  encodeMultisendCall,
+  MultisendTransactionOperation,
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
 import { RpcProviderAggregator } from "../src/aggregator";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
+import {
+  ChainNotSupported,
+  ConfigurationError,
+  MultireadTransaction,
+  ProviderNotConfigured,
+  ReadTransaction,
+  RpcError,
+} from "../src/shared";
 import * as ContractFns from "../src/shared/contracts";
 import {
   TEST_SENDER_CHAIN_ID,
@@ -142,6 +152,111 @@ describe("ChainReader", () => {
       provider.readContract.rejects(new RpcError("fail"));
 
       await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#multiread", () => {
+    // An interface for a fake contract with a bunch of diverse read methods available.
+    const abiMock = [
+      "constructor()",
+      "function getValueA() view returns (uint256)",
+      "function getValueB(bytes32 key) view returns (uint256)",
+      "function getValueC(uint256 count) view returns (bool)",
+      "function getValueD(address who, address whom, address whomstve) view returns (address)",
+      "function getValueE(tuple(string name, address addr) user) view returns (uint256)",
+      "function getValueF(uint256 id) view returns (tuple(string name, address addr) user)",
+    ];
+    const ifaceMock = new utils.Interface(abiMock);
+    const makeMockCall = (
+      name: string,
+      args: any[],
+      resultTypes: (string | utils.ParamType)[],
+      resultValues: any[],
+    ) => {
+      return {
+        name,
+        data: ifaceMock.encodeFunctionData(name, args),
+        ret: utils.defaultAbiCoder.encode(resultTypes, resultValues),
+        resultValues,
+        resultTypes,
+      };
+    };
+    const getValueMockCalls = [
+      makeMockCall("getValueA", [], ["uint256"], ["123456789"]),
+      makeMockCall("getValueB", [mkBytes32("0xabcdef")], ["uint256"], ["987654321"]),
+      makeMockCall("getValueC", [123456789], ["bool"], [true]),
+      makeMockCall(
+        "getValueD",
+        [mkAddress("0x123"), mkAddress("0x456"), mkAddress("0x789")],
+        ["address"],
+        [mkAddress("0xc0ffee")],
+      ),
+      makeMockCall("getValueE", [["hello test", mkAddress("0xc0ffee")]], ["uint256"], ["918273645"]),
+      makeMockCall("getValueF", [987654321], ["tuple(string, address)"], [["hello test", mkAddress("0xc0ffee")]]),
+    ];
+    let expectedResultValues: any[] = [];
+    let orderedResultTypes: (string | utils.ParamType)[] = [];
+    const txs: MultireadTransaction[] = getValueMockCalls.map((call, i) => {
+      // Concatenate expected result types and values in tx order.
+      expectedResultValues = expectedResultValues.concat(call.resultValues);
+      orderedResultTypes = orderedResultTypes.concat(call.resultTypes);
+      // Return formatted read transaction.
+      return {
+        to: mkAddress(`0x${i}`), // NOTE: Varying `to` address, as if we're targeting multiple contracts.
+        data: call.data,
+        resultTypes: call.resultTypes,
+      };
+    });
+
+    it("happy: formats a multisend static call and sends it", async () => {
+      // Encode the final resulting return value.
+      // This is basically the blob of data that corresponds to many read calls in the exact way that MultiSend would
+      // return it.
+      const multireadResult = utils.defaultAbiCoder.encode(orderedResultTypes, expectedResultValues);
+      provider.readContract.resolves(multireadResult);
+      // NOTE: Technically we should just expect the result values to be == return data below, but doing this decoding
+      // step here ensures that this supplied input data is valid.
+      const expectedDecodedResult = utils.defaultAbiCoder.decode(orderedResultTypes, multireadResult);
+
+      const multisendContract = mkAddress("0x2c001");
+      const result = await chainReader.multiread({
+        domain: TEST_SENDER_DOMAIN,
+        txs,
+        multisendContract,
+      });
+
+      expect(result).to.deep.eq(expectedDecodedResult);
+      expect(provider.readContract.callCount).to.equal(1); // Just 1 RPC call! Wow!
+      // Assert ReadTransaction we formatted for Multisend used the encoding utility.
+      expect(provider.readContract.args[0][0]).to.deep.eq({
+        domain: TEST_SENDER_DOMAIN,
+        to: multisendContract,
+        data: encodeMultisendCall(
+          txs.map((tx) => ({
+            operation: MultisendTransactionOperation.CALL,
+            to: tx.to,
+            data: tx.data,
+          })),
+        ),
+      });
+    });
+
+    it("falls back to using Promise.all if multisend contract not available", async () => {
+      let expectedDecodedResult: any[] = [];
+      for (let i = 0; i < getValueMockCalls.length; i++) {
+        provider.readContract.onCall(i).resolves(getValueMockCalls[i].ret);
+        expectedDecodedResult = expectedDecodedResult.concat(
+          utils.defaultAbiCoder.decode(getValueMockCalls[i].resultTypes, getValueMockCalls[i].ret),
+        );
+      }
+
+      const result = await chainReader.multiread({
+        domain: TEST_SENDER_DOMAIN,
+        txs,
+      });
+
+      expect(result).to.deep.eq(expectedDecodedResult);
+      expect(provider.readContract.callCount).to.equal(getValueMockCalls.length); // Many RPC calls, sad :(
     });
   });
 

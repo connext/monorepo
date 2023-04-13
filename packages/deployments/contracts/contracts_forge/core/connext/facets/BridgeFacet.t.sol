@@ -42,8 +42,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Constants ============
 
-  bytes32 constant TEST_MESSAGE = bytes32("test message");
-
   // ============ Storage ============
 
   // diamond storage contract owner
@@ -249,11 +247,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 amount,
     bool shouldSwap
   ) public {
+    if (_relayerFee > 0) {
+      vm.expectEmit(true, true, true, true);
+      emit TransferRelayerFeesIncreased(transferId, _relayerFee, address(0), params.originSender);
+    }
+
     // Bridged asset will either local or canonical, depending on domain xcall originates on.
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
+    bytes memory messageBody = MessagingUtils.formatDispatchedTransferMessage(params, address(this), address(this), 0);
+    bytes32 messageHash = keccak256(messageBody);
+
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, bytes32("test message"), params, asset, amount, bridged, bytes("test message"));
+    emit XCalled(transferId, s.nonce, messageHash, params, asset, amount, bridged, messageBody);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -406,12 +412,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    // TODO: event manually validated, value to relayer fee vault automatically validated,
-    // this event check wont pass :(
-    // if (_relayerFee > 0) {
-    //   vm.expectEmit(true, true, true, true);
-    //   emit TransferRelayerFeesIncreased(transferId, _relayerFee, params.originSender);
-    // }
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
