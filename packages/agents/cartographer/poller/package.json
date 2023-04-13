@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.1-rc.6",
+  "version": "2.0.0-alpha.1",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -8,11 +8,14 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js'",
+    "start:all": "concurrently -i -k -n 'transfers,routers,messages,roots,stableswap' -c 'green,cyan,yellow,red' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryMessages.js' 'node dist/entryRoots.js' 'node dist/entryStableSwap.js'",
     "start:transfers": "CARTOGRAPHER_SERVICE=transfers npx ts-node test/run.ts",
     "start:routers": "CARTOGRAPHER_SERVICE=routers npx ts-node test/run.ts",
     "start:messages": "CARTOGRAPHER_SERVICE=messages npx ts-node test/run.ts",
     "start:roots": "CARTOGRAPHER_SERVICE=roots npx ts-node test/run.ts",
+    "start:stableswap": "CARTOGRAPHER_SERVICE=stableswap npx ts-node test/run.ts",
+    "start:messagestatus": "CARTOGRAPHER_SERVICE=messagestatus npx ts-node test/run.ts",
+    "start:prices": "CARTOGRAPHER_SERVICE=prices npx ts-node test/run.ts",
     "docker:start:postgrest": "docker run --name cartographer-postgrest --rm -p 3000:3000 -e PGRST_DB_URI=postgres://reader:3eadooor@host.docker.internal:5432/connext -e PGRST_DB_SCHEMA=public -e PGRST_DB_ANON_ROLE=query postgrest/postgrest",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
@@ -29,30 +32,30 @@
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.25.2",
-    "datadog-lambda-js": "^6.85.0",
-    "dd-trace": "3.9.2",
+    "@sinclair/typebox": "0.25.21",
+    "datadog-lambda-js": "6.86.0",
+    "dd-trace": "3.13.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",
-    "pg": "8.8.0",
-    "zapatos": "6.1.1"
+    "pg": "8.9.0",
+    "zapatos": "6.1.4"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.108",
-    "@types/pg": "^8.6.5",
-    "concurrently": "7.5.0",
-    "eslint": "8.26.0",
+    "@types/aws-lambda": "8.10.110",
+    "@types/pg": "8.6.6",
+    "concurrently": "7.6.0",
+    "eslint": "8.34.0",
     "nodemon": "2.0.20",
     "nyc": "15.1.0",
-    "pino-pretty": "9.1.1",
+    "pino-pretty": "9.2.0",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",
-    "sinon": "14.0.1",
+    "sinon": "15.0.1",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
-    "tslib": "2.4.0",
-    "typescript": "4.8.4"
+    "tslib": "2.5.0",
+    "typescript": "4.9.5"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.2.0-alpha.0"

@@ -34,6 +34,12 @@ export const updateFastPathTask = async (transferId: string, status: ExecStatus)
   const metaTxTask = await cache.auctions.getMetaTxTask(transferId);
   const taskId = metaTxTask?.taskId;
   if (taskId) {
+    // TODO: Set based on RelayerTaskStatus
+    // Currently RelayerTaskStatus is not available.
+    // Transfer satus should only be set to ExecStatus.Completed,
+    //   when subgraph has destination status for this transfer
+    // Always set to ExecStatus.Sent in fastpath, as relayer hand-off does not guarantee completion.
+    status = ExecStatus.Sent;
     await cache.auctions.setExecStatus(transferId, status);
   }
 };

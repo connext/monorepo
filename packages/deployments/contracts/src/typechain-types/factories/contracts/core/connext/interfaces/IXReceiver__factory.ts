@@ -54,7 +54,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IXReceiver__factory {
   static readonly abi = _abi;

@@ -107,8 +107,8 @@ describe("Config", () => {
   describe("getConfig", () => {
     it("should work", async () => {
       const env = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-      const config = await getConfig(mockConfig, mockDeployments, mockChainData);
-      expect(config).to.be.deep.eq(env);
+      const { nxtpConfig } = await getConfig(mockConfig, mockDeployments, mockChainData);
+      expect(nxtpConfig).to.be.deep.eq(env);
     });
   });
 });

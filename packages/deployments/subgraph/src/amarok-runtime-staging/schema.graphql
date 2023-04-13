@@ -1,16 +1,27 @@
 type Asset @entity {
   id: ID! # local asset address
   key: Bytes
+  decimal: BigInt
   canonicalId: Bytes
   canonicalDomain: BigInt
   adoptedAsset: Bytes
   localAsset: Bytes
   blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
+  # status
+  status: AssetStatus
+}
+
+type AssetStatus @entity {
+  id: ID! # key
+  status: Boolean
 }
 
 type AssetBalance @entity {
   id: ID! # `key-router_address`
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: Router!
   asset: Asset!
   feesEarned: BigInt!
@@ -25,6 +36,14 @@ type Router @entity {
   proposedOwner: Bytes
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+}
+
+type RouterDailyTVL @entity {
+  id: ID!
+  router: Router!
+  asset: Asset!
+  timestamp: BigInt!
+  balance: BigInt!
 }
 
 type Setting @entity {
@@ -53,6 +72,13 @@ enum TransferStatus {
   CompletedFast
 }
 
+type RelayerFee @entity {
+  id: ID!
+  transfer: OriginTransfer!
+  fee: BigInt!
+  asset: Bytes!
+}
+
 type OriginTransfer @entity {
   id: ID!
 
@@ -79,9 +105,15 @@ type OriginTransfer @entity {
 
   # Asset
   asset: Asset
+  transactingAsset: Bytes
 
   # Message
   message: OriginMessage
+
+  # Relayer Fee paid by user
+  bumpRelayerFeeCount: BigInt
+  relayerFees: [RelayerFee!]
+  initialRelayerFeeAsset: Bytes
 
   # XCalled Transaction
   caller: Bytes
@@ -90,6 +122,7 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -111,6 +144,7 @@ type DestinationTransfer @entity {
   receiveLocal: Boolean
   callData: Bytes
   slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
@@ -130,6 +164,7 @@ type DestinationTransfer @entity {
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: Bytes
 
   # Reconciled Transaction
   reconciledCaller: Bytes
@@ -138,6 +173,7 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: Bytes
 }
 
 type OriginMessage @entity {
@@ -197,46 +233,33 @@ type RootMessageSent @entity {
   blockNumber: BigInt
 }
 
-### STABLE SWAP
-type StableSwap @entity {
+type RelayerFeesIncrease @entity {
   id: ID!
 
-  isActive: Boolean
+  transfer: OriginTransfer!
+  increase: BigInt
+  asset: Bytes
 
-  # StableSwapAdded
-  key: Bytes
-  canonicalId: Bytes
-  domain: BigInt
-  swapPool: Bytes
-
-  # SwapInitialized
-  lpToken: Bytes
-
-  initialA: BigInt
-  futureA: BigInt
-
-  initialATime: BigInt
-  futureATime: BigInt
-
-  swapFee: BigInt
-  adminFee: BigInt
-  pooledTokens: [PooledToken!]!
-  tokenPrecisionMultipliers: [BigInt!]
-  balances: [BigInt!]!
-  adminFees: [BigInt!]
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }
 
-type PooledToken @entity {
+type SlippageUpdate @entity {
   id: ID!
-  asset: Bytes!
-}
 
-type StableSwapLiquidity @entity {
-  id: ID!
-  provider: Bytes!
-  stableSwap: StableSwap!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
-  invariant: BigInt
-  lpTokenSupply: BigInt
+  transfer: DestinationTransfer!
+  slippage: BigInt!
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }

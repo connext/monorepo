@@ -1,11 +1,5 @@
 import { ExecStatus, NxtpError } from "@connext/nxtp-utils";
 
-export class ExecutorVersionInvalid extends NxtpError {
-  constructor(context: any = {}) {
-    super(`LightHouse version is not supported by this sequencer`, context, ExecutorVersionInvalid.name);
-  }
-}
-
 export class ExecutorDataExpired extends NxtpError {
   constructor(status: ExecStatus, context: any = {}) {
     super("This lighthouse data has already expired.", { status, ...context }, ExecutorDataExpired.name);

@@ -62,7 +62,7 @@ contract Deployer {
       });
   }
 
-  function getTokenFacetCut(address _tokenFacet) internal view returns (IDiamondCut.FacetCut memory) {
+  function getTokenFacetCut(address _tokenFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory tokenFacetSelectors = new bytes4[](17);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
@@ -92,7 +92,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](16);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](19);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[1] = BridgeFacet.transferStatus.selector;
@@ -108,12 +108,17 @@ contract Deployer {
     bridgeFacetSelectors[9] = BridgeFacet.enrollRemoteRouter.selector;
 
     // public:bridge
-    bridgeFacetSelectors[10] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.xcallIntoLocal.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.forceUpdateSlippage.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[10] = getSelector("xcall(uint32,address,address,address,uint256,uint256,bytes)");
+    bridgeFacetSelectors[11] = getSelector("xcall(uint32,address,address,address,uint256,uint256,bytes,uint256)");
+    bridgeFacetSelectors[12] = getSelector("xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes)");
+    bridgeFacetSelectors[13] = getSelector(
+      "xcallIntoLocal(uint32,address,address,address,uint256,uint256,bytes,uint256)"
+    );
+    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[15] = getSelector("bumpTransfer(bytes32)");
+    bridgeFacetSelectors[16] = getSelector("bumpTransfer(bytes32,address,uint256)");
+    bridgeFacetSelectors[17] = BridgeFacet.forceUpdateSlippage.selector;
+    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
 
     return
       IDiamondCut.FacetCut({
@@ -134,11 +139,9 @@ contract Deployer {
       });
   }
 
-  function getProposedOwnableFacetCut(address _proposedOwnableFacet)
-    internal
-    pure
-    returns (IDiamondCut.FacetCut memory)
-  {
+  function getProposedOwnableFacetCut(
+    address _proposedOwnableFacet
+  ) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](13);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerAllowlistRemoved.selector;

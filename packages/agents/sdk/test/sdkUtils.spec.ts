@@ -1,10 +1,9 @@
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { expect, mkAddress, XTransferStatus, getRandomBytes32, Logger } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { reset, restore, stub } from "sinon";
+import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus } from "@connext/nxtp-utils";
 import { mock } from "./mock";
-import { NxtpSdkUtils } from "../src/sdkUtils";
+import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, UriInvalid } from "../src/lib/errors";
+import { UriInvalid } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -15,19 +14,17 @@ const mockDeployments = mock.contracts.deployments();
 const chainId = 1337;
 
 describe("SdkUtils", () => {
-  let nxtpUtils: NxtpSdkUtils;
-  let config: ConfigFns.NxtpSdkConfig;
-  let logger: Logger;
+  let nxtpUtils: SdkUtils;
+  let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
-    logger = new Logger({ name: "NxtpSdkUtils", level: config.logLevel });
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
-    stub(SharedFns, "axiosGetRequest").resolves({ data: {} });
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
+    stub(SharedFns, "axiosGetRequest").resolves({});
 
-    nxtpUtils = await NxtpSdkUtils.create(mockConfig, undefined, mockChainData);
+    nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -42,17 +39,8 @@ describe("SdkUtils", () => {
       expect(nxtpUtils.chainData).to.not.be.null;
 
       expect(nxtpUtils.getRoutersData).to.be.a("function");
-      expect(nxtpUtils.getTransfersByUser).to.be.a("function");
+      expect(nxtpUtils.getAssetsData).to.be.a("function");
       expect(nxtpUtils.getTransfers).to.be.a("function");
-      expect(nxtpUtils.getTransfersByStatus).to.be.a("function");
-      expect(nxtpUtils.getTransfersByRouter).to.be.a("function");
-      expect(nxtpUtils.getTransferById).to.be.a("function");
-      expect(nxtpUtils.getTransferByTransactionHash).to.be.a("function");
-    });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
@@ -61,7 +49,19 @@ describe("SdkUtils", () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getRoutersData();
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with order", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getRoutersData({
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+      });
+
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
@@ -71,32 +71,80 @@ describe("SdkUtils", () => {
     });
   });
 
-  describe("#getTransfersByUser", () => {
+  describe("#checkRouterLiquidity", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfersByUser({
-        userAddress: mockConfig.signerAddress!,
-        status: XTransferStatus.XCalled,
-        range: {
-          limit: 100,
-          offset: 20,
-        },
-      });
+      const res = await nxtpUtils.checkRouterLiquidity(mock.domain.A, mock.asset.A.address);
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
     });
+  });
 
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
+  describe("#getAssetsData", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getAssetsData();
 
-      await expect(nxtpUtils.getTransfersByUser({ userAddress: mockConfig.signerAddress! })).to.be.rejectedWith(
-        UriInvalid,
-      );
+      expect(res).to.not.be.undefined;
     });
   });
 
   describe("#getTransfers", () => {
-    it("happy: should work", async () => {
+    it("happy: should work with userAddress", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        userAddress: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with routerAddress", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        routerAddress: mock.address.router,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with status", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        status: XTransferStatus.XCalled,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with status", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        errorStatus: XTransferErrorStatus.ExecutionError,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with transferId", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        transferId: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with transactionHash", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        transactionHash: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getTransfers({
         range: {
@@ -105,7 +153,24 @@ describe("SdkUtils", () => {
         },
       });
 
-      expect(res.data).to.not.be.undefined;
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await nxtpUtils.getTransfers({
+        userAddress: mockConfig.signerAddress,
+        routerAddress: mock.address.router,
+        status: XTransferStatus.XCalled,
+        transferId: getRandomBytes32(),
+        transactionHash: getRandomBytes32(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if validateUri fails", async () => {
@@ -115,80 +180,12 @@ describe("SdkUtils", () => {
     });
   });
 
-  describe("#getTransfersByStatus", () => {
+  describe("#getRouterLiquidity", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfersByStatus({
-        status: XTransferStatus.Reconciled,
-        range: {
-          limit: 100,
-          offset: 20,
-        },
-      });
+      const res = await nxtpUtils.getRouterLiquidity();
 
-      expect(res.data).to.not.be.undefined;
-    });
-
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
-
-      await expect(nxtpUtils.getTransfersByStatus({ status: XTransferStatus.Reconciled })).to.be.rejectedWith(
-        UriInvalid,
-      );
-    });
-  });
-
-  describe("#getTransfersByRouter", () => {
-    it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransfersByRouter({
-        routerAddress: mock.address.router,
-        status: XTransferStatus.Executed,
-        range: {
-          limit: 100,
-          offset: 20,
-        },
-      });
-
-      expect(res.data).to.not.be.undefined;
-    });
-
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
-
-      await expect(nxtpUtils.getTransfersByRouter({ routerAddress: mock.address.router })).to.be.rejectedWith(
-        UriInvalid,
-      );
-    });
-  });
-
-  describe("#getTransferById", () => {
-    it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransferById(getRandomBytes32());
-
-      expect(res.data).to.not.be.undefined;
-    });
-
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
-
-      await expect(nxtpUtils.getTransferById(getRandomBytes32())).to.be.rejectedWith(UriInvalid);
-    });
-  });
-
-  describe("#getTransferByTransactionHash", () => {
-    it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getTransferByTransactionHash(getRandomBytes32());
-
-      expect(res.data).to.not.be.undefined;
-    });
-
-    it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
-
-      await expect(nxtpUtils.getTransferByTransactionHash(getRandomBytes32())).to.be.rejectedWith(UriInvalid);
+      expect(res).to.not.be.undefined;
     });
   });
 });

@@ -271,8 +271,8 @@ export interface IConnextInterface extends utils.Interface {
     "removeAssetId(bytes32,address,address)": FunctionFragment;
     "removeRelayer(address)": FunctionFragment;
     "removeRouterAllowlist()": FunctionFragment;
-    "removeRouterLiquidity(uint256,address,address)": FunctionFragment;
-    "removeRouterLiquidityFor(uint256,address,address,address)": FunctionFragment;
+    "removeRouterLiquidity((uint32,bytes32),uint256,address)": FunctionFragment;
+    "removeRouterLiquidityFor((uint32,bytes32),uint256,address,address)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "removeSwapLiquidity(bytes32,uint256,uint256[],uint256)": FunctionFragment;
     "removeSwapLiquidityImbalance(bytes32,uint256[],uint256,uint256)": FunctionFragment;
@@ -823,16 +823,16 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "removeRouterLiquidity",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeRouterLiquidityFor",
     values: [
+      TokenIdStruct,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
@@ -1589,7 +1589,7 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1652,7 +1652,7 @@ export interface IConnext extends BaseContract {
     ): Promise<[string]>;
 
     approveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1917,8 +1917,8 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initializeRouter(
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1965,8 +1965,8 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2012,15 +2012,15 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2124,8 +2124,8 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2206,7 +2206,7 @@ export interface IConnext extends BaseContract {
     ): Promise<[number]>;
 
     unapproveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2280,7 +2280,7 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   acceptProposedRouterOwner(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2343,7 +2343,7 @@ export interface IConnext extends BaseContract {
   ): Promise<string>;
 
   approveRouter(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2600,8 +2600,8 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initializeRouter(
-    owner: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
+    _owner: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2648,8 +2648,8 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   proposeRouterOwner(
-    router: PromiseOrValue<string>,
-    proposed: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    _proposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2695,15 +2695,15 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidity(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeRouterLiquidityFor(
+    _canonical: TokenIdStruct,
     _amount: PromiseOrValue<BigNumberish>,
-    _local: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2807,8 +2807,8 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setRouterRecipient(
-    router: PromiseOrValue<string>,
-    recipient: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
+    _recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2889,7 +2889,7 @@ export interface IConnext extends BaseContract {
   ): Promise<number>;
 
   unapproveRouter(
-    router: PromiseOrValue<string>,
+    _router: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2961,7 +2961,7 @@ export interface IConnext extends BaseContract {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3024,7 +3024,7 @@ export interface IConnext extends BaseContract {
     ): Promise<string>;
 
     approveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3283,8 +3283,8 @@ export interface IConnext extends BaseContract {
     ): Promise<void>;
 
     initializeRouter(
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3327,8 +3327,8 @@ export interface IConnext extends BaseContract {
     proposeRouterAllowlistRemoval(overrides?: CallOverrides): Promise<void>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3372,15 +3372,15 @@ export interface IConnext extends BaseContract {
     removeRouterAllowlist(overrides?: CallOverrides): Promise<void>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3484,8 +3484,8 @@ export interface IConnext extends BaseContract {
     ): Promise<void>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3566,7 +3566,7 @@ export interface IConnext extends BaseContract {
     ): Promise<number>;
 
     unapproveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3676,7 +3676,7 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -3739,7 +3739,7 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     approveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -3996,8 +3996,8 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     initializeRouter(
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4044,8 +4044,8 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4091,15 +4091,15 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4203,8 +4203,8 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4285,7 +4285,7 @@ export interface IConnext extends BaseContract {
     ): Promise<BigNumber>;
 
     unapproveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4364,7 +4364,7 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     acceptProposedRouterOwner(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4427,7 +4427,7 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     approveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4684,8 +4684,8 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initializeRouter(
-      owner: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4736,8 +4736,8 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     proposeRouterOwner(
-      router: PromiseOrValue<string>,
-      proposed: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _proposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4783,15 +4783,15 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidity(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRouterLiquidityFor(
+      _canonical: TokenIdStruct,
       _amount: PromiseOrValue<BigNumberish>,
-      _local: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4899,8 +4899,8 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setRouterRecipient(
-      router: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4981,7 +4981,7 @@ export interface IConnext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     unapproveRouter(
-      router: PromiseOrValue<string>,
+      _router: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

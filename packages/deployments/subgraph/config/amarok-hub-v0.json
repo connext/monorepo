@@ -56,13 +56,23 @@
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0xa9eB35ebC739e753BCb5B75D2753A9023A0AC1D8",
-        "startBlock": 8173345
+        "address": "0x49174424E29950Ad18d07b4d9Ad2F77d0CbDDA2a",
+        "startBlock": 8703528
       },
       {
         "name": "ArbitrumHubConnector",
         "address": "0x58d3464e5AAb9c598A7059d182720a04aD59b01F",
         "startBlock": 8173347
+      },
+      {
+        "name": "ZkSyncHubConnector",
+        "address": "0x80231092091d752E1506D4aaB393675eBe388e9e",
+        "startBlock": 8584827
+      },
+      {
+        "name": "PolygonZkHubConnector",
+        "address": "0xd045F03686575f042b21D0B3D20FFAE4D3a3482f",
+        "startBlock": 8608178
       }
     ]
   }

@@ -7,7 +7,7 @@
   "hubDomain": "1337",
   "interval": 15000,
   "chains": {
-    "1337": {
+    "133712": {
       "providers": ["http://chain-1337:8545"],
       "assets": [
         {
@@ -16,7 +16,7 @@
         }
       ]
     },
-    "1338": {
+    "133812": {
       "providers": ["http://chain-1338:8545"],
       "assets": [
         {

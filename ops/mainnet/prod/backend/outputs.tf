@@ -14,6 +14,14 @@ output "cartographer-roots-service-endpoint" {
   value = module.cartographer-roots-lambda-cron.lambda_cron_service_name
 }
 
+output "cartographer-stableswap-service-endpoint" {
+  value = module.cartographer-stableswap-lambda-cron.lambda_cron_service_name
+}
+
+output "cartographer-prices-service-endpoint" {
+  value = module.cartographer-prices-lambda-cron.lambda_cron_service_name
+}
+
 output "postgrest-dns" {
   value = module.postgrest.dns_name
 }

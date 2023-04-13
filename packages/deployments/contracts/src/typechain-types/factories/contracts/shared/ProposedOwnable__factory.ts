@@ -169,7 +169,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
 
 export class ProposedOwnable__factory {
   static readonly abi = _abi;

@@ -29,14 +29,14 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
    * @param maxLength - The configured maximum number of transactions to hold in buffer. Leave undefined to disable.
    * @param id - Identification info to distinguish which buffer this is when logging.
    * @param id.name - A string name denomination.
-   * @param id.chainId - A chain ID number denomination.
+   * @param id.domain - A domain number denomination.
    */
   constructor(
     private readonly logger: Logger,
     public readonly maxLength: number | undefined,
     public readonly id: {
       name: string;
-      chainId: number;
+      domain: number;
     },
   ) {
     super();
@@ -123,7 +123,7 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
 
   private log(message?: string, context: any = {}, error = false) {
     const ctx = {
-      chainId: this.id.chainId,
+      domain: this.id.domain,
       length: this.length,
       maxLength: this.maxLength ?? "N/A",
       buffer: this.nonces,

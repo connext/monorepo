@@ -6,12 +6,11 @@ import { useChains } from "../contexts/Chains";
 
 interface Props {
   chain_terminus?: ChainTerminus;
-  source_chain?: Chain;
-  destination_chain?: Chain;
+  chain?: Chain;
   onSelect: (chain?: Chain) => void;
 }
 
-export const SelectChain = ({ chain_terminus, source_chain, destination_chain, onSelect }: Props) => {
+export const SelectChain = ({ chain_terminus, chain, onSelect }: Props) => {
   const {
     state: { chains },
   } = useChains();
@@ -27,7 +26,7 @@ export const SelectChain = ({ chain_terminus, source_chain, destination_chain, o
       <select
         id={chain_terminus}
         name={chain_terminus}
-        value={chain_terminus ? source_chain?.chain_id : destination_chain?.chain_id}
+        value={chain?.chain_id}
         onChange={(e) => {
           onSelect(chains.find((chain) => chain.chain_id.toString() === e.target.value));
         }}

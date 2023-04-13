@@ -6,7 +6,7 @@ export type SubgraphQueryMetaParams = {
 };
 
 export type SubgraphQueryByTimestampMetaParams = {
-  maxBlockNumber: number;
+  maxBlockNumber?: number;
   fromTimestamp: number;
   destinationDomains?: string[];
   orderDirection?: "asc" | "desc";

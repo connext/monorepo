@@ -53,6 +53,20 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
+  watcher_env_vars = [
+    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage }
+  ]
+  watcher_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.watcher_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
 }
 
 locals {
@@ -69,64 +83,23 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
-        assets = [{
-          name    = "USDC"
-          address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-          }, {
-          name    = "WETH"
-          address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-        }]
+        providers                 = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
+        excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
-        assets = [{
-          name    = "USDC"
-          address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
-          }, {
-          name    = "WETH"
-          address = "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9"
-        }]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
-        assets = [{
-          name    = "USDC"
-          address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
-          }, {
-          name    = "WETH"
-          address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
-        }]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
       }
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
-        assets = [{
-          name    = "USDC"
-          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
-          }, {
-          name    = "WETH"
-          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
-        }]
       }
       "6450786" = {
-        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
-        assets = [{
-          name    = "USDC"
-          address = "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15"
-          }, {
-          name    = "WETH"
-          address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
-        }]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
-        assets = [{
-          name    = "USDC"
-          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
-          }, {
-          name    = "WETH"
-          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
-        }]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -142,7 +115,11 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment = var.stage
+    relayerFeeTolerance = 60
+    environment         = var.stage
+    database = {
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+    }
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -252,64 +229,22 @@ locals {
     }
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://rpc.ankr.com/eth"]
-        assets = [{
-          name    = "USDC"
-          address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-          }, {
-          name    = "WETH"
-          address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-        }]
+        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_1}", "https://rpc.ankr.com/optimism"]
-        assets = [{
-          name    = "USDC"
-          address = "0x85FB8e2903Ad92A2ab0C6a725806636666ee2Ab4"
-          }, {
-          name    = "WETH"
-          address = "0xfD5C16a50b717338Cbcb44e34e10d735709E9Cb9"
-        }]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_1}", "https://rpc.ankr.com/polygon"]
-        assets = [{
-          name    = "USDC"
-          address = "0x2ABe2d4F09ea3124DE56AD91ae0950A3B71eCD11"
-          }, {
-          name    = "WETH"
-          address = "0x2BD5B3cfB2b16F2B10e7BA41dc1cb93d61B36bB8"
-        }]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
       },
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_1}", "https://rpc.ankr.com/arbitrum"]
-        assets = [{
-          name    = "USDC"
-          address = "0x85fb8e2903ad92a2ab0c6a725806636666ee2ab4"
-          }, {
-          name    = "WETH"
-          address = "0xfd5c16a50b717338cbcb44e34e10d735709e9cb9"
-        }]
       },
       "6450786" = {
-        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
-        assets = [{
-          name    = "USDC"
-          address = "0xe4f1ce2dc807084a874e957d5d2ac6502820bc15"
-          }, {
-          name    = "WETH"
-          address = "0x6b205aeaae9de574d76d4e45af92998aefca205b"
-        }]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
-        assets = [{
-          name    = "USDC"
-          address = "0x67e79CC8d6b7C164Da28864875242b9210BFeb15"
-          }, {
-          name    = "WETH"
-          address = "0x735c7e2035ff902EC8F7115355191Cabb05D86fd"
-        }]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
@@ -318,33 +253,36 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
+    auctionWaitTime = 15000
   })
 
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
       },
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       },
       "6450786" = {
-        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
-    databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+    database = {
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+    }
     relayers = [
       {
         type   = "Gelato",
@@ -358,11 +296,13 @@ locals {
       }
     ]
     healthUrls = {
-      prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
-      processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
-      propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      prover           = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
+      processor        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+      propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
-    hubDomain = "6648936"
+    hubDomain       = "6648936"
+    proverBatchSize = 1
   })
 
   local_relayer_config = jsonencode({
@@ -376,25 +316,60 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth"]
+        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
       },
       "1869640809" = {
-        providers = ["https://opt-mainnet.g.alchemy.com/v2/${var.optimism_alchemy_key_0}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
       },
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
       },
       "6450786" = {
-        providers = ["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
+  })
+
+  local_watcher_config = jsonencode({
+    server = {
+      adminToken = var.admin_token_watcher
+    }
+    environment = "production"
+    logLevel    = "debug"
+    chains = {
+      "6648936" = {
+        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com", "https://rpc.ankr.com/eth", "https://api.zmok.io/mainnet/oaen6dy8ff6hju9k"]
+      },
+      "1869640809" = {
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
+      },
+      "1886350457" = {
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com", "https://polygon-bor.publicnode.com", "https://rpc.ankr.com/polygon"]
+      }
+      "1634886255" = {
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
+      }
+      "6450786" = {
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc", "https://bsc-dataseed1.defibit.io"]
+      }
+      "6778479" = {
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis", "https://xdai-rpc.gateway.pokt.network", "https://rpc.gnosis.gateway.fm"]
+      }
+    }
+    web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
+    environment                = var.stage
+    discordHookUrl             = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
+    telegramApiKey             = "${var.telegram_api_key}"
+    telegramChatId             = "${var.telegram_chat_id}"
+    betterUptimeApiKey         = "${var.betteruptime_api_key}"
+    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }

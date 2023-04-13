@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IPoolData } from "@connext/nxtp-sdk";
+import { Pool as SdkPool } from "@connext/sdk";
 
 import { Chain } from "../types/chain";
 import { useChains } from "../contexts/Chains";
@@ -25,13 +25,13 @@ export const Pool = ({ chain, asset }: Props) => {
     state: { sdk },
   } = useSdk();
 
-  const [pool, setPool] = useState<IPoolData | undefined>(undefined);
+  const [pool, setPool] = useState<SdkPool | undefined>(undefined);
   const [yieldData, setYieldData] = useState<any | undefined>(undefined);
 
   useEffect(() => {
     const getPool = async (domainId: string, tokenAddress: string) => {
       if (sdk) {
-        const p = await sdk.nxtpSdkPool.getPool(domainId, tokenAddress);
+        const p = await sdk.sdkPool.getPool(domainId, tokenAddress);
         console.log(`getting pool ${domainId} ${tokenAddress}`);
         if (p) {
           setPool(p);
@@ -42,7 +42,7 @@ export const Pool = ({ chain, asset }: Props) => {
 
     const getYieldData = async (domainId: string, tokenAddress: string) => {
       if (sdk) {
-        const d = await sdk.nxtpSdkPool.getYieldData(domainId, tokenAddress);
+        const d = await sdk.sdkPool.getYieldData(domainId, tokenAddress);
         console.log(`getting yield data ${domainId} ${tokenAddress}`);
         if (d) {
           setYieldData(d);

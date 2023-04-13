@@ -91,7 +91,7 @@ export type NetworkStack = {
 };
 
 export type ProtocolStack = {
-  deployer: Wallet; // The deployer/admin wallet.
+  //deployer: Wallet; // The deployer/admin wallet.
   hub: string; // The hub domain.
   // Network stack should have all info pertaining to each supported domain.
   networks: NetworkStack[];
