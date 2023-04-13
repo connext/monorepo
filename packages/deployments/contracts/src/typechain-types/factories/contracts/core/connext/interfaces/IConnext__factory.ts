@@ -205,7 +205,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
@@ -448,7 +448,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
@@ -1820,12 +1820,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "_owner",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "_recipient",
         type: "address",
       },
     ],
@@ -2018,12 +2018,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "proposed",
+        name: "_proposed",
         type: "address",
       },
     ],
@@ -2194,14 +2194,26 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -2217,14 +2229,26 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "uint32",
+            name: "domain",
+            type: "uint32",
+          },
+          {
+            internalType: "bytes32",
+            name: "id",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct TokenId",
+        name: "_canonical",
+        type: "tuple",
+      },
+      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
       },
       {
         internalType: "address payable",
@@ -2756,12 +2780,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "_recipient",
         type: "address",
       },
     ],
@@ -3094,7 +3118,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
+        name: "_router",
         type: "address",
       },
     ],
@@ -3325,7 +3349,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class IConnext__factory {
   static readonly abi = _abi;

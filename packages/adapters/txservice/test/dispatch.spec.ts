@@ -22,11 +22,12 @@ import {
   MockOnchainTransactionState,
   MOCK_REQUEST_CONTEXT,
   TEST_FULL_TX,
-  TEST_SENDER_CHAIN_ID,
+  TEST_SENDER_DOMAIN,
   TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
   getMockOnchainTransaction,
+  TEST_SENDER_CHAIN_ID,
 } from "./utils";
 
 const logger = new Logger({
@@ -109,7 +110,7 @@ describe("TransactionDispatch", () => {
     Sinon.stub(RpcProviderAggregator.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
-    txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
+    txDispatch = new TransactionDispatch(logger, TEST_SENDER_DOMAIN, chainConfig, signer, dispatchCallbacks, false);
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();
@@ -503,7 +504,8 @@ describe("TransactionDispatch", () => {
       // should have called getGas
       expect(getGasPriceStub.callCount).to.eq(1);
       expect(estimateGasStub.callCount).to.eq(1);
-      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq(TEST_TX);
+      const { domain, ...expected } = TEST_TX;
+      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq({ ...expected, chainId: TEST_SENDER_CHAIN_ID});
 
       // should have called submit (just once)
       expect(submitStub.callCount).to.eq(1);

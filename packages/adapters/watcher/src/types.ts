@@ -1,5 +1,5 @@
 import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
-import { Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
+import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
 
@@ -17,6 +17,8 @@ export type VerifyResponse = {
   reason?: string;
 };
 
+export type WatcherInvariantResponse = VerifyResponse & { transactions?: Record<string, string[]> };
+
 // Base class for all verifiers. Should be inherited by verifiers, each with their own
 // invariant condition to track and verify.
 export abstract class Verifier {
@@ -26,7 +28,7 @@ export abstract class Verifier {
     throw new Error("not implemented");
   }
 
-  protected getConnextDeployment(chainId: number): { address: string; abi: any } {
+  public getConnextDeployment(chainId: number): { address: string; abi: any } {
     const connext = getDeployedConnextContract(chainId, this.context.isStaging ? "Staging" : "");
     if (!connext) {
       // TODO: Custom errors for package
@@ -49,6 +51,7 @@ export type AssetInfo = {
   canonicalId: string;
   canonicalDomain: string;
   address: string; // TODO: Remove this arg and parse out the address from canonical ID?
+  symbol: string; // Used for easy logging
 };
 
 /// MARK - Alerts
@@ -66,22 +69,12 @@ export type Report = {
   errors: any[];
   logger: Logger;
   requestContext: RequestContext;
-  methodContext: MethodContext;
   domains: string[];
   relevantTransactions: (ethers.providers.TransactionResponse | string)[];
   rpcs: string[];
 };
 //  { name: string; public: boolean; topicType?: string; membersType?: string; topicName?: string }
-export const KeybaseChannelSchema = Type.Object({
-  name: Type.String(),
-  public: Type.Boolean(),
-  membersType: Type.Optional(Type.String()),
-  topicType: Type.Optional(Type.String()),
-  topicName: Type.Optional(Type.String()),
-});
-export type KeybaseChannel = Static<typeof KeybaseChannelSchema>;
-
-export const WatcherConfigSchema = Type.Object({
+export const WatcherAlertsConfigSchema = Type.Object({
   discordHookUrl: Type.Optional(Type.String({ format: "uri" })),
   pagerDutyRoutingKey: Type.Optional(Type.String({ maxLength: 32, minLength: 32 })),
   twilioNumber: Type.Optional(Type.String()),
@@ -90,9 +83,8 @@ export const WatcherConfigSchema = Type.Object({
   twilioToPhoneNumbers: Type.Optional(Type.Array(Type.String())),
   telegramApiKey: Type.Optional(Type.String()),
   telegramChatId: Type.Optional(Type.String()),
-  keybaseUser: Type.Optional(Type.String()),
-  keybaseKey: Type.Optional(Type.String()),
-  keybaseChannel: Type.Optional(KeybaseChannelSchema),
+  betterUptimeApiKey: Type.Optional(Type.String()),
+  betterUptimeRequesterEmail: Type.Optional(Type.String()),
 });
 
-export type WatcherConfig = Static<typeof WatcherConfigSchema>;
+export type WatcherAlertsConfig = Static<typeof WatcherAlertsConfigSchema>;

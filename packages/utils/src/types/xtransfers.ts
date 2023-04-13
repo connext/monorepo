@@ -1,8 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TAddress, TIntegerString } from ".";
+import { TAddress, TBytes32, TIntegerString } from "./primitives";
 
-// dear Jake, please stop changing this to enum
 export const XTransferStatus = {
   XCalled: "XCalled",
   Executed: "Executed",
@@ -10,7 +9,25 @@ export const XTransferStatus = {
   CompletedFast: "CompletedFast",
   CompletedSlow: "CompletedSlow",
 } as const;
-export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
+export type XTransferStatus = (typeof XTransferStatus)[keyof typeof XTransferStatus];
+
+export const XTransferErrorStatus = {
+  LowSlippage: "LowSlippage",
+  LowRelayerFee: "LowRelayerFee",
+  ExecutionError: "ExecutionError",
+  NoBidsReceived: "NoBidsReceived",
+} as const;
+export type XTransferErrorStatus = (typeof XTransferErrorStatus)[keyof typeof XTransferErrorStatus];
+
+export const XTransferMessageStatus = {
+  XCalled: "XCalled",
+  SpokeRootSent: "SpokeRootSent",
+  SpokeRootArrivedOnHub: "SpokeRootArrivedOnHub",
+  AggregateRootPropagated: "AggregateRootPropagated",
+  AggregatedRootArrivedOnSpokeDomain: "AggregatedRootArrivedOnSpokeDomain",
+  Processed: "Processed",
+} as const;
+export type XTransferMessageStatus = (typeof XTransferMessageStatus)[keyof typeof XTransferMessageStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -19,6 +36,7 @@ export const XTransferMethodCallSchema = Type.Object({
   gasPrice: TIntegerString,
   gasLimit: TIntegerString,
   blockNumber: Type.Number(),
+  txOrigin: Type.Optional(TAddress),
 });
 
 export const XTransferOriginSchema = Type.Object({
@@ -26,6 +44,12 @@ export const XTransferOriginSchema = Type.Object({
 
   // Event Data
   messageHash: Type.String(),
+
+  // Failure reason
+  errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
+
+  // message status
+  messageStatus: Type.Optional(Type.Enum(XTransferMessageStatus)),
 
   // Assets
   assets: Type.Object({
@@ -39,6 +63,8 @@ export const XTransferOriginSchema = Type.Object({
     }),
   }),
 
+  relayerFees: Type.Record(Type.String(), TIntegerString),
+
   // XCall Transaction
   xcall: Type.Intersect([XTransferMethodCallSchema]),
 });
@@ -50,6 +76,8 @@ export const XTransferDestinationSchema = Type.Object({
   status: Type.Enum(XTransferStatus),
   // Both Executed and Reconciled events emit `routers`.
   routers: Type.Array(TAddress),
+
+  updatedSlippage: Type.Optional(TIntegerString),
 
   // Assets
   assets: Type.Object({
@@ -162,6 +190,7 @@ export const XCallArgsSchema = Type.Object({
   amount: TIntegerString,
   slippage: TIntegerString,
   callData: Type.String(),
+  relayerFee: Type.Optional(Type.String()),
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -191,11 +220,13 @@ export type ReconciledTransaction = {
 export const AssetSchema = Type.Object({
   id: TAddress,
   key: Type.String(),
+  decimal: TIntegerString,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
   localAsset: TAddress,
   blockNumber: Type.String(),
+  domain: Type.String(),
 });
 export type Asset = Static<typeof AssetSchema>;
 
@@ -203,11 +234,58 @@ export const AssetBalanceSchema = Type.Intersect([
   AssetSchema,
   Type.Object({
     balance: TIntegerString,
+    locked: TIntegerString,
+    supplied: TIntegerString,
+    removed: TIntegerString,
     feesEarned: TIntegerString,
-    domain: Type.String(),
   }),
 ]);
 export type AssetBalance = Static<typeof AssetBalanceSchema>;
 
+export const AssetPriceSchema = Type.Object({
+  canonicalId: Type.String(),
+  canonicalDomain: Type.String(),
+  timestamp: Type.Number(),
+  price: Type.Number(),
+});
+export type AssetPrice = Static<typeof AssetPriceSchema>;
+
 export const RouterBalanceSchema = Type.Object({ router: TAddress, assets: Type.Array(AssetBalanceSchema) });
 export type RouterBalance = Static<typeof RouterBalanceSchema>;
+
+export const BidStatusSchema = Type.Object({
+  timestamp: Type.String(),
+  attempts: Type.Number(),
+});
+
+// BidStatus type - used for tracking transfer bid status by routers.
+export type BidStatus = Static<typeof BidStatusSchema>;
+
+export const RelayerFeesIncreaseSchema = Type.Object({
+  id: Type.String(),
+  transferId: TBytes32,
+  increase: TIntegerString,
+  asset: TAddress,
+  domain: Type.String(),
+  timestamp: TIntegerString,
+});
+export type RelayerFeesIncrease = Static<typeof RelayerFeesIncreaseSchema>;
+
+export const SlippageUpdateSchema = Type.Object({
+  id: Type.String(),
+  transferId: TBytes32,
+  slippage: TIntegerString,
+  domain: Type.String(),
+  timestamp: Type.Number(),
+});
+export type SlippageUpdate = Static<typeof SlippageUpdateSchema>;
+
+export const RouterDailyTVLSchema = Type.Object({
+  id: Type.String(),
+  asset: TAddress,
+  router: TAddress,
+  domain: Type.String(),
+  timestamp: Type.Number(),
+  balance: TIntegerString,
+});
+export type RouterDailyTVL = Static<typeof RouterDailyTVLSchema>;

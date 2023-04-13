@@ -1,31 +1,11 @@
-import { jsonifyError } from "@connext/nxtp-utils";
+import { createMethodContext } from "@connext/nxtp-utils";
 
 import { axiosPost } from "../mockable";
 import { Report, ReportEventType } from "../types";
 
-export const alertViaDiscord = async (report: Report, discordHookUrl?: string) => {
-  const {
-    timestamp,
-    event,
-    reason,
-    errors,
-    logger,
-    requestContext,
-    methodContext,
-    domains,
-    relevantTransactions,
-    rpcs,
-  } = report;
-
-  if (!discordHookUrl) {
-    logger.error(
-      "Failed to alert via discord",
-      requestContext,
-      methodContext,
-      jsonifyError(new Error("Invalid discord hook url")),
-    );
-    throw new Error("alertViaDiscord: invalid hook url!");
-  }
+export const alertViaDiscord = async (report: Report, discordHookUrl: string) => {
+  const methodContext = createMethodContext(alertViaDiscord.name);
+  const { timestamp, event, reason, errors, logger, requestContext, domains, relevantTransactions, rpcs } = report;
 
   logger.info("Sending message to discord channel", requestContext, methodContext, {
     timestamp,

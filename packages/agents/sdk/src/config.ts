@@ -5,8 +5,6 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 
 import { getChainData } from "./lib/helpers";
 
-const DEFAULT_SLIPPAGE = 10000; // in BPS
-
 export const TAssetDescription = Type.Object({
   name: Type.String(),
   address: TAddress,
@@ -16,37 +14,38 @@ export const TAssetDescription = Type.Object({
 
 export type AssetDescription = Static<typeof TAssetDescription>;
 
+export const TChainDeployments = Type.Object({
+  connext: TAddress,
+  multisend: Type.Optional(TAddress),
+  unwrapper: Type.Optional(TAddress),
+  stableSwap: Type.Optional(TAddress),
+});
+
+export type ChainDeployments = Static<typeof TChainDeployments>;
+
 export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
   gasStations: Type.Optional(Type.Array(Type.String())),
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
   chainId: Type.Optional(Type.Number()),
-  deployments: Type.Optional(
-    Type.Object({
-      connext: TAddress,
-      multisend: Type.Optional(TAddress),
-      stableSwap: Type.Optional(TAddress),
-    }),
-  ),
+  deployments: Type.Optional(TChainDeployments),
+  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
 
-export const NxtpSdkConfigSchema = Type.Object({
+export const SdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   cartographerUrl: Type.Optional(Type.String()),
-  slippage: Type.Optional(Type.Number({ minimum: 0, maximum: 10000 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
 
-export type NxtpSdkConfig = Static<typeof NxtpSdkConfigSchema>;
+export type SdkConfig = Static<typeof SdkConfigSchema>;
 
 export const TValidationChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain
   providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
@@ -55,6 +54,7 @@ export const TValidationChainConfig = Type.Object({
     multisend: Type.Optional(TAddress),
     stableSwap: Type.Optional(TAddress),
   }),
+  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
 });
 
 export const NxtpValidationSdkConfigSchema = Type.Object({
@@ -62,7 +62,6 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   cartographerUrl: Type.String(),
-  slippage: Type.Number({ minimum: 0, maximum: 10000 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
@@ -73,26 +72,23 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
  * @returns The router config with sensible defaults
  */
 export const getEnvConfig = (
-  _nxtpConfig: NxtpSdkConfig,
+  _nxtpConfig: SdkConfig,
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
-): NxtpSdkConfig => {
-  const nxtpConfig: NxtpSdkConfig = {
+): SdkConfig => {
+  const nxtpConfig: SdkConfig = {
     ..._nxtpConfig,
     logLevel: _nxtpConfig.logLevel || "info",
     network: _nxtpConfig.network || "mainnet",
-    slippage: _nxtpConfig.slippage || DEFAULT_SLIPPAGE,
     environment: _nxtpConfig.environment || "production",
-    cartographerUrl: _nxtpConfig.cartographerUrl || "https://postgrest.testnet.connext.ninja",
+    cartographerUrl: _nxtpConfig.cartographerUrl
+      ? _nxtpConfig.cartographerUrl
+      : _nxtpConfig.network === "testnet"
+      ? _nxtpConfig.environment === "staging"
+        ? "https://postgrest.testnet.staging.connext.ninja"
+        : "https://postgrest.testnet.connext.ninja"
+      : "https://postgrest.mainnet.connext.ninja",
   };
-  nxtpConfig.cartographerUrl =
-    _nxtpConfig.cartographerUrl ?? nxtpConfig.network === "mainnet"
-      ? nxtpConfig.environment === "production"
-        ? "https://postgrest.mainnet.connext.ninja"
-        : "https://postgrest.mainnet.staging.connext.ninja"
-      : nxtpConfig.environment === "production"
-      ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.testnet.staging.connext.ninja";
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
@@ -130,6 +126,15 @@ export const getEnvConfig = (
           }
           return undefined;
         })(),
+      unwrapper:
+        chainConfig.deployments?.unwrapper ??
+        (() => {
+          if (chainDataForChain) {
+            const res = deployments.unwrapper(chainDataForChain.chainId);
+            return res?.address;
+          }
+          return undefined;
+        })(),
     };
 
     nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
@@ -150,7 +155,7 @@ export const getEnvConfig = (
   return nxtpConfig;
 };
 
-let nxtpConfig: NxtpSdkConfig | undefined;
+let nxtpConfig: SdkConfig | undefined;
 
 /**
  * Caches and returns the environment config
@@ -158,16 +163,23 @@ let nxtpConfig: NxtpSdkConfig | undefined;
  * @returns The config
  */
 export const getConfig = async (
-  _nxtpConfig: NxtpSdkConfig,
+  _nxtpConfig: SdkConfig,
   deployments: ConnextContractDeployments,
   _chainData?: Map<string, ChainData>,
-): Promise<NxtpSdkConfig> => {
+): Promise<{ nxtpConfig: SdkConfig; chainData: Map<string, ChainData> }> => {
   let chainData = _chainData;
   if (!chainData) {
     chainData = await getChainData();
   }
-  if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
-  }
-  return nxtpConfig;
+  nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
+  return { nxtpConfig: nxtpConfig, chainData: chainData };
+};
+
+export const domainsToChainNames: Record<string, string> = {
+  "6648936": "ethereum",
+  "1869640809": "optimism",
+  "1886350457": "polygon",
+  "1634886255": "arbitrum",
+  "6450786": "bsc",
+  "6778479": "xdai",
 };

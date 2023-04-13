@@ -97,7 +97,7 @@ const CoreChainConfigSchema = Type.Object({
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
   confirmationTimeout: Type.Integer(),
-  // Number of confirmations needed for each chain, specified by chain Id.
+  // Number of confirmations needed for each chain, specified by domain.
   confirmations: Type.Integer(),
 
   /// RPC PROVIDERS
@@ -107,6 +107,10 @@ const CoreChainConfigSchema = Type.Object({
   // How often (ms) we will check all RPC providers to measure how in-sync they are with the blockchain.
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
+  // Whether we want to maximize quorum/consensus from all available providers when we're doing read calls.
+  // Set this value if it's critically important to maintain accurate responses from a number of providers that
+  // vary in quality. This will increase the number of RPC calls we're making overall, but guarantees accuracy.
+  quorum: Type.Optional(Type.Integer()),
 
   /// DEBUGGING / DEVELOPMENT
   // WARNING: Please do not alter these configuration values; they should be used for development and/or debugging
@@ -141,15 +145,36 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     ...userDefaultChainConfig,
   };
   // For each chain, validate the config and merge it with the main config.
-  const config: { [chainId: string]: ChainConfig } = {};
-  Object.entries(_config as Record<string, any>).forEach(([chainId, _chainConfig]) => {
+  const config: { [domain: string]: ChainConfig } = {};
+  Object.entries(_config as Record<string, any>).forEach(([domain, _chainConfig]) => {
     const chainConfig = {
       ...defaultChainConfig,
       ..._chainConfig,
     };
-    // Ignore non-number chainIds.
-    if (isNaN(parseInt(chainId))) {
+    // Ignore non-number domains.
+    if (isNaN(parseInt(domain))) {
       return;
+    }
+
+    // Ensure providers are specified AND number of providers >= quorum
+    if (chainConfig.providers.length === 0) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error: `Providers array was empty. Please specify providers for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
+    } else if (chainConfig.quorum > chainConfig.providers.length) {
+      throw new ConfigurationError([
+        {
+          parameter: "providers",
+          error:
+            `Number of providers (${chainConfig.providers.length}) must be greater than ` +
+            `configured quorum (${chainConfig.quorum}) for domain ${domain}.`,
+          value: chainConfig.providers,
+        },
+      ]);
     }
 
     // Make sure config values that must be > X are so (if they are specified).
@@ -183,7 +208,7 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     });
 
     // Merge the default values with the specified chain config.
-    config[chainId] = {
+    config[domain] = {
       ...sanitizedCoreConfig,
       providers: providers.map((provider) =>
         typeof provider === "string"
@@ -216,6 +241,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
+  quorum: 1,
 };
 
 export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {

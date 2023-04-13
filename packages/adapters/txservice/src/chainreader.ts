@@ -1,5 +1,14 @@
-import { Signer, providers, BigNumber, constants } from "ethers";
-import { createLoggingContext, Logger, RequestContext, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { Signer, providers, BigNumber, constants, utils } from "ethers";
+import {
+  createLoggingContext,
+  Logger,
+  RequestContext,
+  getNtpTimeSeconds,
+  encodeMultisendCall,
+  MultisendTransactionOperation,
+  createMethodContext,
+  domainToChainId,
+} from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {
@@ -10,6 +19,8 @@ import {
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
   WriteTransaction,
+  getDeployedMultisendContract,
+  MultireadTransaction,
 } from "./shared";
 import { RpcProviderAggregator } from "./aggregator";
 
@@ -52,7 +63,7 @@ export class ChainReader {
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
    * @param tx - ReadTransaction to create contract call
-   * @param tx.chainId - Chain to read transaction on
+   * @param tx.domain - Chain to read transaction on
    * @param tx.to - Address to execute read on
    * @param tx.data - Calldata to send
    * @param blockTag - (optional) Block tag to query, defaults to latest
@@ -60,14 +71,90 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
-    return await this.getProvider(tx.chainId).readContract(tx, blockTag);
+    return await this.getProvider(tx.domain).readContract(tx, blockTag);
+  }
+
+  /**
+   * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
+   *
+   * @param params.domain - Chain to read transaction on.
+   * @param params.txs - ReadTransaction(s) we will be executing using a static call.
+   * @param params.resultTypes - A list of result types we should use when decoding the multisend response
+   * (e.g. ["uint256", "address", "string", "tuple(uint256 b, string c) d"]).
+   * @param params.multisendContract - (optional) The multisend contract address. If not provided, we will
+   * query the multisend for this chain internally.
+   * @param params.blockTag - (optional) Block tag to query, defaults to latest.
+   *
+   * @returns Decoded return values based on the expected result types.
+   */
+  public async multiread(params: {
+    domain: number;
+    txs: MultireadTransaction[];
+    multisendContract?: string;
+    blockTag?: providers.BlockTag;
+    requestContext?: RequestContext;
+  }): Promise<utils.Result> {
+    const { domain, txs, multisendContract, blockTag } = params;
+
+    const chainId = domainToChainId(domain);
+    const multisend = multisendContract ?? getDeployedMultisendContract(chainId)?.address;
+
+    if (!multisend) {
+      this.logger.warn(
+        "No MultiSend contract deployment found; unable to do an optimized multiread.",
+        params.requestContext,
+        createMethodContext(this.multiread.name),
+        {
+          domain,
+          chainId,
+          multisend,
+        },
+      );
+      // Resort to just doing an inefficient Promise.all (1 RPC request per tx specified).
+      const provider = this.getProvider(domain);
+      const result = await Promise.all(
+        txs.map(async (tx) => {
+          return await provider.readContract(
+            {
+              ...tx,
+              domain,
+            },
+            blockTag ?? "latest",
+          );
+        }),
+      );
+      // Decode results and flatten array to make them sequential.
+      return result.map((r, i) => utils.defaultAbiCoder.decode(txs[i].resultTypes, r)).flat();
+    }
+
+    // Format calldata.
+    const data = encodeMultisendCall(
+      txs.map((tx) => ({
+        operation: MultisendTransactionOperation.CALL,
+        to: tx.to,
+        data: tx.data,
+      })),
+    );
+
+    // Make the static call.
+    const result = await this.getProvider(domain).readContract(
+      {
+        domain,
+        to: multisend,
+        data,
+      },
+      blockTag ?? "latest",
+    );
+    // Decode the result to fit with the expected result types.
+    const resultTypes = txs.map((tx) => tx.resultTypes).flat();
+    return utils.defaultAbiCoder.decode(resultTypes, result);
   }
 
   /**
    * Gets the asset balance for a specified address for the specified chain. Optionally pass in the
    * assetId; by default, gets the native asset.
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @param address - The hexadecimal string address whose balance we are getting.
    * @param assetId (default = ETH) - The ID (address) of the asset whose balance we are getting.
    * @param abi - The ABI of the token contract to use for interfacing with it, if applicable (non-native).
@@ -77,76 +164,76 @@ export class ChainReader {
    * specified address.
    */
   public async getBalance(
-    chainId: number,
+    domain: number,
     address: string,
     assetId = constants.AddressZero,
     abi?: string[],
   ): Promise<BigNumber> {
-    return await this.getProvider(chainId).getBalance(address, assetId, abi);
+    return await this.getProvider(domain).getBalance(address, assetId, abi);
   }
   /**
    * Get the current gas price for the chain for which this instance is servicing.
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @param requestContext - The request context.
    * @returns BigNumber representing the current gas price.
    */
-  public async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
-    return await this.getProvider(chainId).getGasPrice(requestContext);
+  public async getGasPrice(domain: number, requestContext: RequestContext): Promise<BigNumber> {
+    return await this.getProvider(domain).getGasPrice(requestContext);
   }
 
   /**
-   * Gets the decimals for an asset by chainId
+   * Gets the decimals for an asset by domain
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @param assetId - The hexadecimal string address whose decimals we are getting.
    * @returns number representing the decimals of the asset
    */
-  public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
-    return await this.getProvider(chainId).getDecimalsForAsset(assetId);
+  public async getDecimalsForAsset(domain: number, assetId: string): Promise<number> {
+    return await this.getProvider(domain).getDecimalsForAsset(assetId);
   }
 
   /**
    * Gets a block
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @returns block representing the specified
    */
   public async getBlock(
-    chainId: number,
+    domain: number,
     blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
   ): Promise<providers.Block | undefined> {
-    return await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
+    return await this.getProvider(domain).getBlock(blockHashOrBlockTag);
   }
 
   /**
    * Gets the current blocktime
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @returns number representing the current blocktime
    */
-  public async getBlockTime(chainId: number): Promise<number> {
-    return await this.getProvider(chainId).getBlockTime();
+  public async getBlockTime(domain: number): Promise<number> {
+    return await this.getProvider(domain).getBlockTime();
   }
 
   /**
    * Gets the current block number
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @returns number representing the current block
    */
-  public async getBlockNumber(chainId: number): Promise<number> {
-    return await this.getProvider(chainId).getBlockNumber();
+  public async getBlockNumber(domain: number): Promise<number> {
+    return await this.getProvider(domain).getBlockNumber();
   }
 
   /**
    * Gets a trsanction receipt by hash
    *
-   * @param chainId - The ID of the chain for which this call is related.
+   * @param domain - The ID of the chain for which this call is related.
    * @returns number representing the current blocktime
    */
-  public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
-    return await this.getProvider(chainId).getTransactionReceipt(hash);
+  public async getTransactionReceipt(domain: number, hash: string): Promise<providers.TransactionReceipt> {
+    return await this.getProvider(domain).getTransactionReceipt(hash);
   }
 
   /**
@@ -157,56 +244,54 @@ export class ChainReader {
    *
    * @returns Hexcode string representation of contract code.
    */
-  public async getCode(chainId: number, address: string): Promise<string> {
-    return await this.getProvider(chainId).getCode(address);
+  public async getCode(domain: number, address: string): Promise<string> {
+    return await this.getProvider(domain).getCode(address);
   }
 
   /**
    * Checks estimate for gas limit for given transaction on given chain.
    *
-   * @param chainId - chain on which the transaction is intended to be executed.
+   * @param domain - chain on which the transaction is intended to be executed.
    * @param tx - transaction to check gas limit for.
    *
    * @returns BigNumber representing the estimated gas limit in gas units.
    * @throws Error if the transaction is invalid, or would be reverted onchain.
    */
-  public async getGasEstimate(chainId: number, tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
-    return await this.getProvider(chainId).getGasEstimate(tx);
+  public async getGasEstimate(domain: number, tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
+    return await this.getProvider(domain).getGasEstimate(tx);
   }
 
   /**
    * Checks estimate for gas limit for given transaction on given chain. Includes revert
    * error codes if failure occurs.
    *
-   * @param chainId - chain on which the transaction is intended to be executed.
+   * @param domain - chain on which the transaction is intended to be executed.
    * @param tx - transaction to check gas limit for.
    *
    * @returns BigNumber representing the estimated gas limit in gas units.
    * @throws Error if the transaction is invalid, or would be reverted onchain.
    */
-  public async getGasEstimateWithRevertCode(
-    chainId: number,
-    tx: ReadTransaction | WriteTransaction,
-  ): Promise<BigNumber> {
-    return await this.getProvider(chainId).estimateGas({ ...tx, chainId: undefined });
+  public async getGasEstimateWithRevertCode(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
+    const { domain, ...rest } = tx;
+    return await this.getProvider(domain).estimateGas({ ...rest, chainId: domainToChainId(domain) });
   }
 
   /// CONTRACT READ METHODS
   /**
    * Gets token price in usd from cache or price oracle
    *
-   * @param chainId - The network identifier.
+   * @param domain - The network identifier.
    * @param assetId - The asset address to get price for.
    */
   public async getTokenPrice(
-    chainId: number,
+    domain: number,
     assetId: string,
     blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
 
-    const cachedPriceKey = chainId.toString().concat("-").concat(assetId).concat(blockTag.toString());
+    const cachedPriceKey = domain.toString().concat("-").concat(assetId).concat(blockTag.toString());
     const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
     const curTimeInSecs = getNtpTimeSeconds();
 
@@ -215,7 +300,7 @@ export class ChainReader {
       return cachedTokenPrice.price;
     }
 
-    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, blockTag, requestContext);
+    const tokenPrice = await this.getTokenPriceFromOnChain(domain, assetId, blockTag, requestContext);
     cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
     return tokenPrice;
   }
@@ -223,24 +308,24 @@ export class ChainReader {
   /**
    * Gets token price in usd from price oracle
    *
-   * @param chainId - The network identifier.
+   * @param domain - The network identifier.
    * @param assetId - The asset address to get price for.
    */
   public async getTokenPriceFromOnChain(
-    chainId: number,
+    domain: number,
     assetId: string,
     blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    const priceOracleContract = getDeployedPriceOracleContract(domainToChainId(domain));
     if (!priceOracleContract || !priceOracleContract.address) {
-      throw new ChainNotSupported(chainId.toString(), requestContext);
+      throw new ChainNotSupported(domain.toString(), requestContext);
     }
     const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
     const tokenPrice = await this.readTx(
       {
-        chainId,
+        domain,
         to: priceOracleContract.address,
         data: encodedTokenPriceData,
       },
@@ -253,27 +338,27 @@ export class ChainReader {
   /**
    * Helper to check for chain support gently.
    *
-   * @param chainId - chainID of the chain to check
-   * @returns boolean indicating whether chain of chainID is supported by the service
+   * @param domain - domain of the chain to check
+   * @returns boolean indicating whether chain of domain is supported by the service
    */
-  public isSupportedChain(chainId: number): boolean {
-    return this.providers.has(chainId);
+  public isSupportedChain(domain: number): boolean {
+    return this.providers.has(domain);
   }
 
   /// HELPERS
   /**
-   * Helper to wrap getting provider for specified chain ID.
-   * @param chainId The ID of the chain for which we want a provider.
+   * Helper to wrap getting provider for specified domain.
+   * @param domain The ID of the chain for which we want a provider.
    * @returns The ChainRpcProvider for that chain.
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  protected getProvider(chainId: number): RpcProviderAggregator {
-    // Ensure that a signer, provider, etc are present to execute on this chainId.
-    if (!this.providers.has(chainId)) {
-      throw new ProviderNotConfigured(chainId.toString());
+  protected getProvider(domain: number): RpcProviderAggregator {
+    // Ensure that a signer, provider, etc are present to execute on this domain.
+    if (!this.providers.has(domain)) {
+      throw new ProviderNotConfigured(domain.toString());
     }
-    return this.providers.get(chainId)!;
+    return this.providers.get(domain)!;
   }
 
   /**
@@ -283,10 +368,10 @@ export class ChainReader {
    */
   protected setupProviders(context: RequestContext, signer?: string | Signer) {
     const { methodContext } = createLoggingContext(this.setupProviders.name, context);
-    // For each chain ID / provider, map out all the utils needed for each chain.
-    Object.keys(this.config).forEach((chainId) => {
+    // For each domain / provider, map out all the utils needed for each chain.
+    Object.keys(this.config).forEach((domain) => {
       // Get this chain's config.
-      const chain: ChainConfig = this.config[chainId];
+      const chain: ChainConfig = this.config[domain];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
         const error = new ConfigurationError(
@@ -298,18 +383,18 @@ export class ChainReader {
             },
           ],
           {
-            chainId,
+            domain,
           },
         );
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
-          chainId,
+          domain,
           providers,
         });
         throw error;
       }
-      const chainIdNumber = parseInt(chainId);
-      const provider = new RpcProviderAggregator(this.logger, chainIdNumber, chain, signer);
-      this.providers.set(chainIdNumber, provider);
+      const domainNumber = parseInt(domain);
+      const provider = new RpcProviderAggregator(this.logger, domainNumber, chain, signer);
+      this.providers.set(domainNumber, provider);
     });
   }
 }

@@ -3,6 +3,7 @@ import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
   delay,
+  domainToChainId,
   getUuid,
   jsonifyError,
   Logger,
@@ -68,7 +69,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
    *
    * @param logger Logger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
-   * @param chainId The ID of the chain for which this class's providers will be servicing.
+   * @param domain The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig Configuration for this specified chain, including the providers we'll
    * be using for it.
    * @param config The shared TransactionServiceConfig with general configuration.
@@ -78,20 +79,20 @@ export class TransactionDispatch extends RpcProviderAggregator {
    */
   constructor(
     logger: Logger,
-    public readonly chainId: number,
+    public readonly domain: number,
     config: ChainConfig,
     signer: string | Signer,
     private readonly callbacks: DispatchCallbacks,
     startLoops = true,
   ) {
-    super(logger, chainId, config, signer);
+    super(logger, domain, config, signer);
     this.inflightBuffer = new TransactionBuffer(logger, TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS, {
       name: "INFLIGHT",
-      chainId: this.chainId,
+      domain: this.domain,
     });
     this.minedBuffer = new TransactionBuffer(logger, undefined, {
       name: "MINED",
-      chainId: this.chainId,
+      domain: this.domain,
     });
     if (startLoops) {
       this.startLoops();
@@ -146,7 +147,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           } catch (_error: unknown) {
             const error = _error as TransactionReverted;
             this.logger.debug("Received error waiting for transaction to be mined.", requestContext, methodContext, {
-              chainId: this.chainId,
+              domain: this.domain,
               txsId: transaction.uuid,
               error,
             });
@@ -157,7 +158,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
               if (responses.every((response) => response === null)) {
                 // If all responses are null, then this transaction was not found / does not exist.
                 this.logger.warn("Transaction was not found on chain!", requestContext, methodContext, {
-                  chainId: this.chainId,
+                  domain: this.domain,
                   transaction: transaction.loggable,
                   responses,
                 });
@@ -211,7 +212,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
                 methodContext,
                 jsonifyError(error),
                 {
-                  chainId: this.chainId,
+                  domain: this.domain,
                   transaction: transaction.loggable,
                 },
               );
@@ -254,7 +255,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
                 requestContext,
                 methodContext,
                 {
-                  chainId: this.chainId,
+                  domain: this.domain,
                   txsId: transaction.uuid,
                   error,
                 },
@@ -356,9 +357,16 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const { requestContext, methodContext } = createLoggingContext(method, context);
     const txsId = getUuid();
     this.logger.debug("Method start", requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       txsId,
     });
+
+    // get formatted transaction
+    const { domain, ...toCall } = minTx;
+    const formatted = {
+      ...toCall,
+      chainId: domainToChainId(domain),
+    };
 
     const result = await this.queue.add(
       async (): Promise<{ value: OnchainTransaction | NxtpError; success: boolean }> => {
@@ -366,7 +374,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // Wait until there's room in the buffer.
           if (this.inflightBuffer.isFull) {
             this.logger.warn("Inflight buffer is full! Waiting in queue to send.", requestContext, methodContext, {
-              chainId: this.chainId,
+              domain: this.domain,
               bufferLength: this.inflightBuffer.length,
               txsId,
             });
@@ -382,8 +390,8 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // still possible to revert due to a state change below.
           const attemptedNonces: number[] = [];
           const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
-            this.estimateGas(minTx),
-            this.getGasPrice(requestContext),
+            minTx.gasLimit ? Promise.resolve(BigNumber.from(minTx.gasLimit)) : this.estimateGas(formatted),
+            minTx.gasPrice ? Promise.resolve(BigNumber.from(minTx.gasPrice)) : this.getGasPrice(requestContext),
             this.determineNonce(attemptedNonces),
           ]);
           let { nonce, backfill, transactionCount } = nonceInfo;
@@ -393,8 +401,18 @@ export class TransactionDispatch extends RpcProviderAggregator {
             limit: gasLimit,
             price: gasPrice,
           };
-          if (this.chainId === 42161) {
-            gas.limit = BigNumber.from(10_000_000);
+
+          switch (this.domain) {
+            // Arbitrum gasLimit hardcode
+            case 1634886255:
+            case 1734439522:
+              gas.limit = BigNumber.from(20_000_000);
+              break;
+            // ZkSync gasLimit hardcode
+            case 2053862243:
+            case 2053862260:
+              gas.limit = BigNumber.from(30_000_000);
+              break;
           }
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
@@ -422,7 +440,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
               txsId,
             );
             this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
-              chainId: this.chainId,
+              domain: this.domain,
               iterations,
               lastErrorReceived,
               transaction: transaction.loggable,
@@ -492,7 +510,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           requestContext,
           methodContext,
           {
-            chainId: this.chainId,
+            domain: this.domain,
             transaction: transaction.loggable,
             txsId,
           },
@@ -518,7 +536,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const method = this.submit.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       txsId: transaction.uuid,
     });
 
@@ -537,7 +555,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       if (transaction.hashes.includes(response.hash)) {
         // Duplicate response? This should never happen.
         throw new TransactionProcessingError(TransactionProcessingError.reasons.DuplicateHash, method, {
-          chainId: this.chainId,
+          domain: this.domain,
           response,
           transaction: transaction.loggable,
         });
@@ -545,7 +563,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       transaction.responses.push(response);
 
       this.logger.info(`Tx submitted.`, requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         response: {
           hash: response.hash,
           nonce: response.nonce,
@@ -569,7 +587,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           methodContext,
           jsonifyError(error),
           {
-            chainId: this.chainId,
+            domain: this.domain,
             transaction: transaction.loggable,
           },
         );
@@ -587,14 +605,14 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const method = this.mine.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       txsId: transaction.uuid,
     });
 
     // Ensure we've submitted at least 1 tx.
     if (!transaction.didSubmit) {
       throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
-        chainId: this.chainId,
+        domain: this.domain,
         transaction: transaction.loggable,
       });
     }
@@ -608,14 +626,14 @@ export class TransactionDispatch extends RpcProviderAggregator {
       if (receipt.status === 0) {
         // This should never occur. We should always get a TransactionReverted error in this event.
         throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
-          chainId: this.chainId,
+          domain: this.domain,
           receipt,
           transaction: transaction.loggable,
         });
       } else if (receipt.confirmations < 1) {
         // Again, should never occur.
         throw new TransactionProcessingError(TransactionProcessingError.reasons.InsufficientConfirmations, method, {
-          chainId: this.chainId,
+          domain: this.domain,
           receipt: transaction.receipt,
           confirmations: receipt.confirmations,
           transaction: transaction.loggable,
@@ -632,7 +650,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           requestContext,
           methodContext,
           {
-            chainId: this.chainId,
+            domain: this.domain,
             error,
             transaction: transaction.loggable,
           },
@@ -641,7 +659,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         // Sanity check.
         if (!error.replacement || !error.receipt) {
           throw new TransactionProcessingError(TransactionProcessingError.reasons.ReplacedButNoReplacement, method, {
-            chainId: this.chainId,
+            domain: this.domain,
             replacement: error.replacement,
             receipt: error.receipt,
             transaction: transaction.loggable,
@@ -669,7 +687,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     }
 
     this.logger.info(`Tx mined.`, requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       receipt: {
         transactionHash: transaction.receipt.transactionHash,
         blockNumber: transaction.receipt.blockNumber,
@@ -690,21 +708,21 @@ export class TransactionDispatch extends RpcProviderAggregator {
     const method = this.confirm.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       txsId: transaction.uuid,
     });
 
     // Ensure we've submitted a tx.
     if (!transaction.didSubmit) {
       throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
-        chainId: this.chainId,
+        domain: this.domain,
         transaction: transaction.loggable,
       });
     }
 
     if (!transaction.receipt) {
       throw new TransactionProcessingError(TransactionProcessingError.reasons.ConfirmOutOfOrder, method, {
-        chainId: this.chainId,
+        domain: this.domain,
         receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
         transaction: transaction.loggable,
       });
@@ -723,7 +741,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         methodContext,
         jsonifyError(error as NxtpError),
         {
-          chainId: this.chainId,
+          domain: this.domain,
           transaction: transaction.loggable,
           confirmations: transaction.receipt.confirmations,
           confirmationsRequired: this.config.confirmations,
@@ -736,7 +754,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         transaction.receipt.confirmations,
         {
           method,
-          chainId: this.chainId,
+          domain: this.domain,
           receipt: transaction.receipt,
           error: transaction.error,
           transaction: transaction.loggable,
@@ -749,7 +767,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       // This should never occur. We should always get a TransactionReverted error in this event : and that error should
       // have been thrown in the mine() method.
       throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
-        chainId: this.chainId,
+        domain: this.domain,
         receipt,
         transaction: transaction.loggable,
       });
@@ -758,7 +776,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     transaction.receipt = receipt;
 
     this.logger.info(`Tx confirmed.`, requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       receipt: {
         transactionHash: transaction.receipt.transactionHash,
         confirmations: transaction.receipt.confirmations,
@@ -785,7 +803,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
       // The number of gas bumps we've done should always be less than the number of txs we've submitted.
       this.logger.warn("Bump skipped.", requestContext, methodContext, {
-        chainId: this.chainId,
+        domain: this.domain,
         bumps: transaction.bumps,
         gasPrice: utils.formatUnits(currentGasPrice, "gwei"),
         gasMaximum: utils.formatUnits(this.config.gasPriceMaximum, "gwei"),
@@ -814,7 +832,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     }
 
     this.logger.info(`Tx bumped.`, requestContext, methodContext, {
-      chainId: this.chainId,
+      domain: this.domain,
       updatedGasPrice: utils.formatUnits(updatedGasPrice, "gwei"),
       previousGasPrice: utils.formatUnits(currentGasPrice, "gwei"),
       transaction: transaction.loggable,
@@ -834,7 +852,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
       methodContext,
       jsonifyError(transaction.error ?? new Error("No transaction error was present.")),
       {
-        chainId: this.chainId,
+        domain: this.domain,
         transaction: transaction.loggable,
       },
     );

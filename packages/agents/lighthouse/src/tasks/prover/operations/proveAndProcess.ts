@@ -6,12 +6,10 @@ import {
   SparseMerkleTree,
   RootMessage,
   ReceivedAggregateRoot,
-  NATIVE_TOKEN,
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 
 import {
   NoDestinationDomainForProof,
@@ -24,7 +22,7 @@ import {
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
 } from "../../../errors";
-import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
+import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
@@ -64,84 +62,91 @@ export const proveAndProcess = async () => {
         });
 
         await Promise.all(
-          domains.map(async (originDomain) => {
-            try {
-              const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
-                originDomain,
-                curDestAggRoot.root,
-              );
-              if (!latestMessageRoot) {
-                throw new NoTargetMessageRoot(originDomain);
-              }
-              // Paginate through all unprocessed messages from the domain
-              let offset = 0;
-              let end = false;
-              while (!end) {
-                logger.info(
-                  "Getting unprocessed messages for origin and destination pair",
-                  requestContext,
-                  methodContext,
-                  { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
-                );
-                const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+          domains
+            .filter((domain) => domain != destinationDomain)
+            .map(async (originDomain) => {
+              try {
+                const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
                   originDomain,
-                  destinationDomain,
-                  latestMessageRoot.count,
-                  offset,
-                  config.proverBatchSize,
+                  curDestAggRoot.root,
                 );
-                const subContext = createRequestContext(
-                  "processUnprocessedMessages",
-                  `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
-                );
-                if (unprocessed.length > 0) {
-                  logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                    unprocessed,
-                    originDomain,
-                    destinationDomain,
-                    offset,
-                  });
-                  // Batch process messages from the same origin domain
-                  await processMessages(
-                    unprocessed,
-                    originDomain,
-                    destinationDomain,
-                    latestMessageRoot.root,
-                    subContext,
-                  );
-                  offset += unprocessed.length;
+                if (!latestMessageRoot) {
+                  throw new NoTargetMessageRoot(originDomain);
+                }
+                // Paginate through all unprocessed messages from the domain
+                let offset = 0;
+                let end = false;
+                while (!end) {
                   logger.info(
-                    "Processed unprocessed messages for origin and destination pair",
-                    subContext,
+                    "Getting unprocessed messages for origin and destination pair",
+                    requestContext,
                     methodContext,
-                    {
+                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+                  );
+                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                    originDomain,
+                    destinationDomain,
+                    latestMessageRoot.count,
+                    offset,
+                    config.proverBatchSize,
+                  );
+                  const subContext = createRequestContext(
+                    "processUnprocessedMessages",
+                    `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
+                  );
+                  if (unprocessed.length > 0) {
+                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
                       unprocessed,
                       originDomain,
                       destinationDomain,
                       offset,
-                    },
-                  );
-                } else {
-                  // End the loop if no more messages are found
-                  end = true;
-                  if (offset === 0) {
+                    });
+                    // Batch process messages from the same origin domain
+                    await processMessages(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      latestMessageRoot.root,
+                      subContext,
+                    );
+                    offset += unprocessed.length;
                     logger.info(
-                      "Reached end of unprocessed messages for origin and destination pair",
+                      "Processed unprocessed messages for origin and destination pair",
                       subContext,
                       methodContext,
                       {
+                        unprocessed,
                         originDomain,
                         destinationDomain,
                         offset,
                       },
                     );
+                  } else {
+                    // End the loop if no more messages are found
+                    end = true;
+                    if (offset === 0) {
+                      logger.info(
+                        "Reached end of unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
                   }
                 }
+              } catch (err: unknown) {
+                logger.error(
+                  "Error processing messages",
+                  requestContext,
+                  methodContext,
+                  jsonifyError(err as NxtpError),
+                );
               }
-            } catch (err: unknown) {
-              logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
-            }
-          }),
+            }),
         );
       } catch (err: unknown) {
         logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
@@ -301,42 +306,11 @@ export const processMessages = async (
     const domain = +destinationDomain;
     const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
 
-    logger.info("Getting gas estimate", requestContext, methodContext, {
-      chainId,
-      to: destinationSpokeConnector,
-      data: proveAndProcessEncodedData,
-      from: relayerAddress,
-    });
-
-    const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
-      chainId: chainId,
-      to: destinationSpokeConnector,
-      data: proveAndProcessEncodedData,
-      from: relayerAddress,
-    });
-
     logger.info("Sending tx to relayer", requestContext, methodContext, {
       relayer: relayerAddress,
-      connext: destinationSpokeConnector,
+      spokeConnector: destinationSpokeConnector,
       domain,
-      gas: gas.toString(),
     });
-
-    const gasLimit = gas.add(200_000); // Add extra overhead for gelato
-    const destinationRelayerProxyAddress = config.chains[destinationDomain]?.deployments.relayerProxy;
-    let fee = BigNumber.from(0);
-    try {
-      fee = await getEstimatedFee(chainId, NATIVE_TOKEN, gasLimit, true);
-    } catch (error: unknown) {
-      logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
-        error: jsonifyError(error as NxtpError),
-        relayerProxyAddress: destinationRelayerProxyAddress,
-        gasLimit: gasLimit.toString(),
-        relayerFee: fee.toString(),
-      });
-
-      fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
-    }
 
     const {
       _proofs: proofs,
@@ -346,25 +320,17 @@ export const processMessages = async (
     } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const encodedData = contracts.relayerProxy.encodeFunctionData("proveAndProcess", [
+    const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
       proofs,
       aggregateRoot,
       aggregatePath,
       aggregateIndex,
-      fee,
     ]);
-
-    logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
-      relayerProxyAddress: destinationRelayerProxyAddress,
-      gasLimit: gasLimit.toString(),
-      relayerFee: fee.toString(),
-      relayerProxyEncodedData: encodedData,
-    });
 
     const { taskId } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
-      destinationRelayerProxyAddress,
+      destinationSpokeConnector,
       encodedData,
       relayers,
       chainreader,

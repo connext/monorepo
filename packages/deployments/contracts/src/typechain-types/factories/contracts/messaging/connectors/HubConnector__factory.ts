@@ -406,7 +406,7 @@ const _abi = [
     stateMutability: "payable",
     type: "receive",
   },
-];
+] as const;
 
 export class HubConnector__factory {
   static readonly abi = _abi;

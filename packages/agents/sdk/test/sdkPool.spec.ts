@@ -1,28 +1,88 @@
-import { reset, restore, stub, spy } from "sinon";
-import { expect, getCanonicalHash } from "@connext/nxtp-utils";
+import { reset, restore, stub } from "sinon";
+import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
-import { providers, utils, BigNumber, Contract } from "ethers";
+import { providers, utils, BigNumber, constants } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkPool, Pool } from "../src/sdkPool";
+import { SdkPool } from "../src/sdkPool";
+import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
-import { Connext } from "@connext/nxtp-contracts";
 
 import * as ConfigFns from "../src/config";
+import { UriInvalid } from "../src/lib/errors";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-describe("NxtpSdkPool", () => {
-  let nxtpPool: NxtpSdkPool;
-  let config: ConfigFns.NxtpSdkConfig;
+describe("SdkPool", () => {
+  let sdkPool: SdkPool;
+  let config: ConfigFns.SdkConfig;
+
+  const localAsset: PoolAsset = {
+    address: mock.asset.A.address,
+    name: mock.asset.A.name,
+    symbol: mock.asset.A.symbol,
+    decimals: 18,
+    index: 0,
+    balance: BigNumber.from("100"),
+  };
+
+  const adoptedAsset: PoolAsset = {
+    address: mock.asset.B.address,
+    name: mock.asset.B.name,
+    symbol: mock.asset.B.symbol,
+    decimals: 18,
+    index: 1,
+    balance: BigNumber.from("100"),
+  };
+
+  const mockPool: Pool = {
+    domainId: mock.domain.A,
+    name: "TSTB Pool",
+    symbol: "TSTB-TSTA",
+    local: localAsset,
+    adopted: adoptedAsset,
+    lpTokenAddress: utils.formatBytes32String("asdf"),
+    canonicalHash: utils.formatBytes32String("13337"),
+    swapFee: "4000000",
+    adminFee: "0",
+  };
+
+  const mockPoolData = {
+    key: utils.formatBytes32String("13337"),
+    domain: mock.domain.A,
+    is_active: true,
+    lp_token: utils.formatBytes32String("asdf"),
+    initial_a: 20000,
+    future_a: 20000,
+    initial_a_time: 0,
+    future_a_time: 0,
+    swap_fee: "4000000",
+    admin_fee: "0",
+    pooled_tokens: [mockPool.local.address, mockPool.adopted.address],
+    token_precision_multipliers: ["1", "1"],
+    pool_token_decimals: [18, 18],
+    balances: [BigNumber.from("100"), BigNumber.from("100")],
+    virtual_price: BigNumber.from("100"),
+    invariant: BigNumber.from("100"),
+    lp_token_supply: BigNumber.from("100"),
+  };
+
+  const mockAssetData = {
+    local: mockPool.local.address,
+    adopted: mockPool.adopted.address,
+    canonical_id: constants.HashZero,
+    canonical_domain: mockPool.domainId,
+    domain: mockPool.domainId,
+    key: mockPool.canonicalHash,
+    id: mockPool.local.address,
+  };
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
 
-    stub(ConfigFns, "getConfig").resolves(config);
-
-    nxtpPool = await NxtpSdkPool.create(mockConfig, undefined, mockChainData);
+    sdkPool = await SdkPool.create(config, undefined, mockChainData);
   });
 
   afterEach(() => {
@@ -32,67 +92,63 @@ describe("NxtpSdkPool", () => {
 
   describe("#create", () => {
     it("happy: should work", async () => {
-      expect(nxtpPool).to.not.be.undefined;
-      expect(nxtpPool.config).to.not.be.null;
-      expect(nxtpPool.chainData).to.not.be.null;
+      expect(sdkPool).to.not.be.undefined;
+      expect(sdkPool.config).to.not.be.null;
+      expect(sdkPool.chainData).to.not.be.null;
 
-      expect(nxtpPool.getConnext).to.be.a("function");
-      expect(nxtpPool.getERC20).to.be.a("function");
-      expect(nxtpPool.getBlockNumberFromUnixTimestamp).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.calculateCanonicalKey).to.be.a("function");
-      expect(nxtpPool.calculateSwap).to.be.a("function");
-      expect(nxtpPool.calculateTokenAmount).to.be.a("function");
-      expect(nxtpPool.calculateRemoveSwapLiquidity).to.be.a("function");
-      expect(nxtpPool.calculatePriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateAddLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateSwapPriceImpact).to.be.a("function");
-      expect(nxtpPool.calculateAmountReceived).to.be.a("function");
-      expect(nxtpPool.getTokenPrice).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
-      expect(nxtpPool.getDefaultDeadline).to.be.a("function");
+      expect(sdkPool.getConnext).to.be.a("function");
+      expect(sdkPool.getERC20).to.be.a("function");
+      expect(sdkPool.getDefaultDeadline).to.be.a("function");
+      expect(sdkPool.calculateCanonicalKey).to.be.a("function");
+      expect(sdkPool.calculateSwap).to.be.a("function");
+      expect(sdkPool.calculateTokenAmount).to.be.a("function");
+      expect(sdkPool.calculateRemoveSwapLiquidity).to.be.a("function");
+      expect(sdkPool.calculatePriceImpact).to.be.a("function");
+      expect(sdkPool.calculateSwapPriceImpact).to.be.a("function");
+      expect(sdkPool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(sdkPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(sdkPool.getTokenPrice).to.be.a("function");
+      expect(sdkPool.getDefaultDeadline).to.be.a("function");
 
-      expect(nxtpPool.getLPTokenAddress).to.be.a("function");
-      expect(nxtpPool.getLPTokenSupply).to.be.a("function");
-      expect(nxtpPool.getTokenUserBalance).to.be.a("function");
-      expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
-      expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
-      expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
-      expect(nxtpPool.getVirtualPrice).to.be.a("function");
-      expect(nxtpPool.getRepresentation).to.be.a("function");
-      expect(nxtpPool.getAdopted).to.be.a("function");
+      expect(sdkPool.getLPTokenAddress).to.be.a("function");
+      expect(sdkPool.getTokenSupply).to.be.a("function");
+      expect(sdkPool.getTokenUserBalance).to.be.a("function");
+      expect(sdkPool.getPoolTokenIndex).to.be.a("function");
+      expect(sdkPool.getPoolTokenDecimals).to.be.a("function");
+      expect(sdkPool.getPoolTokenBalance).to.be.a("function");
+      expect(sdkPool.getPoolTokenAddress).to.be.a("function");
+      expect(sdkPool.getVirtualPrice).to.be.a("function");
+      expect(sdkPool.getRepresentation).to.be.a("function");
+      expect(sdkPool.getAdopted).to.be.a("function");
+      expect(sdkPool.getTokenSwapEvents).to.be.a("function");
+      expect(sdkPool.getPoolData).to.be.a("function");
 
-      expect(nxtpPool.addLiquidity).to.be.a("function");
-      expect(nxtpPool.removeLiquidity).to.be.a("function");
-      expect(nxtpPool.swap).to.be.a("function");
+      expect(sdkPool.addLiquidity).to.be.a("function");
+      expect(sdkPool.removeLiquidity).to.be.a("function");
+      expect(sdkPool.removeLiquidityOneToken).to.be.a("function");
+      expect(sdkPool.swap).to.be.a("function");
 
-      expect(nxtpPool.getPool).to.be.a("function");
-      expect(nxtpPool.getUserPools).to.be.a("function");
-      expect(nxtpPool.getPoolStats).to.be.a("function");
-      expect(nxtpPool.getYieldStatsForDay).to.be.a("function");
-      expect(nxtpPool.calculateYield).to.be.a("function");
-      expect(nxtpPool.getYieldData).to.be.a("function");
-      expect(nxtpPool.getLiquidityMiningAprPerPool).to.be.a("function");
+      expect(sdkPool.getPool).to.be.a("function");
+      expect(sdkPool.getUserPools).to.be.a("function");
+      expect(sdkPool.getYieldStatsForDays).to.be.a("function");
+      expect(sdkPool.calculateYield).to.be.a("function");
+      expect(sdkPool.getYieldData).to.be.a("function");
+      expect(sdkPool.getLiquidityMiningAprPerPool).to.be.a("function");
     });
   });
 
   describe("#addLiquidity", () => {
     const mockParams = {
-      domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
-      tokenAddress: mock.asset.A.address,
       amounts: ["100", "100"],
       minToMint: "100",
-      deadline: 1700000000,
+      deadline: 10000000000,
       connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
-      const key = getCanonicalHash(mockParams.domainId, mockParams.canonicalId);
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("addSwapLiquidity", [
         key,
         mockParams.amounts,
@@ -105,11 +161,11 @@ describe("NxtpSdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      const res = await nxtpPool.addLiquidity(
-        mockParams.domainId,
-        mockParams.tokenAddress,
+      const res = await sdkPool.addLiquidity(
+        mockPool.domainId,
+        mockPool.local.address,
         mockParams.amounts,
         mockParams.minToMint,
         mockParams.deadline,
@@ -118,19 +174,59 @@ describe("NxtpSdkPool", () => {
     });
   });
 
-  describe("#removeLiquidity", () => {
+  describe("#removeLiquidityOneToken", () => {
     const mockParams = {
-      domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
-      tokenAddress: mock.asset.A.address,
       amount: "100",
-      minAmounts: ["100", "100"],
-      deadline: 1700000000,
+      minAmount: "0",
+      index: 0,
+      deadline: 10000000000,
       connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
-      const key = getCanonicalHash(mockParams.domainId, mockParams.canonicalId);
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
+      const data = getConnextInterface().encodeFunctionData("removeSwapLiquidityOneToken", [
+        key,
+        mockParams.amount,
+        mockParams.index,
+        mockParams.minAmount,
+        mockParams.deadline,
+      ]);
+
+      const mockRequest: providers.TransactionRequest = {
+        to: mockParams.connextAddress,
+        data,
+      };
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").resolves(0);
+
+      const res = await sdkPool.removeLiquidityOneToken(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockPool.local.address,
+        mockParams.amount,
+        mockParams.minAmount,
+        mockParams.deadline,
+      );
+      expect(res).to.be.deep.eq(mockRequest);
+    });
+  });
+
+  describe("#removeLiquidity", () => {
+    const mockParams = {
+      canonicalId: utils.formatBytes32String("0"),
+      amount: "100",
+      minAmounts: ["100", "100"],
+      deadline: 10000000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
+    };
+
+    it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("removeSwapLiquidity", [
         key,
         mockParams.amount,
@@ -143,11 +239,11 @@ describe("NxtpSdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
 
-      const res = await nxtpPool.removeLiquidity(
-        mockParams.domainId,
-        mockParams.tokenAddress,
+      const res = await sdkPool.removeLiquidity(
+        mockPool.domainId,
+        mockPool.local.address,
         mockParams.amount,
         mockParams.minAmounts,
         mockParams.deadline,
@@ -156,21 +252,58 @@ describe("NxtpSdkPool", () => {
     });
   });
 
-  describe("#swap", () => {
+  describe("#removeLiquidityImbalance", () => {
     const mockParams = {
-      domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
-      tokenAddress: mock.asset.A.address,
-      from: "0x0",
-      to: "0x0",
-      amount: "100",
-      minDy: 100,
-      deadline: 170000000,
+      amounts: ["100", "100"],
+      maxBurnAmount: "100",
+      deadline: 10000000000,
       connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
-      const key = getCanonicalHash(mockParams.domainId, mockParams.canonicalId);
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
+      const data = getConnextInterface().encodeFunctionData("removeSwapLiquidityImbalance", [
+        key,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+      ]);
+
+      const mockRequest: providers.TransactionRequest = {
+        to: mockParams.connextAddress,
+        data,
+      };
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").resolves(0);
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+      );
+      expect(res).to.be.deep.eq(mockRequest);
+    });
+  });
+
+  describe("#swap", () => {
+    const mockParams = {
+      canonicalId: utils.formatBytes32String("0"),
+      from: "0x0",
+      to: "0x0",
+      amount: "100",
+      minDy: 100,
+      deadline: 10000000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
+    };
+
+    it("happy: should work", async () => {
+      sdkPool.config.signerAddress = mockConfig.signerAddress;
+      const key = getCanonicalHash(mockPool.domainId, mockParams.canonicalId);
       const data = getConnextInterface().encodeFunctionData("swap", [
         key,
         0,
@@ -185,12 +318,12 @@ describe("NxtpSdkPool", () => {
         data,
       };
 
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
-      stub(nxtpPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockParams.canonicalId]);
+      stub(sdkPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
 
-      const res = await nxtpPool.swap(
-        mockParams.domainId,
-        mockParams.tokenAddress,
+      const res = await sdkPool.swap(
+        mockPool.domainId,
+        mockPool.local.address,
         mockParams.from,
         mockParams.to,
         mockParams.amount,
@@ -203,115 +336,234 @@ describe("NxtpSdkPool", () => {
 
   describe("#getPool", () => {
     const mockParams = {
-      domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
-      key: utils.formatBytes32String("0"),
-      tokenAddress: mock.asset.A.address,
-      poolName: `${mock.asset.A.symbol}-Pool`,
-      poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
-      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
-      poolDecimals: [18, 18],
-      poolBalances: [BigNumber.from("100"), BigNumber.from("100")],
-      lpTokenAddress: utils.formatBytes32String("2"),
-      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
       connext: mock.contracts.deployments().connext(Number(mock.chain.A)),
     };
 
     it("happy: should work", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
-      stub(nxtpPool, "getRepresentation").resolves(mockParams.poolTokens[0]);
-      stub(nxtpPool, "getAdopted").resolves(mockParams.poolTokens[1]);
-      stub(nxtpPool, "getLPTokenAddress").resolves(mockParams.lpTokenAddress);
-      stub(nxtpPool, "getPoolTokenBalance").resolves(mockParams.poolBalances[0]);
-      stub(nxtpPool, "getPoolTokenIndex").resolves(0);
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData, mockAssetData]);
+      stub(sdkPool, "getPoolData").resolves([mockPoolData]);
 
-      const provider = providers.getDefaultProvider();
-      const connextContract = new Contract(mockParams.connext!.address, mockParams.connext!.abi, provider);
-      const mockERC20 = {
-        symbol: function () {
-          return "TSTA";
-        },
-        decimals: function () {
-          return 18;
-        },
-      };
+      const res = await sdkPool.getPool(mockPool.domainId, mockPool.local.address);
 
-      stub(nxtpPool, "getConnext").resolves(connextContract as Connext);
-      stub(nxtpPool, "getERC20").resolves(mockERC20 as any);
+      expect(res!.domainId).to.equal(mockPool.domainId);
+      expect(res!.name).to.equal(mockPool.name);
+      expect(res!.symbol).to.equal(mockPool.symbol);
+      expect(res!.lpTokenAddress).to.equal(mockPool.lpTokenAddress);
+    });
+  });
 
-      const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
+  describe("#calculateAmountReceived", () => {
+    const mockAssetData = {
+      local: mockPool.local.address,
+      adopted: mockPool.adopted.address,
+      canonical_id: utils.formatBytes32String("0"),
+      canonical_domain: mockPool.domainId,
+      domain: mockPool.domainId,
+      key: mockPool.canonicalHash,
+      id: mockPool.local.address,
+    };
 
-      expect(res!.domainId).to.equal(mockParams.domainId);
-      expect(res!.name).to.equal(mockParams.poolName);
-      expect(res!.symbol).to.equal(mockParams.poolSymbol);
-      expect(res!.tokens).to.deep.equal(mockParams.poolTokens);
-      expect(res!.decimals).to.deep.equal(mockParams.poolDecimals);
-      expect(res!.balances).to.deep.equal(mockParams.poolBalances);
-      expect(res!.lpTokenAddress).to.equal(mockParams.lpTokenAddress);
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+
+    it("happy: should work with local origin asset and adopted destination asset", async () => {
+      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
+
+      const originAmount = BigNumber.from(100_000);
+      const originSlippage = "0"; // 0% in BPS
+
+      const destinationAmount = originAmount.sub(originAmount.mul(feeBps).div(10000)); // router takes 0.05%
+      const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
+      const destinationSlippage = "1000"; // 10% in BPS
+
+      stub(sdkPool, "calculateSwap")
+        .onCall(0) // swap once for destination pool
+        .resolves(destinationAmountAfterSwap);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.local.address,
+        originAmount,
+      );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
 
-    it("should throw if local domain is canonical", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mockParams.domainId, mockParams.canonicalId]);
+    it("happy: should work with adopted origin asset and adopted destination asset", async () => {
+      stub(sdkPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
 
-      expect(nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress)).to.be.rejectedWith(
-        new Error("Pool doesn't exist for the token on this domain"),
+      const originAmount = BigNumber.from(100_000);
+      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
+      const originSlippage = "1000"; // 10% in BPS
+
+      const destinationAmount = originAmountAfterSwap.sub(originAmountAfterSwap.mul(feeBps).div(10000)); // router takes 0.05%
+      const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
+      const destinationSlippage = "1000"; // 10% in BPS
+
+      stub(sdkPool, "calculateSwap")
+        .onCall(0) // swap once for origin pool
+        .resolves(originAmountAfterSwap)
+        .onCall(1) // swap once for destination pool
+        .resolves(destinationAmountAfterSwap);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.adopted.address,
+        originAmount,
       );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
 
-    it("should return undefined if local token is adopted", async () => {
-      stub(nxtpPool, "getCanonicalTokenId").resolves([mock.domain.B, mockParams.canonicalId]);
+    it("happy: should work with adopted origin asset and local destination asset", async () => {
+      stub(sdkPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(undefined);
 
-      expect(nxtpPool.getPool(mockParams.domainId, mockParams.key)).to.be.rejectedWith(
-        new Error("Pool doesn't exist for the token on this domain"),
+      const originAmount = BigNumber.from(100_000);
+      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
+      const originSlippage = "1000"; // 10% in BPS
+      const destinationSlippage = "0"; // 0% in BPS
+
+      stub(sdkPool, "calculateSwap")
+        .onCall(0) // swap once for origin pool
+        .resolves(originAmountAfterSwap);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.adopted.address,
+        originAmount,
+        true,
       );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+    });
+
+    it("happy: should work with local origin asset and local destination asset", async () => {
+      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
+
+      const originAmount = BigNumber.from(100_000);
+      const originSlippage = "0"; // 10% in BPS
+      const destinationSlippage = "0"; // 0% in BPS
+
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPool.domainId,
+        mockPool.domainId,
+        mockPool.local.address,
+        originAmount,
+        true,
+      );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
   });
 
   describe("#getUserPools", () => {
-    const mockParams = {
-      userAddress: "0x01".padEnd(42, "0"),
-      domainId: mock.domain.A,
-      key: utils.formatBytes32String("0"),
-      poolName: `${mock.asset.A.symbol}-Pool`,
-      poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
-      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
-      poolTokenIndices: new Map<string, number>(),
-      poolDecimals: [18, 18],
-      poolTokenUserBalances: [BigNumber.from(100), BigNumber.from(200)],
-      lpTokenAddress: utils.formatBytes32String("2"),
-      lpTokenUserBalance: BigNumber.from(150),
-    };
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
+    it("happy: should return all pools that a user has LP tokens in", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
 
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData, mockAssetData]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+      stub(sdkPool, "getTokenUserBalance")
+        .onCall(0) // LP token amount for pool 1
+        .resolves(BigNumber.from(100))
+        .onCall(1) // adopted token amount for pool 1
+        .resolves(BigNumber.from(0))
+        .onCall(2) // local token amount for pool 1
+        .resolves(BigNumber.from(0))
+        .onCall(3) // LP token amount for pool 2
+        .resolves(BigNumber.from(100))
+        .onCall(4) // adopted token amount for pool 2
+        .resolves(BigNumber.from(0))
+        .onCall(5) // local token amount for pool 2
+        .resolves(BigNumber.from(0));
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(1);
+    });
+
+    it("happy: should not return any pools if a user doesn't have LP tokens", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
+
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+      stub(sdkPool, "getTokenUserBalance")
+        .onCall(0) // LP token amount
+        .resolves(BigNumber.from(0))
+        .onCall(1) // adopted token amount
+        .resolves(BigNumber.from(0))
+        .onCall(2) // local token amount
+        .resolves(BigNumber.from(0));
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(0);
+    });
+  });
+
+  describe("#calculateSwap", () => {
     it("happy: should work", async () => {
-      const mockPool: Pool = new Pool(
-        mockParams.domainId,
-        mockParams.poolName,
-        mockParams.poolSymbol,
-        mockParams.poolTokens,
-        mockParams.poolTokenIndices,
-        mockParams.poolDecimals,
-        mockParams.poolTokenUserBalances,
-        mockParams.key,
-        mockParams.lpTokenAddress,
-      );
+      const mockConnext = {
+        calculateSwap: function () {
+          return "100";
+        },
+      };
 
-      stub(nxtpPool, "getPool").resolves(mockPool);
-      stub(nxtpPool, "getTokenUserBalance")
-        .onCall(0)
-        .resolves(mockParams.lpTokenUserBalance)
-        .onCall(1)
-        .resolves(mockParams.poolTokenUserBalances[0])
-        .onCall(2)
-        .resolves(mockParams.poolTokenUserBalances[1]);
+      stub(sdkPool, "getConnext").resolves(mockConnext as any);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
 
-      const res = await nxtpPool.getUserPools(mockParams.domainId, mockParams.userAddress);
+      const res = await sdkPool.calculateSwap(mockPool.domainId, mockPool.local.address, 0, 1, 100);
 
-      // TODO: why doesn't the await above suffice?
-      await setTimeout(() => {
-        expect(res).to.have.lengthOf(1);
-      }, 100);
+      expect(res.toString()).to.equal("100");
+    });
+  });
+
+  describe("#calculateTokenAmount", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateSwapTokenAmount: function () {
+          return "100";
+        },
+      };
+
+      stub(sdkPool, "getConnext").resolves(mockConnext as any);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await sdkPool.calculateTokenAmount(mockPool.domainId, mockPool.local.address, ["10", "10"]);
+
+      expect(res.toString()).to.equal("100");
+    });
+  });
+
+  describe("#calculateRemoveSwapLiquidity", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateRemoveSwapLiquidity: function () {
+          return ["100", "100"];
+        },
+      };
+
+      stub(sdkPool, "getConnext").resolves(mockConnext as any);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await sdkPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
+
+      expect(res).to.deep.equal(["100", "100"]);
     });
   });
 
@@ -327,7 +579,7 @@ describe("NxtpSdkPool", () => {
     };
 
     it("happy: should work with deposits", async () => {
-      const res = await nxtpPool.calculatePriceImpact(
+      const res = await sdkPool.calculatePriceImpact(
         mockParams.totalReservesIn,
         mockParams.lpTokensOut,
         mockParams.virtualPrice,
@@ -337,7 +589,7 @@ describe("NxtpSdkPool", () => {
     });
 
     it("happy: should work with withdrawals", async () => {
-      const res = await nxtpPool.calculatePriceImpact(
+      const res = await sdkPool.calculatePriceImpact(
         mockParams.lpTokensIn,
         mockParams.totalReservesOut,
         mockParams.virtualPrice,
@@ -348,131 +600,314 @@ describe("NxtpSdkPool", () => {
     });
 
     it("happy: should work with swaps", async () => {
-      const res = await nxtpPool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
+      const res = await sdkPool.calculatePriceImpact(mockParams.rate, mockParams.marketRate);
 
       expect(res.toString()).to.equal(BigNumber.from("10000000000000000").toString());
     });
 
     it("should return 0 when amounts are 0", async () => {
-      const res = await nxtpPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
+      const res = await sdkPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
 
       expect(res.toString()).to.equal(BigNumber.from("0").toString());
     });
   });
 
-  describe("#calculateAmountReceived", () => {
-    const mockParams = {
-      userAddress: "0x01".padEnd(42, "0"),
-      domainId: mock.domain.A,
-      key: utils.formatBytes32String("0"),
-      poolName: `${mock.asset.A.symbol}-Pool`,
-      poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
-      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
-      poolTokenIndices: new Map<string, number>(),
-      poolDecimals: [18, 18],
-      poolTokenUserBalances: [BigNumber.from(100), BigNumber.from(200)],
-      lpTokenAddress: utils.formatBytes32String("2"),
-      lpTokenUserBalance: BigNumber.from(150),
-    };
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
-
-    it("happy: should work with canonical origin asset", async () => {
-      const mockPool: Pool = new Pool(
-        mockParams.domainId,
-        mockParams.poolName,
-        mockParams.poolSymbol,
-        mockParams.poolTokens,
-        mockParams.poolTokenIndices,
-        mockParams.poolDecimals,
-        mockParams.poolTokenUserBalances,
-        mockParams.key,
-        mockParams.lpTokenAddress,
-      );
-
-      stub(nxtpPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
-
-      // only destination swap should be calculated
-      const destinationAmountReceived = BigNumber.from("0x0186dd");
-      stub(nxtpPool, "calculateSwap").resolves(destinationAmountReceived);
-
-      const res = await nxtpPool.calculateAmountReceived(
-        mockParams.domainId,
-        mockParams.domainId,
-        mockParams.poolTokens[0],
-        mockParams.poolTokens[0],
-        BigNumber.from("100000"),
-      );
-
-      expect(res.destinationSlippage.toString()).to.equal(BigNumber.from("-0x04").toString());
-    });
-  });
-
-  describe("#getPoolStats", () => {
-    const mockParams = {
-      domainId: mock.domain.A,
-      tokenAddress: mock.asset.A.address,
-      key: utils.formatBytes32String("0"),
-      poolName: `${mock.asset.A.symbol}-Pool`,
-      poolSymbol: `${mock.asset.A.symbol}-next${mock.asset.A.symbol}`,
-      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
-      poolTokenIndices: new Map<string, number>(),
-      poolDecimals: [18, 18],
-      amounts: [BigNumber.from(100), BigNumber.from(200)],
-      lpTokenAddress: utils.formatBytes32String("2"),
-    };
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[0], 0);
-    mockParams.poolTokenIndices.set(mockParams.poolTokens[1], 1);
-
-    it("happy: should work", async () => {
-      const mockPool: Pool = new Pool(
-        mockParams.domainId,
-        mockParams.poolName,
-        mockParams.poolSymbol,
-        mockParams.poolTokens,
-        mockParams.poolTokenIndices,
-        mockParams.poolDecimals,
-        mockParams.amounts,
-        mockParams.key,
-        mockParams.lpTokenAddress,
-      );
-
-      stub(nxtpPool, "getPool").resolves(mockPool);
-
-      const getLiquiditySpy = spy(mockPool, "getLiquidity");
-      const getVolumeSpy = spy(mockPool, "getVolume");
-      const getFeesSpy = spy(mockPool, "getFees");
-      const getApySpy = spy(mockPool, "getApy");
-
-      const res = await nxtpPool.getPoolStats(mockParams.domainId, mockParams.tokenAddress);
-
-      expect(getLiquiditySpy).called;
-      expect(getVolumeSpy).called;
-      expect(getFeesSpy).called;
-      expect(getApySpy).called;
-    });
-  });
-
   describe("#getTokenPrice", () => {
     it("happy: should return USDC price", async () => {
-      const price = await nxtpPool.getTokenPrice("USDC");
+      const price = await sdkPool.getTokenPrice("USDC");
       expect(price).gt(0);
       expect(price).lt(2);
     });
 
     it("happy: should return OP price", async () => {
-      const price = await nxtpPool.getTokenPrice("OP");
+      const price = await sdkPool.getTokenPrice("OP");
       expect(price).gt(0);
       expect(price).lt(20);
     });
   });
 
+  describe("#getYieldStatsForDay", () => {
+    it("should return undefined if no pool is found", async () => {
+      const mockParams = {
+        canonicalId: utils.formatBytes32String("0"),
+      };
+
+      stub(sdkPool, "getConnext").resolves(undefined);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mock.domain.A, mockParams.canonicalId]);
+
+      const result = await sdkPool.getYieldStatsForDays(mock.domain.A, constants.AddressZero, 1675394597, 1);
+
+      expect(result).to.be.undefined;
+    });
+  });
+
+  describe("#calculateYield", () => {
+    it("happy: should return the correct apr, apy", async () => {
+      const yieldData = await sdkPool.calculateYield(1, 10000, 1);
+
+      expect(yieldData.apr).closeTo(0.0365, 0.001);
+      expect(yieldData.apy).closeTo(0.03706870443, 0.001);
+    });
+  });
+
   describe("#getLiquidityMiningAprPerPool", () => {
     it("happy: should return the correct APR", async () => {
-      const apr = await nxtpPool.getLiquidityMiningAprPerPool(250_000, 657_436, 2, "USDC", 1_000_000);
+      const apr = await sdkPool.getLiquidityMiningAprPerPool(250_000, 657_436, 2, "USDC", 1_000_000);
       // should be about 50% APR
       expect(apr).gt(0.45);
       expect(apr).lessThan(0.55);
+    });
+  });
+
+  describe("#getTokenSwapEvents", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getTokenSwapEvents({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with buyer", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getTokenSwapEvents({
+        buyer: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with transactionHash", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getTokenSwapEvents({
+        transactionHash: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getTokenSwapEvents({
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getTokenSwapEvents({
+        key: getRandomBytes32(),
+        buyer: getRandomBytes32(),
+        transactionHash: getRandomBytes32(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getTokenSwapEvents({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getPoolData", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        domainId: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with lpTokenAddress", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        lpTokenAddress: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getPoolData({
+        key: getRandomBytes32(),
+        domainId: getRandomBytes32(),
+        lpTokenAddress: getRandomBytes32(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getPoolData({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getHourlySwapVolume", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        domainId: mock.domain.A,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with startTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        startTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with endTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        endTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getHourlySwapVolume({
+        key: getRandomBytes32(),
+        domainId: mock.domain.A,
+        startTimestamp: new Date().valueOf(),
+        endTimestamp: new Date().valueOf(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getHourlySwapVolume({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#getDailySwapVolume", () => {
+    it("happy: should work with key", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        key: mockConfig.signerAddress,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with domainId", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        domainId: mock.domain.A,
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with startTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        startTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with endTimestamp", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        endTimestamp: new Date().valueOf(),
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with range", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("happy: should work with all params", async () => {
+      (sdkPool as any).config.cartographerUrl = config.cartographerUrl;
+      const res = await sdkPool.getDailySwapVolume({
+        key: getRandomBytes32(),
+        domainId: mock.domain.A,
+        startTimestamp: new Date().valueOf(),
+        endTimestamp: new Date().valueOf(),
+        range: {
+          limit: 100,
+          offset: 20,
+        },
+      });
+
+      expect(res).to.not.be.undefined;
+    });
+
+    it("should error if validateUri fails", async () => {
+      (sdkPool as any).config.cartographerUrl = "invalidUrl";
+
+      await expect(sdkPool.getDailySwapVolume({})).to.be.rejectedWith(UriInvalid);
     });
   });
 });

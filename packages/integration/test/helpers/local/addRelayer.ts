@@ -1,5 +1,5 @@
 import { createLoggingContext, Logger } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/nxtp-contracts";
+import { ConnextInterface } from "@connext/smart-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 export const addRelayer = async (
@@ -12,7 +12,7 @@ export const addRelayer = async (
     logger.info("addRelayer ", requestContext, methodContext, { domain });
     const relayerApprovedData = ConnextInterface.encodeFunctionData("approvedRelayers", [domain.relayer]);
     const encoded = await txService.readTx({
-      chainId: +domain.domain,
+      domain: +domain.domain,
       data: relayerApprovedData,
       to: domain.Connext,
     });
@@ -23,7 +23,7 @@ export const addRelayer = async (
       const approveRelayerData = ConnextInterface.encodeFunctionData("addRelayer", [domain.relayer]);
       await txService.sendTx(
         {
-          chainId: +domain.domain,
+          domain: +domain.domain,
           to: domain.Connext,
           data: approveRelayerData,
           value: 0,

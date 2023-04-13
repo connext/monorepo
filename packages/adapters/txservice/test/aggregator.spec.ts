@@ -13,6 +13,7 @@ import {
   OperationTimeout,
   TransactionReadError,
   TransactionReverted,
+  QuorumNotMet,
 } from "../src";
 import {
   makeChaiReadable,
@@ -23,6 +24,7 @@ import {
   TEST_TX_RESPONSE,
   DEFAULT_GAS_LIMIT,
   TEST_TX,
+  TEST_SENDER_DOMAIN,
 } from "./utils";
 
 const logger = new Logger({
@@ -54,7 +56,7 @@ describe("RpcProviderAggregator", () => {
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
     signer.connect.returns(signer);
 
-    const chainId = TEST_SENDER_CHAIN_ID;
+    const domain = TEST_SENDER_DOMAIN;
     const config: ChainConfig = {
       ...DEFAULT_CHAIN_CONFIG,
       providers: [
@@ -67,7 +69,7 @@ describe("RpcProviderAggregator", () => {
     };
 
     syncProvidersStub = Sinon.stub(RpcProviderAggregator.prototype as any, "syncProviders").resolves();
-    chainProvider = new RpcProviderAggregator(logger, chainId, config, signer);
+    chainProvider = new RpcProviderAggregator(logger, domain, config, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);
@@ -280,7 +282,8 @@ describe("RpcProviderAggregator", () => {
       const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(1);
-      expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
+      const { domain, ...expected } = TEST_READ_TX;
+      expect(signer.call.getCall(0).args[0]).to.deep.equal({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
       expect(result).to.be.eq(fakeData);
     });
 
@@ -301,7 +304,8 @@ describe("RpcProviderAggregator", () => {
 
       expect(signer.call.callCount).to.equal(0);
       expect(coreSyncProvider.call.callCount).to.equal(1);
-      expect(coreSyncProvider.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
+      const { domain, ...expected } = TEST_READ_TX;
+      expect(coreSyncProvider.call.getCall(0).args[0]).to.deep.equal({ ...expected, chainId: TEST_SENDER_CHAIN_ID });
       expect(result).to.be.eq(fakeData);
     });
   });
@@ -672,6 +676,81 @@ describe("RpcProviderAggregator", () => {
       expect(badRpcProvider.method.callCount).to.equal(1);
       expect(goodRpcProvider.method.callCount).to.equal(1);
       expect(shuffleSyncedProvidersStub.callCount).to.equal(1);
+    });
+
+    it("happy, with quorum > 1", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider];
+
+      // Quorum required = 2. The 2 good RPC providers we supplied should suffice.
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      expect(await (chainProvider as any).execute(false, mockMethodParam)).to.be.true;
+      // 1 call for bad, 2 for good. 0 calls to shuffle, we should have consulted all providers!
+      expect(badRpcProvider.method.callCount).to.equal(1);
+      expect(goodRpcProvider.method.callCount).to.equal(2);
+      expect(shuffleSyncedProvidersStub.callCount).to.equal(0);
+    });
+
+    it("works with quorum > 1 and different return types", async () => {
+      (chainProvider as any).config.quorum = 2;
+
+      for (const returnValue of ["hello test", false, 12345, BigNumber.from("12345"), { hello: "test" }]) {
+        goodRpcProvider.method = Sinon.stub().resolves(returnValue);
+        badRpcProvider.method = Sinon.stub().rejects(testRpcError);
+
+        testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider];
+        (chainProvider as any).providers = testSyncProviders;
+
+        expect(await (chainProvider as any).execute(false, mockMethodParam)).to.be.deep.eq(returnValue);
+      }
+    });
+
+    it("works with quorum > 1 and picks the top response", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider, badRpcProvider, goodRpcProvider];
+
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // Hi or Bye, which one is it? It should be "hi" since the goodRpcProviders outnumber the bad.
+      goodRpcProvider.method = Sinon.stub().resolves("hi");
+      badRpcProvider.method = Sinon.stub().resolves("bye");
+
+      const result = await (chainProvider as any).execute(false, mockMethodParam);
+      expect(result).to.be.eq("hi");
+
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(3);
+    });
+
+    it("works with quorum > 1 and multiple top responses", async () => {
+      testSyncProviders = [goodRpcProvider, badRpcProvider, goodRpcProvider, badRpcProvider];
+
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // Hi or Bye, which one is it? Unfortunately will just have to pick one...
+      goodRpcProvider.method = Sinon.stub().resolves("hi");
+      badRpcProvider.method = Sinon.stub().resolves("bye");
+
+      const result = await (chainProvider as any).execute(false, mockMethodParam);
+      expect(result === "hi" || result === "bye").to.be.true;
+
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(2);
+    });
+
+    it("should fail if quorum not met", async () => {
+      testSyncProviders = [badRpcProvider, badRpcProvider, goodRpcProvider];
+
+      // Quorum required = 2. The 2 BAD RPC providers we supplied should NOT suffice!
+      (chainProvider as any).config.quorum = 2;
+      (chainProvider as any).providers = testSyncProviders;
+
+      // First, make sure we get the correct value back.
+      await expect((chainProvider as any).execute(false, mockMethodParam)).to.be.rejectedWith(QuorumNotMet);
+      expect(badRpcProvider.method.callCount).to.equal(2);
+      expect(goodRpcProvider.method.callCount).to.equal(1);
     });
 
     it("should fail if the call needs a signer and needsSigner throws", async () => {

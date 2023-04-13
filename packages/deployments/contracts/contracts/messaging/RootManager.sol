@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
@@ -201,7 +203,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     require(_aggregateRoot != lastPropagatedRoot, "redundant root");
     lastPropagatedRoot = _aggregateRoot;
 
-    uint256 sum = msg.value;
+    uint256 refund = msg.value;
     for (uint32 i; i < _numDomains; ) {
       // Try to send the message with appropriate encoded data and fees
       // Continue on revert, but emit an event
@@ -211,7 +213,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
         // This will revert as soon as there are insufficient fees for call i, even if call n > i has
         // sufficient budget, this function will revert
-        sum -= _fees[i];
+        refund -= _fees[i];
       } catch {
         emit PropagateFailed(domains[i], _connectors[i]);
       }
@@ -219,6 +221,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       unchecked {
         ++i;
       }
+    }
+
+    // Refund caller
+    if (refund > 0) {
+      Address.sendValue(payable(msg.sender), refund);
     }
 
     emit RootPropagated(_aggregateRoot, _count, domainsHash);

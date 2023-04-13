@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 import { mockDestinationSubgraphResponse, mockOriginSubgraphResponse } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 import { mockContext } from "../../globalTestHook";
-import { updateTransfers } from "../../../src/lib/operations/transfers";
+import { updateBackoffs, updateTransfers } from "../../../src/lib/operations/transfers";
 
 describe("Transfers operations", () => {
   describe("#updateTransfers", () => {
@@ -103,6 +103,18 @@ describe("Transfers operations", () => {
       );
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(6);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(3);
+    });
+  });
+
+  describe("updateBackoffs", () => {
+    it("should work", async () => {
+      await updateBackoffs();
+
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(4);
+      expect(mockContext.adapters.subgraph.getRelayerFeesIncreasesByDomainAndTimestamp as SinonStub).callCount(1);
+      expect(mockContext.adapters.subgraph.getSlippageUpdatesByDomainAndTimestamp as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.resetBackoffs as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(2);
     });
   });
 });

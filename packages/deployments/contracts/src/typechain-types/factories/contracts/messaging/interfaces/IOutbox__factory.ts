@@ -81,7 +81,26 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+    ],
+    name: "nonces",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+] as const;
 
 export class IOutbox__factory {
   static readonly abi = _abi;

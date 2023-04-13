@@ -31,7 +31,7 @@ const run = async () => {
   // second argument is config file path: <config-file-name> amarok-runtime-v0
   const configFile = cmdArg[1];
 
-  // third argument is network: all | <network-name>
+  // third argument is network: all | '<network1, network2, ...>'
   const cmdNetwork = cmdArg[2];
 
   // forth argument is access token: <subgraph deployer access token>
@@ -47,7 +47,7 @@ const run = async () => {
   }
 
   if (!cmdNetwork) {
-    console.log("please add network or all, checkout readme for more");
+    console.log("please add networks or all, checkout readme for more");
     return;
   }
 
@@ -56,20 +56,20 @@ const run = async () => {
     // return;
   }
 
+  // Get networks from config
   const networks: Network[] = JSON.parse(readFileSync(`./config/${configFile}.json`, "utf8"));
 
-  let networksToDeploy: Network[] = [];
-  if (cmdNetwork.toUpperCase() === "ALL") {
-    networksToDeploy = networks;
-  } else {
-    const res = networks.find((e) => e.network.toUpperCase() === cmdNetwork.toUpperCase());
-    if (!res) {
-      console.log("Network not found");
-      return;
-    }
+  // Get network names
+  const networkNames: string[] =
+    cmdNetwork.toUpperCase() === "ALL" ? networks.map((n) => n.network) : cmdNetwork.split(",");
 
-    networksToDeploy.push(res);
-  }
+  const networksToDeploy = networkNames.map((n) => {
+    const res = networks.find((e) => e.network.toUpperCase() === n.toUpperCase());
+    if (!res) {
+      throw new Error(`Network (${n}) not found`);
+    }
+    return res;
+  });
 
   const jsonFile: any = yamlToJson.load(readFileSync(`./src/${contractVersion}/subgraph.template.yaml`, "utf8"));
 
@@ -84,17 +84,23 @@ const run = async () => {
     // }
 
     /// prepare
-    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any, index: number) => {
-      return {
-        ...ds,
-        network: n.network,
-        source: {
-          ...ds.source,
-          address: n.source[index].address,
-          startBlock: n.source[index].startBlock,
-        },
-      };
+    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
+      const source = n.source.find((s) => s.name === ds.name);
+      if (source) {
+        return {
+          ...ds,
+          network: n.network,
+          source: {
+            ...ds.source,
+            address: source.address,
+            startBlock: source.startBlock,
+          },
+        };
+      } else {
+        return null;
+      }
     });
+    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
 
     if (jsonFile.templates) {
       jsonFile.templates = (jsonFile.templates ?? []).map((ds: any, index: number) => {
