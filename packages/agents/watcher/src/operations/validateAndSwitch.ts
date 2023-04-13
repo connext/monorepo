@@ -18,7 +18,7 @@ export const switchAndAlert = async (
   requestContext: RequestContext,
   reason: string,
   transactions?: Record<string, string[]>,
-): Promise<PauseResponse[]> => {
+): Promise<PauseResponse[] | void> => {
   const {
     adapters: { monitor },
     logger,

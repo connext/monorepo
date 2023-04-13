@@ -59,6 +59,11 @@ export class NoBaseAggregateRootCount extends NxtpError {
     super(`No base aggregate root count found for ${aggregateRoot}`, context, NoBaseAggregateRootCount.name);
   }
 }
+export class NoBaseAggregateRoot extends NxtpError {
+  constructor() {
+    super(`No base aggregate root found`, context, NoBaseAggregateRoot.name);
+  }
+}
 
 export class NoMessageRoot extends NxtpError {
   constructor(originDomain: string, messageRoot: string) {

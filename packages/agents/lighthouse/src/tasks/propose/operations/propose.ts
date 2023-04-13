@@ -5,10 +5,11 @@ import {
   RootManagerMeta,
   Snapshot,
   SparseMerkleTree,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { NoBaseAggregateRootCount } from "../../../errors";
+import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForHubDomain } from "../errors";
 import { getContext } from "../propose";
@@ -71,15 +72,20 @@ export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _encodedData: string[] = [];
   const _fees: string[] = [];
-  let _totalFee = constants.Zero;
+  // const _totalFee = constants.Zero;
 
-  const baseAggregateRoot: string = await database.getBaseAggregateRoot();
-  const baseAggregateRootCount = await database.getAggregateRootCount(baseAggregateRoot);
-  const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
+  const baseAggregateRoot = await database.getBaseAggregateRoot();
+
+  if (baseAggregateRoot === undefined) {
+    throw new NoBaseAggregateRoot();
+  }
+
+  const baseAggregateRootCount = await database.getAggregateRootCount(baseAggregateRoot as string);
   if (!baseAggregateRootCount) {
     // TODO: What if the system was never in slow mode ?
-    throw new NoBaseAggregateRootCount(baseAggregateRoot);
+    throw new NoBaseAggregateRootCount(baseAggregateRoot as string);
   }
+  const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
   const aggregateRootCount = baseAggregateRootCount + snapshotRoots.length;
   const opRoots = baseAggregateRoots.concat(snapshotRoots);
 
@@ -105,12 +111,13 @@ export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[
     _encodedData,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
-    proposal,
-    _fees,
-    _encodedData,
-    fee,
-  ]);
+  // const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
+  //   proposal,
+  //   _fees,
+  //   _encodedData,
+  //   fee,
+  // ]);
+  const encodedDataForRelayer = "DUMMY";
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(

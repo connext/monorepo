@@ -189,10 +189,9 @@ export const processMessages = async (
   let targetAggregateRoot: string | undefined = "";
   let messageRootIndex = undefined;
   if (snapshot && snapshot.aggregateRoot) {
-    targetAggregateRoot = snapshot.aggregateRoot as string;
+    targetAggregateRoot = snapshot.aggregateRoot;
     const baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
     if (!baseAggregateRootCount) {
-      // TODO: What if the system was never in slow mode ?
       throw new NoBaseAggregateRootCount(snapshot.baseAggregateRoot);
     }
     aggregateRootCount = baseAggregateRootCount + snapshot.roots.length;

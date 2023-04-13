@@ -55,6 +55,7 @@ import {
   getLatestMessageRoot,
   getLatestAggregateRoot,
   getPendingAggregateRoots,
+  getPendingSnapshots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
@@ -62,6 +63,8 @@ import {
   getSpokeNodes,
   getHubNode,
   getHubNodes,
+  getOptimisticHubNode,
+  getOptimisticHubNodes,
   getRoot,
   putRoot,
   getCompletedTransfersByMessageHashes,
@@ -178,11 +181,8 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
-  getPendingAggregateRoots: (
-    // domain: string,
-    // orderDirection?: "ASC" | "DESC",
-    _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<Snapshot[]>;
+  getPendingAggregateRoots: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot[]>;
+  getPendingSnapshots: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot[]>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -219,6 +219,17 @@ export type Database = {
   ) => Promise<string[]>;
   getHubNode: (index: number, count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getHubNodes: (
+    start: number,
+    end: number,
+    count: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
+  getOptimisticHubNode: (
+    index: number,
+    count: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string | undefined>;
+  getOptimisticHubNodes: (
     start: number,
     end: number,
     count: number,
@@ -314,6 +325,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getLatestMessageRoot,
     getLatestAggregateRoot,
     getPendingAggregateRoots,
+    getPendingSnapshots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
@@ -321,6 +333,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getSpokeNodes,
     getHubNode,
     getHubNodes,
+    getOptimisticHubNode,
+    getOptimisticHubNodes,
     getRoot,
     putRoot,
     increaseBackoff,
