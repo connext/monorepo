@@ -78,9 +78,15 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const readCall = async (): Promise<T> => {
     return await contract.callStatic[read.method](...read.args);
   };
-  const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
+  const writeCall = async (chain: number): Promise<providers.TransactionResponse | undefined> => {
+    const tx = {
+      to: contract.address,
+      data: contract.interface.encodeFunctionData(write.method, write.args),
+      chain,
+    };
     if (!apply) {
-      throw new Error(`Should not write if "apply" == false`);
+      log.info.tx({ ...tx, deployment, chain, call: write });
+      return;
     }
     if (chain === 137) {
       return await contract[write.method](...write.args, {
@@ -117,11 +123,10 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
   log.info.value({ chain, deployment, call: read, value, valid });
   if (!valid) {
-    if (!apply) {
-      log.info.value({ chain, deployment, call: read, value: desired, updated: true, dryRun: true });
+    const tx = await writeCall(chain);
+    if (!tx) {
       return;
     }
-    const tx = await writeCall(chain);
     const waitForTxParam: WaitForTxArguments = {
       deployment,
       tx,

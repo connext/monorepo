@@ -35,6 +35,17 @@ export const log = {
           `${value}${updated ? " !!!" : valid ? " ✔" : ""}${dryRun ? " [dry-run]" : ""}`,
       );
     },
+    // Log a transaction to submit
+    tx: (args: {
+      to: string;
+      data: string;
+      chain: number | string;
+      deployment: Deployment;
+      call: { method: string; args: (number | string)[] };
+    }) => {
+      const { chain, deployment, call, to, data } = args;
+      console.log(log.prefix.value({ chain, deployment, call }) + JSON.stringify({ to, chain, data }));
+    },
   },
   error: {
     // For when an asserted value is bad/incorrect.
