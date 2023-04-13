@@ -7,11 +7,12 @@ import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";
 
 export const setupAsset = async (args: {
+  apply: boolean;
   asset: AssetStack;
   networks: NetworkStack[];
   chainData: Map<string, ChainData>;
 }) => {
-  const { asset, networks, chainData } = args;
+  const { asset, networks, chainData, apply } = args;
 
   // Derive the global asset key using the (canonized) canonical address and the canonical domain.
   const canonical = {
@@ -55,6 +56,7 @@ export const setupAsset = async (args: {
   }
 
   await updateIfNeeded({
+    apply,
     deployment: home.deployments.Connext,
     desired: asset.canonical.address,
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
@@ -102,6 +104,7 @@ export const setupAsset = async (args: {
 
       if (adopted && adopted.toLowerCase() !== desiredAdopted.toLowerCase()) {
         await updateIfNeeded({
+          apply,
           deployment: network.deployments.Connext,
           desired: false,
           read: { method: "approvedAssets(bytes32)", args: [key] },
@@ -121,6 +124,7 @@ export const setupAsset = async (args: {
 
     if (representation.local) {
       await updateIfNeeded({
+        apply,
         deployment: network.deployments.Connext,
         desired: desiredAdopted,
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
@@ -132,6 +136,7 @@ export const setupAsset = async (args: {
     } else {
       if (!setupAssetDone) {
         await updateIfNeeded({
+          apply,
           deployment: network.deployments.Connext,
           desired: desiredAdopted,
           read: { method: "canonicalToAdopted(bytes32)", args: [key] },

@@ -27,9 +27,13 @@ export const log = {
       value: any;
       updated?: boolean;
       valid?: boolean;
+      dryRun?: boolean;
     }) => {
-      const { chain, deployment, call, value, updated, valid } = args;
-      console.log(log.prefix.value({ chain, deployment, call }) + `${value}${updated ? " !!!" : valid ? " ✔" : ""}`);
+      const { chain, deployment, call, value, updated, valid, dryRun } = args;
+      console.log(
+        log.prefix.value({ chain, deployment, call }) +
+          `${value}${updated ? " !!!" : valid ? " ✔" : ""}${dryRun ? " [dry-run]" : ""}`,
+      );
     },
   },
   error: {

@@ -4,7 +4,7 @@ import { getChainData } from "@connext/nxtp-utils";
 import { Deployment } from "../../types";
 
 import { log } from "./log";
-import { CallSchema } from "./types";
+import { CallSchema, ReadSchema } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 1;
 
@@ -45,13 +45,8 @@ export const waitForTx = async (
 };
 
 export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const { deployment, read: _read, write: _write, desired, chainData } = schema;
+  const { deployment, read: _read, write: _write, desired, chainData, apply } = schema;
   const { contract } = deployment;
-
-  // Sanity check: write method included.
-  if (!_write) {
-    throw new Error("Cannot update if no write method is provided!");
-  }
 
   // Check if desired is defined
   const desiredExists = desired != undefined;
@@ -84,6 +79,9 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
     return await contract.callStatic[read.method](...read.args);
   };
   const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
+    if (!apply) {
+      throw new Error(`Should not write if "apply" == false`);
+    }
     if (chain === 137) {
       return await contract[write.method](...write.args, {
         gasLimit: 5000000,
@@ -119,6 +117,10 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
   log.info.value({ chain, deployment, call: read, value, valid });
   if (!valid) {
+    if (!apply) {
+      log.info.value({ chain, deployment, call: read, value: desired, updated: true, dryRun: true });
+      return;
+    }
     const tx = await writeCall(chain);
     const waitForTxParam: WaitForTxArguments = {
       deployment,
@@ -139,7 +141,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   }
 };
 
-export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
+export const assertValue = async <T>(schema: ReadSchema<T>): Promise<void> => {
   const { deployment, desired: _desired, read: _read, caseSensitive: _caseSensitive } = schema;
   const { contract } = deployment;
 
@@ -186,7 +188,7 @@ export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
   }
 };
 
-export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
+export const getValue = async <T>(schema: ReadSchema<T>): Promise<T> => {
   const { deployment, read: _read } = schema;
   const { contract } = deployment;
 

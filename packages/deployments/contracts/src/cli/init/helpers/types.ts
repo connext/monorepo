@@ -1,6 +1,6 @@
 import { TAddress } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
-import { providers, Wallet } from "ethers";
+import { providers } from "ethers";
 
 import { Deployment } from "../../types";
 
@@ -102,7 +102,7 @@ export type ProtocolStack = {
   agents?: Agents;
 };
 
-export type CallSchema<T> = {
+export type ReadSchema<T> = {
   deployment: Deployment;
   desired?: T; // Desired value.
   // Read method to call on contract.
@@ -112,13 +112,16 @@ export type CallSchema<T> = {
         args?: (number | string)[];
       }
     | string;
+  caseSensitive?: boolean;
+};
+export type CallSchema<T> = ReadSchema<T> & {
+  apply: boolean;
   // Write method to call to update value on contract.
-  write?: {
+  write: {
     method: string;
     args?: any[];
   };
   chainData?: any;
-  caseSensitive?: boolean;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files

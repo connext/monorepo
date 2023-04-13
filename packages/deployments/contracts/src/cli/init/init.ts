@@ -28,6 +28,7 @@ export const optionDefinitions = [
   { name: "name", defaultOption: true },
   { name: "network", type: String },
   { name: "env", type: String },
+  { name: "apply", type: String, defaultValue: "false" },
   { name: "domains", type: String, multiple: true },
 ];
 
@@ -43,7 +44,8 @@ export const sanitizeAndInit = async () => {
   }
 
   // Validate command line arguments
-  const { network, env, domains: _domains } = cmdArgs;
+  const { network, env, domains: _domains, apply: _apply } = cmdArgs;
+  const apply = _apply === "true";
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
@@ -53,7 +55,7 @@ export const sanitizeAndInit = async () => {
   }
 
   const useStaging = env === "staging";
-  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
+  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT. DRYRUN: ${!apply}`);
 
   // Read init.json if exists
   const path = process.env.INIT_CONFIG_FILE ?? "init.json";
@@ -223,7 +225,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized);
+  await initProtocol(sanitized, apply);
 };
 
 /**
@@ -234,7 +236,7 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack) => {
+export const initProtocol = async (protocol: ProtocolStack, apply: boolean) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
@@ -242,7 +244,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* Messaging **********************
   /// MARK - Messaging
-  await setupMessaging(protocol);
+  await setupMessaging(protocol, apply);
 
   /// ********************* CONNEXT *********************
   /// MARK - Enroll Handlers
@@ -253,6 +255,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     for (const remoteNetwork of remoteNetworks) {
       const desiredConnextion = remoteNetwork.deployments.Connext.address;
       await updateIfNeeded({
+        apply,
         deployment: targetNetwork.deployments.Connext,
         desired: desiredConnextion,
         read: { method: "remote", args: [remoteNetwork.domain] },
@@ -274,6 +277,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     } = network;
 
     await updateIfNeeded({
+      apply,
       deployment: Connext,
       desired: relayerFeeVault,
       read: { method: "relayerFeeVault" },
@@ -296,6 +300,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
     // update connext
     await updateIfNeeded({
+      apply,
       deployment: messaging.RelayerProxy,
       desired: Connext.address,
       read: { method: "connext" },
@@ -308,6 +313,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       ? (messaging as HubMessagingDeployments).MainnetConnector.address
       : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
     await updateIfNeeded({
+      apply,
       deployment: messaging.RelayerProxy,
       desired: spokeConnector,
       read: { method: "spokeConnector" },
@@ -323,6 +329,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     if (isHub) {
       const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
       await updateIfNeeded({
+        apply,
         deployment: messaging.RelayerProxy,
         desired: rootManager,
         read: { method: "rootManager" },
@@ -343,6 +350,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mapping for stableswap pool if applicable.
   for (const asset of protocol.assets) {
     await setupAsset({
+      apply,
       asset,
       networks: protocol.networks,
       chainData,
@@ -367,6 +375,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Allowlist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.allowlist) {
           await updateIfNeeded({
+            apply,
             deployment: WatcherManager,
             desired: true,
             read: { method: "isWatcher", args: [watcher] },
@@ -386,6 +395,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const network of protocol.networks) {
           const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
           await updateIfNeeded({
+            apply,
             deployment: network.deployments.Connext,
             desired: true,
             read: { method: "approvedRelayers", args: [relayerProxyAddress] },
@@ -394,6 +404,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           });
 
           await updateIfNeeded({
+            apply,
             deployment: network.deployments.messaging.RelayerProxy,
             desired: GELATO_RELAYER_ADDRESS,
             read: { method: "gelatoRelayer" },
@@ -403,6 +414,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
           const feeCollector = network.relayerFeeVault;
           await updateIfNeeded({
+            apply,
             deployment: network.deployments.messaging.RelayerProxy,
             desired: feeCollector,
             read: { method: "feeCollector" },
@@ -415,6 +427,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const relayer of protocol.agents.relayers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
+              apply,
               deployment: network.deployments.messaging.RelayerProxy,
               desired: true,
               read: { method: "allowedRelayer", args: [relayer] },
@@ -424,6 +437,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
             // also add relayers to the base connext contract
             await updateIfNeeded({
+              apply,
               deployment: network.deployments.Connext,
               desired: true,
               read: { method: "approvedRelayers", args: [relayer] },
@@ -445,6 +459,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const sequencer of protocol.agents.sequencers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
+              apply,
               deployment: network.deployments.Connext,
               desired: true,
               read: { method: "approvedSequencers", args: [sequencer] },
@@ -465,6 +480,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const router of protocol.agents.routers.allowlist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
+              apply,
               deployment: network.deployments.Connext,
               desired: true,
               read: { method: "getRouterApproval", args: [router] },
