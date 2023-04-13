@@ -41,7 +41,15 @@ export default task("prove-and-process", "Call `Connector.proveAndProcess()` to 
 
     const connector = new Contract(address, deployment.abi, deployer);
 
-    const tx = await connector.proveAndProcess(message, Array(32).fill(constants.HashZero), 0);
+    const {
+      _proofs: proofs,
+      _aggregateRoot: aggregateRoot,
+      _aggregatePath: aggregatePath,
+      _aggregateIndex: aggregateIndex,
+    } = connector.interface.decodeFunctionData("proveAndProcess", message);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const tx = await connector.proveAndProcess(proofs, aggregateRoot, aggregatePath, aggregateIndex);
     console.log("connector proveAndProcess tx: ", tx);
     const receipt = await tx.wait();
     console.log("connector proveAndProcess tx mined: ", receipt.transactionHash);

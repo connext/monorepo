@@ -1,7 +1,15 @@
-/* eslint-disable prefer-const */
-import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
+/* eslint-disable */
+import { Address, BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 
-import { Asset, AssetBalance, Router } from "../../../../generated/schema";
+import { ERC20 } from "../../../../generated/Connext/ERC20";
+import {
+  Asset,
+  AssetBalance,
+  RelayerFee,
+  RelayerFeesIncrease,
+  Router,
+  RouterDailyTVL,
+} from "../../../../generated/schema";
 
 /// MARK - Helpers
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -48,6 +56,8 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(421611);
   } else if (network == "arbitrum-goerli") {
     chainId = BigInt.fromI32(421613);
+  } else if (network == "zkSync2-testnet") {
+    chainId = BigInt.fromI32(280);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }
@@ -90,7 +100,75 @@ export function getOrCreateAssetBalance(local: Address, routerAddress: Address):
     assetBalance.asset = asset.id;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
+    assetBalance.locked = new BigInt(0);
+    assetBalance.supplied = new BigInt(0);
+    assetBalance.removed = new BigInt(0);
     assetBalance.feesEarned = new BigInt(0);
   }
   return assetBalance;
+}
+
+export function getOrCreateTransferRelayFee(transferId: string, asset: Bytes): RelayerFee {
+  const relayerFeeKey = `${transferId}-${asset.toHexString()}`;
+  let relayerFee = RelayerFee.load(relayerFeeKey);
+  if (relayerFee == null) {
+    relayerFee = new RelayerFee(relayerFeeKey);
+    relayerFee.transfer = transferId;
+    relayerFee.asset = asset;
+    relayerFee.fee = new BigInt(0);
+  }
+  return relayerFee;
+}
+
+export function getOrCreateTransferRelayFeeIncrease(
+  transferId: string,
+  asset: string,
+  event: ethereum.Event,
+): RelayerFeesIncrease {
+  const relayerFeeKey = `${transferId}-${asset}-${event.transaction.hash.toHexString()}`;
+  let relayerFeesIncrease = RelayerFeesIncrease.load(relayerFeeKey);
+  if (relayerFeesIncrease == null) {
+    relayerFeesIncrease = new RelayerFeesIncrease(relayerFeeKey);
+
+    // tx
+    relayerFeesIncrease.caller = event.transaction.from;
+    relayerFeesIncrease.blockNumber = event.block.number;
+    relayerFeesIncrease.timestamp = event.block.timestamp;
+    relayerFeesIncrease.transactionHash = event.transaction.hash;
+    relayerFeesIncrease.gasLimit = event.transaction.gasLimit;
+    relayerFeesIncrease.gasPrice = event.transaction.gasPrice;
+  }
+  return relayerFeesIncrease;
+}
+
+export function getRouterDailyTVL(local: Address, routerAddress: Address, timestamp: BigInt): RouterDailyTVL | null {
+  let asset = Asset.load(local.toHex());
+  let router = Router.load(routerAddress.toHex());
+
+  if (router == null || asset == null) {
+    return null;
+  }
+
+  const interval = BigInt.fromI32(60 * 60 * 24);
+  const day = timestamp.div(interval).times(interval);
+  const id = routerAddress.toHex() + "-" + local.toHex() + "-day-" + day.toString();
+
+  let tvl = RouterDailyTVL.load(id);
+
+  if (tvl == null) {
+    tvl = new RouterDailyTVL(id);
+    tvl.router = router.id;
+    tvl.asset = asset.id;
+    tvl.timestamp = day;
+    tvl.balance = new BigInt(0);
+  }
+
+  return tvl;
+}
+
+export function getTokenDecimals(tokenAddress: Address): BigInt {
+  let token = ERC20.bind(tokenAddress);
+  let result = token.try_decimals();
+
+  return BigInt.fromI32(result.value);
 }

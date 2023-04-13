@@ -8,6 +8,7 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
+  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -15,6 +16,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { getDatabase } from "@connext/nxtp-adapters-database";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -23,10 +25,12 @@ import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
+import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
+export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
 /// MARK - Make Agents
 /**
@@ -131,10 +135,33 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       await updateTask(transferId, messageType);
     }
   } catch (error: any) {
-    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
+    const errorObj = jsonifyError(error as Error);
+    context.logger.error("Error executing:", requestContext, methodContext, errorObj);
+
+    let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
+    switch (errorObj.type) {
+      case SlippageToleranceExceeded.name: {
+        errorName = XTransferErrorStatus.LowSlippage;
+        break;
+      }
+      case NotEnoughRelayerFee.name: {
+        errorName = XTransferErrorStatus.LowRelayerFee;
+        break;
+      }
+      case NoBidsSent.name: {
+        errorName = XTransferErrorStatus.NoBidsReceived;
+        break;
+      }
+    }
+    await context.adapters.database.updateErrorStatus(transferId, errorName);
+
+    // increase backoff in case error is one of slippage or relayer fee
+    if (messageType === MessageType.ExecuteSlow) {
+      await context.adapters.database.increaseBackoff(transferId);
+    }
+
     process.exit(1);
   }
-
   process.exit(0);
 };
 
@@ -211,6 +238,7 @@ export const setupContext = async (_configOverride?: SequencerConfig) => {
     });
   }
   context.adapters.mqClient = await setupMQ(requestContext);
+  context.adapters.database = await getDatabase(context.config.database.url, context.logger);
 };
 
 export const setupCache = async (

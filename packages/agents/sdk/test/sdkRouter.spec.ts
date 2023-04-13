@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { constants, providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkRouter } from "../src/sdkRouter";
+import { SdkRouter } from "../src/sdkRouter";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
 
@@ -17,16 +17,16 @@ const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connex
 const chainId = 1337;
 
 describe("SdkRouter", () => {
-  let nxtpRouter: NxtpSdkRouter;
-  let config: ConfigFns.NxtpSdkConfig;
+  let nxtpRouter: SdkRouter;
+  let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
-    nxtpRouter = await NxtpSdkRouter.create(mockConfig, undefined, mockChainData);
+    nxtpRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
   });
   afterEach(() => {
     restore();
@@ -40,17 +40,15 @@ describe("SdkRouter", () => {
       expect(nxtpRouter.chainData).to.not.be.null;
 
       expect(nxtpRouter.addLiquidityForRouter).to.be.a("function");
+      expect(nxtpRouter.removeRouterLiquidity).to.be.a("function");
+      expect(nxtpRouter.removeRouterLiquidityFor).to.be.a("function");
       expect(nxtpRouter.changeSignerAddress).to.be.a("function");
-    });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkRouter.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
   describe("#addLiquidityForRouter", () => {
     it("happy: should work if ERC20", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
@@ -74,6 +72,7 @@ describe("SdkRouter", () => {
     });
 
     it("happy: should work if Native", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
@@ -110,7 +109,7 @@ describe("SdkRouter", () => {
   });
 
   describe("#removeRouterLiquidity", () => {
-    const mockRemoveLiquidityParams = {
+    const mockRemoveLiquidityForParams = {
       domainId: mock.domain.A,
       amount: "1",
       tokenAddress: mock.asset.A.address,
@@ -122,45 +121,105 @@ describe("SdkRouter", () => {
     it("happy: should work if ERC20", async () => {
       (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
-        { domain: mockRemoveLiquidityParams.domainId, id: canonicalId },
-        mockRemoveLiquidityParams.amount,
-        mockRemoveLiquidityParams.recipient,
+        { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
+        mockRemoveLiquidityForParams.amount,
+        mockRemoveLiquidityForParams.recipient,
       ]);
 
-      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityParams.domainId, canonicalId]);
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityForParams.domainId, canonicalId]);
 
       const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
       };
 
-      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams);
+      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityForParams);
       expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
     });
 
     it("happy: should work if Native", async () => {
       (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
-        { domain: mockRemoveLiquidityParams.domainId, id: canonicalId },
-        mockRemoveLiquidityParams.amount,
-        mockRemoveLiquidityParams.recipient,
+        { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
+        mockRemoveLiquidityForParams.amount,
+        mockRemoveLiquidityForParams.recipient,
       ]);
 
-      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityParams.domainId, canonicalId]);
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityForParams.domainId, canonicalId]);
 
       const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
       };
 
-      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams);
+      const res = await nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityForParams);
       expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
     });
 
     it("should error if signerAddress is undefined", async () => {
       (nxtpRouter as any).config.signerAddress = undefined;
 
-      await expect(nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityParams)).to.be.rejectedWith(
+      await expect(nxtpRouter.removeRouterLiquidity(mockRemoveLiquidityForParams)).to.be.rejectedWith(
+        SignerAddressMissing,
+      );
+    });
+  });
+
+  describe("#removeRouterLiquidityFor", () => {
+    const mockRemoveLiquidityForParams = {
+      domainId: mock.domain.A,
+      amount: "1",
+      tokenAddress: mock.asset.A.address,
+      recipient: mock.address.router,
+      router: mock.address.router,
+    };
+
+    const canonicalId = utils.formatBytes32String("0");
+
+    it("happy: should work if ERC20", async () => {
+      (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("removeRouterLiquidityFor", [
+        { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
+        mockRemoveLiquidityForParams.amount,
+        mockRemoveLiquidityForParams.recipient,
+        mockRemoveLiquidityForParams.router,
+      ]);
+
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityForParams.domainId, canonicalId]);
+
+      const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+      };
+
+      const res = await nxtpRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams);
+      expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
+    });
+
+    it("happy: should work if Native", async () => {
+      (nxtpRouter as any).config.signerAddress = mockConfig.signerAddress;
+      const data = getConnextInterface().encodeFunctionData("removeRouterLiquidityFor", [
+        { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
+        mockRemoveLiquidityForParams.amount,
+        mockRemoveLiquidityForParams.recipient,
+        mockRemoveLiquidityForParams.router,
+      ]);
+
+      stub(nxtpRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityForParams.domainId, canonicalId]);
+
+      const mockAddLiquidityForRouterRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+      };
+
+      const res = await nxtpRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams);
+      expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
+    });
+
+    it("should error if signerAddress is undefined", async () => {
+      (nxtpRouter as any).config.signerAddress = undefined;
+
+      await expect(nxtpRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams)).to.be.rejectedWith(
         SignerAddressMissing,
       );
     });

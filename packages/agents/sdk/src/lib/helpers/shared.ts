@@ -4,11 +4,12 @@ import {
   TUrl,
   jsonifyError,
   getChainData as _getChainData,
-  getChainIdFromDomain as _getChainIdFromDomain,
+  domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
   getDecimalsForAsset as _getDecimalsForAsset,
   getGelatoEstimatedFee as _getGelatoEstimatedFee,
   getHardcodedGasLimits as _getHardcodedGasLimits,
+  calculateRelayerFee as _calculateRelayerFee,
   axiosGet,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
@@ -18,11 +19,12 @@ import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/i
 export const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
 
 export const getChainData = _getChainData;
-export const getChainIdFromDomain = _getChainIdFromDomain;
+export const domainToChainId = _domainToChainId;
 export const getConversionRate = _getConversionRate;
 export const getGelatoEstimatedFee = _getGelatoEstimatedFee;
 export const getHardcodedGasLimits = _getHardcodedGasLimits;
 export const getDecimalsForAsset = _getDecimalsForAsset;
+export const calculateRelayerFee = _calculateRelayerFee;
 
 export const validateUri = (uri: string): void => {
   const validateInput = ajv.compile(TUrl);

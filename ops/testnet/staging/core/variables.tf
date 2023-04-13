@@ -124,7 +124,7 @@ variable "arbgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "mumbai_blast_key_0" {
+variable "blast_key" {
   type = string
 }
 
@@ -182,14 +182,11 @@ variable "telegram_chat_id" {
   type = string
 }
 
-variable "keybase_user" {
+variable "betteruptime_api_key" {
   type = string
 }
 
-variable "keybase_key" {
+variable "betteruptime_requester_email" {
   type = string
-}
-
-variable "keybase_channel_name" {
-  type = string
+  default = "layne@connext.network"
 }

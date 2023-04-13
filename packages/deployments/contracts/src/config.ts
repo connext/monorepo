@@ -1,9 +1,18 @@
-import { config as envConfig } from "dotenv";
 import { utils } from "ethers";
+import { config as dotenvConfig } from "dotenv";
+import { NetworkUserConfig } from "hardhat/types";
 
-envConfig();
+dotenvConfig();
+
+export const SUPPORTED_CHAINS = {
+  mainnet: [1, 10, 56, 100, 137, 42161],
+  testnet: [5, 280, 420, 59140, 80001, 421613],
+};
+
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
+const network = process.env.NETWORK ?? "testnet";
+const env = process.env.ENV ?? "staging";
 
 const mnemonic =
   process.env.SUGAR_DADDY ||
@@ -12,7 +21,33 @@ const mnemonic =
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
 
+export const getForkPort = (network: "testnet" | "mainnet", chainId: number) => {
+  // ensure each chain has a unique port based on position in [...mainnet, ...testnet]
+  const shift = network === "mainnet" ? 0 : SUPPORTED_CHAINS["mainnet"].length;
+  const idx = SUPPORTED_CHAINS[network].indexOf(chainId);
+  if (idx < -1) {
+    throw new Error(`Invalid chainId: ${chainId} for network: ${network}`);
+  }
+  return 8545 + idx + shift;
+};
+
+export const getNetworkForkName = (chainId: number) => {
+  return `${chainId}_${env}_fork`;
+};
+
+export const hardhatForkNetworks: Record<string, NetworkUserConfig> = {};
+Object.values(SUPPORTED_CHAINS).forEach((chains) => {
+  chains.forEach((chain) => {
+    hardhatForkNetworks[getNetworkForkName(chain)] = {
+      accounts: { mnemonic },
+      chainId: chain,
+      url: `http://127.0.0.1:${getForkPort(network as "mainnet" | "testnet", chain)}`,
+    };
+  });
+});
+
 export const hardhatNetworks = {
+  ...hardhatForkNetworks,
   hardhat: {
     allowUnlimitedContractSize: true,
   },
@@ -49,27 +84,19 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
   },
-  ropsten: {
-    accounts: { mnemonic },
-    chainId: 3,
-    url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
-  },
-  rinkeby: {
-    accounts: { mnemonic },
-    chainId: 4,
-    url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
-    gasPrice: utils.parseUnits("20", "gwei").toNumber(),
-  },
   goerli: {
     accounts: { mnemonic },
     chainId: 5,
-    url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
-    gasPrice: utils.parseUnits("50", "gwei").toNumber(),
+    url:
+      urlOverride ||
+      process.env.GOERLI_ETH_PROVIDER_URL ||
+      "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
-    url: "https://opt-mainnet.g.alchemy.com/v2/8BWDXI7MUClvQt07W0LBi_9_i6tbeaQc",
+    url: urlOverride || process.env.OPTIMISM_MAINNET_PROVIDER_URL || "https://mainnet.optimism.io",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -78,19 +105,6 @@ export const hardhatNetworks = {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-optimistic.etherscan.io/",
       },
-    },
-  },
-  kovan: {
-    accounts: { mnemonic },
-    chainId: 42,
-    url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
-  },
-  "optimism-kovan": {
-    accounts: { mnemonic },
-    chainId: 69,
-    url: "https://kovan.optimism.io",
-    companionNetworks: {
-      hub: "kovan",
     },
   },
   "optimism-goerli": {
@@ -142,7 +156,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "mainnet",
     },
-    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.gnosischain.com/",
+    url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.ankr.com/gnosis",
     verify: {
       etherscan: {
         apiKey: process.env.GNOSISSCAN_API_KEY!,
@@ -150,15 +164,10 @@ export const hardhatNetworks = {
       },
     },
   },
-  fuse: {
-    accounts: { mnemonic },
-    chainId: 122,
-    url: "https://rpc.fuse.io/",
-  },
   matic: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 137,
-    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://1rpc.io/matic",
+    url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://rpc.ankr.com/polygon",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -174,36 +183,10 @@ export const hardhatNetworks = {
     chainId: 250,
     url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
   },
-  moonriver: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 1285,
-    url: "https://rpc.moonriver.moonbeam.network",
-    gasPrice: 5000000000,
-  },
-  moonbeam: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 1284,
-    url: "https://rpc.api.moonbeam.network",
-  },
-  mbase: {
-    accounts: { mnemonic },
-    chainId: 1287,
-    url: "https://moonbeam-alpha.api.onfinality.io/public",
-  },
-  evmos: {
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-    chainId: 9001,
-    url: "https://eth.bd.evmos.org:8545",
-  },
-  "evmos-testnet": {
-    accounts: { mnemonic },
-    chainId: 9000,
-    url: "https://eth.bd.evmos.dev:8545",
-  },
   "arbitrum-one": {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 42161,
-    url: "https://arb1.arbitrum.io/rpc",
+    url: urlOverride || process.env.ARB1_PROVIDER_URL || "https://arb1.arbitrum.io/rpc",
     companionNetworks: {
       hub: "mainnet",
     },
@@ -212,20 +195,13 @@ export const hardhatNetworks = {
       apiUrl: "https://api.arbiscan.io/",
     },
   },
-  fuji: {
-    accounts: { mnemonic },
-    chainId: 43113,
-    url: "https://api.avax-test.network/ext/bc/C/rpc",
-  },
-  avalanche: {
-    url: "https://api.avax.network/ext/bc/C/rpc",
-    chainId: 43114,
-    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
-  },
   mumbai: {
     accounts: { mnemonic },
     chainId: 80001,
-    url: "https://rpc.ankr.com/polygon_mumbai",
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     companionNetworks: {
       hub: "goerli",
     },
@@ -234,11 +210,6 @@ export const hardhatNetworks = {
         apiKey: process.env.POLYGONSCAN_API_KEY!,
       },
     },
-  },
-  "arbitrum-rinkeby": {
-    accounts: { mnemonic },
-    chainId: 421611,
-    url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
   },
   "arbitrum-goerli": {
     accounts: { mnemonic },
@@ -267,8 +238,48 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
-        apiUrl: "https://blockscout.chiadochain.net/api",
+        apiUrl: "https://blockscout.chiadochain.net",
       },
+    },
+  },
+  "polygonzk-testnet": {
+    accounts: { mnemonic },
+    chainId: 1442,
+    url: urlOverride || process.env.POLYGONZK_TESTNET_PROVIDER_URL || "https://rpc.public.zkevm-test.net",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-testnet-zkevm.polygonscan.com",
+      },
+    },
+  },
+  "zksync2-testnet": {
+    accounts: { mnemonic },
+    chainId: 280,
+    url: process.env.ZKSYNC2_TESTNET_PROVIDER_URL || "https://zksync2-testnet.zksync.dev",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    zksync: true,
+    ethNetwork: "goerli",
+    verifyURL: "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiUrl: "https://zksync2-testnet.zkscan.io",
+      },
+    },
+  },
+  consensys: {
+    accounts: { mnemonic },
+    chainId: 59140,
+    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
+    url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
+    companionNetworks: {
+      hub: "goerli",
     },
   },
 };

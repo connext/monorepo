@@ -1,9 +1,12 @@
 import { task } from "hardhat/config";
 import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
-import { BigNumberish, Contract, providers, Wallet } from "ethers";
+import { BigNumber, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
-import { CrossChainMessenger } from "@eth-optimism/sdk";
+import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
+import { FetchedEvent } from "@arbitrum/sdk/dist/lib/utils/eventFetcher";
+import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
+import { NODE_INTERFACE_ADDRESS } from "@arbitrum/sdk/dist/lib/dataEntities/constants";
 
 import {
   Env,
@@ -15,9 +18,8 @@ import {
   ProtocolNetwork,
 } from "../../src/utils";
 import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
-import { Outbox__factory } from "../../src/abis/Outbox__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
-import { delay } from "../../src";
+import { NodeCreatedEvent, delay } from "../../src";
 
 type TaskArgs = {
   tx: string;
@@ -49,9 +51,6 @@ const processFromArbitrumRoot = async (
   }
   // get the proof
   const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
-  const proof = await msg.getOutboxProof(spokeProvider);
-  console.log("proof", proof);
-  // get the index
   const index = msg.event.position;
   console.log("index", index.toNumber());
   // construct the l2 message information
@@ -71,14 +70,14 @@ const processFromArbitrumRoot = async (
   // get posted into an outbox (where the messages are proven against once the
   // fraud period elapses). because the node is not directly user facing, there are
   // not many utility methods for accessing it. you can get the node num in two ways:
-  // 1. (not used) Find the `NodeCreated` event where the currentInboxSize > the l2->l1 message
+  // 1. Find the `NodeCreated` event where the currentInboxSize > the l2->l1 message
   //    sequence number. Sample of finding this event can be seen here:
   //    https://github.com/OffchainLabs/arbitrum-sdk/blob/0151a79ed37a65033991bb107d6e1072bfc052c0/src/lib/message/L2ToL1Message.ts#L397-L455
   //    NOTE: this was the original method tried, but failed to find the correct node
   //    created event (it was failing when verifying the sendRoot in the connector)
   // 2. Calculate the send root and the item hash using the `Outbox.sol` interface, then
   //    find the event emitted after the `ethBlockNum` of the message containing a matching
-  //    sendRoot. Find the nodeNum from this event, and submit to chain (seen below)
+  //    sendRoot. Find the nodeNum from this event, and submit to chain. Not used.
   const arbNetwork = l2Networks[spoke];
   const fetcher = new EventFetcher(hubProvider);
   console.log("searching for node created events at", arbNetwork.ethBridge.rollup);
@@ -91,44 +90,51 @@ const processFromArbitrumRoot = async (
       toBlock: "latest",
     },
   );
-  const outbox = Outbox__factory.connect(arbNetwork.ethBridge.outbox, hubProvider);
-  const expectedSendRoot = await outbox.calculateMerkleRoot(
-    proof,
-    index,
-    await outbox.calculateItemHash(
-      l2Message.l2Sender,
-      l2Message.to,
-      l2Message.l2Block,
-      l2Message.l1Block,
-      l2Message.l2Timestamp,
-      l2Message.value,
-      l2Message.callData,
-    ),
-  );
-  const blocksForLog = await Promise.all(
-    logs.map(async (l) => {
-      const ret = await (msg as any).getBlockFromNodeLog(spokeProvider, l);
-      return {
-        ...ret,
-        nodeNum: l.event.nodeNum,
-      };
-    }),
-  );
-  const event = blocksForLog.filter((l) => l.sendRoot == expectedSendRoot).sort((a, b) => a.number - b.number)[0];
-  console.log("event", event);
-  // verify confirm data to ensure the node is correct
-  const node = await RollupUserLogic__factory.connect(
+  // use binary search to find the first node with sendCount > this.event.position
+  // default to the last node since we already checked above
+  let foundLog: FetchedEvent<NodeCreatedEvent> = logs[logs.length - 1];
+  let left = 0;
+  let right = logs.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const log = logs[mid];
+    const block = await (msg as any).getBlockFromNodeLog(spokeProvider, log);
+    const sendCount = BigNumber.from(block.sendCount);
+    if (sendCount.gt(msg.event.position)) {
+      foundLog = log;
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
+  }
+
+  const earliestNodeWithExit = foundLog.event.nodeNum;
+  const rollup = RollupUserLogic__factory.getContract(
     arbNetwork.ethBridge.rollup,
+    RollupUserLogic__factory.abi,
     deployer.connect(hubProvider),
-  ).getNode(event.nodeNum as BigNumberish);
+  );
+  const foundBlock = await (msg as any).getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
+  console.log("node:", earliestNodeWithExit.toString());
+  console.log("msg.position", msg.event.position.toString());
+  console.log("foundLog:", foundLog);
+  console.log("foundBlock:", foundBlock);
+  const node = await rollup.getNode(earliestNodeWithExit);
   if (
     node.confirmData.toLowerCase() !==
-    keccak256(defaultAbiCoder.encode(["bytes32", "bytes32"], [event.hash, event.sendRoot])).toLowerCase()
+    keccak256(defaultAbiCoder.encode(["bytes32", "bytes32"], [foundBlock.hash, foundBlock.sendRoot])).toLowerCase()
   ) {
     throw new Error(`something went wrong -- confirm data does not match`);
   }
+
+  // get the proof
+  const params = await NodeInterface__factory.connect(NODE_INTERFACE_ADDRESS, spokeProvider).constructOutboxProof(
+    foundBlock.sendCount.toNumber() as number,
+    msg.event.position.toNumber(),
+  );
+
   // generate the args to submit
-  const args = [event.nodeNum, event.sendRoot, event.hash, proof, index, l2Message];
+  const args = [earliestNodeWithExit, foundBlock.sendRoot, foundBlock.hash, params.proof, index, l2Message];
   console.log("args", args);
   return args;
 };
@@ -147,13 +153,56 @@ const processFromOptimismRoot = async (
   //   uint256 _messageNonce, -> ?
   //   L2MessageInclusionProof memory _proof -> taken from sdk
 
+  // Determine if this is using bedrock or not
+  const isBedrock = protocolConfig.hub !== 1;
+
   // create the messenger
   const messenger = new CrossChainMessenger({
     l2ChainId: spoke,
     l2SignerOrProvider: spokeProvider,
     l1ChainId: protocolConfig.hub,
     l1SignerOrProvider: hubProvider,
+    bedrock: isBedrock,
   });
+
+  if (isBedrock) {
+    const status = await messenger.getMessageStatus(sendHash);
+    if (status !== MessageStatus.READY_TO_PROVE) {
+      throw new Error(`Optimism message status is not ready to prove: ${status}`);
+    }
+    // get the message
+    const resolved = await messenger.toCrossChainMessage(sendHash);
+    const {
+      messageNonce: nonce,
+      sender,
+      target,
+      value,
+      message: data,
+      minGasLimit: gasLimit,
+    } = await messenger.toLowLevelMessage(resolved);
+
+    // get the tx
+    const tx = {
+      nonce: nonce.toString(),
+      sender,
+      target,
+      value,
+      gasLimit,
+      data,
+    };
+    console.log("withdrawal tx", tx);
+
+    // get the proof
+    const proof = await messenger.getBedrockMessageProof(sendHash);
+    console.log("L2 message proof:", proof);
+    if (!proof) {
+      throw new Error(`no proof`);
+    }
+    const { l2OutputIndex, outputRootProof, withdrawalProof } = proof;
+
+    // Format arguments
+    return [tx, l2OutputIndex, outputRootProof, withdrawalProof];
+  }
 
   // check to make sure you can prove
   let root;

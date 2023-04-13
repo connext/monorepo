@@ -22,6 +22,7 @@ import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { PropagateContext } from "../src/tasks/propagate/context";
 import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
+import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -82,6 +83,21 @@ export const mock = {
       chainData: mock.chainData(),
     };
   },
+  sendOuboundRootCtx: (): SendOutboundRootContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
+        relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
   config: (): NxtpLighthouseConfig => ({
     chains: {
       [mock.domain.A]: {
@@ -120,6 +136,9 @@ export const mock = {
         apiKey: "foo",
       },
     ],
+    proverBatchSize: 10,
+    relayerWaitTime: 1000,
+    service: "prover",
   }),
   adapters: {
     chainreader: () => mockChainReader(),
@@ -166,6 +185,8 @@ export const mock = {
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
         relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
+        multisend: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["multisend"],
+        unwrapper: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["unwrapper"],
       };
     },
     deployments: (): SinonStubbedInstance<ConnextContractDeployments> => {
@@ -176,10 +197,12 @@ export const mock = {
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        multisend: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        unwrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
       };
     },
     relayers: () => [
-      { instance: mockRelayer(), type: "Mock", apiKey: "foo" } as {
+      { instance: mockRelayer(), type: RelayerType.Mock, apiKey: "foo" } as {
         instance: Relayer;
         type: RelayerType;
         apiKey: string;
@@ -211,6 +234,8 @@ export const mock = {
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
+        multisend: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),
+        unwrapper: (_: number) => ({ address: mkAddress("0xbbbdddd"), abi: {} }),
       };
     },
   },

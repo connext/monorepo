@@ -39,11 +39,9 @@ const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("Operations:ExecuteFast", () => {
   describe("#sendExecuteFastToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
-    let encodeRelayerProxyExecuteFromBids: SinonStub;
     let sendWithRelayerWithBackupStub: SinonStub;
     beforeEach(() => {
       encodeExecuteFromBidsStub = stub();
-      encodeRelayerProxyExecuteFromBids = stub();
       getHelpersStub.returns({
         auctions: {
           encodeExecuteFromBids: encodeExecuteFromBidsStub.returns("0xbeef"),
@@ -53,8 +51,6 @@ describe("Operations:ExecuteFast", () => {
       sendWithRelayerWithBackupStub = stub(MockableFns, "sendWithRelayerWithBackup").resolves({
         taskId: mockTaskId,
       });
-
-      stub(MockableFns, "getEstimatedFee").resolves(BigNumber.from("1"));
     });
 
     it("should send the bid to the relayer", async () => {

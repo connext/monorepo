@@ -17,7 +17,7 @@ import Broker from "foo-foo-mq";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { AuctionExpired, RouterVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid } from "../../../../src/lib/errors";
 import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
@@ -27,15 +27,18 @@ describe("Operations:Execute:FastPath", () => {
   // db
   let getQueuedTransfersStub: SinonStub;
   let getAuctionStub: SinonStub;
+  let pruneAuctionData: SinonStub;
   let upsertTaskStub: SinonStub;
   let upsertAuctionStub: SinonStub;
   let getStatusStub: SinonStub;
   let setStatusStub: SinonStub;
   let getTransferStub: SinonStub;
   let storeTransfersStub: SinonStub;
+  let pruneTransfersByIds: SinonStub;
   let setLiquidityStub: SinonStub;
   let getLiquidityStub: SinonStub;
   let publishStub: SinonStub;
+  let canSubmitToRelayerStub: SinonStub;
 
   // operations
   let sendExecuteFastToRelayerStub: SinonStub<any[], any>;
@@ -47,6 +50,7 @@ describe("Operations:Execute:FastPath", () => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
     getAuctionStub = stub(auctions, "getAuction");
+    pruneAuctionData = stub(auctions, "pruneAuctionData").resolves();
 
     getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
     setStatusStub = stub(auctions, "setExecStatus").resolves(1);
@@ -57,6 +61,7 @@ describe("Operations:Execute:FastPath", () => {
 
     getTransferStub = stub(transfers, "getTransfer");
     storeTransfersStub = stub(transfers, "storeTransfers");
+    pruneTransfersByIds = stub(transfers, "pruneTransfersByIds").resolves();
 
     setLiquidityStub = stub(routers, "setLiquidity");
     getLiquidityStub = stub(routers, "getLiquidity");
@@ -70,6 +75,7 @@ describe("Operations:Execute:FastPath", () => {
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
     getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
+    canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
 
     getHelpersStub.returns({
       auctions: {
@@ -78,6 +84,9 @@ describe("Operations:Execute:FastPath", () => {
         getBidsRoundMap,
         getAllSubsets,
         getMinimumBidsCountForRound,
+      },
+      relayerfee: {
+        canSubmitToRelayer: canSubmitToRelayerStub,
       },
     });
 
@@ -88,7 +97,7 @@ describe("Operations:Execute:FastPath", () => {
     it("happy: should store bid in auction cache", async () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       const transferId = transfer.transferId;
-      getTransferStub.resolves(transfer);
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(transfer);
 
       const bid: Bid = mock.entity.bid({ transferId });
 
@@ -103,7 +112,6 @@ describe("Operations:Execute:FastPath", () => {
         destination: transfer.xparams.destinationDomain,
         bid,
       });
-      expect(getTransferStub).to.have.been.calledOnceWithExactly(transferId);
       expect(getStatusStub.callCount).to.eq(2);
       expect(getStatusStub.getCall(0).args).to.be.deep.eq([transferId]);
       expect(getStatusStub.getCall(1).args).to.be.deep.eq([transferId]);
@@ -126,17 +134,9 @@ describe("Operations:Execute:FastPath", () => {
       await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
-    it("should error if bidVersion is lower than supported version", async () => {
-      const invalidBid1: any = {
-        ...mock.entity.bid(),
-        routerVersion: "0.0",
-      };
-      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(RouterVersionInvalid);
-    });
-
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
-      getStatusStub.resolves(ExecStatus.Sent);
+      getStatusStub.resolves(ExecStatus.Completed);
       await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 
@@ -178,7 +178,7 @@ describe("Operations:Execute:FastPath", () => {
         }),
         transferId: bid.transferId,
       };
-      getTransferStub.resolves(transfer);
+      (ctxMock.adapters.subgraph as any).getOriginTransferById.resolves(transfer);
       await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
   });
@@ -654,7 +654,7 @@ describe("Operations:Execute:FastPath", () => {
 
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(BigNumber.from("1"));
 
-      await executeFastPathData(mkBytes32(), requestContext);
+      await expect(executeFastPathData(mkBytes32(), requestContext)).to.be.rejectedWith(NoBidsSent);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);

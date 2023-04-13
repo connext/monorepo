@@ -12,7 +12,7 @@ import {
   XTransferStatus,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
+import { SdkBase, SdkUtils } from "@connext/sdk";
 import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
 /**
@@ -25,12 +25,12 @@ import { expect } from "chai";
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
 // Local 1338 deployment imports:
-import Connext_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/Connext_DiamondProxy.json";
-import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
+import Connext_DiamondProxy_1338 from "@connext/smart-contracts/deployments/local_1338/Connext_DiamondProxy.json";
+import TestERC20_1338 from "@connext/smart-contracts/deployments/local_1338/TestERC20.json";
 // Local 1337 deployment imports:
-import Connext_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/Connext_DiamondProxy.json";
-import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
-import { ConnextInterface } from "@connext/nxtp-contracts";
+import Connext_DiamondProxy_1337 from "@connext/smart-contracts/deployments/local_1337/Connext_DiamondProxy.json";
+import TestERC20_1337 from "@connext/smart-contracts/deployments/local_1337/TestERC20.json";
+import { ConnextInterface } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
@@ -112,7 +112,7 @@ const userTxService = new TransactionService(
 );
 
 const sendXCall = async (
-  sdkBase: NxtpSdkBase,
+  sdkBase: SdkBase,
   xparams: Partial<TransferInfo & { asset: string; amount: string }> = {},
   signer?: Wallet,
 ): Promise<{
@@ -145,7 +145,7 @@ const sendXCall = async (
     receipt = await res.wait(1);
   } else {
     receipt = await userTxService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: PARAMETERS.A.CHAIN },
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), domain: PARAMETERS.A.DOMAIN },
       requestContext,
     );
   }
@@ -174,7 +174,7 @@ const sendXCall = async (
 };
 
 const getTransferByTransactionHash = async (
-  sdkUtils: NxtpSdkUtils,
+  sdkUtils: SdkUtils,
   domain: string,
   transactionHash: string,
 ): Promise<XTransfer> => {
@@ -230,7 +230,7 @@ const getTransferByTransactionHash = async (
   return xTransfer;
 };
 
-const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferId: string): Promise<XTransfer> => {
+const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: string): Promise<XTransfer> => {
   logger.info("Fetching the destination transfer using sdk...", requestContext, methodContext, {
     domain,
     transferId,
@@ -293,7 +293,7 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
   return xTransfer;
 };
 
-const onchainSetup = async (sdkBase: NxtpSdkBase) => {
+const onchainSetup = async (sdkBase: SdkBase) => {
   // TODO: Mirror connectors set up for messaging
   // TODO: Allowlist messaging routers as callers of dispatch?
   // TODO: Approve relayers as caller for connectors and root manager?
@@ -400,7 +400,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
     const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
     const receipt = await deployerTxService.sendTx(
       {
-        chainId: 1337,
+        domain: +PARAMETERS.A.DOMAIN,
         to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
         data: encoded,
         value: BigNumber.from("0"),
@@ -415,7 +415,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
 
     const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
     const res = await deployerTxService.readTx({
-      chainId: PARAMETERS.A.CHAIN,
+      domain: PARAMETERS.A.CHAIN,
       data: balanceOfData,
       to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     });
@@ -426,14 +426,14 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.A.DEPLOYMENTS.TestERC20, "1", true);
   if (tx) {
     await userTxService.sendTx(
-      { chainId: PARAMETERS.A.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      { domain: PARAMETERS.A.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
       requestContext,
     );
   }
   tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.B.DEPLOYMENTS.TestERC20, "1", true);
   if (tx) {
     await userTxService.sendTx(
-      { chainId: PARAMETERS.B.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      { domain: PARAMETERS.B.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
       requestContext,
     );
   }
@@ -441,8 +441,8 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
-  let sdkBase: NxtpSdkBase;
-  let sdkUtils: NxtpSdkUtils;
+  let sdkBase: SdkBase;
+  let sdkUtils: SdkUtils;
 
   before(async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
@@ -504,8 +504,8 @@ describe("LOCAL:E2E", () => {
       environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
       signerAddress: PARAMETERS.AGENTS.USER.address,
     };
-    sdkBase = await NxtpSdkBase.create(sdkConfig);
-    sdkUtils = await NxtpSdkUtils.create(sdkConfig);
+    sdkBase = await SdkBase.create(sdkConfig);
+    sdkUtils = await SdkUtils.create(sdkConfig);
     logger.info("Set up sdk.");
 
     // On-chain / contracts configuration, approvals, etc.
