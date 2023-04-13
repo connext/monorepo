@@ -93,14 +93,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
 
   /**
-   * @notice Emitted when funds are withdrawn by the admin
-   * @dev See comments in `withdrawFunds`
-   * @param to The recipient of the funds
-   * @param amount The amount withdrawn
-   */
-  event FundsWithdrawn(address indexed to, uint256 amount);
-
-  /**
    * @notice Emitted when a message (outbound root from different spoke) is proven
    * against the aggregate root
    * @param leaf The proven leaf
