@@ -9,7 +9,8 @@
     "src/ethers/*.ts",
     "test/**/*.ts",
     "src/helpers/env.ts",
-    "src/helpers/time.ts"
+    "src/helpers/time.ts",
+    "src/helpers/axios.ts"
   ],
   "all": true
 }

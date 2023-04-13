@@ -63,7 +63,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
-    "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
@@ -117,7 +116,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
-      | "messages"
       | "mirrorConnector"
       | "nonces"
       | "outboundRoot"
@@ -211,10 +209,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "localDomain",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "messages",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "mirrorConnector",
@@ -373,7 +367,6 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     functionFragment: "localDomain",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
@@ -824,11 +817,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(
@@ -1007,11 +995,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   localDomain(overrides?: CallOverrides): Promise<number>;
 
-  messages(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
   nonces(
@@ -1187,11 +1170,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     localDomain(overrides?: CallOverrides): Promise<number>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -1525,11 +1503,6 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(
@@ -1708,11 +1681,6 @@ export interface GnosisSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

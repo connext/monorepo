@@ -1,4 +1,4 @@
-import { XTransfer } from "@connext/nxtp-utils";
+import { XTransfer, BidStatus, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { getHelpers } from "../helpers";
@@ -267,5 +267,45 @@ export class TransfersCache extends Cache {
       await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
     }
     return isNewError;
+  }
+
+  /**
+   * Gets the transfer bid status for the given transfer ID.
+   * @param transferId - The ID of the transfer.
+   * @returns BidStatus if exists, undefined if no entry was found.
+   */
+  public async getBidStatus(transferId: string): Promise<BidStatus | undefined> {
+    const rawStatus = await this.data.hget(`${this.prefix}:status`, transferId);
+    return rawStatus ? (JSON.parse(rawStatus) as BidStatus) : undefined;
+  }
+
+  /**
+   * Sets the transfer bid status for the given transfer ID.
+   * @param transferId - The ID of the transfer.
+   * @returns Cache update result number.
+   */
+  public async setBidStatus(transferId: string): Promise<number> {
+    const currentBid = await this.getBidStatus(transferId);
+    const attempt = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const currrentStatus: BidStatus = {
+      // Update the timestamp to current time
+      timestamp: getNtpTimeSeconds().toString(),
+      attempts: attempt,
+    };
+    return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
+  }
+
+  /**
+   * Prune transfer bid status from cache by transfer Ids.
+   *
+   * @param transferIds - The transfer Ids whose bid status is to be removed
+   */
+  public async pruneBidStatusByIds(transferIds: string[]): Promise<void> {
+    for (const transferId of transferIds) {
+      const currentBid = await this.getBidStatus(transferId);
+      if (currentBid) {
+        await this.data.hdel(`${this.prefix}:status`, transferId);
+      }
+    }
   }
 }

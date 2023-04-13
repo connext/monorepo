@@ -10,16 +10,23 @@ import { getContext } from "../../reader";
 export const ASSET_ENTITY = `
       id,
       key,
+      decimal,
       canonicalId,
       canonicalDomain,
       adoptedAsset,
       localAsset,
       blockNumber,
+      status {
+        status
+      }
 `;
 
 export const ASSET_BALANCE_ENTITY = `
     id
     amount
+    locked
+    supplied
+    removed
     feesEarned
 
     # Asset
@@ -70,13 +77,62 @@ export const ORIGIN_TRANSFER_ENTITY = `
       asset {
         ${ASSET_ENTITY}
       }
+      transactingAsset
 
       # Message
       message { 
         ${ORIGIN_MESSAGE_ENTITY}
       }
 
-      # relayerFee
+      relayerFees {
+        asset
+        fee
+        id
+      }
+
+      # XCalled Transaction
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+      txOrigin
+`;
+
+export const ORIGIN_TRANSFER_ENTITY_FALLBACK = `
+      id
+      chainId
+      transferId
+      nonce
+      status
+      messageHash
+    
+      # TransferInfo
+      originDomain
+      destinationDomain
+      canonicalDomain
+      to
+      delegate
+      receiveLocal
+      callData
+      slippage
+      originSender
+      bridgedAmt
+      normalizedIn
+      canonicalId
+    
+      # Asset
+      asset {
+        ${ASSET_ENTITY}
+      }
+      transactingAsset
+
+      # Message
+      message { 
+        ${ORIGIN_MESSAGE_ENTITY}
+      }
+
       relayerFee
 
       # XCalled Transaction
@@ -203,6 +259,92 @@ export const ROOT_MANAGER_META_ENTITY = `
       domains
 `;
 
+export const STABLESWAP_POOL_ENTITY = `
+      key
+      isActive
+      lpToken
+      initialA
+      futureA
+      initialATime
+      futureATime
+      swapFee
+      adminFee
+      pooledTokens
+      tokenPrecisionMultipliers
+      balances
+      virtualPrice
+      invariant
+      lpTokenSupply
+`;
+
+export const STABLESWAP_EXCHANGE_ENTITY = `
+      id
+      stableSwap {
+        key
+        tokenPrecisionMultipliers
+        pooledTokens
+      }
+      buyer
+      boughtId
+      soldId
+      tokensBought
+      tokensSold
+      balances
+      fee
+      block
+      timestamp
+      transaction
+`;
+
+export const STABLESWAP_POOL_EVENT_ENTITY = `
+      id
+      stableSwap {
+        key
+        domain
+        tokenPrecisionMultipliers
+        pooledTokens
+      }
+      provider
+      tokenAmounts
+      balances
+      lpTokenSupply
+      lpTokenAmount
+      fees
+      block
+      timestamp
+      transaction
+`;
+
+export const RELAYER_FEES_INCREASE_ENTITY = `
+      id
+      increase
+      transfer {
+        id
+      }
+      timestamp
+`;
+
+export const SLIPPAGE_UPDATE_ENTITY = `
+      id
+      transfer {
+        id
+      }
+      slippage
+      timestamp
+`;
+
+export const ROUTER_DAILY_TVL_ENTITY = `
+      id
+      asset {
+        id
+      }
+      router {
+        id
+      }
+      timestamp
+      balance
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -297,6 +439,18 @@ export const getRouterQuery = (prefix: string, router: string): string => {
   `;
 };
 
+export const getAssetsQuery = (prefix: string): string => {
+  const queryString = `
+    ${prefix}_assets {
+      ${ASSET_ENTITY}
+    }`;
+  return gql`
+    query GetAssets { 
+      ${queryString}
+    }
+  `;
+};
+
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
     ${prefix}_assets(where: { id: "${local}" }) {
@@ -352,6 +506,16 @@ export const getOriginTransfersByIdsQuery = (prefix: string, transferIds: string
   `;
 };
 
+export const getOriginTransfersByIdsFallbackQuery = (prefix: string, transferIds: string[]): string => {
+  const queryStr = `
+    ${prefix}_originTransfers(where: { transferId_in: [${transferIds}] }) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
+  return gql`
+    query GetOriginTransfers {
+      ${queryStr}
+    }
+  `;
+};
+
 export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashes: string[]): string => {
   const queryStr = `
     ${prefix}_originTransfers(where: { transactionHash_in: [${hashes}] }) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -382,6 +546,26 @@ const originTransferQueryString = (
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
+const originTransferQueryFallbackString = (
+  prefix: string,
+  originDomain: string,
+  fromNonce: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `${prefix}_originTransfers(
+    where: {
+      originDomain: ${originDomain},
+      nonce_gte: ${fromNonce},
+      destinationDomain_in: [${destinationDomains}]
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: blockNumber,
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
+};
+
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
 
@@ -391,6 +575,34 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
       combinedQuery += originTransferQueryString(
+        prefix,
+        domain,
+        agents.get(domain)!.latestNonce,
+        domains,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetOriginTransfers { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getOriginTransfersFallbackQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += originTransferQueryFallbackString(
         prefix,
         domain,
         agents.get(domain)!.latestNonce,
@@ -827,5 +1039,237 @@ export const getRootManagerMetaQuery = (domain: string) => {
         ${ROOT_MANAGER_META_ENTITY}
       }
     }
+  `;
+};
+
+export const getStableSwapPoolsQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+  const queryString = `
+  ${prefix}_swap_stableSwaps ( 
+    first: 200
+  ) {
+    ${STABLESWAP_POOL_ENTITY}
+  }`;
+
+  return gql`
+    query GetStableSwapPools {
+      ${queryString}
+    }
+  `;
+};
+
+const swapExchangeQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_swap_stableSwapExchanges(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_EXCHANGE_ENTITY}}`;
+};
+
+const relayerFeesIncreaseQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_relayerFeesIncreases(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${RELAYER_FEES_INCREASE_ENTITY}}`;
+};
+
+const slippageUpdateQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_slippageUpdates(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${SLIPPAGE_UPDATE_ENTITY}}`;
+};
+
+const routerDailyTVLQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_routerDailyTVLs(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${ROUTER_DAILY_TVL_ENTITY}}`;
+};
+
+export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += swapExchangeQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSwapExchanges { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const poolEventsQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+  addOrRemove: "add" | "remove" = "add",
+) => {
+  return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
+};
+
+export const getPoolEventsQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  addOrRemove: "add" | "remove" = "add",
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += poolEventsQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+        addOrRemove,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetPoolEvents { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRelayerFeesIncreasesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += relayerFeesIncreaseQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRelayerFeesIncreases { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getSlippageUpdatesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += slippageUpdateQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetSlippageUpdates { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRouterDailyTVLQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += routerDailyTVLQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRouterDailyTVL { 
+        ${combinedQuery}
+      }
   `;
 };

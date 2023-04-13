@@ -7,3 +7,4 @@ export * from "./error";
 export * from "./primitives";
 export * from "./xtransfers";
 export * from "./amb";
+export * from "./stableswap";

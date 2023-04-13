@@ -2,8 +2,7 @@ import { providers } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
+import { SignerAddressMissing } from "./lib/errors";
 import { SdkShared } from "./sdkShared";
 import { SdkConfig, getConfig } from "./config";
 
@@ -51,12 +50,7 @@ export class SdkRouter extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkRouter> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkRouter" })
       : new Logger({ name: "SdkRouter", level: nxtpConfig.logLevel });

@@ -28,65 +28,53 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export type ChainBatchHeaderStruct = {
-  batchIndex: PromiseOrValue<BigNumberish>;
-  batchRoot: PromiseOrValue<BytesLike>;
-  batchSize: PromiseOrValue<BigNumberish>;
-  prevTotalElements: PromiseOrValue<BigNumberish>;
-  extraData: PromiseOrValue<BytesLike>;
-};
+export declare namespace Types {
+  export type WithdrawalTransactionStruct = {
+    nonce: PromiseOrValue<BigNumberish>;
+    sender: PromiseOrValue<string>;
+    target: PromiseOrValue<string>;
+    value: PromiseOrValue<BigNumberish>;
+    gasLimit: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
+  };
 
-export type ChainBatchHeaderStructOutput = [
-  BigNumber,
-  string,
-  BigNumber,
-  BigNumber,
-  string
-] & {
-  batchIndex: BigNumber;
-  batchRoot: string;
-  batchSize: BigNumber;
-  prevTotalElements: BigNumber;
-  extraData: string;
-};
+  export type WithdrawalTransactionStructOutput = [
+    BigNumber,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ] & {
+    nonce: BigNumber;
+    sender: string;
+    target: string;
+    value: BigNumber;
+    gasLimit: BigNumber;
+    data: string;
+  };
 
-export type ChainInclusionProofStruct = {
-  index: PromiseOrValue<BigNumberish>;
-  siblings: PromiseOrValue<BytesLike>[];
-};
+  export type OutputRootProofStruct = {
+    version: PromiseOrValue<BytesLike>;
+    stateRoot: PromiseOrValue<BytesLike>;
+    messagePasserStorageRoot: PromiseOrValue<BytesLike>;
+    latestBlockhash: PromiseOrValue<BytesLike>;
+  };
 
-export type ChainInclusionProofStructOutput = [BigNumber, string[]] & {
-  index: BigNumber;
-  siblings: string[];
-};
-
-export type L2MessageInclusionProofStruct = {
-  stateRoot: PromiseOrValue<BytesLike>;
-  stateRootBatchHeader: ChainBatchHeaderStruct;
-  stateRootProof: ChainInclusionProofStruct;
-  stateTrieWitness: PromiseOrValue<BytesLike>;
-  storageTrieWitness: PromiseOrValue<BytesLike>;
-};
-
-export type L2MessageInclusionProofStructOutput = [
-  string,
-  ChainBatchHeaderStructOutput,
-  ChainInclusionProofStructOutput,
-  string,
-  string
-] & {
-  stateRoot: string;
-  stateRootBatchHeader: ChainBatchHeaderStructOutput;
-  stateRootProof: ChainInclusionProofStructOutput;
-  stateTrieWitness: string;
-  storageTrieWitness: string;
-};
+  export type OutputRootProofStructOutput = [string, string, string, string] & {
+    version: string;
+    stateRoot: string;
+    messagePasserStorageRoot: string;
+    latestBlockhash: string;
+  };
+}
 
 export interface OptimismHubConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
+    "OPTIMISM_PORTAL()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -94,7 +82,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
-    "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
+    "processMessageFromRoot((uint256,address,address,uint256,uint256,bytes),uint256,(bytes32,bytes32,bytes32,bytes32),bytes[])": FunctionFragment;
     "processed(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -104,7 +92,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
-    "stateCommitmentChain()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -113,6 +100,7 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "AMB"
       | "DOMAIN"
       | "MIRROR_DOMAIN"
+      | "OPTIMISM_PORTAL"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "delay"
@@ -130,7 +118,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
       | "sendMessage"
       | "setGasCap"
       | "setMirrorConnector"
-      | "stateCommitmentChain"
       | "verifySender"
   ): FunctionFragment;
 
@@ -138,6 +125,10 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "OPTIMISM_PORTAL",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -162,11 +153,10 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
     values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
+      Types.WithdrawalTransactionStruct,
       PromiseOrValue<BigNumberish>,
-      L2MessageInclusionProofStruct
+      Types.OutputRootProofStruct,
+      PromiseOrValue<BytesLike>[]
     ]
   ): string;
   encodeFunctionData(
@@ -200,10 +190,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "stateCommitmentChain",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
@@ -212,6 +198,10 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "OPTIMISM_PORTAL",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -259,10 +249,6 @@ export interface OptimismHubConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "stateCommitmentChain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -406,6 +392,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<[string]>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
     acceptProposedOwner(
@@ -426,11 +414,10 @@ export interface OptimismHubConnector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: L2MessageInclusionProofStruct,
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -470,8 +457,6 @@ export interface OptimismHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    stateCommitmentChain(overrides?: CallOverrides): Promise<[string]>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -483,6 +468,8 @@ export interface OptimismHubConnector extends BaseContract {
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+  OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<string>;
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
@@ -504,11 +491,10 @@ export interface OptimismHubConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   processMessageFromRoot(
-    _target: PromiseOrValue<string>,
-    _sender: PromiseOrValue<string>,
-    _message: PromiseOrValue<BytesLike>,
-    _messageNonce: PromiseOrValue<BigNumberish>,
-    _proof: L2MessageInclusionProofStruct,
+    _tx: Types.WithdrawalTransactionStruct,
+    _l2OutputIndex: PromiseOrValue<BigNumberish>,
+    _outputRootProof: Types.OutputRootProofStruct,
+    _withdrawalProof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -548,8 +534,6 @@ export interface OptimismHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  stateCommitmentChain(overrides?: CallOverrides): Promise<string>;
-
   verifySender(
     _expected: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -561,6 +545,8 @@ export interface OptimismHubConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+    OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<string>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
@@ -580,11 +566,10 @@ export interface OptimismHubConnector extends BaseContract {
     ): Promise<void>;
 
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: L2MessageInclusionProofStruct,
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -621,8 +606,6 @@ export interface OptimismHubConnector extends BaseContract {
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    stateCommitmentChain(overrides?: CallOverrides): Promise<string>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -702,6 +685,8 @@ export interface OptimismHubConnector extends BaseContract {
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedOwner(
@@ -722,11 +707,10 @@ export interface OptimismHubConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: L2MessageInclusionProofStruct,
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -766,8 +750,6 @@ export interface OptimismHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    stateCommitmentChain(overrides?: CallOverrides): Promise<BigNumber>;
-
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -780,6 +762,8 @@ export interface OptimismHubConnector extends BaseContract {
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    OPTIMISM_PORTAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -801,11 +785,10 @@ export interface OptimismHubConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: L2MessageInclusionProofStruct,
+      _tx: Types.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: Types.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -843,10 +826,6 @@ export interface OptimismHubConnector extends BaseContract {
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    stateCommitmentChain(
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     verifySender(

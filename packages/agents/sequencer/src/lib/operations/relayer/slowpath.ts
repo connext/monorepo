@@ -1,4 +1,10 @@
-import { RequestContext, ExecutorData, getChainIdFromDomain, createLoggingContext } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  ExecutorData,
+  createLoggingContext,
+  GELATO_RELAYER_ADDRESS,
+  domainToChainId,
+} from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
@@ -10,9 +16,8 @@ export const sendExecuteSlowToRelayer = async (
 ): Promise<{ taskId: string }> => {
   const {
     logger,
-    chainData,
     config,
-    adapters: { chainreader, relayers, cache },
+    adapters: { chainreader, relayers, cache, database },
   } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToRelayer.name, _requestContext);
@@ -24,8 +29,19 @@ export const sendExecuteSlowToRelayer = async (
     throw new MissingTransfer({ transferId });
   }
 
-  const destinationChainId = await getChainIdFromDomain(transfer.xparams.destinationDomain, chainData);
+  const destinationChainId = domainToChainId(+transfer.xparams.destinationDomain);
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
+
+  // Simulation data for Execute transfer
+  const relayerFrom = GELATO_RELAYER_ADDRESS;
+
+  await database.updateExecuteSimulationData(
+    transfer.transferId,
+    executeEncodedData,
+    relayerFrom,
+    destinationConnextAddress,
+    String(destinationChainId),
+  );
 
   return await sendWithRelayerWithBackup(
     destinationChainId,

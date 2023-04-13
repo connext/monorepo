@@ -19,7 +19,7 @@ describe("Peripherals:Gelato", () => {
   });
 
   describe("#getGelatoEstimatedFee", () => {
-    it("happy: should get fee estimation from gelato", async () => {
+    it("happy-1: should get fee estimation from gelato", async () => {
       axiosGetStub.resolves({
         status: 200,
         data: {
@@ -28,6 +28,27 @@ describe("Peripherals:Gelato", () => {
       });
 
       expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("100"));
+    });
+
+    it("happy-2: should get fee estimation from gelato with gasLimitL1", async () => {
+      axiosGetStub.resolves({
+        status: 200,
+        data: {
+          estimatedFee: "100",
+        },
+      });
+
+      const res = await getGelatoEstimatedFee(1337, "0x", 100, true, 10);
+      expect(axiosGetStub.getCall(0).args[1]).to.be.deep.eq({
+        params: {
+          paymentToken: "0x",
+          gasLimit: 100,
+          isHighPriority: true,
+          gasLimitL1: 10,
+        },
+      });
+
+      expect(res).to.be.deep.eq(BigNumber.from("100"));
     });
 
     it("should return zero value if the request fails", async () => {

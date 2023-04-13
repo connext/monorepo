@@ -11,6 +11,7 @@ import { existsSync, readFileSync } from "./mockable";
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 const DEFAULT_PROVER_BATCH_SIZE = 10;
+export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 
 dotenvConfig();
 
@@ -56,10 +57,17 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       prover: Type.String({ format: "uri" }),
       processor: Type.String({ format: "uri" }),
       propagate: Type.String({ format: "uri" }),
+      sendOutboundRoot: Type.String({ format: "uri" }),
     }),
   ),
   proverBatchSize: Type.Integer({ minimum: 1, maximum: 1000 }),
-  service: Type.Union([Type.Literal("prover"), Type.Literal("propagate"), Type.Literal("process")]),
+  relayerWaitTime: Type.Integer({ minimum: 0 }),
+  service: Type.Union([
+    Type.Literal("prover"),
+    Type.Literal("propagate"),
+    Type.Literal("process"),
+    Type.Literal("sendoutboundroot"),
+  ]),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -71,6 +79,8 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1735353714": "Mainnet",
   "9991": "Polygon",
   "1734439522": "Arbitrum",
+  "2053862260": "ZkSync",
+  "1668247156": "Consensys",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
@@ -149,6 +159,11 @@ export const getEnvConfig = (
       configJson.proverBatchSize ||
       configFile.proverBatchSize ||
       DEFAULT_PROVER_BATCH_SIZE,
+    relayerWaitTime:
+      process.env.NXTP_RELAYER_WAIT_TIME ||
+      configJson.relayerWaitTime ||
+      configFile.relayerWaitTime ||
+      DEFAULT_RELAYER_WAIT_TIME,
   };
 
   nxtpConfig.cartographerUrl =

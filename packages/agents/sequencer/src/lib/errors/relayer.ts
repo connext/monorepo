@@ -11,3 +11,9 @@ export class NotEnoughRelayerFee extends NxtpError {
     super(`Relayer fee not enough`, context, NotEnoughRelayerFee.name);
   }
 }
+
+export class SlippageToleranceExceeded extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Slippage tolerance exceeded`, context, SlippageToleranceExceeded.name);
+  }
+}

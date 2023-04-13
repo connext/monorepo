@@ -99,13 +99,28 @@ export type testoptimismgoerli_AssetBalance_filter = {
   asset_?: InputMaybe<testoptimismgoerli_Asset_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_AssetBalance_filter>>>;
 };
 
 export type testoptimismgoerli_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
-  | 'asset';
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__local'
+  | 'asset__adoptedAsset'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__blockNumber';
 
 export type testoptimismgoerli_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -174,6 +189,8 @@ export type testoptimismgoerli_Asset_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Asset_filter>>>;
 };
 
 export type testoptimismgoerli_Asset_orderBy =
@@ -547,6 +564,8 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_DestinationTransfer_filter>>>;
 };
 
 export type testoptimismgoerli_DestinationTransfer_orderBy =
@@ -858,6 +877,8 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_OriginTransfer_filter>>>;
 };
 
 export type testoptimismgoerli_OriginTransfer_orderBy =
@@ -1111,6 +1132,8 @@ export type testoptimismgoerli_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Relayer_filter>>>;
 };
 
 export type testoptimismgoerli_Relayer_orderBy =
@@ -1191,6 +1214,8 @@ export type testoptimismgoerli_Router_filter = {
   assetBalances_?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Router_filter>>>;
 };
 
 export type testoptimismgoerli_Router_orderBy =
@@ -1237,6 +1262,8 @@ export type testoptimismgoerli_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_Setting_filter>>>;
 };
 
 export type testoptimismgoerli_Setting_orderBy =
@@ -1270,6 +1297,8 @@ export type testoptimismgoerli_SponsorVault_filter = {
   sponsorVault_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_SponsorVault_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_SponsorVault_filter>>>;
 };
 
 export type testoptimismgoerli_SponsorVault_orderBy =
@@ -1322,6 +1351,8 @@ export type testoptimismgoerli_StableSwap_filter = {
   swapPool_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<testoptimismgoerli_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<testoptimismgoerli_StableSwap_filter>>>;
 };
 
 export type testoptimismgoerli_StableSwap_orderBy =

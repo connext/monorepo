@@ -724,25 +724,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    name: "messages",
-    outputs: [
-      {
-        internalType: "enum SpokeConnector.MessageStatus",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "mirrorConnector",
     outputs: [
