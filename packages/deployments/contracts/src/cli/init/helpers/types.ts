@@ -41,6 +41,14 @@ export const AssetStackSchema = Type.Object({
       // NOTE: If adopted is specified, a stableswap will be initialized! If not
       // specified, then we assume the local asset is the adopted asset on this domain.
       adopted: Type.String(),
+      pool: Type.Optional(
+        Type.Object({
+          a: Type.Optional(Type.Number()),
+          fee: Type.Optional(Type.Number()),
+          adminFee: Type.Optional(Type.Number()),
+          initialLiquidity: Type.Optional(Type.String()), // human readable
+        }),
+      ),
     }),
   ),
 });
