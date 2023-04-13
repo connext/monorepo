@@ -41,6 +41,8 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
    * @dev Get 'Base constructor arguments given twice' when trying to inherit
    */
   function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {
+    // Should not include specialized calldata
+    require(_encodedData.length == 0, "!data length");
     _sendMessage(_data, _encodedData);
     emit MessageSent(_data, _encodedData, msg.sender);
   }
@@ -71,4 +73,10 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     // otherwise is relayer, update the outbound root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
   }
+
+  /**
+   * @dev The `RootManager` calls `.sendMessage` on all connectors, there is nothing on mainnet
+   * that would be processing "inbound messages", so do nothing in this function
+   */
+  function _processMessage(bytes memory _data) internal override {}
 }
