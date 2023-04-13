@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { constants, providers, BigNumber, utils } from "ethers";
 import { mock } from "./mock";
-import { NxtpSdkRouter } from "../src/sdkRouter";
+import { SdkRouter } from "../src/sdkRouter";
 import { getEnvConfig } from "../src/config";
 import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
 
@@ -17,16 +17,16 @@ const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connex
 const chainId = 1337;
 
 describe("SdkRouter", () => {
-  let nxtpRouter: NxtpSdkRouter;
-  let config: ConfigFns.NxtpSdkConfig;
+  let nxtpRouter: SdkRouter;
+  let config: ConfigFns.SdkConfig;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
-    nxtpRouter = await NxtpSdkRouter.create(mockConfig, undefined, mockChainData);
+    nxtpRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
   });
   afterEach(() => {
     restore();
@@ -44,15 +44,11 @@ describe("SdkRouter", () => {
       expect(nxtpRouter.removeRouterLiquidityFor).to.be.a("function");
       expect(nxtpRouter.changeSignerAddress).to.be.a("function");
     });
-
-    it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(NxtpSdkRouter.create(config)).to.be.rejectedWith(ChainDataUndefined);
-    });
   });
 
   describe("#addLiquidityForRouter", () => {
     it("happy: should work if ERC20", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
@@ -76,6 +72,7 @@ describe("SdkRouter", () => {
     });
 
     it("happy: should work if Native", async () => {
+      nxtpRouter.config.signerAddress = mockConfig.signerAddress;
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",

@@ -56,6 +56,8 @@ export type xdai_AggregateRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_AggregateRoot_filter>>>;
 };
 
 export type xdai_AggregateRoot_orderBy =
@@ -66,16 +68,21 @@ export type xdai_AggregateRoot_orderBy =
 export type xdai_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['xdai_Bytes']>;
+  decimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['xdai_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['xdai_Bytes']>;
   localAsset?: Maybe<Scalars['xdai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<xdai_AssetStatus>;
 };
 
 export type xdai_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
+  locked: Scalars['BigInt'];
+  supplied: Scalars['BigInt'];
+  removed: Scalars['BigInt'];
   router: xdai_Router;
   asset: xdai_Asset;
   feesEarned: Scalars['BigInt'];
@@ -98,6 +105,30 @@ export type xdai_AssetBalance_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked?: InputMaybe<Scalars['BigInt']>;
+  locked_not?: InputMaybe<Scalars['BigInt']>;
+  locked_gt?: InputMaybe<Scalars['BigInt']>;
+  locked_lt?: InputMaybe<Scalars['BigInt']>;
+  locked_gte?: InputMaybe<Scalars['BigInt']>;
+  locked_lte?: InputMaybe<Scalars['BigInt']>;
+  locked_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  locked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied?: InputMaybe<Scalars['BigInt']>;
+  supplied_not?: InputMaybe<Scalars['BigInt']>;
+  supplied_gt?: InputMaybe<Scalars['BigInt']>;
+  supplied_lt?: InputMaybe<Scalars['BigInt']>;
+  supplied_gte?: InputMaybe<Scalars['BigInt']>;
+  supplied_lte?: InputMaybe<Scalars['BigInt']>;
+  supplied_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplied_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed?: InputMaybe<Scalars['BigInt']>;
+  removed_not?: InputMaybe<Scalars['BigInt']>;
+  removed_gt?: InputMaybe<Scalars['BigInt']>;
+  removed_lt?: InputMaybe<Scalars['BigInt']>;
+  removed_gte?: InputMaybe<Scalars['BigInt']>;
+  removed_lte?: InputMaybe<Scalars['BigInt']>;
+  removed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  removed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -150,14 +181,61 @@ export type xdai_AssetBalance_filter = {
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_AssetBalance_filter>>>;
 };
 
 export type xdai_AssetBalance_orderBy =
   | 'id'
   | 'amount'
+  | 'locked'
+  | 'supplied'
+  | 'removed'
   | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'feesEarned';
+
+export type xdai_AssetStatus = {
+  id: Scalars['ID'];
+  status?: Maybe<Scalars['Boolean']>;
+};
+
+export type xdai_AssetStatus_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  status?: InputMaybe<Scalars['Boolean']>;
+  status_not?: InputMaybe<Scalars['Boolean']>;
+  status_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_AssetStatus_filter>>>;
+};
+
+export type xdai_AssetStatus_orderBy =
+  | 'id'
+  | 'status';
 
 export type xdai_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -178,6 +256,14 @@ export type xdai_Asset_filter = {
   key_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
   key_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   key_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  decimal?: InputMaybe<Scalars['BigInt']>;
+  decimal_not?: InputMaybe<Scalars['BigInt']>;
+  decimal_gt?: InputMaybe<Scalars['BigInt']>;
+  decimal_lt?: InputMaybe<Scalars['BigInt']>;
+  decimal_gte?: InputMaybe<Scalars['BigInt']>;
+  decimal_lte?: InputMaybe<Scalars['BigInt']>;
+  decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['xdai_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['xdai_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['xdai_Bytes']>;
@@ -224,18 +310,45 @@ export type xdai_Asset_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<Scalars['String']>;
+  status_not?: InputMaybe<Scalars['String']>;
+  status_gt?: InputMaybe<Scalars['String']>;
+  status_lt?: InputMaybe<Scalars['String']>;
+  status_gte?: InputMaybe<Scalars['String']>;
+  status_lte?: InputMaybe<Scalars['String']>;
+  status_in?: InputMaybe<Array<Scalars['String']>>;
+  status_not_in?: InputMaybe<Array<Scalars['String']>>;
+  status_contains?: InputMaybe<Scalars['String']>;
+  status_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_not_contains?: InputMaybe<Scalars['String']>;
+  status_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  status_starts_with?: InputMaybe<Scalars['String']>;
+  status_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_starts_with?: InputMaybe<Scalars['String']>;
+  status_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  status_ends_with?: InputMaybe<Scalars['String']>;
+  status_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']>;
+  status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  status_?: InputMaybe<xdai_AssetStatus_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_Asset_filter>>>;
 };
 
 export type xdai_Asset_orderBy =
   | 'id'
   | 'key'
+  | 'decimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
   | 'localAsset'
-  | 'blockNumber';
+  | 'blockNumber'
+  | 'status'
+  | 'status__id'
+  | 'status__status';
 
 export type xdai_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -313,6 +426,8 @@ export type xdai_ConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_ConnectorMeta_filter>>>;
 };
 
 export type xdai_ConnectorMeta_orderBy =
@@ -338,6 +453,7 @@ export type xdai_DestinationTransfer = {
   receiveLocal?: Maybe<Scalars['Boolean']>;
   callData?: Maybe<Scalars['xdai_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
+  bumpSlippageCount?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['xdai_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
@@ -482,6 +598,14 @@ export type xdai_DestinationTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originSender?: InputMaybe<Scalars['xdai_Bytes']>;
   originSender_not?: InputMaybe<Scalars['xdai_Bytes']>;
   originSender_gt?: InputMaybe<Scalars['xdai_Bytes']>;
@@ -681,6 +805,8 @@ export type xdai_DestinationTransfer_filter = {
   reconciledTxOrigin_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_DestinationTransfer_filter>>>;
 };
 
 export type xdai_DestinationTransfer_orderBy =
@@ -698,11 +824,20 @@ export type xdai_DestinationTransfer_orderBy =
   | 'receiveLocal'
   | 'callData'
   | 'slippage'
+  | 'bumpSlippageCount'
   | 'originSender'
   | 'bridgedAmt'
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
   | 'amount'
   | 'routersFee'
   | 'executedCaller'
@@ -844,6 +979,8 @@ export type xdai_OriginMessage_filter = {
   rootCount_?: InputMaybe<xdai_RootCount_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_OriginMessage_filter>>>;
 };
 
 export type xdai_OriginMessage_orderBy =
@@ -856,7 +993,9 @@ export type xdai_OriginMessage_orderBy =
   | 'root'
   | 'transactionHash'
   | 'blockNumber'
-  | 'rootCount';
+  | 'rootCount'
+  | 'rootCount__id'
+  | 'rootCount__count';
 
 export type xdai_OriginTransfer = {
   id: Scalars['ID'];
@@ -878,9 +1017,11 @@ export type xdai_OriginTransfer = {
   normalizedIn?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['xdai_Bytes']>;
   asset?: Maybe<xdai_Asset>;
-  transacting?: Maybe<Scalars['xdai_Bytes']>;
+  transactingAsset?: Maybe<Scalars['xdai_Bytes']>;
   message?: Maybe<xdai_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<xdai_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['xdai_Bytes']>;
   caller?: Maybe<Scalars['xdai_Bytes']>;
   transactionHash?: Maybe<Scalars['xdai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -888,6 +1029,15 @@ export type xdai_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['xdai_Bytes']>;
+};
+
+
+export type xdai_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_RelayerFee_filter>;
 };
 
 export type xdai_OriginTransfer_filter = {
@@ -1062,16 +1212,16 @@ export type xdai_OriginTransfer_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_?: InputMaybe<xdai_Asset_filter>;
-  transacting?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transacting_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transacting_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transacting_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1093,14 +1243,31 @@ export type xdai_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<xdai_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lt?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_gte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
+  bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<xdai_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   caller?: InputMaybe<Scalars['xdai_Bytes']>;
   caller_not?: InputMaybe<Scalars['xdai_Bytes']>;
   caller_gt?: InputMaybe<Scalars['xdai_Bytes']>;
@@ -1165,6 +1332,8 @@ export type xdai_OriginTransfer_filter = {
   txOrigin_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_OriginTransfer_filter>>>;
 };
 
 export type xdai_OriginTransfer_orderBy =
@@ -1187,9 +1356,28 @@ export type xdai_OriginTransfer_orderBy =
   | 'normalizedIn'
   | 'canonicalId'
   | 'asset'
-  | 'transacting'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'transactingAsset'
   | 'message'
-  | 'relayerFee'
+  | 'message__id'
+  | 'message__transferId'
+  | 'message__destinationDomain'
+  | 'message__leaf'
+  | 'message__index'
+  | 'message__message'
+  | 'message__root'
+  | 'message__transactionHash'
+  | 'message__blockNumber'
+  | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1198,53 +1386,25 @@ export type xdai_OriginTransfer_orderBy =
   | 'blockNumber'
   | 'txOrigin';
 
-export type xdai_PooledToken = {
-  id: Scalars['ID'];
-  asset: Scalars['xdai_Bytes'];
-};
-
-export type xdai_PooledToken_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
-};
-
-export type xdai_PooledToken_orderBy =
-  | 'id'
-  | 'asset';
-
 export type Query = {
   xdai_asset?: Maybe<xdai_Asset>;
   xdai_assets: Array<xdai_Asset>;
+  xdai_assetStatus?: Maybe<xdai_AssetStatus>;
+  xdai_assetStatuses: Array<xdai_AssetStatus>;
   xdai_assetBalance?: Maybe<xdai_AssetBalance>;
   xdai_assetBalances: Array<xdai_AssetBalance>;
   xdai_router?: Maybe<xdai_Router>;
   xdai_routers: Array<xdai_Router>;
+  xdai_routerDailyTVL?: Maybe<xdai_RouterDailyTVL>;
+  xdai_routerDailyTVLs: Array<xdai_RouterDailyTVL>;
   xdai_setting?: Maybe<xdai_Setting>;
   xdai_settings: Array<xdai_Setting>;
   xdai_relayer?: Maybe<xdai_Relayer>;
   xdai_relayers: Array<xdai_Relayer>;
-  xdai_transferRelayerFee?: Maybe<xdai_TransferRelayerFee>;
-  xdai_transferRelayerFees: Array<xdai_TransferRelayerFee>;
   xdai_sequencer?: Maybe<xdai_Sequencer>;
   xdai_sequencers: Array<xdai_Sequencer>;
+  xdai_relayerFee?: Maybe<xdai_RelayerFee>;
+  xdai_relayerFees: Array<xdai_RelayerFee>;
   xdai_originTransfer?: Maybe<xdai_OriginTransfer>;
   xdai_originTransfers: Array<xdai_OriginTransfer>;
   xdai_destinationTransfer?: Maybe<xdai_DestinationTransfer>;
@@ -1259,12 +1419,10 @@ export type Query = {
   xdai_rootCounts: Array<xdai_RootCount>;
   xdai_rootMessageSent?: Maybe<xdai_RootMessageSent>;
   xdai_rootMessageSents: Array<xdai_RootMessageSent>;
-  xdai_stableSwap?: Maybe<xdai_StableSwap>;
-  xdai_stableSwaps: Array<xdai_StableSwap>;
-  xdai_pooledToken?: Maybe<xdai_PooledToken>;
-  xdai_pooledTokens: Array<xdai_PooledToken>;
-  xdai_stableSwapLiquidity?: Maybe<xdai_StableSwapLiquidity>;
-  xdai_stableSwapLiquidities: Array<xdai_StableSwapLiquidity>;
+  xdai_relayerFeesIncrease?: Maybe<xdai_RelayerFeesIncrease>;
+  xdai_relayerFeesIncreases: Array<xdai_RelayerFeesIncrease>;
+  xdai_slippageUpdate?: Maybe<xdai_SlippageUpdate>;
+  xdai_slippageUpdates: Array<xdai_SlippageUpdate>;
   /** Access to subgraph metadata */
   xdai__meta?: Maybe<xdai__Meta_>;
 };
@@ -1283,6 +1441,24 @@ export type Queryxdai_assetsArgs = {
   orderBy?: InputMaybe<xdai_Asset_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_Asset_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryxdai_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryxdai_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_AssetStatus_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1324,6 +1500,24 @@ export type Queryxdai_routersArgs = {
 };
 
 
+export type Queryxdai_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryxdai_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_RouterDailyTVL_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Queryxdai_settingArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
@@ -1360,24 +1554,6 @@ export type Queryxdai_relayersArgs = {
 };
 
 
-export type Queryxdai_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryxdai_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_TransferRelayerFee_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Queryxdai_sequencerArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
@@ -1391,6 +1567,24 @@ export type Queryxdai_sequencersArgs = {
   orderBy?: InputMaybe<xdai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_Sequencer_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryxdai_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryxdai_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_RelayerFee_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1522,55 +1716,37 @@ export type Queryxdai_rootMessageSentsArgs = {
 };
 
 
-export type Queryxdai_stableSwapArgs = {
+export type Queryxdai_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_stableSwapsArgs = {
+export type Queryxdai_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwap_orderBy>;
+  orderBy?: InputMaybe<xdai_RelayerFeesIncrease_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwap_filter>;
+  where?: InputMaybe<xdai_RelayerFeesIncrease_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_pooledTokenArgs = {
+export type Queryxdai_slippageUpdateArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryxdai_pooledTokensArgs = {
+export type Queryxdai_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
+  orderBy?: InputMaybe<xdai_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryxdai_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryxdai_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapLiquidity_filter>;
+  where?: InputMaybe<xdai_SlippageUpdate_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1585,6 +1761,260 @@ export type xdai_Relayer = {
   isActive: Scalars['Boolean'];
   relayer?: Maybe<Scalars['xdai_Bytes']>;
 };
+
+export type xdai_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: xdai_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['xdai_Bytes'];
+};
+
+export type xdai_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<xdai_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_RelayerFee_filter>>>;
+};
+
+export type xdai_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
+export type xdai_RelayerFeesIncrease = {
+  id: Scalars['ID'];
+  transfer: xdai_OriginTransfer;
+  increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['xdai_Bytes']>;
+  caller: Scalars['xdai_Bytes'];
+  transactionHash: Scalars['xdai_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type xdai_RelayerFeesIncrease_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<xdai_OriginTransfer_filter>;
+  increase?: InputMaybe<Scalars['BigInt']>;
+  increase_not?: InputMaybe<Scalars['BigInt']>;
+  increase_gt?: InputMaybe<Scalars['BigInt']>;
+  increase_lt?: InputMaybe<Scalars['BigInt']>;
+  increase_gte?: InputMaybe<Scalars['BigInt']>;
+  increase_lte?: InputMaybe<Scalars['BigInt']>;
+  increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_RelayerFeesIncrease_filter>>>;
+};
+
+export type xdai_RelayerFeesIncrease_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'increase'
+  | 'asset'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type xdai_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1611,6 +2041,8 @@ export type xdai_Relayer_filter = {
   relayer_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_Relayer_filter>>>;
 };
 
 export type xdai_Relayer_orderBy =
@@ -1642,6 +2074,8 @@ export type xdai_RootCount_filter = {
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_RootCount_filter>>>;
 };
 
 export type xdai_RootCount_orderBy =
@@ -1759,6 +2193,8 @@ export type xdai_RootMessageSent_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_RootMessageSent_filter>>>;
 };
 
 export type xdai_RootMessageSent_orderBy =
@@ -1792,6 +2228,108 @@ export type xdai_RouterassetBalancesArgs = {
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_AssetBalance_filter>;
 };
+
+export type xdai_RouterDailyTVL = {
+  id: Scalars['ID'];
+  router: xdai_Router;
+  asset: xdai_Asset;
+  timestamp: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+};
+
+export type xdai_RouterDailyTVL_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<xdai_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<xdai_Asset_filter>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_RouterDailyTVL_filter>>>;
+};
+
+export type xdai_RouterDailyTVL_orderBy =
+  | 'id'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'timestamp'
+  | 'balance';
 
 export type xdai_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1847,6 +2385,8 @@ export type xdai_Router_filter = {
   assetBalances_?: InputMaybe<xdai_AssetBalance_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_Router_filter>>>;
 };
 
 export type xdai_Router_orderBy =
@@ -1889,6 +2429,8 @@ export type xdai_Sequencer_filter = {
   sequencer_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_Sequencer_filter>>>;
 };
 
 export type xdai_Sequencer_orderBy =
@@ -1931,6 +2473,8 @@ export type xdai_Setting_filter = {
   caller_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_Setting_filter>>>;
 };
 
 export type xdai_Setting_orderBy =
@@ -1938,46 +2482,19 @@ export type xdai_Setting_orderBy =
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type xdai_StableSwap = {
+export type xdai_SlippageUpdate = {
   id: Scalars['ID'];
-  isActive?: Maybe<Scalars['Boolean']>;
-  key?: Maybe<Scalars['xdai_Bytes']>;
-  canonicalId?: Maybe<Scalars['xdai_Bytes']>;
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['xdai_Bytes']>;
-  lpToken?: Maybe<Scalars['xdai_Bytes']>;
-  initialA?: Maybe<Scalars['BigInt']>;
-  futureA?: Maybe<Scalars['BigInt']>;
-  initialATime?: Maybe<Scalars['BigInt']>;
-  futureATime?: Maybe<Scalars['BigInt']>;
-  swapFee?: Maybe<Scalars['BigInt']>;
-  adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<xdai_PooledToken>;
-  tokenPrecisionMultipliers?: Maybe<Array<Scalars['BigInt']>>;
-  balances: Array<Scalars['BigInt']>;
-  adminFees?: Maybe<Array<Scalars['BigInt']>>;
+  transfer: xdai_DestinationTransfer;
+  slippage: Scalars['BigInt'];
+  caller: Scalars['xdai_Bytes'];
+  transactionHash: Scalars['xdai_Bytes'];
+  timestamp: Scalars['BigInt'];
+  gasPrice: Scalars['BigInt'];
+  gasLimit: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
 };
 
-
-export type xdai_StableSwappooledTokensArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
-};
-
-export type xdai_StableSwapLiquidity = {
-  id: Scalars['ID'];
-  provider: Scalars['xdai_Bytes'];
-  stableSwap: xdai_StableSwap;
-  tokenAmounts: Array<Scalars['BigInt']>;
-  fees: Array<Scalars['BigInt']>;
-  invariant?: Maybe<Scalars['BigInt']>;
-  lpTokenSupply?: Maybe<Scalars['BigInt']>;
-};
-
-export type xdai_StableSwapLiquidity_filter = {
+export type xdai_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1986,250 +2503,157 @@ export type xdai_StableSwapLiquidity_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  provider?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  stableSwap?: InputMaybe<Scalars['String']>;
-  stableSwap_not?: InputMaybe<Scalars['String']>;
-  stableSwap_gt?: InputMaybe<Scalars['String']>;
-  stableSwap_lt?: InputMaybe<Scalars['String']>;
-  stableSwap_gte?: InputMaybe<Scalars['String']>;
-  stableSwap_lte?: InputMaybe<Scalars['String']>;
-  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
-  stableSwap_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
-  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
-  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<xdai_StableSwap_filter>;
-  tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenAmounts_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  fees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant?: InputMaybe<Scalars['BigInt']>;
-  invariant_not?: InputMaybe<Scalars['BigInt']>;
-  invariant_gt?: InputMaybe<Scalars['BigInt']>;
-  invariant_lt?: InputMaybe<Scalars['BigInt']>;
-  invariant_gte?: InputMaybe<Scalars['BigInt']>;
-  invariant_lte?: InputMaybe<Scalars['BigInt']>;
-  invariant_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  invariant_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_not?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lt?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_gte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
-  lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<xdai_DestinationTransfer_filter>;
+  slippage?: InputMaybe<Scalars['BigInt']>;
+  slippage_not?: InputMaybe<Scalars['BigInt']>;
+  slippage_gt?: InputMaybe<Scalars['BigInt']>;
+  slippage_lt?: InputMaybe<Scalars['BigInt']>;
+  slippage_gte?: InputMaybe<Scalars['BigInt']>;
+  slippage_lte?: InputMaybe<Scalars['BigInt']>;
+  slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<xdai_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<xdai_SlippageUpdate_filter>>>;
 };
 
-export type xdai_StableSwapLiquidity_orderBy =
+export type xdai_SlippageUpdate_orderBy =
   | 'id'
-  | 'provider'
-  | 'stableSwap'
-  | 'tokenAmounts'
-  | 'fees'
-  | 'invariant'
-  | 'lpTokenSupply';
-
-export type xdai_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  initialA?: InputMaybe<Scalars['BigInt']>;
-  initialA_not?: InputMaybe<Scalars['BigInt']>;
-  initialA_gt?: InputMaybe<Scalars['BigInt']>;
-  initialA_lt?: InputMaybe<Scalars['BigInt']>;
-  initialA_gte?: InputMaybe<Scalars['BigInt']>;
-  initialA_lte?: InputMaybe<Scalars['BigInt']>;
-  initialA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA?: InputMaybe<Scalars['BigInt']>;
-  futureA_not?: InputMaybe<Scalars['BigInt']>;
-  futureA_gt?: InputMaybe<Scalars['BigInt']>;
-  futureA_lt?: InputMaybe<Scalars['BigInt']>;
-  futureA_gte?: InputMaybe<Scalars['BigInt']>;
-  futureA_lte?: InputMaybe<Scalars['BigInt']>;
-  futureA_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureA_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime?: InputMaybe<Scalars['BigInt']>;
-  initialATime_not?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lt?: InputMaybe<Scalars['BigInt']>;
-  initialATime_gte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_lte?: InputMaybe<Scalars['BigInt']>;
-  initialATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  initialATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime?: InputMaybe<Scalars['BigInt']>;
-  futureATime_not?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lt?: InputMaybe<Scalars['BigInt']>;
-  futureATime_gte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_lte?: InputMaybe<Scalars['BigInt']>;
-  futureATime_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  futureATime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee?: InputMaybe<Scalars['BigInt']>;
-  swapFee_not?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lt?: InputMaybe<Scalars['BigInt']>;
-  swapFee_gte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_lte?: InputMaybe<Scalars['BigInt']>;
-  swapFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee?: InputMaybe<Scalars['BigInt']>;
-  adminFee_not?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lt?: InputMaybe<Scalars['BigInt']>;
-  adminFee_gte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_lte?: InputMaybe<Scalars['BigInt']>;
-  adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  pooledTokens_?: InputMaybe<xdai_PooledToken_filter>;
-  tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  tokenPrecisionMultipliers_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  adminFees_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
-};
-
-export type xdai_StableSwap_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'key'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool'
-  | 'lpToken'
-  | 'initialA'
-  | 'futureA'
-  | 'initialATime'
-  | 'futureATime'
-  | 'swapFee'
-  | 'adminFee'
-  | 'pooledTokens'
-  | 'tokenPrecisionMultipliers'
-  | 'balances'
-  | 'adminFees';
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__bumpSlippageCount'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__amount'
+  | 'transfer__routersFee'
+  | 'transfer__executedCaller'
+  | 'transfer__executedTransactionHash'
+  | 'transfer__executedTimestamp'
+  | 'transfer__executedGasPrice'
+  | 'transfer__executedGasLimit'
+  | 'transfer__executedBlockNumber'
+  | 'transfer__executedTxOrigin'
+  | 'transfer__reconciledCaller'
+  | 'transfer__reconciledTransactionHash'
+  | 'transfer__reconciledTimestamp'
+  | 'transfer__reconciledGasPrice'
+  | 'transfer__reconciledGasLimit'
+  | 'transfer__reconciledBlockNumber'
+  | 'transfer__reconciledTxOrigin'
+  | 'slippage'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
 
 export type Subscription = {
   xdai_asset?: Maybe<xdai_Asset>;
   xdai_assets: Array<xdai_Asset>;
+  xdai_assetStatus?: Maybe<xdai_AssetStatus>;
+  xdai_assetStatuses: Array<xdai_AssetStatus>;
   xdai_assetBalance?: Maybe<xdai_AssetBalance>;
   xdai_assetBalances: Array<xdai_AssetBalance>;
   xdai_router?: Maybe<xdai_Router>;
   xdai_routers: Array<xdai_Router>;
+  xdai_routerDailyTVL?: Maybe<xdai_RouterDailyTVL>;
+  xdai_routerDailyTVLs: Array<xdai_RouterDailyTVL>;
   xdai_setting?: Maybe<xdai_Setting>;
   xdai_settings: Array<xdai_Setting>;
   xdai_relayer?: Maybe<xdai_Relayer>;
   xdai_relayers: Array<xdai_Relayer>;
-  xdai_transferRelayerFee?: Maybe<xdai_TransferRelayerFee>;
-  xdai_transferRelayerFees: Array<xdai_TransferRelayerFee>;
   xdai_sequencer?: Maybe<xdai_Sequencer>;
   xdai_sequencers: Array<xdai_Sequencer>;
+  xdai_relayerFee?: Maybe<xdai_RelayerFee>;
+  xdai_relayerFees: Array<xdai_RelayerFee>;
   xdai_originTransfer?: Maybe<xdai_OriginTransfer>;
   xdai_originTransfers: Array<xdai_OriginTransfer>;
   xdai_destinationTransfer?: Maybe<xdai_DestinationTransfer>;
@@ -2244,12 +2668,10 @@ export type Subscription = {
   xdai_rootCounts: Array<xdai_RootCount>;
   xdai_rootMessageSent?: Maybe<xdai_RootMessageSent>;
   xdai_rootMessageSents: Array<xdai_RootMessageSent>;
-  xdai_stableSwap?: Maybe<xdai_StableSwap>;
-  xdai_stableSwaps: Array<xdai_StableSwap>;
-  xdai_pooledToken?: Maybe<xdai_PooledToken>;
-  xdai_pooledTokens: Array<xdai_PooledToken>;
-  xdai_stableSwapLiquidity?: Maybe<xdai_StableSwapLiquidity>;
-  xdai_stableSwapLiquidities: Array<xdai_StableSwapLiquidity>;
+  xdai_relayerFeesIncrease?: Maybe<xdai_RelayerFeesIncrease>;
+  xdai_relayerFeesIncreases: Array<xdai_RelayerFeesIncrease>;
+  xdai_slippageUpdate?: Maybe<xdai_SlippageUpdate>;
+  xdai_slippageUpdates: Array<xdai_SlippageUpdate>;
   /** Access to subgraph metadata */
   xdai__meta?: Maybe<xdai__Meta_>;
 };
@@ -2268,6 +2690,24 @@ export type Subscriptionxdai_assetsArgs = {
   orderBy?: InputMaybe<xdai_Asset_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_Asset_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionxdai_assetStatusArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionxdai_assetStatusesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_AssetStatus_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2309,6 +2749,24 @@ export type Subscriptionxdai_routersArgs = {
 };
 
 
+export type Subscriptionxdai_routerDailyTVLArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionxdai_routerDailyTVLsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_RouterDailyTVL_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionxdai_settingArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
@@ -2345,24 +2803,6 @@ export type Subscriptionxdai_relayersArgs = {
 };
 
 
-export type Subscriptionxdai_transferRelayerFeeArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionxdai_transferRelayerFeesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_TransferRelayerFee_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_TransferRelayerFee_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionxdai_sequencerArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
@@ -2376,6 +2816,24 @@ export type Subscriptionxdai_sequencersArgs = {
   orderBy?: InputMaybe<xdai_Sequencer_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
   where?: InputMaybe<xdai_Sequencer_filter>;
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionxdai_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<xdai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionxdai_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<xdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<xdai_OrderDirection>;
+  where?: InputMaybe<xdai_RelayerFee_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2507,55 +2965,37 @@ export type Subscriptionxdai_rootMessageSentsArgs = {
 };
 
 
-export type Subscriptionxdai_stableSwapArgs = {
+export type Subscriptionxdai_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_stableSwapsArgs = {
+export type Subscriptionxdai_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwap_orderBy>;
+  orderBy?: InputMaybe<xdai_RelayerFeesIncrease_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwap_filter>;
+  where?: InputMaybe<xdai_RelayerFeesIncrease_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_pooledTokenArgs = {
+export type Subscriptionxdai_slippageUpdateArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionxdai_pooledTokensArgs = {
+export type Subscriptionxdai_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_PooledToken_orderBy>;
+  orderBy?: InputMaybe<xdai_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_PooledToken_filter>;
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionxdai_stableSwapLiquidityArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<xdai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionxdai_stableSwapLiquiditiesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<xdai_StableSwapLiquidity_orderBy>;
-  orderDirection?: InputMaybe<xdai_OrderDirection>;
-  where?: InputMaybe<xdai_StableSwapLiquidity_filter>;
+  where?: InputMaybe<xdai_SlippageUpdate_filter>;
   block?: InputMaybe<xdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2564,48 +3004,6 @@ export type Subscriptionxdai_stableSwapLiquiditiesArgs = {
 export type Subscriptionxdai__metaArgs = {
   block?: InputMaybe<xdai_Block_height>;
 };
-
-export type xdai_TransferRelayerFee = {
-  id: Scalars['ID'];
-  transferId: Scalars['xdai_Bytes'];
-  fee?: Maybe<Scalars['BigInt']>;
-};
-
-export type xdai_TransferRelayerFee_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['xdai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['xdai_Bytes']>;
-  fee?: InputMaybe<Scalars['BigInt']>;
-  fee_not?: InputMaybe<Scalars['BigInt']>;
-  fee_gt?: InputMaybe<Scalars['BigInt']>;
-  fee_lt?: InputMaybe<Scalars['BigInt']>;
-  fee_gte?: InputMaybe<Scalars['BigInt']>;
-  fee_lte?: InputMaybe<Scalars['BigInt']>;
-  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<xdai_BlockChangedFilter>;
-};
-
-export type xdai_TransferRelayerFee_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'fee';
 
 export type xdai_TransferStatus =
   | 'XCalled'
@@ -2651,6 +3049,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_assets: InContextSdkMethod<Query['xdai_assets'], Queryxdai_assetsArgs, MeshContext>,
   /** null **/
+  xdai_assetStatus: InContextSdkMethod<Query['xdai_assetStatus'], Queryxdai_assetStatusArgs, MeshContext>,
+  /** null **/
+  xdai_assetStatuses: InContextSdkMethod<Query['xdai_assetStatuses'], Queryxdai_assetStatusesArgs, MeshContext>,
+  /** null **/
   xdai_assetBalance: InContextSdkMethod<Query['xdai_assetBalance'], Queryxdai_assetBalanceArgs, MeshContext>,
   /** null **/
   xdai_assetBalances: InContextSdkMethod<Query['xdai_assetBalances'], Queryxdai_assetBalancesArgs, MeshContext>,
@@ -2658,6 +3060,10 @@ export type _SubgraphErrorPolicy_ =
   xdai_router: InContextSdkMethod<Query['xdai_router'], Queryxdai_routerArgs, MeshContext>,
   /** null **/
   xdai_routers: InContextSdkMethod<Query['xdai_routers'], Queryxdai_routersArgs, MeshContext>,
+  /** null **/
+  xdai_routerDailyTVL: InContextSdkMethod<Query['xdai_routerDailyTVL'], Queryxdai_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  xdai_routerDailyTVLs: InContextSdkMethod<Query['xdai_routerDailyTVLs'], Queryxdai_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   xdai_setting: InContextSdkMethod<Query['xdai_setting'], Queryxdai_settingArgs, MeshContext>,
   /** null **/
@@ -2667,13 +3073,13 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_relayers: InContextSdkMethod<Query['xdai_relayers'], Queryxdai_relayersArgs, MeshContext>,
   /** null **/
-  xdai_transferRelayerFee: InContextSdkMethod<Query['xdai_transferRelayerFee'], Queryxdai_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  xdai_transferRelayerFees: InContextSdkMethod<Query['xdai_transferRelayerFees'], Queryxdai_transferRelayerFeesArgs, MeshContext>,
-  /** null **/
   xdai_sequencer: InContextSdkMethod<Query['xdai_sequencer'], Queryxdai_sequencerArgs, MeshContext>,
   /** null **/
   xdai_sequencers: InContextSdkMethod<Query['xdai_sequencers'], Queryxdai_sequencersArgs, MeshContext>,
+  /** null **/
+  xdai_relayerFee: InContextSdkMethod<Query['xdai_relayerFee'], Queryxdai_relayerFeeArgs, MeshContext>,
+  /** null **/
+  xdai_relayerFees: InContextSdkMethod<Query['xdai_relayerFees'], Queryxdai_relayerFeesArgs, MeshContext>,
   /** null **/
   xdai_originTransfer: InContextSdkMethod<Query['xdai_originTransfer'], Queryxdai_originTransferArgs, MeshContext>,
   /** null **/
@@ -2703,17 +3109,13 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_rootMessageSents: InContextSdkMethod<Query['xdai_rootMessageSents'], Queryxdai_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwap: InContextSdkMethod<Query['xdai_stableSwap'], Queryxdai_stableSwapArgs, MeshContext>,
+  xdai_relayerFeesIncrease: InContextSdkMethod<Query['xdai_relayerFeesIncrease'], Queryxdai_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  xdai_stableSwaps: InContextSdkMethod<Query['xdai_stableSwaps'], Queryxdai_stableSwapsArgs, MeshContext>,
+  xdai_relayerFeesIncreases: InContextSdkMethod<Query['xdai_relayerFeesIncreases'], Queryxdai_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  xdai_pooledToken: InContextSdkMethod<Query['xdai_pooledToken'], Queryxdai_pooledTokenArgs, MeshContext>,
+  xdai_slippageUpdate: InContextSdkMethod<Query['xdai_slippageUpdate'], Queryxdai_slippageUpdateArgs, MeshContext>,
   /** null **/
-  xdai_pooledTokens: InContextSdkMethod<Query['xdai_pooledTokens'], Queryxdai_pooledTokensArgs, MeshContext>,
-  /** null **/
-  xdai_stableSwapLiquidity: InContextSdkMethod<Query['xdai_stableSwapLiquidity'], Queryxdai_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  xdai_stableSwapLiquidities: InContextSdkMethod<Query['xdai_stableSwapLiquidities'], Queryxdai_stableSwapLiquiditiesArgs, MeshContext>,
+  xdai_slippageUpdates: InContextSdkMethod<Query['xdai_slippageUpdates'], Queryxdai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   xdai__meta: InContextSdkMethod<Query['xdai__meta'], Queryxdai__metaArgs, MeshContext>
   };
@@ -2728,6 +3130,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_assets: InContextSdkMethod<Subscription['xdai_assets'], Subscriptionxdai_assetsArgs, MeshContext>,
   /** null **/
+  xdai_assetStatus: InContextSdkMethod<Subscription['xdai_assetStatus'], Subscriptionxdai_assetStatusArgs, MeshContext>,
+  /** null **/
+  xdai_assetStatuses: InContextSdkMethod<Subscription['xdai_assetStatuses'], Subscriptionxdai_assetStatusesArgs, MeshContext>,
+  /** null **/
   xdai_assetBalance: InContextSdkMethod<Subscription['xdai_assetBalance'], Subscriptionxdai_assetBalanceArgs, MeshContext>,
   /** null **/
   xdai_assetBalances: InContextSdkMethod<Subscription['xdai_assetBalances'], Subscriptionxdai_assetBalancesArgs, MeshContext>,
@@ -2735,6 +3141,10 @@ export type _SubgraphErrorPolicy_ =
   xdai_router: InContextSdkMethod<Subscription['xdai_router'], Subscriptionxdai_routerArgs, MeshContext>,
   /** null **/
   xdai_routers: InContextSdkMethod<Subscription['xdai_routers'], Subscriptionxdai_routersArgs, MeshContext>,
+  /** null **/
+  xdai_routerDailyTVL: InContextSdkMethod<Subscription['xdai_routerDailyTVL'], Subscriptionxdai_routerDailyTVLArgs, MeshContext>,
+  /** null **/
+  xdai_routerDailyTVLs: InContextSdkMethod<Subscription['xdai_routerDailyTVLs'], Subscriptionxdai_routerDailyTVLsArgs, MeshContext>,
   /** null **/
   xdai_setting: InContextSdkMethod<Subscription['xdai_setting'], Subscriptionxdai_settingArgs, MeshContext>,
   /** null **/
@@ -2744,13 +3154,13 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_relayers: InContextSdkMethod<Subscription['xdai_relayers'], Subscriptionxdai_relayersArgs, MeshContext>,
   /** null **/
-  xdai_transferRelayerFee: InContextSdkMethod<Subscription['xdai_transferRelayerFee'], Subscriptionxdai_transferRelayerFeeArgs, MeshContext>,
-  /** null **/
-  xdai_transferRelayerFees: InContextSdkMethod<Subscription['xdai_transferRelayerFees'], Subscriptionxdai_transferRelayerFeesArgs, MeshContext>,
-  /** null **/
   xdai_sequencer: InContextSdkMethod<Subscription['xdai_sequencer'], Subscriptionxdai_sequencerArgs, MeshContext>,
   /** null **/
   xdai_sequencers: InContextSdkMethod<Subscription['xdai_sequencers'], Subscriptionxdai_sequencersArgs, MeshContext>,
+  /** null **/
+  xdai_relayerFee: InContextSdkMethod<Subscription['xdai_relayerFee'], Subscriptionxdai_relayerFeeArgs, MeshContext>,
+  /** null **/
+  xdai_relayerFees: InContextSdkMethod<Subscription['xdai_relayerFees'], Subscriptionxdai_relayerFeesArgs, MeshContext>,
   /** null **/
   xdai_originTransfer: InContextSdkMethod<Subscription['xdai_originTransfer'], Subscriptionxdai_originTransferArgs, MeshContext>,
   /** null **/
@@ -2780,17 +3190,13 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   xdai_rootMessageSents: InContextSdkMethod<Subscription['xdai_rootMessageSents'], Subscriptionxdai_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  xdai_stableSwap: InContextSdkMethod<Subscription['xdai_stableSwap'], Subscriptionxdai_stableSwapArgs, MeshContext>,
+  xdai_relayerFeesIncrease: InContextSdkMethod<Subscription['xdai_relayerFeesIncrease'], Subscriptionxdai_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  xdai_stableSwaps: InContextSdkMethod<Subscription['xdai_stableSwaps'], Subscriptionxdai_stableSwapsArgs, MeshContext>,
+  xdai_relayerFeesIncreases: InContextSdkMethod<Subscription['xdai_relayerFeesIncreases'], Subscriptionxdai_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  xdai_pooledToken: InContextSdkMethod<Subscription['xdai_pooledToken'], Subscriptionxdai_pooledTokenArgs, MeshContext>,
+  xdai_slippageUpdate: InContextSdkMethod<Subscription['xdai_slippageUpdate'], Subscriptionxdai_slippageUpdateArgs, MeshContext>,
   /** null **/
-  xdai_pooledTokens: InContextSdkMethod<Subscription['xdai_pooledTokens'], Subscriptionxdai_pooledTokensArgs, MeshContext>,
-  /** null **/
-  xdai_stableSwapLiquidity: InContextSdkMethod<Subscription['xdai_stableSwapLiquidity'], Subscriptionxdai_stableSwapLiquidityArgs, MeshContext>,
-  /** null **/
-  xdai_stableSwapLiquidities: InContextSdkMethod<Subscription['xdai_stableSwapLiquidities'], Subscriptionxdai_stableSwapLiquiditiesArgs, MeshContext>,
+  xdai_slippageUpdates: InContextSdkMethod<Subscription['xdai_slippageUpdates'], Subscriptionxdai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
   xdai__meta: InContextSdkMethod<Subscription['xdai__meta'], Subscriptionxdai__metaArgs, MeshContext>
   };

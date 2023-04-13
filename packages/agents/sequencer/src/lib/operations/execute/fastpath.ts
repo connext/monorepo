@@ -12,8 +12,8 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../errors";
-import { getContext } from "../../../sequencer";
+import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
@@ -41,8 +41,8 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   }
 
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
+  let status = await cache.auctions.getExecStatus(transferId);
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -86,6 +86,23 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
+  const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
+  if (execStatus && execStatus.status === ExecStatus.Sent) {
+    const startTime = Number(execStatus.timestamp);
+    const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Auction merits retry", requestContext, methodContext, { transferId: transferId });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.auctions.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+      });
+      status = execStatus.status;
+    }
+  }
   if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
@@ -99,6 +116,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       routingKey: transfer.xparams!.originDomain,
       persistent: true,
     });
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
@@ -213,11 +231,11 @@ export const executeFastPathData = async (
   if (!canSubmit) {
     logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
       transferId,
-      relayerFee: transfer.origin.relayerFee,
+      relayerFees: transfer.origin.relayerFees,
       needed,
     });
 
-    transfer.origin.errorStatus = XTransferErrorStatus.InsufficientRelayerFee;
+    transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
     await database.saveTransfers([transfer]);
     return { taskId };
   }
@@ -229,12 +247,7 @@ export const executeFastPathData = async (
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
   const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
   if ([...Object.keys(bidsRoundMap)].length < 1) {
-    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
-      bidsRoundMap,
-      transferId,
-    });
-
-    return { taskId };
+    throw new NoBidsSent({ bidsRoundMap });
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -357,11 +370,13 @@ export const executeFastPathData = async (
         // Break out from the bid selection loop.
         break;
       } catch (error: any) {
+        const jsonError = jsonifyError(error as Error);
+
         logger.error(
           "Failed to send to relayer, trying next combination if possible",
           requestContext,
           methodContext,
-          jsonifyError(error as Error),
+          jsonError,
           {
             transferId,
             round: roundIdInNum,
@@ -369,23 +384,22 @@ export const executeFastPathData = async (
             bidsCount: randomCombination.length,
           },
         );
+
+        const errorMessage = jsonError.context?.message ?? jsonError.message;
+        if (errorMessage && SlippageErrorPatterns.some((i) => errorMessage.includes(i))) {
+          throw new SlippageToleranceExceeded({ transfer, error: jsonError });
+        }
       }
     }
 
     if (!taskId) {
-      logger.error(
-        `No combinations sent to relayer for the round ${roundIdInNum}`,
-        requestContext,
-        methodContext,
-        jsonifyError(new Error("No successfully sent bids")),
-        {
-          transferId,
-          origin,
-          destination,
-          round: roundIdInNum,
-          combinations: combinedBidsForRound,
-        },
-      );
+      logger.warn(`No combinations sent to relayer for the round ${roundIdInNum}`, requestContext, methodContext, {
+        transferId,
+        origin,
+        destination,
+        round: roundIdInNum,
+        combinations: combinedBidsForRound,
+      });
       continue;
     }
 
@@ -408,6 +422,14 @@ export const executeFastPathData = async (
     await database.saveTransfers([transfer]);
 
     return { taskId };
+  }
+
+  if (!taskId) {
+    logger.warn("No rounds available for this transferId", requestContext, methodContext, {
+      bidsRoundMap,
+      transferId,
+    });
+    throw new NoBidsSent();
   }
 
   return { taskId };

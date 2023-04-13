@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { XTransferStatus } from "@connext/nxtp-utils";
+import { XTransferStatus, XTransferErrorStatus } from "@connext/nxtp-utils";
 
 export const getCanonicalTokenIdSchema = Type.Object({
   domainId: Type.String(),
@@ -71,6 +71,13 @@ export const calculateRemoveSwapLiquiditySchema = Type.Object({
   amount: Type.String(),
 });
 
+export const calculateRemoveSwapLiquidityOneTokenSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  amount: Type.String(),
+  index: Type.Number(),
+});
+
 export const calculateAddLiquidityPriceImpactSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
@@ -90,14 +97,6 @@ export const calculateSwapPriceImpactSchema = Type.Object({
   amountX: Type.String(),
   tokenX: Type.String(),
   tokenY: Type.String(),
-});
-
-export const calculateAmountReceivedSchema = Type.Object({
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  originTokenAddress: Type.String(),
-  amount: Type.String(),
-  receiveLocal: Type.Optional(Type.Boolean()),
 });
 
 export const getTokenPriceSchema = Type.Object({
@@ -122,12 +121,30 @@ export const addLiquiditySchema = Type.Object({
   estimateGas: Type.Optional(Type.Boolean()),
 });
 
+export const removeLiquidityOneTokenSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  withdrawTokenAddress: Type.String(),
+  amount: Type.String(),
+  minAmount: Type.String(),
+  deadline: Type.Optional(Type.Number()),
+  estimateGas: Type.Optional(Type.Boolean()),
+});
+
 export const removeLiquiditySchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   amount: Type.String(),
+  minAmounts: Type.Array(Type.String()),
   deadline: Type.Optional(Type.Number()),
-  estimateGas: Type.Optional(Type.Boolean()),
+});
+
+export const removeLiquidityImbalanceSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+  amounts: Type.Array(Type.String()),
+  maxBurnAmount: Type.String(),
+  deadline: Type.Optional(Type.Number()),
 });
 
 export const swapSchema = Type.Object({
@@ -199,19 +216,43 @@ export const getTransfersByTransactionHashSchema = Type.Object({
 });
 
 export const getTransfersSchema = Type.Object({
-  params: Type.Object({
-    serAddress: Type.Optional(Type.String()),
-    routerAddress: Type.Optional(Type.String()),
-    status: Type.Optional(Type.Enum(XTransferStatus)),
-    transferId: Type.Optional(Type.String()),
-    transactionHash: Type.Optional(Type.String()),
-    range: Type.Optional(
-      Type.Object({
-        limit: Type.Optional(Type.Number()),
-        offset: Type.Optional(Type.Number()),
-      }),
-    ),
-  }),
+  params: Type.Optional(
+    Type.Object({
+      userAddress: Type.Optional(Type.String()),
+      routerAddress: Type.Optional(Type.String()),
+      status: Type.Optional(Type.Enum(XTransferStatus)),
+      errorStatus: Type.Optional(Type.Enum(XTransferErrorStatus)),
+      transferId: Type.Optional(Type.String()),
+      transactionHash: Type.Optional(Type.String()),
+      range: Type.Optional(
+        Type.Object({
+          limit: Type.Optional(Type.Number()),
+          offset: Type.Optional(Type.Number()),
+        }),
+      ),
+    }),
+  ),
+});
+
+export const TSortOrder = Type.Union([Type.Literal("asc"), Type.Literal("desc")]);
+
+export const getRoutersDataSchema = Type.Object({
+  params: Type.Optional(
+    Type.Object({
+      order: Type.Optional(
+        Type.Object({
+          orderBy: Type.Optional(Type.String()),
+          ascOrDesc: Type.Optional(TSortOrder),
+        }),
+      ),
+    }),
+  ),
+});
+
+export const checkRouterLiquiditySchema = Type.Object({
+  domainId: Type.String(),
+  asset: Type.String(),
+  topN: Type.Optional(Type.Number()),
 });
 
 export const getBlockNumberFromUnixTimestampSchema = Type.Object({
@@ -219,10 +260,11 @@ export const getBlockNumberFromUnixTimestampSchema = Type.Object({
   unixTimestamp: Type.Number(),
 });
 
-export const getYieldStatsForDaySchema = Type.Object({
+export const getYieldStatsForDaysSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   unixTimestamp: Type.Number(),
+  days: Type.Number(),
 });
 
 export const getYieldDataSchema = Type.Object({
@@ -256,5 +298,49 @@ export const removeRouterLiquidityForSchema = Type.Object({
     tokenAddress: Type.String(),
     recipient: Type.String(),
     router: Type.String(),
+  }),
+});
+
+export const getTokenSwapEventsSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    buyer: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getHourlySwapVolumeSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    domainId: Type.Optional(Type.String()),
+    startTimestamp: Type.Optional(Type.Number()),
+    endTimestamp: Type.Optional(Type.Number()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
+  }),
+});
+
+export const getDailySwapVolumeSchema = Type.Object({
+  params: Type.Object({
+    key: Type.Optional(Type.String()),
+    domainId: Type.Optional(Type.String()),
+    startTimestamp: Type.Optional(Type.Number()),
+    endTimestamp: Type.Optional(Type.Number()),
+    range: Type.Optional(
+      Type.Object({
+        limit: Type.Optional(Type.Number()),
+        offset: Type.Optional(Type.Number()),
+      }),
+    ),
   }),
 });

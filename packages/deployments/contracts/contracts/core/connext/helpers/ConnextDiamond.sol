@@ -12,6 +12,8 @@ import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 
 contract ConnextDiamond {
+  error ConnextDiamond__fallback_facetNotExit();
+
   struct Initialization {
     address initContract;
     bytes initData;
@@ -53,7 +55,9 @@ contract ConnextDiamond {
     }
     // get facet from function selector
     address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
-    require(facet != address(0), "Diamond: Function does not exist");
+    if (facet == address(0)) {
+      revert ConnextDiamond__fallback_facetNotExit();
+    }
     // Execute external function from facet using delegatecall and return any value.
     assembly {
       // copy function selector and any arguments

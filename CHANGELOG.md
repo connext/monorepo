@@ -2,6 +2,155 @@
 
 ## Next Release
 
+## Amarok 2.0.0-alpha.4
+
+- [all] Workflow changes
+
+## Amarok 2.0.0-alpha.1
+
+- [sdk] Uses browser provider for calls, if detected
+- [sdk] Added optional flag `checkFastLiquidity` to `calculateAmountReceived`
+- [contracts] Added HARD token to testnet
+- [contracts] Log proposal transactions
+
+## Amarok 2.0.0-alpha.0
+
+- [all] Testnet support for relayer fee in transacting asset
+
+## Amarok 1.2.0-alpha.0
+
+- [sdk] Add removeLiquidityOneToken, removeLiquidityImbalance, calculateRemoveSwapLiquidityOneToken methods
+
+## Amarok 1.0.3-alpha.2
+
+- [sequencer] Fix relayer fee check
+- [sdk] Fix bumpTransfer for native asset
+
+## Amarok 1.0.3-alpha.1
+
+- [all] Support transacting asset for relayer fee on staging testnet
+
+## Amarok 1.0.3-alpha.0
+
+- [sdk] Fixed getTransfers
+
+## Amarok 1.0.2
+
+- [sdk] more optimisation
+
+## Amarok 1.0.2-alpha.0
+
+- [sdk] `calculateAmountReceived` optimizations
+
+## Amarok 1.0.1
+
+- [sdk] Fixed active liquidity fast path determination
+
+## Amarok 1.0.0
+
+- [sdk] Maintain `calculateAmountReceived` backwards caompatibility, accessible in both SdkPool and SdkBase
+
+## Amarok 1.0.0-alpha.0
+
+- [sdk] Moved core function `calculateAmountReceived` to SdkBase
+- [sdk] `calculateAmountReceived` now provides isFastPath determination
+
+## Amarok 0.2.8-alpha.2
+
+- [sdk] fixes for optimisation gas fee estimation
+- [sdk] Multiple optimizations for relayer fee calculation
+  - config setup creates chainData once
+  - parallelize async calls
+  - added optional params for token prices and gas prices
+- [sdk] router liquidity visualisation
+- [subgraph][carto] add decimals to Assets
+- [subgraph][carto] supplied, locked, removed liquidity for Router
+- [contracts] Added ability to fork chains, apply proposed upgrades, and run tests against proposed upgrades.
+- [utils] Added CDN for chainData JSON file to make globally available.
+
+## Amarok 0.2.8-alpha.1
+
+- [sdk] support for debugging simulation support for explorer.
+- [all] support of Consesys ZKevm is live on testnet.
+
+## Amarok 0.2.7
+
+- [all] CI to explicitly tag alpha/beta versions so `latest` is always a stable version
+- [sdk] Fixed optional `params` object for `getTransfers`, added optional `order` to `params` object for `getRoutersData`, added `checkRouterLiquidity` to `SdkUtils`
+- [sdk-server] Added `checkRouterLiquidity` endpoint
+- [subgraph] Added ConsenSys zkEVM subgraphs, added `transactingAsset` field to `OriginTransfer` entity
+- [contracts] Added ConsenSys zkEVM connectors, added ownership helpers for CLI
+- [infra] Bumped memory for lambdas
+
+## Amarok 0.2.7-alpha.4
+
+- [sdk] optimise relayer fee calculations
+
+## Amarok 0.2.7-alpha.3
+
+- [sdk] more fixes
+
+## Amarok 0.2.7-alpha.2
+
+- [sdk] optimisation for fee caclulation on optimism
+
+## Amarok 0.2.7-alpha.1
+
+- [sequencer] extra errors
+- [db] updated slippage field
+
+## Amarok 0.2.6
+
+- [all] stable release
+
+## Amarok 0.2.1-rc.27
+
+- [graph] bug fixes
+- [ops] config update
+
+## Amarok 0.2.1-rc.26
+
+- [sdk] bug fixes
+
+## Amarok 0.2.1-rc.25
+
+- [sdk] more getYieldData fixes
+
+## Amarok 0.2.1-rc.24
+
+- [sdk] getYieldData fixes
+
+## Amarok 0.2.1-rc.23
+
+- [sdk] bug fixes
+- [adapter-subgraph] fixes at graph client
+
+## Amarok 0.2.1-rc.22
+
+- [sdk] enhancement at latency and rpc calls for stable swap data request
+- [sdk] fix getSupported()
+
+## Amarok 0.2.1-rc.21
+
+- [all] bug fixes.
+
+## Amarok 0.2.1-rc.20
+
+- [sdk] Fix config default for cartographer uri, testnet relayerFee estimates.
+
+## Amarok 0.2.1-rc.19
+
+- [sdk] Allow `getTransfers` query to filter by xcall caller.
+
+## Amarok 0.2.1-rc.18
+
+- [contracts] NPM package name update (@connext/contracts -> @connext/smart-contracts)
+
+## Amarok 0.2.1-rc.17
+
+- [contracts] NPM package name update (@connext/nxtp-contracts -> @connext/contracts)
+- [sdk] NPM package name update (@connext/nxtp-sdk -> @connext/sdk)
+
 ## Amarok 0.2.1-rc.16
 
 - [contracts] Added Unwrapper contract to deliver native tokens on destination

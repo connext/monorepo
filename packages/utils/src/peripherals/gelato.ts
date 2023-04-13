@@ -14,10 +14,13 @@ export const getGelatoEstimatedFee = async (
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
+  gasLimitL1?: number,
   logger?: Logger,
 ): Promise<BigNumber> => {
   let result = BigNumber.from("0");
-  const params = { paymentToken, gasLimit, isHighPriority };
+  const params = gasLimitL1
+    ? { paymentToken, gasLimit, isHighPriority, gasLimitL1 }
+    : { paymentToken, gasLimit, isHighPriority };
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     const res = await axiosGet(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
@@ -30,11 +33,17 @@ export const getGelatoEstimatedFee = async (
 
 /// MARK - This is used for testnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
-  4: 1,
-  5: 1,
-  1337: 1,
-  1338: 1,
-  420: 1,
+  4: 1, // rinkeby
+  5: 1, // goerli
+  1337: 1, // local chain
+  1338: 1, // local chain
+  13337: 1, // local chain
+  13338: 1, // local chain
+  420: 1, //  optimism-goerli
+  80001: 137, // mumbai (polygon testnet)
+  421613: 1, // arbitrum-goerli
+  10200: 100, // chiado (gnosis testnet)
+  97: 56, // chapel (bnb testnet)
 };
 
 /**
@@ -50,7 +59,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/conversionRate`;
   if (to) {
-    apiEndpoint = apiEndpoint.concat(`/to=${to}`);
+    apiEndpoint = apiEndpoint.concat(`?to=${to}`);
   }
 
   let totalRetries = 5;

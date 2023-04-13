@@ -1,12 +1,12 @@
 import * as fs from "fs";
 
-import { config } from "dotenv";
 import { providers, Wallet, utils } from "ethers";
+import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
-import { ajv, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
-import { canonizeId, domainToChainId } from "../../domain";
+import { canonizeId } from "../../domain";
 import { hardhatNetworks } from "../../config";
 
 import {
@@ -23,8 +23,6 @@ import {
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
-
-config();
 
 export const optionDefinitions = [
   { name: "name", defaultOption: true },
@@ -124,22 +122,28 @@ export const sanitizeAndInit = async () => {
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
+  const privateKey = process.env.PRIVATE_KEY;
   const mnemonic = process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC || process.env.MNEMONIC;
-  if (!mnemonic) {
+  if (!mnemonic && !privateKey) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
         "or set DEPLOYER or DEPLOYER_MNEMONIC in env.",
     );
   }
-  // Convert deployer from mnemonic to Wallet.
-  const deployer = Wallet.fromMnemonic(mnemonic);
 
   const networks: NetworkStack[] = [];
-  const filteredHardhatNetworks = Object.values(hardhatNetworks).filter(
-    (hardhatNetwork) =>
-      Object.keys(hardhatNetwork as object).includes("chainId") &&
-      Object.keys(hardhatNetwork as object).includes("url"),
-  );
+
+  const filteredHardhatNetworks: { [key: string]: any } = {};
+  for (const key in hardhatNetworks) {
+    const network = (hardhatNetworks as { [key: string]: any })[key];
+    if (
+      !key.includes("fork") &&
+      Object.keys(network as object).includes("chainId") &&
+      Object.keys(network as object).includes("url")
+    ) {
+      filteredHardhatNetworks[key] = network;
+    }
+  }
 
   // Get deployments for each domain if not specified in the config.
   for (const _domain of domains) {
@@ -148,18 +152,27 @@ export const sanitizeAndInit = async () => {
 
     const chainConfig = Object.values(filteredHardhatNetworks).find(
       (networkConfig: any) => networkConfig["chainId"] == chainId,
-    ) as HttpNetworkUserConfig;
+    ) as HttpNetworkUserConfig & { zksync: boolean | undefined };
 
     if (!chainConfig || !chainConfig.url) {
       throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
     }
 
-    const rpc = new providers.JsonRpcProvider(chainConfig.url);
+    // Convert deployer from mnemonic to Wallet.
+    let deployer;
+    if (privateKey) {
+      deployer = chainConfig.zksync ? new zk.Wallet(privateKey) : new Wallet(privateKey);
+    } else {
+      deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
+    }
+    console.log("deployer: ", deployer.address);
+
+    const rpc = chainConfig.zksync ? new zk.Provider(chainConfig.url) : new providers.JsonRpcProvider(chainConfig.url);
 
     const isHub = domain === hubDomain;
     const deployments = getDeployments({
       deployer,
-      chainInfo: { chain: chainId.toString(), rpc },
+      chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
       isHub,
       useStaging,
     });
@@ -176,7 +189,6 @@ export const sanitizeAndInit = async () => {
   }
 
   const sanitized = {
-    deployer,
     hub: hubDomain,
     networks,
     assets,
@@ -226,15 +238,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
-  const chainData = await getChainData(true);
-
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
-  }
+  const chainData = await getChainData();
 
   /// ********************* Messaging **********************
   /// MARK - Messaging
@@ -388,6 +392,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             write: { method: "addRelayer", args: [relayerProxyAddress] },
             chainData,
           });
+
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: GELATO_RELAYER_ADDRESS,
+            read: { method: "gelatoRelayer" },
+            write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
+            chainData,
+          });
+
+          const feeCollector = network.relayerFeeVault;
+          await updateIfNeeded({
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: feeCollector,
+            read: { method: "feeCollector" },
+            write: { method: "setFeeCollector", args: [feeCollector] },
+            chainData,
+          });
         }
 
         // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
@@ -436,7 +457,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       // TODO: Blacklist/remove sequencers.
     }
 
-    /// MARK - Routers
+    //   /// MARK - Routers
     if (protocol.agents.routers) {
       if (protocol.agents.routers.allowlist) {
         console.log("\n\nWHITELIST ROUTERS");

@@ -118,6 +118,10 @@ variable "arbitrum_alchemy_key_1" {
   type = string
 }
 
+variable "blast_key" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
@@ -157,6 +161,10 @@ variable "lighthouse_processor_heartbeat" {
 }
 
 variable "lighthouse_propagate_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
 
@@ -209,6 +217,6 @@ variable "betteruptime_api_key" {
 }
 
 variable "betteruptime_requester_email" {
-  type = string
+  type    = string
   default = "layne@connext.network"
 }

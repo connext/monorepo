@@ -4,14 +4,16 @@ import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapter
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, mockSequencer, RelayerType } from "@connext/nxtp-utils";
-import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
-import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
-import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
+import { ConnextInterface } from "@connext/smart-contracts/typechain-types/Connext";
+import { ConnextPriceOracleInterface } from "@connext/smart-contracts/typechain-types/ConnextPriceOracle";
+import { StableSwapInterface } from "@connext/smart-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
+import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
 
+export const mockExcludeAddress = mkAddress("0xmockExcludeAddr");
 export const mock = {
   ..._mock,
   context: (): AppContext => {
@@ -24,6 +26,7 @@ export const mock = {
         relayers: mock.adapters.relayers(),
         mqClient: mock.adapters.mqClient() as any,
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
+        database: mockDatabase(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -39,6 +42,7 @@ export const mock = {
           connext: mkAddress("0xabcdef123"),
           relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
       [mock.domain.B]: {
         confirmations: 1,
@@ -47,6 +51,7 @@ export const mock = {
           connext: mkAddress("0xabcdef123"),
           relayerProxy: mkAddress("0xabcdef124"),
         },
+        excludeListFromRelayerFee: [mockExcludeAddress],
       },
     },
     logLevel: "info",
@@ -64,6 +69,7 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    executionWaitTime: 300_000,
     auctionRoundDepth: 4,
     mode: {
       cleanup: false,
@@ -155,6 +161,7 @@ export const mock = {
         type: RelayerType.Connext,
       },
     ],
+    database: () => mockDatabase(),
     mqClient: () => {
       return {
         publish: stub(),

@@ -227,7 +227,8 @@ export const getEnvConfig = (
         process.env.NXTP_MESSAGE_QUEUE_URI ||
         configJson.messageQueue?.uri ||
         configFile.messageQueue?.uri ||
-        "amqp://guest@guestlocalhost:5672",
+        "amqp://guest:guest@localhost:5672",
+      limit: process.env.MESSAGE_QUEUE_LIMIT || configJson.messageQueue?.limit || configFile.messageQueue?.limit || 25,
     },
   };
 

@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   createRequestContext,
   delay,
+  domainToChainId,
   ERC20Abi,
   jsonifyError,
   Logger,
@@ -9,7 +10,6 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
-import { domainToChainId } from "@connext/nxtp-contracts";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -462,8 +462,8 @@ export class RpcProviderAggregator {
     const min = BigNumber.from(gasPriceMinimum);
     const max = BigNumber.from(gasPriceMaximum);
     // TODO: Could use a more sustainable method of separating out gas price abs min for certain
-    // chains (such as arbitrum here) in particular:
-    if (gasPrice.lt(min) && this.domain !== 1634886255) {
+    // chains (such as arbitrum or zksync here) in particular:
+    if (gasPrice.lt(min) && ![1634886255, 1734439522, 2053862243, 2053862260].includes(this.domain)) {
       gasPrice = min;
     } else if (gasPrice.gte(max)) {
       this.logger.warn("Hit the gas price absolute maximum.", requestContext, methodContext, {

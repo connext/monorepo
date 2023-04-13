@@ -66,56 +66,24 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
-          {
-            name    = "WETH"
-            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
-          }
-        ]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
-            name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
+        providers                 = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        excludeListFromRelayerFee = ["0x79D5007F9782eE0407DB4C7a9fC6AE030586afac"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
-          },
-          {
-            name    = "WETH"
-            address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
-          }
-        ]
+        providers                 = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+        excludeListFromRelayerFee = ["0x6c461C0296eBE3715820F1Cbde856219e06ac3B8"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
-          },
-          {
-            name    = "WETH"
-            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
-          }
-        ]
+      }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
+      "2053862260" = {
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -133,7 +101,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext" 
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
     }
     messageQueue = {
       connection = {
@@ -173,6 +141,18 @@ locals {
           queueLimit = 10000
           subscribe  = true
         },
+        {
+          name       = "1668247156"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "2053862260"
+          limit      = 1
+          queueLimit = 10000
+          subscribe  = true
+        },
       ]
       bindings = [
         {
@@ -194,6 +174,16 @@ locals {
           exchange = "sequencerX"
           target   = "1734439522"
           keys     = ["1734439522"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1668247156"
+          keys     = ["1668247156"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "2053862260"
+          keys     = ["2053862260"]
         }
       ]
       executerTimeout = 300000
@@ -222,56 +212,22 @@ locals {
     }
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
-          },
-          {
-            name    = "WETH"
-            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
-          }
-        ]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
-          },
-          {
-            name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
-          },
-          {
-            name    = "WETH"
-            address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
-          }
-        ]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_1}", "https://goerli-rollup.arbitrum.io/rpc"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
-          },
-          {
-            name    = "WETH"
-            address = "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
-          }
-        ]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
+      "2053862260" = {
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
@@ -286,21 +242,29 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
+      "1668247156" = {
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+      }
+      "2053862260" = {
+        providers = ["https://testnet.era.zksync.dev"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
-    databaseUrl  = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
+    database = {
+      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
+    }
     relayers = [
       {
         type   = "Gelato",
@@ -314,9 +278,10 @@ locals {
       }
     ]
     healthUrls = {
-      prover    = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
-      processor = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
-      propagate = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      prover           = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
+      processor        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
+      propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
     hubDomain       = "1735353714"
     proverBatchSize = 1
@@ -332,17 +297,23 @@ locals {
     }
     logLevel = "debug"
     chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
-      }
       "1735356532" = {
-        providers = ["https://rpc.ankr.com/optimism_testnet", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+      }
+      "1668247156" = {
+        providers = ["https://rpc.goerli.linea.build/"]
+      }
+      "2053862260" = {
+        providers = ["https://testnet.era.zksync.dev"]
       }
     }
     environment   = var.stage

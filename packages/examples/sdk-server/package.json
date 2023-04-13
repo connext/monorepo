@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-sdk-server",
+  "name": "@connext/sdk-server",
   "description": "Client-side package server for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "UNLICENSED",
@@ -18,19 +18,19 @@
   },
   "keywords": [],
   "dependencies": {
-    "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@fastify/type-provider-typebox": "2.3.0",
+    "@connext/sdk": "workspace:*",
+    "@fastify/type-provider-typebox": "2.4.0",
     "ethers": "5.7.2",
-    "fastify": "4.10.2",
-    "pino": "8.8.0"
+    "fastify": "4.13.0",
+    "pino": "8.10.0"
   },
   "devDependencies": {
-    "@types/node": "18.11.17",
+    "@types/node": "18.13.0",
     "@types/pino": "7.0.5",
-    "pino-pretty": "9.1.1",
+    "pino-pretty": "9.2.0",
     "rimraf": "3.0.2",
-    "typescript": "4.9.4"
+    "typescript": "4.9.5"
   }
 }

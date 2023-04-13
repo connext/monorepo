@@ -2,15 +2,15 @@ import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
-import { ConnextAbi } from "@connext/nxtp-contracts";
+import { ConnextAbi } from "@connext/smart-contracts";
 
-import { NxtpSdkConfig } from "../src/config";
+import { SdkConfig } from "../src/config";
 
 // Used for stubbing functions at the bottom of this file:
 
 export const mock = {
   ..._mock,
-  config: (): NxtpSdkConfig => ({
+  config: (): SdkConfig => ({
     signerAddress: mkAddress("0xadd9999"),
     logLevel: (process.env.LOG_LEVEL as any) || "silent",
     network: "testnet",
@@ -103,6 +103,7 @@ export const mock = {
         relayerProxyHub: relayerProxyHub as unknown as ConnextContractInterfaces["relayerProxyHub"],
         rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         unwrapper: unwrapper as unknown as ConnextContractInterfaces["unwrapper"],
+        multisend: unwrapper as unknown as ConnextContractInterfaces["multisend"],
       };
     },
     deployments: (): ConnextContractDeployments => {

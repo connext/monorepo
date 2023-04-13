@@ -1,9 +1,0 @@
-[
-  "event ContractDeployed(address indexed,bytes32 indexed,address indexed)",
-  "function create(bytes32,bytes32,bytes) payable returns (address, bytes)",
-  "function create2(bytes32,bytes32,bytes) payable returns (address, bytes)",
-  "function create2Account(bytes32,bytes32,bytes) payable returns (address, bytes)",
-  "function createAccount(bytes32,bytes32,bytes) payable returns (address, bytes)",
-  "function getNewAddressCreate(address,uint256) pure returns (address)",
-  "function getNewAddressCreate2(address,bytes32,bytes32,bytes) pure returns (address)"
-]

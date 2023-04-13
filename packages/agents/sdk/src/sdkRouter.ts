@@ -2,26 +2,25 @@ import { providers } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData } from "./lib/helpers";
-import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
-import { NxtpSdkShared } from "./sdkShared";
-import { NxtpSdkConfig, getConfig } from "./config";
+import { SignerAddressMissing } from "./lib/errors";
+import { SdkShared } from "./sdkShared";
+import { SdkConfig, getConfig } from "./config";
 
 /**
  * @classdesc SDK class encapsulating router functions.
  *
  */
-export class NxtpSdkRouter extends NxtpSdkShared {
-  private static _instance: NxtpSdkRouter;
+export class SdkRouter extends SdkShared {
+  private static _instance: SdkRouter;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     super(config, logger, chainData);
   }
 
   /**
-   * Create a singleton instance of the NxtpSdkRouter class.
+   * Create a singleton instance of the SdkRouter class.
    *
-   * @param _config - NxtpSdkConfig object.
+   * @param _config - SdkConfig object.
    * @param _config.chains - Chain config, at minimum with providers for each chain.
    * @param _config.signerAddress - Signer address for transactions.
    * @param _config.logLevel - (optional) Logging severity level.
@@ -30,7 +29,7 @@ export class NxtpSdkRouter extends NxtpSdkShared {
    *
    * @example:
    * ```ts
-   * import { NxtpSdkRouter } from "@connext/nxtp-sdk";
+   * import { SdkRouter } from "@connext/sdk";
    *
    * const config = {
    *   "chains": {
@@ -47,25 +46,16 @@ export class NxtpSdkRouter extends NxtpSdkShared {
    *   "signerAddress": "<wallet_address>",
    * }
    *
-   * const NxtpSdkRouter = await NxtpSdkRouter.create(config);
+   * const SdkRouter = await SdkRouter.create(config);
    * ```
    */
-  static async create(
-    _config: NxtpSdkConfig,
-    _logger?: Logger,
-    _chainData?: Map<string, ChainData>,
-  ): Promise<NxtpSdkRouter> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+  static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkRouter> {
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
-      ? _logger.child({ name: "NxtpSdkRouter" })
-      : new Logger({ name: "NxtpSdkRouter", level: nxtpConfig.logLevel });
+      ? _logger.child({ name: "SdkRouter" })
+      : new Logger({ name: "SdkRouter", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new NxtpSdkRouter(nxtpConfig, logger, chainData));
+    return this._instance || (this._instance = new SdkRouter(nxtpConfig, logger, chainData));
   }
 
   /**

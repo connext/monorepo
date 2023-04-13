@@ -23,10 +23,14 @@ dataSources:
       abis:
         - name: Connext
           file: ./src/amarok-runtime-v0/abis/Connext.json
+        - name: ERC20
+          file: ./src/amarok-runtime-v0/abis/ERC20.json
       eventHandlers:
         # AssetAdded: key, canonicalId, domain, adoptedAsset, localAsset, caller
         - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
           handler: handleAssetAdded
+        - event: AssetRemoved(indexed bytes32,address)
+          handler: handleAssetRemoved
         # RelayerAdded: relayer, caller
         - event: RelayerAdded(address,address)
           handler: handleRelayerAdded
@@ -48,7 +52,6 @@ dataSources:
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,indexed uint32,indexed address,address[],uint256,address)
           handler: handleReconciled
-          handler: handleStableSwapAdded
         - event: RouterAdded(indexed address,address)
           handler: handleRouterAdded
         - event: RouterRemoved(indexed address,address)
@@ -62,7 +65,12 @@ dataSources:
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
         - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
+          handler: handleRelayerFeesIncreasedNativeOnly
+        - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address,address)
           handler: handleRelayerFeesIncreased
+          # SlippageUpdated(indexed bytes32,uint256)
+        - event: SlippageUpdated(indexed bytes32,uint256)
+          handler: handleSlippageUpdated
       file: ./src/amarok-runtime-v0/mapping/index.ts
   # SPOKE CONNECTOR events
   - kind: ethereum/contract

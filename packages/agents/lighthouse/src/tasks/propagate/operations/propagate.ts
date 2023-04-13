@@ -1,9 +1,21 @@
-import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  getNtpTimeSeconds,
+  NxtpError,
+  RequestContext,
+  RootManagerMeta,
+} from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { sendWithRelayerWithBackup, getDeployedRootManagerContract } from "../../../mockable";
-import { NoChainIdForHubDomain } from "../errors";
-import { getPropagateParamsArbitrum, getPropagateParamsBnb, getPropagateParamsGnosis } from "../helpers";
+import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
+import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
+import {
+  getPropagateParamsArbitrum,
+  getPropagateParamsBnb,
+  getPropagateParamsConsensys,
+  getPropagateParamsGnosis,
+  getPropagateParamsZkSync,
+} from "../helpers";
 import { getContext } from "../propagate";
 
 export type ExtraPropagateParam = {
@@ -21,11 +33,17 @@ export const getParamsForDomainFn: Record<
     requestContext: RequestContext,
   ) => Promise<ExtraPropagateParam>
 > = {
+  // mainnet
   "1634886255": getPropagateParamsArbitrum,
-  "1734439522": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
   "6778479": getPropagateParamsGnosis,
+  // testnet
+  "1734439522": getPropagateParamsArbitrum,
+  "1668247156": getPropagateParamsConsensys,
+  "2053862260": getPropagateParamsZkSync,
 };
+
+const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {
@@ -43,11 +61,32 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const rootManagerAddress = getDeployedRootManagerContract(
-    hubChainId,
-    config.environment === "staging" ? "Staging" : "",
-  )!.address;
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+
+  // Check if LH should propagate as backup of keep3r
+  logger.info("Checking if LH propagate workable", requestContext, methodContext);
+
+  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
+  if (!l1RpcUrl) {
+    throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
+  }
+  const l1Provider = getJsonRpcProvider(l1RpcUrl);
+  const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
+
+  const [lastPropagateAt, propagateCooldown] = await Promise.all([
+    relayerProxyContract.lastPropagateAt(),
+    relayerProxyContract.propagateCooldown(),
+  ]);
+  const curTimeInSeconds = getNtpTimeSeconds();
+  if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
+    logger.info("LH Propagate skipping", requestContext, methodContext, {
+      propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
+      LH_PROPAGATE_WINDOW,
+      curTimeInSeconds,
+    });
+    return;
+  }
+
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -74,43 +113,10 @@ export const propagate = async () => {
     }
   }
 
-  // encode data
-  const encodedData = contracts.rootManager.encodeFunctionData("propagate", [_connectors, _fees, _encodedData]);
-
-  logger.info("Getting gas estimate", requestContext, methodContext, {
-    hubChainId,
-    to: rootManagerAddress,
-    data: encodedData,
-    from: relayerProxyHubAddress,
-    totalFee: _totalFee.toString(),
-  });
-  let gas;
-  try {
-    gas = await chainreader.getGasEstimateWithRevertCode({
-      domain: +config.hubDomain,
-      to: rootManagerAddress,
-      data: encodedData,
-      from: relayerProxyHubAddress,
-      value: _totalFee,
-    });
-  } catch (e: unknown) {
-    logger.error("Error at Gelato Get Gas Estimate", requestContext, methodContext, e as NxtpError, {
-      domain: +config.hubDomain,
-      to: rootManagerAddress,
-      data: encodedData,
-      from: relayerProxyHubAddress,
-      value: _totalFee,
-    });
-    return;
-  }
-
-  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
-  logger.info("Got gas estimate", requestContext, methodContext, { gasLimit: gasLimit.toString() });
-
+  // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
     fee,
-    gasLimit: gasLimit.toString(),
     _connectors,
     _fees,
     _encodedData,

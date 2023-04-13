@@ -8,6 +8,7 @@ export const TChainConfig = Type.Object({
     connext: TAddress,
     relayerProxy: TAddress,
   }),
+  excludeListFromRelayerFee: Type.Array(Type.String()),
 });
 
 export const TMQConnectionConfig = Type.Object({
@@ -106,6 +107,7 @@ export const SequencerConfigSchema = Type.Object({
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
+  executionWaitTime: Type.Number({ minimum: 1000, maximum: 10_000_000 }),
   supportedVersion: Type.Optional(Type.String()),
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),
