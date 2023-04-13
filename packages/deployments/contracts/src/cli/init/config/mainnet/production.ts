@@ -14,6 +14,58 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   assets: [
     {
+      name: "USDT",
+      canonical: {
+        domain: "6648936",
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        decimals: 6,
+        cap: utils.parseUnits("10000000", 6).toString(),
+      },
+      representations: {
+        "1869640809": {
+          adopted: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        },
+        "1886350457": {
+          adopted: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        },
+        "1634886255": {
+          adopted: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        },
+        "6450786": {
+          adopted: "0x55d398326f99059fF775485246999027B3197955",
+        },
+        "6778479": {
+          adopted: "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+        },
+      },
+    },
+    {
+      name: "DAI",
+      canonical: {
+        domain: "6648936",
+        address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        "1869640809": {
+          adopted: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        },
+        "1886350457": {
+          adopted: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+        },
+        "1634886255": {
+          adopted: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        },
+        "6450786": {
+          adopted: "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3",
+        },
+        "6778479": {
+          adopted: "0x44fA8E6f47987339850636F88629646662444217",
+        },
+      },
+    },
+    {
       name: "USDC",
       canonical: {
         domain: "6648936",
