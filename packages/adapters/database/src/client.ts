@@ -5,6 +5,7 @@ import {
   convertFromDbTransfer,
   XMessage,
   RootMessage,
+  convertFromDbAsset,
   convertFromDbMessage,
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
@@ -13,6 +14,15 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  StableSwapPool,
+  StableSwapExchange,
+  XTransferErrorStatus,
+  StableSwapPoolEvent,
+  RouterDailyTVL,
+  SlippageUpdate,
+  XTransferMessageStatus,
+  Asset,
+  AssetPrice,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -21,6 +31,9 @@ import type * as s from "zapatos/schema";
 import { BigNumber } from "ethers";
 
 import { pool } from "./index";
+
+// Max execution time backoff for a transfer
+const maxBackoff = 86400 * 7;
 
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
@@ -41,10 +54,9 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     normalized_in: transfer.xparams?.normalizedIn,
     nonce: transfer.xparams?.nonce,
     canonical_id: transfer.xparams?.canonicalId,
-    relayer_fee: transfer.origin?.relayerFee,
+    relayer_fees: transfer.origin?.relayerFees,
     error_status: transfer.origin?.errorStatus,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-
+    message_status: transfer.origin?.messageStatus,
     origin_chain: transfer.origin?.chain,
     origin_transacting_asset: transfer.origin?.assets.transacting.asset,
     origin_transacting_amount: transfer.origin?.assets.transacting.amount,
@@ -113,6 +125,9 @@ const convertToDbRootMessage = (message: RootMessage, type: "sent" | "processed"
     gas_limit: message.gasLimit as any,
     block_number: message.blockNumber,
     leaf_count: message.count,
+    sent_task_id: message.sentTaskId,
+    sent_timestamp_secs: message.sentTimestamp,
+    relayer_type: message.relayerType,
   };
 };
 
@@ -143,6 +158,77 @@ const convertToDbReceivedAggregateRoot = (root: ReceivedAggregateRoot): s.receiv
   };
 };
 
+const convertToDbStableSwapPool = (pool: StableSwapPool): s.stableswap_pools.Insertable => {
+  return {
+    key: pool.key,
+    domain: pool.domain,
+    is_active: pool.isActive,
+    lp_token: pool.lpToken,
+    initial_a: pool.initialA,
+    future_a: pool.futureA,
+    initial_a_time: pool.initialATime,
+    future_a_time: pool.futureATime,
+    swap_fee: pool.swapFee as any,
+    admin_fee: pool.adminFee as any,
+    pooled_tokens: pool.pooledTokens,
+    token_precision_multipliers: pool.tokenPrecisionMultipliers,
+    pool_token_decimals: pool.poolTokenDecimals,
+    balances: pool.balances,
+    virtual_price: pool.virtualPrice,
+    invariant: pool.invariant,
+    lp_token_supply: pool.lpTokenSupply,
+  };
+};
+
+const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stableswap_exchanges.Insertable => {
+  return {
+    id: exchange.id,
+    pool_id: exchange.poolId,
+    domain: exchange.domain,
+    buyer: exchange.buyer,
+    bought_id: exchange.boughtId,
+    sold_id: exchange.soldId,
+    tokens_sold: exchange.tokensSold,
+    tokens_bought: exchange.tokensBought,
+    balances: exchange.balances,
+    fee: exchange.fee,
+    block_number: exchange.blockNumber,
+    transaction_hash: exchange.transactionHash,
+    timestamp: exchange.timestamp,
+  };
+};
+
+const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswap_pool_events.Insertable => {
+  return {
+    id: event.id,
+    pool_id: event.poolId,
+    domain: event.domain,
+    action: event.action,
+    provider: event.provider,
+    pooled_tokens: event.pooledTokens,
+    pool_token_decimals: event.poolTokenDecimals,
+    token_amounts: event.tokenAmounts,
+    balances: event.balances,
+    fees: event.fees,
+    lp_token_amount: event.lpTokenAmount,
+    lp_token_supply: event.lpTokenSupply,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+  };
+};
+
+const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Insertable => {
+  return {
+    id: tvl.id,
+    domain: tvl.domain,
+    asset: tvl.asset,
+    router: tvl.router,
+    day: new Date(tvl.timestamp * 1000),
+    balance: tvl.balance,
+  };
+};
+
 const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };
@@ -161,13 +247,27 @@ export const saveTransfers = async (
 
   transfers = transfers.map((_transfer) => {
     const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+
+    if (dbTransfer !== undefined) {
+      // Special handling as boolean fields defualt to false, when upstream subgraph data is null
+      _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
+    }
+
     if (_transfer.status === undefined) {
       _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
-    } else if (_transfer.status == XTransferStatus.CompletedFast || _transfer.status == XTransferStatus.CompletedSlow) {
+    } else if (
+      _transfer.status == XTransferStatus.Executed ||
+      _transfer.status == XTransferStatus.CompletedFast ||
+      _transfer.status == XTransferStatus.CompletedSlow
+    ) {
       _transfer.error_status = undefined;
     }
 
-    const transfer: any = { ...dbTransfer, ..._transfer };
+    if (!_transfer.message_status) {
+      _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
+    }
+
+    const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
     return transfer;
   });
 
@@ -196,7 +296,11 @@ export const saveSentRootMessages = async (
     .map(sanitizeNull);
 
   // use upsert here. if the message exists, we don't want to overwrite anything, just add the sent tx hash
-  await db.upsert("root_messages", messages, ["id"], { updateColumns: ["sent_transaction_hash"] }).run(poolToUse);
+  await db
+    .upsert("root_messages", messages, ["id"], {
+      updateColumns: ["sent_transaction_hash", "sent_timestamp_secs", "sent_task_id", "relayer_type"],
+    })
+    .run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (
@@ -214,6 +318,18 @@ export const saveProcessedRootMessages = async (
       updateColumns: ["processed_transaction_hash", "processed"],
     })
     .run(poolToUse);
+
+  // update `processed` to true for previous root messages.
+  for (const message of _messages) {
+    const spoke_domain = message.spokeDomain;
+    await db
+      .update(
+        "root_messages",
+        { processed: true },
+        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.timestamp) },
+      )
+      .run(poolToUse);
+  }
 };
 
 export const getRootMessages = async (
@@ -398,11 +514,15 @@ export const saveRouterBalances = async (
           router_address: router.address,
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           balance: b.balance as any,
+          locked: b.locked as any,
+          supplied: b.supplied as any,
+          removed: b.removed as any,
           fees_earned: b.feesEarned as any,
         },
         asset: {
           key: b.key,
           id: b.id,
+          decimal: b.decimal as any,
           local: b.localAsset,
           adopted: b.adoptedAsset,
           canonical_id: b.canonicalId,
@@ -428,6 +548,60 @@ export const saveRouterBalances = async (
       )
       .run(poolToUse);
   }
+};
+
+export const saveAssets = async (assets: Asset[], _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const dbAssets: s.assets.Insertable[] = assets.map((asset) => {
+    return {
+      key: asset.key,
+      id: asset.id,
+      decimal: asset.decimal as any,
+      local: asset.localAsset,
+      adopted: asset.adoptedAsset,
+      canonical_id: asset.canonicalId,
+      canonical_domain: asset.canonicalDomain,
+      domain: asset.domain,
+    };
+  });
+  await db.upsert("assets", dbAssets, ["canonical_id", "domain"]).run(poolToUse);
+};
+
+export const getAssets = async (
+  limit = 100,
+  offset = 0,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Asset[]> => {
+  const poolToUse = _pool ?? pool;
+  const assets = await db
+    .select(
+      "assets",
+      { canonical_domain: dc.not(dc.eq("0")) },
+      {
+        limit,
+        offset,
+        order: { by: "domain", direction: "ASC" },
+      },
+    )
+    .run(poolToUse);
+  return assets.map(convertFromDbAsset);
+};
+
+export const saveAssetPrice = async (
+  prices: AssetPrice[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const records: s.asset_prices.Insertable[] = prices.map((p) => {
+    return {
+      canonical_id: p.canonicalId,
+      canonical_domain: p.canonicalDomain,
+      timestamp: p.timestamp,
+      price: p.price,
+    };
+  });
+
+  await db.upsert("asset_prices", records, ["canonical_domain", "canonical_id", "timestamp"]).run(poolToUse);
 };
 
 export const transaction = async (
@@ -476,6 +650,17 @@ export const getUnProcessedMessagesByIndex = async (
     )
     .run(poolToUse);
   return messages.map(convertFromDbMessage);
+};
+
+export const getMessageByLeaf = async (
+  origin_domain: string,
+  leaf: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.selectOne("messages", { origin_domain, leaf }).run(poolToUse);
+
+  return message ? convertFromDbMessage(message) : undefined;
 };
 
 export const getAggregateRoot = async (
@@ -556,11 +741,28 @@ export const getLatestAggregateRoot = async (
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
 };
 
-export const getMessageRootFromIndex = async (
+export const getAggregateRootByRootAndDomain = async (
+  domain: string,
+  aggregatedRoot: string,
+  orderDirection: "ASC" | "DESC" = "DESC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<ReceivedAggregateRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db
+    .selectOne(
+      "received_aggregate_roots",
+      { domain: domain, root: aggregatedRoot },
+      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+    )
+    .run(poolToUse);
+  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+};
+
+export const getMessageRootAggregatedFromIndex = async (
   spoke_domain: string,
   index: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
+): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
   // Find the first published outbound root that contains the index, for a given domain
   const root = await db.sql<
@@ -569,7 +771,23 @@ export const getMessageRootFromIndex = async (
   >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots) and ${{
     spoke_domain,
   }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 1`.run(poolToUse);
-  return root.length > 0 ? convertFromDbRootMessage(root[0]).root : undefined;
+  return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
+};
+
+export const getMessageRootsFromIndex = async (
+  spoke_domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  // Find the first published outbound root that contains the index, for a given domain
+  const root = await db.sql<
+    s.root_messages.SQL,
+    s.root_messages.Selectable[]
+  >`select * from ${"root_messages"} where ${{
+    spoke_domain,
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 10`.run(poolToUse);
+  return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
 export const getMessageRootCount = async (
@@ -675,4 +893,158 @@ export const saveReceivedAggregateRoot = async (
     .map(sanitizeNull);
 
   await db.upsert("received_aggregate_roots", roots, ["root", "domain"]).run(poolToUse);
+};
+
+/**
+ * Uses an exponential backoff forumla to increase the backoff time for a transfer execution.
+ * @param transferId
+ * @param _pool
+ * @returns
+ */
+export const increaseBackoff = async (
+  transferId: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.selectOne("transfers", { transfer_id: transferId }).run(poolToUse);
+  if (!transfer) {
+    return;
+  }
+  const backoff = Math.min(transfer.backoff * 2, maxBackoff);
+  const next_execution_timestamp = Math.floor(Date.now() / 1000) + backoff;
+  await db.update("transfers", { backoff, next_execution_timestamp }, { transfer_id: transferId }).run(poolToUse);
+};
+
+export const resetBackoffs = async (
+  transferIds: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const backoff = 32;
+  await db
+    .update("transfers", { backoff, next_execution_timestamp: 0 }, { transfer_id: dc.isIn(transferIds) })
+    .run(poolToUse);
+};
+
+export const saveStableSwapPool = async (
+  _swapPools: StableSwapPool[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const pools: s.stableswap_pools.Insertable[] = _swapPools.map((m) => convertToDbStableSwapPool(m)).map(sanitizeNull);
+
+  await db.upsert("stableswap_pools", pools, ["key", "domain"]).run(poolToUse);
+};
+
+export const saveStableSwapExchange = async (
+  _swapExchanges: StableSwapExchange[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const exchanges: s.stableswap_exchanges.Insertable[] = _swapExchanges
+    .map((m) => convertToDbStableSwapExchange(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_exchanges", exchanges, ["domain", "id"]).run(poolToUse);
+};
+
+export const updateErrorStatus = async (
+  transferId: string,
+  error: XTransferErrorStatus,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.update("transfers", { error_status: error }, { transfer_id: transferId }).run(poolToUse);
+};
+
+export const saveStableSwapPoolEvent = async (
+  _poolEvents: StableSwapPoolEvent[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const poolEvents: s.stableswap_pool_events.Insertable[] = _poolEvents
+    .map((m) => convertToDbStableSwapPoolEvent(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveRouterDailyTVL = async (
+  _tvls: RouterDailyTVL[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
+
+  await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const updateSlippage = async (
+  _slippageUpdates: SlippageUpdate[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  // todo can this be done in a single query?
+  for (const update of _slippageUpdates) {
+    await db
+      .update("transfers", { updated_slippage: Number(update.slippage) }, { transfer_id: update.transferId })
+      .run(poolToUse);
+  }
+};
+
+export const markRootMessagesProcessed = async (
+  rootMessages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const rootMessageIds = rootMessages.map((m) => m.id);
+  await db.update("root_messages", { processed: true }, { id: dc.isIn(rootMessageIds) }).run(poolToUse);
+};
+
+export const updateExecuteSimulationData = async (
+  transferId: string,
+  executeSimulationInput: string,
+  executeSimulationFrom: string,
+  executeSimulationTo: string,
+  executeSimulationNetwork: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await db
+    .update(
+      "transfers",
+      {
+        execute_simulation_input: executeSimulationInput,
+        execute_simulation_from: executeSimulationFrom,
+        execute_simulation_to: executeSimulationTo,
+        execute_simulation_network: executeSimulationNetwork,
+      },
+      { transfer_id: transferId },
+    )
+    .run(poolToUse);
+};
+
+export const getPendingTransfersByMessageStatus = async (
+  domain: string,
+  offset: number,
+  limit: number,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+  const completedMessageStatus = [XTransferMessageStatus.Processed];
+
+  const x = await db
+    .select(
+      "transfers",
+      {
+        message_status: db.conditions.or(db.conditions.isNull, db.conditions.isNotIn(completedMessageStatus)),
+        origin_domain: domain,
+      },
+      { limit, offset, order: { by: "nonce", direction: orderDirection, nulls: "LAST" } },
+    )
+    .run(poolToUse);
+  return x.map(convertFromDbTransfer);
 };

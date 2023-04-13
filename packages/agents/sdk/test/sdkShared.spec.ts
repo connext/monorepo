@@ -1,23 +1,10 @@
-import {
-  createStubInstance,
-  reset,
-  restore,
-  SinonStubbedInstance,
-  stub,
-  spy,
-  SinonStub,
-  promise,
-  SinonMock,
-  mock as sinonMock,
-} from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub, spy, mock as sinonMock } from "sinon";
 import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils, Contract } from "ethers";
+import { constants, providers, Contract, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
-import { Connext__factory, Connext, IERC20__factory, IERC20, TestERC20__factory } from "@connext/smart-contracts";
+import { ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -28,6 +15,27 @@ const mockDeployments = mock.contracts.deployments();
 
 const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockAssetId = mock.asset.A.address;
+const mockAssetKey = utils.formatBytes32String("13337");
+
+const mockAssetData = {
+  local: mock.asset.A.address,
+  adopted: mock.asset.B.address,
+  canonical_id: utils.formatBytes32String("0"),
+  canonical_domain: mock.domain.A,
+  domain: mock.domain.A,
+  key: mockAssetKey,
+  id: mock.asset.A.address,
+};
+
+const mockOtherAssetData = {
+  local: mock.asset.B.address,
+  adopted: mock.asset.A.address,
+  canonical_id: utils.formatBytes32String("1"),
+  canonical_domain: mock.domain.A,
+  domain: mock.domain.B,
+  key: mockAssetKey,
+  id: mock.asset.B.address,
+};
 
 const chainId = 1337;
 
@@ -40,8 +48,8 @@ describe("SdkShared", () => {
     logger = createStubInstance(Logger);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
-    stub(ConfigFns, "getConfig").resolves(config);
-    stub(SharedFns, "getChainIdFromDomain").resolves(chainId);
+    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "domainToChainId").returns(chainId);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
   });
@@ -62,6 +70,10 @@ describe("SdkShared", () => {
       expect(sdkShared.approveIfNeeded).to.be.a("function");
       expect(sdkShared.getAssetsData).to.be.a("function");
       expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
+      expect(sdkShared.getAssetsWithSameCanonical).to.be.a("function");
+      expect(sdkShared.getActiveLiquidity).to.be.a("function");
+      expect(sdkShared.getSupported).to.be.a("function");
       expect(sdkShared.isNextAsset).to.be.a("function");
       expect(sdkShared.changeSignerAddress).to.be.a("function");
       expect(sdkShared.parseConnextTransactionReceipt).to.be.a("function");
@@ -89,6 +101,17 @@ describe("SdkShared", () => {
       (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
       const connext = await sdkShared.getSupported();
       expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#getDeploymentAddress", () => {
+    it("happy: should work", async () => {
+      const connext = await sdkShared.getDeploymentAddress(mock.domain.A, "connext");
+      expect(connext).to.not.be.undefined;
+    });
+
+    it("failed if not exist", async () => {
+      await expect(sdkShared.getDeploymentAddress("0", "connext")).to.be.rejectedWith(ContractAddressMissing);
     });
   });
 
@@ -155,6 +178,101 @@ describe("SdkShared", () => {
     });
   });
 
+  describe("#domainToChainName", () => {
+    it("happy: should work", async () => {
+      const chainName = SdkShared.domainToChainName("6648936");
+      expect(chainName).to.not.be.undefined;
+    });
+  });
+
+  describe("#domainToChainId", () => {
+    it("happy: should work", async () => {
+      const chainId = SdkShared.domainToChainId(133712);
+      expect(chainId).to.be.eq(1337);
+    });
+  });
+
+  describe("#chainIdToDomain", () => {
+    it("happy: should work", async () => {
+      const domain = SdkShared.chainIdToDomain(1337);
+      expect(domain).to.be.eq(133712);
+    });
+  });
+
+  describe("#getBlockNumberFromUnixTimestamp", () => {
+    it("happy: should work", async () => {
+      const height = 1234;
+      stub(SdkShared, "domainToChainName").resolves("mock-chain");
+      stub(SharedFns, "axiosGetRequest").resolves({ height: height });
+      const res = await SdkShared.getBlockNumberFromUnixTimestamp(mock.domain.A, 123124);
+      expect(res).to.be.equal(height);
+    });
+  });
+
+  describe("#getAssetsData", () => {
+    it("happy: should work", async () => {
+      stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsData();
+      expect(res).to.be.deep.equal([mockAssetData]);
+    });
+  });
+
+  describe("#getAssetsDataByDomainAndAddress", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal(mockAssetData);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.B, mock.asset.A.address);
+      expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#getAssetsDataByDomainAndKey", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mockAssetKey);
+      expect(res).to.be.deep.equal(mockAssetData);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.B, mockAssetKey);
+      expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#getAssetsWithSameCanonical", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal([mockAssetData]);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.B, mkAddress("0xaa"));
+      expect(res).to.be.deep.equal([]);
+    });
+  });
+
+  describe("#getCanonicalTokenId", () => {
+    it("happy: should work", async () => {
+      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(mockAssetData);
+      const res = await sdkShared.getCanonicalTokenId(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+    });
+
+    it("should undefined for not exist assets", async () => {
+      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(undefined);
+      const res = await sdkShared.getCanonicalTokenId(mock.domain.A, mock.asset.A.address);
+      expect(res).to.be.deep.equal(["0", constants.HashZero]);
+    });
+  });
+
   describe("#changeSignerAddress", () => {
     it("happy: should work", async () => {
       const mockSignerAddress = mkAddress("0xabcdef456");
@@ -192,6 +310,22 @@ describe("SdkShared", () => {
       });
       const res = sdkShared.parseConnextTransactionReceipt(transactionReceipt);
       expect(res).to.not.be.undefined;
+    });
+  });
+
+  describe("#getSupported", () => {
+    it("happy: should work", async () => {
+      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
+      const connext = await sdkShared.getSupported();
+      expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#getActiveLiquidity", () => {
+    it("happy: should work", async () => {
+      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
+      const connext = await sdkShared.getActiveLiquidity();
+      expect(connext).to.not.be.undefined;
     });
   });
 });

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 
@@ -33,6 +35,14 @@ abstract contract Connector is ProposedOwnable, IConnector {
   );
 
   event MirrorConnectorUpdated(address previous, address current);
+
+  /**
+   * @notice Emitted when funds are withdrawn by the admin
+   * @dev See comments in `withdrawFunds`
+   * @param to The recipient of the funds
+   * @param amount The amount withdrawn
+   */
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   // ============ Public Storage ============
 
@@ -135,6 +145,19 @@ abstract contract Connector is ProposedOwnable, IConnector {
    */
   function setMirrorConnector(address _mirrorConnector) public onlyOwner {
     _setMirrorConnector(_mirrorConnector);
+  }
+
+  /**
+   * @notice This function should be callable by owner, and send funds trapped on
+   * a connector to the provided recipient.
+   * @dev Withdraws the entire balance of the contract.
+   *
+   * @param _to The recipient of the funds withdrawn
+   */
+  function withdrawFunds(address _to) public onlyOwner {
+    uint256 amount = address(this).balance;
+    Address.sendValue(payable(_to), amount);
+    emit FundsWithdrawn(_to, amount);
   }
 
   // ============ Public Functions ============

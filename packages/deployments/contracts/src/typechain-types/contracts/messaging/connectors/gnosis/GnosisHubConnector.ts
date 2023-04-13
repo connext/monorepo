@@ -38,6 +38,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "executeSignatures(bytes,bytes)": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
@@ -62,6 +63,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "executeSignatures"
+      | "gasCap"
       | "mirrorConnector"
       | "owner"
       | "processMessage"
@@ -99,6 +101,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     functionFragment: "executeSignatures",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
@@ -162,6 +165,7 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     functionFragment: "executeSignatures",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
@@ -351,6 +355,8 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -419,6 +425,8 @@ export interface GnosisHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -484,6 +492,8 @@ export interface GnosisHubConnector extends BaseContract {
       _signatures: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -617,6 +627,8 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -685,6 +697,8 @@ export interface GnosisHubConnector extends BaseContract {
       _signatures: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

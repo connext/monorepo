@@ -21,8 +21,14 @@ import {
   PropagatedRoot,
   ReceivedAggregateRoot,
   XTransferErrorStatus,
+  StableSwapPool,
+  StableSwapExchange,
+  StableSwapPoolEvent,
+  Asset,
+  XTransferMessageStatus,
+  AssetPrice,
 } from "../types";
-import { getNtpTimeSeconds } from "../helpers";
+import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
 
@@ -44,12 +50,12 @@ export const mock = {
     A: {
       name: "TEST-A",
       symbol: "TSTA",
-      address: mkAddress("0xbeefbeefbeef"),
+      address: "0xBeEFBEEfBeEf0000000000000000000000000000",
     },
     B: {
       name: "TEST-B",
       symbol: "TSTB",
-      address: mkAddress("0x2faced"),
+      address: "0x2fAceD0000000000000000000000000000000000",
     },
   },
   chainData: () =>
@@ -59,7 +65,20 @@ export const mock = {
         chainId: parseInt(mock.chain.A),
         domainId: mock.domain.A,
         confirmations: 1,
-        assetId: {},
+        assetId: {
+          "0xBeEFBEEfBeEf0000000000000000000000000000": {
+            name: mock.asset.A.name,
+            symbol: mock.asset.A.symbol,
+            mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+            decimals: 18,
+          },
+          "0x2fAceD0000000000000000000000000000000000": {
+            name: mock.asset.B.name,
+            symbol: mock.asset.B.symbol,
+            mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+            decimals: 18,
+          },
+        },
         subgraphs: {
           runtime: [{ query: "http://example.com", health: "http://example.com" }],
           analytics: [{ query: "http://example.com", health: "http://example.com" }],
@@ -150,6 +169,25 @@ export const mock = {
       encodedData: "0xabcde",
       ...overrides,
     }),
+    asset: (overrides: Partial<Asset> = {}): Asset => ({
+      adoptedAsset: getRandomAddress(),
+      blockNumber: "1",
+      canonicalDomain: mock.domain.A,
+      canonicalId: getRandomBytes32(),
+      decimal: "18",
+      domain: mock.domain.A,
+      id: getRandomAddress(),
+      key: getRandomBytes32(),
+      localAsset: getRandomAddress(),
+      ...overrides,
+    }),
+    assetPrice: (overrides: Partial<AssetPrice> = {}): AssetPrice => ({
+      canonicalDomain: mock.domain.A,
+      canonicalId: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000 - 60),
+      price: 1234,
+      ...overrides,
+    }),
     xtransfer: (
       overrides: {
         originDomain?: string;
@@ -166,13 +204,15 @@ export const mock = {
         amount?: string;
         status?: XTransferStatus;
         errorStatus?: XTransferErrorStatus;
+        messageStatus?: XTransferMessageStatus;
         asset?: string;
         transferId?: string;
         messageHash?: string;
         nonce?: number;
         user?: string;
         routers?: string[];
-        relayerFee?: string;
+        relayerFee?: string; // deprecated
+        relayerFees?: { [asset: string]: string };
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -189,6 +229,7 @@ export const mock = {
       const amount = overrides.amount ?? "1000";
       const status: XTransferStatus | undefined = overrides.status;
       const errorStatus: XTransferErrorStatus | undefined = overrides.errorStatus;
+      const messageStatus: XTransferMessageStatus = overrides.messageStatus ?? XTransferMessageStatus.XCalled;
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
@@ -196,6 +237,9 @@ export const mock = {
       const routers = overrides.routers ?? [mock.address.router];
       const messageHash: string = overrides.messageHash ?? getRandomBytes32();
       const relayerFee: string = overrides.relayerFee ?? "0";
+      const relayerFees: { [asset: string]: string } = overrides.relayerFees ?? {
+        [constants.AddressZero]: relayerFee ?? "0",
+      };
 
       const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = status && status != XTransferStatus.XCalled;
@@ -226,9 +270,11 @@ export const mock = {
 
               messageHash,
 
-              relayerFee,
+              relayerFees,
 
               errorStatus,
+
+              messageStatus,
 
               // Assets
               assets: {
@@ -422,6 +468,60 @@ export const mock = {
       domain: mock.domain.A,
       root: getRandomBytes32(),
       blockNumber: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    stableSwapPool: (overrides: Partial<StableSwapPool> = {}): StableSwapPool => ({
+      key: getRandomBytes32(),
+      domain: mock.domain.A,
+      isActive: true,
+      lpToken: getRandomAddress(),
+      initialA: 200,
+      futureA: 200,
+      initialATime: 0,
+      futureATime: 0,
+      swapFee: "400000",
+      adminFee: "0",
+      pooledTokens: [getRandomAddress(), getRandomAddress()],
+      tokenPrecisionMultipliers: ["1", "1"],
+      poolTokenDecimals: [18, 18],
+      balances: ["200000", "200000"],
+      virtualPrice: "400000",
+      invariant: "0",
+      lpTokenSupply: "0",
+      ...overrides,
+    }),
+    stableSwapExchange: (overrides: Partial<StableSwapExchange> = {}): StableSwapExchange => ({
+      id: getRandomBytes32(),
+      poolId: getRandomBytes32(),
+      domain: mock.domain.A,
+      buyer: getRandomAddress(),
+      boughtId: 1,
+      soldId: 0,
+      tokensSold: Math.floor(Date.now() / 1000),
+      tokensBought: Math.floor(Date.now() / 1000),
+      balances: [200, 200],
+      fee: 2,
+      blockNumber: Math.floor(Date.now() / 1000),
+      transactionHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    stableswapPoolEvent: (overrides: Partial<StableSwapPoolEvent> = {}): StableSwapPoolEvent => ({
+      id: `add_liquidity-${getRandomBytes32()}`,
+      poolId: getRandomBytes32(),
+      domain: mock.domain.A,
+      provider: getRandomAddress(),
+      action: "Add",
+      pooledTokens: [getRandomAddress(), getRandomAddress()],
+      poolTokenDecimals: [18, 18],
+      balances: [200, 200],
+      fees: [2, 2],
+      tokenAmounts: [200, 200],
+      lpTokenAmount: Math.floor(Date.now() / 1000),
+      lpTokenSupply: Math.floor(Date.now() / 1000),
+      blockNumber: Math.floor(Date.now() / 1000),
+      transactionHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
   },

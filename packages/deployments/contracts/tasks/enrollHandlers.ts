@@ -1,8 +1,9 @@
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
-import { canonizeId, chainIdToDomain } from "../src";
+import { canonizeId } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 

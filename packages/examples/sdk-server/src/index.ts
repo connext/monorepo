@@ -2,17 +2,13 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { SdkConfig, SdkBase, SdkPool, SdkUtils, SdkRouter, create } from "@connext/sdk";
+import { SdkConfig, create } from "@connext/sdk";
+import { getBestProvider } from "@connext/nxtp-utils";
 
-import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
-
-let sdkBaseInstance: SdkBase;
-let sdkPoolInstance: SdkPool;
-let sdkUtilsInstance: SdkUtils;
-let sdkRouterInstance: SdkRouter;
+import { baseRoutes } from "./base";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -49,7 +45,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const chains = configJson.chains;
   for (const key in chains) {
     const chain = chains[key];
-    const url: string = chain.providers[0];
+    const url = await getBestProvider(chain.providers as string[]);
     const provider = new ethers.providers.JsonRpcProvider(url);
     configuredProviders[key] = provider;
   }
@@ -64,11 +60,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   };
 
   const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
-
-  sdkBaseInstance = sdkBase;
-  sdkPoolInstance = sdkPool;
-  sdkUtilsInstance = sdkUtils;
-  sdkRouterInstance = sdkRouter;
 
   // Register routes
 
@@ -88,10 +79,10 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
-  server.register(baseRoutes, sdkBaseInstance);
-  server.register(poolRoutes, sdkPoolInstance);
-  server.register(utilsRoutes, sdkUtilsInstance);
-  server.register(routerRoutes, sdkRouterInstance);
+  server.register(baseRoutes, sdkBase);
+  server.register(poolRoutes, sdkPool);
+  server.register(utilsRoutes, sdkUtils);
+  server.register(routerRoutes, sdkRouter);
 
   server.listen(8080, (err, address) => {
     if (err) {

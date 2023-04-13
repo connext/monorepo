@@ -71,10 +71,4 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     // otherwise is relayer, update the outbound root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
   }
-
-  /**
-   * @dev The `RootManager` calls `.sendMessage` on all connectors, there is nothing on mainnet
-   * that would be processing "inbound messages", so do nothing in this function
-   */
-  function _processMessage(bytes memory _data) internal override {}
 }

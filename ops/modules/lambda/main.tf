@@ -46,8 +46,8 @@ resource "aws_lambda_function" "executable" {
   package_type  = "Image"
   role          = aws_iam_role.lambda.arn
   architectures = ["x86_64"]
-  timeout       = 500
-  memory_size   = 1024
+  timeout       = var.timeout
+  memory_size   = var.memory_size
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }

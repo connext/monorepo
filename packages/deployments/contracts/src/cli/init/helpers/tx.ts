@@ -6,7 +6,7 @@ import { Deployment } from "../../types";
 import { log } from "./log";
 import { CallSchema } from "./types";
 
-const DEFAULT_CONFIRMATIONS = 3;
+const DEFAULT_CONFIRMATIONS = 1;
 
 type WaitForTxArguments = {
   deployment: Deployment;
@@ -24,7 +24,7 @@ export const waitForTx = async (
 ): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
   const { tx, name: _name, checkResult, deployment, chainData: _chainData } = args;
   // Try to get the desired amount of confirmations from chain data.
-  const chainData = _chainData ?? (await getChainData(true, true));
+  const chainData = _chainData ?? (await getChainData());
   const info = chainData.get(tx.chainId.toString());
 
   const prefix = `${log.prefix.base({ chain: tx.chainId, deployment })} ${_name}() `;
@@ -86,8 +86,12 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const writeCall = async (chain: number): Promise<providers.TransactionResponse> => {
     if (chain === 137) {
       return await contract[write.method](...write.args, {
-        gasLimit: 2000000,
-        gasPrice: "100000000000",
+        gasLimit: 5000000,
+        gasPrice: "500000000000",
+      });
+    } else if (chain == 280) {
+      return await contract[write.method](...write.args, {
+        gasLimit: 30000000,
       });
     } else {
       return await contract[write.method](...write.args, {

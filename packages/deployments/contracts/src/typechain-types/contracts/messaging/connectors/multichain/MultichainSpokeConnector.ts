@@ -58,11 +58,11 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
-    "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
@@ -111,11 +111,11 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "gasCap"
       | "home"
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
-      | "messages"
       | "mirrorConnector"
       | "nonces"
       | "outboundRoot"
@@ -196,6 +196,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -208,10 +209,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "localDomain",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "messages",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "mirrorConnector",
@@ -356,6 +353,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -366,7 +364,6 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "localDomain",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
@@ -807,6 +804,8 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -817,11 +816,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
@@ -991,6 +985,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -1001,11 +997,6 @@ export interface MultichainSpokeConnector extends BaseContract {
   lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
   localDomain(overrides?: CallOverrides): Promise<number>;
-
-  messages(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<number>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -1173,6 +1164,8 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<string>;
 
     isReplica(
@@ -1183,11 +1176,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     localDomain(overrides?: CallOverrides): Promise<number>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -1511,6 +1499,8 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1521,11 +1511,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1696,6 +1681,8 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isReplica(
@@ -1706,11 +1693,6 @@ export interface MultichainSpokeConnector extends BaseContract {
     lastSentBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

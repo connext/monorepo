@@ -112,7 +112,11 @@ variable "arbgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "mumbai_blast_key_0" {
+variable "blast_key" {
+  type = string
+}
+
+variable "infura_key" {
   type = string
 }
 
@@ -150,6 +154,10 @@ variable "lighthouse_processor_heartbeat" {
 }
 
 variable "lighthouse_propagate_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
 

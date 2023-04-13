@@ -3,6 +3,7 @@ import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
   delay,
+  domainToChainId,
   getUuid,
   jsonifyError,
   Logger,
@@ -10,7 +11,6 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { domainToChainId } from "@connext/smart-contracts";
 
 import {
   BadNonce,
@@ -401,8 +401,18 @@ export class TransactionDispatch extends RpcProviderAggregator {
             limit: gasLimit,
             price: gasPrice,
           };
-          if (this.domain === 1634886255) {
-            gas.limit = BigNumber.from(10_000_000);
+
+          switch (this.domain) {
+            // Arbitrum gasLimit hardcode
+            case 1634886255:
+            case 1734439522:
+              gas.limit = BigNumber.from(20_000_000);
+              break;
+            // ZkSync gasLimit hardcode
+            case 2053862243:
+            case 2053862260:
+              gas.limit = BigNumber.from(30_000_000);
+              break;
           }
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should

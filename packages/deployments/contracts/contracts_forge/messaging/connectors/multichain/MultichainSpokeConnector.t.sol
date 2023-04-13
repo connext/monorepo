@@ -103,10 +103,17 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // ============ processMessage ============
+  // msg.sender is not the bridge on L1
+  function test_MultichainSpokeConnector__processMessage_reverts(bytes32 _data) public {
+    vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
+    MultichainSpokeConnector(_l2Connector).processMessage(abi.encodePacked(_data));
+  }
+
+  // ============ anyExecute ============
 
   // Happy path L2
   // TODO: reenable
-  // function test_MultichainSpokeConnector_processMessage_processMessageUpdateRootAndEmitEvent(bytes calldata _data)
+  // function test_MultichainSpokeConnector__anyExecute_processMessageUpdateRootAndEmitEvent(bytes calldata _data)
   //   public
   // {
   //   // Mock the call to the executor, to retrieve the context
@@ -128,7 +135,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   // }
 
   // msg.sender is not the bridge on L2
-  function test_MultichainSpokeConnector_processMessage_revertIfExecutorIsNotMsgSender(
+  function test_MultichainSpokeConnector__anyExecute_revertIfExecutorIsNotMsgSender(
     address _notExecutor,
     bytes calldata _data
   ) public {
@@ -143,7 +150,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong sender on the origin chain to L2
-  function test_MultichainSpokeConnector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
+  function test_MultichainSpokeConnector__anyExecute_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
     public
   {
     vm.assume(_wrongMirror != _l1Connector);
@@ -160,7 +167,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong chain to L2
-  function test_MultichainSpokeConnector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
+  function test_MultichainSpokeConnector__anyExecute_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
     public
   {
     vm.assume(_wrongId != _chainIdMainnet);
@@ -177,7 +184,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // message has a length > 32 bytes
-  function test_MultichainSpokeConnector_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
+  function test_MultichainSpokeConnector__anyExecute_revertIfWrongDataLength(uint8 callDataLength) public {
     vm.assume(callDataLength != 32);
 
     // Mock the call to the executor, to retrieve the context

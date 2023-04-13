@@ -88,8 +88,6 @@ export const TransferButton = ({
     setApproving(null);
     setCalling(true);
 
-    const min_amount_out = (amount || 0) * (100 - DEFAULT_BRIDGE_SLIPPAGE_PERCENTAGE);
-
     if (sdk) {
       const source_chain_data = chains?.find((c) => c?.id === source_chain?.id);
       const source_asset_data = assets?.find((a) => a?.id === asset?.id);
@@ -105,7 +103,7 @@ export const TransferButton = ({
         asset: source_contract_data!.contract_address,
         delegate: address!,
         amount: utils.parseUnits(amount!.toString() || "0", source_contract_data?.decimals || 18).toString(),
-        slippage: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString(),
+        slippage: (DEFAULT_BRIDGE_SLIPPAGE_PERCENTAGE * 100).toString(),
         callData: "0x",
         origin: source_chain_data!.domain_id!,
       };
@@ -160,6 +158,7 @@ export const TransferButton = ({
         setApproveProcessing(false);
         setApproving(false);
       }
+
       if (!failed) {
         try {
           const xcall_request = await sdk.sdkBase.xcall(xcallParams);

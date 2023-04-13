@@ -4,7 +4,7 @@ import { NoProviderForDomain, NoSpokeConnector, NoHubConnector } from "../../../
 
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/bnb";
 import * as Mockable from "../../../../src/mockable";
-import { propagateCtxMock } from "../../../globalTestHook";
+import { getBestProviderMock, propagateCtxMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { constants, Contract } from "ethers";
 
@@ -21,6 +21,7 @@ describe("Helpers: Bnb", () => {
 
     it("should throw an error if no provider for spoke domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.B];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
@@ -28,6 +29,7 @@ describe("Helpers: Bnb", () => {
 
     it("should throw an error if no provider for hub domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.A];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);

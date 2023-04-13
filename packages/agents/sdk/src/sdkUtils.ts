@@ -1,10 +1,18 @@
-import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
+import { utils, BigNumber } from "ethers";
+import {
+  Logger,
+  ChainData,
+  formatUrl,
+  XTransferStatus,
+  transfersCastForUrl,
+  XTransferErrorStatus,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
-import { ChainDataUndefined } from "./lib/errors";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
+import { RouterBalance } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
@@ -50,12 +58,7 @@ export class SdkUtils extends SdkShared {
    * ```
    */
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkUtils> {
-    const chainData = _chainData ?? (await getChainData());
-    if (!chainData) {
-      throw new ChainDataUndefined();
-    }
-
-    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const { nxtpConfig, chainData } = await getConfig(_config, contractDeployments, _chainData);
     const logger = _logger
       ? _logger.child({ name: "SdkUtils" })
       : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });
@@ -66,7 +69,12 @@ export class SdkUtils extends SdkShared {
   /**
    * Fetches a list of router liquidity data.
    *
+   * @param params - (optional) Parameters object.
+   * @param params.order - (optional) The object with orderBy and ascOrDesc options.
+   * @param params.order.orderBy - (optional) Field to order by.
+   * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
    * @returns Array of objects containing the router address and liquidity information, in the form of:
+   *
    * ```ts
    * {
    *   "address": "0xf26c772c0ff3a6036bddabdaba22cf65eca9f97c",
@@ -85,8 +93,38 @@ export class SdkUtils extends SdkShared {
    *}
    * ```
    */
-  async getRoutersData(): Promise<any> {
-    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
+  async getRoutersData(params?: {
+    order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+  }): Promise<RouterBalance[]> {
+    const { order } = params ?? {};
+
+    const orderBy = order?.orderBy ? order.orderBy : "";
+    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Fetches router liquidity for each domain.
+   *
+   * @param params - (optional) Parameters object.
+   * @param params.order - (optional) The object with orderBy and ascOrDesc options.
+   * @param params.order.orderBy - (optional) Field to order by.
+   * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
+   */
+  async getRouterLiquidity(params?: { order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" } }): Promise<any> {
+    const { order } = params ?? {};
+
+    const orderBy = order?.orderBy ? order.orderBy : "";
+    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+
+    const uri = formatUrl(this.config.cartographerUrl!, "router_liquidity?", orderIdentifier);
     // Validate uri
     validateUri(uri);
 
@@ -96,14 +134,17 @@ export class SdkUtils extends SdkShared {
   /**
    * Fetches the transfers that match filter criteria.
    *
-   * @param userAddress - (optional) The origin caller address.
-   * @param routerAddress - (optional) The router that facilitated the transfer.
-   * @param status - (optional) The xcall status.
-   * @param transferId - (optional) The unique transfer ID of the xcall.
-   * @param transactionHash - (optional) The transaction hash associated with the xcall.
-   * @param range - (optional) The object with limit and offset options.
-   * @param range.limit - (optional) The number of results to get.
-   * @param range.offset - (optional) The offset in the returned data to start from.
+   * @param params - (optional) Parameters object.
+   * @param params.userAddress - (optional) The origin caller address.
+   * @param params.routerAddress - (optional) The router that facilitated the transfer.
+   * @param params.status - (optional) The xcall status.
+   * @param params.errorStatus - (optional) The xcall error status.
+   * @param params.transferId - (optional) The unique transfer ID of the xcall.
+   * @param params.transactionHash - (optional) The transaction hash associated with the xcall.
+   * @param params.xcallCaller - (optional) The origin caller of the xcall.
+   * @param params.range - (optional) The object with limit and offset options.
+   * @param params.range.limit - (optional) The number of results to get.
+   * @param params.range.offset - (optional) The offset in the returned data to start from.
    * @returns The object containing transfer data in the form of:
    *
    * ```ts
@@ -161,34 +202,39 @@ export class SdkUtils extends SdkShared {
    *   "xcall_tx_origin": "0x6d2a06543d23cc6523ae5046add8bb60817e0a94",
    *   "execute_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
    *   "reconcile_tx_origin": "0x29d33fcd30240d55b9280362599d5066c1a2cf10",
-   *   "relayer_fee": "8424181656635272573"
+   *   "relayer_fee": "8424181656635272573",
+   *   "error_status": null
    * }
    * ```
    */
-  async getTransfers(params: {
+  async getTransfers(params?: {
     userAddress?: string;
     routerAddress?: string;
     status?: XTransferStatus;
+    errorStatus?: XTransferErrorStatus;
     transferId?: string;
     transactionHash?: string;
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range } = params;
+    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } =
+      params ?? {};
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
     const statusIdentifier = status ? `status=eq.${status}&` : "";
+    const errorStatusIdentifier = errorStatus ? `error_status=eq.${errorStatus}&` : "";
     const transferIdIdentifier = transferId ? `transfer_id=eq.${transferId.toLowerCase()}&` : "";
     const transactionHashIdentifier = transactionHash
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
       : "";
-    const xcallCallerIdentifier = transactionHash ? `xcall_caller=eq.${transactionHash.toLowerCase()}&` : "";
+    const xcallCallerIdentifier = xcallCaller ? `xcall_caller=eq.${xcallCaller.toLowerCase()}&` : "";
 
     const searchIdentifier =
       userIdentifier +
       routerIdentifier +
       statusIdentifier +
+      errorStatusIdentifier +
       transferIdIdentifier +
       transactionHashIdentifier +
       xcallCallerIdentifier;
@@ -208,5 +254,30 @@ export class SdkUtils extends SdkShared {
     validateUri(uri);
 
     return await axiosGetRequest(uri);
+  }
+
+  /**
+   * Checks available router liquidity for a specific asset.
+   *
+   * @param domainId - The domain ID where the asset exists.
+   * @param asset - The address of the asset.
+   * @param topN - The top N routers by liquidity, should match the auction round depth (N = 2^(depth-1).
+   * @returns The total router liquidity available for the asset.
+   *
+   */
+  async checkRouterLiquidity(domainId: string, asset: string, topN?: number): Promise<BigNumber> {
+    const _asset = utils.getAddress(asset);
+    const _topN = topN ?? 4;
+
+    const routersByLargestBalance = await this.getRoutersData({ order: { orderBy: "balance", ascOrDesc: "desc" } });
+
+    const eligibleRouters = Array.from(routersByLargestBalance).filter(
+      (routerBalance: RouterBalance) =>
+        routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset,
+    );
+
+    return eligibleRouters
+      .slice(0, _topN)
+      .reduce((acc, router) => acc.add(BigNumber.from(router.balance.toString())), BigNumber.from(0));
   }
 }

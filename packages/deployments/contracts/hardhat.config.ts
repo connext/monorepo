@@ -1,4 +1,3 @@
-import { config as envConfig } from "dotenv";
 import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
@@ -10,11 +9,14 @@ import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
+import "@matterlabs/hardhat-zksync-deploy";
+import "@matterlabs/hardhat-zksync-solc";
+import "@matterlabs/hardhat-zksync-verify";
 import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/addWatcher";
+import "./tasks/approveRouter";
 import "./tasks/addAdmin";
-import "./tasks/setupRouter";
 import "./tasks/setupAsset";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";
@@ -53,12 +55,11 @@ import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
+import "./tasks/connector/claimPolygonZk";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
 import { hardhatNetworks } from "./src/config";
-
-envConfig();
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -77,6 +78,11 @@ const config: HardhatUserConfig = {
         settings: {},
       },
     ],
+  },
+  zksolc: {
+    version: "1.3.5",
+    compilerSource: "binary",
+    settings: {},
   },
   paths: {
     artifacts: "./artifacts",
@@ -102,6 +108,7 @@ const config: HardhatUserConfig = {
       "gnosis-testnet": process.env.GNOSISSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
       chapel: process.env.BNBSCAN_API_KEY!,
+      consensys: "abc",
       // mainnets
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
@@ -125,6 +132,22 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://blockscout.chiadochain.net/api",
           browserURL: "https://blockscout.chiadochain.net",
+        },
+      },
+      {
+        network: "consensys",
+        chainId: 59140,
+        urls: {
+          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
+          browserURL: "https://explorer.goerli.zkevm.consensys.net",
+        },
+      },
+      {
+        network: "zksync2-testnet",
+        chainId: 280,
+        urls: {
+          apiURL: "hhttps://zksync2-testnet.zkscan.io/api",
+          browserURL: "https://zksync2-testnet.zkscan.io",
         },
       },
     ],
@@ -153,7 +176,7 @@ const config: HardhatUserConfig = {
     strict: false,
     filter: function (abiElement, index, fullAbi, fullyQualifiedName) {
       const contractName = fullyQualifiedName.split(":")[1];
-      if (abiElement.type === "error" && abiElement.name.includes("Facet") && !abiElement.name.includes(contractName)) {
+      if (abiElement.type === "error" && !abiElement.name.includes(contractName)) {
         return false;
       }
 

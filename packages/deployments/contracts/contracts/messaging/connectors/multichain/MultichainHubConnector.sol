@@ -22,6 +22,15 @@ contract MultichainHubConnector is HubConnector, BaseMultichain {
     BaseMultichain(_amb, _mirrorChainId, _gasCap)
   {}
 
+  // ============ Public fns ============
+  /**
+   * @notice Overrides `Connector.processMessage` to revert as multichain should
+   * use `anyExecute` pathway instead.
+   */
+  function processMessage(bytes memory /*_data*/) external override {
+    revert Connector__processMessage_notUsed();
+  }
+
   // ============ Private fns ============
   /**
    * @dev Handles an incoming `outboundRoot`

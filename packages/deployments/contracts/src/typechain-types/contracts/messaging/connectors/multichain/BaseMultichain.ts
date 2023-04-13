@@ -32,6 +32,7 @@ export interface BaseMultichainInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "anyExecute(bytes)": FunctionFragment;
     "delay()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -46,6 +47,7 @@ export interface BaseMultichainInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "anyExecute"
       | "delay"
+      | "gasCap"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -64,6 +66,7 @@ export interface BaseMultichainInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -90,6 +93,7 @@ export interface BaseMultichainInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "anyExecute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -190,6 +194,8 @@ export interface BaseMultichain extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeNewOwner(
@@ -224,6 +230,8 @@ export interface BaseMultichain extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proposeNewOwner(
@@ -255,6 +263,8 @@ export interface BaseMultichain extends BaseContract {
     ): Promise<[boolean, string] & { success: boolean; result: string }>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -313,6 +323,8 @@ export interface BaseMultichain extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -347,6 +359,8 @@ export interface BaseMultichain extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

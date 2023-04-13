@@ -1,14 +1,12 @@
-import { config } from "dotenv";
 import commandLineArgs from "command-line-args";
 import { providers, utils, Wallet } from "ethers";
 import { HttpNetworkUserConfig } from "hardhat/types";
+import { domainToChainId } from "@connext/nxtp-utils";
 
 import { hardhatNetworks } from "../../config";
-import { delay, domainToChainId } from "../../domain";
+import { delay } from "../../domain";
 
 import { NetworkStack, MAX_PERIOD, MIN_PERIOD, SUPPORTED_DOMAINS, getDeployments, MIN_WALLET_GAS } from "./helpers";
-
-config();
 
 export const optionDefinitions: commandLineArgs.OptionDefinition[] = [
   { name: "env", type: String },

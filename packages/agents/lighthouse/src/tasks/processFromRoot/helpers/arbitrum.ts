@@ -4,8 +4,9 @@ import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import { getContext } from "../processFromRoot";
-import { ConfirmDataDoesNotMatch, NoRootAvailable } from "../errors";
+import { ConfirmDataDoesNotMatch, NoRootAvailable, RollUpNodeStaked } from "../errors";
 import { EventFetcher, JsonRpcProvider, L2TransactionReceipt, RollupUserLogic__factory } from "../../../mockable";
+import { ArbitrumNodeCreatedEventsNotFound } from "../../../errors";
 
 import { GetProcessArgsParams } from ".";
 
@@ -74,10 +75,12 @@ export const getProcessFromArbitrumRootArgs = async ({
   //    find the event emitted after the `ethBlockNum` of the message containing a matching
   //    sendRoot. Find the nodeNum from this event, and submit to chain (seen below)
   const arbNetwork = l2Networks[spokeChainId];
+  const latest = await hubJsonProvider.getBlockNumber();
   const fetcher = new EventFetcher(hubJsonProvider);
   logger.info("Fetching events", requestContext, methodContext, {
     arbNetworkRollup: arbNetwork.ethBridge.rollup,
     fromBlock: msg.event.ethBlockNum,
+    latest,
   });
   const logs = await fetcher.getEvents(
     arbNetwork.ethBridge.rollup,
@@ -86,9 +89,13 @@ export const getProcessFromArbitrumRootArgs = async ({
     (t) => t.filters.NodeCreated(),
     {
       fromBlock: msg.event.ethBlockNum.toNumber(),
-      toBlock: "latest",
+      toBlock: latest,
     },
   );
+
+  if (logs.length === 0) {
+    throw new ArbitrumNodeCreatedEventsNotFound(msg.event.ethBlockNum, { sendHash, latest });
+  }
 
   // use binary search to find the first node with sendCount > this.event.position
   // default to the last node since we already checked above
@@ -128,12 +135,20 @@ export const getProcessFromArbitrumRootArgs = async ({
     to: arbNetwork.ethBridge.rollup,
   });
   const [node] = iface.decodeFunctionResult("getNode", nodeData);
+  logger.info("Got rollup node data", requestContext, methodContext, {
+    node,
+  });
+
   const confirmData = node.confirmData.toLowerCase() as string;
   const encoded = utils
     .keccak256(utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [foundBlock.hash, foundBlock.sendRoot]))
     .toLowerCase();
   if (confirmData !== encoded) {
     throw new ConfirmDataDoesNotMatch(confirmData, encoded, { requestContext, methodContext });
+  }
+
+  if (node.stakerCount.toNumber() == 0 || node.childStakerCount.toNumber() == 0) {
+    throw new RollUpNodeStaked(node.stakerCount.toNumber() as number, node.childStakerCount.toNumber() as number);
   }
 
   // get the proof
