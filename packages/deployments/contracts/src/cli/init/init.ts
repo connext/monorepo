@@ -24,8 +24,12 @@ import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
 
+// defines which stages of the init script should be executed
+const STAGES = ["messaging", "agents", "assets", "all"] as const;
+type Stage = (typeof STAGES)[number];
+
 export const optionDefinitions = [
-  { name: "name", defaultOption: true },
+  { name: "name", defaultOption: true, defaultValue: "all" },
   { name: "network", type: String },
   { name: "env", type: String },
   { name: "apply", type: String, defaultValue: "false" },
@@ -44,8 +48,12 @@ export const sanitizeAndInit = async () => {
   }
 
   // Validate command line arguments
-  const { network, env, domains: _domains, apply: _apply } = cmdArgs;
+  const { network, env, domains: _domains, apply: _apply, name } = cmdArgs;
   const apply = _apply === "true";
+  if (!STAGES.includes(name as Stage)) {
+    throw new Error(`Name should be one of ${STAGES.join()}, name: ${name}`);
+  }
+
   if (!["staging", "production"].includes(env as string)) {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
@@ -225,7 +233,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized, apply);
+  await initProtocol(sanitized, apply, name as Stage);
 };
 
 /**
@@ -236,262 +244,273 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack, apply: boolean) => {
+export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stage: Stage) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
   const chainData = await getChainData();
 
+  /// MARK - Stage helper
+  const shouldExecute = (s: Stage): boolean => {
+    return stage === s || stage === "all";
+  };
+
   /// ********************* Messaging **********************
   /// MARK - Messaging
-  await setupMessaging(protocol, apply);
+  if (shouldExecute("messaging")) {
+    await setupMessaging(protocol, apply);
 
-  /// ********************* CONNEXT *********************
-  /// MARK - Enroll Handlers
-  console.log("\n\nENROLLING HANDLERS");
-  for (let i = 0; i < protocol.networks.length; i++) {
-    const targetNetwork = protocol.networks[i];
-    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    for (const remoteNetwork of remoteNetworks) {
-      const desiredConnextion = remoteNetwork.deployments.Connext.address;
+    /// ********************* CONNEXT *********************
+    /// MARK - Enroll Handlers
+    console.log("\n\nENROLLING HANDLERS");
+    for (let i = 0; i < protocol.networks.length; i++) {
+      const targetNetwork = protocol.networks[i];
+      const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+      for (const remoteNetwork of remoteNetworks) {
+        const desiredConnextion = remoteNetwork.deployments.Connext.address;
+        await updateIfNeeded({
+          apply,
+          deployment: targetNetwork.deployments.Connext,
+          desired: desiredConnextion,
+          read: { method: "remote", args: [remoteNetwork.domain] },
+          write: {
+            method: "enrollRemoteRouter",
+            args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+          },
+          chainData,
+        });
+      }
+    }
+
+    /// MARK - Set relayerFeeVault
+    console.log("\n\nENROLLING RELAYER FEE VAULT");
+    for (const network of protocol.networks) {
+      const {
+        relayerFeeVault,
+        deployments: { Connext },
+      } = network;
+
       await updateIfNeeded({
         apply,
-        deployment: targetNetwork.deployments.Connext,
-        desired: desiredConnextion,
-        read: { method: "remote", args: [remoteNetwork.domain] },
-        write: {
-          method: "enrollRemoteRouter",
-          args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-        },
+        deployment: Connext,
+        desired: relayerFeeVault,
+        read: { method: "relayerFeeVault" },
+        write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
         chainData,
       });
     }
-  }
 
-  /// MARK - Set relayerFeeVault
-  console.log("\n\nENROLLING RELAYER FEE VAULT");
-  for (const network of protocol.networks) {
-    const {
-      relayerFeeVault,
-      deployments: { Connext },
-    } = network;
+    /// ********************* Relayer Proxy **********************
+    /// MARK - relayer proxy
+    console.log("\n\nCONFIGURE RELAYER PROXY");
+    // On all domains, ensure the following are correctly set:
+    // - connext
+    // - spoke connector
+    // - gelato relayer -- TODO: need to update config
+    // - gelato fee collector -- TODO: need to update config
+    for (const network of protocol.networks) {
+      const isHub = network.domain === protocol.hub;
+      const { Connext, messaging } = network.deployments;
 
-    await updateIfNeeded({
-      apply,
-      deployment: Connext,
-      desired: relayerFeeVault,
-      read: { method: "relayerFeeVault" },
-      write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
-      chainData,
-    });
-  }
-
-  /// ********************* Relayer Proxy **********************
-  /// MARK - relayer proxy
-  console.log("\n\nCONFIGURE RELAYER PROXY");
-  // On all domains, ensure the following are correctly set:
-  // - connext
-  // - spoke connector
-  // - gelato relayer -- TODO: need to update config
-  // - gelato fee collector -- TODO: need to update config
-  for (const network of protocol.networks) {
-    const isHub = network.domain === protocol.hub;
-    const { Connext, messaging } = network.deployments;
-
-    // update connext
-    await updateIfNeeded({
-      apply,
-      deployment: messaging.RelayerProxy,
-      desired: Connext.address,
-      read: { method: "connext" },
-      write: { method: "setConnext", args: [Connext.address] },
-      chainData,
-    });
-
-    // update spoke -- use MainnetConnector key if on hub
-    const spokeConnector = isHub
-      ? (messaging as HubMessagingDeployments).MainnetConnector.address
-      : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
-    await updateIfNeeded({
-      apply,
-      deployment: messaging.RelayerProxy,
-      desired: spokeConnector,
-      read: { method: "spokeConnector" },
-      write: { method: "setSpokeConnector", args: [spokeConnector] },
-      chainData,
-    });
-
-    // TODO: gelato relayer
-    // TODO: gelato fee connector
-
-    // On hub, ensure the following are correctly set:
-    // - root manager
-    if (isHub) {
-      const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
+      // update connext
       await updateIfNeeded({
         apply,
         deployment: messaging.RelayerProxy,
-        desired: rootManager,
-        read: { method: "rootManager" },
-        write: { method: "setRootManager", args: [rootManager] },
+        desired: Connext.address,
+        read: { method: "connext" },
+        write: { method: "setConnext", args: [Connext.address] },
         chainData,
       });
+
+      // update spoke -- use MainnetConnector key if on hub
+      const spokeConnector = isHub
+        ? (messaging as HubMessagingDeployments).MainnetConnector.address
+        : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
+      await updateIfNeeded({
+        apply,
+        deployment: messaging.RelayerProxy,
+        desired: spokeConnector,
+        read: { method: "spokeConnector" },
+        write: { method: "setSpokeConnector", args: [spokeConnector] },
+        chainData,
+      });
+
+      // TODO: gelato relayer
+      // TODO: gelato fee connector
+
+      // On hub, ensure the following are correctly set:
+      // - root manager
+      if (isHub) {
+        const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
+        await updateIfNeeded({
+          apply,
+          deployment: messaging.RelayerProxy,
+          desired: rootManager,
+          read: { method: "rootManager" },
+          write: { method: "setRootManager", args: [rootManager] },
+          chainData,
+        });
+      }
     }
   }
 
   /// ********************* ASSETS **********************
-  /// MARK - Register Assets
-  console.log("\n\nREGISTER ASSETS");
-  // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
-  // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
-  // If so, initialize stableswap pool with `initializeSwap`.
-  // Call `setupAsset` for each domain. This will:
-  // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
-  // - Set up mapping for stableswap pool if applicable.
-  for (const asset of protocol.assets) {
-    await setupAsset({
-      apply,
-      asset,
-      networks: protocol.networks,
-      chainData,
-    });
+  if (shouldExecute("assets")) {
+    /// MARK - Register Assets
+    console.log("\n\nREGISTER ASSETS");
+    // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
+    // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
+    // If so, initialize stableswap pool with `initializeSwap`.
+    // Call `setupAsset` for each domain. This will:
+    // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
+    // - Set up mapping for stableswap pool if applicable.
+    for (const asset of protocol.assets) {
+      await setupAsset({
+        apply,
+        asset,
+        networks: protocol.networks,
+        chainData,
+      });
+    }
   }
 
   /// ********************* AGENTS **********************
-  if (protocol.agents) {
-    /// MARK - Watchers
-    if (protocol.agents.watchers) {
-      if (protocol.agents.watchers.allowlist) {
-        console.log("\n\nWHITELIST WATCHERS");
+  if (shouldExecute("agents")) {
+    if (protocol.agents) {
+      /// MARK - Watchers
+      if (protocol.agents.watchers) {
+        if (protocol.agents.watchers.allowlist) {
+          console.log("\n\nWHITELIST WATCHERS");
 
-        // Get hub domain for specific use.
-        const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
+          // Get hub domain for specific use.
+          const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
 
-        /// MARK - Contracts
-        // Convenience setup for contracts.
-        const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
+          /// MARK - Contracts
+          // Convenience setup for contracts.
+          const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
 
-        // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-        // Allowlist watchers in RootManager.
-        for (const watcher of protocol.agents.watchers.allowlist) {
-          await updateIfNeeded({
-            apply,
-            deployment: WatcherManager,
-            desired: true,
-            read: { method: "isWatcher", args: [watcher] },
-            write: { method: "addWatcher", args: [watcher] },
-            chainData,
-          });
+          // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+          // Allowlist watchers in RootManager.
+          for (const watcher of protocol.agents.watchers.allowlist) {
+            await updateIfNeeded({
+              apply,
+              deployment: WatcherManager,
+              desired: true,
+              read: { method: "isWatcher", args: [watcher] },
+              write: { method: "addWatcher", args: [watcher] },
+              chainData,
+            });
+          }
         }
+        // TODO: Blacklist/remove watchers.
       }
-      // TODO: Blacklist/remove watchers.
-    }
 
-    /// MARK - Relayers
-    if (protocol.agents.relayers) {
-      if (protocol.agents.relayers.allowlist) {
-        console.log("\n\nWHITELIST RELAYERS");
+      /// MARK - Relayers
+      if (protocol.agents.relayers) {
+        if (protocol.agents.relayers.allowlist) {
+          console.log("\n\nWHITELIST RELAYERS");
 
-        for (const network of protocol.networks) {
-          const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
-          await updateIfNeeded({
-            apply,
-            deployment: network.deployments.Connext,
-            desired: true,
-            read: { method: "approvedRelayers", args: [relayerProxyAddress] },
-            write: { method: "addRelayer", args: [relayerProxyAddress] },
-            chainData,
-          });
-
-          await updateIfNeeded({
-            apply,
-            deployment: network.deployments.messaging.RelayerProxy,
-            desired: GELATO_RELAYER_ADDRESS,
-            read: { method: "gelatoRelayer" },
-            write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
-            chainData,
-          });
-
-          const feeCollector = network.relayerFeeVault;
-          await updateIfNeeded({
-            apply,
-            deployment: network.deployments.messaging.RelayerProxy,
-            desired: feeCollector,
-            read: { method: "feeCollector" },
-            write: { method: "setFeeCollector", args: [feeCollector] },
-            chainData,
-          });
-        }
-
-        // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
-        for (const relayer of protocol.agents.relayers.allowlist) {
           for (const network of protocol.networks) {
+            const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
+            await updateIfNeeded({
+              apply,
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedRelayers", args: [relayerProxyAddress] },
+              write: { method: "addRelayer", args: [relayerProxyAddress] },
+              chainData,
+            });
+
             await updateIfNeeded({
               apply,
               deployment: network.deployments.messaging.RelayerProxy,
-              desired: true,
-              read: { method: "allowedRelayer", args: [relayer] },
-              write: { method: "addRelayer", args: [relayer] },
+              desired: GELATO_RELAYER_ADDRESS,
+              read: { method: "gelatoRelayer" },
+              write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
               chainData,
             });
 
-            // also add relayers to the base connext contract
+            const feeCollector = network.relayerFeeVault;
             await updateIfNeeded({
               apply,
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "approvedRelayers", args: [relayer] },
-              write: { method: "addRelayer", args: [relayer] },
+              deployment: network.deployments.messaging.RelayerProxy,
+              desired: feeCollector,
+              read: { method: "feeCollector" },
+              write: { method: "setFeeCollector", args: [feeCollector] },
               chainData,
             });
           }
-        }
-        // Additionally, approve relayers as callers for connectors and root manager.
-      }
-      // TODO: Blacklist/remove relayers.
-    }
 
-    /// MARK - Sequencers
-    if (protocol.agents.sequencers) {
-      if (protocol.agents.sequencers.allowlist) {
-        console.log("\n\nWHITELIST SEQUENCERS");
-        // Allowlist named sequencers.
-        for (const sequencer of protocol.agents.sequencers.allowlist) {
-          for (const network of protocol.networks) {
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "approvedSequencers", args: [sequencer] },
-              write: { method: "addSequencer", args: [sequencer] },
-              chainData,
-            });
-          }
-        }
-      }
-      // TODO: Blacklist/remove sequencers.
-    }
+          // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
+          for (const relayer of protocol.agents.relayers.allowlist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.messaging.RelayerProxy,
+                desired: true,
+                read: { method: "allowedRelayer", args: [relayer] },
+                write: { method: "addRelayer", args: [relayer] },
+                chainData,
+              });
 
-    //   /// MARK - Routers
-    if (protocol.agents.routers) {
-      if (protocol.agents.routers.allowlist) {
-        console.log("\n\nWHITELIST ROUTERS");
-        // Allowlist connext routers.
-        for (const router of protocol.agents.routers.allowlist) {
-          for (const network of protocol.networks) {
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "getRouterApproval", args: [router] },
-              // TODO: Should we enable configuring owner and recipient for this script, too?
-              write: { method: "approveRouter", args: [router] },
-              chainData,
-            });
+              // also add relayers to the base connext contract
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: true,
+                read: { method: "approvedRelayers", args: [relayer] },
+                write: { method: "addRelayer", args: [relayer] },
+                chainData,
+              });
+            }
+          }
+          // Additionally, approve relayers as callers for connectors and root manager.
+        }
+        // TODO: Blacklist/remove relayers.
+      }
+
+      /// MARK - Sequencers
+      if (protocol.agents.sequencers) {
+        if (protocol.agents.sequencers.allowlist) {
+          console.log("\n\nWHITELIST SEQUENCERS");
+          // Allowlist named sequencers.
+          for (const sequencer of protocol.agents.sequencers.allowlist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: true,
+                read: { method: "approvedSequencers", args: [sequencer] },
+                write: { method: "addSequencer", args: [sequencer] },
+                chainData,
+              });
+            }
           }
         }
+        // TODO: Blacklist/remove sequencers.
       }
-      // TODO: Blacklist/remove routers.
+
+      //   /// MARK - Routers
+      if (protocol.agents.routers) {
+        if (protocol.agents.routers.allowlist) {
+          console.log("\n\nWHITELIST ROUTERS");
+          // Allowlist connext routers.
+          for (const router of protocol.agents.routers.allowlist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: true,
+                read: { method: "getRouterApproval", args: [router] },
+                // TODO: Should we enable configuring owner and recipient for this script, too?
+                write: { method: "approveRouter", args: [router] },
+                chainData,
+              });
+            }
+          }
+        }
+        // TODO: Blacklist/remove routers.
+      }
     }
   }
 };
