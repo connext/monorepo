@@ -1,0 +1,13 @@
+
+POST https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+{
+  _meta {
+    block {
+      number
+    }
+  }
+}

@@ -4,16 +4,14 @@ import { task } from "hardhat/config";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
-  type: "asset" | "router";
   connextAddress?: string;
   env?: Env;
 };
 
-export default task("renounce-ownership", "Renounce Ownership")
-  .addParam("type", "Type of ownership to renounce, either asset or router")
+export default task("renounce-router-ownership", "Renounce Ownership")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ type, connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+  .setAction(async ({ connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await ethers.getUnnamedSigners();
@@ -21,7 +19,6 @@ export default task("renounce-ownership", "Renounce Ownership")
 
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    console.log("type: ", type);
     console.log("deployer: ", deployer.address);
 
     const connextName = getDeploymentName("Connext", env);
@@ -30,23 +27,10 @@ export default task("renounce-ownership", "Renounce Ownership")
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
     console.log("connextAddress: ", connextAddress);
 
-    let ownershipTimestampFunction;
-    let proposeRenunciationFunction;
-    let renounceFunction;
-    let renouncedEvent;
-    if (type === "router") {
-      ownershipTimestampFunction = connext.routerOwnershipTimestamp;
-      proposeRenunciationFunction = connext.proposeRouterOwnershipRenunciation;
-      renounceFunction = connext.renounceRouterOwnership;
-      renouncedEvent = "RouterOwnershipRenounced";
-    } else if (type === "asset") {
-      ownershipTimestampFunction = connext.assetOwnershipTimestamp;
-      proposeRenunciationFunction = connext.proposeAssetOwnershipRenunciation;
-      renounceFunction = connext.renounceAssetOwnership;
-      renouncedEvent = "AssetOwnershipRenounced";
-    } else {
-      throw new Error("Unsupported type");
-    }
+    const ownershipTimestampFunction = connext.routerAllowlistTimestamp;
+    const proposeRenunciationFunction = connext.proposeRouterAllowlistRemoval;
+    const renounceFunction = connext.removeRouterAllowlist;
+    const renouncedEvent = "RouterAllowlistRemoved";
 
     // Check to see if renunciation event has ever been emitted
     const [event] = await connext.queryFilter(
@@ -54,7 +38,7 @@ export default task("renounce-ownership", "Renounce Ownership")
       connextDeployment.receipt?.blockNumber,
     );
     if (event) {
-      console.log(`${type} ownership already renounced: ${event.transactionHash}`);
+      console.log(`router ownership already renounced: ${event.transactionHash}`);
       return;
     }
 

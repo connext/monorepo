@@ -1,14 +1,6 @@
-import {
-  RequestContext,
-  createLoggingContext,
-  Bid,
-  OriginTransfer,
-  NATIVE_TOKEN,
-  NxtpError,
-} from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { RequestContext, createLoggingContext, Bid, OriginTransfer, GELATO_RELAYER_ADDRESS } from "@connext/nxtp-utils";
 
-import { sendWithRelayerWithBackup, getEstimatedFee } from "../../../mockable";
+import { sendWithRelayerWithBackup } from "../../../mockable";
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 
@@ -23,10 +15,10 @@ export const sendExecuteFastToRelayer = async (
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayers },
+    adapters: { chainreader, relayers, database },
   } = getContext();
   const {
-    auctions: { encodeExecuteFromBids, encodeRelayerProxyExecuteFromBids },
+    auctions: { encodeExecuteFromBids },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToRelayer.name, _requestContext);
@@ -38,63 +30,22 @@ export const sendExecuteFastToRelayer = async (
 
   const executeEncodedData = await encodeExecuteFromBids(round, bids, transfer, requestContext);
 
-  /// Temp: Using relayer proxy
-  const domain = +transfer.xparams.destinationDomain;
-  const destinationRelayerProxyAddress = config.chains[transfer.xparams.destinationDomain].deployments.relayerProxy;
+  // Simulation data for Execute transfer
+  const relayerFrom = GELATO_RELAYER_ADDRESS;
 
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
-    destinationChainId,
-    to: destinationConnextAddress,
-    data: executeEncodedData,
-    from: destinationRelayerProxyAddress,
-  });
-
-  const gas = await chainreader.getGasEstimateWithRevertCode(domain, {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: executeEncodedData,
-    from: destinationRelayerProxyAddress,
-  });
-
-  logger.info("Sending tx to relayer", requestContext, methodContext, {
-    relayer: destinationRelayerProxyAddress,
-    connext: destinationConnextAddress,
-    domain,
-    gas: gas.toString(),
-  });
-
-  const gasLimit = gas.add(200_000); // Add extra overhead for gelato
-
-  let fee = BigNumber.from(0);
-  try {
-    fee = await getEstimatedFee(destinationChainId, NATIVE_TOKEN, gasLimit, true);
-  } catch (e: unknown) {
-    logger.warn("Error at Gelato Estimate Fee", requestContext, methodContext, {
-      error: e as NxtpError,
-      relayerProxyAddress: destinationRelayerProxyAddress,
-      gasLimit: gasLimit.toString(),
-      relayerFee: fee.toString(),
-    });
-
-    fee = gasLimit.mul(await chainreader.getGasPrice(domain, requestContext));
-  }
-
-  logger.info("Got fees", requestContext, methodContext, { gasLimit: gasLimit.toString(), fee: fee.toString() });
-
-  const encodedData = await encodeRelayerProxyExecuteFromBids(round, bids, transfer, fee, requestContext);
-
-  logger.info("Encoding for Relayer Proxy", requestContext, methodContext, {
-    relayerProxyAddress: destinationRelayerProxyAddress,
-    gasLimit: gasLimit.toString(),
-    relayerFee: fee.toString(),
-    relayerProxyEncodedData: encodedData,
-  });
+  await database.updateExecuteSimulationData(
+    transfer.transferId,
+    executeEncodedData,
+    relayerFrom,
+    destinationConnextAddress,
+    String(destinationChainId),
+  );
 
   return await sendWithRelayerWithBackup(
     destinationChainId,
     transfer.xparams.destinationDomain,
-    destinationRelayerProxyAddress,
-    encodedData,
+    destinationConnextAddress,
+    executeEncodedData,
     relayers,
     chainreader,
     logger,

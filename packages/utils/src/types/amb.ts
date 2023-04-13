@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TIntegerString } from "./primitives";
+import { TBytes32, TIntegerString } from "./primitives";
 
 export const XMessageSchema = Type.Object({
   leaf: Type.String(),
@@ -45,6 +45,9 @@ export const RootMessageSchema = Type.Object({
   blockNumber: Type.Number(),
   processed: Type.Boolean(),
   count: Type.Number({ minimum: 0 }),
+  sentTimestamp: Type.Optional(Type.Number()),
+  sentTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
 });
 export type RootMessage = Static<typeof RootMessageSchema>;
 

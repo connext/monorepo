@@ -1,4 +1,4 @@
-import { XTransfer } from "@connext/nxtp-utils";
+import { XTransfer, BidStatus, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { getHelpers } from "../helpers";
@@ -91,15 +91,33 @@ export class TransfersCache extends Cache {
   }
 
   /**
+   * Prune transfers by Ids. Sometimes there could be cases we want to clear transfers by its id.
+   * In this case, `pruneTransfers(domain: number)` wouldn't work ideally
+   * because it deletes all the transfers with the lower nonce than the latest one.
+   *
+   * @param transferIds - The transfer Ids to be removed
+   */
+  public async pruneTransfersByIds(transferIds: string[]): Promise<void> {
+    for (const transferId of transferIds) {
+      const transfer = await this.getTransfer(transferId);
+      if (transfer) {
+        await this.data.hdel(`${this.prefix}:transfers`, transferId);
+        await this.removePending(transfer.xparams.originDomain, transferId);
+      }
+    }
+  }
+
+  /**
    * Stores a batch of transfers in the cache. All transfer data will be stored (JSON
    * stringified). Transfers are indexed by their transferId. Additionally, adds new pending transfers
    * to the cached array of pending transfer IDs.
    *
    * @param transfers - Transfers to store. All overlapping transfers (with same ID) either
    * within the same batch or existing in the current cache will be collated upon storage.
+   * @param cleanup - Determines the post action after store action
    * @returns XTransfer data
    */
-  public async storeTransfers(transfers: XTransfer[]): Promise<void> {
+  public async storeTransfers(transfers: XTransfer[], cleanup = true): Promise<void> {
     const { sanitizeNull } = getHelpers();
     const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};
@@ -118,9 +136,8 @@ export class TransfersCache extends Cache {
             ...sanitizeNull(existing),
             ...sanitizeNull(transfer),
 
-            // Origin may exist on existing and/or input transfer, either one is fine since new input can't possibly
-            // have new information.
-            origin: existing.origin ?? transfer.origin,
+            // Origin may exist on existing and/or input transfer, old one needs to be replaced because users could bump a transfer
+            origin: transfer.origin,
 
             // Destination may exist on both existing and input transfer, we need to do a nested collation in case
             // the new transfer has new information (e.g. existing has Executed data, new transfer includes Reconcile).
@@ -173,8 +190,10 @@ export class TransfersCache extends Cache {
         await this.data.hset(`${this.prefix}:nonce`, domain, nonce);
         await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
-      //prune old cache by domain
-      await this.pruneTransfers(parseInt(domain));
+      if (cleanup) {
+        //prune old cache by domain
+        await this.pruneTransfers(parseInt(domain));
+      }
     }
   }
 
@@ -248,5 +267,45 @@ export class TransfersCache extends Cache {
       await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
     }
     return isNewError;
+  }
+
+  /**
+   * Gets the transfer bid status for the given transfer ID.
+   * @param transferId - The ID of the transfer.
+   * @returns BidStatus if exists, undefined if no entry was found.
+   */
+  public async getBidStatus(transferId: string): Promise<BidStatus | undefined> {
+    const rawStatus = await this.data.hget(`${this.prefix}:status`, transferId);
+    return rawStatus ? (JSON.parse(rawStatus) as BidStatus) : undefined;
+  }
+
+  /**
+   * Sets the transfer bid status for the given transfer ID.
+   * @param transferId - The ID of the transfer.
+   * @returns Cache update result number.
+   */
+  public async setBidStatus(transferId: string): Promise<number> {
+    const currentBid = await this.getBidStatus(transferId);
+    const attempt = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const currrentStatus: BidStatus = {
+      // Update the timestamp to current time
+      timestamp: getNtpTimeSeconds().toString(),
+      attempts: attempt,
+    };
+    return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
+  }
+
+  /**
+   * Prune transfer bid status from cache by transfer Ids.
+   *
+   * @param transferIds - The transfer Ids whose bid status is to be removed
+   */
+  public async pruneBidStatusByIds(transferIds: string[]): Promise<void> {
+    for (const transferId of transferIds) {
+      const currentBid = await this.getBidStatus(transferId);
+      if (currentBid) {
+        await this.data.hdel(`${this.prefix}:status`, transferId);
+      }
+    }
   }
 }

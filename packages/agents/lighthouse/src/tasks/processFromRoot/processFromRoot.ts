@@ -64,6 +64,7 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
 
     context.logger.info("Process from root boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
+      healthUrls: context.config.healthUrls,
     });
     console.log(
       `
@@ -77,13 +78,13 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
       `,
     );
 
-    // Start the prover.
+    // Start the processor.
     await processFromRoot();
     if (context.config.healthUrls.processor) {
       await sendHeartbeat(context.config.healthUrls.processor, context.logger);
     }
   } catch (e: unknown) {
-    console.error("Error starting Prover. Sad! :(", e);
+    console.error("Error starting processor. Sad! :(", e);
   } finally {
     await closeDatabase();
     process.exit();

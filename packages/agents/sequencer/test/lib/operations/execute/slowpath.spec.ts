@@ -2,14 +2,13 @@ import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } f
 import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../../src/lib/entities";
 import {
-  ExecutorVersionInvalid,
-  GasEstimationFailed,
   MissingXCall,
   ParamsInvalid,
   ExecuteSlowCompleted,
   MissingTransfer,
   MissingExecutorData,
   ExecutorDataExpired,
+  RelayerSendFailed,
 } from "../../../../src/lib/errors";
 import { executeSlowPathData, storeSlowPathData } from "../../../../src/lib/operations/execute";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
@@ -30,6 +29,7 @@ describe("Operations:Execute:SlowPath", () => {
   let getBackupDataStub: SinonStub;
   let upsertTaskStub: SinonStub;
   let pruneExecutorDataStub: SinonStub;
+  let canSubmitToRelayerStub: SinonStub;
   beforeEach(() => {
     const { executors, transfers } = ctxMock.adapters.cache;
 
@@ -45,11 +45,14 @@ describe("Operations:Execute:SlowPath", () => {
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
     publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
+    canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
+
     getGelatoRelayerAddressStub = stub();
     getHelpersStub.returns({
       relayer: {
         getGelatoRelayerAddress: getGelatoRelayerAddressStub,
       },
+      relayerfee: { canSubmitToRelayer: canSubmitToRelayerStub },
     });
 
     sendExecuteSlowToRelayerStub = stub();
@@ -73,11 +76,6 @@ describe("Operations:Execute:SlowPath", () => {
       } as ExecutorData;
 
       await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-    it("should throw if executor version isn't supported by the sequencer", async () => {
-      ctxMock.config.supportedVersion = "0.0.2";
-      const mockExecutorData = mock.entity.executorData({ executorVersion: "0.0.1" });
-      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecutorVersionInvalid);
     });
 
     it("should throw if transfer doesn't exist in the cache", async () => {
@@ -200,7 +198,6 @@ describe("Operations:Execute:SlowPath", () => {
         transferId: mockTransferId,
         encodedData: "0x22222",
       });
-      const mockTaskId = mkBytes32("0xmockTask");
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
@@ -212,7 +209,9 @@ describe("Operations:Execute:SlowPath", () => {
       setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       pruneExecutorDataStub.resolves();
-      await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
+      await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.be.rejectedWith(
+        RelayerSendFailed,
+      );
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
       expect(setExecStatusStub.callCount).to.be.eq(0);
       expect(upsertTaskStub.callCount).to.be.eq(0);

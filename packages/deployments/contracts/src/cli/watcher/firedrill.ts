@@ -1,14 +1,12 @@
-import { config } from "dotenv";
 import commandLineArgs from "command-line-args";
 import { providers, utils, Wallet } from "ethers";
 import { HttpNetworkUserConfig } from "hardhat/types";
+import { domainToChainId } from "@connext/nxtp-utils";
 
 import { hardhatNetworks } from "../../config";
-import { delay, domainToChainId } from "../../domain";
+import { delay } from "../../domain";
 
 import { NetworkStack, MAX_PERIOD, MIN_PERIOD, SUPPORTED_DOMAINS, getDeployments, MIN_WALLET_GAS } from "./helpers";
-
-config();
 
 export const optionDefinitions: commandLineArgs.OptionDefinition[] = [
   { name: "env", type: String },
@@ -79,8 +77,13 @@ export const wouldYouLikeToPlayAGame = async () => {
     const rpc = new providers.JsonRpcProvider(chainConfig.url);
 
     // ensure deployer has funds
-    if ((await deployer.connect(rpc).getBalance()).lt(MIN_WALLET_GAS)) {
-      throw new Error(`deployer needs more funds on ${chainId}`);
+    const balance = await deployer.connect(rpc).getBalance();
+    if (balance.lt(MIN_WALLET_GAS)) {
+      throw new Error(
+        `Deployer (${deployer.address}) needs more funds on ${chainId}. Has: ${utils.formatEther(
+          balance,
+        )}; Needs: ${utils.formatEther(MIN_WALLET_GAS)}`,
+      );
     }
 
     const deployments = getDeployments({

@@ -62,31 +62,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__addRemote_invalidDomain",
     type: "error",
   },
@@ -552,6 +527,12 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
         name: "caller",
         type: "address",
       },
@@ -743,6 +724,29 @@ const _abi = [
     name: "bumpTransfer",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_transferId",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_relayerFeeAsset",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_relayerFee",
+        type: "uint256",
+      },
+    ],
+    name: "bumpTransfer",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1249,6 +1253,114 @@ const _abi = [
         name: "_callData",
         type: "bytes",
       },
+      {
+        internalType: "uint256",
+        name: "_relayerFee",
+        type: "uint256",
+      },
+    ],
+    name: "xcall",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_delegate",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_slippage",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "_callData",
+        type: "bytes",
+      },
+      {
+        internalType: "uint256",
+        name: "_relayerFee",
+        type: "uint256",
+      },
+    ],
+    name: "xcallIntoLocal",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_destination",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_delegate",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_slippage",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "_callData",
+        type: "bytes",
+      },
     ],
     name: "xcallIntoLocal",
     outputs: [
@@ -1653,26 +1765,6 @@ const _abi = [
     ],
     stateMutability: "view",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
   },
   {
     inputs: [],
@@ -2613,21 +2705,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RoutersFacet__acceptProposedRouterOwner_badCaller",
     type: "error",
   },
@@ -3475,21 +3552,6 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "AssetLogic__handleOutgoingAsset_notNative",
-    type: "error",
   },
   {
     inputs: [],
@@ -4406,11 +4468,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "AssetLogic__getConfig_notRegistered",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "TokenFacet__addAssetId_alreadyAdded",
     type: "error",
   },
@@ -5246,7 +5303,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class Connext__factory {
   static readonly abi = _abi;

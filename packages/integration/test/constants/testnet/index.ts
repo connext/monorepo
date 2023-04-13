@@ -186,12 +186,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: originChainData.chainId,
       config: {
         providers: [originProvider],
-        assets: [
-          {
-            name: "TEST",
-            address: originChainAsset,
-          },
-        ],
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
@@ -207,12 +201,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: destinationChainData.chainId,
       config: {
         providers: [destinationProvider],
-        assets: [
-          {
-            name: "TEST",
-            address: destinationChainAsset,
-          },
-        ],
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
@@ -297,11 +285,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         providers: ORIGIN.config.providers,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
+        excludeListFromRelayerFee: [],
       },
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
+        excludeListFromRelayerFee: [],
       },
     },
     logLevel: "info",
@@ -309,6 +299,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 5_000,
+    executionWaitTime: 300_000,
     auctionRoundDepth: 3,
     network: "testnet",
     supportedVersion: routerPackageVersion,
@@ -331,6 +322,10 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         url: `http://${LOCALHOST}:8082`,
       },
     ],
+    database: {
+      url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+    },
+    relayerFeeTolerance: 20,
   };
 })();
 

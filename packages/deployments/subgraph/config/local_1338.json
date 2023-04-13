@@ -3,14 +3,19 @@
     "network": "mainnet",
     "source": [
       {
-        "name": "ConnextHandler",
-        "address": "0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc",
-        "startBlock": 0
+        "name": "Connext",
+        "address": "0xC0a8BC9E98BD1bEeEC0a1b127BDb3e9a5fb7EC6C",
+        "startBlock": 8162909
       },
       {
         "name": "Connector",
-        "address": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-        "startBlock": 0
+        "address": "0x1A1FcD6FE9372E6e9391FEDBe249A9a7E32D8Aaf",
+        "startBlock": 8170989
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x15D889ba5ec6548AE158a85953D907c6D78DE834",
+        "startBlock": 8162903
       }
     ]
   }

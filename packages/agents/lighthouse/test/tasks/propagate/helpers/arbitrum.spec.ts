@@ -5,7 +5,7 @@ import { BigNumber, constants, providers } from "ethers";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import * as Mockable from "../../../../src/mockable";
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/arbitrum";
-import { propagateCtxMock } from "../../../globalTestHook";
+import { getInterfaceMock, propagateCtxMock, getBestProviderMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 
@@ -21,12 +21,13 @@ describe("Helpers: Arbitrum ", () => {
     stub(Mockable, "getJsonRpcProvider").returns(createStubInstance(providers.JsonRpcProvider));
     stub(Mockable, "getL1ToL2MessageGasEstimator").returns(l1ToL2);
     stub(Mockable, "getBaseFee").resolves(BigNumber.from(1));
-    stub(Mockable, "getInterface").returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) } as any);
+    getInterfaceMock.returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) });
   });
 
   describe("#getPropagateParams", () => {
     it("should throw an error if no provider for spoke domain", async () => {
       delete propagateCtxMock.config.chains[mock.domain.B];
+      getBestProviderMock.resolves(undefined);
       await expect(
         getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext),
       ).to.eventually.be.rejectedWith(NoProviderForDomain);
@@ -56,9 +57,9 @@ describe("Helpers: Arbitrum ", () => {
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",
-        _fee: "21500",
+        _fee: "64000",
         _encodedData:
-          "0x00000000000000000000000000000000000000000000000000000000000001f400000000000000000000000000000000000000000000000000000000000001f4000000000000000000000000000000000000000000000000000000000000002a",
+          "0x00000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000005dc000000000000000000000000000000000000000000000000000000000000002a",
       });
     });
 

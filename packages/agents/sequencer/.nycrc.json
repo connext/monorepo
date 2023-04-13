@@ -2,6 +2,7 @@
   "extends": "../../../.nycrc.json",
   "exclude": [
     "src/index.ts",
+    "src/make.ts",
     "src/sequencer.ts",
     "src/publisher.ts",
     "src/subscriber.ts",

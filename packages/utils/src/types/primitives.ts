@@ -41,7 +41,6 @@ export const TAssetDescription = Type.Object({
 export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
@@ -49,6 +48,7 @@ export const TChainConfig = Type.Object({
     connext: TAddress,
     relayerProxy: TAddress,
   }),
+  assets: Type.Optional(Type.Array(TAssetDescription)), // Assets for which the router provides liquidity on this chain.
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -77,4 +77,5 @@ export const TRequiredPeripheralConfig = Type.Object({
   host: Type.Optional(Type.String()),
   user: Type.Optional(Type.String()),
   pass: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
 });

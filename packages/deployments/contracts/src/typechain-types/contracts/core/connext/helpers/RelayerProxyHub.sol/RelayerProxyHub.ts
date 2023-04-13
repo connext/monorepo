@@ -114,13 +114,24 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
+    "autonolas()": FunctionFragment;
+    "autonolasPriority()": FunctionFragment;
     "connext()": FunctionFragment;
     "delay()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
     "feeCollector()": FunctionFragment;
     "gelatoRelayer()": FunctionFragment;
+    "hubConnectors(uint32)": FunctionFragment;
+    "keep3r()": FunctionFragment;
+    "lastPropagateAt()": FunctionFragment;
     "owner()": FunctionFragment;
+    "priorityKeepers(address)": FunctionFragment;
+    "processFromRootKeep3r(bytes,uint32,bytes32)": FunctionFragment;
+    "processedRootMessages(uint32,bytes32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[],uint256)": FunctionFragment;
+    "propagateCooldown()": FunctionFragment;
+    "propagateKeep3r(address[],uint256[],bytes[])": FunctionFragment;
+    "propagateWorkable()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -130,9 +141,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "rootManager()": FunctionFragment;
     "send(bytes,uint256,uint256)": FunctionFragment;
+    "setAutonolas(address)": FunctionFragment;
+    "setAutonolasPriority(uint8)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setFeeCollector(address)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
+    "setHubConnector(address,uint32)": FunctionFragment;
+    "setKeep3r(address)": FunctionFragment;
+    "setPropagateCooldown(uint256)": FunctionFragment;
     "setRootManager(address)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
@@ -144,13 +160,24 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "addRelayer"
       | "allowedRelayer"
+      | "autonolas"
+      | "autonolasPriority"
       | "connext"
       | "delay"
       | "execute"
       | "feeCollector"
       | "gelatoRelayer"
+      | "hubConnectors"
+      | "keep3r"
+      | "lastPropagateAt"
       | "owner"
+      | "priorityKeepers"
+      | "processFromRootKeep3r"
+      | "processedRootMessages"
       | "propagate"
+      | "propagateCooldown"
+      | "propagateKeep3r"
+      | "propagateWorkable"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -160,9 +187,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "renounced"
       | "rootManager"
       | "send"
+      | "setAutonolas"
+      | "setAutonolasPriority"
       | "setConnext"
       | "setFeeCollector"
       | "setGelatoRelayer"
+      | "setHubConnector"
+      | "setKeep3r"
+      | "setPropagateCooldown"
       | "setRootManager"
       | "setSpokeConnector"
       | "spokeConnector"
@@ -181,6 +213,11 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "allowedRelayer",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "autonolas", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "autonolasPriority",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "connext", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -195,7 +232,32 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "hubConnectors",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "lastPropagateAt",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "priorityKeepers",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processFromRootKeep3r",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processedRootMessages",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "propagate",
     values: [
@@ -204,6 +266,22 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "propagateCooldown",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "propagateKeep3r",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "propagateWorkable",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -246,6 +324,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setAutonolas",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAutonolasPriority",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setConnext",
     values: [PromiseOrValue<string>]
   ): string;
@@ -256,6 +342,18 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setGelatoRelayer",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setHubConnector",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setKeep3r",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPropagateCooldown",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setRootManager",
@@ -280,6 +378,11 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "allowedRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "autonolas", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "autonolasPriority",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -291,8 +394,41 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "gelatoRelayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "hubConnectors",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastPropagateAt",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "priorityKeepers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processFromRootKeep3r",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processedRootMessages",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "propagateCooldown",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "propagateKeep3r",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "propagateWorkable",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -320,6 +456,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setAutonolas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAutonolasPriority",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setConnext", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setFeeCollector",
@@ -327,6 +471,15 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setGelatoRelayer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setHubConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setKeep3r", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setPropagateCooldown",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -344,31 +497,65 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
+    "AutonolasChanged(address,address)": EventFragment;
+    "AutonolasPriorityChanged(uint8,uint8)": EventFragment;
     "ConnextChanged(address,address)": EventFragment;
     "FeeCollectorChanged(address,address)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "GelatoRelayerChanged(address,address)": EventFragment;
+    "HubConnectorChanged(address,address,uint32)": EventFragment;
+    "Keep3rChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "PropagateCooldownChanged(uint256,uint256)": EventFragment;
     "RelayerAdded(address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
     "RootManagerChanged(address,address)": EventFragment;
     "SpokeConnectorChanged(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AutonolasChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AutonolasPriorityChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnextChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GelatoRelayerChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HubConnectorChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Keep3rChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PropagateCooldownChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootManagerChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
 }
+
+export interface AutonolasChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type AutonolasChangedEvent = TypedEvent<
+  [string, string],
+  AutonolasChangedEventObject
+>;
+
+export type AutonolasChangedEventFilter =
+  TypedEventFilter<AutonolasChangedEvent>;
+
+export interface AutonolasPriorityChangedEventObject {
+  updated: number;
+  previous: number;
+}
+export type AutonolasPriorityChangedEvent = TypedEvent<
+  [number, number],
+  AutonolasPriorityChangedEventObject
+>;
+
+export type AutonolasPriorityChangedEventFilter =
+  TypedEventFilter<AutonolasPriorityChangedEvent>;
 
 export interface ConnextChangedEventObject {
   updated: string;
@@ -427,6 +614,30 @@ export type GelatoRelayerChangedEvent = TypedEvent<
 export type GelatoRelayerChangedEventFilter =
   TypedEventFilter<GelatoRelayerChangedEvent>;
 
+export interface HubConnectorChangedEventObject {
+  hubConnector: string;
+  oldHubConnector: string;
+  chain: number;
+}
+export type HubConnectorChangedEvent = TypedEvent<
+  [string, string, number],
+  HubConnectorChangedEventObject
+>;
+
+export type HubConnectorChangedEventFilter =
+  TypedEventFilter<HubConnectorChangedEvent>;
+
+export interface Keep3rChangedEventObject {
+  updated: string;
+  previous: string;
+}
+export type Keep3rChangedEvent = TypedEvent<
+  [string, string],
+  Keep3rChangedEventObject
+>;
+
+export type Keep3rChangedEventFilter = TypedEventFilter<Keep3rChangedEvent>;
+
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -449,6 +660,18 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface PropagateCooldownChangedEventObject {
+  propagateCooldown: BigNumber;
+  oldPropagateCooldown: BigNumber;
+}
+export type PropagateCooldownChangedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  PropagateCooldownChangedEventObject
+>;
+
+export type PropagateCooldownChangedEventFilter =
+  TypedEventFilter<PropagateCooldownChangedEvent>;
 
 export interface RelayerAddedEventObject {
   relayer: string;
@@ -532,6 +755,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    autonolas(overrides?: CallOverrides): Promise<[string]>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<[number]>;
+
     connext(overrides?: CallOverrides): Promise<[string]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -546,13 +773,53 @@ export interface RelayerProxyHub extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<[string]>;
 
+    hubConnectors(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    keep3r(overrides?: CallOverrides): Promise<[string]>;
+
+    lastPropagateAt(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    processFromRootKeep3r(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    processedRootMessages(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
       _messageFees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
       _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    propagateCooldown(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    propagateKeep3r(
+      _connectors: PromiseOrValue<string>[],
+      _messageFees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    propagateWorkable(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -594,6 +861,16 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -606,6 +883,22 @@ export interface RelayerProxyHub extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setHubConnector(
+      _hubConnector: PromiseOrValue<string>,
+      _chain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPropagateCooldown(
+      _propagateCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -640,6 +933,10 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  autonolas(overrides?: CallOverrides): Promise<string>;
+
+  autonolasPriority(overrides?: CallOverrides): Promise<number>;
+
   connext(overrides?: CallOverrides): Promise<string>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -654,13 +951,53 @@ export interface RelayerProxyHub extends BaseContract {
 
   gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
+  hubConnectors(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  keep3r(overrides?: CallOverrides): Promise<string>;
+
+  lastPropagateAt(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
+
+  priorityKeepers(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  processFromRootKeep3r(
+    _encodedData: PromiseOrValue<BytesLike>,
+    _fromChain: PromiseOrValue<BigNumberish>,
+    _l2Hash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  processedRootMessages(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   propagate(
     _connectors: PromiseOrValue<string>[],
     _messageFees: PromiseOrValue<BigNumberish>[],
     _encodedData: PromiseOrValue<BytesLike>[],
     _relayerFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  propagateCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
+  propagateKeep3r(
+    _connectors: PromiseOrValue<string>[],
+    _messageFees: PromiseOrValue<BigNumberish>[],
+    _encodedData: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  propagateWorkable(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -702,6 +1039,16 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setAutonolas(
+    _autonolas: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setAutonolasPriority(
+    _autonolasPriority: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setConnext(
     _connext: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -714,6 +1061,22 @@ export interface RelayerProxyHub extends BaseContract {
 
   setGelatoRelayer(
     _gelatoRelayer: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setHubConnector(
+    _hubConnector: PromiseOrValue<string>,
+    _chain: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setKeep3r(
+    _keep3r: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPropagateCooldown(
+    _propagateCooldown: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -746,6 +1109,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    autonolas(overrides?: CallOverrides): Promise<string>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<number>;
+
     connext(overrides?: CallOverrides): Promise<string>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -760,7 +1127,34 @@ export interface RelayerProxyHub extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
+    hubConnectors(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    keep3r(overrides?: CallOverrides): Promise<string>;
+
+    lastPropagateAt(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    processFromRootKeep3r(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    processedRootMessages(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -769,6 +1163,17 @@ export interface RelayerProxyHub extends BaseContract {
       _relayerFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    propagateCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
+    propagateKeep3r(
+      _connectors: PromiseOrValue<string>[],
+      _messageFees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    propagateWorkable(overrides?: CallOverrides): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -806,6 +1211,16 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -818,6 +1233,22 @@ export interface RelayerProxyHub extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setHubConnector(
+      _hubConnector: PromiseOrValue<string>,
+      _chain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPropagateCooldown(
+      _propagateCooldown: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -837,6 +1268,24 @@ export interface RelayerProxyHub extends BaseContract {
   };
 
   filters: {
+    "AutonolasChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): AutonolasChangedEventFilter;
+    AutonolasChanged(
+      updated?: null,
+      previous?: null
+    ): AutonolasChangedEventFilter;
+
+    "AutonolasPriorityChanged(uint8,uint8)"(
+      updated?: null,
+      previous?: null
+    ): AutonolasPriorityChangedEventFilter;
+    AutonolasPriorityChanged(
+      updated?: null,
+      previous?: null
+    ): AutonolasPriorityChangedEventFilter;
+
     "ConnextChanged(address,address)"(
       updated?: null,
       previous?: null
@@ -873,6 +1322,23 @@ export interface RelayerProxyHub extends BaseContract {
       previous?: null
     ): GelatoRelayerChangedEventFilter;
 
+    "HubConnectorChanged(address,address,uint32)"(
+      hubConnector?: null,
+      oldHubConnector?: null,
+      chain?: null
+    ): HubConnectorChangedEventFilter;
+    HubConnectorChanged(
+      hubConnector?: null,
+      oldHubConnector?: null,
+      chain?: null
+    ): HubConnectorChangedEventFilter;
+
+    "Keep3rChanged(address,address)"(
+      updated?: null,
+      previous?: null
+    ): Keep3rChangedEventFilter;
+    Keep3rChanged(updated?: null, previous?: null): Keep3rChangedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -888,6 +1354,15 @@ export interface RelayerProxyHub extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "PropagateCooldownChanged(uint256,uint256)"(
+      propagateCooldown?: null,
+      oldPropagateCooldown?: null
+    ): PropagateCooldownChangedEventFilter;
+    PropagateCooldownChanged(
+      propagateCooldown?: null,
+      oldPropagateCooldown?: null
+    ): PropagateCooldownChangedEventFilter;
 
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
@@ -929,6 +1404,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    autonolas(overrides?: CallOverrides): Promise<BigNumber>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<BigNumber>;
+
     connext(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -943,13 +1422,53 @@ export interface RelayerProxyHub extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<BigNumber>;
 
+    hubConnectors(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    keep3r(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lastPropagateAt(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    processFromRootKeep3r(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    processedRootMessages(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
       _messageFees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
       _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    propagateCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
+    propagateKeep3r(
+      _connectors: PromiseOrValue<string>[],
+      _messageFees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    propagateWorkable(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -991,6 +1510,16 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1003,6 +1532,22 @@ export interface RelayerProxyHub extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setHubConnector(
+      _hubConnector: PromiseOrValue<string>,
+      _chain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPropagateCooldown(
+      _propagateCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1038,6 +1583,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    autonolas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    autonolasPriority(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     connext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1052,13 +1601,53 @@ export interface RelayerProxyHub extends BaseContract {
 
     gelatoRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    hubConnectors(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lastPropagateAt(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    priorityKeepers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    processFromRootKeep3r(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    processedRootMessages(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
       _messageFees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
       _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    propagateCooldown(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    propagateKeep3r(
+      _connectors: PromiseOrValue<string>[],
+      _messageFees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    propagateWorkable(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1100,6 +1689,16 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setAutonolas(
+      _autonolas: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAutonolasPriority(
+      _autonolasPriority: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setConnext(
       _connext: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1112,6 +1711,22 @@ export interface RelayerProxyHub extends BaseContract {
 
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setHubConnector(
+      _hubConnector: PromiseOrValue<string>,
+      _chain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setKeep3r(
+      _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPropagateCooldown(
+      _propagateCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
