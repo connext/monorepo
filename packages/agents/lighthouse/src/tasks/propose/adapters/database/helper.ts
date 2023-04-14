@@ -1,4 +1,4 @@
-import { Database } from "@connext/nxtp-adapters-database";
+// import { Database } from "@connext/nxtp-adapters-database";
 import { DBHelper } from "@connext/nxtp-utils";
 
 export class OptimisticHubDBHelper implements DBHelper {

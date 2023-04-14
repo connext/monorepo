@@ -8,7 +8,6 @@ import {
   convertFromDbMessage,
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
-  convertFromDbPropagatedRoot,
   convertFromDbSnapshotRoot,
   convertFromDbReceivedAggregateRoot,
   convertFromDbSnapshot,

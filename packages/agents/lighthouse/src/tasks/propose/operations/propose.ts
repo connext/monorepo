@@ -3,12 +3,11 @@ import {
   NxtpError,
   RequestContext,
   RootManagerMeta,
-  Snapshot,
   SnapshotRoot,
   SparseMerkleTree,
   jsonifyError,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -27,8 +26,7 @@ export const propose = async () => {
   const {
     logger,
     config,
-    chainData,
-    adapters: { chainreader, contracts, relayers, subgraph, database },
+    adapters: { database },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propose.name);
   logger.info("Starting propose operation", requestContext, methodContext);
@@ -84,7 +82,7 @@ export const propose = async () => {
 export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[], _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader, subgraph },
+    adapters: { /*contracts,*/ relayers, database, chainreader, subgraph },
     config,
     chainData,
   } = getContext();
