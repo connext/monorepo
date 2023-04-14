@@ -19,7 +19,6 @@ GRANT SELECT ON public.transfers_with_price to query;
 GRANT SELECT ON public.transfers_with_price to reader;
 
 -- migrate:down
-DROP TABLE IF EXISTS public.transfers_with_price;
-DROP TABLE IF EXISTS public.transfers_with_price;
+DROP VIEW IF EXISTS public.transfers_with_price;
 DROP INDEX IF EXISTS transfers_xcall_timestamp;
 DROP INDEX IF EXISTS asset_prices_timestamp;
