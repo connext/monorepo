@@ -1,4 +1,4 @@
-import { mock } from "@connext/nxtp-utils";
+import { mkAddress, mkHash, mock } from "@connext/nxtp-utils";
 import { stub } from "sinon";
 
 import { Database } from "../src/index";
@@ -43,7 +43,6 @@ export const mockDatabase = (): Database => {
     saveStableSwapPoolEvent: stub().resolves(),
     updateErrorStatus: stub().resolves(),
     markRootMessagesProcessed: stub().resolves(),
-    updateErrorStatus: stub().resolves(),
     updateSlippage: stub().resolves(),
     saveRouterDailyTVL: stub().resolves(),
     updateExecuteSimulationData: stub().resolves(),
@@ -51,5 +50,15 @@ export const mockDatabase = (): Database => {
     getMessageRootsFromIndex: stub().resolves(),
     getAggregateRootByRootAndDomain: stub().resolves(),
     getMessageByLeaf: stub().resolves(),
+    saveAssets: stub().resolves(),
+    saveAssetPrice: stub().resolves(),
+    getAssets: stub().resolves([
+      mock.entity.asset({
+        canonicalDomain: "1337",
+        domain: "1337",
+        canonicalId: mkHash("0xa"),
+        adoptedAsset: mkAddress("0xb"),
+      }),
+    ]),
   };
 };

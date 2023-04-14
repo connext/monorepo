@@ -65,6 +65,8 @@ import {
   getPendingTransfersByMessageStatus,
   getMessageRootsFromIndex,
   saveAssets,
+  getAssets,
+  saveAssetPrice,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -82,6 +84,7 @@ describe("Database client", () => {
   afterEach(async () => {
     await pool.query("DELETE FROM asset_balances CASCADE");
     await pool.query("DELETE FROM assets CASCADE");
+    await pool.query("DELETE FROM asset_prices CASCADE");
     await pool.query("DELETE FROM transfers CASCADE");
     await pool.query("DELETE FROM messages CASCADE");
     await pool.query("DELETE FROM root_messages CASCADE");
@@ -1137,6 +1140,43 @@ describe("Database client", () => {
         canonical_id: asset.canonicalId,
         canonical_domain: asset.canonicalDomain,
       });
+    });
+  });
+
+  it("should get assets", async () => {
+    const assets = [
+      mock.entity.asset({
+        domain: mock.domain.A,
+      }),
+      mock.entity.asset({
+        domain: mock.domain.B,
+      }),
+    ];
+    await saveAssets(assets, pool);
+    let res = await getAssets(10, 0, pool);
+    assets.forEach((asset) => {
+      expect(res).to.deep.include({
+        ...asset,
+        decimal: +asset.decimal,
+        blockNumber: undefined,
+      });
+    });
+  });
+
+  it("should save asset prices", async () => {
+    const assetPrices = [mock.entity.assetPrice(), mock.entity.assetPrice(), mock.entity.assetPrice()];
+    await saveAssetPrice(assetPrices, pool);
+    let queryRes = await pool.query("SELECT * FROM asset_prices");
+
+    assetPrices.forEach((assetPrice) => {
+      expect(queryRes.rows).to.containSubset([
+        {
+          canonical_id: assetPrice.canonicalId,
+          canonical_domain: assetPrice.canonicalDomain,
+          timestamp: assetPrice.timestamp,
+          price: String(assetPrice.price),
+        },
+      ]);
     });
   });
 
