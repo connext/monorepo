@@ -1,6 +1,6 @@
 # Relayer
 
-Relayers are a decentralized network of infrastructure operators that can execute smart contract transactions on behalf of a user in exchange for a small fee. Because the last leg of a cross-chain transaction requires execution on the destination domain, relayers play an important role in completing the full flow.
+Relayers are a decentralized network of infrastructure operators that can execute smart contract transactions on behalf of a user in exchange for a small fee. Because the last leg of a cross-chain transaction requires execution on the destination domain, relayers play an important role in completing the full flow. Additionally, relayers are used in all off-chain use-cases where we need to "write" to a contract
 
 ## Local Development
 

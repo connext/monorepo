@@ -1,6 +1,6 @@
 # Sequencer
 
-The sequencer collects bids from all chains and randomly selects router(s) to fulfill them. Any number of routers can fulfill a single transaction, which is especially useful for large transfers. The sequencer will post batches of these bids to a relayer network to submit them to chain.
+The sequencer collects bids from all routers and randomly selects one or more among them to fulfill. Any number of routers can fulfill a single transaction, which is especially useful for large transfers. The sequencer will post batches of these bids to a relayer network to submit them to chain.
 
 ## Local Development
 

@@ -124,13 +124,13 @@ Setup Environment, by initiating the build:
 
 Here `yarn`: Install deps, create symlinks, hoist packages. & `yarn build:all`: Build all packages.
 
-To run RabbitMQ with the management plugin using Docker, open a new terminal window and run the following command:
+To run RabbitMQ with the management plugin using Docker, run the following command:
 
 `docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.10-management`
 
 This command will download the latest RabbitMQ image with the management plugin and start a container with the name rabbitmq.
 
-To run Redis, open a new terminal window and execute the following command:
+To run Redis, execute the following command:
 
 `docker run -it --rm --name redis -p 6379:6379 redis`
 

@@ -74,7 +74,7 @@ SERVICE=transfers yarn workspace @connext/cartographer-poller start -->
 
 Great! You are now all set up to run the cartographer poller✨.
 
-For running the poller (transfers specifically), run the command in project root -
+Each poller can be run separately, full list of pollers to start is in the `package.json` and, as an example to execute transfers, run the following command in project root -
 
 ```sh
 yarn workspace @connext/cartographer-poller start:transfers
