@@ -9,7 +9,6 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   RootManagerMode,
-  OptimisticRootProposed,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   SnapshotRoot,
@@ -21,6 +20,7 @@ import {
   StableSwapPoolEvent,
   PoolActionType,
   RouterDailyTVL,
+  Snapshot,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -384,12 +384,12 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
   };
 };
 
-export const proposedRoot = (entity: any): OptimisticRootProposed => {
+export const proposedRoot = (entity: any): Snapshot => {
   // Sanity checks.
   if (!entity) {
     throw new NxtpError("Subgraph `proposedRoot` entity parser: proposedRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "disputeCliff", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
+  for (const field of ["id", "endOfDispute", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -400,9 +400,9 @@ export const proposedRoot = (entity: any): OptimisticRootProposed => {
 
   return {
     id: entity.id,
-    disputeCliff: entity.disputeCliff,
+    endOfDispute: entity.endOfDispute,
     aggregateRoot: entity.aggregateRoot,
-    snapshotsRoots: entity.snapshotsRoots,
+    roots: entity.snapshotsRoots,
     domains: entity.domains,
     baseAggregateRoot: entity.baseAggregateRoot,
   };

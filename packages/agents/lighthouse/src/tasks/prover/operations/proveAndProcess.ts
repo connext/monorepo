@@ -11,6 +11,7 @@ import {
   createRequestContext,
   RequestContext,
   Snapshot,
+  DBHelper,
 } from "@connext/nxtp-utils";
 
 import {
@@ -28,7 +29,7 @@ import {
   NoDomainInSnapshot,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { HubDBHelper, SpokeDBHelper } from "../adapters";
+import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 export type ProofStruct = {
@@ -215,12 +216,14 @@ export const processMessages = async (
   }
 
   // Count of leafs in aggregate tree at targetAggregateRoot.
-  // TODO: Move to per domain storage adapters in context
   const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+
+  //Switch for optimistic hub
+  const hubStore: DBHelper = snapshot
+    ? new OptimisticHubDBHelper("hub", aggregateRootCount, database)
+    : new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
-  //TODO: Switch for optimistic hub
   const hubSMT = new SparseMerkleTree(hubStore);
 
   // process messages
@@ -377,34 +380,30 @@ export const proveAndProcessOpMode = async () => {
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
 
-  //TODO: Prob can be just the latest in op mode too
-  const snapshots: Snapshot[] = await database
-    .getPendingAggregateRoots
-    // destinationDomain,
-    ();
-  if (snapshots.length > 0) {
-    logger.debug("Got pending snapshots", requestContext, methodContext, {
-      snapshots,
-    });
-  } else {
-    logger.debug("No pending snapshots to process.", requestContext, methodContext, {
-      snapshots,
-    });
-    return;
-  }
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
+        //TODO: Should get the latest snapshot for which the aggregate was recieved on the destination domain
+        const snapshot = await database.getPendingAggregateRoot(destinationDomain);
+        if (snapshot) {
+          logger.debug("Got pending snapshot", requestContext, methodContext, {
+            snapshot,
+            destinationDomain,
+          });
+        } else {
+          logger.debug("No pending snapshot to process.", requestContext, methodContext, {
+            snapshot,
+            destinationDomain,
+          });
+          return;
+        }
         await Promise.all(
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
-              //TODO: Filter all snapshots that are of this origin and destination pair
               // const messageRoots = [];
-              const snapshot = snapshots[0];
               const domainIndex = snapshot.domains.indexOf(originDomain);
               if (domainIndex === -1) {
                 throw new NoDomainInSnapshot(originDomain, snapshot);

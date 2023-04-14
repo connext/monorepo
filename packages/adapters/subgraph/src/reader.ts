@@ -25,9 +25,9 @@ import {
   SlippageUpdate,
   RouterDailyTVL,
   SnapshotRoot,
-  OptimisticRootProposed,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  Snapshot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -826,7 +826,7 @@ export class SubgraphReader {
    */
   public async getProposedSnapshotsByDomain(
     params: { hub: string; snapshotId: number; limit: number }[],
-  ): Promise<OptimisticRootProposed[]> {
+  ): Promise<Snapshot[]> {
     const { parser, execute } = getHelpers();
     const proposedSnapshotsByDomainQuery = getProposedSnapshotsByDomainQuery(params);
     const response = await execute(proposedSnapshotsByDomainQuery);
@@ -841,7 +841,7 @@ export class SubgraphReader {
       _roots.push(_root);
     }
 
-    const proposedRoots: OptimisticRootProposed[] = _roots
+    const proposedRoots: Snapshot[] = _roots
       .flat()
       .filter((x: any) => !!x)
       .map(parser.proposedRoot);

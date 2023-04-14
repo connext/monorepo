@@ -5,7 +5,6 @@ import {
   ReceivedAggregateRoot,
   Snapshot,
   SnapshotRoot,
-  OptimisticRootProposed,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
 } from "@connext/nxtp-utils";
@@ -67,16 +66,13 @@ export const updateProposedSnapshots = async () => {
       limit: limit,
     });
 
-    const snapshots: OptimisticRootProposed[] = await subgraph.getProposedSnapshotsByDomain([
-      { hub, snapshotId: offset, limit },
-    ]);
+    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([{ hub, snapshotId: offset, limit }]);
 
     // Reset offset at the end of the cycle.
     // TODO: Pagination criteria off by one ?
     const newOffset = snapshots.length == 0 ? 0 : offset + snapshots.length - 1;
     if (offset === 0 || newOffset > offset) {
-      // TODO: fix types
-      // await database.saveProposedSnapshots(snapshots);
+      await database.saveProposedSnapshots(snapshots);
 
       await database.saveCheckPoint("proposed_optimistic_root" + hub, newOffset);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {

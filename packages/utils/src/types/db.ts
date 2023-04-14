@@ -1,6 +1,14 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot, Snapshot } from "./amb";
+import {
+  XMessage,
+  RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+  ReceivedAggregateRoot,
+  Snapshot,
+  SnapshotRoot,
+} from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import {
   AssetBalance,
@@ -413,11 +421,21 @@ export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
     baseAggregateRoot: snapshot.base_aggregate_root,
     roots: snapshot.roots,
     domains: snapshot.domains,
+    endOfDispute: snapshot.end_of_dispute,
     processed: snapshot.processed,
     status: snapshot.status,
     propagateTimestamp: snapshot.propagate_timestamp ?? undefined,
     propagateTaskId: snapshot.propagate_task_id ?? undefined,
     relayerType: snapshot.relayer_type ?? undefined,
+  };
+};
+
+export const convertFromDbSnapshotRoot = (snapshot: any): SnapshotRoot => {
+  return {
+    id: snapshot.id,
+    spokeDomain: snapshot.spoke_domain,
+    root: snapshot.root,
+    count: snapshot.count,
   };
 };
 

@@ -633,6 +633,7 @@ CREATE TABLE public.snapshots (
     base_aggregate_root character(66) NOT NULL,
     roots character(66)[] DEFAULT (ARRAY[]::bpchar[])::character(66)[] NOT NULL,
     domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    end_of_dispute integer NOT NULL,
     processed boolean DEFAULT false NOT NULL,
     status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
     propagate_timestamp integer,
@@ -990,14 +991,6 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: snapshot_roots snapshot_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.snapshot_roots
-    ADD CONSTRAINT snapshot_roots_id_key UNIQUE (id);
-
-
---
 -- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1050,6 +1043,34 @@ ALTER TABLE ONLY public.transfers
 --
 
 CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: snapshot_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_idx ON public.snapshot_roots USING btree (id);
+
+
+--
+-- Name: snapshot_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_root_idx ON public.snapshot_roots USING btree (root);
+
+
+--
+-- Name: snapshot_roots_spoke_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btree (spoke_domain);
+
+
+--
+-- Name: snapshots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
 
 
 --

@@ -357,7 +357,7 @@ export const SAVED_SNAPSHOT_ROOT_ENTITY = `
 `;
 export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       id
-      disputeCliff
+      endOfDispute
       aggregateRoot
       snapshotsRoots
       domains

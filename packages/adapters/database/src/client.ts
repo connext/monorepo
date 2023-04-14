@@ -9,6 +9,7 @@ import {
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
   convertFromDbPropagatedRoot,
+  convertFromDbSnapshotRoot,
   convertFromDbReceivedAggregateRoot,
   convertFromDbSnapshot,
   AggregatedRoot,
@@ -248,6 +249,7 @@ const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
     base_aggregate_root: snapshot.baseAggregateRoot,
     roots: snapshot.roots,
     domains: snapshot.domains,
+    end_of_dispute: snapshot.endOfDispute,
     processed: snapshot.processed,
     status: snapshot.status as s.snapshot_status,
     propagate_timestamp: snapshot.propagateTimestamp,
@@ -764,20 +766,21 @@ export const getLatestAggregateRoot = async (
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
 };
 
-export const getPendingAggregateRoots = async (
-  // domain: string,
-  // orderDirection: "ASC" | "DESC" = "DESC",
+export const getPendingAggregateRoot = async (
+  destinationDomain: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<Snapshot[]> => {
+): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
-  const snapshots = await db.select("snapshots", { processed: false }, { limit: 100 }).run(poolToUse);
-  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshot) : [];
+  // TODO: Join query the finds the latest aggregate root on the destination domains
+  //        and joins it snapshots to find the correcsponding snapshot
+  const snapshot = await db.selectOne("snapshots", { processed: false }, { limit: 1 }).run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
-export const getPendingSnapshots = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<Snapshot[]> => {
+export const getPendingSnapshots = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<SnapshotRoot[]> => {
   const poolToUse = _pool ?? pool;
-  const snapshots = await db.select("snapshots", { processed: false }, { limit: 100 }).run(poolToUse);
-  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshot) : [];
+  const snapshots = await db.select("snapshot_roots", { processed: false }, { limit: 100 }).run(poolToUse);
+  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshotRoot) : [];
 };
 
 export const saveProposedSnapshots = async (

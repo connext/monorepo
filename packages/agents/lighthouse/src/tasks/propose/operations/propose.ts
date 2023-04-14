@@ -4,6 +4,7 @@ import {
   RequestContext,
   RootManagerMeta,
   Snapshot,
+  SnapshotRoot,
   SparseMerkleTree,
   jsonifyError,
 } from "@connext/nxtp-utils";
@@ -32,28 +33,55 @@ export const propose = async () => {
   const { requestContext, methodContext } = createLoggingContext(propose.name);
   logger.info("Starting propose operation", requestContext, methodContext);
 
-  // Get latest all pending snapshots
+  // Get the latest pending snapshots
   // Process each snapshot
-  // Generate aggreagate given snapshot
+  // Generate aggreagate root given snapshot
   // Encode params data for contract call
-  const pendingSnapshots = await database.getPendingSnapshots();
-  //TODO: Group by ID
-  const pendingSnapshotsById = pendingSnapshots;
-  await Promise.all(
-    pendingSnapshotsById.map(async (snapshots) => {
-      try {
-        //TODO: Order by by domain order
-        const snapshotId = 0;
-        const roots: string[] = [];
-        proposeSnapshot(snapshotId, roots, requestContext);
-      } catch (err: unknown) {
-        logger.error("Error proposing snapshot", requestContext, methodContext, jsonifyError(err as NxtpError));
-      }
-    }),
-  );
+  const pendingSnapshotsById: Map<string, SnapshotRoot[]> = new Map();
+  const domains: string[] = Object.keys(config.chains);
+
+  const pendingSnapshotRoots = await database.getPendingSnapshots();
+
+  for (const snapshotRoot of pendingSnapshotRoots) {
+    if (pendingSnapshotsById.has(snapshotRoot.id)) {
+      const snapshotRoots = pendingSnapshotsById.get(snapshotRoot.id);
+      snapshotRoots!.push(snapshotRoot);
+    } else {
+      pendingSnapshotsById.set(snapshotRoot.id, [snapshotRoot]);
+    }
+  }
+  pendingSnapshotsById.forEach((snapshotRoots: SnapshotRoot[], snapshotId: string) => {
+    console.log(snapshotRoots, snapshotId);
+  });
+
+  // Criteria for selecting the latest saved snapshot roots:
+  // 1. Should have all domains. TODO: Need to handle the special case of adding a new domain
+  // 2. Find the highest snapshot ID
+
+  const latestSnapshotIds = [...new Map([...pendingSnapshotsById].sort().reverse()).keys()];
+  if (latestSnapshotIds.length === 0) {
+    logger.info("No pending snapshot roots found", requestContext, methodContext);
+  }
+  const latestSnapshotId = latestSnapshotIds[0];
+
+  try {
+    const snapshotRoots = pendingSnapshotsById.get(latestSnapshotId);
+    const orderedSnapshotRoots: SnapshotRoot[] = [];
+    domains.forEach((domain) => {
+      orderedSnapshotRoots.push(...snapshotRoots!.filter((s) => s.spokeDomain === Number(domain)));
+    });
+
+    proposeSnapshot(
+      latestSnapshotId,
+      orderedSnapshotRoots.map((s) => s.root),
+      requestContext,
+    );
+  } catch (err: unknown) {
+    logger.error("Error proposing snapshot", requestContext, methodContext, jsonifyError(err as NxtpError));
+  }
 };
 
-export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[], _requestContext: RequestContext) => {
+export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[], _requestContext: RequestContext) => {
   const {
     logger,
     adapters: { contracts, relayers, database, chainreader, subgraph },
@@ -80,10 +108,9 @@ export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[
     throw new NoBaseAggregateRoot();
   }
 
-  const baseAggregateRootCount = await database.getAggregateRootCount(baseAggregateRoot as string);
+  const baseAggregateRootCount = await database.getAggregateRootCount(baseAggregateRoot);
   if (!baseAggregateRootCount) {
-    // TODO: What if the system was never in slow mode ?
-    throw new NoBaseAggregateRootCount(baseAggregateRoot as string);
+    throw new NoBaseAggregateRootCount(baseAggregateRoot);
   }
   const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
   const aggregateRootCount = baseAggregateRootCount + snapshotRoots.length;
@@ -98,9 +125,9 @@ export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[
   //TODO: Determine the right ordering of domains
   const orderedDomains = domains;
   //TODO: Determine the dispute cliff given the snapshot ID
-  const disputeCliff = 0;
+  const endOfDispute = 0;
 
-  const proposal = { snapshotId, disputeCliff, aggregateRoot, snapshotRoots, orderedDomains, baseAggregateRoot };
+  const proposal = { snapshotId, endOfDispute, aggregateRoot, snapshotRoots, orderedDomains, baseAggregateRoot };
 
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
@@ -131,6 +158,7 @@ export const proposeSnapshot = async (snapshotId: number, snapshotRoots: string[
       requestContext,
     );
     logger.info("Propose tx sent", requestContext, methodContext, { taskId });
+    // TODO: Update DB state to processed for all snapshot roots with ID <= this snapshotId
   } catch (e: unknown) {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,

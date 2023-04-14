@@ -4206,7 +4206,7 @@ declare module 'zapatos/schema' {
       */
       processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'snapshot_roots_id_key';
+    export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -4250,6 +4250,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `(ARRAY[]::character varying[])::character varying(255)[]`
       */
       domains: string[];
+      /**
+      * **snapshots.end_of_dispute**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      end_of_dispute: number;
       /**
       * **snapshots.processed**
       * - `bool` in database
@@ -4313,6 +4319,12 @@ declare module 'zapatos/schema' {
       */
       domains: string[];
       /**
+      * **snapshots.end_of_dispute**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      end_of_dispute: number;
+      /**
       * **snapshots.processed**
       * - `bool` in database
       * - `NOT NULL`, default: `false`
@@ -4374,6 +4386,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `(ARRAY[]::character varying[])::character varying(255)[]`
       */
       domains?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshots.end_of_dispute**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      end_of_dispute?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **snapshots.processed**
       * - `bool` in database
@@ -4437,6 +4455,12 @@ declare module 'zapatos/schema' {
       */
       domains?: string[] | db.Parameter<string[]> | db.DefaultType | db.SQLFragment;
       /**
+      * **snapshots.end_of_dispute**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      end_of_dispute: number | db.Parameter<number> | db.SQLFragment;
+      /**
       * **snapshots.processed**
       * - `bool` in database
       * - `NOT NULL`, default: `false`
@@ -4498,6 +4522,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `(ARRAY[]::character varying[])::character varying(255)[]`
       */
       domains?: string[] | db.Parameter<string[]> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **snapshots.end_of_dispute**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      end_of_dispute?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
       /**
       * **snapshots.processed**
       * - `bool` in database

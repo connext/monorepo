@@ -104,8 +104,9 @@ export const SnapshotSchema = Type.Object({
   baseAggregateRoot: Type.String(),
   roots: Type.Array(Type.String()),
   domains: Type.Array(Type.String()),
-  processed: Type.Boolean(),
-  status: Type.String(),
+  endOfDispute: Type.Number(),
+  processed: Type.Optional(Type.Boolean()),
+  status: Type.Optional(Type.String()),
   propagateTimestamp: Type.Optional(Type.Number()),
   propagateTaskId: Type.Optional(TBytes32),
   relayerType: Type.Optional(Type.String()),
@@ -120,7 +121,7 @@ export type Mode = (typeof ModeType)[keyof typeof ModeType];
 
 export const OptimisticRootProposedSchema = Type.Object({
   id: Type.String(),
-  disputeCliff: Type.Number(),
+  endOfDispute: Type.Number(),
   aggregateRoot: Type.String(),
   snapshotsRoots: Type.Array(Type.String()),
   domains: Type.Array(Type.Number()),
@@ -133,8 +134,8 @@ export const SnapshotRootSchema = Type.Object({
   spokeDomain: Type.Number(),
   root: Type.String(),
   count: Type.Number(),
-  timestamp: Type.Number(),
-  blockNumber: Type.Number(),
+  timestamp: Type.Optional(Type.Number()),
+  blockNumber: Type.Optional(Type.Number()),
 });
 export type SnapshotRoot = Static<typeof SnapshotRootSchema>;
 

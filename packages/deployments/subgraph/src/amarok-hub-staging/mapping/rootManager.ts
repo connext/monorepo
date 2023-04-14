@@ -85,7 +85,7 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
     snapshot = new OptimisticRootProposed(event.params.snapshotId.toHexString());
   }
 
-  snapshot.disputeCliff = event.params.disputeCliff;
+  snapshot.endOfDispute = event.params.endOfDispute;
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.snapshotsRoots = event.params.snapshotsRoots;
   snapshot.domains = event.params.domains;
