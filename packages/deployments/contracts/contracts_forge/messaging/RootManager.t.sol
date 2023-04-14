@@ -423,7 +423,7 @@ contract RootManager_Constructor is Base {
 contract RootManager_ProposeAggregateRoot is Base {
   event AggregateRootProposed(
     uint256 snapshotId,
-    uint256 timestamp,
+    uint256 endOfDispute,
     bytes32 aggregateRoot,
     bytes32 baseRoot,
     bytes32[] snapshotsRoots,
