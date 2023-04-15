@@ -183,7 +183,8 @@ export const setupAsset = async (args: {
     const INITIAL_A = 200;
     const SWAP_FEE = 4e6; // 4bps FEE_DENOMINATOR = 10 ** 10
     const ADMIN_FEE = 0;
-    const lpTokenName = `${asset.name.toUpperCase()}-${tokenName}LP`;
+    const lpTokenName = `Connext ${asset.name.toUpperCase()} ${asset.name.toUpperCase()} StableSwap LP`;
+    const lpTokenSymbol = `C${asset.name.toUpperCase()}LP`;
 
     // Initialize pool
     await updateIfNeeded({
@@ -198,7 +199,7 @@ export const setupAsset = async (args: {
           [local, adopted],
           decimals,
           lpTokenName,
-          lpTokenName, // symbol == name
+          lpTokenSymbol,
           representation.pool?.a ?? INITIAL_A,
           representation.pool?.fee ?? SWAP_FEE,
           representation.pool?.adminFee ?? ADMIN_FEE,
@@ -207,7 +208,9 @@ export const setupAsset = async (args: {
     });
 
     // Deposit into pool in equal amounts
-    const liquidity = decimals.map((decimal) => parseUnits(representation.pool?.initialLiquidity ?? "25", decimal));
+    const liquidity = decimals.map((decimal) =>
+      parseUnits((representation.pool?.initialLiquidity ?? "15") as string, decimal as number),
+    );
 
     // Verify there is sufficient amounts
     const addr = network.deployments.Connext.contract.signer.getAddress();
@@ -223,8 +226,8 @@ export const setupAsset = async (args: {
     await updateIfNeeded({
       apply,
       deployment: network.deployments.Connext,
-      desired: false,
-      read: { method: "isDisabled(bytes32)", args: [key] },
+      desired: liquidity[0],
+      read: { method: "getSwapTokenBalance(bytes32,uint8)", args: [key, 0] },
       write: {
         method: "addSwapLiquidity",
         args: [
