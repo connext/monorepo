@@ -63,7 +63,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3",
         },
         "6778479": {
-          adopted: "0x44fA8E6f47987339850636F88629646662444217",
+          adopted: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
         },
       },
     },
