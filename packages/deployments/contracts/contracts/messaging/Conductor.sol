@@ -22,6 +22,15 @@ contract Conductor is ProposedOwnable {
   event Dequeued(bytes32 indexed key, bytes[] transactions);
   event Executed(bytes32 indexed key, bytes[] transactions);
 
+  // ============ Errors ============
+
+  error Conductor_renounceOwnership__prohibited();
+  error Conductor_queue__alreadyQueued(bytes32 key);
+  error Conductor_dequeue__notQueued(bytes32 key);
+  error Conductor_execute__notElapsed(bytes32 key);
+  error Conductor_execute__cannotBypass(bytes4 selector, address target);
+  error Conductor_execute__callFailed();
+
   // ============ Storage ============
 
   mapping(bytes32 => bool) public bypassDelay;
@@ -46,14 +55,16 @@ contract Conductor is ProposedOwnable {
   }
 
   function renounceOwnership() public override onlyOwner {
-    revert("renounceOwnership: disabled");
+    revert Conductor_renounceOwnership__prohibited();
   }
 
   // ============ Public ============
 
   function queue(bytes[] memory _transactions) public onlyOwner {
     bytes32 key = keccak256(abi.encode(_transactions));
-    require(proposals[key] == 0, "queued");
+    if (proposals[key] != 0) {
+      revert Conductor_queue__alreadyQueued(key);
+    }
     uint256 elapse = block.timestamp + delay();
     proposals[key] = elapse;
     emit Queued(key, elapse, _transactions);
@@ -61,14 +72,18 @@ contract Conductor is ProposedOwnable {
 
   function dequeue(bytes[] memory _transactions) public onlyOwner {
     bytes32 key = keccak256(abi.encode(_transactions));
-    require(proposals[key] != 0, "!queued");
+    if (proposals[key] == 0) {
+      revert Conductor_dequeue__notQueued(key);
+    }
     delete proposals[key];
     emit Dequeued(key, _transactions);
   }
 
   function execute(bytes[] memory _transactions) public onlyOwner {
     bytes32 key = keccak256(abi.encode(_transactions));
-    require(proposals[key] <= block.timestamp, "!elapsed");
+    if (block.timestamp < proposals[key]) {
+      revert Conductor_execute__notElapsed(key);
+    }
     delete proposals[key];
     _execute(_transactions, false);
     emit Executed(key, _transactions);
@@ -90,14 +105,18 @@ contract Conductor is ProposedOwnable {
       bytes32 key = keccak256(abi.encodePacked(transaction.to, selector));
       if (_bypass) {
         // Make sure selector / addr pair can be bypassed
-        require(bypassDelay[key], "!bypass");
+        if (!bypassDelay[key]) {
+          revert Conductor_execute__cannotBypass(selector, transaction.to);
+        }
       }
       // NOTE: no need to assert proposals, because it will be checked via
       // `execute` function if used
 
       // Execute transaction
       (bool success, ) = transaction.to.call{value: transaction.value}(transaction.data);
-      require(success, "!success");
+      if (!success) {
+        revert Conductor_execute__callFailed();
+      }
     }
   }
 

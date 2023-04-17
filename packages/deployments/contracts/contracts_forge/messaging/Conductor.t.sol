@@ -14,7 +14,7 @@ contract Helper {
     callCount++;
   }
 
-  function fail() public {
+  function fail() public pure {
     revert("fail");
   }
 }
@@ -105,9 +105,9 @@ contract ConductorTest is ForgeHelper {
   function test_Conductor__queue_failsIfQueued() public {
     bytes[] memory transactions = new bytes[](1);
     transactions[0] = formatHelperTransaction(address(this), 100);
-    utils_queue(transactions);
+    bytes32 key = utils_queue(transactions);
 
-    vm.expectRevert("queued");
+    vm.expectRevert(abi.encodeWithSelector(Conductor.Conductor_queue__alreadyQueued.selector, key));
     conductor.queue(transactions);
   }
 
@@ -120,7 +120,9 @@ contract ConductorTest is ForgeHelper {
   // ============ dequeue ============
   function test_Conductor__dequeue_failsIfNotQueued() public {
     bytes[] memory transactions = new bytes[](1);
-    vm.expectRevert("!queued");
+    vm.expectRevert(
+      abi.encodeWithSelector(Conductor.Conductor_dequeue__notQueued.selector, keccak256(abi.encode(transactions)))
+    );
     conductor.dequeue(transactions);
   }
 
@@ -141,7 +143,9 @@ contract ConductorTest is ForgeHelper {
     transactions[0] = formatHelperTransaction(address(this), 100);
 
     utils_queue(transactions);
-    vm.expectRevert("!elapsed");
+    vm.expectRevert(
+      abi.encodePacked(Conductor.Conductor_execute__notElapsed.selector, keccak256(abi.encode(transactions)))
+    );
     conductor.execute(transactions);
   }
 
@@ -154,7 +158,7 @@ contract ConductorTest is ForgeHelper {
     bytes32 key = utils_queue(transactions);
     vm.warp(conductor.proposals(key) + 100);
 
-    vm.expectRevert("!success");
+    vm.expectRevert(Conductor.Conductor_execute__callFailed.selector);
     conductor.execute(transactions);
     assertEq(helper.callCount(), 0);
   }
@@ -181,7 +185,13 @@ contract ConductorTest is ForgeHelper {
     bytes[] memory transactions = new bytes[](1);
     transactions[0] = formatHelperTransaction(address(this), 100);
 
-    vm.expectRevert("!bypass");
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        Conductor.Conductor_execute__cannotBypass.selector,
+        Helper.executeCalldata.selector,
+        address(helper)
+      )
+    );
     conductor.executeWithBypass(transactions);
   }
 
