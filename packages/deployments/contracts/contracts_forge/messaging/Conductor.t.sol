@@ -6,44 +6,192 @@ import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "../utils/ConnectorHelper.sol";
 
-contract ConductorTest is ForgeHelper {
-  TestERC20 token;
+contract Helper {
+  uint256 public callCount;
 
+  function executeCalldata(address addr, uint256 amt) public {
+    console.log("Helper.executeCalldata", addr, amt);
+    callCount++;
+  }
+
+  function fail() public {
+    revert("fail");
+  }
+}
+
+contract ConductorTest is ForgeHelper {
+  // ============ Storage ============
+  Helper helper;
   Conductor conductor;
 
+  // ============ Events ============
+
+  event BypassAdded(address target, bytes4 selector);
+  event BypassRemoved(address target, bytes4 selector);
+  event Queued(bytes32 indexed key, uint256 elapse, bytes[] transactions);
+  event Dequeued(bytes32 indexed key, bytes[] transactions);
+  event Executed(bytes32 indexed key, bytes[] transactions);
+
+  // ============ Setup ============
   function setUp() public {
-    token = new TestERC20("t", "t");
+    helper = new Helper();
 
     conductor = new Conductor(address(this));
   }
 
-  function test_Conductor__execute_shouldWork() public {
-    uint8 operation = 0; // call
-    address to = address(token);
-    uint256 value = 0;
-    bytes memory data = abi.encodeWithSelector(token.mint.selector, address(this), 100);
+  // ============ Utils ============
+  function formatHelperTransaction(address to, uint256 amount) internal view returns (bytes memory) {
+    bytes memory data = abi.encodeWithSignature("executeCalldata(address,uint256)", to, amount);
+    return abi.encode(Conductor.Transaction(address(helper), 0, data));
+  }
 
-    bytes memory transactions = abi.encodePacked(operation, to, value, data.length, data);
-    console.log("transactions:");
-    console.logBytes(transactions);
+  function formatFailingTransaction() internal view returns (bytes memory) {
+    bytes memory data = abi.encodeWithSignature("fail()");
+    return abi.encode(Conductor.Transaction(address(helper), 0, data));
+  }
+
+  function utils_addBypass(address _target, bytes4 _selector) internal returns (bytes32) {
+    vm.expectEmit(true, true, true, true);
+    emit BypassAdded(_target, _selector);
+
+    bytes32 key = keccak256(abi.encodePacked(_target, _selector));
+
+    conductor.addBypass(_target, _selector);
+    assertTrue(conductor.bypassDelay(key));
+    return key;
+  }
+
+  function utils_queue(bytes[] memory transactions) internal returns (bytes32) {
+    bytes32 key = keccak256(abi.encode(transactions));
+    uint256 elapse = block.timestamp + conductor.delay();
+
+    vm.expectEmit(true, true, true, true);
+    emit Queued(key, elapse, transactions);
+
+    conductor.queue(transactions);
+    assertEq(conductor.proposals(key), elapse);
+    return key;
+  }
+
+  function utils_queueAndExecute(bytes[] memory transactions) internal {
+    bytes32 key = utils_queue(transactions);
+
+    vm.warp(conductor.proposals(key) + 100);
+
+    vm.expectEmit(true, true, true, true);
+    emit Executed(key, transactions);
+
+    conductor.execute(transactions);
+    assertEq(conductor.proposals(key), 0);
+  }
+
+  // ============ addBypass ============
+  function test_Conductor__addBypass_shouldWork() public {
+    utils_addBypass(address(helper), Helper.executeCalldata.selector);
+  }
+
+  // ============ removeBypass ============
+  function test_Conductor__removeBypass_shouldWork() public {
+    bytes32 key = utils_addBypass(address(helper), Helper.executeCalldata.selector);
+
+    vm.expectEmit(true, true, true, true);
+    emit BypassAdded(address(helper), Helper.executeCalldata.selector);
+
+    conductor.addBypass(address(helper), Helper.executeCalldata.selector);
+    assertTrue(conductor.bypassDelay(key));
+  }
+
+  // ============ queue ============
+  function test_Conductor__queue_failsIfQueued() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+    utils_queue(transactions);
+
+    vm.expectRevert("queued");
+    conductor.queue(transactions);
+  }
+
+  function test_Conductor__queue_shouldWork() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+    utils_queue(transactions);
+  }
+
+  // ============ dequeue ============
+  function test_Conductor__dequeue_failsIfNotQueued() public {
+    bytes[] memory transactions = new bytes[](1);
+    vm.expectRevert("!queued");
+    conductor.dequeue(transactions);
+  }
+
+  function test_Conductor__dequeue_shouldWork() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+    bytes32 key = utils_queue(transactions);
+
+    vm.expectEmit(true, true, true, true);
+    emit Dequeued(key, transactions);
+    conductor.dequeue(transactions);
+    assertEq(conductor.proposals(key), 0);
+  }
+
+  // ============ execute ============
+  function test_Conductor__execute_failIfNotElapsed() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+
+    utils_queue(transactions);
+    vm.expectRevert("!elapsed");
+    conductor.execute(transactions);
+  }
+
+  function test_Conductor__execute_failIfOneFails() public {
+    bytes[] memory transactions = new bytes[](3);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+    transactions[1] = formatFailingTransaction();
+    transactions[2] = formatHelperTransaction(address(this), 100);
+
+    bytes32 key = utils_queue(transactions);
+    vm.warp(conductor.proposals(key) + 100);
+
+    vm.expectRevert("!success");
+    conductor.execute(transactions);
+    assertEq(helper.callCount(), 0);
+  }
+
+  function test_Conductor__execute_shouldWorkWithMultipleTxs() public {
+    bytes[] memory transactions = new bytes[](2);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+    transactions[1] = formatHelperTransaction(address(this), 100);
+
+    utils_queueAndExecute(transactions);
+    assertEq(helper.callCount(), 2);
+  }
+
+  function test_Conductor__execute_shouldWork() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+
+    utils_queueAndExecute(transactions);
+    assertEq(helper.callCount(), 1);
+  }
+
+  // ============ executeWithBypass ============
+  function test_Conductor__executeWithBypass_failIfNotAllowed() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+
+    vm.expectRevert("!bypass");
     conductor.executeWithBypass(transactions);
   }
+
+  function test_Conductor__executeWithBypass_shouldWork() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+
+    conductor.addBypass(address(helper), Helper.executeCalldata.selector);
+
+    utils_queueAndExecute(transactions);
+    assertEq(helper.callCount(), 1);
+  }
 }
-
-// transaction
-
-// AddressZero 0x0000000000000000000000000000000000000000
-// HashZero    0x0000000000000000000000000000000000000000000000000000000000000000
-
-// 0x005615deb798bb3e4dfa0139dfa1b3d433cc23b72f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004440c10f190000000000000000000000007fa9385be102ac3eac297483dd6233d62b3e14960000000000000000000000000000000000000000000000000000000000000064
-
-// 0x // prefix
-// 00 // operation
-// 5615deb798bb3e4dfa0139dfa1b3d433cc23b72f // to
-// 0000000000000000000000000000000000000000000000000000000000000000 // value
-// 0000000000000000000000000000000000000000000000000000000000000044 // data length
-// 40c10f190000000000000000000000007fa9385be102ac3eac297483dd6233d62b3e14960000000000000000000000000000000000000000000000000000000000000064 // data
-// 40c10f19
-
-//
-//
