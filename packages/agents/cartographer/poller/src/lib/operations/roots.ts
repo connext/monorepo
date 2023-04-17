@@ -169,8 +169,6 @@ export const retrieveSavedSnapshotRoot = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveSavedSnapshotRoot.name);
 
-  const connectorMetas = await subgraph.getConnectorMeta(domains);
-
   for (const domain of domains) {
     const offset = await database.getCheckPoint("saved_snapshoted_root_" + domain);
     const limit = 100;

@@ -2,9 +2,9 @@ import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice"
 import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Database } from "@connext/nxtp-adapters-database";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 export type ProverContext = {
   logger: Logger;

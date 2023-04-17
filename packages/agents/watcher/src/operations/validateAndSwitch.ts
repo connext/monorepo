@@ -1,4 +1,4 @@
-import { PauseResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
+import { PauseResponse } from "@connext/nxtp-adapters-watcher";
 import { createMethodContext, RequestContext } from "@connext/nxtp-utils";
 
 import { getContext } from "../watcher";
@@ -29,7 +29,7 @@ export const switchAndAlert = async (
   const domains = Object.keys(config.chains);
   logger.warn("SWITCHING TO SLOW MODE!!!", requestContext, methodContext, { reason, transactions });
   const result = await monitor.switch(requestContext, reason);
-  logger.warn("Switched to slow mode, alerting", requestContext, methodContext, { result });
+  logger.warn("Switched to slow mode, alerting", requestContext, methodContext, { result, domains: domains });
   await monitor.alert(
     {
       // TODO: Setup alert params
