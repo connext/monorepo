@@ -10,6 +10,7 @@ import {
   PauseResponse,
   WatcherAlertsConfig,
   WatcherInvariantResponse,
+  ValidateResponse,
 } from "./types";
 import { AssetVerifier } from "./verifiers";
 
@@ -214,5 +215,18 @@ export class WatcherAdapter {
         },
       );
     });
+  }
+}
+
+export class OpModeMonitor {
+  public async validateProposal(requestContext: RequestContext): Promise<ValidateResponse> {
+    console.log(requestContext);
+    return { needsSwitch: false, reason: "" };
+  }
+  public async switch(requestContext: RequestContext, reason: string): Promise<void> {
+    console.log(requestContext, reason);
+  }
+  public async alert(alert: any, config: any): Promise<void> {
+    console.log(alert, config);
   }
 }

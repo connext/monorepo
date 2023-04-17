@@ -1,6 +1,11 @@
 /* eslint-disable prefer-const */
-import { NewConnector, AggregateRootReceived, MessageSent } from "../../../generated/SpokeConnector/SpokeConnector";
-import { AggregateRoot, RootMessageSent, ConnectorMeta, RootCount } from "../../../generated/schema";
+import {
+  NewConnector,
+  AggregateRootReceived,
+  MessageSent,
+  SnapshotRootSaved,
+} from "../../../generated/SpokeConnector/SpokeConnector";
+import { AggregateRoot, RootMessageSent, ConnectorMeta, RootCount, SnapshotRoot } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
@@ -63,4 +68,26 @@ export function handleAggregateRootReceived(event: AggregateRootReceived): void 
   aggregateRoot.root = event.params.root;
   aggregateRoot.blockNumber = event.block.number;
   aggregateRoot.save();
+}
+
+export function handleSnapshotRootSaved(event: SnapshotRootSaved): void {
+  let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  let message = SnapshotRoot.load(`${event.params.snapshotId.toHexString()}-${meta.spokeDomain!.toString()}`);
+  if (message == null) {
+    message = new SnapshotRoot(`${event.params.snapshotId.toHexString()}-${meta.spokeDomain!.toString()}`);
+  }
+
+  message.spokeDomain = meta.spokeDomain;
+
+  message.root = event.params.root;
+
+  message.count = event.params.count;
+
+  message.timestamp = event.block.timestamp;
+  message.blockNumber = event.block.number;
+  message.save();
 }

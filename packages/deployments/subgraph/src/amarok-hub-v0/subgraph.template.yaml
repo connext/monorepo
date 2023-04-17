@@ -20,6 +20,7 @@ dataSources:
         - AssetBalance
         - Router
         - Transfer
+        - RootManagerMode
       abis:
         - name: RootManager
           file: ./src/amarok-hub-v0/abis/RootManager.json
@@ -32,6 +33,16 @@ dataSources:
           handler: handleConnectorAdded
         - event: ConnectorRemoved(uint32,address,uint32[],address[],address)
           handler: handleConnectorRemoved
+        - event: AggregateRootProposed(uint256,uint256,bytes32,bytes32[],uint32[],bytes32)
+          handler: handleAggregateRootProposed
+        - event: ProposedRootFinalized(bytes32)
+          handler: handleProposedRootFinalized
+        - event: OptimisticRootPropagated(bytes32,bytes32)
+          handler: handleOptimisticRootPropagated
+        - event: SlowModeActivated()
+          handler: handleSlowModeActivated
+        - event: OptimisticModeActivated()
+          handler: handleOptimisticModeActivated
       file: ./src/amarok-hub-v0/mapping/rootManager.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract

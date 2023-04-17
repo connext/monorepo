@@ -1,4 +1,4 @@
-import { ChainReader, contractDeployments } from "@connext/nxtp-txservice";
+import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
 import {
   ChainData,
   createLoggingContext,
@@ -8,21 +8,22 @@ import {
   RootManagerMode,
   ModeType,
 } from "@connext/nxtp-utils";
-import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
 
-import { ProcessFromRootContext } from "./context";
-import { processFromRoot } from "./operations";
+import { ProposeContext } from "./context";
+import { propose } from "./operations";
 
-const context: ProcessFromRootContext = {} as any;
+const context: ProposeContext = {} as any;
 export const getContext = () => context;
 
-export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
-  const { requestContext, methodContext } = createLoggingContext(makeProcessFromRoot.name);
+export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+  const { requestContext, methodContext } = createLoggingContext(makePropose.name);
 
   try {
+    context.adapters = {} as any;
     context.chainData = chainData;
     context.config = config;
 
@@ -41,12 +42,10 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
     });
 
     // Adapters
-    context.adapters = {} as any;
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
 
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {
@@ -68,11 +67,17 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
         type: relayerConfig.type as RelayerType,
       });
     }
-    context.adapters.contracts = contractDeployments;
+    context.adapters.deployments = contractDeployments;
+    context.adapters.contracts = getContractInterfaces();
+    context.adapters.ambs = getAmbABIs();
+    context.adapters.subgraph = await SubgraphReader.create(
+      chainData,
+      context.config.environment,
+      context.config.subgraphPrefix as string,
+    );
 
-    context.logger.info("Process from root boot complete!", requestContext, methodContext, {
+    context.logger.info("Propose task setup complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
-      healthUrls: context.config.healthUrls,
     });
     console.log(
       `
@@ -86,23 +91,22 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
       `,
     );
 
-    // Start the processor.
+    // Start the propose task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
-      context.logger.info("In Optimistic Mode. No Op", requestContext, methodContext);
+      context.logger.info("In Optimistic Mode", requestContext, methodContext);
+      await propose();
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
-      context.logger.info("In Slow Mode", requestContext, methodContext);
-      await processFromRoot();
+      context.logger.info("In Slow Mode. No op.", requestContext, methodContext);
     } else {
       throw new Error(`Unknown mode detected: ${rootManagerMode}`);
     }
-    if (context.config.healthUrls.processor) {
-      await sendHeartbeat(context.config.healthUrls.processor, context.logger);
+    if (context.config.healthUrls.propose) {
+      await sendHeartbeat(context.config.healthUrls.propose, context.logger);
     }
   } catch (e: unknown) {
-    console.error("Error starting processor. Sad! :(", e);
+    console.error("Error starting Propose task. Sad! :(", e);
   } finally {
-    await closeDatabase();
     process.exit();
   }
 };

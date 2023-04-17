@@ -1,12 +1,22 @@
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  createLoggingContext,
+  Logger,
+  RelayerType,
+  sendHeartbeat,
+  RootManagerMode,
+  ModeType,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { proveAndProcess } from "./operations";
+import { proveAndProcessOpMode } from "./operations/proveAndProcess";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -64,6 +74,11 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
       });
     }
     context.adapters.contracts = getContractInterfaces();
+    context.adapters.subgraph = await SubgraphReader.create(
+      chainData,
+      context.config.environment,
+      context.config.subgraphPrefix as string,
+    );
 
     context.logger.info("Prover boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
@@ -81,7 +96,16 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     );
 
     // Start the prover.
-    await proveAndProcess();
+    const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    if (rootManagerMode.mode === ModeType.OptimisticMode) {
+      context.logger.info("In Optimistic Mode", requestContext, methodContext);
+      await proveAndProcessOpMode();
+    } else if (rootManagerMode.mode === ModeType.SlowMode) {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
+      await proveAndProcess();
+    } else {
+      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+    }
     if (context.config.healthUrls.prover) {
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);
     }

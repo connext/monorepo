@@ -16,6 +16,10 @@ import {
   RouterDailyTVL,
   SlippageUpdate,
   Asset,
+  Snapshot,
+  SnapshotRoot,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
   AssetPrice,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -36,15 +40,23 @@ import {
   getRootMessages,
   saveAggregatedRoots,
   savePropagatedRoots,
+  saveSnapshotRoots,
+  saveProposedSnapshots,
+  saveFinalizedRoots,
+  savePropagatedOptimisticRoots,
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getAggregateRoot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
+  getAggregateRoots,
+  getBaseAggregateRoot,
   getMessageRootIndex,
   getLatestMessageRoot,
   getLatestAggregateRoot,
+  getPendingAggregateRoot,
+  getPendingSnapshots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
@@ -52,6 +64,8 @@ import {
   getSpokeNodes,
   getHubNode,
   getHubNodes,
+  getOptimisticHubNode,
+  getOptimisticHubNodes,
   getRoot,
   putRoot,
   getCompletedTransfersByMessageHashes,
@@ -67,6 +81,7 @@ import {
   updateExecuteSimulationData,
   getPendingTransfersByMessageStatus,
   getMessageByLeaf,
+  getMessageByRoot,
   saveAssets,
   getAssets,
   saveAssetPrice,
@@ -122,6 +137,13 @@ export type Database = {
   transaction: (callback: (client: TxnClientForRepeatableRead) => Promise<void>) => Promise<void>;
   saveAggregatedRoots: (roots: AggregatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   savePropagatedRoots: (roots: PropagatedRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveProposedSnapshots: (_snapshots: Snapshot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveSnapshotRoots: (roots: SnapshotRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveFinalizedRoots: (roots: OptimisticRootFinalized[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  savePropagatedOptimisticRoots: (
+    roots: OptimisticRootPropagated[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
   saveReceivedAggregateRoot: (
     roots: ReceivedAggregateRoot[],
     _pool?: Pool | TxnClientForRepeatableRead,
@@ -147,6 +169,8 @@ export type Database = {
     aggregateRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getAggregateRoots: (count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
+  getBaseAggregateRoot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getMessageRootIndex: (
     domain: string,
     messageRoot: string,
@@ -162,6 +186,11 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot | undefined>;
+  getPendingAggregateRoot: (
+    destinationDomain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<Snapshot | undefined>;
+  getPendingSnapshots: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<SnapshotRoot[]>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -198,6 +227,17 @@ export type Database = {
   ) => Promise<string[]>;
   getHubNode: (index: number, count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getHubNodes: (
+    start: number,
+    end: number,
+    count: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
+  getOptimisticHubNode: (
+    index: number,
+    count: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string | undefined>;
+  getOptimisticHubNodes: (
     start: number,
     end: number,
     count: number,
@@ -240,6 +280,11 @@ export type Database = {
     leaf: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
+  getMessageByRoot: (
+    origin_domain: string,
+    messageRoot: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage | undefined>;
 };
 
 export let pool: Pool;
@@ -274,15 +319,23 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     transaction,
     saveAggregatedRoots,
     savePropagatedRoots,
+    saveSnapshotRoots,
+    saveProposedSnapshots,
+    saveFinalizedRoots,
+    savePropagatedOptimisticRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootByRootAndDomain,
     getAggregateRootCount,
+    getAggregateRoots,
+    getBaseAggregateRoot,
     getMessageRootIndex,
     getLatestMessageRoot,
     getLatestAggregateRoot,
+    getPendingAggregateRoot,
+    getPendingSnapshots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
@@ -290,6 +343,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getSpokeNodes,
     getHubNode,
     getHubNodes,
+    getOptimisticHubNode,
+    getOptimisticHubNodes,
     getRoot,
     putRoot,
     increaseBackoff,
@@ -304,6 +359,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     updateExecuteSimulationData,
     getPendingTransfersByMessageStatus,
     getMessageByLeaf,
+    getMessageByRoot,
   };
 };
 
