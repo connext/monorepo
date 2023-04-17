@@ -336,7 +336,6 @@ export const saveProcessedRootMessages = async (
       .run(poolToUse);
 
     const latestProcessedLeafCount = latestLeafCountRes?.leaf_count;
-
     if (latestProcessedLeafCount) {
       await db
         .update(
