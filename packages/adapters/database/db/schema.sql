@@ -90,6 +90,39 @@ CREATE TABLE public.asset_balances (
 
 
 --
+-- Name: asset_prices; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.asset_prices (
+    id integer NOT NULL,
+    canonical_id character(66) NOT NULL,
+    canonical_domain character varying(255) NOT NULL,
+    "timestamp" integer,
+    price numeric
+);
+
+
+--
+-- Name: asset_prices_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.asset_prices_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: asset_prices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.asset_prices_id_seq OWNED BY public.asset_prices.id;
+
+
+--
 -- Name: assets; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -347,6 +380,84 @@ CREATE VIEW public.daily_transfer_metrics AS
 
 
 --
+-- Name: transfers_with_price; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfers_with_price AS
+ SELECT t.transfer_id,
+    t.nonce,
+    t."to",
+    t.call_data,
+    t.origin_domain,
+    t.destination_domain,
+    t.receive_local,
+    t.origin_chain,
+    t.origin_transacting_asset,
+    t.origin_transacting_amount,
+    t.origin_bridged_asset,
+    t.origin_bridged_amount,
+    t.xcall_caller,
+    t.xcall_transaction_hash,
+    t.xcall_timestamp,
+    t.xcall_gas_price,
+    t.xcall_gas_limit,
+    t.xcall_block_number,
+    t.destination_chain,
+    t.status,
+    t.routers,
+    t.destination_transacting_asset,
+    t.destination_transacting_amount,
+    t.destination_local_asset,
+    t.destination_local_amount,
+    t.execute_caller,
+    t.execute_transaction_hash,
+    t.execute_timestamp,
+    t.execute_gas_price,
+    t.execute_gas_limit,
+    t.execute_block_number,
+    t.execute_origin_sender,
+    t.reconcile_caller,
+    t.reconcile_transaction_hash,
+    t.reconcile_timestamp,
+    t.reconcile_gas_price,
+    t.reconcile_gas_limit,
+    t.reconcile_block_number,
+    t.update_time,
+    t.delegate,
+    t.message_hash,
+    t.canonical_domain,
+    t.slippage,
+    t.origin_sender,
+    t.bridged_amt,
+    t.normalized_in,
+    t.canonical_id,
+    t.router_fee,
+    t.xcall_tx_origin,
+    t.execute_tx_origin,
+    t.reconcile_tx_origin,
+    t.error_status,
+    t.backoff,
+    t.next_execution_timestamp,
+    t.updated_slippage,
+    t.execute_simulation_input,
+    t.execute_simulation_from,
+    t.execute_simulation_to,
+    t.execute_simulation_network,
+    t.error_message,
+    t.message_status,
+    t.relayer_fees,
+    COALESCE(p.price, (0)::numeric) AS asset_usd_price
+   FROM (public.transfers t
+     LEFT JOIN ( SELECT t_1.transfer_id,
+            t_1.xcall_timestamp,
+            p_1.price
+           FROM (public.transfers t_1
+             JOIN public.asset_prices p_1 ON ((p_1."timestamp" = ( SELECT max(asset_prices."timestamp") AS max
+                   FROM public.asset_prices
+                  WHERE ((asset_prices.canonical_id = t_1.canonical_id) AND (asset_prices."timestamp" <= t_1.xcall_timestamp))))))) p ON ((t.transfer_id = p.transfer_id)));
+
+
+--
 -- Name: daily_transfer_volume; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -357,8 +468,9 @@ CREATE VIEW public.daily_transfer_volume AS
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum((tf.origin_transacting_amount)::numeric) AS volume
-   FROM public.transfers tf
+    sum((tf.origin_transacting_amount)::numeric) AS volume,
+    avg(tf.asset_usd_price) AS avg_price
+   FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
@@ -452,8 +564,9 @@ CREATE VIEW public.hourly_transfer_volume AS
     tf.destination_domain AS destination_chain,
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
-    sum((tf.origin_transacting_amount)::numeric) AS volume
-   FROM public.transfers tf
+    sum((tf.origin_transacting_amount)::numeric) AS volume,
+    avg(tf.asset_usd_price) AS avg_price
+   FROM public.transfers_with_price tf
   GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
 
@@ -562,10 +675,13 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.locked,
     asset_balances.supplied,
     asset_balances.removed,
-    assets."decimal"
-   FROM ((public.routers
+    assets."decimal",
+    COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price
+   FROM (((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))))
+     LEFT JOIN public.asset_prices ON (((assets.canonical_id = asset_prices.canonical_id) AND (asset_prices."timestamp" = ( SELECT max(asset_prices_1."timestamp") AS max
+           FROM public.asset_prices asset_prices_1)))));
 
 
 --
@@ -579,7 +695,8 @@ CREATE VIEW public.router_liquidity AS
     sum(r.balance) AS total_balance,
     sum(r.locked) AS total_locked,
     sum(r.supplied) AS total_supplied,
-    sum(r.removed) AS total_removed
+    sum(r.removed) AS total_removed,
+    avg(r.asset_usd_price) AS avg_usd_price
    FROM public.routers_with_balances r
   GROUP BY r.domain, r.local, r.adopted
   ORDER BY r.domain;
@@ -592,9 +709,11 @@ CREATE VIEW public.router_liquidity AS
 CREATE VIEW public.router_tvl AS
  SELECT latest_transfer.latest_transfer_day,
     router_tvl.asset,
-    router_tvl.tvl
+    router_tvl.tvl,
+    router_tvl.price
    FROM (( SELECT rb.local AS asset,
-            sum(rb.balance) AS tvl
+            sum(rb.balance) AS tvl,
+            avg(rb.asset_usd_price) AS price
            FROM public.routers_with_balances rb
           GROUP BY rb.local) router_tvl
      CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
@@ -718,8 +837,9 @@ CREATE VIEW public.transfer_volume AS
     (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
     tf.origin_domain AS origin_chain,
     tf.origin_transacting_asset AS asset,
-    sum((tf.origin_transacting_amount)::numeric) AS volume
-   FROM public.transfers tf
+    sum((tf.origin_transacting_amount)::numeric) AS volume,
+    avg(tf.asset_usd_price) AS avg_price
+   FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
 
 
@@ -887,6 +1007,13 @@ CREATE VIEW public.weekly_transfer_metrics AS
 
 
 --
+-- Name: asset_prices id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_prices ALTER COLUMN id SET DEFAULT nextval('public.asset_prices_id_seq'::regclass);
+
+
+--
 -- Name: aggregated_roots aggregated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -900,6 +1027,22 @@ ALTER TABLE ONLY public.aggregated_roots
 
 ALTER TABLE ONLY public.asset_balances
     ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
+
+
+--
+-- Name: asset_prices asset_prices_canonical_id_canonical_domain_timestamp_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_prices
+    ADD CONSTRAINT asset_prices_canonical_id_canonical_domain_timestamp_key UNIQUE (canonical_id, canonical_domain, "timestamp");
+
+
+--
+-- Name: asset_prices asset_prices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_prices
+    ADD CONSTRAINT asset_prices_pkey PRIMARY KEY (id);
 
 
 --
@@ -1039,6 +1182,13 @@ ALTER TABLE ONLY public.transfers
 
 
 --
+-- Name: asset_prices_timestamp; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX asset_prices_timestamp ON public.asset_prices USING btree ("timestamp");
+
+
+--
 -- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1092,6 +1242,13 @@ CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USI
 --
 
 CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
+
+
+--
+-- Name: transfers_xcall_timestamp; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_xcall_timestamp ON public.transfers USING btree (xcall_timestamp);
 
 
 --
@@ -1183,10 +1340,9 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230308083252'),
     ('20230308162843'),
     ('20230310035445'),
-    ('20230405050248');
+    ('20230405050248'),
     ('20230405091124'),
     ('20230412003613'),
     ('20230412084403'),
     ('20230412090505'),
     ('20230414101408');
-    
