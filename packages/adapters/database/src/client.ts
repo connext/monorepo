@@ -329,6 +329,7 @@ export const saveProcessedRootMessages = async (
         {
           spoke_domain,
           processed: true,
+          leaf_count: dc.isNotNull,
         },
         { limit: 1, order: { by: "leaf_count", direction: "DESC" } },
       )
