@@ -16,6 +16,9 @@ export const ASSET_ENTITY = `
       adoptedAsset,
       localAsset,
       blockNumber,
+      status {
+        status
+      }
 `;
 
 export const ASSET_BALANCE_ENTITY = `

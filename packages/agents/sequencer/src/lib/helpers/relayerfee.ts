@@ -51,19 +51,26 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   );
 
   let relayerFeePaidUsd = constants.Zero;
+  const originChainId = domainToChainId(+originDomain);
+  // origin native token to usdc
+  const prices: Record<string, number> = {};
+  prices[constants.AddressZero] = await getConversionRate(originChainId, undefined, logger);
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
-      const originChainId = domainToChainId(+originDomain);
-      const nativeUsd = await getConversionRate(originChainId, undefined, logger);
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
-      const relayerFeePaid = nativeFee.mul(Math.floor(nativeUsd * 1000)).div(1000);
+      const relayerFeePaid = nativeFee.mul(Math.floor(prices[asset] * 1000)).div(1000);
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
-      const originChainId = domainToChainId(+originDomain);
-      const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId);
-      const relayerFeePaid = BigNumber.from(origin.relayerFees[asset]).mul(
-        BigNumber.from(10).pow(18 - relayerFeeDecimals),
+      // origin native token to asset price
+      const originNativePriceAsset = await getConversionRate(originChainId, asset, logger);
+      prices[asset] = originNativePriceAsset === 0 ? 0 : prices[constants.AddressZero] / originNativePriceAsset;
+      const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId, undefined, chainData, () =>
+        chainreader.getDecimalsForAsset(+originDomain, asset),
       );
+      const relayerFeePaid = BigNumber.from(origin.relayerFees[asset])
+        .mul(Math.floor(prices[asset] * 1000))
+        .div(1000)
+        .mul(BigNumber.from(10).pow(18 - relayerFeeDecimals));
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     }
   }
@@ -71,6 +78,8 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   const minimumFeeNeeded = estimatedRelayerFeeUsd.mul(Math.floor(100 - config.relayerFeeTolerance)).div(100);
   const canSubmit = relayerFeePaidUsd.gte(minimumFeeNeeded);
   logger.info("Relayer fee check", requestContext, methodContext, {
+    prices,
+    estimatedRelayerFee: estimatedRelayerFeeUsd.toString(),
     relayerFeePaidUsd: relayerFeePaidUsd.toString(),
     minimumFeeNeeded: minimumFeeNeeded.toString(),
     canSubmit,

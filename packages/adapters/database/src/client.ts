@@ -5,6 +5,7 @@ import {
   convertFromDbTransfer,
   XMessage,
   RootMessage,
+  convertFromDbAsset,
   convertFromDbMessage,
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
@@ -26,6 +27,7 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   SnapshotRoot,
+  AssetPrice,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -604,6 +606,43 @@ export const saveAssets = async (assets: Asset[], _pool?: Pool | db.TxnClientFor
     };
   });
   await db.upsert("assets", dbAssets, ["canonical_id", "domain"]).run(poolToUse);
+};
+
+export const getAssets = async (
+  limit = 100,
+  offset = 0,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Asset[]> => {
+  const poolToUse = _pool ?? pool;
+  const assets = await db
+    .select(
+      "assets",
+      { canonical_domain: dc.not(dc.eq("0")) },
+      {
+        limit,
+        offset,
+        order: { by: "domain", direction: "ASC" },
+      },
+    )
+    .run(poolToUse);
+  return assets.map(convertFromDbAsset);
+};
+
+export const saveAssetPrice = async (
+  prices: AssetPrice[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const records: s.asset_prices.Insertable[] = prices.map((p) => {
+    return {
+      canonical_id: p.canonicalId,
+      canonical_domain: p.canonicalDomain,
+      timestamp: p.timestamp,
+      price: p.price,
+    };
+  });
+
+  await db.upsert("asset_prices", records, ["canonical_domain", "canonical_id", "timestamp"]).run(poolToUse);
 };
 
 export const transaction = async (

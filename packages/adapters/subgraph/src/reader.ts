@@ -271,7 +271,10 @@ export class SubgraphReader {
 
     const query = getAssetsQuery(prefix);
     const response = await execute(query);
-    const assets: Asset[] = [...response.values()].map((v) => v.flat()).flat();
+    const assets: Asset[] = [...response.values()]
+      .map((v) => v.flat())
+      .flat()
+      .filter((v) => !!v.status);
     return assets.map((asset) => ({ ...asset, domain }));
   }
 

@@ -1019,8 +1019,9 @@ export type bnb_OriginTransfer = {
   asset?: Maybe<bnb_Asset>;
   transactingAsset?: Maybe<Scalars['bnb_Bytes']>;
   message?: Maybe<bnb_OriginMessage>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
+  relayerFees?: Maybe<Array<bnb_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['bnb_Bytes']>;
   caller?: Maybe<Scalars['bnb_Bytes']>;
   transactionHash?: Maybe<Scalars['bnb_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -1028,6 +1029,15 @@ export type bnb_OriginTransfer = {
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   txOrigin?: Maybe<Scalars['bnb_Bytes']>;
+};
+
+
+export type bnb_OriginTransferrelayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_RelayerFee_filter>;
 };
 
 export type bnb_OriginTransfer_filter = {
@@ -1233,14 +1243,6 @@ export type bnb_OriginTransfer_filter = {
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_?: InputMaybe<bnb_OriginMessage_filter>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1249,6 +1251,23 @@ export type bnb_OriginTransfer_filter = {
   bumpRelayerFeeCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpRelayerFeeCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFees?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  relayerFees_?: InputMaybe<bnb_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   caller?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_not?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_gt?: InputMaybe<Scalars['bnb_Bytes']>;
@@ -1356,8 +1375,9 @@ export type bnb_OriginTransfer_orderBy =
   | 'message__root'
   | 'message__transactionHash'
   | 'message__blockNumber'
-  | 'relayerFee'
   | 'bumpRelayerFeeCount'
+  | 'relayerFees'
+  | 'initialRelayerFeeAsset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -1383,6 +1403,8 @@ export type Query = {
   bnb_relayers: Array<bnb_Relayer>;
   bnb_sequencer?: Maybe<bnb_Sequencer>;
   bnb_sequencers: Array<bnb_Sequencer>;
+  bnb_relayerFee?: Maybe<bnb_RelayerFee>;
+  bnb_relayerFees: Array<bnb_RelayerFee>;
   bnb_originTransfer?: Maybe<bnb_OriginTransfer>;
   bnb_originTransfers: Array<bnb_OriginTransfer>;
   bnb_destinationTransfer?: Maybe<bnb_DestinationTransfer>;
@@ -1545,6 +1567,24 @@ export type Querybnb_sequencersArgs = {
   orderBy?: InputMaybe<bnb_Sequencer_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Sequencer_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_RelayerFee_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1722,10 +1762,106 @@ export type bnb_Relayer = {
   relayer?: Maybe<Scalars['bnb_Bytes']>;
 };
 
+export type bnb_RelayerFee = {
+  id: Scalars['ID'];
+  transfer: bnb_OriginTransfer;
+  fee: Scalars['BigInt'];
+  asset: Scalars['bnb_Bytes'];
+};
+
+export type bnb_RelayerFee_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transfer?: InputMaybe<Scalars['String']>;
+  transfer_not?: InputMaybe<Scalars['String']>;
+  transfer_gt?: InputMaybe<Scalars['String']>;
+  transfer_lt?: InputMaybe<Scalars['String']>;
+  transfer_gte?: InputMaybe<Scalars['String']>;
+  transfer_lte?: InputMaybe<Scalars['String']>;
+  transfer_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transfer_contains?: InputMaybe<Scalars['String']>;
+  transfer_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_contains?: InputMaybe<Scalars['String']>;
+  transfer_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transfer_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with?: InputMaybe<Scalars['String']>;
+  transfer_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with?: InputMaybe<Scalars['String']>;
+  transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transfer_?: InputMaybe<bnb_OriginTransfer_filter>;
+  fee?: InputMaybe<Scalars['BigInt']>;
+  fee_not?: InputMaybe<Scalars['BigInt']>;
+  fee_gt?: InputMaybe<Scalars['BigInt']>;
+  fee_lt?: InputMaybe<Scalars['BigInt']>;
+  fee_gte?: InputMaybe<Scalars['BigInt']>;
+  fee_lte?: InputMaybe<Scalars['BigInt']>;
+  fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_RelayerFee_filter>>>;
+};
+
+export type bnb_RelayerFee_orderBy =
+  | 'id'
+  | 'transfer'
+  | 'transfer__id'
+  | 'transfer__chainId'
+  | 'transfer__transferId'
+  | 'transfer__nonce'
+  | 'transfer__status'
+  | 'transfer__messageHash'
+  | 'transfer__originDomain'
+  | 'transfer__destinationDomain'
+  | 'transfer__canonicalDomain'
+  | 'transfer__to'
+  | 'transfer__delegate'
+  | 'transfer__receiveLocal'
+  | 'transfer__callData'
+  | 'transfer__slippage'
+  | 'transfer__originSender'
+  | 'transfer__bridgedAmt'
+  | 'transfer__normalizedIn'
+  | 'transfer__canonicalId'
+  | 'transfer__transactingAsset'
+  | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
+  | 'transfer__caller'
+  | 'transfer__transactionHash'
+  | 'transfer__timestamp'
+  | 'transfer__gasPrice'
+  | 'transfer__gasLimit'
+  | 'transfer__blockNumber'
+  | 'transfer__txOrigin'
+  | 'fee'
+  | 'asset';
+
 export type bnb_RelayerFeesIncrease = {
   id: Scalars['ID'];
   transfer: bnb_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
+  asset?: Maybe<Scalars['bnb_Bytes']>;
   caller: Scalars['bnb_Bytes'];
   transactionHash: Scalars['bnb_Bytes'];
   timestamp: Scalars['BigInt'];
@@ -1772,6 +1908,16 @@ export type bnb_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  asset?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
   caller?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_not?: InputMaybe<Scalars['bnb_Bytes']>;
   caller_gt?: InputMaybe<Scalars['bnb_Bytes']>;
@@ -1852,8 +1998,8 @@ export type bnb_RelayerFeesIncrease_orderBy =
   | 'transfer__normalizedIn'
   | 'transfer__canonicalId'
   | 'transfer__transactingAsset'
-  | 'transfer__relayerFee'
   | 'transfer__bumpRelayerFeeCount'
+  | 'transfer__initialRelayerFeeAsset'
   | 'transfer__caller'
   | 'transfer__transactionHash'
   | 'transfer__timestamp'
@@ -1862,6 +2008,7 @@ export type bnb_RelayerFeesIncrease_orderBy =
   | 'transfer__blockNumber'
   | 'transfer__txOrigin'
   | 'increase'
+  | 'asset'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -2505,6 +2652,8 @@ export type Subscription = {
   bnb_relayers: Array<bnb_Relayer>;
   bnb_sequencer?: Maybe<bnb_Sequencer>;
   bnb_sequencers: Array<bnb_Sequencer>;
+  bnb_relayerFee?: Maybe<bnb_RelayerFee>;
+  bnb_relayerFees: Array<bnb_RelayerFee>;
   bnb_originTransfer?: Maybe<bnb_OriginTransfer>;
   bnb_originTransfers: Array<bnb_OriginTransfer>;
   bnb_destinationTransfer?: Maybe<bnb_DestinationTransfer>;
@@ -2667,6 +2816,24 @@ export type Subscriptionbnb_sequencersArgs = {
   orderBy?: InputMaybe<bnb_Sequencer_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_Sequencer_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_relayerFeeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_relayerFeesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_RelayerFee_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2910,6 +3077,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   bnb_sequencers: InContextSdkMethod<Query['bnb_sequencers'], Querybnb_sequencersArgs, MeshContext>,
   /** null **/
+  bnb_relayerFee: InContextSdkMethod<Query['bnb_relayerFee'], Querybnb_relayerFeeArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFees: InContextSdkMethod<Query['bnb_relayerFees'], Querybnb_relayerFeesArgs, MeshContext>,
+  /** null **/
   bnb_originTransfer: InContextSdkMethod<Query['bnb_originTransfer'], Querybnb_originTransferArgs, MeshContext>,
   /** null **/
   bnb_originTransfers: InContextSdkMethod<Query['bnb_originTransfers'], Querybnb_originTransfersArgs, MeshContext>,
@@ -2986,6 +3157,10 @@ export type _SubgraphErrorPolicy_ =
   bnb_sequencer: InContextSdkMethod<Subscription['bnb_sequencer'], Subscriptionbnb_sequencerArgs, MeshContext>,
   /** null **/
   bnb_sequencers: InContextSdkMethod<Subscription['bnb_sequencers'], Subscriptionbnb_sequencersArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFee: InContextSdkMethod<Subscription['bnb_relayerFee'], Subscriptionbnb_relayerFeeArgs, MeshContext>,
+  /** null **/
+  bnb_relayerFees: InContextSdkMethod<Subscription['bnb_relayerFees'], Subscriptionbnb_relayerFeesArgs, MeshContext>,
   /** null **/
   bnb_originTransfer: InContextSdkMethod<Subscription['bnb_originTransfer'], Subscriptionbnb_originTransferArgs, MeshContext>,
   /** null **/
