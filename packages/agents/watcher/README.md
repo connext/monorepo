@@ -39,7 +39,7 @@ monorepo$ yarn workspace @connext/nxtp-watcher test
 **NOTE:** If you want to run this agent locally, it is recommended to remove any alerting configurations and using an unfunded account before starting up the agent using:
 
 ```sh
-monorepo$ yarn worksapce @connext/nxtp-watcher start
+monorepo$ yarn workspace @connext/nxtp-watcher start
 ```
 
 ## Running a Watcher
