@@ -33,9 +33,17 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootDiscarded(bytes32 fraudulentRoot);
 
-  event ProposerAdded(address proposer);
+  /**
+   * @notice Emitted when a new proposer is added
+   * @param proposer The address of the proposer
+   */
+  event ProposerAdded(address indexed proposer);
 
-  event ProposerRemoved(address proposer);
+  /**
+   * @notice Emitted when a proposer is removed
+   * @param proposer The address of the proposer
+   */
+  event ProposerRemoved(address indexed proposer);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
 
@@ -43,42 +51,71 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event PropagateFailed(uint32 domain, address connector);
 
-  event SlowModeActivated();
+  /**
+   * @notice Emitted when slow mode is activated
+   * @param watcher The address of the watcher who called the function
+   */
+  event SlowModeActivated(address indexed watcher);
 
+  /**
+   * @notice Emitted when optimistic mode is activated
+   */
   event OptimisticModeActivated();
 
-  event OptimisticRootPropagated(bytes32 aggregateRoot, bytes32 domainsHash);
+  /**
+   * @notice Emitted when an optimistic root is propagated
+   * @param aggregateRoot The aggregate root propagated
+   * @param domainsHash The current domain hash
+   */
+  event OptimisticRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
+  /**
+   * @notice Emitted when a new aggregate root is proposed
+   * @param snapshotId The snapshot id
+   * @param endOfDispute The timestamp when the dispute period is over
+   * @param aggregateRoot The new aggregate root proposed
+   * @param baseRoot The root of the tree before the snapshot roots were inserted by proposer
+   * @param snapshotsRoots The list of roots added to aggregate tree
+   * @param domains The list of all domains
+   */
   event AggregateRootProposed(
-    uint256 snapshotId,
+    uint256 indexed snapshotId,
     uint256 endOfDispute,
-    bytes32 aggregateRoot,
-    bytes32 baseRoot,
+    bytes32 indexed aggregateRoot,
+    bytes32 indexed baseRoot,
     bytes32[] snapshotsRoots,
     uint32[] domains
   );
 
+  /**
+   * @notice Emitted when the current proposed root is finalized
+   * @param aggregateRoot The aggregate root finalized
+   */
   event ProposedRootFinalized(bytes32 aggregateRoot);
 
   // ============ Errors ============
 
-  error RootManager_InvalidSnapshotId(uint256 snapshotId);
+  error RootManager_proposeAggregateRoot__InvalidSnapshotId(uint256 snapshotId);
 
-  error RootManager_InvalidDomains();
+  error RootManager_checkDomains__InvalidDomains();
 
-  error RootManager_InvalidAggregateRoot();
+  error RootManager_finalize__InvalidAggregateRoot();
 
-  error RootManager_SlowModeOn();
+  error RootManager_onlyOptimisticMode__SlowModeOn();
 
-  error RootManager_OptimisticModeOn();
+  error RootManager_activateOptimisticMode__OptimisticModeOn();
 
-  error RootManager_ProposeInProgress();
+  error RootManager_aggregate__OptimisticModeOn();
 
-  error RootManager_NotWhitelistedProposer(address caller);
+  error RootManager_proposeAggregateRoot__ProposeInProgress();
 
-  error RootManager_EmptyFinalizedOptimisticRoot();
+  error RootManager_finalize__ProposeInProgress();
 
-  error RootManager_OldAggregateRoot();
+  error RootManager_onlyProposer__NotWhitelistedProposer(address caller);
+
+  error RootManager__optimisticPropagate__EmptyFinalizedOptimisticRoot();
+
+  error RootManager__slowPropagate__OldAggregateRoot();
 
   // ============ Properties ============
 
@@ -129,7 +166,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   bytes32 public lastPropagatedRoot;
 
   /**
-  @notice The last finalized optimistic aggregate root.
+   * @notice The last finalized aggregate root in optimistic mode.
    */
   bytes32 public finalizedOptimisticAggregateRoot;
 
@@ -178,18 +215,27 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     _;
   }
 
+  /**
+   * @notice Checks if the proposed domains are valid
+   */
   modifier checkDomains(uint32[] calldata _domains) {
-    if (keccak256(abi.encode(_domains)) != domainsHash) revert RootManager_InvalidDomains();
+    if (keccak256(abi.encode(_domains)) != domainsHash) revert RootManager_checkDomains__InvalidDomains();
     _;
   }
 
+  /**
+   * @notice Checks if root manager is working in optimistic mode
+   */
   modifier onlyOptimisticMode() {
-    if (!optimisticMode) revert RootManager_SlowModeOn();
+    if (!optimisticMode) revert RootManager_onlyOptimisticMode__SlowModeOn();
     _;
   }
 
+  /**
+   * @notice Checks if the proposer is in the allow list
+   */
   modifier onlyProposer() {
-    if (!allowlistedProposers[msg.sender]) revert RootManager_NotWhitelistedProposer(msg.sender);
+    if (!allowlistedProposers[msg.sender]) revert RootManager_onlyProposer__NotWhitelistedProposer(msg.sender);
     _;
   }
 
@@ -327,8 +373,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains
   ) external onlyProposer onlyOptimisticMode checkDomains(_domains) {
-    if (_snapshotId != block.timestamp / SNAPSHOT_DURATION) revert RootManager_InvalidSnapshotId(_snapshotId);
-    if (proposedAggregateRoot.aggregateRoot > 0) revert RootManager_ProposeInProgress();
+    if (_snapshotId != block.timestamp / SNAPSHOT_DURATION)
+      revert RootManager_proposeAggregateRoot__InvalidSnapshotId(_snapshotId);
+    if (proposedAggregateRoot.aggregateRoot > 0) revert RootManager_proposeAggregateRoot__ProposeInProgress();
 
     uint256 _endOfDispute = block.timestamp + DISPUTE_TIME;
     proposedAggregateRoot = ProposedData(_endOfDispute, _aggregateRoot);
@@ -344,8 +391,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function finalize() public onlyOptimisticMode {
     ProposedData memory _proposedAggregateRoot = proposedAggregateRoot;
-    if (_proposedAggregateRoot.aggregateRoot == 0) revert RootManager_InvalidAggregateRoot();
-    if (_proposedAggregateRoot.endOfDispute > block.timestamp) revert RootManager_ProposeInProgress();
+    if (_proposedAggregateRoot.aggregateRoot == 0) revert RootManager_finalize__InvalidAggregateRoot();
+    if (_proposedAggregateRoot.endOfDispute > block.timestamp) revert RootManager_finalize__ProposeInProgress();
 
     finalizedOptimisticAggregateRoot = _proposedAggregateRoot.aggregateRoot;
     delete proposedAggregateRoot;
@@ -419,7 +466,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes[] memory _encodedData
   ) internal {
     bytes32 _aggregateRoot = finalizedOptimisticAggregateRoot;
-    if (_aggregateRoot == 0) revert RootManager_EmptyFinalizedOptimisticRoot();
+    if (_aggregateRoot == 0) revert RootManager__optimisticPropagate__EmptyFinalizedOptimisticRoot();
 
     delete finalizedOptimisticAggregateRoot;
 
@@ -449,7 +496,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   ) internal {
     delete finalizedOptimisticAggregateRoot;
     (bytes32 _aggregateRoot, uint256 _currentCount) = dequeue();
-    if (_currentCount <= lastCountBeforeOpMode) revert RootManager_OldAggregateRoot();
+    if (_currentCount <= lastCountBeforeOpMode) revert RootManager__slowPropagate__OldAggregateRoot();
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
     emit RootPropagated(_aggregateRoot, _currentCount, domainsHash);
   }
@@ -507,7 +554,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _inbound The inbound root coming from the given domain.
    */
   function aggregate(uint32 _domain, bytes32 _inbound) external whenNotPaused onlyConnector(_domain) {
-    if (optimisticMode) revert RootManager_OptimisticModeOn();
+    if (optimisticMode) revert RootManager_aggregate__OptimisticModeOn();
     uint128 lastIndex = pendingInboundRoots.enqueue(_inbound);
     emit RootReceived(_domain, _inbound, lastIndex);
   }
@@ -547,7 +594,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     optimisticMode = false;
 
     delete proposedAggregateRoot;
-    emit SlowModeActivated();
+    emit SlowModeActivated(msg.sender);
   }
 
   /**
@@ -558,7 +605,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * Discarded roots will be included on the upcoming optimistic aggregateRoot.
    */
   function activateOptimisticMode() external onlyOwner {
-    if (optimisticMode) revert RootManager_OptimisticModeOn();
+    if (optimisticMode) revert RootManager_activateOptimisticMode__OptimisticModeOn();
 
     pendingInboundRoots.last = pendingInboundRoots.first - 1;
     lastCountBeforeOpMode = MERKLE.count();

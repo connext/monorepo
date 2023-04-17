@@ -98,7 +98,7 @@ contract ProposeFinalizePropagate is ForgeHelper {
     isSlow();
 
     // Should revert because no new messages have arrived
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_OldAggregateRoot.selector));
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager__slowPropagate__OldAggregateRoot.selector));
 
     // Propagate
     rootManager.propagate(connectors, fees, encodedData);

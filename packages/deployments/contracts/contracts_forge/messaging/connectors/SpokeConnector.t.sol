@@ -179,7 +179,7 @@ contract SpokeConnector_General is Base {
 }
 
 contract SpokeConnector_Dispatch is Base {
-  event SnapshotRootSaved(uint256 snapshotId, bytes32 root, uint256 count);
+  event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   address allowedCaller = makeAddr("allowedCaller");

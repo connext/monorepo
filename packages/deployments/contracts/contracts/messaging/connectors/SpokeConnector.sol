@@ -54,7 +54,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
 
-  event SnapshotRootSaved(uint256 snapshotId, bytes32 root, uint256 count);
+  event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
 
   /**
    * @notice Emitted when funds are withdrawn by the admin
