@@ -163,12 +163,10 @@ export const setupAsset = async (args: {
     }
 
     // After registering the asset, check pool status.
-    const [local, adopted] = apply
-      ? await getValue<[string, string]>({
-          deployment: network.deployments.Connext,
-          read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
-        })
-      : [representation.local ?? constants.AddressZero, representation.adopted];
+    const [local, adopted] = await getValue<[string, string]>({
+      deployment: network.deployments.Connext,
+      read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
+    });
 
     if (local.toLowerCase() === adopted.toLowerCase()) {
       // No pools are needed
@@ -186,12 +184,14 @@ export const setupAsset = async (args: {
     const lpTokenName = `Connext ${asset.name.toUpperCase()} ${asset.name.toUpperCase()} StableSwap LP`;
     const lpTokenSymbol = `C${asset.name.toUpperCase()}LP`;
 
+    const a = representation.pool?.a ?? INITIAL_A;
+
     // Initialize pool
     await updateIfNeeded({
       apply,
       deployment: network.deployments.Connext,
-      desired: false,
-      read: { method: "isDisabled(bytes32)", args: [key] },
+      desired: BigNumber.from(a),
+      read: { method: "getSwapA(bytes32)", args: [key] },
       write: {
         method: "initializeSwap",
         args: [
@@ -200,7 +200,7 @@ export const setupAsset = async (args: {
           decimals,
           lpTokenName,
           lpTokenSymbol,
-          representation.pool?.a ?? INITIAL_A,
+          a,
           representation.pool?.fee ?? SWAP_FEE,
           representation.pool?.adminFee ?? ADMIN_FEE,
         ],
@@ -213,7 +213,7 @@ export const setupAsset = async (args: {
     );
 
     // Verify there is sufficient amounts
-    const addr = network.deployments.Connext.contract.signer.getAddress();
+    const addr = await network.deployments.Connext.contract.signer.getAddress();
     const balances = await Promise.all(tokens.map((t) => t.balanceOf(addr)));
     const funded = liquidity.every((l, i) => l.gte(balances[i] as BigNumberish));
     if (!funded && apply) {
@@ -221,6 +221,10 @@ export const setupAsset = async (args: {
       console.warn(`Insufficient balance to provide initial pool funding. Skipping.`);
       continue;
     }
+
+    // This is the buffer to submit the add liquidity. should be sufficient to ensure the
+    // tx is fully completed. Less sensitive to front-running due to small amounts added.
+    const deadlineBuffer = 2 * 24 * 60 * 60; // 2 days
 
     // Add liquidity
     await updateIfNeeded({
@@ -234,9 +238,10 @@ export const setupAsset = async (args: {
           key,
           liquidity, // equal liquidity amounts
           constants.One, // min to mint is 1
-          Math.floor(Date.now() / 1_000) + 60, // deadline in a minute
+          Math.floor(Date.now() / 1_000) + deadlineBuffer,
         ],
       },
     });
+    console.log("");
   }
 };
