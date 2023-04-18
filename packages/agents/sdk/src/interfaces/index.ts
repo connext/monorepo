@@ -10,6 +10,14 @@ export type Pool = {
   adopted: PoolAsset;
   lpTokenAddress: string;
   canonicalHash: string; // hash of the domain and canonicalId, AKA "key"
+  balances: BigNumber[];
+  decimals: number[];
+  invariant: BigNumber;
+  initialA: BigNumber;
+  initialATime: number;
+  futureA: BigNumber;
+  futureATime: number;
+  currentA: BigNumber;
   swapFee: string;
   adminFee: string;
   address?: string; // address of the pool contract, no address if internal pool
