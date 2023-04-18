@@ -72,6 +72,7 @@ contract Conductor is ProposedOwnable {
 
   // ============ Errors ============
 
+  error Conductor_onlyConductor__notConductor(address sender);
   error Conductor_renounceOwnership__prohibited();
   error Conductor_queue__alreadyQueued(bytes32 key);
   error Conductor_dequeue__notQueued(bytes32 key);
@@ -94,6 +95,14 @@ contract Conductor is ProposedOwnable {
    */
   mapping(bytes32 => uint256) public proposals;
 
+  // ============ Modifiers ============
+  modifier onlyConductor() {
+    if (msg.sender != address(this)) {
+      revert Conductor_onlyConductor__notConductor(msg.sender);
+    }
+    _;
+  }
+
   // ============ Constructor ============
   constructor(address _owner) ProposedOwnable() {
     _setOwner(_owner);
@@ -108,21 +117,26 @@ contract Conductor is ProposedOwnable {
   // ============ Admin ============
 
   /**
+  /**
    * @notice Adds a target/selector combo to the bypass whitelist
+   * @dev This function is intended to be called via queue / execute flow to enforce the
+   * same timelock on the bypass whitelist as on the execution of transactions.
    * @param _target The address of the target contract
    * @param _selector The selector of the function to bypass
    */
-  function addBypass(address _target, bytes4 _selector) public onlyOwner {
+  function addBypass(address _target, bytes4 _selector) public onlyConductor {
     bypassDelay[keccak256(abi.encodePacked(_target, _selector))] = true;
     emit BypassAdded(_target, _selector);
   }
 
   /**
    * @notice Removes a target/selector combo from the bypass whitelist
+   * @dev This function is intended to be called via queue / execute flow to enforce the
+   * same timelock on the bypass whitelist as on the execution of transactions.
    * @param _target The address of the target contract
    * @param _selector The selector of the function to bypass
    */
-  function removeBypass(address _target, bytes4 _selector) public onlyOwner {
+  function removeBypass(address _target, bytes4 _selector) public onlyConductor {
     delete bypassDelay[keccak256(abi.encodePacked(_target, _selector))];
     emit BypassRemoved(_target, _selector);
   }

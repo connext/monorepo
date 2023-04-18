@@ -45,18 +45,37 @@ contract ConductorTest is ForgeHelper {
     return abi.encode(Conductor.Transaction(address(helper), 0, data));
   }
 
+  function formatAddBypassTransaction(address target, bytes4 selector) internal view returns (bytes memory) {
+    bytes memory data = abi.encodeWithSignature("addBypass(address,bytes4)", target, selector);
+    return abi.encode(Conductor.Transaction(address(conductor), 0, data));
+  }
+
+  function formatRemoveBypassTransaction(address target, bytes4 selector) internal view returns (bytes memory) {
+    bytes memory data = abi.encodeWithSignature("removeBypass(address,bytes4)", target, selector);
+    return abi.encode(Conductor.Transaction(address(conductor), 0, data));
+  }
+
   function formatFailingTransaction() internal view returns (bytes memory) {
     bytes memory data = abi.encodeWithSignature("fail()");
     return abi.encode(Conductor.Transaction(address(helper), 0, data));
   }
 
   function utils_addBypass(address _target, bytes4 _selector) internal returns (bytes32) {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatAddBypassTransaction(_target, _selector);
+    bytes32 proposalKey = utils_queue(transactions);
+
+    vm.warp(conductor.proposals(proposalKey) + 100);
+
     vm.expectEmit(true, true, true, true);
     emit BypassAdded(_target, _selector);
 
-    bytes32 key = keccak256(abi.encodePacked(_target, _selector));
+    vm.expectEmit(true, true, true, true);
+    emit Executed(proposalKey, transactions);
 
-    conductor.addBypass(_target, _selector);
+    conductor.execute(transactions);
+
+    bytes32 key = keccak256(abi.encodePacked(_target, _selector));
     assertTrue(conductor.bypassDelay(key));
     return key;
   }
@@ -94,11 +113,20 @@ contract ConductorTest is ForgeHelper {
   function test_Conductor__removeBypass_shouldWork() public {
     bytes32 key = utils_addBypass(address(helper), Helper.executeCalldata.selector);
 
-    vm.expectEmit(true, true, true, true);
-    emit BypassAdded(address(helper), Helper.executeCalldata.selector);
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatRemoveBypassTransaction(address(helper), Helper.executeCalldata.selector);
+    bytes32 proposalKey = utils_queue(transactions);
 
-    conductor.addBypass(address(helper), Helper.executeCalldata.selector);
-    assertTrue(conductor.bypassDelay(key));
+    vm.warp(conductor.proposals(proposalKey) + 100);
+
+    vm.expectEmit(true, true, true, true);
+    emit BypassRemoved(address(helper), Helper.executeCalldata.selector);
+
+    vm.expectEmit(true, true, true, true);
+    emit Executed(proposalKey, transactions);
+
+    conductor.execute(transactions);
+    assertFalse(conductor.bypassDelay(key));
   }
 
   // ============ queue ============
@@ -199,7 +227,7 @@ contract ConductorTest is ForgeHelper {
     bytes[] memory transactions = new bytes[](1);
     transactions[0] = formatHelperTransaction(address(this), 100);
 
-    conductor.addBypass(address(helper), Helper.executeCalldata.selector);
+    utils_addBypass(address(helper), Helper.executeCalldata.selector);
 
     utils_queueAndExecute(transactions);
     assertEq(helper.callCount(), 1);
