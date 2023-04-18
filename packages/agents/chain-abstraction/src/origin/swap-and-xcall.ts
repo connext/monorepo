@@ -13,7 +13,9 @@ import { SwapAndXCallParams } from "./types";
  * @param to - The address to send the asset and call with the calldata on the destination.
  * @param delegate - (optional) The fallback address on the destination domain which defaults to `to`.
  * @param slippage - (optional) Maximum acceptable slippage in BPS which defaults to 300. For example, a value of 300 means 3% slippage.
- * @param calldata - (optional) Calldata to execute (can be empty: "0x").
+ * @param swapper - (optional) The address of the swapper contract.
+ * @param swapData - (optional) The data to call the swapper contract with.
+ * @param calldata - (optional) The calldata to execute (can be empty: "0x").
  */
 export const prepareSwapAndXCall = (params: SwapAndXCallParams): Promise<providers.TransactionRequest> => {
   throw new Error("ToDo");

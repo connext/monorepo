@@ -10,6 +10,8 @@ export const SwapAndXCallParamsSchema = Type.Object({
   to: Type.String(),
   delegate: Type.Optional(TAddress),
   slippage: Type.Optional(TIntegerString),
+  swapper: Type.Optional(TAddress),
+  swapData: Type.Optional(Type.String()),
   callData: Type.Optional(Type.String()),
 });
 
