@@ -17,6 +17,6 @@ import { SwapAndXCallParams } from "../../types";
  * @param swapData - (optional) The data to call the swapper contract with.
  * @param calldata - (optional) The calldata to execute (can be empty: "0x").
  */
-export const prepareSwapAndXCall = (params: SwapAndXCallParams): Promise<providers.TransactionRequest> => {
+export const prepareSwapAndXCall = async (params: SwapAndXCallParams): Promise<providers.TransactionRequest> => {
   throw new Error("ToDo");
 };
