@@ -222,6 +222,7 @@ contract PingPong is ConnectorHelper {
     (bytes32 expectedRoot, uint256 expectedCount) = referenceSpokeTree.insert(messageHash);
     // Get initial count.
     uint256 initialCount = SpokeConnector(payable(_originConnectors.spoke)).MERKLE().count();
+
     vm.expectEmit(true, true, true, true);
     emit LeafInserted(expectedRoot, expectedCount, messageHash);
 
@@ -317,11 +318,7 @@ contract PingPong is ConnectorHelper {
   }
 
   // Process a given aggregateRoot on a given spoke.
-  function utils_processAggregateRootAndAssert(
-    address connector,
-    address amb,
-    bytes32 aggregateRoot
-  ) public {
+  function utils_processAggregateRootAndAssert(address connector, address amb, bytes32 aggregateRoot) public {
     // Expect MessageProcessed on the target spoke.
     vm.expectEmit(true, true, true, true);
     emit MessageProcessed(abi.encode(aggregateRoot), amb);
