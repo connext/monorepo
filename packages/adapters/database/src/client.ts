@@ -322,13 +322,29 @@ export const saveProcessedRootMessages = async (
   // update `processed` to true for previous root messages.
   for (const message of _messages) {
     const spoke_domain = message.spokeDomain;
-    await db
-      .update(
+
+    const latestLeafCountRes = await db
+      .selectOne(
         "root_messages",
-        { processed: true },
-        { processed: false, spoke_domain, sent_timestamp: dc.lte(message.timestamp) },
+        {
+          spoke_domain,
+          processed: true,
+          leaf_count: dc.isNotNull,
+        },
+        { limit: 1, order: { by: "leaf_count", direction: "DESC" } },
       )
       .run(poolToUse);
+
+    const latestProcessedLeafCount = latestLeafCountRes?.leaf_count;
+    if (latestProcessedLeafCount) {
+      await db
+        .update(
+          "root_messages",
+          { processed: true },
+          { processed: false, spoke_domain, leaf_count: dc.lte(latestProcessedLeafCount) },
+        )
+        .run(poolToUse);
+    }
   }
 };
 
