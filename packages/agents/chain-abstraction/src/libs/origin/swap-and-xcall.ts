@@ -1,6 +1,6 @@
 import { providers } from "ethers";
 
-import { SwapAndXCallParams } from "./types";
+import { SwapAndXCallParams } from "../../types";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
