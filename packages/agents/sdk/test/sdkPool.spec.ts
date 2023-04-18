@@ -45,6 +45,14 @@ describe("SdkPool", () => {
     lpTokenAddress: utils.formatBytes32String("asdf"),
     canonicalHash: utils.formatBytes32String("13337"),
     swapFee: "4000000",
+    balances: [BigNumber.from("20000"), BigNumber.from("20000")],
+    decimals: [18, 18],
+    invariant: BigNumber.from("20000"),
+    initialA: BigNumber.from("20000"),
+    initialATime: 0,
+    futureA: BigNumber.from("20000"),
+    futureATime: 0,
+    currentA: BigNumber.from("20000"),
     adminFee: "0",
   };
 
@@ -376,7 +384,7 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
@@ -404,7 +412,7 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap)
         .onCall(1) // swap once for destination pool
@@ -431,7 +439,7 @@ describe("SdkPool", () => {
       const originSlippage = "1000"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap);
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
