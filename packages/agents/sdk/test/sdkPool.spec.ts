@@ -109,6 +109,7 @@ describe("SdkPool", () => {
       expect(sdkPool.getDefaultDeadline).to.be.a("function");
       expect(sdkPool.calculateCanonicalKey).to.be.a("function");
       expect(sdkPool.calculateSwap).to.be.a("function");
+      expect(sdkPool.calculateSwapLocal).to.be.a("function");
       expect(sdkPool.calculateTokenAmount).to.be.a("function");
       expect(sdkPool.calculateRemoveSwapLiquidity).to.be.a("function");
       expect(sdkPool.calculatePriceImpact).to.be.a("function");
@@ -575,6 +576,28 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#calculateRemoveSwapLiquidityOneToken", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateRemoveSwapLiquidityOneToken: function () {
+          return ["100", "100"];
+        },
+      };
+
+      stub(sdkPool, "getConnext").resolves(mockConnext as any);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await sdkPool.calculateRemoveSwapLiquidityOneToken(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        0,
+      );
+
+      expect(res).to.deep.equal(["100", "100"]);
+    });
+  });
+
   describe("#calculatePriceImpact", () => {
     const mockParams = {
       totalReservesIn: BigNumber.from("100"),
@@ -916,6 +939,16 @@ describe("SdkPool", () => {
       (sdkPool as any).config.cartographerUrl = "invalidUrl";
 
       await expect(sdkPool.getDailySwapVolume({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#scientificToBigInt", () => {
+    it("happy: should work", async () => {
+      expect(sdkPool.scientificToBigInt("1e5")).to.be.equal(BigInt("100000"));
+      expect(sdkPool.scientificToBigInt("1.3e5")).to.be.equal(BigInt("130000"));
+      expect(sdkPool.scientificToBigInt("1e0")).to.be.equal(BigInt("1"));
+      expect(sdkPool.scientificToBigInt("10")).to.be.equal(BigInt("10"));
+      expect(sdkPool.scientificToBigInt("1.0e0")).to.be.equal(BigInt("1"));
     });
   });
 });
