@@ -3,7 +3,7 @@ import { constants } from "ethers";
 import { HubMessagingDeployments, NetworkStack, ProtocolStack, SpokeMessagingDeployments } from "./types";
 import { assertValue, getValue, updateIfNeeded } from "./tx";
 
-export const setupMessaging = async (protocol: ProtocolStack) => {
+export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) => {
   /// MARK - Peripherals
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
@@ -63,12 +63,14 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
         console.log("\tVerifying mirror connectors are set correctly.");
         await updateIfNeeded({
+          apply,
           deployment: HubConnector,
           desired: SpokeConnector.address,
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
         });
         await updateIfNeeded({
+          apply,
           deployment: SpokeConnector,
           desired: HubConnector.address,
           read: { method: "mirrorConnector", args: [] },
@@ -90,6 +92,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
             currentValue.toLowerCase() !== constants.AddressZero
           ) {
             await updateIfNeeded({
+              apply,
               deployment: RootManager,
               desired: constants.AddressZero,
               read: { method: "getConnectorForDomain", args: [spoke.domain] },
@@ -99,6 +102,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         } catch {}
 
         await updateIfNeeded({
+          apply,
           deployment: RootManager,
           desired: HubConnector.address,
           read: { method: "getConnectorForDomain", args: [spoke.domain] },
@@ -108,6 +112,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         /// MARK - Connectors: Allowlist Senders
         console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
         await updateIfNeeded({
+          apply,
           deployment: SpokeConnector,
           desired: true,
           read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
@@ -117,6 +122,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         /// MARK - MerkleTreeManager
         console.log("\tVerifying merkle tree managers are set correctly.");
         await updateIfNeeded({
+          apply,
           deployment: MerkleTreeManager,
           desired: SpokeConnector.address,
           read: { method: "arborist", args: [] },
@@ -127,6 +133,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
         // setXAppConnectionManager to Connext with SpokeConnector
         console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
         await updateIfNeeded({
+          apply,
           deployment: spoke.deployments.Connext,
           desired: SpokeConnector.address,
           read: { method: "xAppConnectionManager", args: [] },
@@ -148,7 +155,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
   console.log("\tVerifying MainnetConnector is set up correctly...");
   // Sanity check: mirror is address(0).
-  assertValue({
+  await assertValue({
     deployment: MainnetConnector,
     desired: constants.AddressZero,
     read: "mirrorConnector",
@@ -156,7 +163,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   // Make sure RootManager is set correctly for this MainnetConnector.
   // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-  assertValue({
+  await assertValue({
     deployment: MainnetConnector,
     desired: RootManager.address,
     read: "ROOT_MANAGER",
@@ -164,6 +171,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
 
   // Make sure connext is allowlisted sender for MainnetConnector.
   await updateIfNeeded({
+    apply,
     deployment: MainnetConnector,
     desired: true,
     read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
@@ -179,6 +187,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
     // If the current connector address is not correct and isn't empty, we need to remove the connector first.
     if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
       await updateIfNeeded({
+        apply,
         deployment: RootManager,
         desired: constants.AddressZero,
         read: { method: "getConnectorForDomain", args: [hub.domain] },
@@ -188,6 +197,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   } catch {}
 
   await updateIfNeeded({
+    apply,
     deployment: RootManager,
     desired: MainnetConnector.address,
     read: { method: "getConnectorForDomain", args: [hub.domain] },
@@ -195,6 +205,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   });
 
   await updateIfNeeded({
+    apply,
     deployment: MerkleTreeManagerForRoot,
     desired: RootManager.address,
     read: { method: "arborist", args: [] },
@@ -202,6 +213,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   });
 
   await updateIfNeeded({
+    apply,
     deployment: MerkleTreeManagerForSpoke,
     desired: MainnetConnector.address,
     read: { method: "arborist", args: [] },
@@ -209,6 +221,7 @@ export const setupMessaging = async (protocol: ProtocolStack) => {
   });
 
   await updateIfNeeded({
+    apply,
     deployment: hub.deployments.Connext,
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
