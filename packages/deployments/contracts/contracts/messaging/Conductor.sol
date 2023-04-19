@@ -117,7 +117,6 @@ contract Conductor is ProposedOwnable {
   // ============ Admin ============
 
   /**
-  /**
    * @notice Adds a target/selector combo to the bypass whitelist
    * @dev This function is intended to be called via queue / execute flow to enforce the
    * same timelock on the bypass whitelist as on the execution of transactions.
