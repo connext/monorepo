@@ -9,6 +9,7 @@ import {Message} from "../../../contracts/messaging/libraries/Message.sol";
 import {RateLimited} from "../../../contracts/messaging/libraries/RateLimited.sol";
 import {TypeCasts} from "../../../contracts/shared/libraries/TypeCasts.sol";
 import {MerkleLib} from "../../../contracts/messaging/libraries/MerkleLib.sol";
+import {SnapshotId} from "../../../contracts/messaging/libraries/SnapshotId.sol";
 
 import "../../utils/ForgeHelper.sol";
 
@@ -76,7 +77,7 @@ contract Base is ForgeHelper {
 
 contract SpokeConnector_General is Base {
   function test_SpokeConnector__snapshotPeriod() public {
-    assertEq(spokeConnector.SNAPSHOT_DURATION(), SNAPSHOT_DURATION);
+    assertEq(SnapshotId.getSnapshotDuration(), SNAPSHOT_DURATION);
   }
 
   function test_SpokeConnector__setRateLimitBlocks_works() public {
@@ -183,7 +184,7 @@ contract SpokeConnector_Dispatch is Base {
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   address allowedCaller = makeAddr("allowedCaller");
-  uint256 snapshotId = block.timestamp / SNAPSHOT_DURATION;
+  uint256 snapshotId = SnapshotId.getLastCompletedSnapshotId();
 
   function setUp() public virtual override {
     super.setUp();
@@ -313,14 +314,5 @@ contract SpokeConnector_GetLastCompletedSnapshotId is Base {
 
     vm.warp(SNAPSHOT_DURATION * _snapshotId);
     assertEq(spokeConnector.getLastCompletedSnapshotId(), _snapshotId);
-  }
-}
-
-contract SpokeConnector_LastCompletedSnapshotId is Base {
-  function test_getlastCompletedSnapshotIdInternal(uint128 _snapshotId) public {
-    vm.assume(_snapshotId > 0);
-
-    vm.warp(SNAPSHOT_DURATION * _snapshotId);
-    assertEq(MockSpokeConnector(payable(address(spokeConnector))).lastCompletedSnapshotId(), _snapshotId);
   }
 }

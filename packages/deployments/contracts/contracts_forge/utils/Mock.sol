@@ -22,6 +22,7 @@ import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
+import {SnapshotId} from "../../contracts/messaging/libraries/SnapshotId.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
@@ -275,10 +276,6 @@ contract MockSpokeConnector is SpokeConnector {
 
   function count() external returns (uint256) {
     return MERKLE.count();
-  }
-
-  function lastCompletedSnapshotId() external view returns (uint256) {
-    return _getLastCompletedSnapshotId();
   }
 }
 

@@ -9,6 +9,7 @@ import {DomainIndexer} from "../../contracts/messaging/libraries/DomainIndexer.s
 import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
 import {MerkleTreeManager} from "../../contracts/messaging/MerkleTreeManager.sol";
 import {WatcherManager} from "../../contracts/messaging/WatcherManager.sol";
+import {SnapshotId} from "../../contracts/messaging/libraries/SnapshotId.sol";
 
 import "../utils/ConnectorHelper.sol";
 
@@ -49,8 +50,12 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     }
   }
 
-  function forTest_setProposeData(bytes32 _aggregateRoot, uint256 _endOfDispute) public {
-    proposedAggregateRoot = ProposedData(_endOfDispute, _aggregateRoot);
+  function forTest_setProposeHash(bytes32 _aggregateRoot, uint256 _endOfDispute) public {
+    proposedAggregateRootHash = keccak256(abi.encode(_aggregateRoot, _endOfDispute));
+  }
+
+  function forTest_setProposedHashToFinalizedHash() public {
+    proposedAggregateRootHash = FINALIZED_HASH;
   }
 
   function forTest_setFinalizedOptimisticRoot(bytes32 _aggregateRoot) public {
@@ -116,12 +121,14 @@ contract Base is ForgeHelper {
   RootManagerForTest _rootManager;
   uint256 _delayBlocks = 40;
   bool _optimisticMode = true;
-  uint256 _disputeTime = 30 minutes;
+  uint256 _disputeBlocks = 150;
+  bytes32 _finalizedHash = 0x0000000000000000000000000000000000000000000000000000000000000001;
   address _merkle;
   uint32[] _domains;
   address[] _connectors;
   uint256[] _fees;
   bytes[] _encodedData;
+  bytes32 _randomRoot = bytes32("random");
 
   address owner = address(1);
   address watcherManager = address(2);
@@ -415,7 +422,7 @@ contract RootManager_General is Base {
 
 contract RootManager_Constructor is Base {
   function test_checkConstructorArguments() public {
-    assertEq(_rootManager.DISPUTE_TIME(), _disputeTime);
+    assertEq(_rootManager.DISPUTE_BLOCKS(), _disputeBlocks);
     assertEq(_rootManager.optimisticMode(), _optimisticMode);
   }
 }
@@ -475,7 +482,7 @@ contract RootManager_ProposeAggregateRoot is Base {
     bytes32 aggregateRoot,
     bytes32[] memory snapshotsRoots
   ) public {
-    vm.assume(snapshotId != block.timestamp / 30 minutes);
+    vm.assume(snapshotId != SnapshotId.getLastCompletedSnapshotId());
 
     _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
 
@@ -487,10 +494,10 @@ contract RootManager_ProposeAggregateRoot is Base {
   }
 
   function test_revertIfProposeInProgress(bytes32 aggregateRoot, bytes32[] memory snapshotsRoots) public {
-    vm.assume(aggregateRoot > 0);
-    uint256 snapshotId = block.timestamp / _rootManager.SNAPSHOT_DURATION();
+    vm.assume(aggregateRoot != _finalizedHash);
+    uint256 snapshotId = SnapshotId.getLastCompletedSnapshotId();
     _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
-    _rootManager.forTest_setProposeData(aggregateRoot, block.timestamp + _rootManager.DISPUTE_TIME());
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
 
     vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_proposeAggregateRoot__ProposeInProgress.selector));
     vm.prank(proposer);
@@ -503,14 +510,14 @@ contract RootManager_ProposeAggregateRoot is Base {
     bytes32[] memory snapshotsRoots
   ) public {
     _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
-    uint256 snapshotId = block.timestamp / 30 minutes;
+    uint256 snapshotId = SnapshotId.getLastCompletedSnapshotId();
 
     vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(baseRoot));
 
     vm.expectEmit(true, true, true, true);
     emit AggregateRootProposed(
       snapshotId,
-      block.timestamp + 30 minutes,
+      block.number + _disputeBlocks,
       aggregateRoot,
       baseRoot,
       snapshotsRoots,
@@ -529,49 +536,68 @@ contract RootManager_Finalize is Base {
     _rootManager.forTest_setOptimisticMode(false);
 
     vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_onlyOptimisticMode__SlowModeOn.selector));
-    _rootManager.finalize();
+    _rootManager.finalize(_randomRoot, block.number + _disputeBlocks);
   }
 
   function test_revertIfProposeInProgress(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
-    _rootManager.forTest_setProposeData(aggregateRoot, block.timestamp + _rootManager.DISPUTE_TIME());
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
 
     vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_finalize__ProposeInProgress.selector));
-    _rootManager.finalize();
+    _rootManager.finalize(aggregateRoot, block.number + _disputeBlocks);
+  }
+
+  function test_revertIfAggregateRootDataIsInvalidNoPropose(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot != _finalizedHash);
+
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_finalize__InvalidAggregateRoot.selector));
+    _rootManager.finalize(aggregateRoot, block.number);
   }
 
   function test_revertIfAggregateRootDataIsInvalid() public {
-    _rootManager.forTest_setProposeData(0, block.timestamp + _rootManager.DISPUTE_TIME());
+    _rootManager.forTest_setProposedHashToFinalizedHash();
 
     vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_finalize__InvalidAggregateRoot.selector));
-    _rootManager.finalize();
+
+    _rootManager.finalize(_randomRoot, block.number + _disputeBlocks);
   }
 
-  function test_createNewLastVerifiedAggregateRoot(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
-    _rootManager.forTest_setProposeData(aggregateRoot, block.timestamp + _rootManager.DISPUTE_TIME());
-    vm.warp(block.timestamp + _disputeTime + 1);
+  function test_revertIfAggregateRootHashIsInvalid(bytes32 aggregateRoot) public {
+    bytes32 _differentRoot = _randomRoot;
+    vm.assume(aggregateRoot != _differentRoot);
+    vm.assume(aggregateRoot != _finalizedHash);
 
-    (, bytes32 beforeAggregateRoot) = _rootManager.proposedAggregateRoot();
-    _rootManager.finalize();
-    (uint256 afterEndOfDispute, bytes32 afterAggregateRoot) = _rootManager.proposedAggregateRoot();
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_finalize__InvalidInputHash.selector));
+    _rootManager.finalize(_differentRoot, block.number + _disputeBlocks);
+  }
+
+  function test_setFinalizedAggregateRoot(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+    vm.roll(block.number + _disputeBlocks);
+
+    bytes32 _previousAggregateRoot = aggregateRoot;
+
+    _rootManager.finalize(aggregateRoot, block.number);
+    bytes32 afterAggregateRootHash = _rootManager.proposedAggregateRootHash();
 
     bytes32 finalizedAggregateRoot = _rootManager.finalizedOptimisticAggregateRoot();
 
-    assertEq(beforeAggregateRoot, finalizedAggregateRoot);
-    assertEq(afterEndOfDispute, 0);
-    assertEq(afterAggregateRoot, 0);
+    assertEq(_previousAggregateRoot, finalizedAggregateRoot);
+    assertEq(afterAggregateRootHash, _finalizedHash);
   }
 
   function test_emitIfProposedRootHasFinalized(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
-    _rootManager.forTest_setProposeData(aggregateRoot, block.timestamp + _rootManager.DISPUTE_TIME());
-    vm.warp(block.timestamp + _disputeTime + 1);
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+    vm.roll(block.number + _disputeBlocks);
 
     vm.expectEmit(true, true, true, true);
     emit ProposedRootFinalized(aggregateRoot);
 
-    _rootManager.finalize();
+    _rootManager.finalize(aggregateRoot, block.number);
   }
 }
 
@@ -609,20 +635,19 @@ contract RootManager_ActivateSlowMode is Base {
   }
 
   function test_cleanProposedAggregateRoot(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
-    uint256 endOfDispute = block.timestamp + _rootManager.DISPUTE_TIME();
-    _rootManager.forTest_setProposeData(aggregateRoot, endOfDispute);
+    vm.assume(aggregateRoot != _finalizedHash);
+    uint256 endOfDispute = block.number + _disputeBlocks;
+    _rootManager.forTest_setProposeHash(aggregateRoot, endOfDispute);
+    bytes32 aggregateRootHash = keccak256(abi.encode(aggregateRoot, endOfDispute));
 
-    (uint256 beforeEndOfDispute, bytes32 beforeAggregateRoot) = _rootManager.proposedAggregateRoot();
-    assertEq(beforeEndOfDispute, endOfDispute);
-    assertEq(beforeAggregateRoot, aggregateRoot);
+    bytes32 beforeAggregateRootHash = _rootManager.proposedAggregateRootHash();
+    assertEq(beforeAggregateRootHash, aggregateRootHash);
 
     vm.prank(owner);
     _rootManager.activateSlowMode();
 
-    (uint256 afterEndOfDispute, bytes32 afterAggregateRoot) = _rootManager.proposedAggregateRoot();
-    assertEq(afterEndOfDispute, 0);
-    assertEq(afterAggregateRoot, 0);
+    bytes32 afterAggregateRoot = _rootManager.proposedAggregateRootHash();
+    assertEq(afterAggregateRoot, _finalizedHash);
   }
 
   function test_emitSlowModeActivated() public {
@@ -710,12 +735,13 @@ contract RootManager_RemoveConnector is Base {
 
   function test_deleteProposedAggregateRoot(bytes32 aggregateRoot) public {
     _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
-    uint256 endOfDispute = block.timestamp + _rootManager.DISPUTE_TIME();
-    _rootManager.forTest_setProposeData(aggregateRoot, endOfDispute);
+    uint256 endOfDispute = block.number + _disputeBlocks;
+    _rootManager.forTest_setProposeHash(aggregateRoot, endOfDispute);
 
-    (uint256 beforeEndOfDispute, bytes32 beforeAggregateRoot) = _rootManager.proposedAggregateRoot();
-    assertEq(endOfDispute, beforeEndOfDispute);
-    assertEq(beforeAggregateRoot, aggregateRoot);
+    bytes32 beforeAggregateRootHash = _rootManager.proposedAggregateRootHash();
+    bytes32 hashForComparison = keccak256(abi.encode(aggregateRoot, endOfDispute));
+
+    assertEq(beforeAggregateRootHash, hashForComparison);
 
     vm.mockCall(
       watcherManager,
@@ -725,9 +751,8 @@ contract RootManager_RemoveConnector is Base {
 
     _rootManager.removeConnector(_domains[0]);
 
-    (uint256 afterEndOfDispute, bytes32 afterAggregateRoot) = _rootManager.proposedAggregateRoot();
-    assertEq(afterEndOfDispute, 0);
-    assertEq(afterAggregateRoot, 0);
+    bytes32 afterAggregateRootHash = _rootManager.proposedAggregateRootHash();
+    assertEq(afterAggregateRootHash, _finalizedHash);
   }
 }
 
@@ -852,7 +877,7 @@ contract RootManager_Propagate is Base {
   }
 
   function test_callOptimisticPropagateFunction(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setOptimisticMode(true);
     _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
 
@@ -894,28 +919,35 @@ contract RootManager_OptimisticPropagate is Base {
     super.setUp();
   }
 
-  function test_revertIfEmptyFinalizedOptimisticRoot() public {
-    _rootManager.forTest_setFinalizedOptimisticRoot(bytes32(0));
+  function test_revertIfImmediatePropagate() public {
+    vm.expectRevert(
+      abi.encodeWithSelector(RootManager.RootManager_optimisticPropagate__ForbiddenOptimisticRoot.selector)
+    );
+    _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
+  }
+
+  function test_revertIfFinalizedRootIsFinalizedHash() public {
+    _rootManager.forTest_setFinalizedOptimisticRoot(_finalizedHash);
 
     vm.expectRevert(
-      abi.encodeWithSelector(RootManager.RootManager__optimisticPropagate__EmptyFinalizedOptimisticRoot.selector)
+      abi.encodeWithSelector(RootManager.RootManager_optimisticPropagate__ForbiddenOptimisticRoot.selector)
     );
     _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
   }
 
   function test_deleteFinalizedData(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
 
     utils_generateAndAddConnectors(_connectors.length, false, true);
     _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
 
     bytes32 _afterFinalizedRoot = _rootManager.finalizedOptimisticAggregateRoot();
-    assertEq(_afterFinalizedRoot, 0);
+    assertEq(_afterFinalizedRoot, _finalizedHash);
   }
 
   function test_emitEventOptimisticRootPropagated(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
 
     utils_generateAndAddConnectors(_connectors.length, false, true);
@@ -938,15 +970,15 @@ contract RootManager_SlowPropagate is Base {
 
   function test_revertIfLastCountIsGreaterThanCount(bytes32 aggregateRoot, uint256 lastCountBeforeOpMode) public {
     // MERKLE.count will be zero for this example since the tree is new.
-    vm.assume(aggregateRoot > 0 && lastCountBeforeOpMode > 0);
+    vm.assume(aggregateRoot > _finalizedHash && lastCountBeforeOpMode > 0);
     _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
 
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager__slowPropagate__OldAggregateRoot.selector));
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
     _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
   }
 
   function test_revertIfLastCountIsEqualToCount(bytes32 aggregateRoot, uint256 lastCountBeforeOpMode) public {
-    vm.assume(aggregateRoot > 0 && lastCountBeforeOpMode > 0);
+    vm.assume(aggregateRoot > _finalizedHash && lastCountBeforeOpMode > 0);
 
     vm.mockCall(
       _merkle,
@@ -956,12 +988,12 @@ contract RootManager_SlowPropagate is Base {
 
     _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
 
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager__slowPropagate__OldAggregateRoot.selector));
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
     _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
   }
 
   function test_deleteFinalizedOptimisticAggregateRoot(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > 0 && count > _rootManager.lastCountBeforeOpMode());
+    vm.assume(aggregateRoot > _finalizedHash && count > _rootManager.lastCountBeforeOpMode());
     utils_generateAndAddConnectors(_connectors.length, false, true);
     vm.mockCall(
       _merkle,
@@ -975,11 +1007,11 @@ contract RootManager_SlowPropagate is Base {
 
     bytes32 _finalizedOptimisticRoot = _rootManager.finalizedOptimisticAggregateRoot();
 
-    assertEq(_finalizedOptimisticRoot, 0);
+    assertEq(_finalizedOptimisticRoot, _finalizedHash);
   }
 
   function test_emitEventRootPropagated(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > 0 && count > _rootManager.lastCountBeforeOpMode());
+    vm.assume(aggregateRoot > _finalizedHash && count > _rootManager.lastCountBeforeOpMode());
 
     utils_generateAndAddConnectors(_connectors.length, false, true);
 
@@ -1010,13 +1042,13 @@ contract RootManager_SendRootToHubs is Base {
   }
 
   function test_sendRootToSpokes(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
     utils_generateAndAddConnectors(_connectors.length, false, true);
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 
   function test_shouldNotRevertIfAmbMessageReverts(bytes32 aggregateRoot, uint32 reverterDomain) public {
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
 
     // Ensure that the fuzzed revertereDomain is never equal to one of the valid domains.
     for (uint256 i = 0; i < _domains.length; i++) {
@@ -1052,7 +1084,7 @@ contract RootManager_SendRootToHubs is Base {
     address newConnector
   ) public {
     vm.assume(newDomain > 0);
-    vm.assume(aggregateRoot > 0);
+    vm.assume(aggregateRoot > _finalizedHash);
     vm.assume(newConnector != address(0));
 
     // Ensure that the fuzzed revertereDomain is never equal to one of the valid domains.
@@ -1085,16 +1117,19 @@ contract RootManager_FinalizeAndPropagate is Base {
   ) public {
     _rootManager.forTest_pause();
     vm.expectRevert(bytes("Pausable: paused"));
-    _rootManager.finalizeAndPropagate(connectors, fees, encodedData);
+    uint256 _endOfDispute = block.number + _disputeBlocks;
+    _rootManager.finalizeAndPropagate(connectors, fees, encodedData, _randomRoot, _endOfDispute);
   }
 
   function test_finalizeAndPropagate(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot != 0);
+    vm.assume(aggregateRoot > _finalizedHash);
+    uint256 _endOfDispute = block.number - 1;
+
     _rootManager.forTest_setOptimisticMode(true);
     utils_generateAndAddConnectors(_connectors.length, false, true);
-    _rootManager.forTest_setProposeData(aggregateRoot, block.timestamp - 1);
+    _rootManager.forTest_setProposeHash(aggregateRoot, _endOfDispute);
     _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
 
-    _rootManager.finalizeAndPropagate(_connectors, _fees, _encodedData);
+    _rootManager.finalizeAndPropagate(_connectors, _fees, _encodedData, aggregateRoot, _endOfDispute);
   }
 }

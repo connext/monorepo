@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {QueueLib} from "../../contracts/messaging/libraries/Queue.sol";
+import {SnapshotId} from "../../contracts/messaging/libraries/SnapshotId.sol";
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
@@ -51,7 +52,7 @@ contract ProposeFinalizePropagate is ForgeHelper {
     snapshotsRoots.push(bytes32(abi.encode(2)));
     snapshotsRoots.push(bytes32(abi.encode(3)));
 
-    snapshotId = block.timestamp / rootManager.SNAPSHOT_DURATION();
+    snapshotId = SnapshotId.getLastCompletedSnapshotId();
     aggregateRoot = bytes32(abi.encode(5));
   }
 
@@ -98,7 +99,7 @@ contract ProposeFinalizePropagate is ForgeHelper {
     isSlow();
 
     // Should revert because no new messages have arrived
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager__slowPropagate__OldAggregateRoot.selector));
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
 
     // Propagate
     rootManager.propagate(connectors, fees, encodedData);

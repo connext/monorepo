@@ -11,6 +11,7 @@ import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
 import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
 import {RateLimited} from "../libraries/RateLimited.sol";
+import {SnapshotId} from "../libraries/SnapshotId.sol";
 
 import {MerkleTreeManager} from "../MerkleTreeManager.sol";
 import {WatcherClient} from "../WatcherClient.sol";
@@ -91,11 +92,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   // ============ Public Storage ============
-
-  /**
-   * @notice Duration of the snapshot
-   */
-  uint256 public constant SNAPSHOT_DURATION = 30 minutes;
 
   /**
    * @notice Number of blocks to delay the processing of a message to allow for watchers to verify
@@ -347,7 +343,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes memory _messageBody
   ) external onlyAllowlistedSender returns (bytes32, bytes memory) {
     // Before inserting the new message to the tree we need to check if the last snapshot root must be calculated and set.
-    uint256 _lastCompletedSnapshotId = _getLastCompletedSnapshotId();
+    uint256 _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
     if (snapshotRoots[_lastCompletedSnapshotId] == 0) {
       // Saves current tree root as last snapshot root before adding the new message.
       bytes32 _currentRoot = MERKLE.root();
@@ -462,7 +458,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @return _lastCompletedSnapshotId The last completed snapshot id
    */
   function getLastCompletedSnapshotId() external view returns (uint256 _lastCompletedSnapshotId) {
-    _lastCompletedSnapshotId = _getLastCompletedSnapshotId();
+    _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
   }
 
   // ============ Private Functions ============
@@ -623,15 +619,5 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
     // emit process results
     emit Process(_messageHash, _success, _returnData);
-  }
-
-  /**
-   * @notice This function calculates the last completed snapshot id
-   * @return _lastCompletedSnapshotId The last completed snapshot id
-   */
-  function _getLastCompletedSnapshotId() internal view returns (uint256 _lastCompletedSnapshotId) {
-    unchecked {
-      _lastCompletedSnapshotId = block.timestamp / SNAPSHOT_DURATION;
-    }
   }
 }
