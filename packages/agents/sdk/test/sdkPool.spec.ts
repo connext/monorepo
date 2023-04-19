@@ -643,6 +643,64 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#calculateAddLiquidityPriceImpact", () => {
+    it("happy: should work", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+
+      const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
+
+      expect(res.toString()).to.equal(
+        (
+          await sdkPool.calculatePriceImpact(BigNumber.from("20"), BigNumber.from("10"), BigNumber.from("20"), true)
+        ).toString(),
+      );
+    });
+
+    it("should return undefined when pool is not exist", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
+      expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#calculateRemoveLiquidityPriceImpact", () => {
+    it("happy: should work", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+
+      const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        "10",
+      );
+
+      expect(res.toString()).to.equal(
+        (
+          await sdkPool.calculatePriceImpact(BigNumber.from("10"), BigNumber.from("20"), BigNumber.from("20"), false)
+        ).toString(),
+      );
+    });
+
+    it("should return undefined when pool is not exist", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        "10",
+      );
+      expect(res).to.be.undefined;
+    });
+  });
+
   describe("#getTokenPrice", () => {
     it("happy: should return USDC price", async () => {
       const price = await sdkPool.getTokenPrice("USDC");
