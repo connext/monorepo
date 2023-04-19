@@ -7,6 +7,7 @@ import {
   formatUrl,
   StableSwapExchange,
   DEFAULT_ROUTER_FEE,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
@@ -1096,8 +1097,8 @@ export class SdkPool extends SdkShared {
 
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name: this.chainData.get(domainId)?.assetId[assetXAddress].name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetXAddress].symbol ?? "",
+        name: this.chainData.get(domainId)?.assetId[assetXAddress]?.name ?? "",
+        symbol: this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
@@ -1105,8 +1106,8 @@ export class SdkPool extends SdkShared {
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name: this.chainData.get(domainId)?.assetId[assetYAddress].name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetYAddress].symbol ?? "",
+        name: this.chainData.get(domainId)?.assetId[assetYAddress]?.name ?? "",
+        symbol: this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
@@ -1143,7 +1144,7 @@ export class SdkPool extends SdkShared {
     domainId: string,
     userAddress: string,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
-    const { requestContext, methodContext } = createLoggingContext(this.swap.name);
+    const { requestContext, methodContext } = createLoggingContext(this.getUserPools.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, userAddress });
 
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
@@ -1152,23 +1153,32 @@ export class SdkPool extends SdkShared {
 
     await Promise.all(
       Object.values(assetsData).map(async (data) => {
-        if (data.domain === domainId) {
-          const pool = await this.getPool(domainId, data.local);
-          if (pool) {
-            const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.adopted.address, userAddress);
-            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
+        try {
+          if (data.domain === domainId) {
+            const pool = await this.getPool(domainId, data.local);
+            if (pool) {
+              const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+              const adoptedTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.adopted.address,
+                userAddress,
+              );
+              const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
 
-            if (lpTokenUserBalance.gt(0)) {
-              result.push({
-                info: pool,
-                lpTokenBalance: lpTokenUserBalance,
-                poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-              });
+              if (lpTokenUserBalance.gt(0)) {
+                result.push({
+                  info: pool,
+                  lpTokenBalance: lpTokenUserBalance,
+                  poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+                });
+              }
+            } else {
+              this.logger.info("No pool for asset", requestContext, methodContext, { data });
             }
-          } else {
-            this.logger.info("No pool for asset", requestContext, methodContext, { data });
           }
+        } catch (error: any) {
+          const jsonError = jsonifyError(error as Error);
+          this.logger.error("Error while processing assetData", requestContext, methodContext, jsonError);
         }
       }),
     );
