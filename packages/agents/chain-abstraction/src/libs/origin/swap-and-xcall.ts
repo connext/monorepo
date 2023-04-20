@@ -146,7 +146,6 @@ export const prepareSwapAndXCall = async (
  * @param fromAsset - The address of the asset to swap from.
  * @param toAsset - The address of the asset to swap to.
  * @param amountIn - The number of `fromAsset` tokens.
- * @param slippage - Maximum acceptable slippage in BPS which defaults to 300. For example, a value of 300 means 3% slippage.
  *
  * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
@@ -155,11 +154,11 @@ export const calculateRouteForSwapAndXCall = async (
   fromAsset: string,
   toAsset: string,
   amountIn: string,
-  slippage: string,
 ): Promise<{ swapper: string; swapData: string }> => {
   // TODO: The `swapper` is the smart contract interacting with different types of DEXes and DEX aggregators such as UniV2, UniV3, 1inch Aggregator
   // so we can have more than one `swapper` contract deployed on each domain.
   // Its important to figure out which swapper we choose for the `xcall` callers.
+  //
   // [] What is the ideal solution here?
   //    We may choose the swapper based on the estimated output for a given `amountIn` when they want to xcall.
   //
@@ -173,7 +172,7 @@ export const calculateRouteForSwapAndXCall = async (
     throw new Error(`Swapper config not found for domain: ${domainId}`);
   }
 
-  const swapData = await swapperConfig.swapDataCallback({ fromAsset, toAsset, amountIn, slippage });
+  const swapData = await swapperConfig.swapDataCallback({ fromAsset, toAsset, amountIn });
 
   return { swapper: swapperConfig.address, swapData };
 };

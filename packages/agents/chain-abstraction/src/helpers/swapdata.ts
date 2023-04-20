@@ -2,7 +2,6 @@ export type SwapDataCallbackArgs = {
   fromAsset: string;
   toAsset: string;
   amountIn: string;
-  slippage: string;
   additions?: any;
 };
 export type SwapDataCallback = (args: SwapDataCallbackArgs) => Promise<string>;
