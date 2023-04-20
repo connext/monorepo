@@ -16,7 +16,6 @@ export const SwapAndXCallParamsSchema = Type.Object({
   toAsset: TAddress,
   amountIn: TIntegerString,
   to: Type.String(),
-  target: Type.Enum(XReceiveTarget),
   relayerFeeInNativeAsset: Type.Optional(TIntegerString),
   relayerFeeInTransactingAsset: Type.Optional(TIntegerString),
   delegate: Type.Optional(TAddress),
@@ -31,3 +30,12 @@ export const SwapAndXCallParamsSchema = Type.Object({
 });
 
 export type SwapAndXCallParams = Static<typeof SwapAndXCallParamsSchema>;
+
+export const MidasProtocolForwardCallDataSchema = Type.Object({});
+export type MidasForwardCallData = Static<typeof MidasProtocolForwardCallDataSchema>;
+
+export const MeanFinanceForwardCallDataSchema = Type.Object({});
+export type MeanFinanceForwardCallData = Static<typeof MeanFinanceForwardCallDataSchema>;
+
+export const InstadappForwardCallDataSchema = Type.Object({});
+export type InstadappForwardCallData = Static<typeof InstadappForwardCallDataSchema>;

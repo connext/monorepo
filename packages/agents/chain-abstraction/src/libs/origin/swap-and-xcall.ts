@@ -52,7 +52,6 @@ export const prepareSwapAndXCall = async (
       ? BigNumber.from(_relayerFeeInTransactingAsset)
       : constants.Zero;
 
-    // TODO: should compose the target specific calldata.
     const callData = _callData ?? "0x";
 
     const swapAndXCallInterface = getSwapAndXCallInterface();
@@ -147,6 +146,8 @@ export const prepareSwapAndXCall = async (
  * @param toAsset - The address of the asset to swap to.
  * @param amountIn - The number of `fromAsset` tokens.
  * @param slippage - Maximum acceptable slippage in BPS which defaults to 300. For example, a value of 300 means 3% slippage.
+ *
+ * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
 export const calculateRouteForSwapAndXCall = async (
   domainId: string,
