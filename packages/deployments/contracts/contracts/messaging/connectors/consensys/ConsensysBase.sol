@@ -8,6 +8,8 @@ abstract contract ConsensysBase {
 
   /**
    * @dev Asserts the sender of a cross domain message
+   * @param _amb AMB instance
+   * @param _expected Expected sender
    */
   function _verifySender(address _amb, address _expected) internal view returns (bool) {
     require(msg.sender == _amb, "!bridge");

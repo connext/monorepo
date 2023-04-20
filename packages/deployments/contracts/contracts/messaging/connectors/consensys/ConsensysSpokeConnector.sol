@@ -9,6 +9,9 @@ import {ConsensysBase} from "./ConsensysBase.sol";
 
 contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
   // ============ Constructor ============
+  /**
+   * @dev Initializes the SpokeConnector and ConsensysBase inherited classes
+   */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
@@ -37,12 +40,18 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
   {}
 
   // ============ Override Fns ============
+  /**
+   * @dev Asserts the sender of a cross domain message using the initialized AMB
+   * @param _expected Expected sender
+   */
   function _verifySender(address _expected) internal view override returns (bool) {
     return _verifySender(AMB, _expected);
   }
 
   /**
    * @dev Sends `outboundRoot` to root manager on l1
+   * @param _data Data to send to root manager
+   * @param _encodedData Specialized data for optional offchain params, not used in this implementation
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
@@ -60,6 +69,7 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
+   * @param _data Data to send to l1, should always be the aggregate root to send from L2 -> L1
    */
   function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2

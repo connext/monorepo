@@ -22,6 +22,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
   // ============ Private fns ============
   /**
    * @dev Asserts the sender of a cross domain message
+   * @param _expected Expected sender
    */
   function _verifySender(address _expected) internal view override returns (bool) {
     return _verifySender(AMB, _expected);
@@ -29,6 +30,8 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
 
   /**
    * @dev Messaging uses this function to send data to l2 via amb
+   * @param _data Data to send to l2, should always be the aggregate root to send from L1 -> L2
+   * @param _encodedData Specialized data for optional offchain params, not used in this implementation
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be dispatching the aggregate root
@@ -48,6 +51,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
 
   /**
    * @dev L2 connector calls this function to pass down latest outbound root
+   * @param _data Data to send to l1, should always be the outbound root to send from L2 -> L1
    */
   function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
