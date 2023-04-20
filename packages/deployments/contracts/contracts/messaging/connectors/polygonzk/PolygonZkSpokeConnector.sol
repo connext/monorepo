@@ -8,6 +8,9 @@ import {BasePolygonZk} from "./BasePolygonZk.sol";
 
 contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
   // ============ Constructor ============
+  /**
+   * @dev Initializes the SpokeConnector and BasePolygonZk inherited classes
+   */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
@@ -39,6 +42,10 @@ contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
   // ============ Admin fns ============
 
   // ============ Private fns ============
+  /**
+   * @dev Asserts the sender of a cross domain message using the initialized AMB
+   * @param _expected Expected sender
+   */
   function _verifySender(address _expected) internal view override returns (bool) {
     require(msg.sender == AMB, "!amb");
     return _expected == mirrorConnector;
@@ -47,6 +54,8 @@ contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
+   * @param sender Sender of the message
+   * @param message Message data, should be an aggregate root
    */
   function _processMessageFrom(address sender, bytes memory message) internal override(BasePolygonZk) {
     require(_verifySender(sender), "!l2Connector");
@@ -57,6 +66,11 @@ contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
     emit MessageProcessed(message, msg.sender);
   }
 
+  /**
+   * @dev Sends `outboundRoot` to mirror connector on L1
+   * @param _data Data to send to mirror connector, should be an outbound root
+   * @param _encodedData Specialized data for offchain params, not used in this implementation
+   */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
