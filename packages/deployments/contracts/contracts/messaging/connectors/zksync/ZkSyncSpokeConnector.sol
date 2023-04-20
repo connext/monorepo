@@ -11,6 +11,9 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   uint160 constant L1_TO_L2_ALIAS_OFFSET = uint160(0x1111000000000000000000000000000000001111);
 
   // ============ Constructor ============
+  /**
+   * @dev Initializes the SpokeConnector inherited class
+   */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
@@ -43,6 +46,7 @@ contract ZkSyncSpokeConnector is SpokeConnector {
    * @notice Processes a message received by an AMB
    * @dev This is called to process messages originating from mirror connector
    * For zksync this is not called by AMB
+   * @param _data Message data, should be an aggregate root
    */
   function processMessage(bytes memory _data) external override {
     _processMessage(_data);
@@ -52,6 +56,10 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   // ============ Private Functions ============
 
   // ============ Override Fns ============
+  /**
+   * @dev Asserts the sender of a cross domain message using the initialized AMB
+   * @param _expected Expected sender
+   */
   function _verifySender(address _expected) internal view override returns (bool) {
     // NOTE: msg.sender is preserved for L1 -> L2 calls. See the L2 contract in the tutorial
     // here: https://v2-docs.zksync.io/dev/tutorials/cross-chain-tutorial.html#l2-counter
@@ -65,7 +73,9 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   }
 
   /**
-   * @dev Sends `outboundRoot` to root manager on l1
+   * @dev Sends `outboundRoot` to mirror connector on l1
+   * @param _data Data to send to mirror connector, should be an outbound root
+   * @param _encodedData Specialized data for optional offchain params, not used in this implementation
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
@@ -80,6 +90,7 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
+   * @param _data Data to process, should be an aggregate root
    */
   function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2

@@ -20,6 +20,9 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
   mapping(bytes32 => bool) public processed;
 
   // ============ Constructor ============
+  /**
+   * @dev Initializes the HubConnector and GasCap inherited classes
+   */
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
@@ -30,6 +33,9 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) GasCap(_gasCap) {}
 
   // ============ Override Fns ============
+  /**
+   * @dev Implements inherited function but returns false always
+   */
   function _verifySender(address) internal pure override returns (bool) {
     // NOTE: sender from L2 is asserted in the `processMessageFromRoot` function. Cross domain
     // sender is packed in with the L2Message struct, so you should not be verifying the
@@ -40,6 +46,8 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
 
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
+   * @param _data Data to send to messaging on l2, should be the aggregate root
+   * @param _encodedData Specialized data for optional offchain params, should be the L2 gas limit
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should include  L2 gas that transaction can consume during execution on L2
@@ -88,19 +96,18 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
 
   /**
    * @notice Processes message and proves inclusion of that message in the root.
-   *
    * @dev modified from: https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
+   * @param _l2BlockNumber zkSync block number in which the message was sent
+   * @param _l2MessageIndex Message index, that can be received via API
+   * @param _l2TxNumberInBlock The L2 transaction number in a block, in which the log was sent
+   * @param _message The message that was sent from l2
+   * @param _proof Merkle proof for the message
    */
   function processMessageFromRoot(
-    // zkSync block number in which the message was sent
     uint32 _l2BlockNumber,
-    // Message index, that can be received via API
     uint256 _l2MessageIndex,
-    // The L2 transaction number in a block, in which the log was sent
     uint16 _l2TxNumberInBlock,
-    // The message that was sent from l2
     bytes calldata _message,
-    // Merkle proof for the message
     bytes32[] calldata _proof
   ) external {
     // sanity check root length (32 bytes root)
