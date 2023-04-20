@@ -26,6 +26,8 @@ contract ProposeFinalizePropagate is ForgeHelper {
   uint256[] fees = [0, 0, 0];
   bytes[] encodedData = [bytes(""), bytes(""), bytes("")];
   uint256 delayBlocks = 40;
+  uint256 minDisputeBlocks = 125;
+  uint256 disputeBlocks = 150;
 
   // Addresses
   address owner = makeAddr("owner");
@@ -38,7 +40,7 @@ contract ProposeFinalizePropagate is ForgeHelper {
     merkle = new MerkleTreeManager();
     merkle.initialize(address(rootManager));
 
-    rootManager = new RootManager(delayBlocks, address(merkle), watcherManager);
+    rootManager = new RootManager(delayBlocks, address(merkle), watcherManager, minDisputeBlocks, disputeBlocks);
     merkle.setArborist(address(rootManager));
 
     rootManager.addConnector(domains[0], connectors[0]);

@@ -25,8 +25,10 @@ contract RootManagerForTest is DomainIndexer, RootManager {
   constructor(
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
-  ) RootManager(_delayBlocks, _merkle, _watcherManager) {}
+    address _watcherManager,
+    uint256 _minDisputeBlocks,
+    uint256 _disputeBlocks
+  ) RootManager(_delayBlocks, _merkle, _watcherManager, _minDisputeBlocks, _disputeBlocks) {}
 
   function forTest_setLastCountBeforeOpMode(uint256 _lastCountBeforeOpMode) public {
     lastCountBeforeOpMode = _lastCountBeforeOpMode;
@@ -121,6 +123,7 @@ contract Base is ForgeHelper {
   RootManagerForTest _rootManager;
   uint256 _delayBlocks = 40;
   bool _optimisticMode = true;
+  uint256 _minDisputeBlocks = 120;
   uint256 _disputeBlocks = 150;
   bytes32 _finalizedHash = 0x0000000000000000000000000000000000000000000000000000000000000001;
   address _merkle;
@@ -150,7 +153,7 @@ contract Base is ForgeHelper {
     MerkleTreeManager(_merkle).initialize(address(_rootManager));
 
     vm.prank(owner);
-    _rootManager = new RootManagerForTest(_delayBlocks, _merkle, watcherManager);
+    _rootManager = new RootManagerForTest(_delayBlocks, _merkle, watcherManager, _minDisputeBlocks, _disputeBlocks);
     MerkleTreeManager(_merkle).setArborist(address(_rootManager));
 
     // Env: roll ahead to an arbitrary block so we don't start at block zero.
@@ -422,8 +425,33 @@ contract RootManager_General is Base {
 
 contract RootManager_Constructor is Base {
   function test_checkConstructorArguments() public {
-    assertEq(_rootManager.DISPUTE_BLOCKS(), _disputeBlocks);
+    assertEq(_rootManager.disputeBlocks(), _disputeBlocks);
+    assertEq(_rootManager.minDisputeBlocks(), _minDisputeBlocks);
     assertEq(_rootManager.optimisticMode(), _optimisticMode);
+  }
+
+  function test_zeroMerkleDeployment() public {
+    address zeroMerkle = address(0);
+    vm.expectRevert("!zero merkle");
+    RootManagerForTest _testRootManager = new RootManagerForTest(
+      _delayBlocks,
+      zeroMerkle,
+      watcherManager,
+      _minDisputeBlocks,
+      _disputeBlocks
+    );
+  }
+
+  function test_wrongDisputeBlocksDeployment() public {
+    uint256 wrongDisputeBlocks = _minDisputeBlocks - 1;
+    vm.expectRevert(RootManager.RootManager_constructor__DisputeBlocksLowerThanMin.selector);
+    RootManagerForTest _testRootManager = new RootManagerForTest(
+      _delayBlocks,
+      _merkle,
+      watcherManager,
+      _minDisputeBlocks,
+      wrongDisputeBlocks
+    );
   }
 }
 
@@ -598,6 +626,128 @@ contract RootManager_Finalize is Base {
     emit ProposedRootFinalized(aggregateRoot);
 
     _rootManager.finalize(aggregateRoot, block.number);
+  }
+}
+
+contract RootManager_SetDelayBlocks is Base {
+  event DelayBlocksUpdated(uint256 _newBlocks, uint256 _prevBlocks);
+
+  function test_revertIfCallerIsNotOwner() public {
+    uint256 _newDelayBlocks = _rootManager.disputeBlocks() + 10;
+    vm.prank(makeAddr("stranger"));
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
+    _rootManager.setDelayBlocks(_newDelayBlocks);
+  }
+
+  function test_revertIfDelayBlocksEqPrevDelayBlocks() public {
+    uint256 _currentDelayBlocks = _rootManager.delayBlocks();
+    vm.prank(owner);
+    vm.expectRevert("!delayBlocks");
+    _rootManager.setDelayBlocks(_currentDelayBlocks);
+  }
+
+  function test_changeDelayBlocks(uint256 newDelayBlocks) public {
+    uint256 _prevDelayBlocks = _rootManager.delayBlocks();
+    vm.assume(newDelayBlocks != _prevDelayBlocks);
+    vm.prank(owner);
+    _rootManager.setDelayBlocks(newDelayBlocks);
+    uint256 _currentDelayBlocks = _rootManager.delayBlocks();
+    assertEq(_currentDelayBlocks, newDelayBlocks);
+  }
+
+  function test_emitIfDelayBlocksChanged(uint256 newDelayBlocks) public {
+    uint256 _prevDelayBlocks = _rootManager.delayBlocks();
+    vm.assume(newDelayBlocks != _prevDelayBlocks);
+    vm.prank(owner);
+
+    vm.expectEmit(true, true, true, true);
+    emit DelayBlocksUpdated(newDelayBlocks, _prevDelayBlocks);
+
+    _rootManager.setDelayBlocks(newDelayBlocks);
+  }
+}
+
+contract RootManager_SetMinDisputeBlocks is Base {
+  event MinDisputeBlocksUpdated(uint256 _newBlocks, uint256 _prevBlocks);
+
+  function test_revertIfCallerIsNotOwner() public {
+    uint256 _newMinDisputeBlocks = _rootManager.minDisputeBlocks() + 10;
+    vm.prank(makeAddr("stranger"));
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
+    _rootManager.setMinDisputeBlocks(_newMinDisputeBlocks);
+  }
+
+  function test_revertIfMinDisputeBlocksEqPrevMinDisputeBlocks() public {
+    uint256 _currentMinDisputeBlocks = _rootManager.minDisputeBlocks();
+    vm.prank(owner);
+    vm.expectRevert(RootManager.RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore.selector);
+    _rootManager.setMinDisputeBlocks(_currentMinDisputeBlocks);
+  }
+
+  function test_changeMinDisputeBlocks(uint256 newMinDisputeBlocks) public {
+    uint256 _prevMinDisputeBlocks = _rootManager.minDisputeBlocks();
+    vm.assume(newMinDisputeBlocks != _prevMinDisputeBlocks);
+    vm.prank(owner);
+    _rootManager.setMinDisputeBlocks(newMinDisputeBlocks);
+    uint256 _currentMinDisputeBlocks = _rootManager.minDisputeBlocks();
+    assertEq(_currentMinDisputeBlocks, newMinDisputeBlocks);
+  }
+
+  function test_emitIfMinDisputeBlocksChanged(uint256 newMinDisputeBlocks) public {
+    uint256 _prevMinDisputeBlocks = _rootManager.minDisputeBlocks();
+    vm.assume(newMinDisputeBlocks != _prevMinDisputeBlocks);
+    vm.prank(owner);
+
+    vm.expectEmit(true, true, true, true);
+    emit MinDisputeBlocksUpdated(newMinDisputeBlocks, _prevMinDisputeBlocks);
+
+    _rootManager.setMinDisputeBlocks(newMinDisputeBlocks);
+  }
+}
+
+contract RootManager_SetDisputeBlocks is Base {
+  event DisputeBlocksUpdated(uint256 _newBlocks, uint256 _prevBlocks);
+
+  function test_revertIfCallerIsNotOwner() public {
+    uint256 _newDisputeBlocks = _rootManager.disputeBlocks() + 10;
+    vm.prank(makeAddr("stranger"));
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
+    _rootManager.setDisputeBlocks(_newDisputeBlocks);
+  }
+
+  function test_revertIfDisputeBlocksAreLessThanMinAllowed(uint256 _smallDisputeBlocks) public {
+    uint256 _allowedMinDisputeBlocks = _rootManager.minDisputeBlocks();
+    vm.assume(_smallDisputeBlocks < _allowedMinDisputeBlocks);
+    vm.prank(owner);
+    vm.expectRevert(RootManager.RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin.selector);
+    _rootManager.setDisputeBlocks(_smallDisputeBlocks);
+  }
+
+  function test_revertIfDisputeBlocksEqPrevDisputeBlocks() public {
+    uint256 _currentDisputeBlocks = _rootManager.disputeBlocks();
+    vm.prank(owner);
+    vm.expectRevert(RootManager.RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore.selector);
+    _rootManager.setDisputeBlocks(_currentDisputeBlocks);
+  }
+
+  function test_changeDisputeBlocks(uint256 newDisputeBlocks) public {
+    uint256 _prevDisputeBlocks = _rootManager.disputeBlocks();
+    vm.assume(newDisputeBlocks > _prevDisputeBlocks);
+    vm.prank(owner);
+    _rootManager.setDisputeBlocks(newDisputeBlocks);
+    uint256 _currentDisputeBlocks = _rootManager.disputeBlocks();
+    assertEq(_currentDisputeBlocks, newDisputeBlocks);
+  }
+
+  function test_emitIfDisputeBlocksChanged(uint256 newDisputeBlocks) public {
+    uint256 _prevDisputeBlocks = _rootManager.disputeBlocks();
+    vm.assume(newDisputeBlocks > _prevDisputeBlocks);
+    vm.prank(owner);
+
+    vm.expectEmit(true, true, true, true);
+    emit DisputeBlocksUpdated(newDisputeBlocks, _prevDisputeBlocks);
+
+    _rootManager.setDisputeBlocks(newDisputeBlocks);
   }
 }
 

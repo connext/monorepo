@@ -26,6 +26,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event DelayBlocksUpdated(uint256 previous, uint256 updated);
 
+  event DisputeBlocksUpdated(uint256 previous, uint256 updated);
+
+  event MinDisputeBlocksUpdated(uint256 previous, uint256 updated);
+
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
@@ -120,13 +124,15 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_finalize__InvalidInputHash();
 
-  // ============ Properties ============
+  error RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
 
-  /**
-   * @notice The number of blocks watchers have to detect and invalidate the proposed root.
-   * @dev    150 blocks is equivalent to 30 minutes in the current Ethereum Proof of Stake.
-   */
-  uint256 public constant DISPUTE_BLOCKS = 150;
+  error RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
+
+  error RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
+
+  error RootManager_constructor__DisputeBlocksLowerThanMin();
+
+  // ============ Properties ============
 
   /**
    * @notice Maximum number of values to dequeue from the queue in one sitting (one call of `propagate`
@@ -143,6 +149,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * the validity and pause if necessary.
    */
   uint256 public delayBlocks;
+
+  /**
+   * @notice The number of blocks watchers have to detect and invalidate the proposed root.
+   */
+  uint256 public disputeBlocks;
+
+  /**
+   * @notice The minimum number of blocks disputeBlocks can be set to.
+   */
+  uint256 public minDisputeBlocks;
 
   /**
    * @notice The amount of inserted leaves prior to switching to optimistic mode
@@ -243,15 +259,19 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   constructor(
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
+    address _watcherManager,
+    uint256 _minDisputeBlocks,
+    uint256 _disputeBlocks
   ) ProposedOwnable() WatcherClient(_watcherManager) {
     _setOwner(msg.sender);
-
+    if (_disputeBlocks < _minDisputeBlocks) revert RootManager_constructor__DisputeBlocksLowerThanMin();
     require(_merkle != address(0), "!zero merkle");
     MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
     optimisticMode = true;
+    minDisputeBlocks = _minDisputeBlocks;
+    disputeBlocks = _disputeBlocks;
 
     // Initialize pending inbound root queue.
     pendingInboundRoots.initialize();
@@ -281,6 +301,27 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function removeProposer(address _proposer) external onlyOwner {
     delete allowlistedProposers[_proposer];
     emit ProposerRemoved(_proposer);
+  }
+
+  /**
+   * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
+   * a given proposed root
+   */
+  function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
+    if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
+    emit MinDisputeBlocksUpdated(_minDisputeBlocks, minDisputeBlocks);
+    minDisputeBlocks = _minDisputeBlocks;
+  }
+
+  /**
+   * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
+   * a given proposed root
+   */
+  function setDisputeBlocks(uint256 _disputeBlocks) public onlyOwner {
+    if (_disputeBlocks < minDisputeBlocks) revert RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
+    if (_disputeBlocks == disputeBlocks) revert RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
+    emit DisputeBlocksUpdated(_disputeBlocks, disputeBlocks);
+    disputeBlocks = _disputeBlocks;
   }
 
   /**
@@ -370,7 +411,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       revert RootManager_proposeAggregateRoot__InvalidSnapshotId(_snapshotId);
     if (proposedAggregateRootHash != FINALIZED_HASH) revert RootManager_proposeAggregateRoot__ProposeInProgress();
 
-    uint256 _endOfDispute = block.number + DISPUTE_BLOCKS;
+    uint256 _endOfDispute = block.number + disputeBlocks;
     proposedAggregateRootHash = keccak256(abi.encode(_aggregateRoot, _endOfDispute));
 
     emit AggregateRootProposed(_snapshotId, _endOfDispute, _aggregateRoot, MERKLE.root(), _snapshotsRoots, _domains);

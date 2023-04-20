@@ -50,6 +50,8 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager aggregateTree;
 
   uint256 _delayBlocks = 40;
+  uint256 _minDisputeBlocks = 125;
+  uint256 _disputeBlocks = 150;
   address _watcherManager;
 
   // ============ connectors
@@ -79,7 +81,9 @@ contract PingPong is ConnectorHelper {
     // deploy watcher manager
     _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager(_delayBlocks, address(aggregateTree), _watcherManager));
+    _rootManager = address(
+      new RootManager(_delayBlocks, address(aggregateTree), _watcherManager, _minDisputeBlocks, _disputeBlocks)
+    );
     aggregateTree.setArborist(_rootManager);
 
     // Mock sourceconnector on l2
