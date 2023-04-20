@@ -1,4 +1,11 @@
-import { SwapDataCallbackArgs } from ".";
+export type SwapDataCallbackArgs = {
+  fromAsset: string;
+  toAsset: string;
+  amountIn: string;
+  additions?: any;
+};
+export type SwapDataCallback = (args: SwapDataCallbackArgs) => Promise<string>;
+
 /**
  * Returns the `swapData` which will be used as the low-level calldata
  * including a function signature for any univ2 DEXes.

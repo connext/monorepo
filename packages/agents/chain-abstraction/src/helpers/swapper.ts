@@ -1,23 +1,12 @@
-/**
- * Returns the address of the univ2 `swapper` contract deployed to a given domain
- * @param domainId - The given domain ID
- */
-export const getSwapperForUniV2 = async (domainId: string): Promise<string> => {
-  throw new Error("ToDo");
-};
+import { Swapper } from "../types";
 
-/**
- * Returns the address of the univ3 `swapper` contract deployed to a given domain
- * @param domainId - The given domain ID
- */
-export const getSwapperForUniV3 = async (domainId: string): Promise<string> => {
-  throw new Error("ToDo");
-};
-
-/**
- * Returns the address of the oneinch `swapper` contract deployed to a given domain
- * @param domainId - The given domain ID
- */
-export const getSwapperForOneInch = async (domainId: string): Promise<string> => {
-  throw new Error("ToDo");
+export const SwapperMapping: Record<string, { type: Swapper; address: string }> = {
+  "6648936": { type: Swapper.OneInch, address: "" }, // ETH mainnet
+  "1869640809": { type: Swapper.OneInch, address: "" }, // Optimism
+  "6450786": { type: Swapper.OneInch, address: "" }, // BNB Chain
+  "6778479": { type: Swapper.OneInch, address: "" }, // Gnosis Chain
+  "1886350457": { type: Swapper.OneInch, address: "" }, // Polygon
+  "1634886255": { type: Swapper.OneInch, address: "" }, // Arbitrum One
+  "2053862243": { type: Swapper.OneInch, address: "" }, // zkSync2 mainnet
+  "1887071085": { type: Swapper.OneInch, address: "" }, // Polygon zkEVM
 };

@@ -9,6 +9,13 @@ export const XReceiveTarget = {
 } as const;
 export type XReceiveTarget = (typeof XReceiveTarget)[keyof typeof XReceiveTarget];
 
+export const Swapper = {
+  UniV2: "UniV2",
+  UniV3: "UniV3",
+  OneInch: "OneInch",
+};
+export type Swapper = (typeof Swapper)[keyof typeof Swapper];
+
 export const SwapAndXCallParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,
