@@ -1087,7 +1087,7 @@ contract RootManager_SendRootToHubs is Base {
     vm.assume(aggregateRoot > _finalizedHash);
     vm.assume(newConnector != address(0));
 
-    // Ensure that the fuzzed revertereDomain is never equal to one of the valid domains.
+    // Ensure that the fuzzed reverterDomain is never equal to one of the valid domains.
     for (uint256 i = 0; i < _domains.length; i++) {
       vm.assume(_domains[i] != newDomain);
     }

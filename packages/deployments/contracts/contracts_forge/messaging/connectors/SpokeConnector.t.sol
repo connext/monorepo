@@ -77,7 +77,7 @@ contract Base is ForgeHelper {
 
 contract SpokeConnector_General is Base {
   function test_SpokeConnector__snapshotPeriod() public {
-    assertEq(SnapshotId.getSnapshotDuration(), SNAPSHOT_DURATION);
+    assertEq(SnapshotId.SNAPSHOT_DURATION, SNAPSHOT_DURATION);
   }
 
   function test_SpokeConnector__setRateLimitBlocks_works() public {

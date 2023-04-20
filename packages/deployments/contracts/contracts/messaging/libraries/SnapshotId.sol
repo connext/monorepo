@@ -22,12 +22,4 @@ library SnapshotId {
       _lastCompletedSnapshotId = block.timestamp / SNAPSHOT_DURATION;
     }
   }
-
-  /**
-   * @notice Get the snapshot duration
-   * @return _snapshotDuration The snapshot duration
-   */
-  function getSnapshotDuration() internal pure returns (uint256 _snapshotDuration) {
-    _snapshotDuration = SNAPSHOT_DURATION;
-  }
 }

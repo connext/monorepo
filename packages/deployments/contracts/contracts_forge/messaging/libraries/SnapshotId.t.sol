@@ -15,10 +15,3 @@ contract SnapshotId_GetLastCompletedSnapshotId is SnapshotIdLibTest {
     assertEq(_lastCompletedSnapshotId, block.timestamp / SNAPSHOT_DURATION);
   }
 }
-
-contract SnapshotId_GetSnapshotDuration is SnapshotIdLibTest {
-  function test_getSnapshotDuration() public {
-    uint256 _snapshotDuration = SnapshotId.getSnapshotDuration();
-    assertEq(_snapshotDuration, SNAPSHOT_DURATION);
-  }
-}
