@@ -69,7 +69,7 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
-   * @param _data Data to send to l1, should always be the aggregate root to send from L2 -> L1
+   * @param _data Data received from L1, should be the aggregate root
    */
   function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2
