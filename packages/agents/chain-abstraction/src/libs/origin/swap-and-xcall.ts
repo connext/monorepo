@@ -139,7 +139,7 @@ export const prepareSwapAndXCall = async (
 };
 
 /**
- * Calculates the best route (swapper and swapdata) for the `SwapAndXCall` contract call.
+ * Calculates the best route (swapper and swapdata) to return the highest `amountOut` for the `SwapAndXCall` contract call.
  *
  * @param domainId - The origin domain
  * @param fromAsset - The address of the asset to swap from.
