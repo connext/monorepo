@@ -156,5 +156,14 @@ export const calculateRouteForSwapAndXCall = async (
   amountIn: string,
   slippage: string,
 ): Promise<{ swapper: string; swapData: string }> => {
-  throw new Error("ToDo");
+  // TODO: The `swapper` is the smart contract interacting with different types of DEXes and DEX aggregators such as UniV2, UniV3, 1inch Aggregator
+  // so we can have more than one `swapper` contract deployed on each domain.
+  // Its important to figure out which swapper we choose for the `xcall` callers.
+  // [] What is the ideal solution here?
+  //    We may choose the swapper based on the estimated output for a given `amountIn` when they want to xcall.
+  //
+  // [] What can be done for a quick solution?
+  //    We can have a swapper contract deployed per domain. It would still work even if the `amountOut` wouldn't be the best.
+  //
+  // That seems enough to go ahead with a quick solution as of now but we will definitely update the function over time to make it ideal
 };
