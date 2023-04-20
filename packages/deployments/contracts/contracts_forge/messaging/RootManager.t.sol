@@ -133,10 +133,11 @@ contract Base is ForgeHelper {
   bytes[] _encodedData;
   bytes32 _randomRoot = bytes32("random");
 
-  address owner = address(1);
-  address watcherManager = address(2);
-  address watcher = address(3);
-  address proposer = address(4);
+  address owner = makeAddr("owner");
+  address watcherManager = makeAddr("watcherManager");
+  address watcher = makeAddr("watcher");
+  address proposer = makeAddr("proposer");
+  address stranger = makeAddr("stranger");
 
   function setUp() public virtual {
     _domains.push(1000);
@@ -634,7 +635,7 @@ contract RootManager_SetDelayBlocks is Base {
 
   function test_revertIfCallerIsNotOwner() public {
     uint256 _newDelayBlocks = _rootManager.disputeBlocks() + 10;
-    vm.prank(makeAddr("stranger"));
+    vm.prank(stranger);
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     _rootManager.setDelayBlocks(_newDelayBlocks);
   }
@@ -672,7 +673,7 @@ contract RootManager_SetMinDisputeBlocks is Base {
 
   function test_revertIfCallerIsNotOwner() public {
     uint256 _newMinDisputeBlocks = _rootManager.minDisputeBlocks() + 10;
-    vm.prank(makeAddr("stranger"));
+    vm.prank(stranger);
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     _rootManager.setMinDisputeBlocks(_newMinDisputeBlocks);
   }
@@ -710,7 +711,7 @@ contract RootManager_SetDisputeBlocks is Base {
 
   function test_revertIfCallerIsNotOwner() public {
     uint256 _newDisputeBlocks = _rootManager.disputeBlocks() + 10;
-    vm.prank(makeAddr("stranger"));
+    vm.prank(stranger);
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     _rootManager.setDisputeBlocks(_newDisputeBlocks);
   }
@@ -818,6 +819,7 @@ contract RootManager_ActivateOptimisticMode is Base {
   }
 
   function test_revertIfCallerIsNotOwner() public {
+    vm.prank(stranger);
     vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
     _rootManager.activateOptimisticMode();
   }
@@ -954,6 +956,7 @@ contract RootManager_AddProposer is Base {
   event ProposerAdded(address indexed proposer);
 
   function test_revertIfCallerIsNotOwner() public {
+    vm.prank(stranger);
     vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
     _rootManager.addProposer(owner);
   }
@@ -981,6 +984,7 @@ contract RootManager_RemoveProposer is Base {
   }
 
   function test_revertIfCallerIsNotOwner() public {
+    vm.prank(stranger);
     vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
     _rootManager.removeProposer(owner);
   }
