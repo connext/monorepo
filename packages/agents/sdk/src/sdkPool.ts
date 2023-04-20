@@ -8,6 +8,7 @@ import {
   StableSwapExchange,
   DEFAULT_ROUTER_FEE,
   getNtpTimeSeconds,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
