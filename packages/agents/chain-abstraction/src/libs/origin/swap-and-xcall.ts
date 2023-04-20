@@ -1,7 +1,9 @@
 import { providers, constants, BigNumber } from "ethers";
+import { domainToChainId } from "@connext/nxtp-utils";
 
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
+import { DEPLOYED_ADDRESSES } from "../../helpers/address";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -16,11 +18,14 @@ import { getSwapAndXCallInterface } from "../../interfaces";
  * @param slippage - (optional) Maximum acceptable slippage in BPS which defaults to 300. For example, a value of 300 means 3% slippage.
  * @param route - (optional) The address of the `swapper` contract and the data to call the swapper contract with
  * @param calldata - (optional) The calldata to execute (can be empty: "0x").
+ *
+ * @param signerAddress - The address of the signer to send a transaction from
  */
 export const prepareSwapAndXCall = async (
   params: SwapAndXCallParams,
+  signerAddress: string,
 ): Promise<providers.TransactionRequest | undefined> => {
-  let txRequest: providers.TransactionRequest = undefined;
+  let txRequest: providers.TransactionRequest | undefined = undefined;
 
   try {
     const {
@@ -54,10 +59,21 @@ export const prepareSwapAndXCall = async (
     const originRoute =
       _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, slippage));
 
-    const swapAndXCallAddress = await getSwa;
+    const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
+    if (!swapAndXCallAddress) {
+      throw new Error(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+    }
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
     let swapAndXCallData: string;
+
+    const msgValue =
+      fromAsset == constants.AddressZero
+        ? BigNumber.from(amountIn).add(relayerFeeInNativeAsset)
+        : relayerFeeInNativeAsset;
+
+    const chainId = domainToChainId(+originDomain);
+
     if (feeInNativeAsset) {
       const formattedArguments: [string, string, string, string, string, string, string, string, string, string] = [
         fromAsset,
@@ -108,6 +124,14 @@ export const prepareSwapAndXCall = async (
         formattedArguments,
       );
     }
+
+    txRequest = {
+      to: swapAndXCallAddress,
+      value: msgValue,
+      data: swapAndXCallData,
+      from: signerAddress,
+      chainId,
+    };
   } catch (e: unknown) {
     console.error(e);
   }
