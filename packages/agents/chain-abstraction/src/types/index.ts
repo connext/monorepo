@@ -38,11 +38,46 @@ export const SwapAndXCallParamsSchema = Type.Object({
 
 export type SwapAndXCallParams = Static<typeof SwapAndXCallParamsSchema>;
 
-export const MidasProtocolForwardCallDataSchema = Type.Object({});
+export const UniV2SwapperParamsSchema = Type.Object({
+  amountOutMin: TIntegerString,
+});
+export type UniV2SwapperParams = Static<typeof UniV2SwapperParamsSchema>;
+
+export const UniV3SwapperParamsSchema = Type.Object({
+  poolFee: TIntegerString,
+  amountOutMin: TIntegerString,
+});
+export type UniV3SwapperParams = Static<typeof UniV3SwapperParamsSchema>;
+
+export const MidasProtocolForwardCallDataSchema = Type.Object({
+  cTokenAddress: TAddress,
+  underlying: TAddress,
+  minter: TAddress,
+});
 export type MidasForwardCallData = Static<typeof MidasProtocolForwardCallDataSchema>;
 
+// TODO: Defines the properties if needed
 export const MeanFinanceForwardCallDataSchema = Type.Object({});
 export type MeanFinanceForwardCallData = Static<typeof MeanFinanceForwardCallDataSchema>;
 
+// TODO: Defines the properties if needed
 export const InstadappForwardCallDataSchema = Type.Object({});
 export type InstadappForwardCallData = Static<typeof InstadappForwardCallDataSchema>;
+
+export const DestinationSwapForwarderParamsSchema = Type.Object({
+  swapper: TAddress,
+  toAsset: TAddress,
+  swapData: Type.Union([UniV2SwapperParamsSchema, UniV3SwapperParamsSchema]),
+  forwardCallData: Type.Union([
+    InstadappForwardCallDataSchema,
+    MeanFinanceForwardCallDataSchema,
+    MidasProtocolForwardCallDataSchema,
+  ]),
+});
+export type DestinationSwapForwarderParams = Static<typeof DestinationSwapForwarderParamsSchema>;
+
+export const DestinationCallDataParamsSchema = Type.Object({
+  fallback: TAddress,
+  swapForwarderData: DestinationSwapForwarderParamsSchema,
+});
+export type DestinationCallDataParams = Static<typeof DestinationCallDataParamsSchema>;
