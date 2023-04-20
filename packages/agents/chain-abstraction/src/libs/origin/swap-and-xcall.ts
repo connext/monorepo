@@ -1,6 +1,7 @@
 import { providers, constants, BigNumber } from "ethers";
 
 import { SwapAndXCallParams } from "../../types";
+import { getSwapAndXCallInterface } from "../../interfaces";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -16,33 +17,102 @@ import { SwapAndXCallParams } from "../../types";
  * @param route - (optional) The address of the `swapper` contract and the data to call the swapper contract with
  * @param calldata - (optional) The calldata to execute (can be empty: "0x").
  */
-export const prepareSwapAndXCall = async (params: SwapAndXCallParams): Promise<providers.TransactionRequest> => {
-  const {
-    originDomain,
-    destinationDomain,
-    fromAsset,
-    toAsset,
-    amountIn,
-    to,
-    delegate: _delegate,
-    slippage: _slippage,
-    route: _route,
-    callData: _callData,
-    relayerFeeInNativeAsset: _relayerFeeInNativeAsset,
-    relayerFeeInTransactingAsset: _relayerFeeInTransactingAsset,
-  } = params;
+export const prepareSwapAndXCall = async (
+  params: SwapAndXCallParams,
+): Promise<providers.TransactionRequest | undefined> => {
+  let txRequest: providers.TransactionRequest = undefined;
 
-  const delegate = _delegate ?? to;
-  const slippage = _slippage ?? "300";
-  const relayerFeeInNativeAsset = _relayerFeeInNativeAsset ? BigNumber.from(_relayerFeeInNativeAsset) : constants.Zero;
-  const relayerFeeInTransactingAsset = _relayerFeeInTransactingAsset
-    ? BigNumber.from(_relayerFeeInTransactingAsset)
-    : constants.Zero;
+  try {
+    const {
+      originDomain,
+      destinationDomain,
+      fromAsset,
+      toAsset,
+      amountIn,
+      to,
+      delegate: _delegate,
+      slippage: _slippage,
+      route: _route,
+      callData: _callData,
+      relayerFeeInNativeAsset: _relayerFeeInNativeAsset,
+      relayerFeeInTransactingAsset: _relayerFeeInTransactingAsset,
+    } = params;
 
-  const originRoute =
-    _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, slippage));
+    const delegate = _delegate ?? to;
+    const slippage = _slippage ?? "300";
+    const relayerFeeInNativeAsset = _relayerFeeInNativeAsset
+      ? BigNumber.from(_relayerFeeInNativeAsset)
+      : constants.Zero;
+    const relayerFeeInTransactingAsset = _relayerFeeInTransactingAsset
+      ? BigNumber.from(_relayerFeeInTransactingAsset)
+      : constants.Zero;
 
-  throw new Error("ToDo");
+    // TODO: should compose the target specific calldata.
+    const callData = _callData ?? "0x";
+
+    const swapAndXCallInterface = getSwapAndXCallInterface();
+    const originRoute =
+      _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, slippage));
+
+    const swapAndXCallAddress = await getSwa;
+
+    const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
+    let swapAndXCallData: string;
+    if (feeInNativeAsset) {
+      const formattedArguments: [string, string, string, string, string, string, string, string, string, string] = [
+        fromAsset,
+        toAsset,
+        amountIn,
+        originRoute.swapper,
+        originRoute.swapData,
+        destinationDomain,
+        to,
+        delegate,
+        slippage,
+        callData,
+      ];
+
+      swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
+        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,uint256,bytes)",
+        formattedArguments,
+      );
+    } else {
+      const formattedArguments: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+      ] = [
+        fromAsset,
+        toAsset,
+        amountIn,
+        originRoute.swapper,
+        originRoute.swapData,
+        destinationDomain,
+        to,
+        delegate,
+        slippage,
+        callData,
+        relayerFeeInTransactingAsset.toString(),
+      ];
+
+      swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
+        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,uint256,bytes,uint256)",
+        formattedArguments,
+      );
+    }
+  } catch (e: unknown) {
+    console.error(e);
+  }
+
+  return txRequest;
 };
 
 /**
