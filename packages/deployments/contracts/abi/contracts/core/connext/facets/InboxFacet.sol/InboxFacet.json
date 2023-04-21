@@ -15,11 +15,11 @@
   "error InboxFacet__onlyReplica_notReplica()",
   "error InboxFacet__reconcile_alreadyReconciled()",
   "error InboxFacet__reconcile_noPortalRouter()",
-  "error TypedMemView__assertType_typeAssertionFailed(uint256,uint256)",
+  "error TypedMemView__assertType_typeAssertionFailed(uint256 actual, uint256 expected)",
   "error TypedMemView__assertValid_validityAssertionFailed()",
   "error TypedMemView__index_indexMoreThan32Bytes()",
-  "error TypedMemView__index_overrun(uint256,uint256,uint256,uint256)",
-  "event Receive(uint64 indexed,address indexed,address indexed,address,uint256)",
-  "event Reconciled(bytes32 indexed,uint32 indexed,address indexed,address[],uint256,address)",
-  "function handle(uint32,uint32,bytes32,bytes)"
+  "error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice)",
+  "event Receive(uint64 indexed originAndNonce, address indexed token, address indexed recipient, address liquidityProvider, uint256 amount)",
+  "event Reconciled(bytes32 indexed transferId, uint32 indexed originDomain, address indexed local, address[] routers, uint256 amount, address caller)",
+  "function handle(uint32 _origin, uint32 _nonce, bytes32 _sender, bytes _message)"
 ]

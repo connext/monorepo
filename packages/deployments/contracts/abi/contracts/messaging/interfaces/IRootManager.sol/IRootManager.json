@@ -1,4 +1,4 @@
 [
-  "function aggregate(uint32,bytes32)",
-  "function propagate(address[],uint256[],bytes[]) payable"
+  "function aggregate(uint32 _domain, bytes32 _outbound)",
+  "function propagate(address[] _connectors, uint256[] _fees, bytes[] _encodedData) payable"
 ]

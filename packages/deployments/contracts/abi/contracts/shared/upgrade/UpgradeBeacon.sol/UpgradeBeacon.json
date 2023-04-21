@@ -1,4 +1,4 @@
 [
-  "constructor(address,address) payable",
-  "event Upgrade(address indexed)"
+  "constructor(address _initialImplementation, address _controller) payable",
+  "event Upgrade(address indexed implementation)"
 ]

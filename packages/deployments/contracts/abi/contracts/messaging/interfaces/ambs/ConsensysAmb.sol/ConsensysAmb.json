@@ -1,7 +1,7 @@
 [
-  "event MessageDelivered(address,address,uint256,uint256,uint256,bytes)",
-  "event MessageDispatched(address,address,uint256,uint256,uint256,bytes)",
-  "function deliverMessage(address,address,uint256,uint256,uint256,bytes) payable",
-  "function dispatchMessage(address,uint256,uint256,bytes) payable",
+  "event MessageDelivered(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata)",
+  "event MessageDispatched(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata)",
+  "function deliverMessage(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata) payable",
+  "function dispatchMessage(address _to, uint256 _fee, uint256 _deadline, bytes _calldata) payable",
   "function sender() view returns (address)"
 ]

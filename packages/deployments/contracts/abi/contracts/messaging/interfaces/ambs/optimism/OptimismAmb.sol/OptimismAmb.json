@@ -1,4 +1,4 @@
 [
-  "function sendMessage(address,bytes,uint32)",
+  "function sendMessage(address _target, bytes _message, uint32 _gasLimit)",
   "function xDomainMessageSender() view returns (address)"
 ]
