@@ -56,8 +56,7 @@ export const prepareSwapAndXCall = async (
     const callData = _callData ?? "0x";
 
     const swapAndXCallInterface = getSwapAndXCallInterface();
-    const originRoute =
-      _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, slippage));
+    const originRoute = _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn));
 
     const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
     if (!swapAndXCallAddress) {
