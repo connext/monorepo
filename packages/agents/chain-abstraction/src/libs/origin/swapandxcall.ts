@@ -56,12 +56,14 @@ export const prepareSwapAndXCall = async (
     const callData = _callData ?? "0x";
 
     const swapAndXCallInterface = getSwapAndXCallInterface();
-    const originRoute = _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn));
 
     const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
     if (!swapAndXCallAddress) {
       throw new Error(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
     }
+
+    const originRoute =
+      _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress));
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
     let swapAndXCallData: string;
@@ -153,6 +155,7 @@ const calculateRouteForSwapAndXCall = async (
   fromAsset: string,
   toAsset: string,
   amountIn: string,
+  fromAddress: string,
 ): Promise<{ swapper: string; swapData: string }> => {
   // TODO: The `swapper` is the smart contract interacting with different types of DEXes and DEX aggregators such as UniV2, UniV3, 1inch Aggregator
   // so we can have more than one `swapper` contract deployed on each domain.
@@ -170,8 +173,9 @@ const calculateRouteForSwapAndXCall = async (
   if (!swapperConfig) {
     throw new Error(`Swapper config not found for domain: ${domainId}`);
   }
+  const chainId = domainToChainId(+domainId);
   const originOriginSwapDataCallbackFn = OriginSwapDataFns[swapperConfig.type];
-  const swapData = await originOriginSwapDataCallbackFn({ fromAsset, toAsset, amountIn });
+  const swapData = await originOriginSwapDataCallbackFn({ chainId, fromAsset, toAsset, amountIn, fromAddress });
 
   return { swapper: swapperConfig.address, swapData };
 };
