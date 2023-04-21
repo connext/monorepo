@@ -148,7 +148,7 @@ export const prepareSwapAndXCall = async (
  *
  * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
-export const calculateRouteForSwapAndXCall = async (
+const calculateRouteForSwapAndXCall = async (
   domainId: string,
   fromAsset: string,
   toAsset: string,
