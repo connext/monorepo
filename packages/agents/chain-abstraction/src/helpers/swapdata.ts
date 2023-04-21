@@ -19,7 +19,7 @@ export type DestinationSwapDataCallback = (args: any) => Promise<string>;
  * Returns the `swapData` which will be used as the low-level calldata
  * including a function signature for any univ2 DEXes.
  */
-export const getOriginSwapDataForUniV2 = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+export const getOriginSwapDataForUniV2 = async (_args: OriginSwapDataCallbackArgs): Promise<string> => {
   throw new Error("ToDo");
 };
 
@@ -27,7 +27,7 @@ export const getOriginSwapDataForUniV2 = async (args: OriginSwapDataCallbackArgs
  * Returns the `swapData` which will be used as the low-level calldata
  * including a function signature for any univ3 DEXes.
  */
-export const getOriginSwapDataForUniV3 = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArgs): Promise<string> => {
   throw new Error("ToDo");
 };
 
