@@ -1,6 +1,6 @@
 /**
  * Returns the forward calldata for the `XSwapAndGreet` contract.
  */
-export const generateForwardCallData = async (args: any): Promise<string> => {
+export const generateForwardCallData = (args: any): string => {
   throw new Error("ToDo");
 };
