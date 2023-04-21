@@ -1,5 +1,5 @@
 [
-  "event Paused(address)",
-  "event Unpaused(address)",
+  "event Paused(address account)",
+  "event Unpaused(address account)",
   "function paused() view returns (bool)"
 ]

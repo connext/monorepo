@@ -11,5 +11,5 @@
   "error BaseConnextFacet__whenNotPaused_paused()",
   "error DiamondInit__init_alreadyInitialized()",
   "error DiamondInit__init_domainsDontMatch()",
-  "function init(uint32,address,uint256,address)"
+  "function init(uint32 _domain, address _xAppConnectionManager, uint256 _acceptanceDelay, address _lpTokenTargetAddress)"
 ]
