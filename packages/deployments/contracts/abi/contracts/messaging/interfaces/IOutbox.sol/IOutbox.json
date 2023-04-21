@@ -1,5 +1,5 @@
 [
-  "event Dispatch(bytes32 indexed,uint256 indexed,uint64 indexed,bytes32,bytes)",
-  "function dispatch(uint32,bytes32,bytes) returns (bytes32, bytes)",
-  "function nonces(uint32) returns (uint32)"
+  "event Dispatch(bytes32 indexed messageHash, uint256 indexed leafIndex, uint64 indexed destinationAndNonce, bytes32 committedRoot, bytes message)",
+  "function dispatch(uint32 _destinationDomain, bytes32 _recipientAddress, bytes _messageBody) returns (bytes32, bytes)",
+  "function nonces(uint32 domain) returns (uint32)"
 ]

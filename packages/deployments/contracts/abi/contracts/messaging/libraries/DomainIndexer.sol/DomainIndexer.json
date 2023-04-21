@@ -1,14 +1,14 @@
 [
-  "event DomainAdded(uint32,address)",
-  "event DomainRemoved(uint32)",
+  "event DomainAdded(uint32 domain, address connector)",
+  "event DomainRemoved(uint32 domain)",
   "function MAX_DOMAINS() view returns (uint256)",
   "function connectors(uint256) view returns (address)",
   "function connectorsHash() view returns (bytes32)",
   "function domains(uint256) view returns (uint32)",
   "function domainsHash() view returns (bytes32)",
-  "function getConnectorForDomain(uint32) view returns (address)",
-  "function getDomainIndex(uint32) view returns (uint256)",
-  "function isDomainSupported(uint32) view returns (bool)",
-  "function validateConnectors(address[]) view",
-  "function validateDomains(uint32[],address[]) view"
+  "function getConnectorForDomain(uint32 _domain) view returns (address)",
+  "function getDomainIndex(uint32 _domain) view returns (uint256)",
+  "function isDomainSupported(uint32 _domain) view returns (bool)",
+  "function validateConnectors(address[] _connectors) view",
+  "function validateDomains(uint32[] _domains, address[] _connectors) view"
 ]

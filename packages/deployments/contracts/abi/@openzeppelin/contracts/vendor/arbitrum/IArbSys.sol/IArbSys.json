@@ -1,17 +1,17 @@
 [
-  "event L2ToL1Transaction(address,address indexed,uint256 indexed,uint256 indexed,uint256,uint256,uint256,uint256,uint256,bytes)",
-  "event L2ToL1Tx(address,address indexed,uint256 indexed,uint256 indexed,uint256,uint256,uint256,uint256,bytes)",
-  "event SendMerkleUpdate(uint256 indexed,bytes32 indexed,uint256 indexed)",
-  "function arbBlockHash(uint256) view returns (bytes32)",
+  "event L2ToL1Transaction(address caller, address indexed destination, uint256 indexed uniqueId, uint256 indexed batchNumber, uint256 indexInBatch, uint256 arbBlockNum, uint256 ethBlockNum, uint256 timestamp, uint256 callvalue, bytes data)",
+  "event L2ToL1Tx(address caller, address indexed destination, uint256 indexed hash, uint256 indexed position, uint256 arbBlockNum, uint256 ethBlockNum, uint256 timestamp, uint256 callvalue, bytes data)",
+  "event SendMerkleUpdate(uint256 indexed reserved, bytes32 indexed hash, uint256 indexed position)",
+  "function arbBlockHash(uint256 arbBlockNum) view returns (bytes32)",
   "function arbBlockNumber() view returns (uint256)",
   "function arbChainID() view returns (uint256)",
   "function arbOSVersion() view returns (uint256)",
   "function getStorageGasAvailable() view returns (uint256)",
   "function isTopLevelCall() view returns (bool)",
-  "function mapL1SenderContractAddressToL2Alias(address,address) pure returns (address)",
+  "function mapL1SenderContractAddressToL2Alias(address sender, address unused) pure returns (address)",
   "function myCallersAddressWithoutAliasing() view returns (address)",
-  "function sendMerkleTreeState() view returns (uint256, bytes32, bytes32[])",
-  "function sendTxToL1(address,bytes) payable returns (uint256)",
+  "function sendMerkleTreeState() view returns (uint256 size, bytes32 root, bytes32[] partials)",
+  "function sendTxToL1(address destination, bytes data) payable returns (uint256)",
   "function wasMyCallersAddressAliased() view returns (bool)",
-  "function withdrawEth(address) payable returns (uint256)"
+  "function withdrawEth(address destination) payable returns (uint256)"
 ]
