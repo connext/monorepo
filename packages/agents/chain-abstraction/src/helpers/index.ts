@@ -2,10 +2,14 @@ export * from "./abis";
 import { Swapper } from "../types";
 
 import {
+  // Origin
   OriginSwapDataCallback,
   getOriginSwapDataForUniV2,
   getOriginSwapDataForUniV3,
   getOriginSwapDataForOneInch,
+
+  // Destination
+  DestinationSwapDataCallback,
   getDestinationSwapDataForUniV2,
   getDestinationSwapDataForUniV3,
   getDestinationSwapDataForOneInch,
@@ -17,7 +21,7 @@ export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
   OneInch: getOriginSwapDataForOneInch,
 };
 
-export const DestinationSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
+export const DestinationSwapDataFns: Record<Swapper, DestinationSwapDataCallback> = {
   UniV2: getDestinationSwapDataForUniV2,
   UniV3: getDestinationSwapDataForUniV3,
   OneInch: getDestinationSwapDataForOneInch,

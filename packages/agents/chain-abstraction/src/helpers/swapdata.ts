@@ -5,6 +5,7 @@ export type OriginSwapDataCallbackArgs = {
   additions?: any;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
+export type DestinationSwapDataCallback = (args: any) => Promise<string>;
 
 // ==================================== ORIGIN SIDE ==================================== //
 /**
