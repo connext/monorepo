@@ -45,7 +45,7 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByNonceQuery,
+  getDestinationTransfersByExecutedTimestampQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
@@ -433,11 +433,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByNonce(
-    params: Map<string, SubgraphQueryMetaParams>,
+  public async getDestinationTransfersByExecutedTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByNonceQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
