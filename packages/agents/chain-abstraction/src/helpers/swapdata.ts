@@ -1,3 +1,7 @@
+import { defaultAbiCoder } from "ethers/lib/utils";
+
+import { UniV2SwapperParams, UniV3SwapperParams } from "../types";
+
 export type OriginSwapDataCallbackArgs = {
   fromAsset: string;
   toAsset: string;
@@ -36,20 +40,22 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
 /**
  * Returns the `swapData` which will be used on the destination univ2 swapper
  */
-export const getDestinationSwapDataForUniV2 = async (args: any): Promise<string> => {
-  throw new Error("ToDo");
+export const getDestinationSwapDataForUniV2 = async (_args: any): Promise<string> => {
+  const args = _args as UniV2SwapperParams;
+  return defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination univ3 swapper
  */
-export const getDestinationSwapDataForUniV3 = async (args: any): Promise<string> => {
-  throw new Error("ToDo");
+export const getDestinationSwapDataForUniV3 = async (_args: any): Promise<string> => {
+  const args = _args as UniV3SwapperParams;
+  return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination 1inch swapper
  */
-export const getDestinationSwapDataForOneInch = async (args: any): Promise<string> => {
+export const getDestinationSwapDataForOneInch = async (_args: any): Promise<string> => {
   throw new Error("ToDo");
 };
