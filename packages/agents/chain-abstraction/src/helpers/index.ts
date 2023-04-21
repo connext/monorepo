@@ -3,7 +3,13 @@ import { Swapper } from "../types";
 
 import { SwapDataCallback, getSwapDataForOneInch, getSwapDataForUniV2, getSwapDataForUniV3 } from "./swapdata";
 
-export const SwapDataPerSwapper: Record<Swapper, SwapDataCallback> = {
+export const OriginSwapDataFns: Record<Swapper, SwapDataCallback> = {
+  UniV2: getSwapDataForUniV2,
+  UniV3: getSwapDataForUniV3,
+  OneInch: getSwapDataForOneInch,
+};
+
+export const DestinationSwapDataFns: Record<Swapper, SwapDataCallback> = {
   UniV2: getSwapDataForUniV2,
   UniV3: getSwapDataForUniV3,
   OneInch: getSwapDataForOneInch,
