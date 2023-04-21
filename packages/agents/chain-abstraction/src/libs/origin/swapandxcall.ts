@@ -89,8 +89,10 @@ export const prepareSwapAndXCall = async (
         callData,
       ];
 
+      console.log({ formattedArguments });
+
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
-        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,uint256,bytes)",
+        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes)",
         formattedArguments,
       );
     } else {
@@ -121,7 +123,7 @@ export const prepareSwapAndXCall = async (
       ];
 
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
-        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,uint256,bytes,uint256)",
+        "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes,uint256)",
         formattedArguments,
       );
     }

@@ -46,7 +46,7 @@ export const SwapperPerDomain: Record<string, { type: Swapper; address: string }
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
   }, // Polygon
   "1634886255": {
     type: Swapper.OneInch,
