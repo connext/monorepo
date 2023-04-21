@@ -241,6 +241,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
         "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
         "0x43100a190c3feae37cb1f5d880e8fa8d81be5cb9", // gelato arbitrum

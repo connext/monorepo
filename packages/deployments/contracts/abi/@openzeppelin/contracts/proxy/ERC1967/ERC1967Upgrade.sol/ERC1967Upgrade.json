@@ -1,5 +1,5 @@
 [
-  "event AdminChanged(address,address)",
-  "event BeaconUpgraded(address indexed)",
-  "event Upgraded(address indexed)"
+  "event AdminChanged(address previousAdmin, address newAdmin)",
+  "event BeaconUpgraded(address indexed beacon)",
+  "event Upgraded(address indexed implementation)"
 ]

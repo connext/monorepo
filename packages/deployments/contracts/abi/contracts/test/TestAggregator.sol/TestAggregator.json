@@ -1,12 +1,12 @@
 [
-  "constructor(uint8)",
+  "constructor(uint8 _decimals)",
   "error TestAggregator_Stopped()",
   "function decimals() view returns (uint8)",
   "function description() view returns (string)",
-  "function getRoundData(uint80) view returns (uint80, int256, uint256, uint256, uint80)",
-  "function latestRoundData() view returns (uint80, int256, uint256, uint256, uint80)",
+  "function getRoundData(uint80 _roundId) view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)",
+  "function latestRoundData() view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)",
   "function stop()",
-  "function updateMockAnswer(int256)",
-  "function updateMockData(uint80,int256,uint256,uint80)",
+  "function updateMockAnswer(int256 _answer)",
+  "function updateMockData(uint80 _roundId, int256 _answer, uint256 _updateAt, uint80 _answeredInRound)",
   "function version() view returns (uint256)"
 ]
