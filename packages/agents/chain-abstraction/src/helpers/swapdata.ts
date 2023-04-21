@@ -1,12 +1,15 @@
 import { defaultAbiCoder } from "ethers/lib/utils";
+import { axiosGet, jsonifyError } from "@connext/nxtp-utils";
 
 import { UniV2SwapperParams, UniV3SwapperParams } from "../types";
 
 export type OriginSwapDataCallbackArgs = {
+  chainId: number;
   fromAsset: string;
   toAsset: string;
   amountIn: string;
-  additions?: any;
+  fromAddress: string;
+  slippage?: number;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
 export type DestinationSwapDataCallback = (args: any) => Promise<string>;
@@ -33,7 +36,19 @@ export const getOriginSwapDataForUniV3 = async (args: OriginSwapDataCallbackArgs
  * including a function signature for the 1inch aggregator.
  */
 export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
-  throw new Error("ToDo");
+  try {
+    const slippage = args.slippage ?? 1;
+    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${
+      args.fromAsset
+    }&toTokenAddress=${args.toAsset}&amount=${Number(args.amountIn)}&fromAddress=${
+      args.fromAddress
+    }&slippage=${slippage}&disableEstimate=true`;
+
+    const res = await axiosGet(apiEndpoint);
+    return res.data.tx.data;
+  } catch (error: unknown) {
+    throw new Error(`Getting swapdata from 1inch failed, e: ${jsonifyError(error as Error).message}`);
+  }
 };
 
 // ==================================== DESTINATION SIDE ==================================== //
