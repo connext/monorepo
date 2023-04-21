@@ -1,3 +1,4 @@
+import { constants } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { axiosGet, jsonifyError } from "@connext/nxtp-utils";
 
@@ -36,11 +37,14 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  * including a function signature for the 1inch aggregator.
  */
 export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+  const fromAsset =
+    args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
+  const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
     const slippage = args.slippage ?? 1;
-    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${
-      args.fromAsset
-    }&toTokenAddress=${args.toAsset}&amount=${Number(args.amountIn)}&fromAddress=${
+    const apiEndpoint = `https://api.1inch.io/v5.0/${
+      args.chainId
+    }/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${Number(args.amountIn)}&fromAddress=${
       args.fromAddress
     }&slippage=${slippage}&disableEstimate=true`;
 
