@@ -368,11 +368,11 @@ describe("SubgraphReader", () => {
       response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
-      agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 0 });
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+      agents.set("3331", { maxBlockNumber: 99999999, fromTimestamp: 1 });
 
-      expect(await subgraphReader.getDestinationTransfersByNonce(agents)).to.be.deep.eq([
+      expect(await subgraphReader.getDestinationTransfersByExecutedTimestamp(agents)).to.be.deep.eq([
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);

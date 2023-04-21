@@ -230,6 +230,10 @@ export const mockRouterResponse: RouterBalance[] = [
         id: mkBytes32(),
         key: mkBytes32(),
         localAsset: mkAddress(),
+        decimal: "18",
+        locked: "0",
+        removed: "0",
+        supplied: "0",
       },
     ],
     router: mkBytes32("0xb"),
@@ -329,6 +333,7 @@ export const mockRelayerFeesIncreaseResponse: RelayerFeesIncrease[] = [
     transferId: mkBytes32("0xa"),
     domain: "1337",
     timestamp: "1673421076",
+    asset: mkAddress("0xa"),
   },
 ];
 
@@ -338,7 +343,7 @@ export const mockSlippageUpdateResponse: SlippageUpdate[] = [
     slippage: "100",
     transferId: mkBytes32("0xa"),
     domain: "1337",
-    timestamp: "1673421076",
+    timestamp: 1673421076,
   },
 ];
 
@@ -352,7 +357,7 @@ export const mockSubgraph = () =>
     getGetPropagatedRoots: Promise.resolve(mockPropagatedRootSubgraphResponse),
     getReceivedAggregatedRootsByDomain: Promise.resolve(mockReceivedAggregateRootSubgraphResponse),
     getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
-    getDestinationTransfersByNonce: Promise.resolve(mockDestinationSubgraphResponse),
+    getDestinationTransfersByExecutedTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
     getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
     getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
