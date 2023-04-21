@@ -191,7 +191,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     spacing: 2,
-    pretty: true,
+    format: "fullName",
   },
 };
 

@@ -1,6 +1,6 @@
 [
-  "event Initialized(uint8)",
-  "event Paused(address)",
-  "event Unpaused(address)",
+  "event Initialized(uint8 version)",
+  "event Paused(address account)",
+  "event Unpaused(address account)",
   "function paused() view returns (bool)"
 ]

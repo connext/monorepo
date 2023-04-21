@@ -1,5 +1,5 @@
 [
   "function home() view returns (address)",
-  "function isReplica(address) view returns (bool)",
+  "function isReplica(address _potentialReplica) view returns (bool)",
   "function localDomain() view returns (uint32)"
 ]
