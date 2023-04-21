@@ -171,8 +171,8 @@ export const calculateRouteForSwapAndXCall = async (
   if (!swapperConfig) {
     throw new Error(`Swapper config not found for domain: ${domainId}`);
   }
-  const originSwapDataCallbackFn = OriginSwapDataFns[swapperConfig.type];
-  const swapData = await originSwapDataCallbackFn({ fromAsset, toAsset, amountIn });
+  const originOriginSwapDataCallbackFn = OriginSwapDataFns[swapperConfig.type];
+  const swapData = await originOriginSwapDataCallbackFn({ fromAsset, toAsset, amountIn });
 
   return { swapper: swapperConfig.address, swapData };
 };

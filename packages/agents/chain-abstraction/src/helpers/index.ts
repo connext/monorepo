@@ -1,18 +1,26 @@
 export * from "./abis";
 import { Swapper } from "../types";
 
-import { SwapDataCallback, getSwapDataForOneInch, getSwapDataForUniV2, getSwapDataForUniV3 } from "./swapdata";
+import {
+  OriginSwapDataCallback,
+  getOriginSwapDataForUniV2,
+  getOriginSwapDataForUniV3,
+  getOriginSwapDataForOneInch,
+  getDestinationSwapDataForUniV2,
+  getDestinationSwapDataForUniV3,
+  getDestinationSwapDataForOneInch,
+} from "./swapdata";
 
-export const OriginSwapDataFns: Record<Swapper, SwapDataCallback> = {
-  UniV2: getSwapDataForUniV2,
-  UniV3: getSwapDataForUniV3,
-  OneInch: getSwapDataForOneInch,
+export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
+  UniV2: getOriginSwapDataForUniV2,
+  UniV3: getOriginSwapDataForUniV3,
+  OneInch: getOriginSwapDataForOneInch,
 };
 
-export const DestinationSwapDataFns: Record<Swapper, SwapDataCallback> = {
-  UniV2: getSwapDataForUniV2,
-  UniV3: getSwapDataForUniV3,
-  OneInch: getSwapDataForOneInch,
+export const DestinationSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
+  UniV2: getDestinationSwapDataForUniV2,
+  UniV3: getDestinationSwapDataForUniV3,
+  OneInch: getDestinationSwapDataForOneInch,
 };
 
 export const SwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
