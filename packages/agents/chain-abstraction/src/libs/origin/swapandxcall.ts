@@ -122,6 +122,8 @@ export const prepareSwapAndXCall = async (
         relayerFeeInTransactingAsset.toString(),
       ];
 
+      console.log({ formattedArguments });
+
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
         "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes,uint256)",
         formattedArguments,

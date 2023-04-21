@@ -48,20 +48,24 @@ const testPrepareSwapAndXCall = async () => {
     toAsset: POLYGON_USDC, // USDC
     amountIn: amountIn.toString(),
     to: signerAddress,
+    relayerFeeInTransactingAsset: "100000", // 0.1 USDC
   };
 
   const wethContract = new Contract(POLYGON_WETH, WETH_ABI, signer);
+  const gasPrice = "500000000000";
   const allowance = await wethContract.allowance(signerAddress, SWAP_AND_XCALL_ADDRESS);
   if (amountIn.gt(allowance)) {
     console.log(`Approving... amountIn: ${amountIn.toString()}, allowance: ${allowance.toString()}`);
-    const tx = await wethContract.approve(SWAP_AND_XCALL_ADDRESS, amountIn, { gasPrice: "300000000000" });
+    const tx = await wethContract.approve(SWAP_AND_XCALL_ADDRESS, amountIn, { gasPrice });
     console.log(`Approve tx mined... tx: ${tx.hash}`);
     await tx.wait();
   }
 
   const txRequest = await prepareSwapAndXCall(swapAndXCallParams, signerAddress);
   if (txRequest) {
-    await signer.sendTransaction({ ...txRequest, gasPrice: "300000000000" });
+    const tx = await signer.sendTransaction({ ...txRequest, gasPrice });
+    console.log(`SwapAndXCall tx mined. tx: ${tx.hash}`);
+    await tx.wait();
   }
 };
 
