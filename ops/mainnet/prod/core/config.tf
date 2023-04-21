@@ -266,7 +266,7 @@ locals {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
+        providers = ["https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
       },
       "1634886255" = {
         providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
