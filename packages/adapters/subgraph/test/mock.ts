@@ -215,6 +215,19 @@ export const mockDestinationSubgraphResponse = [
   }) as DestinationTransfer,
 ];
 
+export const mockDestinationExecutedSubgraphResponse = [
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    status: XTransferStatus.Executed,
+  }) as DestinationTransfer,
+  mock.entity.xtransfer({
+    originDomain: "1338",
+    destinationDomain: "1337",
+    status: XTransferStatus.Executed,
+  }) as DestinationTransfer,
+];
+
 export const mockRouterResponse: RouterBalance[] = [
   { assets: [], router: mkAddress("0xa") },
   {
@@ -357,7 +370,7 @@ export const mockSubgraph = () =>
     getGetPropagatedRoots: Promise.resolve(mockPropagatedRootSubgraphResponse),
     getReceivedAggregatedRootsByDomain: Promise.resolve(mockReceivedAggregateRootSubgraphResponse),
     getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
-    getDestinationTransfersByExecutedTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
+    getDestinationTransfersByExecutedTimestamp: Promise.resolve(mockDestinationExecutedSubgraphResponse),
     getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
     getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),

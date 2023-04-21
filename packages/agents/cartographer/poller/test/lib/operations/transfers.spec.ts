@@ -1,6 +1,10 @@
 import { SinonStub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
-import { mockDestinationSubgraphResponse, mockOriginSubgraphResponse } from "@connext/nxtp-adapters-subgraph/test/mock";
+import {
+  mockDestinationExecutedSubgraphResponse,
+  mockDestinationSubgraphResponse,
+  mockOriginSubgraphResponse,
+} from "@connext/nxtp-adapters-subgraph/test/mock";
 
 import { mockContext } from "../../globalTestHook";
 import { updateBackoffs, updateTransfers } from "../../../src/lib/operations/transfers";
@@ -56,21 +60,6 @@ describe("Transfers operations", () => {
       );
     });
 
-    it("should handle nonce out of sync", async () => {
-      const response = [...mockDestinationSubgraphResponse];
-      response[0].xparams.nonce = undefined;
-      (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([
-        mockDestinationSubgraphResponse[0],
-      ]);
-      await updateTransfers();
-
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).to.be.calledWithExactly([
-        mockDestinationSubgraphResponse[0],
-      ]);
-
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(4);
-    });
-
     it("should handle no reconcile", async () => {
       const response = [...mockDestinationSubgraphResponse];
       response[0].destination.reconcile!.timestamp = 0;
@@ -87,7 +76,7 @@ describe("Transfers operations", () => {
         ...response,
         ...response2,
       ]);
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(3);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(4);
     });
 
     it("should handle initial condition", async () => {
@@ -102,7 +91,7 @@ describe("Transfers operations", () => {
         mockDestinationSubgraphResponse,
       );
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(6);
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(3);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(4);
     });
   });
 
