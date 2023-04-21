@@ -4,7 +4,7 @@ import { domainToChainId } from "@connext/nxtp-utils";
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
 import { DEPLOYED_ADDRESSES } from "../../helpers/address";
-import { SwapperMapping } from "../../helpers";
+import { SwapperPerDomain } from "../../helpers";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -167,7 +167,7 @@ export const calculateRouteForSwapAndXCall = async (
   //
   // That seems enough to go ahead with a quick solution as of now but we will definitely update the function over time to make it ideal
 
-  const swapperConfig = SwapperMapping[domainId];
+  const swapperConfig = SwapperPerDomain[domainId];
   if (!swapperConfig) {
     throw new Error(`Swapper config not found for domain: ${domainId}`);
   }

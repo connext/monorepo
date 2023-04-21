@@ -1,12 +1,6 @@
-type TargetArgs = {
-  cTokenAddress: string;
-  underlying: string;
-  minter: string;
-};
-
 /**
  * Returns the forward calldata for the `MidasProtocolTarget` contract.
  */
-export const generateForwardCallData = async (targetArgs: TargetArgs): Promise<string> => {
+export const generateForwardCallData = async (args: any): Promise<string> => {
   throw new Error("ToDo");
 };

@@ -1,9 +1,15 @@
-export { generateForwardCallData as generateInstadappData } from "./Instadapp";
-export { generateForwardCallData as generateMidasData } from "./Midas";
-export { generateForwardCallData as generateMeanData } from "./Mean";
+import { XReceiveTarget } from "../../types";
 
-export const forwardCallData = {
-  instadapp: generateInstadappData,
-  midas: generateMidasData,
-  mean: generateMeanData,
+import { generateForwardCallData as generateInstadappData } from "./Instadapp";
+import { generateForwardCallData as generateMidasData } from "./Midas";
+import { generateForwardCallData as generateMeanData } from "./Mean";
+import { generateForwardCallData as generateXSwapAndGreetData } from "./XSwapAndGreet";
+
+export type ForwardCallDataCallback = (args: any) => Promise<string>;
+
+export const forwardCallData: Record<XReceiveTarget, ForwardCallDataCallback> = {
+  Instadapp: generateInstadappData,
+  MidasProcotol: generateMidasData,
+  MeanFinance: generateMeanData,
+  XSwapAndGreet: generateXSwapAndGreetData,
 };

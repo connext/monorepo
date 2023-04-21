@@ -67,12 +67,8 @@ export type InstadappForwardCallData = Static<typeof InstadappForwardCallDataSch
 export const DestinationSwapForwarderParamsSchema = Type.Object({
   swapper: TAddress,
   toAsset: TAddress,
-  swapData: Type.Union([UniV2SwapperParamsSchema, UniV3SwapperParamsSchema]),
-  forwardCallData: Type.Union([
-    InstadappForwardCallDataSchema,
-    MeanFinanceForwardCallDataSchema,
-    MidasProtocolForwardCallDataSchema,
-  ]),
+  swapData: Type.Any(),
+  forwardCallData: Type.Any(),
 });
 export type DestinationSwapForwarderParams = Static<typeof DestinationSwapForwarderParamsSchema>;
 
