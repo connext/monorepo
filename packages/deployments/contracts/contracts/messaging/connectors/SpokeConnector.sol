@@ -10,6 +10,7 @@ import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
 import {MerkleLib} from "../libraries/MerkleLib.sol";
 import {Message} from "../libraries/Message.sol";
 import {RateLimited} from "../libraries/RateLimited.sol";
+import {SnapshotId} from "../libraries/SnapshotId.sol";
 
 import {MerkleTreeManager} from "../MerkleTreeManager.sol";
 import {WatcherClient} from "../WatcherClient.sol";
@@ -91,6 +92,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param caller The msg.sender of transaction
    */
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
+
+  event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
 
   /**
    * @notice Emitted when a message (outbound root from different spoke) is proven
@@ -178,6 +181,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * can send messages using `dispatch`.
    */
   mapping(address => bool) public allowlistedSenders;
+
+  /**
+   * @notice Mapping of the snapshot roots for a specific index. Used for data availability for off-chain scripts
+   */
+  mapping(uint256 => bytes32) public snapshotRoots;
 
   // ============ Modifiers ============
 
@@ -341,6 +349,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
    * chains). This aggregate root will be redistributed to all destination chains.
+   * @dev This function is also in charge of saving the snapshot root when needed. If the message being added to the
+   * tree is the first of the current period this means the last snapshot finished and its root must be saved. The saving
+   * happens before adding the new message to the tree.
    *
    * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
    * @param _destinationDomain Domain message is intended for
@@ -352,6 +363,15 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external onlyAllowlistedSender returns (bytes32, bytes memory) {
+    // Before inserting the new message to the tree we need to check if the last snapshot root must be calculated and set.
+    uint256 _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
+    if (snapshotRoots[_lastCompletedSnapshotId] == 0) {
+      // Saves current tree root as last snapshot root before adding the new message.
+      bytes32 _currentRoot = MERKLE.root();
+      snapshotRoots[_lastCompletedSnapshotId] = _currentRoot;
+      emit SnapshotRootSaved(_lastCompletedSnapshotId, _currentRoot, MERKLE.count());
+    }
+
     // Get the next nonce for the destination domain, then increment it.
     uint32 _nonce = MERKLE.incrementNonce(_destinationDomain);
 
@@ -451,6 +471,15 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
         ++i;
       }
     }
+  }
+
+  /**
+   * @notice This function gets the last completed snapshot id
+   * @dev The value is calculated through an internal function to reuse code and save gas
+   * @return _lastCompletedSnapshotId The last completed snapshot id
+   */
+  function getLastCompletedSnapshotId() external view returns (uint256 _lastCompletedSnapshotId) {
+    _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
   }
 
   // ============ Private Functions ============
