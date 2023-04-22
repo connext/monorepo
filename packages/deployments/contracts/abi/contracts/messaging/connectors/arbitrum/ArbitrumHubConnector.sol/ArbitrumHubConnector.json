@@ -11,6 +11,7 @@
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "error TypedMemView__index_indexMoreThan32Bytes()",
   "error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice)",
+  "event FundsWithdrawn(address indexed to, uint256 amount)",
   "event GasPriceCapUpdated(uint256 _previous, uint256 _updated)",
   "event MaxGasCapUpdated(uint256 _previous, uint256 _updated)",
   "event MaxSubmissionCapUpdated(uint256 _previous, uint256 _updated)",
@@ -47,5 +48,6 @@
   "function setMaxGasCap(uint256 _updated)",
   "function setMaxSubmissionCostCap(uint256 _updated)",
   "function setMirrorConnector(address _mirrorConnector)",
-  "function verifySender(address _expected) returns (bool)"
+  "function verifySender(address _expected) returns (bool)",
+  "function withdrawFunds(address _to)"
 ]

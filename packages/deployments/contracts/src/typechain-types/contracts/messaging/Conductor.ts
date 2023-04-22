@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -31,12 +30,11 @@ import type {
 export interface ConductorInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "addBypass(address,bytes4)": FunctionFragment;
     "bypassDelay(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
     "dequeue(bytes[])": FunctionFragment;
-    "dequeueBypass(address,bytes4,uint8)": FunctionFragment;
     "execute(bytes[])": FunctionFragment;
-    "executeBypass(address,bytes4,uint8)": FunctionFragment;
     "executeWithBypass(bytes[])": FunctionFragment;
     "owner()": FunctionFragment;
     "proposals(bytes32)": FunctionFragment;
@@ -44,7 +42,7 @@ export interface ConductorInterface extends utils.Interface {
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "queue(bytes[])": FunctionFragment;
-    "queueBypass(address,bytes4,uint8)": FunctionFragment;
+    "removeBypass(address,bytes4)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
   };
@@ -52,12 +50,11 @@ export interface ConductorInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
+      | "addBypass"
       | "bypassDelay"
       | "delay"
       | "dequeue"
-      | "dequeueBypass"
       | "execute"
-      | "executeBypass"
       | "executeWithBypass"
       | "owner"
       | "proposals"
@@ -65,7 +62,7 @@ export interface ConductorInterface extends utils.Interface {
       | "proposed"
       | "proposedTimestamp"
       | "queue"
-      | "queueBypass"
+      | "removeBypass"
       | "renounceOwnership"
       | "renounced"
   ): FunctionFragment;
@@ -73,6 +70,10 @@ export interface ConductorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addBypass",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "bypassDelay",
@@ -84,24 +85,8 @@ export interface ConductorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "dequeueBypass",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "execute",
     values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "executeBypass",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "executeWithBypass",
@@ -126,12 +111,8 @@ export interface ConductorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "queueBypass",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>
-    ]
+    functionFragment: "removeBypass",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -143,21 +124,14 @@ export interface ConductorInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "addBypass", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "bypassDelay",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dequeue", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "dequeueBypass",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "executeBypass",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "executeWithBypass",
     data: BytesLike
@@ -175,7 +149,7 @@ export interface ConductorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "queue", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "queueBypass",
+    functionFragment: "removeBypass",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -186,7 +160,7 @@ export interface ConductorInterface extends utils.Interface {
 
   events: {
     "BypassAdded(address,bytes4)": EventFragment;
-    "BypassDequeued(address,bytes4)": EventFragment;
+    "BypassRemoved(address,bytes4)": EventFragment;
     "Dequeued(bytes32,bytes[])": EventFragment;
     "Executed(bytes32,bytes[])": EventFragment;
     "OwnershipProposed(address)": EventFragment;
@@ -195,7 +169,7 @@ export interface ConductorInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "BypassAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BypassDequeued"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "BypassRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dequeued"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
@@ -214,16 +188,16 @@ export type BypassAddedEvent = TypedEvent<
 
 export type BypassAddedEventFilter = TypedEventFilter<BypassAddedEvent>;
 
-export interface BypassDequeuedEventObject {
+export interface BypassRemovedEventObject {
   target: string;
   selector: string;
 }
-export type BypassDequeuedEvent = TypedEvent<
+export type BypassRemovedEvent = TypedEvent<
   [string, string],
-  BypassDequeuedEventObject
+  BypassRemovedEventObject
 >;
 
-export type BypassDequeuedEventFilter = TypedEventFilter<BypassDequeuedEvent>;
+export type BypassRemovedEventFilter = TypedEventFilter<BypassRemovedEvent>;
 
 export interface DequeuedEventObject {
   key: string;
@@ -307,6 +281,12 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    addBypass(
+      _target: PromiseOrValue<string>,
+      _selector: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     bypassDelay(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -319,23 +299,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    dequeueBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     execute(
       _transactions: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    executeBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executeWithBypass(
@@ -364,10 +330,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    queueBypass(
+    removeBypass(
       _target: PromiseOrValue<string>,
       _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -377,6 +342,12 @@ export interface Conductor extends BaseContract {
   };
 
   acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addBypass(
+    _target: PromiseOrValue<string>,
+    _selector: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -392,23 +363,9 @@ export interface Conductor extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  dequeueBypass(
-    _target: PromiseOrValue<string>,
-    _selector: PromiseOrValue<BytesLike>,
-    _operation: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   execute(
     _transactions: PromiseOrValue<BytesLike>[],
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  executeBypass(
-    _target: PromiseOrValue<string>,
-    _selector: PromiseOrValue<BytesLike>,
-    _operation: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeWithBypass(
@@ -437,10 +394,9 @@ export interface Conductor extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  queueBypass(
+  removeBypass(
     _target: PromiseOrValue<string>,
     _selector: PromiseOrValue<BytesLike>,
-    _operation: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -450,6 +406,12 @@ export interface Conductor extends BaseContract {
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    addBypass(
+      _target: PromiseOrValue<string>,
+      _selector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     bypassDelay(
       arg0: PromiseOrValue<BytesLike>,
@@ -463,22 +425,8 @@ export interface Conductor extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    dequeueBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     execute(
       _transactions: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    executeBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -508,10 +456,9 @@ export interface Conductor extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queueBypass(
+    removeBypass(
       _target: PromiseOrValue<string>,
       _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -527,11 +474,11 @@ export interface Conductor extends BaseContract {
     ): BypassAddedEventFilter;
     BypassAdded(target?: null, selector?: null): BypassAddedEventFilter;
 
-    "BypassDequeued(address,bytes4)"(
+    "BypassRemoved(address,bytes4)"(
       target?: null,
       selector?: null
-    ): BypassDequeuedEventFilter;
-    BypassDequeued(target?: null, selector?: null): BypassDequeuedEventFilter;
+    ): BypassRemovedEventFilter;
+    BypassRemoved(target?: null, selector?: null): BypassRemovedEventFilter;
 
     "Dequeued(bytes32,bytes[])"(
       key?: PromiseOrValue<BytesLike> | null,
@@ -584,6 +531,12 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    addBypass(
+      _target: PromiseOrValue<string>,
+      _selector: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     bypassDelay(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -596,23 +549,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    dequeueBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     execute(
       _transactions: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    executeBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executeWithBypass(
@@ -641,10 +580,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    queueBypass(
+    removeBypass(
       _target: PromiseOrValue<string>,
       _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -655,6 +593,12 @@ export interface Conductor extends BaseContract {
 
   populateTransaction: {
     acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addBypass(
+      _target: PromiseOrValue<string>,
+      _selector: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -670,23 +614,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    dequeueBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     execute(
       _transactions: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    executeBypass(
-      _target: PromiseOrValue<string>,
-      _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeWithBypass(
@@ -715,10 +645,9 @@ export interface Conductor extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    queueBypass(
+    removeBypass(
       _target: PromiseOrValue<string>,
       _selector: PromiseOrValue<BytesLike>,
-      _operation: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
