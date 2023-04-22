@@ -104,7 +104,6 @@ const testPrepareSwapAndXCallInNative = async () => {
 };
 
 const testMidasProtocolTarget = async () => {
-  // https://polygonscan.com/vmtrace?txhash=0x382bfef03a7f1185a91582b49837740473591fb8715ce7f15e389f1ade630b09&type=parity#raw
   const rpcURL = "https://bsc-dataseed.binance.org";
   const signer = new Wallet(process.env.PRIVATE_KEY ?? "", new providers.JsonRpcProvider(rpcURL));
   const signerAddress = signer.address;
