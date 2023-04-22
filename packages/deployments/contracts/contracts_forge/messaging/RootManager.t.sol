@@ -270,6 +270,27 @@ contract RootManagerTest is ForgeHelper {
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
+  function test_RootManager__propagate_shouldRefundExcessFees() public {
+    uint256 numSpokes = 20;
+    utils_generateAndAddConnectors(numSpokes, true, true);
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
+
+    // Get the original balance of caller
+    address caller = address(12312323);
+    uint256 excess = 10 ether;
+    vm.deal(caller, excess);
+    uint256 start = caller.balance;
+
+    // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
+    vm.roll(block.number + _rootManager.delayBlocks());
+
+    vm.prank(caller);
+    _rootManager.propagate{value: excess}(_connectors, _fees, _encodedData);
+    assertEq(_rootManager.getPendingInboundRootsCount(), 0);
+    // total fees == 0, so balance sent to propagate should not be deducted
+    assertEq(caller.balance, start);
+  }
+
   function test_RootManager__propagate_shouldRevertIfRedundantRoot(bytes32 inbound) public {
     uint256 numSpokes = 20;
     utils_generateAndAddConnectors(numSpokes, true, true);

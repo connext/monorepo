@@ -22,6 +22,7 @@
   "function acceptProposedOwner()",
   "function anyExecute(bytes _data) returns (bool success, bytes result)",
   "function delay() view returns (uint256)",
+  "function gasCap() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
   "function processMessage(bytes _data)",

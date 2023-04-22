@@ -31,6 +31,7 @@ export interface BaseOptimismInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -44,6 +45,7 @@ export interface BaseOptimismInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
       | "delay"
+      | "gasCap"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -58,6 +60,7 @@ export interface BaseOptimismInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -83,6 +86,7 @@ export interface BaseOptimismInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -178,6 +182,8 @@ export interface BaseOptimism extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeNewOwner(
@@ -207,6 +213,8 @@ export interface BaseOptimism extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proposeNewOwner(
@@ -233,6 +241,8 @@ export interface BaseOptimism extends BaseContract {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -286,6 +296,8 @@ export interface BaseOptimism extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
@@ -315,6 +327,8 @@ export interface BaseOptimism extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

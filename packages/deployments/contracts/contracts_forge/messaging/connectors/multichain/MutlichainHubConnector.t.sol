@@ -127,10 +127,10 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     MultichainHubConnector(_l1Connector).sendMessage{value: 1}(_data, bytes(""));
   }
 
-  // ============ processMessage ============
+  // ============ anyExecute ============
 
   // Happy path L1
-  function test_MultichainHubConnector_processMessage_processMessageAndEmitEvent(bytes calldata _data) public {
+  function test_MultichainHubConnector__anyExecute_processMessageAndEmitEvent(bytes calldata _data) public {
     uint32 _mirrorDomain = MultichainHubConnector(_l1Connector).MIRROR_DOMAIN();
 
     // Mock the call to the executor, to retrieve the context
@@ -150,22 +150,8 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     MultichainHubConnector(_l1Connector).anyExecute(_dataCorrectSize);
   }
 
-  // msg.sender is not the bridge on L1
-  function test_MultichainHubConnector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data)
-    public
-  {
-    vm.assume(_amb != _notAmb);
-
-    // Resize fuzzed bytes to 32 bytes long
-    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
-
-    vm.expectRevert(abi.encodePacked("!AMB"));
-    vm.prank(_notAmb);
-    MultichainHubConnector(_l1Connector).processMessage(_dataCorrectSize);
-  }
-
   // message coming from a wrong sender on the origin chain to L1
-  function test_MultichainHubConnector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
+  function test_MultichainHubConnector__anyExecute_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
     public
   {
     vm.assume(_wrongMirror != _l2Connector);
@@ -187,7 +173,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong chain to L1
-  function test_MultichainHubConnector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
+  function test_MultichainHubConnector__anyExecute_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
     public
   {
     vm.assume(_wrongId != _chainIdL2);
@@ -209,7 +195,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
   }
 
   // message has a length > 32 bytes
-  function test_MultichainHubConnector_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
+  function test_MultichainHubConnector__anyExecute_revertIfWrongDataLength(uint8 callDataLength) public {
     vm.assume(callDataLength != 32);
 
     // Mock the call to the executor, to retrieve the context
@@ -222,6 +208,13 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.expectRevert(abi.encodePacked("!length"));
     vm.prank(_executor);
     MultichainHubConnector(_l1Connector).anyExecute(_wrongLengthCalldata);
+  }
+
+  // ============ processMessage ============
+
+  function test_MultichainHubConnector__processMessage_reverts(bytes32 _data) public {
+    vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
+    MultichainHubConnector(_l1Connector).processMessage(abi.encodePacked(_data));
   }
 
   // ============ verifySender ============

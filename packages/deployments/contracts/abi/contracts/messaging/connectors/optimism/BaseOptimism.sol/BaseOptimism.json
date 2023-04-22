@@ -11,6 +11,7 @@
   "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
+  "function gasCap() view returns (uint256)",
   "function owner() view returns (address)",
   "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",

@@ -57,13 +57,12 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
-    "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
@@ -109,13 +108,12 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "gasCap"
       | "home"
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
-      | "messages"
       | "mirrorConnector"
-      | "nonces"
       | "outboundRoot"
       | "owner"
       | "pause"
@@ -190,6 +188,7 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -204,16 +203,8 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "messages",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nonces",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "outboundRoot",
@@ -349,6 +340,7 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -359,12 +351,10 @@ export interface OptimismSpokeConnectorInterface extends utils.Interface {
     functionFragment: "localDomain",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "outboundRoot",
     data: BytesLike
@@ -795,6 +785,8 @@ export interface OptimismSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -806,17 +798,7 @@ export interface OptimismSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
@@ -974,6 +956,8 @@ export interface OptimismSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -985,17 +969,7 @@ export interface OptimismSpokeConnector extends BaseContract {
 
   localDomain(overrides?: CallOverrides): Promise<number>;
 
-  messages(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-  nonces(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
 
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1151,6 +1125,8 @@ export interface OptimismSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<string>;
 
     isReplica(
@@ -1162,17 +1138,7 @@ export interface OptimismSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<number>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1287,14 +1253,18 @@ export interface OptimismSpokeConnector extends BaseContract {
 
   filters: {
     "AggregateRootReceived(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootReceivedEventFilter;
-    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
 
     "AggregateRootRemoved(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootRemovedEventFilter;
-    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
 
     "AggregateRootVerified(bytes32)"(
       root?: PromiseOrValue<BytesLike> | null
@@ -1313,15 +1283,15 @@ export interface OptimismSpokeConnector extends BaseContract {
     ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
     Dispatch(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
 
@@ -1412,11 +1382,15 @@ export interface OptimismSpokeConnector extends BaseContract {
     Paused(account?: null): PausedEventFilter;
 
     "Process(bytes32,bool,bytes)"(
-      leaf?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
       returnData?: null
     ): ProcessEventFilter;
-    Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
+    Process(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      success?: null,
+      returnData?: null
+    ): ProcessEventFilter;
 
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
@@ -1427,11 +1401,17 @@ export interface OptimismSpokeConnector extends BaseContract {
       newRateLimit?: null
     ): SendRateLimitUpdatedEventFilter;
 
-    "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
-    SenderAdded(sender?: null): SenderAddedEventFilter;
+    "SenderAdded(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderAddedEventFilter;
+    SenderAdded(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
 
-    "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: null): SenderRemovedEventFilter;
+    "SenderRemoved(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
+    SenderRemoved(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
@@ -1484,6 +1464,8 @@ export interface OptimismSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1495,17 +1477,7 @@ export interface OptimismSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1664,6 +1636,8 @@ export interface OptimismSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isReplica(
@@ -1675,17 +1649,7 @@ export interface OptimismSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
