@@ -59,6 +59,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
+    "getLastCompletedSnapshotId()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -88,6 +89,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "snapshotRoots(uint256)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
@@ -111,6 +113,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "dispatch"
       | "fxChild"
       | "fxRootTunnel"
+      | "getLastCompletedSnapshotId"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -140,6 +143,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
+      | "snapshotRoots"
       | "unpause"
       | "verifySender"
       | "watcherManager"
@@ -193,6 +197,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "fxChild", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fxRootTunnel",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLastCompletedSnapshotId",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
@@ -302,6 +310,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "snapshotRoots",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -353,6 +365,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "fxChild", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fxRootTunnel",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLastCompletedSnapshotId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
@@ -447,6 +463,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "snapshotRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
@@ -481,6 +501,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "SnapshotRootSaved(uint256,bytes32,uint256)": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
@@ -506,6 +527,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SnapshotRootSaved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
@@ -721,6 +743,19 @@ export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
 
+export interface SnapshotRootSavedEventObject {
+  snapshotId: BigNumber;
+  root: string;
+  count: BigNumber;
+}
+export type SnapshotRootSavedEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  SnapshotRootSavedEventObject
+>;
+
+export type SnapshotRootSavedEventFilter =
+  TypedEventFilter<SnapshotRootSavedEvent>;
+
 export interface UnpausedEventObject {
   account: string;
 }
@@ -808,6 +843,10 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxChild(overrides?: CallOverrides): Promise<[string]>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<[string]>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
@@ -924,6 +963,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -983,6 +1027,8 @@ export interface PolygonSpokeConnector extends BaseContract {
   fxChild(overrides?: CallOverrides): Promise<string>;
 
   fxRootTunnel(overrides?: CallOverrides): Promise<string>;
+
+  getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
@@ -1099,6 +1145,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  snapshotRoots(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1156,6 +1207,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxChild(overrides?: CallOverrides): Promise<string>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<string>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1267,6 +1320,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
@@ -1435,6 +1493,17 @@ export interface PolygonSpokeConnector extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): SenderRemovedEventFilter;
 
+    "SnapshotRootSaved(uint256,bytes32,uint256)"(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+    SnapshotRootSaved(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
 
@@ -1489,6 +1558,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxChild(overrides?: CallOverrides): Promise<BigNumber>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1605,6 +1676,11 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1665,6 +1741,10 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxChild(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1779,6 +1859,11 @@ export interface PolygonSpokeConnector extends BaseContract {
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     unpause(

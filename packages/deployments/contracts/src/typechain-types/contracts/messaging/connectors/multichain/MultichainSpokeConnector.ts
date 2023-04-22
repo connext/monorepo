@@ -59,6 +59,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "gasCap()": FunctionFragment;
+    "getLastCompletedSnapshotId()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -88,6 +89,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "snapshotRoots(uint256)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
@@ -111,6 +113,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "delayBlocks"
       | "dispatch"
       | "gasCap"
+      | "getLastCompletedSnapshotId"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -140,6 +143,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
+      | "snapshotRoots"
       | "unpause"
       | "verifySender"
       | "watcherManager"
@@ -195,6 +199,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getLastCompletedSnapshotId",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -298,6 +306,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "snapshotRoots",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -348,6 +360,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLastCompletedSnapshotId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -437,6 +453,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "snapshotRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
@@ -471,6 +491,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "SnapshotRootSaved(uint256,bytes32,uint256)": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
@@ -494,6 +515,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SnapshotRootSaved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
@@ -708,6 +730,19 @@ export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
 
+export interface SnapshotRootSavedEventObject {
+  snapshotId: BigNumber;
+  root: string;
+  count: BigNumber;
+}
+export type SnapshotRootSavedEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  SnapshotRootSavedEventObject
+>;
+
+export type SnapshotRootSavedEventFilter =
+  TypedEventFilter<SnapshotRootSavedEvent>;
+
 export interface UnpausedEventObject {
   account: string;
 }
@@ -798,6 +833,10 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
@@ -912,6 +951,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -974,6 +1018,8 @@ export interface MultichainSpokeConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
@@ -1088,6 +1134,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  snapshotRoots(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1148,6 +1199,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<[string, string]>;
 
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1257,6 +1310,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
@@ -1435,6 +1493,17 @@ export interface MultichainSpokeConnector extends BaseContract {
       sender?: PromiseOrValue<string> | null
     ): SenderRemovedEventFilter;
 
+    "SnapshotRootSaved(uint256,bytes32,uint256)"(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+    SnapshotRootSaved(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
 
@@ -1492,6 +1561,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1606,6 +1677,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1669,6 +1745,10 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1781,6 +1861,11 @@ export interface MultichainSpokeConnector extends BaseContract {
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     unpause(
