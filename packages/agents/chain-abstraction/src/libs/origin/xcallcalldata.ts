@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from "ethers/lib/utils";
 
-import { DestinationSwapDataFns, SwapperPerDomain } from "../../helpers";
+import { DestinationSwapDataFns, DestinationSwapperPerDomain } from "../../helpers";
 import { DestinationCallDataParams, Swapper, XReceiveTarget } from "../../types";
 import { ForwardCallDataFns } from "../destination";
 
@@ -22,10 +22,16 @@ export const getXCallCallData = async (
   const forwardCallDataCallbackFn = ForwardCallDataFns[target];
   const destinationSwapDataCallbackFn = DestinationSwapDataFns[swapper];
   const forwardCallData = forwardCallDataCallbackFn(params.swapForwarderData.forwardCallData);
-  const encodedSwapperData = destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
+  const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
 
-  const swapperConfig = SwapperPerDomain[domainId];
+  const swapperConfig = DestinationSwapperPerDomain[domainId];
 
+  console.log({
+    swapper: swapperConfig.address,
+    toAsset: params.swapForwarderData.toAsset,
+    encodedSwapperData: encodedSwapperData,
+    forwardCallData: forwardCallData,
+  });
   const swapForwarderData = defaultAbiCoder.encode(
     ["address", "address", "bytes", "bytes"],
     [swapperConfig.address, params.swapForwarderData.toAsset, encodedSwapperData, forwardCallData],

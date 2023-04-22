@@ -27,7 +27,7 @@ export const DestinationSwapDataFns: Record<Swapper, DestinationSwapDataCallback
   OneInch: getDestinationSwapDataForOneInch,
 };
 
-export const SwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
+export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
   "6648936": {
     type: Swapper.OneInch,
     address: "",
@@ -38,7 +38,7 @@ export const SwapperPerDomain: Record<string, { type: Swapper; address: string }
   }, // Optimism
   "6450786": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
   }, // BNB Chain
   "6778479": {
     type: Swapper.OneInch,
@@ -58,6 +58,41 @@ export const SwapperPerDomain: Record<string, { type: Swapper; address: string }
   }, // zkSync2 mainnet
   "1887071085": {
     type: Swapper.OneInch,
+    address: "",
+  }, // Polygon zkEVM
+};
+
+export const DestinationSwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
+  "6648936": {
+    type: Swapper.UniV3,
+    address: "",
+  }, // ETH mainnet
+  "1869640809": {
+    type: Swapper.UniV3,
+    address: "",
+  }, // Optimism
+  "6450786": {
+    type: Swapper.UniV3,
+    address: "", // 1inch AggregationRouterV5
+  }, // BNB Chain
+  "6778479": {
+    type: Swapper.UniV3,
+    address: "",
+  }, // Gnosis Chain
+  "1886350457": {
+    type: Swapper.UniV3,
+    address: "0x9aC21E7373E64B8C60e3C1f70c6D43da3aF016d4", // UniV3 Swapper
+  }, // Polygon
+  "1634886255": {
+    type: Swapper.UniV3,
+    address: "",
+  }, // Arbitrum One
+  "2053862243": {
+    type: Swapper.UniV3,
+    address: "",
+  }, // zkSync2 mainnet
+  "1887071085": {
+    type: Swapper.UniV3,
     address: "",
   }, // Polygon zkEVM
 };

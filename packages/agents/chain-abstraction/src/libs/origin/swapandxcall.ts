@@ -4,7 +4,7 @@ import { domainToChainId } from "@connext/nxtp-utils";
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
 import { DEPLOYED_ADDRESSES } from "../../helpers/address";
-import { OriginSwapDataFns, SwapperPerDomain } from "../../helpers";
+import { OriginSwapDataFns, OriginSwapperPerDomain } from "../../helpers";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -76,10 +76,10 @@ export const prepareSwapAndXCall = async (
     const chainId = domainToChainId(+originDomain);
 
     if (feeInNativeAsset) {
-      const formattedArguments: [string, string, string, string, string, string, string, string, string, string] = [
+      const formattedArguments: [string, string, BigNumber, string, string, string, string, string, string, string] = [
         fromAsset,
         toAsset,
-        amountIn,
+        BigNumber.from(amountIn),
         originRoute.swapper,
         originRoute.swapData,
         destinationDomain,
@@ -99,7 +99,7 @@ export const prepareSwapAndXCall = async (
       const formattedArguments: [
         string,
         string,
-        string,
+        BigNumber,
         string,
         string,
         string,
@@ -111,7 +111,7 @@ export const prepareSwapAndXCall = async (
       ] = [
         fromAsset,
         toAsset,
-        amountIn,
+        BigNumber.from(amountIn),
         originRoute.swapper,
         originRoute.swapData,
         destinationDomain,
@@ -173,7 +173,7 @@ const calculateRouteForSwapAndXCall = async (
   //
   // That seems enough to go ahead with a quick solution as of now but we will definitely update the function over time to make it ideal
 
-  const swapperConfig = SwapperPerDomain[domainId];
+  const swapperConfig = OriginSwapperPerDomain[domainId];
   if (!swapperConfig) {
     throw new Error(`Swapper config not found for domain: ${domainId}`);
   }
