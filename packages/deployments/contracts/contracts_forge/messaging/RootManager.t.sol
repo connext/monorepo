@@ -367,6 +367,7 @@ contract RootManager_General is Base {
   }
 
   function test_RootManager__propagate_shouldRefundExcessFees() public {
+    _rootManager.forTest_setOptimisticMode(false);
     uint256 numSpokes = 20;
     utils_generateAndAddConnectors(numSpokes, true, true);
     assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
