@@ -12,12 +12,12 @@
   "error RelayerFacet__addRelayer_alreadyApproved()",
   "error RelayerFacet__removeRelayer_notApproved()",
   "error RelayerFacet__setRelayerFeeVault_invalidRelayerFeeVault()",
-  "event RelayerAdded(address,address)",
-  "event RelayerFeeVaultUpdated(address,address,address)",
-  "event RelayerRemoved(address,address)",
-  "function addRelayer(address)",
-  "function approvedRelayers(address) view returns (bool)",
+  "event RelayerAdded(address relayer, address caller)",
+  "event RelayerFeeVaultUpdated(address oldVault, address newVault, address caller)",
+  "event RelayerRemoved(address relayer, address caller)",
+  "function addRelayer(address _relayer)",
+  "function approvedRelayers(address _relayer) view returns (bool)",
   "function relayerFeeVault() view returns (address)",
-  "function removeRelayer(address)",
-  "function setRelayerFeeVault(address)"
+  "function removeRelayer(address _relayer)",
+  "function setRelayerFeeVault(address _relayerFeeVault)"
 ]

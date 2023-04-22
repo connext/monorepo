@@ -27,9 +27,24 @@ export const log = {
       value: any;
       updated?: boolean;
       valid?: boolean;
+      dryRun?: boolean;
     }) => {
-      const { chain, deployment, call, value, updated, valid } = args;
-      console.log(log.prefix.value({ chain, deployment, call }) + `${value}${updated ? " !!!" : valid ? " ✔" : ""}`);
+      const { chain, deployment, call, value, updated, valid, dryRun } = args;
+      console.log(
+        log.prefix.value({ chain, deployment, call }) +
+          `${value}${updated ? " !!!" : valid ? " ✔" : ""}${dryRun ? " [dry-run]" : ""}`,
+      );
+    },
+    // Log a transaction to submit
+    tx: (args: {
+      to: string;
+      data: string;
+      chain: number | string;
+      deployment: Deployment;
+      call: { method: string; args: (number | string)[] };
+    }) => {
+      const { chain, deployment, call, to, data } = args;
+      console.log(log.prefix.value({ chain, deployment, call }) + JSON.stringify({ to, chain, data }));
     },
   },
   error: {

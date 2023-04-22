@@ -1,19 +1,4 @@
-import {
-  mock,
-  chainDataToMap,
-  OriginMessage,
-  DestinationMessage,
-  XMessage,
-  RootMessage,
-  AggregatedRoot,
-  PropagatedRoot,
-  OriginTransfer,
-  DestinationTransfer,
-  XTransferStatus,
-  RouterBalance,
-  mkAddress,
-  mkBytes32,
-} from "@connext/nxtp-utils";
+import { chainDataToMap, mkAddress } from "@connext/nxtp-utils";
 
 import { CartographerConfig } from "../src/config";
 
@@ -87,4 +72,5 @@ export const mockConfig: CartographerConfig = {
   environment: "production",
   chains: {},
   healthUrls: {},
+  service: "transfers",
 };

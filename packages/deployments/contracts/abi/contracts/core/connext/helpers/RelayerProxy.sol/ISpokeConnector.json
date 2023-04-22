@@ -1,4 +1,4 @@
 [
-  "function proveAndProcess(tuple(bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)",
-  "function send(bytes) payable"
+  "function proveAndProcess(tuple(bytes message, bytes32[32] path, uint256 index)[] _proofs, bytes32 _aggregateRoot, bytes32[32] _aggregatePath, uint256 _aggregateIndex)",
+  "function send(bytes _encodedData) payable"
 ]
