@@ -1,10 +1,11 @@
-import { defaultAbiCoder } from "ethers/lib/utils";
-import { Contract, constants, providers } from "ethers";
+import { defaultAbiCoder, formatEther, parseEther } from "ethers/lib/utils";
+import { BigNumber, Contract, constants, providers } from "ethers";
 
 import {
   DestinationSwapDataFns,
   DestinationSwapperPerDomain,
   UniV3FactoryABI,
+  UniV3PoolABI,
   UniV3RouterABI,
   UniV3SwapperABI,
 } from "../../helpers";
@@ -62,8 +63,8 @@ export const getPoolFeeForUniV3 = async (
   token0: string,
   token1: string,
 ): Promise<string> => {
-  // TODO: This method requires around 7 rpc calls. You need to think of a way to reduce the number of rpc requests
-  // That would be better to do it without using rpc.
+  // TODO: This method requires more than 10 rpc calls. You need to think of a way to reduce the number of rpc requests
+  // That would be better to do it without using rpc like using sdk.
   const swapperConfig = DestinationSwapperPerDomain[domainId];
   const rpcProvider = new providers.JsonRpcProvider(rpc);
   const swapperContract = new Contract(swapperConfig.address, UniV3SwapperABI, rpcProvider);
@@ -75,16 +76,21 @@ export const getPoolFeeForUniV3 = async (
   const res = await Promise.all(
     AVAILABLE_POOL_FEES.map(async (poolFee) => {
       const pool = await univ3FactoryContract.getPool(token0, token1, poolFee);
-      return { pool, poolFee };
+      let liquidity = 0;
+      if (pool != constants.AddressZero) {
+        const poolContract = new Contract(pool as string, UniV3PoolABI, rpcProvider);
+        const liqInBigNum = await poolContract.liquidity();
+        liquidity = Number(formatEther(liqInBigNum as BigNumber));
+      }
+      return { pool, poolFee, liquidity };
     }),
   );
 
   const validPools = res.filter((item) => item.pool != constants.AddressZero);
+  const sorted = validPools.sort((a, b) => b.liquidity - a.liquidity);
 
   if (validPools.length == 0) {
     throw new Error("No pool exist for a given pair");
   }
-
-  // TODO: Ideally, we should iterate all the valid pools and choose the best pool.
-  return validPools[0].pool;
+  return sorted[0].poolFee;
 };
