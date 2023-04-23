@@ -1,4 +1,4 @@
-import { defaultAbiCoder, formatEther, parseEther } from "ethers/lib/utils";
+import { defaultAbiCoder, formatEther } from "ethers/lib/utils";
 import { BigNumber, Contract, constants, providers } from "ethers";
 
 import {
