@@ -348,3 +348,61 @@ export const SwapAndXCallABI = [
     type: "receive",
   },
 ];
+
+export const UniV3SwapperABI = [
+  {
+    inputs: [{ internalType: "address", name: "_uniV3Router", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "_amountIn", type: "uint256" },
+      { internalType: "address", name: "_fromAsset", type: "address" },
+      { internalType: "address", name: "_toAsset", type: "address" },
+      { internalType: "bytes", name: "_swapData", type: "bytes" },
+    ],
+    name: "swap",
+    outputs: [{ internalType: "uint256", name: "amountOut", type: "uint256" }],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "uniswapV3Router",
+    outputs: [{ internalType: "contract ISwapRouter", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
+export const UniV3RouterABI = [
+  {
+    inputs: [],
+    name: "factory",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
+export const UniV3FactoryABI = [
+  {
+    inputs: [{ internalType: "uint24", name: "", type: "uint24" }],
+    name: "feeAmountTickSpacing",
+    outputs: [{ internalType: "int24", name: "", type: "int24" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "uint24", name: "", type: "uint24" },
+    ],
+    name: "getPool",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
