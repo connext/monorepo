@@ -15,7 +15,6 @@ const KEEP3R_ADDRESSES: Record<number, string> = {
 };
 
 const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
-const AUTONOLAS_PRIORITY = 0;
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -199,10 +198,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         spokeConnector.address,
         gelatoRelayer,
         feeCollector,
-        rootManager.address,
         KEEP3R_ADDRESSES[network.chainId],
-        constants.AddressZero,
-        AUTONOLAS_PRIORITY,
+        rootManager.address,
         PROPAGATE_COOLDOWN,
         hubConnectors,
         chains,
@@ -215,7 +212,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer.address,
       log: true,
       contract: "RelayerProxy",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
+      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, KEEP3R_ADDRESSES[network.chainId]],
     });
 
     console.log("relayerProxy: ", relayerProxy.address);

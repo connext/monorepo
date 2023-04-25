@@ -4,3 +4,4 @@
 export type { DomainIndexer } from "./DomainIndexer";
 export type { MerkleLib } from "./MerkleLib";
 export type { RateLimited } from "./RateLimited";
+export type { SnapshotId } from "./SnapshotId";
