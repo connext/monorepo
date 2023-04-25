@@ -36,7 +36,7 @@ type OptimisticRootProposed @entity {
   disputeCliff: BigInt!
   aggregateRoot: Bytes!
   snapshotsRoots: [Bytes!]
-  domains: [uint32!]
+  domains: [BigInt!]
   baseAggregateRoot: Bytes!
 }
 

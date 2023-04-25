@@ -62,6 +62,11 @@
   },
   {
     "inputs": [],
+    "name": "NotCrossChainCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ProposedOwnable__onlyOwner_notOwner",
     "type": "error"
   },
@@ -183,6 +188,25 @@
       }
     ],
     "name": "AggregateRootVerified",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previous",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "current",
+        "type": "address"
+      }
+    ],
+    "name": "AliasedSenderUpdated",
     "type": "event"
   },
   {
@@ -498,6 +522,31 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "snapshotId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "root",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "name": "SnapshotRootSaved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "account",
@@ -632,6 +681,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "aliasedSender",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -700,9 +762,40 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLastCompletedSnapshotId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_lastCompletedSnapshotId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getSnapshotDuration",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_snapshotDuration",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1089,24 +1182,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_encodedData",
-        "type": "bytes"
-      }
-    ],
-    "name": "sendMessage",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
@@ -1173,6 +1248,25 @@
     "name": "setWatcherManager",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "snapshotRoots",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

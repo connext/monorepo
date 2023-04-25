@@ -85,11 +85,11 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
     snapshot = new OptimisticRootProposed(event.params.snapshotId.toHexString());
   }
 
-  snapshot.endOfDispute = event.params.endOfDispute;
+  snapshot.disputeCliff = event.params.endOfDispute;
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.snapshotsRoots = event.params.snapshotsRoots;
   snapshot.domains = event.params.domains;
-  snapshot.baseAggregateRoot = event.params.baseAggregateRootUsed;
+  snapshot.baseAggregateRoot = event.params.baseRoot;
 
   snapshot.save();
 }
