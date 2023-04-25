@@ -17,6 +17,7 @@ export const getDecimalsForAsset = async (
   chainId: number,
   provider?: providers.Provider,
   chainData?: Map<string, ChainData>,
+  decimalsCallback: () => Promise<number> = () => Promise.resolve(18),
 ): Promise<number> => {
   if (chainData) {
     const domainId = chainIdToDomain(chainId);
@@ -29,8 +30,10 @@ export const getDecimalsForAsset = async (
   if (assetId === constants.AddressZero) {
     return 18;
   }
-  if (provider) return await getTokenDecimals(assetId, provider);
-  else return 18;
+  if (provider) {
+    return await getTokenDecimals(assetId, provider);
+  }
+  return await decimalsCallback();
 };
 
 export const getMainnetEquivalent = async (

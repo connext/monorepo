@@ -1,6 +1,6 @@
 [
-  "constructor(address,bytes) payable",
-  "event AdminChanged(address,address)",
-  "event BeaconUpgraded(address indexed)",
-  "event Upgraded(address indexed)"
+  "constructor(address _logic, bytes _data) payable",
+  "event AdminChanged(address previousAdmin, address newAdmin)",
+  "event BeaconUpgraded(address indexed beacon)",
+  "event Upgraded(address indexed implementation)"
 ]

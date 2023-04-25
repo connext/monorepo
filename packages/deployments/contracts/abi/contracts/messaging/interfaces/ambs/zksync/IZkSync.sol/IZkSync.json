@@ -1,11 +1,11 @@
 [
-  "event EthWithdrawalFinalized(address indexed,uint256)",
-  "event NewPriorityRequest(uint256,bytes32,uint64,tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[4],bytes,bytes,uint256[],bytes,bytes),bytes[])",
-  "function finalizeEthWithdrawal(uint256,uint256,uint16,bytes,bytes32[])",
-  "function l2TransactionBaseCost(uint256,uint256,uint256) view returns (uint256)",
-  "function proveL1ToL2TransactionStatus(bytes32,uint256,uint256,uint16,bytes32[],uint8) view returns (bool)",
-  "function proveL2LogInclusion(uint256,uint256,tuple(uint8,bool,uint16,address,bytes32,bytes32),bytes32[]) view returns (bool)",
-  "function proveL2MessageInclusion(uint256,uint256,tuple(uint16,address,bytes),bytes32[]) view returns (bool)",
-  "function requestL2Transaction(address,uint256,bytes,uint256,uint256,bytes[],address) payable returns (bytes32)",
-  "function serializeL2Transaction(uint256,uint256,address,address,bytes,uint256,uint256,bytes[],uint256,address) pure returns (tuple(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[4],bytes,bytes,uint256[],bytes,bytes))"
+  "event EthWithdrawalFinalized(address indexed to, uint256 amount)",
+  "event NewPriorityRequest(uint256 txId, bytes32 txHash, uint64 expirationTimestamp, tuple(uint256 txType, uint256 from, uint256 to, uint256 gasLimit, uint256 gasPerPubdataByteLimit, uint256 maxFeePerGas, uint256 maxPriorityFeePerGas, uint256 paymaster, uint256 nonce, uint256 value, uint256[4] reserved, bytes data, bytes signature, uint256[] factoryDeps, bytes paymasterInput, bytes reservedDynamic) transaction, bytes[] factoryDeps)",
+  "function finalizeEthWithdrawal(uint256 _l2BlockNumber, uint256 _l2MessageIndex, uint16 _l2TxNumberInBlock, bytes _message, bytes32[] _merkleProof)",
+  "function l2TransactionBaseCost(uint256 _gasPrice, uint256 _l2GasLimit, uint256 _l2GasPerPubdataByteLimit) view returns (uint256)",
+  "function proveL1ToL2TransactionStatus(bytes32 _l2TxHash, uint256 _l2BlockNumber, uint256 _l2MessageIndex, uint16 _l2TxNumberInBlock, bytes32[] _merkleProof, uint8 _status) view returns (bool)",
+  "function proveL2LogInclusion(uint256 _blockNumber, uint256 _index, tuple(uint8 l2ShardId, bool isService, uint16 txNumberInBlock, address sender, bytes32 key, bytes32 value) _log, bytes32[] _proof) view returns (bool)",
+  "function proveL2MessageInclusion(uint256 _blockNumber, uint256 _index, tuple(uint16 txNumberInBlock, address sender, bytes data) _message, bytes32[] _proof) view returns (bool)",
+  "function requestL2Transaction(address _contractL2, uint256 _l2Value, bytes _calldata, uint256 _l2GasLimit, uint256 _l2GasPerPubdataByteLimit, bytes[] _factoryDeps, address _refundRecipient) payable returns (bytes32 canonicalTxHash)",
+  "function serializeL2Transaction(uint256 _txId, uint256 _l2Value, address _sender, address _contractAddressL2, bytes _calldata, uint256 _l2GasLimit, uint256 _l2GasPerPubdataByteLimit, bytes[] _factoryDeps, uint256 _toMint, address _refundRecipient) pure returns (tuple(uint256 txType, uint256 from, uint256 to, uint256 gasLimit, uint256 gasPerPubdataByteLimit, uint256 maxFeePerGas, uint256 maxPriorityFeePerGas, uint256 paymaster, uint256 nonce, uint256 value, uint256[4] reserved, bytes data, bytes signature, uint256[] factoryDeps, bytes paymasterInput, bytes reservedDynamic))"
 ]

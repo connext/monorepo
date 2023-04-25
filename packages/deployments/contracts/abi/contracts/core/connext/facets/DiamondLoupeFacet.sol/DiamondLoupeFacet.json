@@ -1,7 +1,7 @@
 [
-  "function facetAddress(bytes4) view returns (address)",
-  "function facetAddresses() view returns (address[])",
-  "function facetFunctionSelectors(address) view returns (bytes4[])",
-  "function facets() view returns (tuple(address,bytes4[])[])",
-  "function supportsInterface(bytes4) view returns (bool)"
+  "function facetAddress(bytes4 _functionSelector) view returns (address facetAddress_)",
+  "function facetAddresses() view returns (address[] facetAddresses_)",
+  "function facetFunctionSelectors(address _facet) view returns (bytes4[] facetFunctionSelectors_)",
+  "function facets() view returns (tuple(address facetAddress, bytes4[] functionSelectors)[] facets_)",
+  "function supportsInterface(bytes4 _interfaceId) view returns (bool)"
 ]

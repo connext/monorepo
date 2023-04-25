@@ -16,6 +16,7 @@ import {
   PropagatedRoot,
   ConnectorMeta,
   RootManagerMeta,
+  RootManagerMode,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -23,6 +24,10 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   RouterDailyTVL,
+  SnapshotRoot,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+  Snapshot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -45,7 +50,7 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByNonceQuery,
+  getDestinationTransfersByExecutedTimestampQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
@@ -53,6 +58,10 @@ import {
   getProcessedRootMessagesByDomainAndBlockQuery,
   getReceivedAggregatedRootsByDomainQuery,
   getSwapExchangesQuery,
+  getProposedSnapshotsByDomainQuery,
+  getFinalizedRootsByDomainQuery,
+  getPropagatedOptimisticRootsByDomainQuery,
+  getSavedSnapshotRootsByDomainQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -62,6 +71,7 @@ import {
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
+  getRootManagerModeQuery,
   getRouterDailyTVLQuery,
   getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
@@ -261,7 +271,10 @@ export class SubgraphReader {
 
     const query = getAssetsQuery(prefix);
     const response = await execute(query);
-    const assets: Asset[] = [...response.values()].map((v) => v.flat()).flat();
+    const assets: Asset[] = [...response.values()]
+      .map((v) => v.flat())
+      .flat()
+      .filter((v) => !!v.status);
     return assets.map((asset) => ({ ...asset, domain }));
   }
 
@@ -430,11 +443,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByNonce(
-    params: Map<string, SubgraphQueryMetaParams>,
+  public async getDestinationTransfersByExecutedTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByNonceQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -812,6 +825,118 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets all the proposed snapshots
+   */
+  public async getProposedSnapshotsByDomain(
+    params: { hub: string; snapshotId: number; limit: number }[],
+  ): Promise<Snapshot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSnapshotsByDomainQuery = getProposedSnapshotsByDomainQuery(params);
+    const response = await execute(proposedSnapshotsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const proposedRoots: Snapshot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.proposedRoot);
+
+    return proposedRoots;
+  }
+
+  /**
+   * Gets saved snapshots
+   */
+  public async getSavedSnapshotRootsByDomain(
+    params: { hub: string; snapshotId: number; limit: number }[],
+  ): Promise<SnapshotRoot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSnapshotsByDomainQuery = getSavedSnapshotRootsByDomainQuery(params);
+    const response = await execute(proposedSnapshotsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const snapshotRoots: SnapshotRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.snapshotRoot);
+
+    return snapshotRoots;
+  }
+
+  /**
+   * Gets all the finalized roots
+   */
+  public async getFinalizedRootsByDomain(
+    params: { hub: string; timestamp: number; limit: number }[],
+  ): Promise<OptimisticRootFinalized[]> {
+    const { parser, execute } = getHelpers();
+    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params);
+    const response = await execute(finalizedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const finalizedRoots: OptimisticRootFinalized[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.finalizedRoot);
+
+    return finalizedRoots;
+  }
+
+  /**
+   * Gets all the propagated optimistic aggregate roots
+   */
+  public async getPropagatedOptimisticRootsByDomain(
+    params: { hub: string; timestamp: number; limit: number }[],
+  ): Promise<OptimisticRootPropagated[]> {
+    const { parser, execute } = getHelpers();
+    const propagatedRootsByDomainQuery = getPropagatedOptimisticRootsByDomainQuery(params);
+    const response = await execute(propagatedRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const propagatedRoots: OptimisticRootPropagated[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.propagatedOptimisticRoot);
+
+    return propagatedRoots;
+  }
+
+  /**
    * Gets all the propagated rootsstarting with index for a given domain
    */
   public async getGetPropagatedRoots(domain: string, count: number, limit: number): Promise<PropagatedRoot[]> {
@@ -866,6 +991,15 @@ export class SubgraphReader {
     const response = await execute(rootManagerMetaQuery);
     const values = [...response.values()];
     return parser.rootManagerMeta(values[0][0]);
+  }
+
+  public async getRootManagerMode(hub: string): Promise<RootManagerMode> {
+    const { parser, execute } = getHelpers();
+    const rootManagerModeQuery = getRootManagerModeQuery(hub);
+
+    const response = await execute(rootManagerModeQuery);
+    const values = [...response.values()];
+    return parser.rootManagerMode(values[0][0]);
   }
   /**
    * Gets all the received roots starting with blocknumber for a given domain

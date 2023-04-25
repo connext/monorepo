@@ -43,6 +43,7 @@ export type ChainData = {
       symbol: string;
       mainnetEquivalent?: string;
       decimals?: number;
+      coingeckoId?: string;
     }
   >;
   rpc: string[];

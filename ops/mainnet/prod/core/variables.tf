@@ -122,6 +122,10 @@ variable "blast_key" {
   type = string
 }
 
+variable "pokt_key" {
+  type = string
+}
+
 variable "router_web3_signer_private_key" {
   type = string
 }
@@ -165,6 +169,10 @@ variable "lighthouse_propagate_heartbeat" {
 }
 
 variable "lighthouse_send_outbound_root_heartbeat" {
+  type = string
+}
+
+variable "lighthouse_propose_heartbeat" {
   type = string
 }
 

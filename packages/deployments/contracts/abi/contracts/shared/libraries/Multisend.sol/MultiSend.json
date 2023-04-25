@@ -1,4 +1,4 @@
 [
   "constructor()",
-  "function multiSend(bytes) payable"
+  "function multiSend(bytes transactions) payable"
 ]

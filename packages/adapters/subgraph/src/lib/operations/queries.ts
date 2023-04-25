@@ -16,6 +16,9 @@ export const ASSET_ENTITY = `
       adoptedAsset,
       localAsset,
       blockNumber,
+      status {
+        status
+      }
 `;
 
 export const ASSET_BALANCE_ENTITY = `
@@ -256,6 +259,11 @@ export const ROOT_MANAGER_META_ENTITY = `
       domains
 `;
 
+export const ROOT_MANAGER_MODE_ENTITY = `
+      id
+      mode
+`;
+
 export const STABLESWAP_POOL_ENTITY = `
       key
       isActive
@@ -340,6 +348,36 @@ export const ROUTER_DAILY_TVL_ENTITY = `
       }
       timestamp
       balance
+`;
+
+export const SAVED_SNAPSHOT_ROOT_ENTITY = `
+      id
+      spokeDomain
+      root
+      count
+      timestamp
+      blockNumber
+`;
+export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      endOfDispute
+      aggregateRoot
+      snapshotsRoots
+      domains
+      baseAggregateRoot
+`;
+
+export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      aggregateRoot
+      timestamp
+`;
+
+export const PROPAGATED_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      aggregateRoot
+      domainsHash
+      timestamp
 `;
 
 const lastedBlockNumberQuery = (prefix: string): string => {
@@ -659,21 +697,23 @@ export const getOriginTransfersByNonceQuery = (agents: Map<string, SubgraphQuery
   `;
 };
 
-const destinationTransferByNonceQueryString = (
+const destinationTransferByExecutedTimestampQueryString = (
   prefix: string,
-  fromNonce: number,
+  fromTimestamp: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      nonce_gte: ${fromNonce},
+      reconciledTimestamp_gte: ${fromTimestamp},
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
-export const getDestinationTransfersByNonceQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+export const getDestinationTransfersByExecutedTimestampQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
@@ -681,9 +721,9 @@ export const getDestinationTransfersByNonceQuery = (agents: Map<string, Subgraph
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += destinationTransferByNonceQueryString(
+      combinedQuery += destinationTransferByExecutedTimestampQueryString(
         prefix,
-        agents.get(domain)!.latestNonce,
+        agents.get(domain)!.fromTimestamp,
         agents.get(domain)!.orderDirection,
       );
     }
@@ -955,6 +995,108 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
   `;
 };
 
+export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_optimisticRootProposed ( 
+      first: ${param.limit}, 
+      where: { 
+        id_gte: ${param.snapshotId}
+      }
+      orderBy: timestamp, 
+      orderDirection: asc
+    ) {
+      ${PROPOSED_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetProposedSnapshots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_snapshotRootSaved( 
+      first: ${param.limit}, 
+      where: { 
+        id_gte: ${param.snapshotId}
+      }
+      orderBy: id, 
+      orderDirection: asc
+    ) {
+      ${SAVED_SNAPSHOT_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetSavedSnapshots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp: number; limit: number }[]) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_optimisticRootFinalized ( 
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gte: ${param.timestamp}
+      }
+      orderBy: timestamp, 
+      orderDirection: asc
+    ) {
+      ${FINALIZED_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetFinalizedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getPropagatedOptimisticRootsByDomainQuery = (
+  params: { hub: string; timestamp: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.hub].prefix;
+    combinedQuery += `
+    ${prefix}_optimisticRootFinalized ( 
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gte: ${param.timestamp}
+      }
+      orderBy: timestamp, 
+      orderDirection: asc
+    ) {
+      ${PROPAGATED_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetPropagatedRoots {
+      ${combinedQuery}
+    }
+  `;
+};
+
 export const getReceivedAggregatedRootsByDomainQuery = (
   params: { domain: string; offset: number; limit: number }[],
 ) => {
@@ -1034,6 +1176,21 @@ export const getRootManagerMetaQuery = (domain: string) => {
     query GetRootManagerMeta {
         ${prefix}_rootManagerMeta (id: "${ROOT_MANAGER_META_ID}") {
         ${ROOT_MANAGER_META_ENTITY}
+      }
+    }
+  `;
+};
+
+const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+
+export const getRootManagerModeQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+
+  return gql`
+    query GetRootManagerMode {
+        ${prefix}_rootManagerMode (id: "${ROOT_MANAGER_MODE_ID}") {
+        ${ROOT_MANAGER_MODE_ENTITY}
       }
     }
   `;

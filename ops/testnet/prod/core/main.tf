@@ -305,6 +305,18 @@ module "lighthouse_sendoutboundroot_cron" {
   memory_size         = 512
 }
 
+module "lighthouse_propose_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-propose"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
+  schedule_expression = "rate(30 minutes)"
+  memory_size         = 512
+}
+
 
 module "relayer" {
   source                   = "../../../modules/service"
@@ -325,7 +337,7 @@ module "relayer" {
   container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 1024
-  memory                   = 2048
+  memory                   = 4096
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false

@@ -1,8 +1,17 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
+import {
+  XMessage,
+  RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+  ReceivedAggregateRoot,
+  Snapshot,
+  SnapshotRoot,
+} from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
 import {
+  Asset,
   AssetBalance,
   RouterBalance,
   XTransfer,
@@ -238,6 +247,25 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
 };
 
 /**
+ * Converts asset from the cartographer db through either DB queries or Postgrest into the Asset type
+ * @param asset - the asset from the cartographer db as a JSON object
+ * @returns an Asset object
+ */
+export const convertFromDbAsset = (asset: any): Asset => {
+  return {
+    key: asset.key,
+    id: asset.id,
+    decimal: asset.decimal,
+    localAsset: asset.local,
+    adoptedAsset: asset.adopted,
+    canonicalId: asset.canonical_id,
+    canonicalDomain: asset.canonical_domain,
+    domain: asset.domain,
+    blockNumber: asset.block_number,
+  };
+};
+
+/**
  * Converts router balance rows into a RouterBalance array
  * Example rows:
 [
@@ -403,6 +431,31 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
     root: message.root,
     domain: message.domain,
     blockNumber: message.block_number,
+  };
+};
+
+export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
+  return {
+    id: snapshot.id,
+    aggregateRoot: snapshot.aggregate_root,
+    baseAggregateRoot: snapshot.base_aggregate_root,
+    roots: snapshot.roots,
+    domains: snapshot.domains,
+    endOfDispute: snapshot.end_of_dispute,
+    processed: snapshot.processed,
+    status: snapshot.status,
+    propagateTimestamp: snapshot.propagate_timestamp ?? undefined,
+    propagateTaskId: snapshot.propagate_task_id ?? undefined,
+    relayerType: snapshot.relayer_type ?? undefined,
+  };
+};
+
+export const convertFromDbSnapshotRoot = (snapshot: any): SnapshotRoot => {
+  return {
+    id: snapshot.id,
+    spokeDomain: snapshot.spoke_domain,
+    root: snapshot.root,
+    count: snapshot.count,
   };
 };
 

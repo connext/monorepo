@@ -1,3 +1,3 @@
 [
-  "function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes) payable returns (uint256)"
+  "function createRetryableTicket(address destAddr, uint256 arbTxCallValue, uint256 maxSubmissionCost, address submissionRefundAddress, address valueRefundAddress, uint256 maxGas, uint256 gasPriceBid, bytes data) payable returns (uint256)"
 ]

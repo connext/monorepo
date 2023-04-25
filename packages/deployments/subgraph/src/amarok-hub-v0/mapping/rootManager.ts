@@ -6,10 +6,24 @@ import {
   RootReceived as RootReceivedEvent,
   ConnectorAdded as ConnectorAddedEvent,
   ConnectorRemoved as ConnectorRemovedEvent,
+  AggregateRootProposed as AggregateRootProposedEvent,
+  ProposedRootFinalized as ProposedRootFinalizedEvent,
+  OptimisticRootPropagated as OptimisticRootPropagatedEvent,
 } from "../../../generated/RootManager/RootManager";
-import { RootPropagated, RootAggregated, RootManagerMeta } from "../../../generated/schema";
+import {
+  RootPropagated,
+  RootAggregated,
+  RootManagerMeta,
+  RootManagerMode,
+  OptimisticRootProposed,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+} from "../../../generated/schema";
 
 const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
+const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const OPTIMISTIC_MODE = "OPTIMISTIC_MODE";
+const SLOW_MODE = "SLOW_MODE";
 
 /// MARK - ROOT MANAGER
 // TODO: Needed?
@@ -61,6 +75,68 @@ export function handleConnectorRemoved(event: ConnectorRemovedEvent): void {
   }
   instance.domains = event.params.domains;
   instance.connectors = event.params.connectors.map<Bytes>((c: Address): Bytes => Bytes.fromHexString(c.toHexString()));
+
+  instance.save();
+}
+
+export function handleAggregateRootProposed(event: AggregateRootProposedEvent): void {
+  let snapshot = OptimisticRootProposed.load(event.params.snapshotId.toHexString());
+  if (snapshot == null) {
+    snapshot = new OptimisticRootProposed(event.params.snapshotId.toHexString());
+  }
+
+  snapshot.endOfDispute = event.params.endOfDispute;
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.snapshotsRoots = event.params.snapshotsRoots;
+  snapshot.domains = event.params.domains;
+  snapshot.baseAggregateRoot = event.params.baseAggregateRootUsed;
+
+  snapshot.save();
+}
+
+export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): void {
+  let snapshot = OptimisticRootFinalized.load(event.params.aggregateRoot.toHexString());
+  if (snapshot == null) {
+    snapshot = new OptimisticRootFinalized(event.params.aggregateRoot.toHexString());
+  }
+
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.timestamp = event.block.timestamp;
+
+  snapshot.save();
+}
+
+export function handleOptimisticRootPropagated(event: OptimisticRootPropagatedEvent): void {
+  let snapshot = OptimisticRootPropagated.load(event.params.aggregateRoot.toHexString());
+  if (snapshot == null) {
+    snapshot = new OptimisticRootPropagated(event.params.aggregateRoot.toHexString());
+  }
+
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.domainsHash = event.params.domainsHash;
+  snapshot.timestamp = event.block.timestamp;
+
+  snapshot.save();
+}
+
+export function handleSlowModeActivated(): void {
+  let instance = RootManagerMode.load(ROOT_MANAGER_MODE_ID);
+  if (instance == null) {
+    instance = new RootManagerMode(ROOT_MANAGER_MODE_ID);
+  }
+
+  instance.mode = SLOW_MODE;
+
+  instance.save();
+}
+
+export function handleOptimisticModeActivated(): void {
+  let instance = RootManagerMode.load(ROOT_MANAGER_MODE_ID);
+  if (instance == null) {
+    instance = new RootManagerMode(ROOT_MANAGER_MODE_ID);
+  }
+
+  instance.mode = OPTIMISTIC_MODE;
 
   instance.save();
 }

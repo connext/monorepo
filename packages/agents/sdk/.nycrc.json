@@ -6,6 +6,7 @@
     "src/sdkStableSwap.ts",
     "src/lib/errors/*.ts",
     "src/lib/helpers/*.ts",
+    "src/lib/priceFeed/*.ts",
     "test/**/*.ts"
   ],
   "all": true,

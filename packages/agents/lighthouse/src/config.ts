@@ -58,6 +58,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       processor: Type.String({ format: "uri" }),
       propagate: Type.String({ format: "uri" }),
       sendOutboundRoot: Type.String({ format: "uri" }),
+      propose: Type.String({ format: "uri" }),
     }),
   ),
   proverBatchSize: Type.Integer({ minimum: 1, maximum: 1000 }),

@@ -1,19 +1,4 @@
-import {
-  mock,
-  chainDataToMap,
-  OriginMessage,
-  DestinationMessage,
-  XMessage,
-  RootMessage,
-  AggregatedRoot,
-  PropagatedRoot,
-  OriginTransfer,
-  DestinationTransfer,
-  XTransferStatus,
-  RouterBalance,
-  mkAddress,
-  mkBytes32,
-} from "@connext/nxtp-utils";
+import { chainDataToMap, mkAddress } from "@connext/nxtp-utils";
 
 import { CartographerConfig } from "../src/config";
 
@@ -48,7 +33,15 @@ export const mockChainData = chainDataToMap([
     confirmations: 1,
     shortName: "lt-1337",
     network: "lt-1337",
-    assetId: {},
+    assetId: {
+      [mkAddress("0xb")]: {
+        name: "Wrapped Ether",
+        symbol: "WETH",
+        mainnetEquivalent: mkAddress("0xb"),
+        decimals: 18,
+        coingeckoId: "ethereum",
+      },
+    },
   },
   {
     name: "Local Testnet 1338",
@@ -79,4 +72,5 @@ export const mockConfig: CartographerConfig = {
   environment: "production",
   chains: {},
   healthUrls: {},
+  service: "transfers",
 };
