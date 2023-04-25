@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
 // modified from: https://github.com/OffchainLabs/nitro/blob/master/contracts/src/rollup/Node.sol
