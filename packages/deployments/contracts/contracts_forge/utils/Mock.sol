@@ -22,6 +22,7 @@ import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
+import {SnapshotId} from "../../contracts/messaging/libraries/SnapshotId.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
@@ -267,6 +268,14 @@ contract MockSpokeConnector is SpokeConnector {
 
   function _verifySender(address _expected) internal override returns (bool) {
     return verified;
+  }
+
+  function setSnapshotRoot(uint256 _snapshotId, bytes32 _root) external {
+    snapshotRoots[_snapshotId] = _root;
+  }
+
+  function count() external returns (uint256) {
+    return MERKLE.count();
   }
 }
 

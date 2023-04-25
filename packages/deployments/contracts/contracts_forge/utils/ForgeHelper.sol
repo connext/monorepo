@@ -31,4 +31,13 @@ abstract contract ForgeHelper is Test {
       _address := mload(0)
     }
   }
+
+  function assertNotEq(bytes32 a, bytes32 b) internal {
+    if (a == b) {
+      emit log("Error: a != b not satisfied [bytes32]");
+      emit log_named_bytes32("      Left", a);
+      emit log_named_bytes32("     Right", b);
+      fail();
+    }
+  }
 }

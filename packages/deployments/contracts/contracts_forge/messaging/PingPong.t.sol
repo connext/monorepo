@@ -50,6 +50,8 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager aggregateTree;
 
   uint256 _delayBlocks = 40;
+  uint256 _minDisputeBlocks = 125;
+  uint256 _disputeBlocks = 150;
   address _watcherManager;
 
   // ============ connectors
@@ -79,7 +81,9 @@ contract PingPong is ConnectorHelper {
     // deploy watcher manager
     _watcherManager = address(new WatcherManager());
     // deploy root manager
-    _rootManager = address(new RootManager(_delayBlocks, address(aggregateTree), _watcherManager));
+    _rootManager = address(
+      new RootManager(_delayBlocks, address(aggregateTree), _watcherManager, _minDisputeBlocks, _disputeBlocks)
+    );
     aggregateTree.setArborist(_rootManager);
 
     // Mock sourceconnector on l2
@@ -157,10 +161,18 @@ contract PingPong is ConnectorHelper {
 
     MockSpokeConnector(payable(_destinationConnectors.spoke)).setUpdatesAggregate(true);
 
+    // enroll this as approved watcher to activate slowmode
+    WatcherManager(_watcherManager).addWatcher(address(this));
+    // check setup
+    assertTrue(WatcherManager(_watcherManager).isWatcher(address(this)));
+
     // configure root manager with connectors
     RootManager(_rootManager).addConnector(_originDomain, _originConnectors.hub);
     RootManager(_rootManager).addConnector(_destinationDomain, _destinationConnectors.hub);
+    // set root manager to slow mode
+    RootManager(_rootManager).activateSlowMode();
     // check setup
+    assertFalse(RootManager(_rootManager).optimisticMode());
     assertEq(RootManager(_rootManager).connectors(0), _originConnectors.hub);
     assertEq(RootManager(_rootManager).connectors(1), _destinationConnectors.hub);
     assertEq(RootManager(_rootManager).domains(0), _originDomain);
@@ -317,11 +329,7 @@ contract PingPong is ConnectorHelper {
   }
 
   // Process a given aggregateRoot on a given spoke.
-  function utils_processAggregateRootAndAssert(
-    address connector,
-    address amb,
-    bytes32 aggregateRoot
-  ) public {
+  function utils_processAggregateRootAndAssert(address connector, address amb, bytes32 aggregateRoot) public {
     // Expect MessageProcessed on the target spoke.
     vm.expectEmit(true, true, true, true);
     emit MessageProcessed(abi.encode(aggregateRoot), amb);
