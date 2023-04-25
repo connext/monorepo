@@ -50,25 +50,25 @@ export class HubDBHelper implements DBHelper {
 }
 
 export class OptimisticHubDBHelper implements DBHelper {
-  constructor(private domain: string, private count: number, private db: Database) {}
+  constructor(private roots: string[], private count: number) {}
 
   public async getCount(): Promise<number> {
     return this.count;
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    return await this.db.getOptimisticHubNode(index, this.count);
+    return this.roots[index];
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    return await this.db.getOptimisticHubNodes(start, end, this.count);
+    return this.roots.slice(start, end + 1);
   }
 
-  public async getRoot(path: string): Promise<string | undefined> {
-    return await this.db.getRoot(this.domain, path);
+  public async putRoot() {
+    // noop
   }
 
-  public async putRoot(path: string, hash: string): Promise<void> {
-    return await this.db.putRoot(this.domain, path, hash);
+  public async getRoot() {
+    return undefined;
   }
 }

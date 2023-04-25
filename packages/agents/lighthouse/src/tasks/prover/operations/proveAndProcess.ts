@@ -196,6 +196,7 @@ export const processMessages = async (
   let aggregateRootCount = undefined;
   let targetAggregateRoot: string | undefined = "";
   let messageRootIndex = undefined;
+  let opRoots: string[] = [];
   if (snapshot && snapshot.aggregateRoot) {
     targetAggregateRoot = snapshot.aggregateRoot;
     const baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
@@ -204,6 +205,10 @@ export const processMessages = async (
     }
     aggregateRootCount = baseAggregateRootCount + snapshot.roots.length;
     messageRootIndex = baseAggregateRootCount + snapshot.roots.indexOf(targetMessageRoot);
+
+    // Get all roots for virtual tree
+    const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
+    opRoots = baseAggregateRoots.concat(snapshot.roots);
   } else {
     targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
     if (!targetAggregateRoot) {
@@ -227,7 +232,7 @@ export const processMessages = async (
 
   //Switch for optimistic hub
   const hubStore: DBHelper = snapshot
-    ? new OptimisticHubDBHelper("hub", aggregateRootCount, database)
+    ? new OptimisticHubDBHelper(opRoots, aggregateRootCount)
     : new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
