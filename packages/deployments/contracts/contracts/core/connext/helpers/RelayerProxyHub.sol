@@ -152,13 +152,41 @@ interface IZkSyncHubConnector {
 contract RelayerProxyHub is RelayerProxy {
   // ============ Properties ============
 
+  /**
+   * @notice Address of the RootManager contract
+   */
   IRootManager public rootManager;
+
+  /**
+   * @notice Delay for the propagate function
+   */
   uint256 public propagateCooldown;
+
+  /**
+   * @notice Delay for the proposeAggregateRoot function
+   * @dev Can be updated by admin
+   */
   uint256 public proposeAggregateRootCooldown;
-  // Timestamp of the last time the job was worked.
+
+  /**
+   * @notice Timestamp of the last time the propagate job was worked.
+   */
   uint256 public lastPropagateAt;
+
+  /**
+   * @notice Timestamp of when last aggregate was proposed
+   */
   uint256 public lastProposeAggregateRootAt;
 
+  /**
+   * @notice Address of Autonolas keeper contract
+   * @dev Special consideration for Autonolas keeper
+   */
+  address public autonolas;
+
+  /**
+   * @notice Enum of Autonolas functions with different priorities
+   */
   enum AutonolasPriorityFunction {
     Propagate,
     ProcessFromRoot,
@@ -166,17 +194,54 @@ contract RelayerProxyHub is RelayerProxy {
     FinalizeAndPropagate
   }
 
-  // number between 0 and 10 to determine priority that Autonolas has for jobs
-  // 0 is disabled, 10 will work for every block
+  /**
+   * @notice Mapping of Autonolas priority function to priority number
+   * @dev number between 0 and 10 to determine priority that Autonolas has for jobs.
+   * 0 is disabled, 10 will work for every block.
+   */
   mapping(AutonolasPriorityFunction => uint8) public autonolasPriority;
 
+  /**
+   * @notice Mapping of identifier to root message hash to boolean indicating if the message has been processed
+   */
   mapping(uint32 => mapping(bytes32 => bool)) public processedRootMessages;
+
+  /**
+   * @notice Mapping of identifier to hub connector contract address
+   */
   mapping(uint32 => address) public hubConnectors;
 
   // ============ Events ============
+
+  /**
+   * @notice Emitted when the root manager is updated by admin
+   * @param rootManager New root manager address in the contract
+   * @param oldRootManager Old root manager address in the contract
+   */
   event RootManagerChanged(address rootManager, address oldRootManager);
+
+  /**
+   * @notice Emitted when the cooldown period for propagate is updated
+   * @param propagateCooldown New cooldown period
+   * @param oldPropagateCooldown Old cooldown period
+   */
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
+
+  /**
+   * @notice Emitted when a new hub connector is updated
+   * @param hubConnector New hub connector address
+   * @param oldHubConnector Old hub connector address
+   * @param chain Chain ID of the hub connector
+   */
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
+
+  /**
+   * @notice Emitted when Autonolas address is updated by admin
+   * @param updated New Autonolas address in the contract
+   * @param previous Old Autonolas address in the contract
+   */
+  event AutonolasChanged(address updated, address previous);
+
   /**
    * @notice Emitted when Autonolas priority is updated by admin
    * @param updated New Autonolas priority in the contract
@@ -195,7 +260,7 @@ contract RelayerProxyHub is RelayerProxy {
   /**
    * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
    * For example, if priority is 3, then sender will not be able to work on blocks 0, 1, 2, unless they are Autonolas.
-   * Priority 0 disables Autonolas priority completely."
+   * Priority 0 disables Autonolas priority completely.
    * @param _sender The address of the caller
    */
   modifier isWorkableBySender(AutonolasPriorityFunction _function, address _sender) {
@@ -215,23 +280,28 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _spokeConnector The address of the SpokeConnector on this domain.
    * @param _gelatoRelayer The address of the Gelato relayer on this domain.
    * @param _feeCollector The address of the Gelato Fee Collector on this domain.
+   * @param _keep3r The address of the Keep3r on this domain.
    * @param _rootManager The address of the Root Manager on this domain.
+   * @param _autonolas The address of the Autonolas keeper contract on this domain.
+   * @param _propagateCooldown The delay for the propagate function.
+   * @param _hubConnectors The addresses of the hub connectors on this domain.
+   * @param _hubConnectorChains The identifiers of the hub connectors on this domain.
    */
   constructor(
     address _connext,
     address _spokeConnector,
     address _gelatoRelayer,
     address _feeCollector,
-    address _rootManager,
     address _keep3r,
+    address _rootManager,
     address _autonolas,
-    uint8 _autonolasPriority,
     uint256 _propagateCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
-  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r, _autonolas, _autonolasPriority) {
+  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
+    _setAutonolas(_autonolas);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
       _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
     }
@@ -261,6 +331,14 @@ contract RelayerProxyHub is RelayerProxy {
    */
   function setHubConnector(address _hubConnector, uint32 _chain) external onlyOwner definedAddress(_hubConnector) {
     _setHubConnector(_hubConnector, _chain);
+  }
+
+  /**
+   * @notice Updates the Autonolas contract address on this contract.
+   * @param _autonolas - New Autonolas contract address.
+   */
+  function setAutonolas(address _autonolas) external onlyOwner definedAddress(_autonolas) {
+    _setAutonolas(_autonolas);
   }
 
   /**
@@ -352,6 +430,15 @@ contract RelayerProxyHub is RelayerProxy {
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 
+  /**
+   * @notice Wraps the `proposeAggregateRoot` function
+   * @dev This contract will be whitelisted to propose roots, however the relayer network
+   * calling this function must have incentive to propose the correct root.
+   * @param _snapshotId The snapshot id of the root to be proposed.
+   * @param _aggregateRoot The aggregate root to be proposed.
+   * @param _snapshotsRoots The roots of the connectors included in the aggregate.
+   * @param _domains The domains of the snapshots to be proposed.
+   */
   function proposeAggregateRootKeep3r(
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
@@ -371,6 +458,14 @@ contract RelayerProxyHub is RelayerProxy {
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
   }
 
+  /**
+   * @notice Wraps the `finalizeAndPropagate` function
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * @param _fees Array of fees in native token for an AMB if required
+   * @param _encodedData Array of encodedData: extra params for each AMB if required
+   * @param _proposedAggregateRoot The aggregate root to be proposed.
+   * @param _endOfDispute The timestamp when the dispute period ends.
+   */
   function finalizeAndPropagateKeep3r(
     address[] calldata _connectors,
     uint256[] calldata _fees,
@@ -406,9 +501,13 @@ contract RelayerProxyHub is RelayerProxy {
     hubConnectors[chain] = _hubConnector;
   }
 
+  function _setAutonolas(address _autonolas) internal {
+    emit AutonolasChanged(_autonolas, autonolas);
+    autonolas = _autonolas;
+  }
+
   function _setAutonolasPriority(AutonolasPriorityFunction _function, uint8 _autonolasPriority) internal {
-    uint8 _priority = autonolasPriority[_function];
-    emit AutonolasPriorityChanged(_function, _autonolasPriority, _priority);
+    emit AutonolasPriorityChanged(_function, _autonolasPriority, autonolasPriority[_function]);
     autonolasPriority[_function] = _autonolasPriority;
   }
 
