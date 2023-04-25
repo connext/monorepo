@@ -1,7 +1,8 @@
 import { config } from "dotenv";
 import { Wallet, providers, Contract, BigNumber, constants } from "ethers";
+import { defaultAbiCoder } from "ethers/lib/utils";
 import { getPoolFeeForUniV3, getXCallCallData, prepareSwapAndXCall } from "../src";
-import { DestinationCallDataParams, Swapper, XReceiveTarget } from "../src/types";
+import { DestinationCallDataParams, Swapper } from "../src/types";
 config();
 
 const WETH_ABI = [
@@ -124,7 +125,6 @@ const testMidasProtocolTarget = async () => {
   // Params for calldata generation
   const POLYGON_DOMAIN_ID = "1886350457";
   const POLYGON_RPC_URL = "https://polygon.llamarpc.com";
-  const target = XReceiveTarget.MidasProtocol;
   const swapper = Swapper.UniV3;
   const poolFee = await getPoolFeeForUniV3(POLYGON_DOMAIN_ID, POLYGON_RPC_URL, POLYGON_WETH, POLYGON_USDC);
 
@@ -136,14 +136,14 @@ const testMidasProtocolTarget = async () => {
         amountOutMin: "0",
         poolFee: poolFee,
       },
-      forwardCallData: {
-        cTokenAddress: POLYGON_CTOKEN_WETH,
-        underlying: POLYGON_WETH,
-        minter: signerAddress,
-      },
     },
   };
-  const callDataForMidasProtocolTarget = await getXCallCallData(POLYGON_DOMAIN_ID, target, swapper, params);
+
+  const forwardCallData = defaultAbiCoder.encode(
+    ["address", "address", "address"],
+    [POLYGON_CTOKEN_WETH, POLYGON_WETH, signerAddress],
+  );
+  const callDataForMidasProtocolTarget = await getXCallCallData(POLYGON_DOMAIN_ID, swapper, forwardCallData, params);
   const swapAndXCallParams = {
     originDomain: "6450786",
     destinationDomain: "1886350457",
