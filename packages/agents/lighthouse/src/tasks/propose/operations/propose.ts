@@ -96,8 +96,6 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
   }
 
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
-  const _encodedData: string[] = [];
-  const _fees: string[] = [];
   // const _totalFee = constants.Zero;
 
   const baseAggregateRoot = await database.getBaseAggregateRoot();
@@ -124,21 +122,23 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
   const orderedDomains = domains;
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
+  // TODO: Sign the proposal -- need signature from whitelisted proposer agent
+  const signature = "";
 
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
     fee,
     proposal,
-    _fees,
-    _encodedData,
+    signature,
   });
 
-  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRootKeep3r", [
     proposal.snapshotId,
     proposal.aggregateRoot,
-    _fees,
-    _encodedData,
+    proposal.snapshotRoots,
+    proposal.orderedDomains,
+    signature,
   ]);
 
   try {
