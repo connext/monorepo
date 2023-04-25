@@ -283,6 +283,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     return pendingInboundRoots.length();
   }
 
+  function getSnapshotDuration() external pure returns (uint256 _snapshotDuration) {
+    _snapshotDuration = SnapshotId.SNAPSHOT_DURATION;
+  }
+
   // ============ Admin Functions ============
 
   /**

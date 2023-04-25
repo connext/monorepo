@@ -1287,3 +1287,9 @@ contract RootManager_FinalizeAndPropagate is Base {
     _rootManager.finalizeAndPropagate(_connectors, _fees, _encodedData, aggregateRoot, _endOfDispute);
   }
 }
+
+contract RootManager_GetSnapshotDuration is Base {
+  function test_getSnapshotDuration() public {
+    assertEq(SnapshotId.SNAPSHOT_DURATION, _rootManager.getSnapshotDuration());
+  }
+}

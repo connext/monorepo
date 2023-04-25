@@ -461,6 +461,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
   }
 
+  function getSnapshotDuration() external pure returns (uint256 _snapshotDuration) {
+    _snapshotDuration = SnapshotId.SNAPSHOT_DURATION;
+  }
+
   // ============ Private Functions ============
 
   /**
