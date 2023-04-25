@@ -115,7 +115,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     "addRelayer(address)": FunctionFragment;
     "allowedRelayer(address)": FunctionFragment;
     "autonolas()": FunctionFragment;
-    "autonolasPriority()": FunctionFragment;
     "connext()": FunctionFragment;
     "delay()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
@@ -123,7 +122,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     "gelatoRelayer()": FunctionFragment;
     "keep3r()": FunctionFragment;
     "owner()": FunctionFragment;
-    "priorityKeepers(address)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -133,7 +131,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "send(bytes,uint256,uint256)": FunctionFragment;
     "setAutonolas(address)": FunctionFragment;
-    "setAutonolasPriority(uint8)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setFeeCollector(address)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
@@ -149,7 +146,6 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "addRelayer"
       | "allowedRelayer"
       | "autonolas"
-      | "autonolasPriority"
       | "connext"
       | "delay"
       | "execute"
@@ -157,7 +153,6 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "gelatoRelayer"
       | "keep3r"
       | "owner"
-      | "priorityKeepers"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -167,7 +162,6 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "renounced"
       | "send"
       | "setAutonolas"
-      | "setAutonolasPriority"
       | "setConnext"
       | "setFeeCollector"
       | "setGelatoRelayer"
@@ -190,10 +184,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "autonolas", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "autonolasPriority",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "connext", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -210,10 +200,6 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "priorityKeepers",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -255,10 +241,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAutonolasPriority",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setConnext",
     values: [PromiseOrValue<string>]
   ): string;
@@ -294,10 +276,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "autonolas", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "autonolasPriority",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -311,10 +289,6 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "priorityKeepers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -342,10 +316,6 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "setAutonolas",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAutonolasPriority",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setConnext", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setFeeCollector",
@@ -368,7 +338,6 @@ export interface RelayerProxyInterface extends utils.Interface {
 
   events: {
     "AutonolasChanged(address,address)": EventFragment;
-    "AutonolasPriorityChanged(uint8,uint8)": EventFragment;
     "ConnextChanged(address,address)": EventFragment;
     "FeeCollectorChanged(address,address)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
@@ -383,7 +352,6 @@ export interface RelayerProxyInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "AutonolasChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AutonolasPriorityChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnextChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
@@ -408,18 +376,6 @@ export type AutonolasChangedEvent = TypedEvent<
 
 export type AutonolasChangedEventFilter =
   TypedEventFilter<AutonolasChangedEvent>;
-
-export interface AutonolasPriorityChangedEventObject {
-  updated: number;
-  previous: number;
-}
-export type AutonolasPriorityChangedEvent = TypedEvent<
-  [number, number],
-  AutonolasPriorityChangedEventObject
->;
-
-export type AutonolasPriorityChangedEventFilter =
-  TypedEventFilter<AutonolasPriorityChangedEvent>;
 
 export interface ConnextChangedEventObject {
   updated: string;
@@ -584,8 +540,6 @@ export interface RelayerProxy extends BaseContract {
 
     autonolas(overrides?: CallOverrides): Promise<[string]>;
 
-    autonolasPriority(overrides?: CallOverrides): Promise<[number]>;
-
     connext(overrides?: CallOverrides): Promise<[string]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -603,11 +557,6 @@ export interface RelayerProxy extends BaseContract {
     keep3r(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    priorityKeepers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -647,11 +596,6 @@ export interface RelayerProxy extends BaseContract {
 
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAutonolasPriority(
-      _autonolasPriority: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -703,8 +647,6 @@ export interface RelayerProxy extends BaseContract {
 
   autonolas(overrides?: CallOverrides): Promise<string>;
 
-  autonolasPriority(overrides?: CallOverrides): Promise<number>;
-
   connext(overrides?: CallOverrides): Promise<string>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -722,11 +664,6 @@ export interface RelayerProxy extends BaseContract {
   keep3r(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
-
-  priorityKeepers(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -766,11 +703,6 @@ export interface RelayerProxy extends BaseContract {
 
   setAutonolas(
     _autonolas: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAutonolasPriority(
-    _autonolasPriority: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -820,8 +752,6 @@ export interface RelayerProxy extends BaseContract {
 
     autonolas(overrides?: CallOverrides): Promise<string>;
 
-    autonolasPriority(overrides?: CallOverrides): Promise<number>;
-
     connext(overrides?: CallOverrides): Promise<string>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -839,11 +769,6 @@ export interface RelayerProxy extends BaseContract {
     keep3r(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
-
-    priorityKeepers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -881,11 +806,6 @@ export interface RelayerProxy extends BaseContract {
 
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAutonolasPriority(
-      _autonolasPriority: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -928,15 +848,6 @@ export interface RelayerProxy extends BaseContract {
       updated?: null,
       previous?: null
     ): AutonolasChangedEventFilter;
-
-    "AutonolasPriorityChanged(uint8,uint8)"(
-      updated?: null,
-      previous?: null
-    ): AutonolasPriorityChangedEventFilter;
-    AutonolasPriorityChanged(
-      updated?: null,
-      previous?: null
-    ): AutonolasPriorityChangedEventFilter;
 
     "ConnextChanged(address,address)"(
       updated?: null,
@@ -1029,8 +940,6 @@ export interface RelayerProxy extends BaseContract {
 
     autonolas(overrides?: CallOverrides): Promise<BigNumber>;
 
-    autonolasPriority(overrides?: CallOverrides): Promise<BigNumber>;
-
     connext(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1048,11 +957,6 @@ export interface RelayerProxy extends BaseContract {
     keep3r(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    priorityKeepers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -1092,11 +996,6 @@ export interface RelayerProxy extends BaseContract {
 
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAutonolasPriority(
-      _autonolasPriority: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1149,8 +1048,6 @@ export interface RelayerProxy extends BaseContract {
 
     autonolas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    autonolasPriority(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     connext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1168,11 +1065,6 @@ export interface RelayerProxy extends BaseContract {
     keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    priorityKeepers(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -1212,11 +1104,6 @@ export interface RelayerProxy extends BaseContract {
 
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAutonolasPriority(
-      _autonolasPriority: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

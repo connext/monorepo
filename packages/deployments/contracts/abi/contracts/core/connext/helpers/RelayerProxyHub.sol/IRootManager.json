@@ -1,5 +1,7 @@
 [
   "function dequeue() returns (bytes32, uint256)",
+  "function finalizeAndPropagate(address[] _connectors, uint256[] _fees, bytes[] _encodedData, bytes32 _proposedAggregateRoot, uint256 _endOfDispute) payable",
   "function lastPropagatedRoot() view returns (bytes32)",
-  "function propagate(address[] _connectors, uint256[] _fees, bytes[] _encodedData) payable"
+  "function propagate(address[] _connectors, uint256[] _fees, bytes[] _encodedData) payable",
+  "function proposeAggregateRoot(uint256 _snapshotId, bytes32 _aggregateRoot, bytes32[] _snapshotsRoots, uint32[] _domains)"
 ]

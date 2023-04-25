@@ -134,7 +134,7 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     _encodedData,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
     proposal,
     _fees,
     _encodedData,

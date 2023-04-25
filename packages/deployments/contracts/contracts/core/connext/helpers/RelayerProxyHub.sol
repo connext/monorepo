@@ -17,6 +17,21 @@ interface IRootManager {
     bytes[] memory _encodedData
   ) external payable;
 
+  function proposeAggregateRoot(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains
+  ) external;
+
+  function finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external payable;
+
   function dequeue() external returns (bytes32, uint256);
 }
 
@@ -139,8 +154,22 @@ contract RelayerProxyHub is RelayerProxy {
 
   IRootManager public rootManager;
   uint256 public propagateCooldown;
+  uint256 public proposeAggregateRootCooldown;
   // Timestamp of the last time the job was worked.
   uint256 public lastPropagateAt;
+  uint256 public lastProposeAggregateRootAt;
+
+  enum AutonolasPriorityFunction {
+    Propagate,
+    ProcessFromRoot,
+    ProposeAggregateRoot,
+    FinalizeAndPropagate
+  }
+
+  // number between 0 and 10 to determine priority that Autonolas has for jobs
+  // 0 is disabled, 10 will work for every block
+  mapping(AutonolasPriorityFunction => uint8) public autonolasPriority;
+
   mapping(uint32 => mapping(bytes32 => bool)) public processedRootMessages;
   mapping(uint32 => address) public hubConnectors;
 
@@ -148,11 +177,35 @@ contract RelayerProxyHub is RelayerProxy {
   event RootManagerChanged(address rootManager, address oldRootManager);
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
+  /**
+   * @notice Emitted when Autonolas priority is updated by admin
+   * @param updated New Autonolas priority in the contract
+   * @param previous Old Autonolas priority in the contract
+   */
+  event AutonolasPriorityChanged(AutonolasPriorityFunction fn, uint8 updated, uint8 previous);
 
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
+
+  // ============ Modifiers ============
+  /**
+   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
+   * For example, if priority is 3, then sender will not be able to work on blocks 0, 1, 2, unless they are Autonolas.
+   * Priority 0 disables Autonolas priority completely."
+   * @param _sender The address of the caller
+   */
+  modifier isWorkableBySender(AutonolasPriorityFunction _function, address _sender) {
+    if (
+      _sender != autonolas && autonolasPriority[_function] != 0 && block.number % 10 <= autonolasPriority[_function] - 1
+    ) {
+      revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
+    }
+    _;
+  }
 
   // ============ Constructor ============
 
@@ -210,6 +263,14 @@ contract RelayerProxyHub is RelayerProxy {
     _setHubConnector(_hubConnector, _chain);
   }
 
+  /**
+   * @notice Updates the Autonolas priority on this contract.
+   * @param _autonolasPriority - New Autonolas priority.
+   */
+  function setAutonolasPriority(AutonolasPriorityFunction _function, uint8 _autonolasPriority) external onlyOwner {
+    _setAutonolasPriority(_function, _autonolasPriority);
+  }
+
   // ============ External Functions ============
 
   /**
@@ -258,7 +319,12 @@ contract RelayerProxyHub is RelayerProxy {
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
-  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
+  )
+    external
+    isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
+    validateAndPayWithCredits(msg.sender)
+    nonReentrant
+  {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
@@ -278,8 +344,50 @@ contract RelayerProxyHub is RelayerProxy {
     bytes calldata _encodedData,
     uint32 _fromChain,
     bytes32 _l2Hash
-  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) {
+  )
+    external
+    isWorkableBySender(AutonolasPriorityFunction.ProcessFromRoot, msg.sender)
+    validateAndPayWithCredits(msg.sender)
+  {
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
+  }
+
+  function proposeAggregateRootKeep3r(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains
+  )
+    external
+    isWorkableBySender(AutonolasPriorityFunction.ProposeAggregateRoot, msg.sender)
+    validateAndPayWithCredits(msg.sender)
+  {
+    if (!_proposeAggregateRootCooledDown()) {
+      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
+        block.timestamp,
+        lastProposeAggregateRootAt + proposeAggregateRootCooldown
+      );
+    }
+    rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+  }
+
+  function finalizeAndPropagateKeep3r(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  )
+    external
+    isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
+    validateAndPayWithCredits(msg.sender)
+    nonReentrant
+  {
+    if (!_propagateCooledDown()) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
+    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+    lastPropagateAt = block.timestamp;
   }
 
   // ============ Internal Functions ============
@@ -298,8 +406,18 @@ contract RelayerProxyHub is RelayerProxy {
     hubConnectors[chain] = _hubConnector;
   }
 
+  function _setAutonolasPriority(AutonolasPriorityFunction _function, uint8 _autonolasPriority) internal {
+    uint8 _priority = autonolasPriority[_function];
+    emit AutonolasPriorityChanged(_function, _autonolasPriority, _priority);
+    autonolasPriority[_function] = _autonolasPriority;
+  }
+
   function _propagateCooledDown() internal view returns (bool) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
+  }
+
+  function _proposeAggregateRootCooledDown() internal view returns (bool) {
+    return block.timestamp > (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
   }
 
   /**
@@ -320,6 +438,32 @@ contract RelayerProxyHub is RelayerProxy {
     }
 
     rootManager.propagate{value: sum}(_connectors, _messageFees, _encodedData);
+    return sum;
+  }
+
+  function _finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) internal returns (uint256) {
+    uint256 sum = 0;
+    uint256 length = _connectors.length;
+    for (uint32 i; i < length; ) {
+      sum += _fees[i];
+      unchecked {
+        ++i;
+      }
+    }
+
+    rootManager.finalizeAndPropagate{value: sum}(
+      _connectors,
+      _fees,
+      _encodedData,
+      _proposedAggregateRoot,
+      _endOfDispute
+    );
     return sum;
   }
 

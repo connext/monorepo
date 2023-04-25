@@ -57,6 +57,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "getLastCompletedSnapshotId()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -88,6 +89,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
+    "snapshotRoots(uint256)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
     "watcherManager()": FunctionFragment;
@@ -109,6 +111,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "getLastCompletedSnapshotId"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -140,6 +143,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
+      | "snapshotRoots"
       | "unpause"
       | "verifySender"
       | "watcherManager"
@@ -189,6 +193,10 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLastCompletedSnapshotId",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
@@ -305,6 +313,10 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "snapshotRoots",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -353,6 +365,10 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLastCompletedSnapshotId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -447,6 +463,10 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setWatcherManager",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "snapshotRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
@@ -480,6 +500,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "SnapshotRootSaved(uint256,bytes32,uint256)": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
@@ -502,6 +523,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SnapshotRootSaved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
@@ -705,6 +727,19 @@ export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
 
+export interface SnapshotRootSavedEventObject {
+  snapshotId: BigNumber;
+  root: string;
+  count: BigNumber;
+}
+export type SnapshotRootSavedEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  SnapshotRootSavedEventObject
+>;
+
+export type SnapshotRootSavedEventFilter =
+  TypedEventFilter<SnapshotRootSavedEvent>;
+
 export interface UnpausedEventObject {
   account: string;
 }
@@ -788,6 +823,10 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
@@ -914,6 +953,11 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -969,6 +1013,8 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     _messageBody: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
@@ -1095,6 +1141,11 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  snapshotRoots(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1148,6 +1199,8 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1269,6 +1322,11 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       _watcherManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
@@ -1427,6 +1485,17 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
     SenderRemoved(sender?: null): SenderRemovedEventFilter;
 
+    "SnapshotRootSaved(uint256,bytes32,uint256)"(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+    SnapshotRootSaved(
+      snapshotId?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
+      count?: PromiseOrValue<BigNumberish> | null
+    ): SnapshotRootSavedEventFilter;
+
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
 
@@ -1477,6 +1546,8 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1603,6 +1674,11 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1658,6 +1734,10 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1783,6 +1863,11 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     unpause(
