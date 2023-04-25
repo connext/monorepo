@@ -11,6 +11,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "9991", /// MUMBAI
     "2053862260", /// ZKSYNC-TEST
     "1668247156", /// CONSENSYS-ZKEVM-TEST
+    "1887071092", /// POLYGON-ZKEVM-TEST
   ],
   assets: [
     {
@@ -44,6 +45,11 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xB706319D37b945727E71ae0d4353699d19112576",
           adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
         },
+        /// POLYGON-ZKEVM-TEST
+        "1887071092": {
+          local: "0x5f921E4DE609472632CEFc72a3846eCcfbed4ed8",
+          adopted: "0x5f921E4DE609472632CEFc72a3846eCcfbed4ed8",
+        },
       },
     },
     {
@@ -75,6 +81,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1668247156": {
           local: "0xB706319D37b945727E71ae0d4353699d19112576",
           adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
+        },
+        /// POLYGON-ZKEVM-TEST
+        "1887071092": {
+          adopted: "0xeE589e91401066068AF129B0005aC3EF69E3fdB4",
         },
       },
     },
@@ -109,6 +119,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1668247156": {
           adopted: "0x0000000000000000000000000000000000000000",
         },
+        /// POLYGON-ZKEVM-TEST
+        "1887071092": {
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
       },
     },
   ],
@@ -130,8 +144,9 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92",
-        "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934",
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
+        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato
+        "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934", // connext relayer
         "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
         "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
         "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",

@@ -1,0 +1,5 @@
+[
+  "function dequeue() returns (bytes32, uint256)",
+  "function lastPropagatedRoot() view returns (bytes32)",
+  "function propagate(address[] _connectors, uint256[] _fees, bytes[] _encodedData) payable"
+]

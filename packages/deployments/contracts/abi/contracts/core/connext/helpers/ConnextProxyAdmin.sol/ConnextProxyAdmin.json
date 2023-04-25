@@ -1,12 +1,12 @@
 [
-  "constructor(address)",
-  "event OwnershipTransferred(address indexed,address indexed)",
-  "function changeProxyAdmin(address,address)",
-  "function getProxyAdmin(address) view returns (address)",
-  "function getProxyImplementation(address) view returns (address)",
+  "constructor(address owner)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+  "function changeProxyAdmin(address proxy, address newAdmin)",
+  "function getProxyAdmin(address proxy) view returns (address)",
+  "function getProxyImplementation(address proxy) view returns (address)",
   "function owner() view returns (address)",
   "function renounceOwnership()",
-  "function transferOwnership(address)",
-  "function upgrade(address,address)",
-  "function upgradeAndCall(address,address,bytes) payable"
+  "function transferOwnership(address newOwner)",
+  "function upgrade(address proxy, address implementation)",
+  "function upgradeAndCall(address proxy, address implementation, bytes data) payable"
 ]

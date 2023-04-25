@@ -1,4 +1,4 @@
 [
-  "function transfer(address,uint256) returns (bool)",
-  "function withdraw(uint256)"
+  "function transfer(address dst, uint256 wad) returns (bool)",
+  "function withdraw(uint256 wad)"
 ]

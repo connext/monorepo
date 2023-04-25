@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.1",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@maticnetwork/maticjs": "3.6.0-beta.6",
+    "@maticnetwork/maticjs": "3.6.0-beta.11",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.21",
     "ajv": "8.12.0",

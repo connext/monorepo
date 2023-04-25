@@ -9,6 +9,14 @@ import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProx
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
 
+const KEEP3R_ADDRESSES: Record<number, string> = {
+  1: "0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC",
+  5: "0x85063437C02Ba7F4f82F898859e4992380DEd3bb",
+};
+
+const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
+const AUTONOLAS_PRIORITY = 0;
+
 /**
  * Hardhat task defining the contract deployments for Connext
  *
@@ -158,6 +166,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
+  // const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
@@ -168,13 +177,36 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     getDeploymentName(getConnectorName(protocol, +chainId), undefined, protocol.configs[Number(chainId)].networkName),
   );
 
+  const { configs } = protocol;
+
   if (protocol.hub === network.chainId) {
+    const chains = [];
+    const hubConnectors = [];
+    for (const spokeChain of Object.keys(configs)) {
+      const contract = getConnectorName(protocol, +spokeChain, protocol.hub);
+      const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
+      const hubConnector = await hre.ethers.getContract(deploymentName);
+      chains.push(+spokeChain);
+      hubConnectors.push(hubConnector.address);
+    }
     const rootManager = await hre.ethers.getContract(getDeploymentName("RootManager"));
     const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
       from: deployer.address,
       log: true,
       contract: "RelayerProxyHub",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector, rootManager.address],
+      args: [
+        connextAddress,
+        spokeConnector.address,
+        gelatoRelayer,
+        feeCollector,
+        rootManager.address,
+        KEEP3R_ADDRESSES[network.chainId],
+        constants.AddressZero,
+        AUTONOLAS_PRIORITY,
+        PROPAGATE_COOLDOWN,
+        hubConnectors,
+        chains,
+      ],
     });
 
     console.log("relayerProxyHub: ", relayerProxyHub.address);
@@ -225,4 +257,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-func.dependencies = ["Messaging", "Facets"];
+// func.dependencies = ["Messaging", "Facets"];

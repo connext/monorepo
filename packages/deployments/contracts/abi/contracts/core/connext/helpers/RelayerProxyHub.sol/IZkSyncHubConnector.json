@@ -1,0 +1,3 @@
+[
+  "function processMessageFromRoot(uint32 _l2BlockNumber, uint256 _l2MessageIndex, uint16 _l2TxNumberInBlock, bytes _message, bytes32[] _proof)"
+]

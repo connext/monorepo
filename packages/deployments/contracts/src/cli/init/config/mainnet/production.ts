@@ -12,7 +12,71 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "6450786", // BNB
     "6778479", // GNOSIS
   ],
+  // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
+  // ON THE NAME GIVEN IN EACH ASSET ENTRY
   assets: [
+    {
+      name: "USDT",
+      canonical: {
+        domain: "6648936",
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        decimals: 6,
+        cap: utils.parseUnits("10000000", 6).toString(),
+      },
+      representations: {
+        "1869640809": {
+          local: "0x4cbb28fa12264cd8e87c62f4e1d9f5955ce67d20",
+          adopted: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        },
+        "1886350457": {
+          local: "0xe221c5a2a8348f12dcb2b0e88693522ebad2690f",
+          adopted: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        },
+        "1634886255": {
+          local: "0x2fd7e61033b3904c65aa9a9b83dcd344fa19ffd2",
+          adopted: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        },
+        "6450786": {
+          local: "0xd609f26b5547d5e31562b29150769cb7c774b97a",
+          adopted: "0x55d398326f99059fF775485246999027B3197955",
+        },
+        "6778479": {
+          local: "0xf4d944883d6fddc56d3534986fef82105cadbfa1",
+          adopted: "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+        },
+      },
+    },
+    {
+      name: "DAI",
+      canonical: {
+        domain: "6648936",
+        address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        "1869640809": {
+          local: "0xd64bd028b560bbfc732ea18f282c64b86f3468e0",
+          adopted: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        },
+        "1886350457": {
+          local: "0xadce87b14d570665222c1172d18a221bf7690d5a",
+          adopted: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+        },
+        "1634886255": {
+          local: "0xfde99b3b3fbb69553d7dae105ef34ba4fe971190",
+          adopted: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        },
+        "6450786": {
+          local: "0x86a343bcf17d79c475d300eed35f0145f137d0c9",
+          adopted: "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3",
+        },
+        "6778479": {
+          local: "0x0e1d5bcd2ac5cf2f71841a9667afc1e995caaf4f",
+          adopted: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+        },
+      },
+    },
     {
       name: "USDC",
       canonical: {
@@ -154,6 +218,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
+        "0xEca085906cb531bdf1F87eFA85c5bE46aA5C9d2c", // BlockTech 2
+        "0x22831e4f21ce65b33ef45df0e212b5bebf130e5a", // BlockTech 1
         "0xbe7bc00382a50a711d037eaecad799bb8805dfa8", // Minerva
         "0x63Cda9C42db542bb91a7175E38673cFb00D402b0", // Consensys Mesh
         "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c", // Connext
@@ -175,6 +241,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
         "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
         "0x43100a190c3feae37cb1f5d880e8fa8d81be5cb9", // gelato arbitrum

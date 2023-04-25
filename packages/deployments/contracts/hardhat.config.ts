@@ -55,6 +55,7 @@ import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
+import "./tasks/connector/claimPolygonZk";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
@@ -190,7 +191,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     spacing: 2,
-    pretty: true,
+    format: "fullName",
   },
 };
 

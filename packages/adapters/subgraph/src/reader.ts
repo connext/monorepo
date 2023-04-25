@@ -45,7 +45,7 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByNonceQuery,
+  getDestinationTransfersByExecutedTimestampQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
@@ -57,6 +57,7 @@ import {
 import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
+  getAssetsQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
@@ -254,6 +255,19 @@ export class SubgraphReader {
     return !!router?.id;
   }
 
+  public async getAssets(domain: string): Promise<Asset[]> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain);
+
+    const query = getAssetsQuery(prefix);
+    const response = await execute(query);
+    const assets: Asset[] = [...response.values()]
+      .map((v) => v.flat())
+      .flat()
+      .filter((v) => !!v.status);
+    return assets.map((asset) => ({ ...asset, domain }));
+  }
+
   /**
    * Gets the asset by the local address on the specific domain
    * @param domain - The domain you're going to get the asset on
@@ -419,11 +433,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByNonce(
-    params: Map<string, SubgraphQueryMetaParams>,
+  public async getDestinationTransfersByExecutedTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByNonceQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];

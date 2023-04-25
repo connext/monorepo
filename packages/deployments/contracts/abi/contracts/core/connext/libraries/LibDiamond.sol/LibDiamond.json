@@ -1,6 +1,6 @@
 [
-  "event DiamondCut(tuple(address,uint8,bytes4[])[],address,bytes)",
-  "event DiamondCutProposed(tuple(address,uint8,bytes4[])[],address,bytes,uint256)",
-  "event DiamondCutRescinded(tuple(address,uint8,bytes4[])[],address,bytes)",
-  "event OwnershipTransferred(address indexed,address indexed)"
+  "event DiamondCut(tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut, address _init, bytes _calldata)",
+  "event DiamondCutProposed(tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut, address _init, bytes _calldata, uint256 deadline)",
+  "event DiamondCutRescinded(tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut, address _init, bytes _calldata)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
 ]

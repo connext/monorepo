@@ -1,8 +1,8 @@
 [
-  "error TypedMemView__assertType_typeAssertionFailed(uint256,uint256)",
+  "error TypedMemView__assertType_typeAssertionFailed(uint256 actual, uint256 expected)",
   "error TypedMemView__assertValid_validityAssertionFailed()",
   "error TypedMemView__index_indexMoreThan32Bytes()",
-  "error TypedMemView__index_overrun(uint256,uint256,uint256,uint256)",
+  "error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice)",
   "error TypedMemView__unsafeCopyTo_identityOOG()",
   "error TypedMemView__unsafeCopyTo_invalidPointer()",
   "error TypedMemView__unsafeCopyTo_nullPointer()",

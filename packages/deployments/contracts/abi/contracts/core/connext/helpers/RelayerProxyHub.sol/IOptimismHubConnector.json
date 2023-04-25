@@ -1,0 +1,3 @@
+[
+  "function processMessageFromRoot(address _target, address _sender, bytes _message, uint256 _messageNonce, tuple(bytes32 stateRoot, tuple(uint256 batchIndex, bytes32 batchRoot, uint256 batchSize, uint256 prevTotalElements, bytes extraData) stateRootBatchHeader, tuple(uint256 index, bytes32[] siblings) stateRootProof, bytes stateTrieWitness, bytes storageTrieWitness) _proof)"
+]

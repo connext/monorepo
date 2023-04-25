@@ -16,6 +16,8 @@ export const TService = Type.Union([
   Type.Literal("routers"),
   Type.Literal("messages"),
   Type.Literal("stableswap"),
+  Type.Literal("messagestatus"),
+  Type.Literal("prices"),
 ]);
 
 export const Cartographer = Type.Object({
@@ -33,6 +35,8 @@ export const Cartographer = Type.Object({
       routers: Type.String({ format: "uri" }),
       transfers: Type.String({ format: "uri" }),
       stableswap: Type.String({ format: "uri" }),
+      messagestatus: Type.String({ format: "uri" }),
+      prices: Type.String({ format: "uri" }),
     }),
   ),
 });

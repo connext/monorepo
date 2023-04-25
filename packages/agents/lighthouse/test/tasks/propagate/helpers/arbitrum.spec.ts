@@ -5,7 +5,7 @@ import { BigNumber, constants, providers } from "ethers";
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import * as Mockable from "../../../../src/mockable";
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/arbitrum";
-import { getBestProviderMock, getInterfaceMock, propagateCtxMock } from "../../../globalTestHook";
+import { getInterfaceMock, propagateCtxMock, getBestProviderMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
 

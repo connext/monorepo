@@ -2,7 +2,15 @@ import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
 import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
-import { AssetBalance, RouterBalance, XTransfer, XTransferErrorStatus, XTransferStatus } from "./xtransfers";
+import {
+  Asset,
+  AssetBalance,
+  RouterBalance,
+  XTransfer,
+  XTransferErrorStatus,
+  XTransferMessageStatus,
+  XTransferStatus,
+} from "./xtransfers";
 
 export const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
@@ -129,6 +137,9 @@ export const transfersCastForUrlFallback =
     "reconcile_tx_origin",
     "relayer_fee",
     "error_status",
+    "message_status",
+    "message_hash",
+    "execute_simulation",
     "execute_simulation_input",
     "execute_simulation_from",
     "execute_simulation_to",
@@ -164,6 +175,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           messageHash: transfer.message_hash,
           relayerFees: transfer.relayer_fees ?? {},
           errorStatus: (transfer.error_status as XTransferErrorStatus) ?? undefined,
+          messageStatus: (transfer.message_status as XTransferMessageStatus) ?? XTransferMessageStatus.XCalled,
           assets: {
             transacting: {
               amount: BigNumber.from(transfer.origin_transacting_amount ?? "0").toString(),
@@ -223,6 +235,25 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
           },
         }
       : undefined,
+  };
+};
+
+/**
+ * Converts asset from the cartographer db through either DB queries or Postgrest into the Asset type
+ * @param asset - the asset from the cartographer db as a JSON object
+ * @returns an Asset object
+ */
+export const convertFromDbAsset = (asset: any): Asset => {
+  return {
+    key: asset.key,
+    id: asset.id,
+    decimal: asset.decimal,
+    localAsset: asset.local,
+    adoptedAsset: asset.adopted,
+    canonicalId: asset.canonical_id,
+    canonicalDomain: asset.canonical_domain,
+    domain: asset.domain,
+    blockNumber: asset.block_number,
   };
 };
 

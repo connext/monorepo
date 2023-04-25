@@ -35,6 +35,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "80001": ProtocolNetwork.TESTNET,
   "97": ProtocolNetwork.TESTNET,
   "421613": ProtocolNetwork.TESTNET,
+  "1442": ProtocolNetwork.TESTNET,
   "280": ProtocolNetwork.TESTNET,
   "59140": ProtocolNetwork.TESTNET,
 
@@ -206,7 +207,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
   return deployments;
 };
 
-export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpcProvider => {
+export const getProviderUrlFromHardhatConfig = (chainId: number): string => {
   // Get the provider address from the hardhat config on given chain
   const url = (
     Object.entries(hardhatNetworks).find(
@@ -216,7 +217,11 @@ export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpc
   if (!url) {
     throw new Error(`No provider url found for ${chainId}`);
   }
-  return new providers.JsonRpcProvider(url as string, chainId);
+  return url;
+};
+
+export const getProviderFromHardhatConfig = (chainId: number): providers.JsonRpcProvider => {
+  return new providers.JsonRpcProvider(getProviderUrlFromHardhatConfig(chainId), chainId);
 };
 
 export const executeOnAllConnectors = async <T = any>(
