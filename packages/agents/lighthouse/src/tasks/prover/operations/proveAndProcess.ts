@@ -87,7 +87,14 @@ export const proveAndProcess = async () => {
                     "Getting unprocessed messages for origin and destination pair",
                     requestContext,
                     methodContext,
-                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+
+                    {
+                      batchSize: config.proverBatchSize,
+                      offset,
+                      originDomain,
+                      destinationDomain,
+                      index: latestMessageRoot.count,
+                    },
                   );
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,

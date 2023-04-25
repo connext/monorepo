@@ -27,10 +27,27 @@ The router is an automated actor that is in charge of providing liquidity and fa
 
 Run all commands from the root directory.
 
-- Run the router in hot-reload mode.
+- Create a `config.json` file in router directory and paste the content of `config.json.example` using the valid mnemonic.
+  If you are in macOS or Linux, You can use `cp packages/agents/router/config.json.example packages/agents/router/config.json` and paste the suitable mnemonic in the newly created config file (One given in example also runs perfect!)
+
+Example:
+
+```json
+{
+  "logLevel": "debug",
+  "sequencerUrl": "http://localhost:8001",
+  "server": {
+    "adminToken": "blahblah"
+  },
+  "chains": {},
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+}
+```
+
+- Run the router using following command.
 
 ```sh
-yarn workspace @connext/nxtp-router dev
+yarn workspace @connext/nxtp-router start:all
 ```
 
 ### Generating Subgraph Client

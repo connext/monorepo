@@ -446,15 +446,21 @@ CREATE VIEW public.transfers_with_price AS
     t.error_message,
     t.message_status,
     t.relayer_fees,
-    COALESCE(p.price, (0)::numeric) AS asset_usd_price
+    p.asset_usd_price,
+    p.decimals,
+    (p.asset_usd_price * ((t.bridged_amt)::numeric / ((10)::numeric ^ p.decimals))) AS usd_amount
    FROM (public.transfers t
      LEFT JOIN ( SELECT t_1.transfer_id,
             t_1.xcall_timestamp,
-            p_1.price
+            COALESCE(p_1.price, (0)::numeric) AS asset_usd_price,
+            ( SELECT a."decimal"
+                   FROM public.assets a
+                  WHERE (a.canonical_id = t_1.canonical_id)
+                 LIMIT 1) AS decimals
            FROM (public.transfers t_1
-             JOIN public.asset_prices p_1 ON ((p_1."timestamp" = ( SELECT max(asset_prices."timestamp") AS max
+             LEFT JOIN public.asset_prices p_1 ON (((p_1.canonical_id = t_1.canonical_id) AND (p_1."timestamp" = ( SELECT max(asset_prices."timestamp") AS max
                    FROM public.asset_prices
-                  WHERE ((asset_prices.canonical_id = t_1.canonical_id) AND (asset_prices."timestamp" <= t_1.xcall_timestamp))))))) p ON ((t.transfer_id = p.transfer_id)));
+                  WHERE ((asset_prices.canonical_id = t_1.canonical_id) AND (asset_prices."timestamp" <= t_1.xcall_timestamp)))))))) p ON ((t.transfer_id = p.transfer_id)));
 
 
 --
@@ -469,7 +475,8 @@ CREATE VIEW public.daily_transfer_volume AS
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
-    avg(tf.asset_usd_price) AS avg_price
+    avg(tf.asset_usd_price) AS avg_price,
+    sum(tf.usd_amount) AS usd_volume
    FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
@@ -565,7 +572,8 @@ CREATE VIEW public.hourly_transfer_volume AS
     regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
-    avg(tf.asset_usd_price) AS avg_price
+    avg(tf.asset_usd_price) AS avg_price,
+    sum(tf.usd_amount) AS usd_volume
    FROM public.transfers_with_price tf
   GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
 
@@ -676,7 +684,12 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.supplied,
     asset_balances.removed,
     assets."decimal",
-    COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price
+    COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price,
+    (asset_prices.price * (asset_balances.balance / ((10)::numeric ^ assets."decimal"))) AS balance_usd,
+    (asset_prices.price * (asset_balances.fees_earned / ((10)::numeric ^ assets."decimal"))) AS fee_earned_usd,
+    (asset_prices.price * (asset_balances.locked / ((10)::numeric ^ assets."decimal"))) AS locked_usd,
+    (asset_prices.price * (asset_balances.supplied / ((10)::numeric ^ assets."decimal"))) AS supplied_usd,
+    (asset_prices.price * (asset_balances.removed / ((10)::numeric ^ assets."decimal"))) AS removed_usd
    FROM (((public.routers
      LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
      LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))))
@@ -696,7 +709,11 @@ CREATE VIEW public.router_liquidity AS
     sum(r.locked) AS total_locked,
     sum(r.supplied) AS total_supplied,
     sum(r.removed) AS total_removed,
-    avg(r.asset_usd_price) AS avg_usd_price
+    avg(r.asset_usd_price) AS avg_usd_price,
+    sum((r.asset_usd_price * (r.balance / ((10)::numeric ^ r."decimal")))) AS total_balance_usd,
+    sum((r.asset_usd_price * (r.locked / ((10)::numeric ^ r."decimal")))) AS total_locked_usd,
+    sum((r.asset_usd_price * (r.supplied / ((10)::numeric ^ r."decimal")))) AS total_supplied_usd,
+    sum((r.asset_usd_price * (r.removed / ((10)::numeric ^ r."decimal")))) AS total_removed_usd
    FROM public.routers_with_balances r
   GROUP BY r.domain, r.local, r.adopted
   ORDER BY r.domain;
@@ -710,10 +727,12 @@ CREATE VIEW public.router_tvl AS
  SELECT latest_transfer.latest_transfer_day,
     router_tvl.asset,
     router_tvl.tvl,
-    router_tvl.price
+    router_tvl.price,
+    router_tvl.tvl_usd
    FROM (( SELECT rb.local AS asset,
             sum(rb.balance) AS tvl,
-            avg(rb.asset_usd_price) AS price
+            avg(rb.asset_usd_price) AS price,
+            sum((rb.asset_usd_price * (rb.balance / ((10)::numeric ^ rb."decimal")))) AS tvl_usd
            FROM public.routers_with_balances rb
           GROUP BY rb.local) router_tvl
      CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
@@ -838,7 +857,8 @@ CREATE VIEW public.transfer_volume AS
     tf.origin_domain AS origin_chain,
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
-    avg(tf.asset_usd_price) AS avg_price
+    avg(tf.asset_usd_price) AS avg_price,
+    sum(tf.usd_amount) AS usd_volume
    FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
 
@@ -1345,4 +1365,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230412003613'),
     ('20230412084403'),
     ('20230412090505'),
-    ('20230414101408');
+    ('20230414101408'),
+    ('20230420031450'),
+    ('20230420035031');

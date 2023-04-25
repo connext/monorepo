@@ -25,6 +25,12 @@ const getMaxTimestamp = (entities: RelayerFeesIncrease[] | SlippageUpdate[]): nu
   return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => (entity?.timestamp as number) ?? 0));
 };
 
+const getMaxExecutedTimestamp = (transfers: XTransfer[]): number => {
+  return transfers.length == 0
+    ? 0
+    : Math.max(...transfers.map((transfer) => transfer.destination?.execute?.timestamp ?? 0));
+};
+
 export const updateTransfers = async () => {
   const {
     adapters: { subgraph, database },
@@ -34,7 +40,7 @@ export const updateTransfers = async () => {
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
 
   const subgraphOriginQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
-  const subgraphDestinationQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
+  const subgraphDestinationQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const subgraphOriginPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
   const subgraphDestinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
@@ -66,11 +72,11 @@ export const updateTransfers = async () => {
       });
 
       // Retrieve the most recent destination transfers we've saved for this domain.
-      const latestDestinationNonce = await database.getCheckPoint("destination_nonce_" + domain);
+      const executedTimestamp = await database.getCheckPoint("destination_execute_timestamp_" + domain);
 
       subgraphDestinationQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber,
-        latestNonce: latestDestinationNonce == 0 ? latestDestinationNonce : latestDestinationNonce + 1,
+        fromTimestamp: executedTimestamp,
         orderDirection: "asc",
       });
 
@@ -122,8 +128,8 @@ export const updateTransfers = async () => {
 
   if (subgraphDestinationQueryMetaParams.size > 0) {
     // Get destination transfers for all domains in the mapping.
-    const transfers = await subgraph.getDestinationTransfersByNonce(subgraphDestinationQueryMetaParams);
-    logger.info("Retrieved destination transfers by nonce", requestContext, methodContext, {
+    const transfers = await subgraph.getDestinationTransfersByExecutedTimestamp(subgraphDestinationQueryMetaParams);
+    logger.info("Retrieved destination transfers by executed timestamp", requestContext, methodContext, {
       transfers: transfers,
       count: transfers.length,
     });
@@ -131,8 +137,8 @@ export const updateTransfers = async () => {
     const checkpoints = domains
       .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.destinationDomain === domain);
-        const max = getMaxNonce(domainTransfers);
-        const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
+        const max = getMaxExecutedTimestamp(domainTransfers as XTransfer[]);
+        const latest = subgraphDestinationQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
           return { domain, checkpoint: max };
         }
@@ -142,7 +148,7 @@ export const updateTransfers = async () => {
 
     await database.saveTransfers(transfers as XTransfer[]);
     for (const checkpoint of checkpoints) {
-      await database.saveCheckPoint("destination_nonce_" + checkpoint.domain, checkpoint.checkpoint);
+      await database.saveCheckPoint("destination_execute_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
     }
   }
 

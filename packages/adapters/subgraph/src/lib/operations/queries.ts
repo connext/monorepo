@@ -697,21 +697,23 @@ export const getOriginTransfersByNonceQuery = (agents: Map<string, SubgraphQuery
   `;
 };
 
-const destinationTransferByNonceQueryString = (
+const destinationTransferByExecutedTimestampQueryString = (
   prefix: string,
-  fromNonce: number,
+  fromTimestamp: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      nonce_gte: ${fromNonce},
+      reconciledTimestamp_gte: ${fromTimestamp},
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
-export const getDestinationTransfersByNonceQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+export const getDestinationTransfersByExecutedTimestampQuery = (
+  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
@@ -719,9 +721,9 @@ export const getDestinationTransfersByNonceQuery = (agents: Map<string, Subgraph
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += destinationTransferByNonceQueryString(
+      combinedQuery += destinationTransferByExecutedTimestampQueryString(
         prefix,
-        agents.get(domain)!.latestNonce,
+        agents.get(domain)!.fromTimestamp,
         agents.get(domain)!.orderDirection,
       );
     }
