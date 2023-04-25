@@ -134,12 +134,13 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     _encodedData,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
-    proposal,
-    _fees,
-    _encodedData,
-    fee,
-  ]);
+  // const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
+  //   snapshotId,
+  //   aggregateRoot,
+  //   snapshotRoots,
+  //   orderedDomains,
+  // ]);
+  const encodedDataForRelayer = "DUMMY";
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
