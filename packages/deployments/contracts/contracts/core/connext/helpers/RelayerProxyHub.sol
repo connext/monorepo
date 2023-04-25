@@ -2,38 +2,13 @@
 pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
+import {RootManager} from "../../../messaging/RootManager.sol";
 import {RelayerProxy} from "./RelayerProxy.sol";
-
-interface IRootManager {
-  function lastPropagatedRoot() external view returns (bytes32);
-
-  function propagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) external payable;
-
-  function proposeAggregateRoot(
-    uint256 _snapshotId,
-    bytes32 _aggregateRoot,
-    bytes32[] calldata _snapshotsRoots,
-    uint32[] calldata _domains
-  ) external;
-
-  function finalizeAndPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData,
-    bytes32 _proposedAggregateRoot,
-    uint256 _endOfDispute
-  ) external payable;
-
-  function dequeue() external returns (bytes32, uint256);
-}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -155,7 +130,7 @@ contract RelayerProxyHub is RelayerProxy {
   /**
    * @notice Address of the RootManager contract
    */
-  IRootManager public rootManager;
+  RootManager public rootManager;
 
   /**
    * @notice Delay for the propagate function
@@ -253,6 +228,7 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
 
@@ -432,8 +408,9 @@ contract RelayerProxyHub is RelayerProxy {
 
   /**
    * @notice Wraps the `proposeAggregateRoot` function
-   * @dev This contract will be whitelisted to propose roots, however the relayer network
-   * calling this function must have incentive to propose the correct root.
+   * @dev This contract will validate the signer is a whitelisted proposer on the RootManager,
+   * and then call `propose` itself. This means this contract must *also* be whitelisted as a
+   * proposer on the RootManager.
    * @param _snapshotId The snapshot id of the root to be proposed.
    * @param _aggregateRoot The aggregate root to be proposed.
    * @param _snapshotsRoots The roots of the connectors included in the aggregate.
@@ -443,7 +420,8 @@ contract RelayerProxyHub is RelayerProxy {
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
     bytes32[] calldata _snapshotsRoots,
-    uint32[] calldata _domains
+    uint32[] calldata _domains,
+    bytes memory _signature
   )
     external
     isWorkableBySender(AutonolasPriorityFunction.ProposeAggregateRoot, msg.sender)
@@ -455,6 +433,11 @@ contract RelayerProxyHub is RelayerProxy {
         lastProposeAggregateRootAt + proposeAggregateRootCooldown
       );
     }
+
+    // Validate the signer
+    _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
+
+    // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
   }
 
@@ -488,7 +471,7 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ Internal Functions ============
   function _setRootManager(address _rootManager) internal {
     emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = IRootManager(_rootManager);
+    rootManager = RootManager(_rootManager);
   }
 
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
@@ -517,6 +500,20 @@ contract RelayerProxyHub is RelayerProxy {
 
   function _proposeAggregateRootCooledDown() internal view returns (bool) {
     return block.timestamp > (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
+  }
+
+  function _validateProposeSignature(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes memory _signature
+  ) internal view {
+    // Get the payload
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
+    // Recover signer
+    address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(payload), _signature);
+    if (!rootManager.allowlistedProposers(signer)) {
+      revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
+    }
   }
 
   /**
