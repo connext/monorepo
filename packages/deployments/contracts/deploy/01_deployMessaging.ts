@@ -32,7 +32,7 @@ const formatConnectorArgs = (
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
-  const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
+  const isHub = deploymentChainId === protocol.hub.chain && connectorChainId != protocol.hub.chain;
 
   const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
   const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
@@ -102,12 +102,11 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
-  // TODO: need to make this hardcoded value configurable
-  const delayBlocks = 100;
+  const delay = protocol.configs[protocol.hub.chain].delayBlocks;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
-    args: [delayBlocks, merkleTreeManagerForRoot.address, watcherManager.address],
+    args: [delay, merkleTreeManagerForRoot.address, watcherManager.address, delay / 2, delay],
     skipIfAlreadyDeployed: true,
     log: true,
   });
@@ -137,15 +136,15 @@ const handleDeployHub = async (
   );
 
   // Deploy MainnetSpokeConnector.
-  const connectorName = getConnectorName(protocol, protocol.hub);
+  const connectorName = getConnectorName(protocol, protocol.hub.chain);
   console.log(`Deploying ${connectorName}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(connectorName), {
     contract: connectorName,
     from: deployer.address,
     args: formatConnectorArgs(protocol, {
-      connectorChainId: protocol.hub,
-      deploymentChainId: protocol.hub,
-      mirrorChainId: protocol.hub,
+      connectorChainId: protocol.hub.chain,
+      deploymentChainId: protocol.hub.chain,
+      mirrorChainId: protocol.hub.chain,
       rootManager: rootManager.address,
       merkleManager: merkleTreeManagerForSpoke.address,
       watcherManager: watcherManager.address,
@@ -172,12 +171,12 @@ const handleDeployHub = async (
   const { configs } = protocol;
   for (const mirrorChain of Object.keys(configs)) {
     const mirrorChainId = +mirrorChain;
-    if (mirrorChainId === protocol.hub) {
+    if (mirrorChainId === protocol.hub.chain) {
       // Skip; we're just deploying the spokes' hub-side connectors.
       continue;
     }
 
-    const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
+    const contract = getConnectorName(protocol, mirrorChainId, protocol.hub.chain);
 
     const deploymentName = getDeploymentName(contract, undefined, protocol.configs[mirrorChainId].networkName);
 
@@ -187,7 +186,7 @@ const handleDeployHub = async (
       from: deployer.address,
       args: formatConnectorArgs(protocol, {
         connectorChainId: mirrorChainId,
-        deploymentChainId: protocol.hub,
+        deploymentChainId: protocol.hub.chain,
         mirrorChainId,
         rootManager: rootManager.address,
       }),
@@ -281,7 +280,7 @@ const handleDeploySpoke = async (
       args: formatConnectorArgs(protocol, {
         connectorChainId: deploymentChainId,
         deploymentChainId,
-        mirrorChainId: protocol.hub,
+        mirrorChainId: protocol.hub.chain,
         mirrorConnector: hubConnectorAddress,
         rootManager: rootManagerDeployment.address,
         merkleManager: merkleTreeManager.address,
@@ -328,11 +327,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
-  if (!protocol.configs[+chain] && +chain !== protocol.hub) {
+  if (!protocol.configs[+chain] && +chain !== protocol.hub.chain) {
     throw new Error(`Network ${network} is not supported for chain ${chain}!`);
   }
 
-  const isHub = chain === protocol.hub.toString();
+  const isHub = chain === protocol.hub.chain.toString();
 
   // Handle deployment for Connector(s) and RootManager, if applicable.
   if (isHub) {

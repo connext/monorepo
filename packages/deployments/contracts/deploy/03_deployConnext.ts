@@ -53,7 +53,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const messagingNetwork = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
-  if (!protocol.configs[protocol.hub]) {
+  if (!protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
@@ -178,11 +178,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const { configs } = protocol;
 
-  if (protocol.hub === network.chainId) {
+  if (protocol.hub.chain === network.chainId) {
     const chains = [];
     const hubConnectors = [];
     for (const spokeChain of Object.keys(configs)) {
-      const contract = getConnectorName(protocol, +spokeChain, protocol.hub);
+      const contract = getConnectorName(protocol, +spokeChain, protocol.hub.chain);
       const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
       const hubConnector = await hre.ethers.getContract(deploymentName);
       chains.push(+spokeChain);

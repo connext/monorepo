@@ -1,5 +1,6 @@
 import { task } from "hardhat/config";
 import { constants, Contract, providers, Wallet } from "ethers";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
 import {
@@ -12,7 +13,6 @@ import {
   ProtocolNetwork,
 } from "../src/utils";
 import { HUB_PREFIX } from "../deployConfig/shared";
-import { chainIdToDomain } from "@connext/nxtp-utils";
 
 type TaskArgs = {
   env?: Env;
@@ -41,7 +41,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
     const config = getMessagingProtocolConfig(networkType);
 
-    if (+network.chainId != config.hub) {
+    if (+network.chainId != config.hub.chain) {
       throw new Error(`Should be on ${config.hub}, not ${network.chainId}`);
     }
 

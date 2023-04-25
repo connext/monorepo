@@ -30,12 +30,12 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
     // get messaging config
     const network = _network ?? ProtocolNetwork.TESTNET;
     const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
-    if (!protocol || !protocol.configs[protocol.hub]) {
+    if (!protocol || !protocol.configs[protocol.hub.chain]) {
       throw new Error(`Network ${network} is not supported! (no messaging config)`);
     }
-    console.log("protocol.hub: ", protocol.hub);
+    console.log("protocol.hub.chain: ", protocol.hub.chain);
     console.log("+chain: ", +chain);
-    if (protocol.hub !== +chain) {
+    if (protocol.hub.chain !== +chain) {
       throw new Error(`Current network is not hub`);
     }
 

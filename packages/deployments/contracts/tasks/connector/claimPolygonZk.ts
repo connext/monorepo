@@ -122,7 +122,7 @@ export default task("claim-polygonzk", "Claim messages on both of L1 and L2")
     );
     const l1BridgeContract = IPolygonZkEVMBridge__factory.connect(
       protocolConfig.configs[spoke].ambs.hub,
-      deployer.connect(getProviderFromHardhatConfig(protocolConfig.hub)),
+      deployer.connect(getProviderFromHardhatConfig(protocolConfig.hub.chain)),
     );
 
     await claimFromPolygonZk(l1Connector, l2Connector, l1BridgeContract, l2BridgeContract);
