@@ -58,6 +58,7 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "getLastCompletedSnapshotId()": FunctionFragment;
+    "getSnapshotDuration()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -111,6 +112,7 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
       | "delayBlocks"
       | "dispatch"
       | "getLastCompletedSnapshotId"
+      | "getSnapshotDuration"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -194,6 +196,10 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getLastCompletedSnapshotId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSnapshotDuration",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
@@ -357,6 +363,10 @@ export interface ZkSyncSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getLastCompletedSnapshotId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSnapshotDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
@@ -814,6 +824,10 @@ export interface ZkSyncSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
+    getSnapshotDuration(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
+
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -995,6 +1009,8 @@ export interface ZkSyncSpokeConnector extends BaseContract {
 
   getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -1173,6 +1189,8 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     ): Promise<[string, string]>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1514,6 +1532,8 @@ export interface ZkSyncSpokeConnector extends BaseContract {
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1695,6 +1715,10 @@ export interface ZkSyncSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSnapshotDuration(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

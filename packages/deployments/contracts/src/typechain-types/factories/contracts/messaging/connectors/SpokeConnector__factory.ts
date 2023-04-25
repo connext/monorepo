@@ -705,6 +705,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getSnapshotDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "_snapshotDuration",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "home",
     outputs: [
       {

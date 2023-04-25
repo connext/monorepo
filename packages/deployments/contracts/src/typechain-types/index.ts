@@ -260,8 +260,6 @@ export type { MerkleLib } from "./contracts/messaging/libraries/MerkleLib";
 export { MerkleLib__factory } from "./factories/contracts/messaging/libraries/MerkleLib__factory";
 export type { RateLimited } from "./contracts/messaging/libraries/RateLimited";
 export { RateLimited__factory } from "./factories/contracts/messaging/libraries/RateLimited__factory";
-export type { SnapshotId } from "./contracts/messaging/libraries/SnapshotId";
-export { SnapshotId__factory } from "./factories/contracts/messaging/libraries/SnapshotId__factory";
 export type { MerkleTreeManager } from "./contracts/messaging/MerkleTreeManager";
 export { MerkleTreeManager__factory } from "./factories/contracts/messaging/MerkleTreeManager__factory";
 export type { RootManager } from "./contracts/messaging/RootManager";

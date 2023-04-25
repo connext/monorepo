@@ -60,6 +60,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
     "getLastCompletedSnapshotId()": FunctionFragment;
+    "getSnapshotDuration()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
@@ -116,6 +117,7 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "fxChild"
       | "fxRootTunnel"
       | "getLastCompletedSnapshotId"
+      | "getSnapshotDuration"
       | "home"
       | "isReplica"
       | "lastSentBlock"
@@ -205,6 +207,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getLastCompletedSnapshotId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSnapshotDuration",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
@@ -381,6 +387,10 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getLastCompletedSnapshotId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSnapshotDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
@@ -862,6 +872,10 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
+    getSnapshotDuration(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
+
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -1054,6 +1068,8 @@ export interface PolygonSpokeConnector extends BaseContract {
 
   getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -1243,6 +1259,8 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<string>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1591,6 +1609,8 @@ export interface PolygonSpokeConnector extends BaseContract {
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1783,6 +1803,10 @@ export interface PolygonSpokeConnector extends BaseContract {
     fxRootTunnel(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSnapshotDuration(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

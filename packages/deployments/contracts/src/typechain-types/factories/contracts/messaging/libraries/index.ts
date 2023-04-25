@@ -4,4 +4,3 @@
 export { DomainIndexer__factory } from "./DomainIndexer__factory";
 export { MerkleLib__factory } from "./MerkleLib__factory";
 export { RateLimited__factory } from "./RateLimited__factory";
-export { SnapshotId__factory } from "./SnapshotId__factory";

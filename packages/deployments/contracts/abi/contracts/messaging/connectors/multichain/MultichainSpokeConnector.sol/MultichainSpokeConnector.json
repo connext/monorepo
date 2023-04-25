@@ -51,6 +51,7 @@
   "function delayBlocks() view returns (uint256)",
   "function dispatch(uint32 _destinationDomain, bytes32 _recipientAddress, bytes _messageBody) returns (bytes32, bytes)",
   "function getLastCompletedSnapshotId() view returns (uint256 _lastCompletedSnapshotId)",
+  "function getSnapshotDuration() pure returns (uint256 _snapshotDuration)",
   "function home() view returns (address)",
   "function isReplica(address _potentialReplica) view returns (bool)",
   "function lastSentBlock() view returns (uint256)",
