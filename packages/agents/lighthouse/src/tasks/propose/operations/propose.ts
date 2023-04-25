@@ -32,8 +32,7 @@ export const propose = async () => {
   logger.info("Starting propose operation", requestContext, methodContext);
 
   // Get the latest pending snapshots
-  // Process each snapshot
-  // Generate aggreagate root given snapshot
+  // Generate aggreagate root given latest snapshot
   // Encode params data for contract call
   const pendingSnapshotsById: Map<string, SnapshotRoot[]> = new Map();
   const domains: string[] = Object.keys(config.chains);
@@ -49,7 +48,7 @@ export const propose = async () => {
     }
   }
   pendingSnapshotsById.forEach((snapshotRoots: SnapshotRoot[], snapshotId: string) => {
-    console.log(snapshotRoots, snapshotId);
+    logger.debug("Snaphot ID and roots", requestContext, methodContext, { snapshotId, snapshotRoots });
   });
 
   // Criteria for selecting the latest saved snapshot roots:
@@ -65,6 +64,7 @@ export const propose = async () => {
   try {
     const snapshotRoots = pendingSnapshotsById.get(latestSnapshotId);
     const orderedSnapshotRoots: SnapshotRoot[] = [];
+    // TODO: What is the right order of the domains?
     domains.forEach((domain) => {
       orderedSnapshotRoots.push(...snapshotRoots!.filter((s) => s.spokeDomain === Number(domain)));
     });
@@ -82,7 +82,7 @@ export const propose = async () => {
 export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[], _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { /*contracts,*/ relayers, database, chainreader, subgraph },
+    adapters: { contracts, relayers, database, chainreader, subgraph },
     config,
     chainData,
   } = getContext();
@@ -122,10 +122,8 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
 
   //TODO: Determine the right ordering of domains
   const orderedDomains = domains;
-  //TODO: Determine the dispute cliff given the snapshot ID
-  const endOfDispute = 0;
 
-  const proposal = { snapshotId, endOfDispute, aggregateRoot, snapshotRoots, orderedDomains, baseAggregateRoot };
+  const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
 
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
@@ -136,13 +134,12 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     _encodedData,
   });
 
-  // const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
-  //   proposal,
-  //   _fees,
-  //   _encodedData,
-  //   fee,
-  // ]);
-  const encodedDataForRelayer = "DUMMY";
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRoot", [
+    proposal,
+    _fees,
+    _encodedData,
+    fee,
+  ]);
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
