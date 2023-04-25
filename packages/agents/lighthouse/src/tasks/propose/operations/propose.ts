@@ -135,10 +135,10 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
   });
 
   const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
-    proposal,
+    proposal.snapshotId,
+    proposal.aggregateRoot,
     _fees,
     _encodedData,
-    fee,
   ]);
 
   try {
