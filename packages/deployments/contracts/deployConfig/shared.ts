@@ -21,7 +21,8 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 0;
+const DEFAULT_DELAY_BLOCKS = 120; // ~30min
+const DEFAULT_DISPUTE_BLOCKS = 120; // ~30min
 
 export type RelayerConfig = {
   [chain: number]: {
@@ -56,7 +57,11 @@ export const RELAYER_CONFIGS: {
 
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
-  hub: number;
+  hub: {
+    chain: number;
+    minDisputeBlocks: number;
+    disputeBlocks: number;
+  };
   configs: {
     // Map of chain ID => configs.
     [chain: number]: {
@@ -106,7 +111,11 @@ export const getFacetsToDeploy = (zksync: boolean) => [
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
-    hub: 1337,
+    hub: {
+      chain: 1337,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+      minDisputeBlocks: 0,
+    },
     configs: {
       1337: {
         prefix: "Mainnet",
@@ -137,7 +146,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
     },
   },
   testnet: {
-    hub: 5, // Goerli hub.
+    hub: {
+      chain: 5,
+      minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+    }, // Goerli hub.
     configs: {
       // TODO: Configs for rinkeby, ropsten, etc.
       // Optimism goerli:
@@ -303,7 +316,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
     },
   },
   mainnet: {
-    hub: 1,
+    hub: { chain: 1, minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2, disputeBlocks: DEFAULT_DISPUTE_BLOCKS },
     configs: {
       1: {
         prefix: "Mainnet",

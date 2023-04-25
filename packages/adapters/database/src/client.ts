@@ -9,11 +9,13 @@ import {
   convertFromDbMessage,
   convertFromDbRootMessage,
   convertFromDbAggregatedRoot,
-  convertFromDbPropagatedRoot,
+  convertFromDbSnapshotRoot,
   convertFromDbReceivedAggregateRoot,
+  convertFromDbSnapshot,
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  Snapshot,
   StableSwapPool,
   StableSwapExchange,
   XTransferErrorStatus,
@@ -22,6 +24,9 @@ import {
   SlippageUpdate,
   XTransferMessageStatus,
   Asset,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+  SnapshotRoot,
   AssetPrice,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -149,6 +154,15 @@ const convertToDbPropagatedRoot = (root: PropagatedRoot): s.propagated_roots.Ins
   };
 };
 
+const convertToDbSnapshotRoot = (root: SnapshotRoot): s.snapshot_roots.Insertable => {
+  return {
+    id: root.id,
+    root: root.root,
+    spoke_domain: root.spokeDomain,
+    count: root.count,
+  };
+};
+
 const convertToDbReceivedAggregateRoot = (root: ReceivedAggregateRoot): s.received_aggregate_roots.Insertable => {
   return {
     id: root.id,
@@ -226,6 +240,22 @@ const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Inse
     router: tvl.router,
     day: new Date(tvl.timestamp * 1000),
     balance: tvl.balance,
+  };
+};
+
+const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
+  return {
+    id: snapshot.id,
+    aggregate_root: snapshot.aggregateRoot,
+    base_aggregate_root: snapshot.baseAggregateRoot,
+    roots: snapshot.roots,
+    domains: snapshot.domains,
+    end_of_dispute: snapshot.endOfDispute,
+    processed: snapshot.processed,
+    status: snapshot.status as s.snapshot_status,
+    propagate_timestamp: snapshot.propagateTimestamp,
+    propagate_task_id: snapshot.propagateTaskId ?? undefined,
+    relayer_type: snapshot.relayerType ?? undefined,
   };
 };
 
@@ -384,6 +414,17 @@ export const savePropagatedRoots = async (
 
   // use upsert here. if the root exists, we don't want to overwrite anything
   await db.upsert("propagated_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const saveSnapshotRoots = async (
+  _roots: SnapshotRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.snapshot_roots.Insertable[] = _roots.map((r) => convertToDbSnapshotRoot(r)).map(sanitizeNull);
+
+  // use upsert here. if the root exists, we don't want to overwrite anything
+  await db.upsert("snapshot_roots", roots, ["id"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (
@@ -700,13 +741,35 @@ export const getAggregateRoot = async (
 };
 
 export const getAggregateRootCount = async (
-  aggreateRoot: string,
+  received_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
-  return root ? convertFromDbPropagatedRoot(root).count : undefined;
+  const root = await db.selectOne("aggregated_roots", { received_root }).run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
+export const getAggregateRoots = async (
+  count: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  // Get the leaf count at the aggregated root
+  const roots = await db
+    .select("aggregated_roots", { domain_index: dc.lte(count) }, { order: { by: "domain_index", direction: "ASC" } })
+    .run(poolToUse);
+  return roots.length > 0 ? roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot) : [];
+};
+
+export const getBaseAggregateRoot = async (
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const root = await db
+    .select("aggregated_roots", {}, { limit: 1, order: { by: "domain_index", direction: "DESC" } })
+    .run(poolToUse);
+  return root.length > 0 ? convertFromDbAggregatedRoot(root[0]).receivedRoot : undefined;
 };
 
 export const getMessageRootIndex = async (
@@ -755,6 +818,61 @@ export const getLatestAggregateRoot = async (
     )
     .run(poolToUse);
   return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+};
+
+export const getPendingAggregateRoot = async (
+  destinationDomain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // TODO: Join query the finds the latest aggregate root on the destination domains
+  //        and joins it snapshots to find the correcsponding snapshot
+  const snapshot = await db.selectOne("snapshots", { processed: false }, { limit: 1 }).run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
+};
+
+export const getPendingSnapshots = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<SnapshotRoot[]> => {
+  const poolToUse = _pool ?? pool;
+  const snapshots = await db
+    .select("snapshot_roots", { processed: false }, { limit: 100, order: { by: "id", direction: "DESC" } })
+    .run(poolToUse);
+  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshotRoot) : [];
+};
+
+export const saveProposedSnapshots = async (
+  _snapshots: Snapshot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const snapshots: s.snapshots.Insertable[] = _snapshots.map((m) => convertToDbSnapshot(m)).map(sanitizeNull);
+
+  await db.upsert("snapshots", snapshots, ["id"]).run(poolToUse);
+};
+
+export const saveFinalizedRoots = async (
+  roots: OptimisticRootFinalized[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+    }),
+  );
+};
+
+export const savePropagatedOptimisticRoots = async (
+  roots: OptimisticRootPropagated[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+    }),
+  );
 };
 
 export const getAggregateRootByRootAndDomain = async (
@@ -818,6 +936,16 @@ export const getMessageRootCount = async (
   return message ? convertFromDbMessage(message).origin?.index : undefined;
 };
 
+export const getMessageByRoot = async (
+  domain: string,
+  messageRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
+  return message ? convertFromDbMessage(message) : undefined;
+};
+
 export const getSpokeNode = async (
   domain: string,
   index: number,
@@ -862,6 +990,36 @@ export const getHubNode = async (
 };
 
 export const getHubNodes = async (
+  start: number,
+  end: number,
+  count: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const roots = await db
+    .select(
+      "aggregated_roots",
+      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
+      { order: { by: "domain_index", direction: "ASC" } },
+    )
+    .run(poolToUse);
+  return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
+};
+
+export const getOptimisticHubNode = async (
+  index: number,
+  count: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
+  const poolToUse = _pool ?? pool;
+  //TODO: Ri
+  const root = await db
+    .selectOne("aggregated_roots", { domain_index: dc.and(dc.eq(index), dc.lt(count)) })
+    .run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
+};
+
+export const getOptimisticHubNodes = async (
   start: number,
   end: number,
   count: number,

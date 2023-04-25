@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import {
   createLoggingContext,
   jsonifyError,
@@ -9,6 +10,8 @@ import {
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
+  Snapshot,
+  DBHelper,
 } from "@connext/nxtp-utils";
 
 import {
@@ -16,14 +19,17 @@ import {
   NoAggregatedRoot,
   NoAggregateRootCount,
   NoMessageRootIndex,
+  NoMessageRoot,
+  NoBaseAggregateRootCount,
   NoMessageRootCount,
   NoMessageRootProof,
   NoMessageProof,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
+  NoDomainInSnapshot,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { HubDBHelper, SpokeDBHelper } from "../adapters";
+import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 export type ProofStruct = {
@@ -167,7 +173,9 @@ export const processMessages = async (
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
+  // mode: string, //TODO: Needed ?Default
   _requestContext: RequestContext,
+  snapshot?: Snapshot,
 ) => {
   const {
     logger,
@@ -182,27 +190,50 @@ export const processMessages = async (
   if (messageRootCount === undefined) {
     throw new NoMessageRootCount(originDomain, targetMessageRoot);
   }
-  // Index of messageRoot leaf node in aggregate tree.
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+
+  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
+  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+  let aggregateRootCount = undefined;
+  let targetAggregateRoot: string | undefined = "";
+  let messageRootIndex = undefined;
+  let opRoots: string[] = [];
+  if (snapshot && snapshot.aggregateRoot) {
+    targetAggregateRoot = snapshot.aggregateRoot;
+    const baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
+    if (!baseAggregateRootCount) {
+      throw new NoBaseAggregateRootCount(snapshot.baseAggregateRoot);
+    }
+    aggregateRootCount = baseAggregateRootCount + snapshot.roots.length;
+    messageRootIndex = baseAggregateRootCount + snapshot.roots.indexOf(targetMessageRoot);
+
+    // Get all roots for virtual tree
+    const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
+    opRoots = baseAggregateRoots.concat(snapshot.roots);
+  } else {
+    targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
+    if (!targetAggregateRoot) {
+      throw new NoAggregatedRoot();
+    }
+    aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+    // Index of messageRoot leaf node in aggregate tree.
+    messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+  }
+
+  if (!aggregateRootCount) {
+    throw new NoAggregateRootCount(targetAggregateRoot);
+  }
+
   if (messageRootIndex === undefined) {
     throw new NoMessageRootIndex(originDomain, targetMessageRoot);
   }
 
-  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
-  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
-  if (!targetAggregateRoot) {
-    throw new NoAggregatedRoot();
-  }
-
   // Count of leafs in aggregate tree at targetAggregateRoot.
-  const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
-  if (!aggregateRootCount) {
-    throw new NoAggregateRootCount(targetAggregateRoot);
-  }
-  // TODO: Move to per domain storage adapters in context
   const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+
+  //Switch for optimistic hub
+  const hubStore: DBHelper = snapshot
+    ? new OptimisticHubDBHelper(opRoots, aggregateRootCount)
+    : new HubDBHelper("hub", aggregateRootCount, database);
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
@@ -348,4 +379,133 @@ export const processMessages = async (
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
+};
+
+export const proveAndProcessOpMode = async () => {
+  const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
+  const {
+    logger,
+    adapters: { database },
+    config,
+  } = getContext();
+
+  // Only process configured chains.
+  const domains: string[] = Object.keys(config.chains);
+
+  // Process messages
+  // Batch messages to be processed by origin_domain and destination_domain.
+  await Promise.all(
+    domains.map(async (destinationDomain) => {
+      try {
+        //TODO: Should get the latest snapshot for which the aggregate was recieved on the destination domain
+        const snapshot = await database.getPendingAggregateRoot(destinationDomain);
+        if (snapshot) {
+          logger.debug("Got pending snapshot", requestContext, methodContext, {
+            snapshot,
+            destinationDomain,
+          });
+        } else {
+          logger.debug("No pending snapshot to process.", requestContext, methodContext, {
+            snapshot,
+            destinationDomain,
+          });
+          return;
+        }
+        await Promise.all(
+          domains
+            .filter((domain) => domain != destinationDomain)
+            .map(async (originDomain) => {
+              // const messageRoots = [];
+              const domainIndex = snapshot.domains.indexOf(originDomain);
+              if (domainIndex === -1) {
+                throw new NoDomainInSnapshot(originDomain, snapshot);
+              }
+              const messageRoot = snapshot.roots[domainIndex];
+
+              try {
+                const message: XMessage | undefined = await database.getMessageByRoot(originDomain, messageRoot);
+                if (!message) {
+                  throw new NoMessageRoot(originDomain, messageRoot);
+                }
+                // Paginate through all unprocessed messages from the domain
+                let offset = 0;
+                let end = false;
+                while (!end) {
+                  logger.info(
+                    "Getting unprocessed messages for origin and destination pair",
+                    requestContext,
+                    methodContext,
+                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+                  );
+                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
+                    originDomain,
+                    destinationDomain,
+                    message.origin.index,
+                    offset,
+                    config.proverBatchSize,
+                  );
+                  const subContext = createRequestContext(
+                    "processUnprocessedMessages",
+                    `${originDomain}-${destinationDomain}-${offset}-${message.origin.root}`,
+                  );
+                  if (unprocessed.length > 0) {
+                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      offset,
+                    });
+                    // Batch process messages from the same origin domain
+                    await processMessages(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      message.origin.root,
+                      subContext,
+                      snapshot,
+                    );
+                    offset += unprocessed.length;
+                    logger.info(
+                      "Processed unprocessed messages for origin and destination pair",
+                      subContext,
+                      methodContext,
+                      {
+                        unprocessed,
+                        originDomain,
+                        destinationDomain,
+                        offset,
+                      },
+                    );
+                  } else {
+                    // End the loop if no more messages are found
+                    end = true;
+                    if (offset === 0) {
+                      logger.info(
+                        "Reached end of unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
+                  }
+                }
+              } catch (err: unknown) {
+                logger.error(
+                  "Error processing messages",
+                  requestContext,
+                  methodContext,
+                  jsonifyError(err as NxtpError),
+                );
+              }
+            }),
+        );
+      } catch (err: unknown) {
+        logger.error("Error processing messages", requestContext, methodContext, jsonifyError(err as NxtpError));
+      }
+    }),
+  );
 };

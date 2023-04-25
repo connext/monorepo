@@ -11,7 +11,7 @@ library SnapshotId {
    * @dev Off-chain agents could change the effective snapshot length by skipping snapshots. This is the
    * smallest unit of snapshot duration, not just the only option.
    */
-  uint256 public constant SNAPSHOT_DURATION = 30 minutes;
+  uint256 constant SNAPSHOT_DURATION = 30 minutes;
 
   /**
    * @notice This function calculates the last completed snapshot id

@@ -59,7 +59,7 @@ export default task("query-roots", "Read balances of accounts")
           return;
         }
 
-        if (chain == protocol.hub) {
+        if (chain == protocol.hub.chain) {
           // only useful to log message status iff message was passed
           console.log("- message status: hub <> hub interaction, ignoring");
           console.log("");
@@ -70,9 +70,9 @@ export default task("query-roots", "Read balances of accounts")
         if (name.includes("Optimism")) {
           const status = await queryOptimismMessageStatus(
             hash,
-            protocol.hub,
+            protocol.hub.chain,
             chain,
-            getProviderFromHardhatConfig(protocol.hub),
+            getProviderFromHardhatConfig(protocol.hub.chain),
             provider,
             relay,
             deployer,

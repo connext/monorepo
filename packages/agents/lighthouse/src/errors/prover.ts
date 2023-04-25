@@ -1,4 +1,4 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { NxtpError, Snapshot } from "@connext/nxtp-utils";
 
 export class NoDestinationDomainForProof extends NxtpError {
   constructor(destinationDomain: string, context: any = {}) {
@@ -51,5 +51,32 @@ export class NoMessageRootProof extends NxtpError {
 export class NoMessageProof extends NxtpError {
   constructor(index: number, leaf: string | undefined, context: any = {}) {
     super(`No index ${index} for message hash ${leaf}`, context, NoMessageProof.name);
+  }
+}
+
+export class NoBaseAggregateRootCount extends NxtpError {
+  constructor(aggregateRoot: string) {
+    super(`No base aggregate root count found for ${aggregateRoot}`, context, NoBaseAggregateRootCount.name);
+  }
+}
+export class NoBaseAggregateRoot extends NxtpError {
+  constructor() {
+    super(`No base aggregate root found`, context, NoBaseAggregateRoot.name);
+  }
+}
+
+export class NoMessageRoot extends NxtpError {
+  constructor(originDomain: string, messageRoot: string) {
+    super(
+      `No message with message root ${messageRoot} found in origin domain ${originDomain}`,
+      context,
+      NoMessageRoot.name,
+    );
+  }
+}
+
+export class NoDomainInSnapshot extends NxtpError {
+  constructor(originDomain: string, snapshot: Snapshot) {
+    super(`No domain ${originDomain} found in snapshot ${snapshot}`, context, NoDomainInSnapshot.name);
   }
 }

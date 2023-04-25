@@ -2,23 +2,13 @@
 pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
+import {RootManager} from "../../../messaging/RootManager.sol";
 import {RelayerProxy} from "./RelayerProxy.sol";
-
-interface IRootManager {
-  function lastPropagatedRoot() external view returns (bytes32);
-
-  function propagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) external payable;
-
-  function dequeue() external returns (bytes32, uint256);
-}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -137,22 +127,75 @@ interface IZkSyncHubConnector {
 contract RelayerProxyHub is RelayerProxy {
   // ============ Properties ============
 
-  IRootManager public rootManager;
+  /**
+   * @notice Address of the RootManager contract
+   */
+  RootManager public rootManager;
+
+  /**
+   * @notice Delay for the propagate function
+   */
   uint256 public propagateCooldown;
-  // Timestamp of the last time the job was worked.
+
+  /**
+   * @notice Delay for the proposeAggregateRoot function
+   * @dev Can be updated by admin
+   */
+  uint256 public proposeAggregateRootCooldown;
+
+  /**
+   * @notice Timestamp of the last time the propagate job was worked.
+   */
   uint256 public lastPropagateAt;
+
+  /**
+   * @notice Timestamp of when last aggregate was proposed
+   */
+  uint256 public lastProposeAggregateRootAt;
+
+  /**
+   * @notice Mapping of identifier to root message hash to boolean indicating if the message has been processed
+   */
   mapping(uint32 => mapping(bytes32 => bool)) public processedRootMessages;
+
+  /**
+   * @notice Mapping of identifier to hub connector contract address
+   */
   mapping(uint32 => address) public hubConnectors;
 
   // ============ Events ============
+
+  /**
+   * @notice Emitted when the root manager is updated by admin
+   * @param rootManager New root manager address in the contract
+   * @param oldRootManager Old root manager address in the contract
+   */
   event RootManagerChanged(address rootManager, address oldRootManager);
+
+  /**
+   * @notice Emitted when the cooldown period for propagate is updated
+   * @param propagateCooldown New cooldown period
+   * @param oldPropagateCooldown Old cooldown period
+   */
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
+
+  /**
+   * @notice Emitted when a new hub connector is updated
+   * @param hubConnector New hub connector address
+   * @param oldHubConnector Old hub connector address
+   * @param chain Chain ID of the hub connector
+   */
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
 
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
+
+  // ============ Modifiers ============
 
   // ============ Constructor ============
 
@@ -162,21 +205,23 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _spokeConnector The address of the SpokeConnector on this domain.
    * @param _gelatoRelayer The address of the Gelato relayer on this domain.
    * @param _feeCollector The address of the Gelato Fee Collector on this domain.
+   * @param _keep3r The address of the Keep3r on this domain.
    * @param _rootManager The address of the Root Manager on this domain.
+   * @param _propagateCooldown The delay for the propagate function.
+   * @param _hubConnectors The addresses of the hub connectors on this domain.
+   * @param _hubConnectorChains The identifiers of the hub connectors on this domain.
    */
   constructor(
     address _connext,
     address _spokeConnector,
     address _gelatoRelayer,
     address _feeCollector,
-    address _rootManager,
     address _keep3r,
-    address _autonolas,
-    uint8 _autonolasPriority,
+    address _rootManager,
     uint256 _propagateCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
-  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r, _autonolas, _autonolasPriority) {
+  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
@@ -258,7 +303,7 @@ contract RelayerProxyHub is RelayerProxy {
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
-  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) nonReentrant {
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
@@ -278,14 +323,67 @@ contract RelayerProxyHub is RelayerProxy {
     bytes calldata _encodedData,
     uint32 _fromChain,
     bytes32 _l2Hash
-  ) external isWorkableBySender(msg.sender) validateAndPayWithCredits(msg.sender) {
+  ) external validateAndPayWithCredits(msg.sender) {
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
+  }
+
+  /**
+   * @notice Wraps the `proposeAggregateRoot` function
+   * @dev This contract will validate the signer is a whitelisted proposer on the RootManager,
+   * and then call `propose` itself. This means this contract must *also* be whitelisted as a
+   * proposer on the RootManager.
+   * @param _snapshotId The snapshot id of the root to be proposed.
+   * @param _aggregateRoot The aggregate root to be proposed.
+   * @param _snapshotsRoots The roots of the connectors included in the aggregate.
+   * @param _domains The domains of the snapshots to be proposed.
+   */
+  function proposeAggregateRootKeep3r(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains,
+    bytes memory _signature
+  ) external validateAndPayWithCredits(msg.sender) {
+    if (!_proposeAggregateRootCooledDown()) {
+      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
+        block.timestamp,
+        lastProposeAggregateRootAt + proposeAggregateRootCooldown
+      );
+    }
+
+    // Validate the signer
+    _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
+
+    // Propose the aggregate
+    rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+  }
+
+  /**
+   * @notice Wraps the `finalizeAndPropagate` function
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * @param _fees Array of fees in native token for an AMB if required
+   * @param _encodedData Array of encodedData: extra params for each AMB if required
+   * @param _proposedAggregateRoot The aggregate root to be proposed.
+   * @param _endOfDispute The timestamp when the dispute period ends.
+   */
+  function finalizeAndPropagateKeep3r(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
+    if (!_propagateCooledDown()) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
+    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+    lastPropagateAt = block.timestamp;
   }
 
   // ============ Internal Functions ============
   function _setRootManager(address _rootManager) internal {
     emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = IRootManager(_rootManager);
+    rootManager = RootManager(_rootManager);
   }
 
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
@@ -300,6 +398,24 @@ contract RelayerProxyHub is RelayerProxy {
 
   function _propagateCooledDown() internal view returns (bool) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
+  }
+
+  function _proposeAggregateRootCooledDown() internal view returns (bool) {
+    return block.timestamp > (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
+  }
+
+  function _validateProposeSignature(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes memory _signature
+  ) internal view {
+    // Get the payload
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
+    // Recover signer
+    address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(payload), _signature);
+    if (!rootManager.allowlistedProposers(signer)) {
+      revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
+    }
   }
 
   /**
@@ -320,6 +436,32 @@ contract RelayerProxyHub is RelayerProxy {
     }
 
     rootManager.propagate{value: sum}(_connectors, _messageFees, _encodedData);
+    return sum;
+  }
+
+  function _finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) internal returns (uint256) {
+    uint256 sum = 0;
+    uint256 length = _connectors.length;
+    for (uint32 i; i < length; ) {
+      sum += _fees[i];
+      unchecked {
+        ++i;
+      }
+    }
+
+    rootManager.finalizeAndPropagate{value: sum}(
+      _connectors,
+      _fees,
+      _encodedData,
+      _proposedAggregateRoot,
+      _endOfDispute
+    );
     return sum;
   }
 

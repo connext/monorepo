@@ -705,6 +705,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getSnapshotDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "_snapshotDuration",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "home",
     outputs: [
       {
@@ -1199,10 +1212,7 @@ export class SpokeConnector__factory {
   static createInterface(): SpokeConnectorInterface {
     return new utils.Interface(_abi) as SpokeConnectorInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): SpokeConnector {
+  static connect(address: string, signerOrProvider: Signer | Provider): SpokeConnector {
     return new Contract(address, _abi, signerOrProvider) as SpokeConnector;
   }
 }

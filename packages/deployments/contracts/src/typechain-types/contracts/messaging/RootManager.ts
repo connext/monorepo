@@ -56,6 +56,7 @@ export interface RootManagerInterface extends utils.Interface {
     "getConnectorForDomain(uint32)": FunctionFragment;
     "getDomainIndex(uint32)": FunctionFragment;
     "getPendingInboundRootsCount()": FunctionFragment;
+    "getSnapshotDuration()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
     "lastCountBeforeOpMode()": FunctionFragment;
     "lastPropagatedRoot()": FunctionFragment;
@@ -113,6 +114,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "getConnectorForDomain"
       | "getDomainIndex"
       | "getPendingInboundRootsCount"
+      | "getSnapshotDuration"
       | "isDomainSupported"
       | "lastCountBeforeOpMode"
       | "lastPropagatedRoot"
@@ -241,6 +243,10 @@ export interface RootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPendingInboundRootsCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSnapshotDuration",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -424,6 +430,10 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getPendingInboundRootsCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSnapshotDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -958,6 +968,10 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    getSnapshotDuration(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1163,6 +1177,8 @@ export interface RootManager extends BaseContract {
 
   getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
   isDomainSupported(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1361,6 +1377,8 @@ export interface RootManager extends BaseContract {
     ): Promise<BigNumber>;
 
     getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
@@ -1761,6 +1779,8 @@ export interface RootManager extends BaseContract {
 
     getPendingInboundRootsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1966,6 +1986,10 @@ export interface RootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getPendingInboundRootsCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSnapshotDuration(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

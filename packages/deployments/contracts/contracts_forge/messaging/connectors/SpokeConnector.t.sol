@@ -322,3 +322,9 @@ contract SpokeConnector_GetLastCompletedSnapshotId is Base {
     assertEq(spokeConnector.getLastCompletedSnapshotId(), _snapshotId);
   }
 }
+
+contract SpokeConnector_GetSnapshotDuration is Base {
+  function test_getSnapshotDuration() public {
+    assertEq(SnapshotId.SNAPSHOT_DURATION, spokeConnector.getSnapshotDuration());
+  }
+}

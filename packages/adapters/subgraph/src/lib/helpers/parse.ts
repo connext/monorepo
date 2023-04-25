@@ -8,6 +8,10 @@ import {
   OriginTransfer,
   ConnectorMeta,
   RootManagerMeta,
+  RootManagerMode,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+  SnapshotRoot,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -16,6 +20,7 @@ import {
   StableSwapPoolEvent,
   PoolActionType,
   RouterDailyTVL,
+  Snapshot,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -379,6 +384,99 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
   };
 };
 
+export const proposedRoot = (entity: any): Snapshot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `proposedRoot` entity parser: proposedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "endOfDispute", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    endOfDispute: entity.endOfDispute,
+    aggregateRoot: entity.aggregateRoot,
+    roots: entity.snapshotsRoots,
+    domains: entity.domains,
+    baseAggregateRoot: entity.baseAggregateRoot,
+  };
+};
+
+export const snapshotRoot = (entity: any): SnapshotRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `snapshotRoot` entity parser: snapshotRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "root", "count", "timestamp", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `snapshotRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    root: entity.root,
+    count: entity.count,
+    timestamp: entity.timestamp,
+    blockNumber: entity.blockNumber,
+  };
+};
+
+export const finalizedRoot = (entity: any): OptimisticRootFinalized => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `finalizedRoot` entity parser: finalizedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregateRoot", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `finalizedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    timestamp: entity.timestamp,
+  };
+};
+
+export const propagatedOptimisticRoot = (entity: any): OptimisticRootPropagated => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError(
+      "Subgraph `propagatedOptimisticRoot` entity parser: propagatedOptimisticRoot, entity is `undefined`.",
+    );
+  }
+  for (const field of ["id", "aggregateRoot", "domainsHash", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `propagatedOptimisticRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    domainsHash: entity.domainsHash,
+    timestamp: entity.timestamp,
+  };
+};
+
 export const connectorMeta = (entity: any): ConnectorMeta => {
   // Sanity checks.
   if (!entity) {
@@ -421,6 +519,26 @@ export const rootManagerMeta = (entity: any): RootManagerMeta => {
     id: entity.id,
     connectors: entity.connectors,
     domains: entity.domains,
+  };
+};
+
+export const rootManagerMode = (entity: any): RootManagerMode => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootManagerMode` entity parser: RootManagerMode, entity is `undefined`.");
+  }
+  for (const field of ["id", "mode"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootManagerMode` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    mode: entity.mode,
   };
 };
 

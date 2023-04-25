@@ -44,14 +44,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
-  // special consideration for Autonolas keeper
-  address public autonolas;
-  // number between 0 and 10 to determine priority that Autonolas has for jobs
-  // 0 is disabled, 10 will work for every block
-  uint8 public autonolasPriority;
 
   mapping(address => bool) public allowedRelayer;
-  mapping(address => bool) public priorityKeepers;
 
   // ============ Modifier ============
 
@@ -65,19 +59,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   modifier definedAddress(address _input) {
     if (_input == address(0)) {
       revert RelayerProxy__definedAddress_empty(_input);
-    }
-    _;
-  }
-
-  /**
-   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
-   * For example, if priority is 3, then sender will not be able to work on blocks 0, 1, 2, unless they are Autonolas.
-   * Priority 0 disables Autonolas priority completely."
-   * @param _sender The address of the caller
-   */
-  modifier isWorkableBySender(address _sender) {
-    if (_sender != autonolas && autonolasPriority != 0 && block.number % 10 <= autonolasPriority - 1) {
-      revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
     }
     _;
   }
@@ -155,20 +136,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   event Keep3rChanged(address updated, address previous);
 
-  /**
-   * @notice Emitted when Autonolas address is updated by admin
-   * @param updated New Autonolas address in the contract
-   * @param previous Old Autonolas address in the contract
-   */
-  event AutonolasChanged(address updated, address previous);
-
-  /**
-   * @notice Emitted when Autonolas priority is updated by admin
-   * @param updated New Autonolas priority in the contract
-   * @param previous Old Autonolas priority in the contract
-   */
-  event AutonolasPriorityChanged(uint8 updated, uint8 previous);
-
   // ============ Error ============
   error RelayerProxy__addRelayer_relayerAdded(address _relayer);
   error RelayerProxy__removeRelayer_relayerNotAdded(address _relayer);
@@ -185,15 +152,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param _spokeConnector The address of the SpokeConnector on this domain.
    * @param _gelatoRelayer The address of the Gelato relayer on this domain.
    * @param _feeCollector The address of the Gelato Fee Collector on this domain.
+   * @param _keep3r The address of the Keep3r on this domain.
    */
   constructor(
     address _connext,
     address _spokeConnector,
     address _gelatoRelayer,
     address _feeCollector,
-    address _keep3r,
-    address _autonolas,
-    uint8 _autonolasPriority
+    address _keep3r
   ) ProposedOwnable() {
     _setOwner(msg.sender);
     _setConnext(_connext);
@@ -201,8 +167,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setGelatoRelayer(_gelatoRelayer);
     _setFeeCollector(_feeCollector);
     _setKeep3r(_keep3r);
-    _setAutonolas(_autonolas);
-    _setAutonolasPriority(_autonolasPriority);
 
     _addRelayer(_gelatoRelayer);
   }
@@ -270,22 +234,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   function setKeep3r(address _keep3r) external onlyOwner definedAddress(_keep3r) {
     _setKeep3r(_keep3r);
-  }
-
-  /**
-   * @notice Updates the Autonolas contract address on this contract.
-   * @param _autonolas - New Autonolas contract address.
-   */
-  function setAutonolas(address _autonolas) external onlyOwner definedAddress(_autonolas) {
-    _setAutonolas(_autonolas);
-  }
-
-  /**
-   * @notice Updates the Autonolas priority on this contract.
-   * @param _autonolasPriority - New Autonolas priority.
-   */
-  function setAutonolasPriority(uint8 _autonolasPriority) external onlyOwner {
-    _setAutonolasPriority(_autonolasPriority);
   }
 
   /**
@@ -414,15 +362,5 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setKeep3r(address _keep3r) internal {
     emit Keep3rChanged(_keep3r, address(keep3r));
     keep3r = IKeep3rV2(_keep3r);
-  }
-
-  function _setAutonolas(address _autonolas) internal {
-    emit AutonolasChanged(_autonolas, autonolas);
-    autonolas = _autonolas;
-  }
-
-  function _setAutonolasPriority(uint8 _autonolasPriority) internal {
-    emit AutonolasPriorityChanged(_autonolasPriority, autonolasPriority);
-    autonolasPriority = _autonolasPriority;
   }
 }

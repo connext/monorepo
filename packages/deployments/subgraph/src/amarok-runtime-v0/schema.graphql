@@ -263,3 +263,13 @@ type SlippageUpdate @entity {
   gasLimit: BigInt!
   blockNumber: BigInt!
 }
+
+type SnapshotRoot @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  root: Bytes!
+  count: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}

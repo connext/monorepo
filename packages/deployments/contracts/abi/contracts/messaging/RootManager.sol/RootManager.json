@@ -73,6 +73,7 @@
   "function getConnectorForDomain(uint32 _domain) view returns (address)",
   "function getDomainIndex(uint32 _domain) view returns (uint256)",
   "function getPendingInboundRootsCount() view returns (uint256)",
+  "function getSnapshotDuration() pure returns (uint256 _snapshotDuration)",
   "function isDomainSupported(uint32 _domain) view returns (bool)",
   "function lastCountBeforeOpMode() view returns (uint256)",
   "function lastPropagatedRoot() view returns (bytes32)",

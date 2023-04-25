@@ -20,6 +20,17 @@ CREATE TYPE public.action_type AS ENUM (
 
 
 --
+-- Name: snapshot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.snapshot_status AS ENUM (
+    'Proposed',
+    'Finalized',
+    'Propagated'
+);
+
+
+--
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -738,6 +749,38 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: snapshot_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshot_roots (
+    id character varying(255) NOT NULL,
+    spoke_domain integer NOT NULL,
+    root character(66) NOT NULL,
+    count integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: snapshots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshots (
+    id character varying(255) NOT NULL,
+    aggregate_root character(66) NOT NULL,
+    base_aggregate_root character(66) NOT NULL,
+    roots character(66)[] DEFAULT (ARRAY[]::bpchar[])::character(66)[] NOT NULL,
+    domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    end_of_dispute integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
+    propagate_timestamp integer,
+    propagate_task_id character(66),
+    relayer_type text
+);
+
+
+--
 -- Name: stableswap_lp_balances; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -1111,6 +1154,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_key UNIQUE (id);
+
+
+--
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1162,6 +1213,34 @@ CREATE INDEX asset_prices_timestamp ON public.asset_prices USING btree ("timesta
 --
 
 CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: snapshot_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_idx ON public.snapshot_roots USING btree (id);
+
+
+--
+-- Name: snapshot_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_root_idx ON public.snapshot_roots USING btree (root);
+
+
+--
+-- Name: snapshot_roots_spoke_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btree (spoke_domain);
+
+
+--
+-- Name: snapshots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
 
 
 --
@@ -1281,6 +1360,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230308083252'),
     ('20230308162843'),
     ('20230310035445'),
+    ('20230405050248'),
     ('20230405091124'),
     ('20230412003613'),
     ('20230412084403'),

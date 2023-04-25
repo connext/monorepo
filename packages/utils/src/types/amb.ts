@@ -84,6 +84,12 @@ export const RootManagerMetaSchema = Type.Object({
 });
 export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;
 
+export const RootManagerModeSchema = Type.Object({
+  id: Type.String(),
+  mode: Type.String(),
+});
+export type RootManagerMode = Static<typeof RootManagerModeSchema>;
+
 export const ReceivedAggregateRootSchema = Type.Object({
   id: Type.String(),
   root: Type.String(),
@@ -91,3 +97,59 @@ export const ReceivedAggregateRootSchema = Type.Object({
   blockNumber: Type.Number(),
 });
 export type ReceivedAggregateRoot = Static<typeof ReceivedAggregateRootSchema>;
+
+export const SnapshotSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  baseAggregateRoot: Type.String(),
+  roots: Type.Array(Type.String()),
+  domains: Type.Array(Type.String()),
+  endOfDispute: Type.Number(),
+  processed: Type.Optional(Type.Boolean()),
+  status: Type.Optional(Type.String()),
+  propagateTimestamp: Type.Optional(Type.Number()),
+  propagateTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
+});
+export type Snapshot = Static<typeof SnapshotSchema>;
+
+export const ModeType = {
+  SlowMode: "SLOW_MODE",
+  OptimisticMode: "OPTIMISTIC_MODE",
+} as const;
+export type Mode = (typeof ModeType)[keyof typeof ModeType];
+
+export const OptimisticRootProposedSchema = Type.Object({
+  id: Type.String(),
+  endOfDispute: Type.Number(),
+  aggregateRoot: Type.String(),
+  snapshotsRoots: Type.Array(Type.String()),
+  domains: Type.Array(Type.Number()),
+  baseAggregateRoot: Type.String(),
+});
+export type OptimisticRootProposed = Static<typeof OptimisticRootProposedSchema>;
+
+export const SnapshotRootSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.Number(),
+  root: Type.String(),
+  count: Type.Number(),
+  timestamp: Type.Optional(Type.Number()),
+  blockNumber: Type.Optional(Type.Number()),
+});
+export type SnapshotRoot = Static<typeof SnapshotRootSchema>;
+
+export const OptimisticRootFinalizedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootFinalized = Static<typeof OptimisticRootFinalizedSchema>;
+
+export const OptimisticRootPropagatedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  domainsHash: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootPropagated = Static<typeof OptimisticRootPropagatedSchema>;

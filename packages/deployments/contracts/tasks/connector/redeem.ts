@@ -2,7 +2,6 @@ import { L1ToL2MessageStatus, L1TransactionReceipt } from "@arbitrum/sdk";
 import { providers, Wallet } from "ethers";
 import { task } from "hardhat/config";
 
-import hardhatConfig from "../../hardhat.config";
 import {
   Env,
   getMessagingProtocolConfig,
@@ -82,7 +81,7 @@ export default task("redeem", "Process a transaction on a spoke for L1 -> L2 mes
     // get the l2 provider
     const l2Provider = getProviderFromHardhatConfig(spoke);
     // get the l1 provider
-    const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub);
+    const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub.chain);
 
     await redeemFromArbitrum(tx, deployer, force, l1Provider, l2Provider);
   });

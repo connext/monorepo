@@ -15,7 +15,6 @@ const KEEP3R_ADDRESSES: Record<number, string> = {
 };
 
 const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
-const AUTONOLAS_PRIORITY = 0;
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -54,7 +53,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const messagingNetwork = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
-  if (!protocol.configs[protocol.hub]) {
+  if (!protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
@@ -179,11 +178,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const { configs } = protocol;
 
-  if (protocol.hub === network.chainId) {
+  if (protocol.hub.chain === network.chainId) {
     const chains = [];
     const hubConnectors = [];
     for (const spokeChain of Object.keys(configs)) {
-      const contract = getConnectorName(protocol, +spokeChain, protocol.hub);
+      const contract = getConnectorName(protocol, +spokeChain, protocol.hub.chain);
       const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
       const hubConnector = await hre.ethers.getContract(deploymentName);
       chains.push(+spokeChain);
@@ -199,10 +198,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         spokeConnector.address,
         gelatoRelayer,
         feeCollector,
-        rootManager.address,
         KEEP3R_ADDRESSES[network.chainId],
-        constants.AddressZero,
-        AUTONOLAS_PRIORITY,
+        rootManager.address,
         PROPAGATE_COOLDOWN,
         hubConnectors,
         chains,
@@ -215,7 +212,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer.address,
       log: true,
       contract: "RelayerProxy",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
+      args: [
+        connextAddress,
+        spokeConnector.address,
+        gelatoRelayer,
+        feeCollector,
+        KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
+      ],
     });
 
     console.log("relayerProxy: ", relayerProxy.address);

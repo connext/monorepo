@@ -44,6 +44,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   event SenderAdded(address indexed sender);
 
+  event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
+
   /**
    * @notice Emitted when a new sender is de-whitelisted for messaging
    * @param sender Removed address
@@ -181,6 +183,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * can send messages using `dispatch`.
    */
   mapping(address => bool) public allowlistedSenders;
+
+  /**
+   * @notice Mapping of the snapshot roots for a specific index. Used for data availability for off-chain scripts
+   */
+  mapping(uint256 => bytes32) public snapshotRoots;
 
   /**
    * @notice Mapping of the snapshot roots for a specific index. Used for data availability for off-chain scripts
@@ -480,6 +487,15 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   function getLastCompletedSnapshotId() external view returns (uint256 _lastCompletedSnapshotId) {
     _lastCompletedSnapshotId = SnapshotId.getLastCompletedSnapshotId();
+  }
+
+  /**
+   * @notice Get the duration of the snapshot
+   *
+   * @return _snapshotDuration The duration of the snapshot
+   */
+  function getSnapshotDuration() external pure returns (uint256 _snapshotDuration) {
+    _snapshotDuration = SnapshotId.SNAPSHOT_DURATION;
   }
 
   // ============ Private Functions ============
