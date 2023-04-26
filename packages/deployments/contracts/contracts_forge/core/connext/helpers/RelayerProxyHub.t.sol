@@ -5,10 +5,18 @@ import "../../../utils/ForgeHelper.sol";
 import "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
 
 contract RelayerProxyHubTest is ForgeHelper {
+  enum AutonolasPriorityFunction {
+    Propagate,
+    ProcessFromRoot,
+    ProposeAggregateRoot,
+    FinalizeAndPropagate
+  }
   // ============ Events ============
   event RootManagerChanged(address rootManager, address oldRootManager);
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
+  event AutonolasChanged(address updated, address previous);
+  event AutonolasPriorityChanged(AutonolasPriorityFunction fn, uint8 updated, uint8 previous);
 
   // ============ Storage ============
   address _connext = address(12312);
@@ -17,6 +25,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   address _feeCollector = address(12335555);
   address _keep3r = address(12335556);
   address _rootManager = address(12312);
+  address _autonolas = address(134325213);
   uint256 _propagateCooldown = 12321222;
   address _hubConnector = address(123444412);
   uint32 _chain = 123;
@@ -37,6 +46,9 @@ contract RelayerProxyHubTest is ForgeHelper {
     emit PropagateCooldownChanged(_propagateCooldown, 0);
 
     vm.expectEmit(true, true, true, true);
+    emit AutonolasChanged(_autonolas, address(0));
+
+    vm.expectEmit(true, true, true, true);
     emit HubConnectorChanged(_hubConnector, address(0), _chain);
 
     address[] memory connectors = new address[](1);
@@ -51,14 +63,19 @@ contract RelayerProxyHubTest is ForgeHelper {
       _feeCollector,
       _keep3r,
       _rootManager,
+      _autonolas,
       _propagateCooldown,
       connectors,
       chains
     );
   }
 
-  // ============ Tests ============
+  // ============ isWorkableBySender ============
+  // fails if:
+  // - sender != autonolas
+  // - autonolasPriority > 0
+  // - serviceable block
   function test_RelayerProxyHub__propagateKeep3r_works() public {
-    assertEq(address(proxy.rootManager()), _rootManager);
+    assertEq(proxy.autonolas(), _autonolas);
   }
 }
