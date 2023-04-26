@@ -22,8 +22,7 @@ abstract contract BasePolygonZk is IBridgeMessageReceiver {
 
   // ============ Private fns ============
 
-  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the
-  //function _processMessage(bytes memory _data) internal virtual;
+  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the _processMessageFrom function
   /**
    * @notice This function is used by the PolygonZkEVMBridge to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
