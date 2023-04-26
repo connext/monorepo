@@ -59,7 +59,8 @@ export const prepareSwapAndXCall = async (
 
     const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
     if (!swapAndXCallAddress) {
-      throw new Error(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      console.log(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      return txRequest;
     }
 
     const originRoute =
