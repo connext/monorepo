@@ -821,13 +821,11 @@ export const getLatestAggregateRoot = async (
 };
 
 export const getPendingAggregateRoot = async (
-  destinationDomain: string,
+  aggregate_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
-  // TODO: Join query the finds the latest aggregate root on the destination domains
-  //        and joins it snapshots to find the correcsponding snapshot
-  const snapshot = await db.selectOne("snapshots", { processed: false }, { limit: 1 }).run(poolToUse);
+  const snapshot = await db.selectOne("snapshots", { processed: false, aggregate_root }).run(poolToUse);
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
@@ -844,9 +842,25 @@ export const saveProposedSnapshots = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const snapshots: s.snapshots.Insertable[] = _snapshots.map((m) => convertToDbSnapshot(m)).map(sanitizeNull);
+  const snapshots: s.snapshots.Insertable[] = _snapshots
+    .map((m) => {
+      m.status = "Proposed" as s.snapshot_status;
+      return convertToDbSnapshot(m);
+    })
+    .map(sanitizeNull);
 
   await db.upsert("snapshots", snapshots, ["id"]).run(poolToUse);
+};
+
+export const getCurrentProposedSnapshot = async (
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  const snapshot = await db
+    .selectOne("snapshots", { status: "Proposed" }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
 export const saveFinalizedRoots = async (

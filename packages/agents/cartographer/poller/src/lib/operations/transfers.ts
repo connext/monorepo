@@ -44,20 +44,20 @@ export const updateTransfers = async () => {
   const subgraphOriginPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
   const subgraphDestinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-  const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
+  const latestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   await Promise.all(
     domains.map(async (domain) => {
       let latestBlockNumber: number | undefined = undefined;
-      if (lastestBlockNumbers.has(domain)) {
-        latestBlockNumber = lastestBlockNumbers.get(domain)!;
+      if (latestBlockNumbers.has(domain)) {
+        latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
 
       if (!latestBlockNumber) {
         logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
           domain,
           latestBlockNumber,
-          lastestBlockNumbers,
+          latestBlockNumbers,
         });
         return;
       }

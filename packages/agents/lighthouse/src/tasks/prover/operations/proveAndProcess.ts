@@ -397,8 +397,17 @@ export const proveAndProcessOpMode = async () => {
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        //TODO: Should get the latest snapshot for which the aggregate was recieved on the destination domain
-        const snapshot = await database.getPendingAggregateRoot(destinationDomain);
+        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
+          destinationDomain,
+        );
+        if (!curDestAggRoot) {
+          throw new NoReceivedAggregateRoot(destinationDomain);
+        }
+        logger.debug("Got latest aggregate root for domain", requestContext, methodContext, {
+          destinationDomain,
+          curDestAggRoot,
+        });
+        const snapshot = await database.getPendingAggregateRoot(curDestAggRoot.root);
         if (snapshot) {
           logger.debug("Got pending snapshot", requestContext, methodContext, {
             snapshot,
@@ -415,7 +424,6 @@ export const proveAndProcessOpMode = async () => {
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
-              // const messageRoots = [];
               const domainIndex = snapshot.domains.indexOf(originDomain);
               if (domainIndex === -1) {
                 throw new NoDomainInSnapshot(originDomain, snapshot);
