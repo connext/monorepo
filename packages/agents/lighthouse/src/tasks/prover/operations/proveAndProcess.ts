@@ -407,6 +407,8 @@ export const proveAndProcessOpMode = async () => {
           destinationDomain,
           curDestAggRoot,
         });
+        // TODO: As an improvement we could mark snapshots as processed: true to avoid iteraing
+        //  over fully processed snapshots.
         const snapshot = await database.getPendingAggregateRoot(curDestAggRoot.root);
         if (snapshot) {
           logger.debug("Got pending snapshot", requestContext, methodContext, {
