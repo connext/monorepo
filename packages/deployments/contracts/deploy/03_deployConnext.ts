@@ -202,7 +202,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         KEEP3R_ADDRESSES[network.chainId],
         rootManager.address,
         constants.AddressZero,
-        AUTONOLAS_PRIORITY,
         PROPAGATE_COOLDOWN,
         hubConnectors,
         chains,
