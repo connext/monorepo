@@ -1,5 +1,5 @@
 import { defaultAbiCoder, formatEther } from "ethers/lib/utils";
-import { BigNumber, Contract, constants, providers } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 
 import {
   DestinationSwapDataFns,
@@ -10,6 +10,7 @@ import {
   UniV3SwapperABI,
 } from "../../helpers";
 import { DestinationCallDataParams, Swapper } from "../../types";
+import { getContract } from "../../mockable";
 
 /**
  * Generates the `calldata` to be put into the `xcall` on the origin domain for a given target
@@ -32,12 +33,6 @@ export const getXCallCallData = async (
   const destinationSwapDataCallbackFn = DestinationSwapDataFns[swapper];
   const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
 
-  console.log({
-    swapper: swapperConfig.address,
-    toAsset: params.swapForwarderData.toAsset,
-    encodedSwapperData: encodedSwapperData,
-    forwardCallData: forwardCallData,
-  });
   const swapForwarderData = defaultAbiCoder.encode(
     ["address", "address", "bytes", "bytes"],
     [swapperConfig.address, params.swapForwarderData.toAsset, encodedSwapperData, forwardCallData],
@@ -64,18 +59,18 @@ export const getPoolFeeForUniV3 = async (
   // That would be better to do it without using rpc like using sdk.
   const swapperConfig = DestinationSwapperPerDomain[domainId];
   const rpcProvider = new providers.JsonRpcProvider(rpc);
-  const swapperContract = new Contract(swapperConfig.address, UniV3SwapperABI, rpcProvider);
+  const swapperContract = getContract(swapperConfig.address, UniV3SwapperABI, rpcProvider);
   const univ3Router = await swapperContract.uniswapV3Router();
-  const uniV3RouterContract = new Contract(univ3Router as string, UniV3RouterABI, rpcProvider);
+  const uniV3RouterContract = getContract(univ3Router as string, UniV3RouterABI, rpcProvider);
   const univ3Factory = await uniV3RouterContract.factory();
-  const univ3FactoryContract = new Contract(univ3Factory as string, UniV3FactoryABI, rpcProvider);
+  const univ3FactoryContract = getContract(univ3Factory as string, UniV3FactoryABI, rpcProvider);
 
   const res = await Promise.all(
     AVAILABLE_POOL_FEES.map(async (poolFee) => {
       const pool = await univ3FactoryContract.getPool(token0, token1, poolFee);
       let liquidity = 0;
       if (pool != constants.AddressZero) {
-        const poolContract = new Contract(pool as string, UniV3PoolABI, rpcProvider);
+        const poolContract = getContract(pool as string, UniV3PoolABI, rpcProvider);
         const liqInBigNum = await poolContract.liquidity();
         liquidity = Number(formatEther(liqInBigNum as BigNumber));
       }

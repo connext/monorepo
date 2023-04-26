@@ -59,7 +59,8 @@ export const prepareSwapAndXCall = async (
 
     const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
     if (!swapAndXCallAddress) {
-      throw new Error(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      console.log(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      return txRequest;
     }
 
     const originRoute =
@@ -88,8 +89,6 @@ export const prepareSwapAndXCall = async (
         slippage,
         callData,
       ];
-
-      console.log({ formattedArguments });
 
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
         "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes)",
@@ -122,8 +121,6 @@ export const prepareSwapAndXCall = async (
         relayerFeeInTransactingAsset.toString(),
       ];
 
-      console.log({ formattedArguments });
-
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
         "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes,uint256)",
         formattedArguments,
@@ -154,7 +151,7 @@ export const prepareSwapAndXCall = async (
  *
  * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
-const calculateRouteForSwapAndXCall = async (
+export const calculateRouteForSwapAndXCall = async (
   domainId: string,
   fromAsset: string,
   toAsset: string,
