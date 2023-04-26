@@ -7,7 +7,7 @@ import { jsonifyError } from "../types";
 
 export const GELATO_SERVER = "https://api.staging.gelato.digital";
 
-export const GELATO_RELAYER_ADDRESS = "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
+export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
 
 export const getGelatoEstimatedFee = async (
   _chainId: number,
