@@ -1,14 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
-export const XReceiveTarget = {
-  MidasProtocol: "MidasProcotol",
-  MeanFinance: "MeanFinance",
-  Instadapp: "Instadapp",
-  XSwapAndGreet: "XSwapAndGreet",
-} as const;
-export type XReceiveTarget = (typeof XReceiveTarget)[keyof typeof XReceiveTarget];
-
 export const Swapper = {
   UniV2: "UniV2",
   UniV3: "UniV3",
@@ -49,29 +41,9 @@ export const UniV3SwapperParamsSchema = Type.Object({
 });
 export type UniV3SwapperParams = Static<typeof UniV3SwapperParamsSchema>;
 
-export const MidasProtocolForwardCallDataSchema = Type.Object({
-  cTokenAddress: TAddress,
-  underlying: TAddress,
-  minter: TAddress,
-});
-export type MidasForwardCallData = Static<typeof MidasProtocolForwardCallDataSchema>;
-
-// TODO: Defines the properties if needed
-export const MeanFinanceForwardCallDataSchema = Type.Object({});
-export type MeanFinanceForwardCallData = Static<typeof MeanFinanceForwardCallDataSchema>;
-
-// TODO: Defines the properties if needed
-export const InstadappForwardCallDataSchema = Type.Object({});
-export type InstadappForwardCallData = Static<typeof InstadappForwardCallDataSchema>;
-
 export const DestinationSwapForwarderParamsSchema = Type.Object({
   toAsset: TAddress,
   swapData: Type.Union([UniV2SwapperParamsSchema, UniV3SwapperParamsSchema]), // UniV2SwapperParamsSchema isn't currently supported
-  forwardCallData: Type.Union([
-    MidasProtocolForwardCallDataSchema,
-    InstadappForwardCallDataSchema,
-    MeanFinanceForwardCallDataSchema,
-  ]),
 });
 export type DestinationSwapForwarderParams = Static<typeof DestinationSwapForwarderParamsSchema>;
 

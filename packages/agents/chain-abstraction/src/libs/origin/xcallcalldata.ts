@@ -9,8 +9,7 @@ import {
   UniV3RouterABI,
   UniV3SwapperABI,
 } from "../../helpers";
-import { DestinationCallDataParams, Swapper, XReceiveTarget } from "../../types";
-import { ForwardCallDataFns } from "../destination";
+import { DestinationCallDataParams, Swapper } from "../../types";
 
 /**
  * Generates the `calldata` to be put into the `xcall` on the origin domain for a given target
@@ -25,14 +24,12 @@ import { ForwardCallDataFns } from "../destination";
  */
 export const getXCallCallData = async (
   domainId: string,
-  target: XReceiveTarget,
   swapper: Swapper,
+  forwardCallData: string,
   params: DestinationCallDataParams,
 ): Promise<string> => {
   const swapperConfig = DestinationSwapperPerDomain[domainId];
-  const forwardCallDataCallbackFn = ForwardCallDataFns[target];
   const destinationSwapDataCallbackFn = DestinationSwapDataFns[swapper];
-  const forwardCallData = forwardCallDataCallbackFn(params.swapForwarderData.forwardCallData);
   const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
 
   console.log({
