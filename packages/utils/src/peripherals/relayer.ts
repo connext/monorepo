@@ -80,10 +80,10 @@ export const calculateRelayerFee = async (
     ),
     originNativeTokenPrice
       ? Promise.resolve(originNativeTokenPrice)
-      : getConversionRate(originChainId, undefined, undefined),
+      : getConversionRate(originChainId, undefined, logger),
     destinationNativeTokenPrice
       ? Promise.resolve(destinationNativeTokenPrice)
-      : getConversionRate(destinationChainId, undefined, undefined),
+      : getConversionRate(destinationChainId, undefined, logger),
   ]);
 
   // fallback with passed-in gas price or with callback
