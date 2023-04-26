@@ -1,7 +1,8 @@
 import { constants } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils";
-import { axiosGet, jsonifyError } from "@connext/nxtp-utils";
+import { jsonifyError } from "@connext/nxtp-utils";
 
+import { axiosGet } from "../mockable";
 import { UniV2SwapperParams, UniV3SwapperParams } from "../types";
 
 export type OriginSwapDataCallbackArgs = {
