@@ -5,7 +5,7 @@ import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
 import { jsonifyError } from "../types";
 
-export const GELATO_SERVER = "https://api.staging.gelato.digital";
+export const GELATO_SERVER = "https://api.gelato.digital";
 
 export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
 
@@ -31,8 +31,12 @@ export const getGelatoEstimatedFee = async (
   return result;
 };
 
-/// MARK - This is used for testnets which aren't being supported by gelato
+/// MARK - This is used for testnets and mainnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
+  // MAINNETS
+  59140: 1, // linea
+
+  // TESTNETS
   4: 1, // rinkeby
   5: 1, // goerli
   1337: 1, // local chain
