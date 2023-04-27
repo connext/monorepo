@@ -276,6 +276,8 @@ export class SdkPool extends SdkShared {
           destinationAmount,
         ),
       );
+    } else {
+      promises.push(Promise.resolve(undefined));
     }
 
     // Determine if fast liquidity is available (pre-destination-swap amount)
