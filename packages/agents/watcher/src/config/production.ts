@@ -18,7 +18,8 @@ export const MAINNET_PRODUCTION_DEFAULT: WatcherDefaultConfig = {
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     },
   ],
-  interval: 15000,
+  mintedAssetsCheckInterval: 15000,
+  proposalCheckInterval: 300_000,
   chains: {
     "6648936": {
       quorum: 2,

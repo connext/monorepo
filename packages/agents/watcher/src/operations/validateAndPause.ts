@@ -8,8 +8,8 @@ export const validateAndPause = async (requestContext: RequestContext) => {
     adapters: { watcher },
   } = getContext();
 
-  const { needsPause, reason, transactions } = await watcher.checkInvariants(requestContext);
-  if (needsPause) {
+  const { needsAction, reason, transactions } = await watcher.checkInvariants(requestContext);
+  if (needsAction) {
     await pauseAndAlert(requestContext, reason || "", transactions);
   }
 };

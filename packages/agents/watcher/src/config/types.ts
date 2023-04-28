@@ -21,7 +21,8 @@ export const WatcherConfigSchema = Type.Intersect([
       port: Type.Number(),
       host: Type.String(),
     }),
-    interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
+    mintedAssetsCheckInterval: Type.Number({ minimum: 5000, maximum: 500_000 }),
+    proposalCheckInterval: Type.Number({ minimum: 300_000, maximum: 900_000 }),
   }),
   WatcherAlertsConfigSchema,
 ]);
@@ -44,6 +45,7 @@ export const WatcherDefaultConfigSchema = Type.Object({
     port: Type.Number(),
     host: Type.String(),
   }),
-  interval: Type.Number({ minimum: 5000, maximum: 500_000 }),
+  mintedAssetsCheckInterval: Type.Number({ minimum: 5000, maximum: 500_000 }),
+  proposalCheckInterval: Type.Number({ minimum: 300_000, maximum: 900_000 }),
 });
 export type WatcherDefaultConfig = Static<typeof WatcherDefaultConfigSchema>;

@@ -65,7 +65,16 @@ export const getEnvConfig = (): WatcherConfig => {
       port: process.env.WATCHER_PORT || configJson.server?.port || configFile.server?.port || DEFAULT.server.port,
       host: process.env.WATCHER_HOST || configJson.server?.host || configFile.server?.host || DEFAULT.server.host,
     },
-    interval: process.env.WATCHER_INTERVAL || configJson.interval || configFile.interval || DEFAULT.interval,
+    mintedAssetsCheckInterval:
+      process.env.WATCHER_MINTED_ASSETS_INTERVAL ||
+      configJson.mintedAssetsCheckInterval ||
+      configFile.mintedAssetsCheckInterval ||
+      DEFAULT.mintedAssetsCheckInterval,
+    proposalCheckInterval:
+      process.env.WATCHER_PROPOSAL_INTERVAL ||
+      configJson.proposalCheckInterval ||
+      configFile.proposalCheckInterval ||
+      DEFAULT.proposalCheckInterval,
     discordHookUrl: process.env.DISCORD_HOOK_URL || configJson.discordHookUrl || configFile.discordHookUrl,
     pagerDutyRoutingKey:
       process.env.PAGERDUTY_ROUTING_KEY || configJson.pagerDutyRoutingKey || configFile.pagerDutyRoutingKey,

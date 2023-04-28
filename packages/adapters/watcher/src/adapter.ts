@@ -1,6 +1,5 @@
-import { createLoggingContext, jsonifyError, RequestContext, domainToChainId } from "@connext/nxtp-utils";
+import { RequestContext, domainToChainId } from "@connext/nxtp-utils";
 
-import { alertViaBetterUptime, alertViaDiscord, alertViaPagerDuty, alertViaSms, alertViaTelegram } from "./alert";
 import { Pauser } from "./pause";
 import {
   Verifier,
@@ -10,13 +9,18 @@ import {
   PauseResponse,
   WatcherAlertsConfig,
   WatcherInvariantResponse,
-  ValidateResponse,
+  SwitchResponse,
+  VerifyResponse,
 } from "./types";
 import { AssetVerifier } from "./verifiers";
+import { Switcher } from "./switch";
+import { ProposedRootVerifier } from "./verifiers/proposal";
+import { Alerter } from "./alert/alerter";
 
 // Aggregation class for interfacing with all adapter functionality.
 export class WatcherAdapter {
   private readonly verifiers: Verifier[];
+  private readonly alerter: Alerter;
   private readonly pauser: Pauser;
   private readonly context: VerifierContext;
 
@@ -30,10 +34,11 @@ export class WatcherAdapter {
   private transactionSnapshot: Record<string, string[]> | undefined;
 
   constructor(context: VerifierContext, assets: AssetInfo[]) {
+    this.verifiers = [new AssetVerifier(context, assets)];
+    this.alerter = new Alerter();
+    this.pauser = new Pauser(context);
     this.context = context;
     // Should set all applicable verifiers here!
-    this.verifiers = [new AssetVerifier(context, assets)];
-    this.pauser = new Pauser(context);
     this.beginRecordingTransactions();
   }
 
@@ -41,7 +46,7 @@ export class WatcherAdapter {
   public async checkInvariants(requestContext: RequestContext): Promise<WatcherInvariantResponse> {
     for (const verifier of this.verifiers) {
       const result = await verifier.checkInvariant(requestContext);
-      if (result.needsPause) {
+      if (result.needsAction) {
         // store potential offending transactions
         this.recordTransactions();
         this.clearTransactions();
@@ -51,7 +56,7 @@ export class WatcherAdapter {
     // if there was no alerting, clear all of the saved transactions
     this.clearTransactions();
     return {
-      needsPause: false,
+      needsAction: false,
     };
   }
 
@@ -61,113 +66,7 @@ export class WatcherAdapter {
   }
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
-    const { requestContext, logger, ...res } = report;
-    const { methodContext } = createLoggingContext(this.alert.name);
-    const {
-      discordHookUrl,
-      pagerDutyRoutingKey,
-      twilioNumber,
-      twilioAccountSid,
-      twilioAuthToken,
-      twilioToPhoneNumbers,
-      telegramApiKey,
-      telegramChatId,
-      betterUptimeApiKey,
-      betterUptimeRequesterEmail,
-    } = config;
-
-    const discordAlert = !!discordHookUrl;
-    const pagerDutyAlert = !!pagerDutyRoutingKey;
-    const smsAlert = !!(twilioAccountSid && twilioAuthToken && twilioNumber && twilioToPhoneNumbers?.length);
-    const telegramAlert = telegramApiKey && telegramChatId;
-    const betterUptimeAlert = !!(betterUptimeApiKey && betterUptimeRequesterEmail);
-    logger.info("alert: Attempt to alert", requestContext, methodContext, {
-      report: res,
-      alerts: {
-        discord: discordAlert,
-        pagerDuty: pagerDutyAlert,
-        sms: smsAlert,
-        telegram: telegramAlert,
-        betterUptime: betterUptimeAlert,
-      },
-    });
-
-    const errors = await Promise.all([
-      // attempt to alert via discord
-      (async () => {
-        if (discordAlert) {
-          try {
-            await alertViaDiscord(report, discordHookUrl);
-          } catch (e: unknown) {
-            logger.error("alert: failed to alert via discord", requestContext, methodContext, jsonifyError(e as Error));
-            return e;
-          }
-        }
-      })(),
-      // attempt to alert via pager duty
-      (async () => {
-        if (pagerDutyAlert) {
-          try {
-            await alertViaPagerDuty(report, pagerDutyRoutingKey);
-          } catch (e: unknown) {
-            logger.error(
-              "alert: failed to alert via pager duty",
-              requestContext,
-              methodContext,
-              jsonifyError(e as Error),
-            );
-            return e;
-          }
-        }
-      })(),
-      // attempt to alert via sms (twilio service)
-      (async () => {
-        if (smsAlert) {
-          try {
-            await alertViaSms(report, twilioAccountSid, twilioAuthToken, twilioNumber, twilioToPhoneNumbers);
-          } catch (e: unknown) {
-            logger.error("alert: failed to alert via sms", requestContext, methodContext, jsonifyError(e as Error));
-            return e;
-          }
-        }
-      })(),
-      // attempt to alert via telegram
-      (async () => {
-        if (telegramAlert) {
-          try {
-            await alertViaTelegram(report, telegramApiKey, telegramChatId);
-          } catch (e: unknown) {
-            logger.error(
-              "alert: failed to alert via telegram",
-              requestContext,
-              methodContext,
-              jsonifyError(e as Error),
-            );
-            return e;
-          }
-        }
-      })(),
-      // attempt to alert via telegram
-      (async () => {
-        if (betterUptimeAlert) {
-          try {
-            await alertViaBetterUptime(report, betterUptimeApiKey, betterUptimeRequesterEmail);
-          } catch (e: unknown) {
-            logger.error(
-              "alert: failed to alert via better uptime",
-              requestContext,
-              methodContext,
-              jsonifyError(e as Error),
-            );
-            return e;
-          }
-        }
-      })(),
-    ]);
-
-    if (errors.filter((x) => !!x).length > 0) {
-      throw errors;
-    }
+    return await this.alerter.alert(report, config);
   }
 
   /**
@@ -219,14 +118,29 @@ export class WatcherAdapter {
 }
 
 export class OpModeMonitor {
-  public async validateProposal(requestContext: RequestContext): Promise<ValidateResponse> {
-    console.log(requestContext);
-    return { needsSwitch: false, reason: "" };
+  private readonly alerter: Alerter;
+  private readonly hubDomain: string;
+  private readonly switcher: Switcher;
+  private readonly verifier: ProposedRootVerifier;
+
+  constructor(context: VerifierContext, hubDomain: string) {
+    this.alerter = new Alerter();
+    this.switcher = new Switcher(context);
+    this.verifier = new ProposedRootVerifier(context, hubDomain);
+    this.hubDomain = hubDomain;
   }
-  public async switch(requestContext: RequestContext, reason: string): Promise<void> {
-    console.log(requestContext, reason);
+
+  public async validateProposal(requestContext: RequestContext): Promise<VerifyResponse> {
+    // This is redundant but we keep it to be consistent with flow
+    return await this.verifier.checkInvariant(requestContext);
   }
-  public async alert(alert: any, config: any): Promise<void> {
-    console.log(alert, config);
+
+  public async switch(_requestContext: RequestContext, reason: string): Promise<SwitchResponse> {
+    // This is redundant but we keep it to be consistent with flow
+    return await this.switcher.switch(_requestContext, reason, this.hubDomain);
+  }
+
+  public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
+    return await this.alerter.alert(report, config);
   }
 }

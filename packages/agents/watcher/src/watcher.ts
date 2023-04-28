@@ -1,5 +1,5 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
+import { WatcherAdapter, OpModeMonitor } from "@connext/nxtp-adapters-watcher";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { TransactionService } from "@connext/nxtp-txservice";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@connext/nxtp-utils";
 import { utils, Wallet } from "ethers";
 
-import { bindServer, bindInterval } from "./bindings";
+import { bindServer, startMintedAssetsInvariantCheck, startProposalInvariantCheck } from "./bindings";
 import { getConfig } from "./config";
 import { WatcherContext } from "./context";
 
@@ -59,7 +59,8 @@ export const makeWatcher = async () => {
       logLevel: context.config.logLevel,
       environment: context.config.environment,
       hubDomain: context.config.hubDomain,
-      interval: context.config.interval,
+      mintedAssetsCheckInterval: context.config.mintedAssetsCheckInterval,
+      proposalCheckInterval: context.config.proposalCheckInterval,
       twilioAccountSid: (context.config.telegramApiKey ?? "").charAt(0),
       twilioAuthToken: (context.config.twilioAuthToken ?? "").charAt(0),
       twilioToPhoneNumbers: (context.config.twilioToPhoneNumbers ?? []).length,
@@ -150,9 +151,21 @@ export const makeWatcher = async () => {
       assets,
     );
 
+    // TODO: see how to get the hubDomain programatically so it scales
+    context.adapters.monitor = new OpModeMonitor(
+      {
+        domains: Object.keys(context.config.chains),
+        logger: context.logger.child({ module: "WatcherAdapter", level: context.config.logLevel }),
+        txservice,
+        isStaging: context.config.environment === "staging",
+      },
+      hubDomain,
+    );
+
     /// MARK - Bindings
     await bindServer();
-    await bindInterval();
+    startMintedAssetsInvariantCheck();
+    startProposalInvariantCheck();
     console.log(
       `
 C O N N E X T   W A T C H E R

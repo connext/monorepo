@@ -14,7 +14,8 @@ export const TESTNET_STAGING_DEFAULT: WatcherDefaultConfig = {
       address: "0x2D4A671E49d39Fc13F9237f60B6E6FDd16d8Ad4d",
     },
   ],
-  interval: 15000,
+  mintedAssetsCheckInterval: 15000,
+  proposalCheckInterval: 300_000,
   chains: {
     "1735353714": {
       quorum: 2,

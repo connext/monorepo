@@ -1,4 +1,9 @@
-import { getDeployedConnextContract, TransactionService } from "@connext/nxtp-txservice";
+import {
+  getDeployedConnextContract,
+  getDeployedRootManagerContract,
+  getDeployedSpokeConnecterContract,
+  TransactionService,
+} from "@connext/nxtp-txservice";
 import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
@@ -13,16 +18,20 @@ export type VerifierContext = {
 };
 
 export type VerifyResponse = {
-  needsPause: boolean;
-  reason?: string;
-};
-
-export type ValidateResponse = {
-  needsSwitch: boolean;
+  needsAction: boolean;
   reason?: string;
 };
 
 export type WatcherInvariantResponse = VerifyResponse & { transactions?: Record<string, string[]> };
+
+export type ProposedData = {
+  snapshotId: string;
+  endOfDispute: string;
+  proposedRoot: string;
+  baseRoot: string;
+  snapshotRoots: string[];
+  domains: string[];
+};
 
 // Base class for all verifiers. Should be inherited by verifiers, each with their own
 // invariant condition to track and verify.
@@ -41,7 +50,32 @@ export abstract class Verifier {
     }
     return connext;
   }
+
+  public getRootManagerDeployment(chainId: number): { address: string; abi: any } {
+    const rootManager = getDeployedRootManagerContract(chainId, this.context.isStaging ? "Staging" : "");
+    if (!rootManager) {
+      // TODO: Custom errors for package
+      throw new Error(`RootManager deployment not found for chain ${chainId}!`);
+    }
+    return rootManager;
+  }
+
+  public getSpokeConnectorDeployment(chainId: number): { address: string; abi: any } {
+    const spokeConnector = getDeployedSpokeConnecterContract(chainId, this.context.isStaging ? "Staging" : "");
+    if (!spokeConnector) {
+      // TODO: Custom errors for package
+      throw new Error(`SpokeConnector deployment not found for chain ${chainId}!`);
+    }
+    return spokeConnector;
+  }
 }
+
+export type SwitchResponse = {
+  domain: string;
+  switched: boolean;
+  error: any;
+  relevantTransaction: ethers.providers.TransactionResponse | string;
+};
 
 export type PauseResponse = {
   domain: string;

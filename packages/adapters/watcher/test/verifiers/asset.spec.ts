@@ -162,7 +162,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
       totalLockedAssetsStub.resolves(BigNumber.from(10_000));
       totalMintedAssetsStub.resolves(BigNumber.from(10_000));
       let result = await assetVerifier.checkInvariant(requestContext);
-      expect(result.needsPause).to.be.false;
+      expect(result.needsAction).to.be.false;
       // NOTE: If we add more target assets to this test, make sure to modify these checks.
       expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
       expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
@@ -170,7 +170,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
       // totalMinted is less than totalLocked: should pass.
       totalMintedAssetsStub.resolves(BigNumber.from(8_123));
       result = await assetVerifier.checkInvariant(requestContext);
-      expect(result.needsPause).to.be.false;
+      expect(result.needsAction).to.be.false;
     });
 
     it("should fail when invariant is violated", async () => {
@@ -178,7 +178,7 @@ describe("Watcher Adapter: AssetVerifier", () => {
       totalLockedAssetsStub.resolves(BigNumber.from(10_000));
       totalMintedAssetsStub.resolves(BigNumber.from(20_000));
       const result = await assetVerifier.checkInvariant(requestContext);
-      expect(result.needsPause).to.be.true;
+      expect(result.needsAction).to.be.true;
       expect(totalLockedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
       expect(totalMintedAssetsStub).to.have.been.calledOnceWithExactly(targetAsset, requestContext);
     });

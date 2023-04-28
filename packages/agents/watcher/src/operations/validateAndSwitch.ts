@@ -1,15 +1,13 @@
-import { PauseResponse } from "@connext/nxtp-adapters-watcher";
+import { SwitchResponse, ReportEventType } from "@connext/nxtp-adapters-watcher";
 import { createMethodContext, RequestContext } from "@connext/nxtp-utils";
-
 import { getContext } from "../watcher";
 
 export const validateAndSwitch = async (requestContext: RequestContext, transactions?: Record<string, string[]>) => {
   const {
     adapters: { monitor },
   } = getContext();
-
-  const { needsSwitch, reason } = await monitor.validateProposal(requestContext);
-  if (needsSwitch) {
+  const { needsAction, reason } = await monitor.validateProposal(requestContext);
+  if (needsAction) {
     await switchAndAlert(requestContext, reason || "", transactions);
   }
 };
@@ -18,7 +16,7 @@ export const switchAndAlert = async (
   requestContext: RequestContext,
   reason: string,
   transactions?: Record<string, string[]>,
-): Promise<PauseResponse[] | void> => {
+): Promise<SwitchResponse> => {
   const {
     adapters: { monitor },
     logger,
@@ -26,24 +24,26 @@ export const switchAndAlert = async (
   } = getContext();
   const methodContext = createMethodContext(switchAndAlert.name);
 
+  // TODO: We need just hubDomain for this one
   const domains = Object.keys(config.chains);
   logger.warn("SWITCHING TO SLOW MODE!!!", requestContext, methodContext, { reason, transactions });
-  const result = await monitor.switch(requestContext, reason);
+  const result: SwitchResponse = await monitor.switch(requestContext, reason);
   logger.warn("Switched to slow mode, alerting", requestContext, methodContext, { result, domains: domains });
   await monitor.alert(
     {
-      // TODO: Setup alert params
-      // domains,
-      // errors: result.map((p) => p.error),
-      // reason,
-      // timestamp: Date.now(),
-      // event: ReportEventType.Switch,
-      // logger,
-      // relevantTransactions: result.map((p) => p.relevantTransaction),
-      // requestContext,
-      // rpcs: Object.entries(config.chains)
-      //   .map((chain) => chain[1].providers)
-      //   .flat(),
+      //TODO: Check with connext if alerter approach is correct, and modify to only pass hubDomain instead of domains
+      domains,
+      errors: [result.error],
+      reason,
+      timestamp: Date.now(),
+      event: ReportEventType.Switch,
+      logger,
+      relevantTransactions: [result.relevantTransaction],
+      requestContext,
+      // TODO: also change to only send the hubDomain rpc
+      rpcs: Object.entries(config.chains)
+        .map((chain) => chain[1].providers)
+        .flat(),
     },
     config,
   );

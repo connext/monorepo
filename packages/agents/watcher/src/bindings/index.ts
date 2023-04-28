@@ -1,2 +1,2 @@
 export { bindServer } from "./server";
-export { bindInterval } from "./interval";
+export { startMintedAssetsInvariantCheck, startProposalInvariantCheck } from "./interval";

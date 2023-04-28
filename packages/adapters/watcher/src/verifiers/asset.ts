@@ -30,7 +30,7 @@ export class AssetVerifier extends Verifier {
       // Invariant: totalMintedAssets <= totalLockedAssets
       if (totalMinted.gt(totalLocked)) {
         return {
-          needsPause: true,
+          needsAction: true,
           reason: `totalMintedAssets (${totalMinted.toString()}) is less than or equal to totalLockedAssets (${totalLocked.toString()}) for ${
             asset.symbol
           } (${asset.address})`,
@@ -38,7 +38,7 @@ export class AssetVerifier extends Verifier {
       }
     }
     return {
-      needsPause: false,
+      needsAction: false,
     };
   }
 
