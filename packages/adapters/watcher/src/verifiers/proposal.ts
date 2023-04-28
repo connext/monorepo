@@ -14,7 +14,7 @@ export class ProposedRootVerifier extends Verifier {
    * @dev Should compare the proposed aggregate root to the virtual aggregate root. If
    * the invariant is violated, should return a value to indicate that the caller/consumer should escalate.
    *
-   * @returns object - Whether the invariant was verified. `true` if ALL were verified (no switch needed).
+   * @returns object - Whether the invariant was verified. `true` if propose was verified (no switch needed).
    * `false` if the invariant was violated (switch is needed)! If false, a reason is included in the response object.
    */
   public override async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {

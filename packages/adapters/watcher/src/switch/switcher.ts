@@ -37,7 +37,9 @@ export class Switcher extends Verifier {
         data: rootManagerInterface.encodeFunctionData("optimisticMode"),
       });
 
-      const [isOptimistic] = rootManagerInterface.decodeFunctionResult("optimisticMode", optimisticModeRes);
+      const [isOptimistic] = rootManagerInterface.decodeFunctionResult("optimisticMode", optimisticModeRes) as [
+        boolean,
+      ];
 
       // 2. If in slow mode, do nothing.
       if (!isOptimistic) {

@@ -27,7 +27,7 @@ export const switchAndAlert = async (
   // TODO: We need just hubDomain for this one
   const domains = Object.keys(config.chains);
   logger.warn("SWITCHING TO SLOW MODE!!!", requestContext, methodContext, { reason, transactions });
-  const result: SwitchResponse = await monitor.switch(requestContext, reason);
+  const result = await monitor.switch(requestContext, reason);
   logger.warn("Switched to slow mode, alerting", requestContext, methodContext, { result, domains: domains });
   await monitor.alert(
     {
