@@ -2,7 +2,10 @@ import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils
 
 import { getContext } from "../../shared";
 
-const markableDomainsForRootMessage = ["6450786"];
+const markableDomainsForRootMessage = [
+  "6450786", // BNB
+  "1668247156", // Consensys zkEvm Testnet
+];
 
 export const retrieveOriginMessages = async () => {
   const {
