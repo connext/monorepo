@@ -479,6 +479,34 @@ describe("SdkPool", () => {
       expect(res.originSlippage.toString()).to.equal(originSlippage);
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
+
+    it("happy: should work with 6 decimals local asset and 18 decimals adopted asset", async () => {
+      const pool: Pool = {
+        domainId: mock.domain.A,
+        name: "TSTB Pool",
+        symbol: "TSTB-TSTA",
+        local: localAsset,
+        adopted: adoptedAsset,
+        lpTokenAddress: utils.formatBytes32String("asdf"),
+        canonicalHash: utils.formatBytes32String("13337"),
+        swapFee: "4000000",
+        balances: [BigNumber.from("706924186329"), BigNumber.from("749171899882428175742051")],
+        decimals: [6, 18],
+        invariant: BigNumber.from("1456093034430419725194080"),
+        initialA: BigNumber.from("20000"),
+        initialATime: 0,
+        futureA: BigNumber.from("20000"),
+        futureATime: 0,
+        currentA: BigNumber.from("20000"),
+        adminFee: "0",
+      };
+
+      const originAmount = BigNumber.from(1_000);
+      const receivedAmount = originAmount.mul(BigNumber.from(10).pow(12)).mul(9).div(10); // assume swap ate 10%
+
+      const res = await sdkPool.calculateSwapLocal(mock.domain.A, pool, pool.local.address, 0, 1, originAmount);
+      expect(res.gt(receivedAmount)).to.equal(true);
+    });
   });
 
   describe("#getUserPools", () => {
