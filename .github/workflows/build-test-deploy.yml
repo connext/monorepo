@@ -114,9 +114,26 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
+            supported_tags=("stable" "alpha" "beta")
+            found_match=false
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            for current_tag in "${supported_tags[@]}"; do
+              if [[ "$current_tag" == "stable" ]]; then
+                # "stable" is not explicitly in the version name for stable releases
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+              else
+                # pre-release versions have the tag in the version name
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+              fi
+
+              if [[ "$last_version" == "$subpackage_version" ]]; then
+                found_match=true
+                break
+              fi
+            done
+
+            if [[ ! $found_match ]]; then
               echo "Publishing $workspace with version $subpackage_version"
               if [[ "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
@@ -153,9 +170,26 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
+            supported_tags=("stable" "alpha" "beta")
+            found_match=false
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            for current_tag in "${supported_tags[@]}"; do
+              if [[ "$current_tag" == "stable" ]]; then
+                # "stable" is not explicitly in the version name for stable releases
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+              else
+                # pre-release versions have the tag in the version name
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+              fi
+
+              if [[ "$last_version" == "$subpackage_version" ]]; then
+                found_match=true
+                break
+              fi
+            done
+
+            if [[ ! $found_match ]]; then
               echo "Publishing $workspace with version $subpackage_version"
               if [[ "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
@@ -192,9 +226,26 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
+            supported_tags=("stable" "alpha" "beta")
+            found_match=false
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            for current_tag in "${supported_tags[@]}"; do
+              if [[ "$current_tag" == "stable" ]]; then
+                # "stable" is not explicitly in the version name for stable releases
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+              else
+                # pre-release versions have the tag in the version name
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+              fi
+
+              if [[ "$last_version" == "$subpackage_version" ]]; then
+                found_match=true
+                break
+              fi
+            done
+
+            if [[ ! $found_match ]]; then
               echo "Publishing $workspace with version $subpackage_version"
               if [[ "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
