@@ -5,6 +5,7 @@ import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
 import { DEPLOYED_ADDRESSES } from "../../helpers/address";
 import { OriginSwapDataFns, OriginSwapperPerDomain } from "../../helpers";
+import { getAddress } from "ethers/lib/utils";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -63,8 +64,10 @@ export const prepareSwapAndXCall = async (
       return txRequest;
     }
 
-    const originRoute =
-      _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress));
+    const isSameAsset = getAddress(toAsset) === getAddress(fromAsset);
+    const originRoute = !isSameAsset
+      ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress))
+      : null;
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
     let swapAndXCallData: string;
@@ -81,8 +84,8 @@ export const prepareSwapAndXCall = async (
         fromAsset,
         toAsset,
         BigNumber.from(amountIn),
-        originRoute.swapper,
-        originRoute.swapData,
+        originRoute ? originRoute.swapper : constants.AddressZero,
+        originRoute ? originRoute.swapData : "0x",
         destinationDomain,
         to,
         delegate,
@@ -111,8 +114,8 @@ export const prepareSwapAndXCall = async (
         fromAsset,
         toAsset,
         BigNumber.from(amountIn),
-        originRoute.swapper,
-        originRoute.swapData,
+        originRoute ? originRoute.swapper : constants.AddressZero,
+        originRoute ? originRoute.swapData : "0x",
         destinationDomain,
         to,
         delegate,

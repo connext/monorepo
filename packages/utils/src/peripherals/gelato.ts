@@ -5,6 +5,8 @@ import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
 import { jsonifyError } from "../types";
 
+import { GelatoEstimatedFeeRequestError, GelatoConversionRateRequestError } from "./errors";
+
 export const GELATO_SERVER = "https://api.gelato.digital";
 
 export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
@@ -27,6 +29,7 @@ export const getGelatoEstimatedFee = async (
     result = BigNumber.from(res.data.estimatedFee);
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoEstimatedFee", undefined, undefined, jsonifyError(error as Error));
+    throw new GelatoEstimatedFeeRequestError(chainId, { err: jsonifyError(error as Error) });
   }
   return result;
 };
@@ -34,7 +37,7 @@ export const getGelatoEstimatedFee = async (
 /// MARK - This is used for testnets and mainnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
-  59140: 1, // linea
+  59140: 42161, // linea
 
   // TESTNETS
   4: 1, // rinkeby
@@ -99,6 +102,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
     result = res.data.conversionRate as number;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));
+    throw new GelatoConversionRateRequestError(chainId, { err: jsonifyError(error as Error) });
   }
   return result;
 };
