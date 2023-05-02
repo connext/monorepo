@@ -37,7 +37,7 @@ export const getGelatoEstimatedFee = async (
 /// MARK - This is used for testnets and mainnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
-  59140: 1, // linea
+  59140: 42161, // linea
 
   // TESTNETS
   4: 1, // rinkeby
