@@ -1,9 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, utils, Wallet } from "ethers";
-import { chainIdToDomain } from "@connext/nxtp-utils";
+// import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
+import { chainIdToDomain } from "../deployConfig";
 
 /**
  * Hardhat task defining the contract deployments for Connext

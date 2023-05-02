@@ -2,12 +2,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { constants, Contract, Wallet } from "ethers";
 import { DeploymentSubmission } from "hardhat-deploy/dist/types";
-import { chainIdToDomain } from "@connext/nxtp-utils";
+// import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
-import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS, chainIdToDomain, getFacetsToDeploy } from "../deployConfig/shared";
 
 const KEEP3R_ADDRESSES: Record<number, string> = {
   1: "0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC",
@@ -200,7 +200,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         gelatoRelayer,
         feeCollector,
         rootManager.address,
-        KEEP3R_ADDRESSES[network.chainId],
+        KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
         constants.AddressZero,
         AUTONOLAS_PRIORITY,
         PROPAGATE_COOLDOWN,
