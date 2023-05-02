@@ -54,25 +54,33 @@ export const updateMessages = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
   for (const domain of domains) {
-    logger.debug("Updating messages", requestContext, methodContext, { domain });
-    const pendingMessages = await database.getUnProcessedMessages(domain);
-    const messageHashes = pendingMessages.map((message) => message.leaf);
-    const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
+    let shouldSkip = false;
+    let offset = 0;
+    const limit = 100;
+    while (!shouldSkip) {
+      logger.debug("Updating messages", requestContext, methodContext, { domain, offset, limit });
+      const pendingMessages = await database.getUnProcessedMessages(domain, limit, offset);
+      const messageHashes = pendingMessages.map((message) => message.leaf);
+      const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
 
-    const xMessages: XMessage[] = [];
-    for (const pendingMessage of pendingMessages) {
-      const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
-      if (!completed) continue;
-      xMessages.push({
-        ...pendingMessage,
-        destination: {
-          processed: true,
-          returnData: "",
-        },
-      });
+      const xMessages: XMessage[] = [];
+      for (const pendingMessage of pendingMessages) {
+        const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
+        if (!completed) continue;
+        xMessages.push({
+          ...pendingMessage,
+          destination: {
+            processed: true,
+            returnData: "",
+          },
+        });
+      }
+      await database.saveMessages(xMessages);
+      logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length, domain });
+
+      if (messageHashes.length == limit) offset += limit;
+      else shouldSkip = true;
     }
-    await database.saveMessages(xMessages);
-    logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length, domain });
   }
 };
 
