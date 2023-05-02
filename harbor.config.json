@@ -13,8 +13,7 @@
                         "./packages/deployments/contracts/deployHelpers",
                         "./packages/deployments/contracts/deployments.json",
                         "./packages/deployments/contracts/abi",
-                        "./packages/deployments/contracts/cicdResources/deployments",
-                        "./packages"
+                        "./packages/deployments/contracts/cicdResources/deployments"
                     ],
                     "tags": "local"
                 },
@@ -34,6 +33,11 @@
                         "mining": {
                             "interval": 1000
                         }
+                    },
+                    {
+                        "name": "mainnet",
+                        "url": "https://cloudflare-eth.com",
+                        "chainId": 1
                     }
                 ],
                 "environment": {
@@ -62,7 +66,6 @@
                         "./packages/deployments/contracts/deployments.json",
                         "./packages/deployments/contracts/abi",
                         "./packages/deployments/contracts/cicdResources/deployments",
-                        "./packages"
                     ],
                     "tags": "local"
                 },
@@ -83,6 +86,11 @@
                     {
                         "name": "local_1337",
                         "url": "http://localhost:4000"
+                    },
+                    {
+                        "name": "mainnet",
+                        "url": "https://cloudflare-eth.com",
+                        "chainId": 1
                     }
                 ],
                 "environment": {
@@ -269,7 +277,6 @@
             ],
             "tag": "$tag_default"
         },
-
         {
             "name": "cartographerDB",
             "image": "postgres",
@@ -282,7 +289,7 @@
             },
             "command": "postgres",
             "tag": "v1"
-        },   
+        },
         {
             "name": "sequencerPublisher",
             "image": "ghcr.io/connext/sequencer-publisher:$sha_default",
@@ -318,7 +325,7 @@
                 "cartographerDB"
             ],
             "tag": "$tag_default"
-        },                                                                                 
+        },
         {
             "name": "cartographerApi",
             "image": "postgrest/postgrest:v9.0.0.20220107",
