@@ -53,13 +53,11 @@ export const updateMessages = async () => {
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
-  for (const domain of domains) {
-    let shouldSkip = false;
-    let offset = 0;
-    const limit = 100;
-    while (!shouldSkip) {
-      logger.debug("Updating messages", requestContext, methodContext, { domain, offset, limit });
-      const pendingMessages = await database.getUnProcessedMessages(domain, limit, offset);
+  for (const originDomain of domains) {
+    for (const destinationDomain of domains) {
+      if (originDomain == destinationDomain) continue;
+      logger.debug("Updating messages", requestContext, methodContext, { originDomain, destinationDomain });
+      const pendingMessages = await database.getUnProcessedMessagesByDomains(originDomain, destinationDomain);
       const messageHashes = pendingMessages.map((message) => message.leaf);
       const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
 
@@ -76,10 +74,11 @@ export const updateMessages = async () => {
         });
       }
       await database.saveMessages(xMessages);
-      logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length, domain });
-
-      if (messageHashes.length == limit) offset += limit;
-      else shouldSkip = true;
+      logger.debug("Updated messages", requestContext, methodContext, {
+        count: xMessages.length,
+        originDomain,
+        destinationDomain,
+      });
     }
   }
 };

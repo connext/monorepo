@@ -648,6 +648,29 @@ export const getUnProcessedMessages = async (
   return messages.map(convertFromDbMessage);
 };
 
+export const getUnProcessedMessagesByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit = 100,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { processed: false, origin_domain, destination_domain },
+      {
+        limit,
+        offset,
+        order: { by: "index", direction: orderDirection },
+      },
+    )
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
 export const getUnProcessedMessagesByIndex = async (
   origin_domain: string,
   destination_domain: string,
