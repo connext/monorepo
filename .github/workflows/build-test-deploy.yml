@@ -124,7 +124,8 @@ jobs:
                 last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
               else
                 # pre-release versions have the tag in the version name
-                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+                base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${current_tag}\"))" | tail -1)
               fi
 
               if [[ "$last_version" == "$subpackage_version" ]]; then
@@ -180,7 +181,8 @@ jobs:
                 last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
               else
                 # pre-release versions have the tag in the version name
-                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+                base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${current_tag}\"))" | tail -1)
               fi
 
               if [[ "$last_version" == "$subpackage_version" ]]; then
@@ -236,7 +238,8 @@ jobs:
                 last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
               else
                 # pre-release versions have the tag in the version name
-                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${subpackage_version}-${current_tag}\"))" | tail -1)
+                base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+                last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${current_tag}\"))" | tail -1)
               fi
 
               if [[ "$last_version" == "$subpackage_version" ]]; then
