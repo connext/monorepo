@@ -1,6 +1,5 @@
-import { providers, constants, BigNumber } from "ethers";
+import { providers, constants, BigNumber, utils } from "ethers";
 import { domainToChainId } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
 
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
@@ -64,7 +63,7 @@ export const prepareSwapAndXCall = async (
       return txRequest;
     }
 
-    const isSameAsset = getAddress(toAsset) === getAddress(fromAsset);
+    const isSameAsset = utils.getAddress(toAsset) === utils.getAddress(fromAsset);
     const originRoute = !isSameAsset
       ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress))
       : null;
