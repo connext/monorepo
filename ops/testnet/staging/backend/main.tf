@@ -27,8 +27,8 @@ module "cartographer_db" {
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
   instance_class        = "db.t3.medium"
-  allocated_storage     = 10
-  max_allocated_storage = 20
+  allocated_storage     = 30
+  max_allocated_storage = 50
 
 
   name     = "connext" // db name
