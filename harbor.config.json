@@ -65,7 +65,7 @@
                         "./packages/deployments/contracts/deployHelpers",
                         "./packages/deployments/contracts/deployments.json",
                         "./packages/deployments/contracts/abi",
-                        "./packages/deployments/contracts/cicdResources/deployments",
+                        "./packages/deployments/contracts/cicdResources/deployments"
                     ],
                     "tags": "local"
                 },
