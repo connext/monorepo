@@ -20,6 +20,7 @@ export const mockDatabase = (): Database => {
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
     getUnProcessedMessagesByIndex: stub().resolves([]),
+    getUnProcessedMessagesByDomains: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
