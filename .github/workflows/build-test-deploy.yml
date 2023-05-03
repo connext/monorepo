@@ -51,7 +51,7 @@ jobs:
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
         with:
-          version: nightly
+          version: nightly-87bc53fc6c874bd4c92d97ed180b949e3a36d78c
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -114,11 +114,21 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
               echo "Publishing $workspace with version $subpackage_version"
-              if [[ "$tag" ]]; then
+              if [[ ! -z "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
               else
                 yarn workspace $workspace npm publish --access public
@@ -153,11 +163,21 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
               echo "Publishing $workspace with version $subpackage_version"
-              if [[ "$tag" ]]; then
+              if [[ ! -z "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
               else
                 yarn workspace $workspace npm publish --access public
@@ -192,11 +212,21 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
               echo "Publishing $workspace with version $subpackage_version"
-              if [[ "$tag" ]]; then
+              if [[ ! -z "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
               else
                 yarn workspace $workspace npm publish --access public

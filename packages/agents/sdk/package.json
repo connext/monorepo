@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "2.0.3-alpha.0",
+  "version": "2.0.3-alpha.11",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -58,5 +58,6 @@
     "registry": "https://registry.npmjs.org",
     "access": "public"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "2.0.3-alpha.0"
 }
