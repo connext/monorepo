@@ -39,6 +39,7 @@ import {
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
+  getUnProcessedMessagesByDomains,
   getAggregateRoot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
@@ -128,6 +129,14 @@ export type Database = {
   ) => Promise<void>;
   getUnProcessedMessages: (
     origin_domain: string,
+    limit?: number,
+    offset?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByDomains: (
+    origin_domain: string,
+    destination_domain: string,
     limit?: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
@@ -276,6 +285,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     savePropagatedRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
+    getUnProcessedMessagesByDomains,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootByRootAndDomain,
