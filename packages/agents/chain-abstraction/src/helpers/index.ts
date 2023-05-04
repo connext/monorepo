@@ -14,6 +14,7 @@ import {
   getDestinationSwapDataForUniV3,
   getDestinationSwapDataForOneInch,
 } from "./swapdata";
+import { SwapQuoteCallback, getSwapQuoteForOneInch, getSwapQuoteForUniV2, getSwapQuoteForUniV3 } from "./swapquote";
 
 export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
   UniV2: getOriginSwapDataForUniV2,
@@ -27,72 +28,94 @@ export const DestinationSwapDataFns: Record<Swapper, DestinationSwapDataCallback
   OneInch: getDestinationSwapDataForOneInch,
 };
 
-export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
+export const SwapQuoteFns: Record<Swapper, SwapQuoteCallback> = {
+  UniV2: getSwapQuoteForUniV2,
+  UniV3: getSwapQuoteForUniV3,
+  OneInch: getSwapQuoteForOneInch,
+};
+
+export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: string; quoter: string }> = {
   "6648936": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // ETH mainnet
   "1869640809": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // Optimism
   "6450786": {
     type: Swapper.OneInch,
     address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
+    quoter: "",
   }, // BNB Chain
   "6778479": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.OneInch,
     address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
+    quoter: "",
   }, // Polygon
   "1634886255": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // Arbitrum One
   "2053862243": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // zkSync2 mainnet
   "1887071085": {
     type: Swapper.OneInch,
     address: "",
+    quoter: "",
   }, // Polygon zkEVM
 };
 
-export const DestinationSwapperPerDomain: Record<string, { type: Swapper; address: string }> = {
+export const DestinationSwapperPerDomain: Record<string, { type: Swapper; address: string; quoter: string }> = {
   "6648936": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // ETH mainnet
   "1869640809": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Optimism
   "6450786": {
     type: Swapper.UniV3,
     address: "0x73D53460fc1ead8Eb4A7771Bc5023159E8730E68", // UniV3 Swapper
+    quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
   }, // BNB Chain
   "6778479": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "",
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.UniV3,
     address: "0xd92fd008bb2a1B74C9De29B7a68d9822Cc8c9868", // UniV3 Swapper
+    quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Polygon
   "1634886255": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Arbitrum One
   "2053862243": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "",
   }, // zkSync2 mainnet
   "1887071085": {
     type: Swapper.UniV3,
     address: "",
+    quoter: "",
   }, // Polygon zkEVM
 };
