@@ -8,6 +8,7 @@ import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
 
 import * as ConfigFns from "../src/config";
+import * as SharedFns from "../src/lib/helpers/shared";
 import { UriInvalid } from "../src/lib/errors";
 
 const mockConfig = mock.config();
@@ -89,6 +90,7 @@ describe("SdkPool", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkPool = await SdkPool.create(config, undefined, mockChainData);
   });
@@ -678,7 +680,7 @@ describe("SdkPool", () => {
 
       const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
 
-      expect(res.toString()).to.equal(
+      expect(res?.toString()).to.equal(
         (
           await sdkPool.calculatePriceImpact(BigNumber.from("20"), BigNumber.from("10"), BigNumber.from("20"), true)
         ).toString(),
@@ -707,7 +709,7 @@ describe("SdkPool", () => {
         "10",
       );
 
-      expect(res.toString()).to.equal(
+      expect(res?.toString()).to.equal(
         (
           await sdkPool.calculatePriceImpact(BigNumber.from("10"), BigNumber.from("20"), BigNumber.from("20"), false)
         ).toString(),

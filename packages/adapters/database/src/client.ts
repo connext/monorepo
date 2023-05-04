@@ -509,6 +509,37 @@ export const getCompletedTransfersByMessageHashes = async (
   return x.map(convertFromDbTransfer);
 };
 
+export const getPendingTransfersByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit: number,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const transfers = await db
+    .select(
+      "transfers",
+      {
+        origin_domain,
+        destination_domain,
+        status: db.conditions.isNotIn(["CompletedFast", "CompletedSlow"]),
+        error_status: db.conditions.isNull,
+      },
+      {
+        offset,
+        limit,
+        order: { by: "nonce", direction: orderDirection },
+      },
+    )
+    .run(poolToUse);
+
+  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
+  return transfer_ids;
+};
+
 export const saveRouterBalances = async (
   routerBalances: RouterBalance[],
   _pool?: Pool | db.TxnClientForRepeatableRead,

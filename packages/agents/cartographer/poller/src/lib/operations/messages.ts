@@ -56,8 +56,29 @@ export const updateMessages = async () => {
   for (const originDomain of domains) {
     for (const destinationDomain of domains) {
       if (originDomain == destinationDomain) continue;
-      logger.debug("Updating messages", requestContext, methodContext, { originDomain, destinationDomain });
-      const pendingMessages = await database.getUnProcessedMessagesByDomains(originDomain, destinationDomain);
+      const offset = 0;
+      const limit = 100;
+
+      logger.debug("Updating messages", requestContext, methodContext, {
+        originDomain,
+        destinationDomain,
+        offset,
+        limit,
+      });
+      const pendingMessages = await database.getUnProcessedMessagesByDomains(
+        originDomain,
+        destinationDomain,
+        limit,
+        offset,
+      );
+      if (pendingMessages.length > 0) {
+        logger.debug("Pending messages", requestContext, methodContext, {
+          originDomain,
+          destinationDomain,
+          startIndex: pendingMessages[0].origin.index,
+          endIndex: pendingMessages[pendingMessages.length - 1].origin.index,
+        });
+      }
       const messageHashes = pendingMessages.map((message) => message.leaf);
       const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
 
@@ -78,6 +99,8 @@ export const updateMessages = async () => {
         count: xMessages.length,
         originDomain,
         destinationDomain,
+        offset,
+        limit,
       });
     }
   }
