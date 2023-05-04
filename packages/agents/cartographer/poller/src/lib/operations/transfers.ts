@@ -177,7 +177,7 @@ export const updateTransfers = async () => {
       });
       const originTransfers = await subgraph.getOriginTransfersById(_originPendingQueryMetaParams);
       if (originTransfers.length > 0) {
-        let nonces = originTransfers.map((i) => i.xparams.nonce).sort((a, b) => a - b);
+        const nonces = originTransfers.map((i) => i.xparams.nonce).sort((a, b) => a - b);
         logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
           originDomain,
           destinationDomain,
