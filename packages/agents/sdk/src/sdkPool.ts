@@ -76,7 +76,7 @@ export class SdkPool extends SdkShared {
       ? _logger.child({ name: "SdkPool" })
       : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
