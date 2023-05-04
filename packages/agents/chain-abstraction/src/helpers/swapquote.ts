@@ -1,7 +1,7 @@
-import { constants, providers } from "ethers";
+import { constants } from "ethers";
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { axiosGet, getContract } from "../mockable";
+import { axiosGet, getContract, JsonRpcProvider } from "../mockable";
 
 import { UniV2RouterABI, UniV3QuoterABI } from "./abis";
 
@@ -22,7 +22,7 @@ export type SwapQuoteCallback = (args: SwapQuoteCallbackArgs) => Promise<string>
  */
 export const getSwapQuoteForUniV2 = async (_args: SwapQuoteCallbackArgs): Promise<string> => {
   const { amountIn, quoter, rpc, fromAsset, toAsset } = _args;
-  const rpcProvider = new providers.JsonRpcProvider(rpc);
+  const rpcProvider = new JsonRpcProvider(rpc);
   const v2RouterContract = getContract(quoter, UniV2RouterABI, rpcProvider);
   return (await v2RouterContract.getAmountsOut(amountIn, [fromAsset, toAsset])).toString();
 };
@@ -32,7 +32,7 @@ export const getSwapQuoteForUniV2 = async (_args: SwapQuoteCallbackArgs): Promis
  */
 export const getSwapQuoteForUniV3 = async (_args: SwapQuoteCallbackArgs): Promise<string> => {
   const { amountIn, quoter, rpc, fromAsset, toAsset, fee, sqrtPriceLimitX96: _sqrtPriceLimitX96 } = _args;
-  const rpcProvider = new providers.JsonRpcProvider(rpc);
+  const rpcProvider = new JsonRpcProvider(rpc);
   const v3QuoterV2Contract = getContract(quoter, UniV3QuoterABI, rpcProvider);
 
   return (
