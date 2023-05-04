@@ -245,16 +245,16 @@ locals {
         providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}"]
+        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
       "2053862260" = {
         providers = ["https://testnet.era.zksync.dev"]
