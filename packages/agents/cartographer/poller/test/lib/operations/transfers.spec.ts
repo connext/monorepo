@@ -29,7 +29,7 @@ describe("Transfers operations", () => {
       (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(new Map());
       await updateTransfers();
 
-      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(4);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithOriginPending as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithDestinationPending as SinonStub).callCount(0);
       expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(0);
