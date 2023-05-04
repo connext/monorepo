@@ -31,7 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     return;
   }
 
-  console.log("\n============================= Establishing AMBs ===============================");
+  console.log(`\n============================= Establishing AMBs on ${chainId} ===============================`);
 
   // Find the harbor chain that acts as the hub
   // NOTE: if harbor config intermingles messaging networks (ie testnets and mainnet and local in the
