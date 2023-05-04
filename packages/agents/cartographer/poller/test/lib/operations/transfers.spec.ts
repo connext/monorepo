@@ -14,7 +14,7 @@ describe("Transfers operations", () => {
     it("should work", async () => {
       await updateTransfers();
 
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(6);
+      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(8);
       expect(mockContext.adapters.database.saveTransfers as SinonStub).to.be.calledWithExactly(
         mockOriginSubgraphResponse,
       );
