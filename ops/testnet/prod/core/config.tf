@@ -312,9 +312,9 @@ locals {
       "1668247156" = {
         providers = ["https://rpc.goerli.linea.build/"]
       }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "2053862260" = {
+      #  providers = ["https://testnet.era.zksync.dev"]
+      # }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
