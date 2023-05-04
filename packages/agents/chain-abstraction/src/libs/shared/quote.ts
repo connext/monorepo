@@ -1,25 +1,17 @@
-import { domainToChainId } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
+import { DEFAULT_ROUTER_FEE, domainToChainId } from "@connext/nxtp-utils";
 
 import { DestinationSwapperPerDomain, OriginSwapperPerDomain, SwapQuoteFns } from "../../helpers";
+import { SwapQuoteParams, Swapper } from "../../types";
+import { getPoolFeeForUniV3 } from "../origin";
 
 /**
- * Returns the amount out received for a given exact input
+ * Returns the amount out received after swapping
  *
- * @param domainId - The target domain ID.
- * @param rpc - The RPC endpoint for a given domain.
- * @param fromAsset - The from token address
- * @param toAsset - The to token address
- * @param amountIn - The amount of the from token
+ * @param params: SwapQuoteParams object
  */
-export const getAmountOut = async (
-  domainId: string,
-  rpc: string,
-  fromAsset: string,
-  toAsset: string,
-  amountIn: string,
-  fee?: string,
-  isOrigin = true,
-): Promise<string> => {
+export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true): Promise<string> => {
+  const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
   const quoterConfig = isOrigin ? OriginSwapperPerDomain[domainId] : DestinationSwapperPerDomain[domainId];
 
   if (!quoterConfig) {
@@ -28,6 +20,12 @@ export const getAmountOut = async (
   const chainId = domainToChainId(+domainId);
 
   const swapQuoteCallbackFn = SwapQuoteFns[quoterConfig.type];
+
+  let fee = _fee;
+  if (quoterConfig.type === Swapper.UniV3 && !fee) {
+    fee = await getPoolFeeForUniV3(domainId, rpc, fromAsset, toAsset);
+  }
+
   const amountOut = await swapQuoteCallbackFn({
     chainId,
     quoter: quoterConfig.quoter,
@@ -37,6 +35,35 @@ export const getAmountOut = async (
     amountIn,
     fee,
   });
+
+  return amountOut;
+};
+
+/**
+ * Returns the amount out received after bridging
+ *
+ * @param originParams: SwapQuoteParams object of origin chain
+ * @param destinationParams: SwapQuoteParams object of destination chain
+ */
+export const getBridgeAmountOut = async (
+  originParams: SwapQuoteParams,
+  destinationParams: SwapQuoteParams,
+): Promise<string> => {
+  const amountOutAfterOriginSwap = await getSwapAmountOut(originParams, true);
+
+  // calculate router fee
+  const feeBps = +DEFAULT_ROUTER_FEE * 100;
+  const destinationAmount = BigNumber.from(amountOutAfterOriginSwap)
+    .mul(10000 - feeBps)
+    .div(10000);
+
+  const amountOut = await getSwapAmountOut(
+    {
+      ...destinationParams,
+      amountIn: destinationAmount.toString(),
+    },
+    false,
+  );
 
   return amountOut;
 };
