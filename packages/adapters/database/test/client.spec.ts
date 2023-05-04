@@ -1199,7 +1199,7 @@ describe("Database client", () => {
     expect(pendingTransfers.length).to.be.eq(6);
   });
 
-  it("should get pending transfers by message status", async () => {
+  it("should get pending transfers by domains", async () => {
     const originDomain = "1337";
     const destinationDomain = "1338";
     const xTransfer0: XTransfer = mock.entity.xtransfer({
@@ -1233,7 +1233,7 @@ describe("Database client", () => {
       status: XTransferStatus.CompletedSlow,
     });
 
-    await saveTransfers([xTransfer1, xTransfer2, xTransfer3, xTransfer4], pool);
+    await saveTransfers([xTransfer0, xTransfer1, xTransfer2, xTransfer3, xTransfer4], pool);
     const transfers = await getPendingTransfersByDomains(originDomain, destinationDomain, 100, 0, "ASC", pool);
     expect(transfers.length).to.be.eq(3);
     expect(transfers).includes(xTransfer0.transferId);
