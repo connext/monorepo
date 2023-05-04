@@ -25,6 +25,7 @@ import {
   getTransfersByStatus,
   getTransfersWithOriginPending,
   getTransfersWithDestinationPending,
+  getPendingTransfersByDomains,
   saveTransfers,
   saveRouterBalances,
   saveMessages,
@@ -89,6 +90,14 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
+  getPendingTransfersByDomains: (
+    origin_domain: string,
+    destination_domain: string,
+    limit: number,
+    offset: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
@@ -269,6 +278,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,
+    getPendingTransfersByDomains,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveAssets,
