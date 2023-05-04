@@ -14,7 +14,7 @@ describe("Transfers operations", () => {
     it("should work", async () => {
       await updateTransfers();
 
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(6);
+      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(8);
       expect(mockContext.adapters.database.saveTransfers as SinonStub).to.be.calledWithExactly(
         mockOriginSubgraphResponse,
       );
@@ -32,7 +32,7 @@ describe("Transfers operations", () => {
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithOriginPending as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithDestinationPending as SinonStub).callCount(0);
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(0);
+      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(4);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(0);
     });
 
@@ -83,7 +83,7 @@ describe("Transfers operations", () => {
       (mockContext.adapters.database.getCheckPoint as SinonStub).resolves(0);
       await updateTransfers();
 
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(6);
+      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(8);
       expect(mockContext.adapters.database.saveTransfers as SinonStub).to.be.calledWithExactly(
         mockOriginSubgraphResponse,
       );

@@ -73,7 +73,7 @@ export const DestinationSwapperPerDomain: Record<string, { type: Swapper; addres
   }, // Optimism
   "6450786": {
     type: Swapper.UniV3,
-    address: "0x911b8C1b2d99c5bBB82BC1F71c85A3a54d2dFfcE", // UniV3 Swapper
+    address: "0x73D53460fc1ead8Eb4A7771Bc5023159E8730E68", // UniV3 Swapper
   }, // BNB Chain
   "6778479": {
     type: Swapper.UniV3,

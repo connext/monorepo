@@ -1177,8 +1177,14 @@ export class SdkPool extends SdkShared {
 
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name: this.chainData.get(domainId)?.assetId[assetXAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ?? "",
+        name:
+          this.chainData.get(domainId)?.assetId[assetXAddress]?.name ??
+          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.name ??
+          "",
+        symbol:
+          this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ??
+          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.symbol ??
+          "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
@@ -1186,8 +1192,14 @@ export class SdkPool extends SdkShared {
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name: this.chainData.get(domainId)?.assetId[assetYAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ?? "",
+        name:
+          this.chainData.get(domainId)?.assetId[assetYAddress]?.name ??
+          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.name ??
+          "",
+        symbol:
+          this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ??
+          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.symbol ??
+          "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
