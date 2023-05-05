@@ -4,6 +4,7 @@ import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
 import { UriInvalid } from "../src/lib/errors";
+import axios from "axios";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";

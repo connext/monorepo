@@ -52,3 +52,13 @@ export const DestinationCallDataParamsSchema = Type.Object({
   swapForwarderData: DestinationSwapForwarderParamsSchema,
 });
 export type DestinationCallDataParams = Static<typeof DestinationCallDataParamsSchema>;
+
+export const SwapQuoteParamsSchema = Type.Object({
+  domainId: TIntegerString,
+  fromAsset: TAddress,
+  toAsset: TAddress,
+  amountIn: TIntegerString,
+  rpc: Type.String(),
+  fee: Type.Optional(TIntegerString),
+});
+export type SwapQuoteParams = Static<typeof SwapQuoteParamsSchema>;
