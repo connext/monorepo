@@ -40,12 +40,12 @@ export const SwapQuoteFns: Record<Swapper, SwapQuoteCallback> = {
 export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: string; quoter: string }> = {
   "6648936": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
     quoter: "",
   }, // ETH mainnet
   "1869640809": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
     quoter: "",
   }, // Optimism
   "6450786": {
@@ -55,7 +55,7 @@ export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: st
   }, // BNB Chain
   "6778479": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
     quoter: "",
   }, // Gnosis Chain
   "1886350457": {
@@ -65,7 +65,7 @@ export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: st
   }, // Polygon
   "1634886255": {
     type: Swapper.OneInch,
-    address: "",
+    address: "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch AggregationRouterV5
     quoter: "",
   }, // Arbitrum One
   "2053862243": {
