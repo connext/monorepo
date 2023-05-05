@@ -351,28 +351,95 @@ export const SwapAndXCallABI = [
 
 export const UniV3SwapperABI = [
   {
-    inputs: [{ internalType: "address", name: "_uniV3Router", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "_uniV3Router",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_amountIn", type: "uint256" },
-      { internalType: "address", name: "_fromAsset", type: "address" },
-      { internalType: "address", name: "_toAsset", type: "address" },
-      { internalType: "bytes", name: "_swapData", type: "bytes" },
+      {
+        internalType: "uint256",
+        name: "_amountIn",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_fromAsset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_toAsset",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "_swapData",
+        type: "bytes",
+      },
     ],
     name: "swap",
-    outputs: [{ internalType: "uint256", name: "amountOut", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amountOut",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amountIn",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_toAsset",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "_swapData",
+        type: "bytes",
+      },
+    ],
+    name: "swapETH",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amountOut",
+        type: "uint256",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [],
     name: "uniswapV3Router",
-    outputs: [{ internalType: "contract ISwapRouter", name: "", type: "address" }],
+    outputs: [
+      {
+        internalType: "contract ISmartRouter",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 
