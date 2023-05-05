@@ -72,7 +72,7 @@ describe("Libs:quote", () => {
         },
       });
       stub(MockableFns, "getContract").returns({
-        quoteExactInputSingle: stub().resolves(["990000000000000"]),
+        callStatic: { quoteExactInputSingle: stub().resolves(["990000000000000"]) },
       } as any);
 
       const amountOut = await getSwapAmountOut(mockDestinationSwapQuoteParams, false);
@@ -121,7 +121,7 @@ describe("Libs:quote", () => {
         },
       });
       stub(MockableFns, "getContract").returns({
-        quoteExactInputSingle: stub().resolves(["900000000000000"]),
+        callStatic: { quoteExactInputSingle: stub().resolves(["900000000000000"]) },
       } as any);
       expect(await getSwapAmountOut(mockDestinationSwapQuoteParams, false)).to.be.eq("900000000000000");
       expect(await getBridgeAmountOut(mockOriginSwapQuoteParams, mockDestinationSwapQuoteParams)).to.be.eq(

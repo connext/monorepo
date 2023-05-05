@@ -46,7 +46,7 @@ describe("Helpers:swapquote", () => {
     });
     it("should work", async () => {
       stub(MockableFns, "getContract").returns({
-        quoteExactInputSingle: stub().resolves(["999"]),
+        callStatic: { quoteExactInputSingle: stub().resolves(["999"]) },
       } as any);
       expect(await getSwapQuoteForUniV3(mockSwapQuoteCallbackArgs)).to.be.eq("999");
     });

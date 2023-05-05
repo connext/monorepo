@@ -36,7 +36,7 @@ export const getSwapQuoteForUniV3 = async (_args: SwapQuoteCallbackArgs): Promis
   const v3QuoterV2Contract = getContract(quoter, UniV3QuoterABI, rpcProvider);
 
   return (
-    await v3QuoterV2Contract.quoteExactInputSingle({
+    await v3QuoterV2Contract.callStatic.quoteExactInputSingle({
       tokenIn: fromAsset,
       tokenOut: toAsset,
       amountIn,
