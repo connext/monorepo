@@ -3,8 +3,7 @@ import { domainToChainId } from "@connext/nxtp-utils";
 
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
-import { DEPLOYED_ADDRESSES } from "../../helpers/address";
-import { OriginSwapDataFns, OriginSwapperPerDomain } from "../../helpers";
+import { OriginSwapDataFns, OriginSwapperPerDomain, DEPLOYED_ADDRESSES } from "../../helpers";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.

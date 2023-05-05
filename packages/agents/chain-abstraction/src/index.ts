@@ -1,1 +1,7 @@
-export { getXCallCallData, prepareSwapAndXCall, getPoolFeeForUniV3 } from "./libs";
+export {
+  getXCallCallData,
+  prepareSwapAndXCall,
+  getPoolFeeForUniV3,
+  getBridgeAmountOut,
+  getSwapAmountOut,
+} from "./libs";
