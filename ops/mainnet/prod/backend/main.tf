@@ -26,9 +26,9 @@ module "cartographer_db" {
   domain                = "cartographer"
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}"
-  instance_class        = "db.t4g.xlarge"
-  allocated_storage     = 20
-  max_allocated_storage = 100
+  instance_class        = "db.t4g.2xlarge"
+  allocated_storage     = 150
+  max_allocated_storage = 180
 
 
   name     = "connext" // db name
@@ -65,7 +65,7 @@ module "postgrest" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = "postgrest/postgrest:v9.0.0.20220107"
+  docker_image             = "679752396206.dkr.ecr.${var.region}.amazonaws.com/postgrest:v9.0.0.20220107"
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
