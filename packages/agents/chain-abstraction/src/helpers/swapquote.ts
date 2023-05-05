@@ -59,7 +59,7 @@ export const getSwapQuoteForOneInch = async (args: SwapQuoteCallbackArgs): Promi
     }/quote?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${Number(args.amountIn)}`;
 
     const res = await axiosGet(apiEndpoint);
-    return res.data.fromTokenAmount;
+    return res.data.toTokenAmount;
   } catch (error: unknown) {
     throw new Error(`Getting quote from 1inch failed, e: ${jsonifyError(error as Error).message}`);
   }

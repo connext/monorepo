@@ -87,7 +87,7 @@ describe("Libs:quote", () => {
           quoter: mkAddress("0xb"),
         },
       });
-      axiosGetStub.resolves({ data: { fromTokenAmount: "990000000000000" } });
+      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
 
       const amountOut = await getSwapAmountOut(mockOriginSwapQuoteParams, true);
       expect(amountOut).to.be.eq("990000000000000");
@@ -109,7 +109,7 @@ describe("Libs:quote", () => {
           quoter: mkAddress("0xb"),
         },
       });
-      axiosGetStub.resolves({ data: { fromTokenAmount: "990000000000000" } });
+      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
 
       expect(await getSwapAmountOut(mockOriginSwapQuoteParams, true)).to.be.eq("990000000000000");
 
