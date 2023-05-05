@@ -34,7 +34,7 @@ describe("Helpers:swapquote", () => {
     });
     it("should work", async () => {
       stub(MockableFns, "getContract").returns({
-        getAmountsOut: stub().resolves("999"),
+        getAmountsOut: stub().resolves(["100", "999"]),
       } as any);
       expect(await getSwapQuoteForUniV2(mockSwapQuoteCallbackArgs)).to.be.eq("999");
     });

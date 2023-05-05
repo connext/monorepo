@@ -24,7 +24,8 @@ export const getSwapQuoteForUniV2 = async (_args: SwapQuoteCallbackArgs): Promis
   const { amountIn, quoter, rpc, fromAsset, toAsset } = _args;
   const rpcProvider = new JsonRpcProvider(rpc);
   const v2RouterContract = getContract(quoter, UniV2RouterABI, rpcProvider);
-  return (await v2RouterContract.getAmountsOut(amountIn, [fromAsset, toAsset])).toString();
+  const res = await v2RouterContract.getAmountsOut(amountIn, [fromAsset, toAsset]);
+  return res[1].toString();
 };
 
 /**
@@ -35,15 +36,14 @@ export const getSwapQuoteForUniV3 = async (_args: SwapQuoteCallbackArgs): Promis
   const rpcProvider = new JsonRpcProvider(rpc);
   const v3QuoterV2Contract = getContract(quoter, UniV3QuoterABI, rpcProvider);
 
-  return (
-    await v3QuoterV2Contract.callStatic.quoteExactInputSingle({
-      tokenIn: fromAsset,
-      tokenOut: toAsset,
-      amountIn,
-      fee,
-      sqrtPriceLimitX96: _sqrtPriceLimitX96 ?? 0,
-    })
-  )[0].toString();
+  const res = await v3QuoterV2Contract.callStatic.quoteExactInputSingle({
+    tokenIn: fromAsset,
+    tokenOut: toAsset,
+    amountIn,
+    fee,
+    sqrtPriceLimitX96: _sqrtPriceLimitX96 ?? 0,
+  });
+  return res[0].toString();
 };
 
 /**

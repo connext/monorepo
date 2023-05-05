@@ -56,7 +56,7 @@ describe("Libs:quote", () => {
         },
       });
       stub(MockableFns, "getContract").returns({
-        getAmountsOut: stub().resolves("990000000000000"),
+        getAmountsOut: stub().resolves(["1000000000000000", "990000000000000"]),
       } as any);
 
       const amountOut = await getSwapAmountOut(mockDestinationSwapQuoteParams, false);
