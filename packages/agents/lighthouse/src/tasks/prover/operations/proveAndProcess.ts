@@ -74,7 +74,7 @@ export const proveAndProcess = async () => {
                   throw new NoTargetMessageRoot(originDomain);
                 }
                 // Paginate through all unprocessed messages from the domain
-                let offset = 0;
+                let offset = process.env.OFFSET ? Number(process.env.OFFSET) : 100;
                 let end = false;
                 while (!end) {
                   logger.info(

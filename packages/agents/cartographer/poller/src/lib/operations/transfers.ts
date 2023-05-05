@@ -162,48 +162,56 @@ export const updateTransfers = async () => {
   for (const originDomain of domains) {
     for (const destinationDomain of domains) {
       if (originDomain == destinationDomain) continue;
-      const pendingTransfers = await database.getPendingTransfersByDomains(
-        originDomain,
-        destinationDomain,
-        100,
-        0,
-        "ASC",
-      );
-
-      const _originPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
-      _originPendingQueryMetaParams.set(originDomain, {
-        maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
-        transferIDs: pendingTransfers,
-      });
-      const originTransfers = await subgraph.getOriginTransfersById(_originPendingQueryMetaParams);
-      if (originTransfers.length > 0) {
-        const nonces = originTransfers.map((i) => i.xparams.nonce).sort((a, b) => a - b);
-        logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
+      let offset = 0;
+      const limit = 100;
+      let skip = false;
+      while (!skip) {
+        const pendingTransfers = await database.getPendingTransfersByDomains(
           originDomain,
           destinationDomain,
-          startIndex: nonces[0],
-          endIndex: nonces[nonces.length - 1],
-          count: originTransfers.length,
+          limit,
+          offset,
+          "ASC",
+        );
+
+        // const _originPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+        // _originPendingQueryMetaParams.set(originDomain, {
+        //   maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
+        //   transferIDs: pendingTransfers,
+        // });
+        // const originTransfers = await subgraph.getOriginTransfersById(_originPendingQueryMetaParams);
+        // if (originTransfers.length > 0) {
+        //   const nonces = originTransfers.map((i) => i.xparams.nonce).sort((a, b) => a - b);
+        //   logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
+        //     originDomain,
+        //     destinationDomain,
+        //     startIndex: nonces[0],
+        //     endIndex: nonces[nonces.length - 1],
+        //     count: originTransfers.length,
+        //   });
+        //   await database.saveTransfers(originTransfers);
+        // }
+
+        const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+        _destinationPendingQueryMetaParams.set(destinationDomain, {
+          maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
+          transferIDs: pendingTransfers,
         });
-        await database.saveTransfers(originTransfers);
-      }
+        const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
 
-      const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
-      _destinationPendingQueryMetaParams.set(destinationDomain, {
-        maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
-        transferIDs: pendingTransfers,
-      });
-      const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
+        if (destinationTransfers.length > 0) {
+          logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
+            originDomain,
+            destinationDomain,
+            indexes: destinationTransfers.map((i) => i.xparams.nonce),
+            count: destinationTransfers.length,
+          });
 
-      if (destinationTransfers.length > 0) {
-        logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
-          originDomain,
-          destinationDomain,
-          indexes: destinationTransfers.map((i) => i.xparams.nonce),
-          count: destinationTransfers.length,
-        });
+          await database.saveTransfers(destinationTransfers as XTransfer[]);
+        }
 
-        await database.saveTransfers(destinationTransfers as XTransfer[]);
+        if (pendingTransfers.length == limit) offset += limit;
+        else skip = true;
       }
     }
   }
