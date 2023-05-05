@@ -90,7 +90,7 @@ export const DestinationSwapperPerDomain: Record<string, { type: Swapper; addres
   }, // Optimism
   "6450786": {
     type: Swapper.UniV3,
-    address: "0x73D53460fc1ead8Eb4A7771Bc5023159E8730E68", // UniV3 Swapper
+    address: "0x0b081b724CDC4DD9186E64F259b5fC589a4Fd7D0", // PancakeV3 Swapper
     quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
   }, // BNB Chain
   "6778479": {
@@ -100,12 +100,12 @@ export const DestinationSwapperPerDomain: Record<string, { type: Swapper; addres
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.UniV3,
-    address: "0xd92fd008bb2a1B74C9De29B7a68d9822Cc8c9868", // UniV3 Swapper
+    address: "0xeC345E9be52f0Fca8aAd6aec3254Ed86151b060d", // UniV3 Swapper
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Polygon
   "1634886255": {
     type: Swapper.UniV3,
-    address: "",
+    address: "0x924E679c3c23017aef214c9ea1fBC22e97ff9E2e",
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Arbitrum One
   "2053862243": {
