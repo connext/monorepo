@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { DEFAULT_ROUTER_FEE, domainToChainId } from "@connext/nxtp-utils";
+import { DEFAULT_ROUTER_FEE, calculateExchangeWad, domainToChainId } from "@connext/nxtp-utils";
 
 import { DestinationSwapperPerDomain, OriginSwapperPerDomain, SwapQuoteFns } from "../../helpers";
 import { SwapQuoteParams, Swapper } from "../../types";
@@ -44,16 +44,25 @@ export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true)
  *
  * @param originParams: SwapQuoteParams object of origin chain
  * @param destinationParams: SwapQuoteParams object of destination chain
+ * @param originToDecimals: The decimals of the to token on origin side
+ * @param destinationFromDecimals: The decimals of the from token on destination side
  */
 export const getBridgeAmountOut = async (
   originParams: SwapQuoteParams,
   destinationParams: SwapQuoteParams,
+  originToDecimals = 18,
+  destinationFromDecimals = 18,
 ): Promise<string> => {
   const amountOutAfterOriginSwap = await getSwapAmountOut(originParams, true);
 
   // calculate router fee
   const feeBps = +DEFAULT_ROUTER_FEE * 100;
-  const destinationAmount = BigNumber.from(amountOutAfterOriginSwap)
+  const destinationAmount = calculateExchangeWad(
+    BigNumber.from(amountOutAfterOriginSwap),
+    originToDecimals,
+    "1",
+    destinationFromDecimals,
+  )
     .mul(10000 - feeBps)
     .div(10000);
 
