@@ -170,24 +170,6 @@ export const updateTransfers = async () => {
         "ASC",
       );
 
-      const _originPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
-      _originPendingQueryMetaParams.set(originDomain, {
-        maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
-        transferIDs: pendingTransfers,
-      });
-      const originTransfers = await subgraph.getOriginTransfersById(_originPendingQueryMetaParams);
-      if (originTransfers.length > 0) {
-        const nonces = originTransfers.map((i) => i.xparams.nonce).sort((a, b) => a - b);
-        logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
-          originDomain,
-          destinationDomain,
-          startIndex: nonces[0],
-          endIndex: nonces[nonces.length - 1],
-          count: originTransfers.length,
-        });
-        await database.saveTransfers(originTransfers);
-      }
-
       const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
       _destinationPendingQueryMetaParams.set(destinationDomain, {
         maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
