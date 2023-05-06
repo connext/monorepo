@@ -669,7 +669,7 @@ const destinationTransferByExecutedTimestampQueryString = (
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      reconciledTimestamp_gte: ${fromTimestamp},
+      executedTimestamp_gte: ${fromTimestamp},
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
