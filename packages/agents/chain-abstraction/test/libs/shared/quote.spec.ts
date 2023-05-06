@@ -47,6 +47,12 @@ describe("Libs:quote", () => {
       );
     });
 
+    it("should work if same asset", async () => {
+      expect(
+        await getSwapAmountOut({ ...mockOriginSwapQuoteParams, toAsset: mockOriginSwapQuoteParams.fromAsset }),
+      ).to.be.eq(mockOriginSwapQuoteParams.amountIn);
+    });
+
     it("should work with univ2 quoter", async () => {
       stub(HelperFns, "DestinationSwapperPerDomain").value({
         "133812": {
