@@ -4,6 +4,7 @@ import { DEFAULT_ROUTER_FEE, calculateExchangeWad, domainToChainId } from "@conn
 import { DestinationSwapperPerDomain, OriginSwapperPerDomain, SwapQuoteFns } from "../../helpers";
 import { SwapQuoteParams, Swapper } from "../../types";
 import { getPoolFeeForUniV3 } from "../origin";
+import { getAddress } from "ethers/lib/utils";
 
 /**
  * Returns the amount out received after swapping
@@ -12,6 +13,12 @@ import { getPoolFeeForUniV3 } from "../origin";
  */
 export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true): Promise<string> => {
   const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
+
+  // If same asset, return amountIn
+  if (getAddress(fromAsset) == getAddress(toAsset)) {
+    return amountIn;
+  }
+
   const quoterConfig = isOrigin ? OriginSwapperPerDomain[domainId] : DestinationSwapperPerDomain[domainId];
 
   if (!quoterConfig) {
