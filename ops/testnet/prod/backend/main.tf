@@ -52,6 +52,11 @@ module "cartographer_db" {
   db_security_group_id       = module.sgs.rds_sg_id
   db_subnet_group_subnet_ids = module.network.public_subnets
   publicly_accessible        = true
+
+  create_read_replica   = true
+  replica_identifier    = "rds-postgres-cartographer-${var.environment}-replica"
+  replica_instance_class = "db.t4g.2xlarge" # Adjust as needed
+  replica_availability_zone = data.aws_availability_zones.available.names[1] # Select a different AZ than the primary
 }
 
 
