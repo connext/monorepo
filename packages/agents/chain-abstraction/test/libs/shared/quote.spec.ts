@@ -1,6 +1,5 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
-import { constants, BigNumber } from "ethers";
 import * as HelperFns from "../../../src/helpers";
 import * as MockableFns from "../../../src/mockable";
 import { SwapQuoteParams, Swapper } from "../../../src/types";

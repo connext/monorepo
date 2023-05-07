@@ -1,10 +1,9 @@
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { DEFAULT_ROUTER_FEE, calculateExchangeWad, domainToChainId } from "@connext/nxtp-utils";
 
 import { DestinationSwapperPerDomain, OriginSwapperPerDomain, SwapQuoteFns } from "../../helpers";
 import { SwapQuoteParams, Swapper } from "../../types";
 import { getPoolFeeForUniV3 } from "../origin";
-import { getAddress } from "ethers/lib/utils";
 
 /**
  * Returns the amount out received after swapping
@@ -15,7 +14,7 @@ export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true)
   const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
 
   // If same asset, return amountIn
-  if (getAddress(fromAsset) == getAddress(toAsset)) {
+  if (utils.getAddress(fromAsset) == utils.getAddress(toAsset)) {
     return amountIn;
   }
 
