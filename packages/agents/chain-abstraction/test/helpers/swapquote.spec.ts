@@ -10,7 +10,7 @@ const mockSwapQuoteCallbackArgs = {
   rpc: "http://localhost:8545",
   fromAsset: mkAddress("0x1"),
   toAsset: mkAddress("0x2"),
-  amountIn: "100",
+  amountIn: "10000000000000000000000",
   fee: "300",
 };
 
@@ -75,7 +75,7 @@ describe("Helpers:swapquote", () => {
 
       const amountOut = await getSwapQuoteForOneInch(args);
       expect(axiosGetStub.getCall(0).args[0]).to.be.eq(
-        "https://api.1inch.io/v5.0/1337/quote?fromTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&toTokenAddress=0x2000000000000000000000000000000000000000&amount=100",
+        "https://api.1inch.io/v5.0/1337/quote?fromTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&toTokenAddress=0x2000000000000000000000000000000000000000&amount=10000000000000000000000",
       );
       expect(amountOut).to.be.eq("999");
     });
@@ -85,7 +85,7 @@ describe("Helpers:swapquote", () => {
       axiosGetStub.resolves({ data: { toTokenAmount: "999" } });
       const amountOut = await getSwapQuoteForOneInch(args);
       expect(axiosGetStub.getCall(0).args[0]).to.be.eq(
-        "https://api.1inch.io/v5.0/1337/quote?fromTokenAddress=0x1000000000000000000000000000000000000000&toTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&amount=100",
+        "https://api.1inch.io/v5.0/1337/quote?fromTokenAddress=0x1000000000000000000000000000000000000000&toTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&amount=10000000000000000000000",
       );
       expect(amountOut).to.be.eq("999");
     });
