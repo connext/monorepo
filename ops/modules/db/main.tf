@@ -113,3 +113,28 @@ resource "aws_route53_record" "db_read_replica" {
   records = [aws_db_instance.db_read_replica.address]
 }
 
+
+resource "aws_db_proxy" "rds_db_proxy" {
+  name                   = "rds-db-proxy-${var.environment}-${var.stage}"
+  debug_logging          = false
+  engine_family          = "POSTGRESQL"
+  idle_client_timeout    = 1800
+  require_tls            = true
+  role_arn               = aws_iam_role.example.arn
+  vpc_security_group_ids = var.vpc_security_group_ids
+  vpc_subnet_ids         = aws_subnet.private.*.id
+
+  auth {
+    auth_scheme = "SECRETS"
+    description = "example"
+    iam_auth    = "DISABLED"
+    secret_arn  = aws_secretsmanager_secret.web3signer_secret.arn
+  }
+
+  tags = {
+    Environment = var.environment
+    Stage       = var.stage
+    Domain      = var.domain
+  }
+}
+
