@@ -1,29 +1,8 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
-import { stub, SinonStub, reset, restore } from "sinon";
-import { constants, BigNumber } from "ethers";
+import { stub, reset, restore } from "sinon";
 import * as HelperFns from "../../../src/helpers";
-import * as MockableFns from "../../../src/mockable";
-import { SwapQuoteParams, Swapper } from "../../../src/types";
-import { getBridgeAmountOut, getSwapAmountOut } from "../../../src";
+import { Swapper } from "../../../src/types";
 import { getSwapAndXcallAddress, getSwapperConfig } from "../../../src/libs";
-
-const mockOriginSwapQuoteParams: SwapQuoteParams = {
-  domainId: "133712",
-  fromAsset: mkAddress("0x1"),
-  toAsset: mkAddress("0x2"),
-  amountIn: "1000000000000000",
-  fee: "300",
-  rpc: "http://localhost:8545",
-};
-
-const mockDestinationSwapQuoteParams: SwapQuoteParams = {
-  domainId: "133812",
-  fromAsset: mkAddress("0x2"),
-  toAsset: mkAddress("0x3"),
-  amountIn: "990000000000000",
-  fee: "300",
-  rpc: "http://localhost:8545",
-};
 
 describe("Libs:address", () => {
   beforeEach(() => {});
