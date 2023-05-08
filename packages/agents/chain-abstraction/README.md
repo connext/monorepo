@@ -1,4 +1,12 @@
-# Chain Abstraction Utilities
+# SDK
+
+The Chain Abstraction SDK makes the process of creating the `_swapData` for swaps very simple.
+
+## Installation
+
+```sh
+npm install @connext/chain-abstraction
+```
 
 ## Publish Package
 
@@ -7,7 +15,7 @@
 2. After merging to the correct branch (e.g. `main` for `alpha` versions), run:
 
    ```
-   git tag -a chain-abstraction-v<VERSION>
+   git tag -a sdk-v<VERSION>
    ```
 
 3. Push tag
@@ -17,3 +25,5 @@
    ```
 
 4. Check the GitHub workflow completed successfully
+
+For more information refer chain-abstraction [docs](https://documentation-git-revert-103-revert-101-3-31d64b-connextproject.vercel.app/developers/guides/chain-abstraction).
