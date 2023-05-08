@@ -1,4 +1,5 @@
 import { createLoggingContext, XTransfer, XTransferMessageStatus } from "@connext/nxtp-utils";
+
 import { getContext } from "../../shared";
 
 export const updateMessageStatus = async () => {
@@ -63,7 +64,9 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
 
   // A message root from the spoke domain got arrived at the hub domain successfully
   let aggregateRoot: string | undefined = undefined;
-  for (const rootMessage of rootMessages) {
+  // iterate through roots with most highes leaf count first (most likely to have aggregate when system
+  // is under load)
+  for (const rootMessage of rootMessages.sort((a, b) => b.count - a.count)) {
     aggregateRoot = await database.getAggregateRoot(rootMessage.root);
     if (aggregateRoot) break;
   }

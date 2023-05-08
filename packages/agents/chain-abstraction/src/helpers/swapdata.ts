@@ -43,11 +43,7 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
     const slippage = args.slippage ?? 1;
-    const apiEndpoint = `https://api.1inch.io/v5.0/${
-      args.chainId
-    }/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${Number(args.amountIn)}&fromAddress=${
-      args.fromAddress
-    }&slippage=${slippage}&disableEstimate=true`;
+    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${args.amountIn}&fromAddress=${args.fromAddress}&slippage=${slippage}&disableEstimate=true`;
 
     const res = await axiosGet(apiEndpoint);
     return res.data.tx.data;

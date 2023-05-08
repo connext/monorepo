@@ -146,9 +146,11 @@ export class SdkPool extends SdkShared {
       const xp = pool.balances.map((balance: BigNumber, index: number) =>
         balance.mul(BigNumber.from(10).pow(18 - pool.decimals[index])),
       );
-      const x = xp[tokenIndexFrom].add(amount);
+      const x = xp[tokenIndexFrom].add(
+        BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexFrom])),
+      );
       const y = this.getSwapOut(pool, x, xp, tokenIndexFrom, tokenIndexTo);
-      const dy = xp[tokenIndexTo].sub(y);
+      const dy = xp[tokenIndexTo].sub(y).div(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexTo]));
       const dyFee = fee ? dy.mul(fee).div(BigNumber.from(1e10)) : 0;
       minAmount = dy.gt(dyFee) ? dy.sub(dyFee) : BigNumber.from(0);
     } else {
@@ -1179,8 +1181,14 @@ export class SdkPool extends SdkShared {
 
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name: this.chainData.get(domainId)?.assetId[assetXAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ?? "",
+        name:
+          this.chainData.get(domainId)?.assetId[assetXAddress]?.name ??
+          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.name ??
+          "",
+        symbol:
+          this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ??
+          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.symbol ??
+          "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
@@ -1188,8 +1196,14 @@ export class SdkPool extends SdkShared {
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name: this.chainData.get(domainId)?.assetId[assetYAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ?? "",
+        name:
+          this.chainData.get(domainId)?.assetId[assetYAddress]?.name ??
+          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.name ??
+          "",
+        symbol:
+          this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ??
+          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.symbol ??
+          "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
