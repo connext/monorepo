@@ -1,27 +1,18 @@
 resource "aws_db_instance" "db_read_replica" {
-
   identifier          = var.replica_identifier
   replicate_source_db = var.replicate_source_db
 
-  engine         = "postgres"
-  engine_version = var.engine_version
   instance_class = var.instance_class
 
-  allocated_storage = var.allocated_storage
-  db_name           = var.name
-  username          = var.username
-  password          = var.password
-  port              = var.port
+  port = var.port
 
   vpc_security_group_ids = var.db_security_group_ids
-  db_subnet_group_name   = var.db_subnet_group_name
 
   publicly_accessible        = var.publicly_accessible
   multi_az                   = false
   storage_type               = "gp2"
   apply_immediately          = true
   skip_final_snapshot        = true
-  monitoring_interval        = 60
   maintenance_window         = var.maintenance_window
   backup_retention_period    = var.backup_retention_period
   backup_window              = var.backup_window

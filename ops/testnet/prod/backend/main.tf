@@ -81,12 +81,12 @@ module "cartographer_db_replica" {
 
   parameter_group_name = "default.postgres14"
 
-  hosted_zone_id = data.aws_route53_zone.primary.zone_id
-  stage          = var.stage
-  environment    = var.environment
-  db_security_group_ids       = module.cartographer_db.db_instance_vpc_security_group_ids
-  db_subnet_group_name       = module.cartographer_db.db_subnet_group_name
-  publicly_accessible        = module.cartographer_db.db_publicly_accessible
+  hosted_zone_id        = data.aws_route53_zone.primary.zone_id
+  stage                 = var.stage
+  environment           = var.environment
+  db_security_group_ids = module.cartographer_db.db_instance_vpc_security_group_ids
+  db_subnet_group_name  = module.cartographer_db.db_subnet_group_name
+  publicly_accessible   = module.cartographer_db.db_publicly_accessible
 }
 
 
