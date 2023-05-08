@@ -23,10 +23,10 @@ export class AssetVerifier extends Verifier {
    * @returns boolean - Whether the invariant was verified. `true` if ALL were verified (no pause needed).
    * `false` if the invariant was violated (pause is needed) for ANY assets!
    */
-  public override async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
+  public override async checkInvariant(requestContext: RequestContext): Promise<VerifyResponse> {
     for (const asset of this.assets) {
-      const totalMinted = await this.totalMintedAssets(asset, _requestContext);
-      const totalLocked = await this.totalLockedAssets(asset, _requestContext);
+      const totalMinted = await this.totalMintedAssets(asset, requestContext);
+      const totalLocked = await this.totalLockedAssets(asset, requestContext);
       // Invariant: totalMintedAssets <= totalLockedAssets
       if (totalMinted.gt(totalLocked)) {
         return {

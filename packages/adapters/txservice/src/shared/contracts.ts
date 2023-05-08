@@ -11,8 +11,12 @@ import {
   RootManager as TRootManager,
   MultiSend as TMultisend,
   Unwrapper as TUnwrapper,
+  MerkleTreeManager as TMerkleTreeManager,
+  getMessagingProtocolConfig,
+  getProtocolNetwork,
 } from "@connext/smart-contracts";
 import RootManagerAbi from "@connext/smart-contracts/abi/contracts/messaging/RootManager.sol/RootManager.json";
+import MerkeTreeManagerAbi from "@connext/smart-contracts/abi/contracts/messaging/MerkleTreeManager.sol/MerkleTreeManager.json";
 import PriceOracleAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ConnextAbi from "@connext/smart-contracts/abi/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import StableSwapAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
@@ -38,6 +42,16 @@ export const _getContractDeployments = (): Record<string, Record<string, any>> =
 };
 
 /**
+ * Helper to determine if a chainId is a protocol hub
+ * @param chainId Chain to determine if it is a protocol hub
+ * @returns boolean
+ */
+export const isProtocolHub = (chainId: number): boolean => {
+  const config = getMessagingProtocolConfig(getProtocolNetwork(chainId));
+  return chainId === config.hub.chain;
+};
+
+/**
  * Returns the address of the `Connext` deployed to the provided chain, or undefined if it has not been deployed
  *
  * @param chainId - The chain you want the address on
@@ -59,6 +73,26 @@ export const getDeployedRootManagerContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`RootManager${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedMerkleTreeManagerSpokeContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const name = `MerkleTreeManager${isProtocolHub(chainId) ? "Spoke" : ""}UpgradeBeaconProxy${postfix}`;
+  const contract = record[0]?.contracts ? record[0]?.contracts[name] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedMerkleTreeManagerOfRootManagerContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const name = `MerkleTreeManagerRootUpgradeBeaconProxy${postfix}`;
+  const contract = record[0]?.contracts ? record[0]?.contracts[name] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -98,6 +132,18 @@ export const getDeployedSpokeConnecterContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}SpokeConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedSpokeConnecterContractByName = (
+  chainId: number,
+  name: string,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  console.log(`${name}${postfix}`);
+
+  const contract = record[0]?.contracts ? record[0]?.contracts[`${name}${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -259,6 +305,9 @@ export const getSpokeConnectorInterface = () => new utils.Interface(SpokeConnect
 
 export const getRootManagerInterface = () => new utils.Interface(RootManagerAbi) as TRootManager["interface"];
 
+export const getMerkleTreeManagerInterface = () =>
+  new utils.Interface(MerkeTreeManagerAbi) as TMerkleTreeManager["interface"];
+
 export const getMultisendInterface = () => new utils.Interface(MultiSendAbi) as TMultisend["interface"];
 
 export const getUnwrapperInterface = () => new utils.Interface(UnwrapperAbi) as TUnwrapper["interface"];
@@ -270,6 +319,7 @@ export type ConnextContractInterfaces = {
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
   rootManager: TRootManager["interface"];
+  merkleTreeManager: TMerkleTreeManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
   multisend: TMultisend["interface"];
@@ -283,6 +333,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
   rootManager: getRootManagerInterface(),
+  merkleTreeManager: getMerkleTreeManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),
   multisend: getMultisendInterface(),

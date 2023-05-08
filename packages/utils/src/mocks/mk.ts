@@ -1,3 +1,4 @@
+const hexChars = "0123456789abcdef";
 /**
  * Creates an eth-address compatible string with given prefix
  *
@@ -36,4 +37,30 @@ export const mkBytes32 = (prefix = "0xa"): string => {
  */
 export const mkSig = (prefix = "0xa"): string => {
   return prefix.padEnd(132, "0");
+};
+
+/**
+ * Generates a random 32-byte hex string
+ *
+ * @returns 32-byte hex string
+ */
+export const mkRandomBytes32 = (): string => {
+  let randomHex = "0x";
+  for (let i = 0; i < 64; i++) {
+    randomHex += hexChars[Math.floor(Math.random() * hexChars.length)];
+  }
+  return randomHex;
+};
+
+/**
+ * Generates a random eth-address compatible string
+ *
+ * @returns A valid ethereum address string
+ */
+export const mkRandomAddress = (): string => {
+  let randomHex = "0x";
+  for (let i = 0; i < 40; i++) {
+    randomHex += hexChars[Math.floor(Math.random() * hexChars.length)];
+  }
+  return randomHex;
 };

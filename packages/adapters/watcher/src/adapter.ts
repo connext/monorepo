@@ -16,6 +16,7 @@ import { AssetVerifier } from "./verifiers";
 import { Switcher } from "./switch";
 import { ProposedRootVerifier } from "./verifiers/proposal";
 import { Alerter } from "./alert/alerter";
+import { providers } from "ethers";
 
 // Aggregation class for interfacing with all adapter functionality.
 export class WatcherAdapter {
@@ -60,9 +61,9 @@ export class WatcherAdapter {
     };
   }
 
-  public async pause(_requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
+  public async pause(requestContext: RequestContext, reason: string, domains: string[]): Promise<PauseResponse[]> {
     // TODO: Check to make sure domains are subset of what was provided in VerifierContext in constructor...?
-    return await this.pauser.pause(_requestContext, reason, domains);
+    return await this.pauser.pause(requestContext, reason, domains);
   }
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {
@@ -119,14 +120,14 @@ export class WatcherAdapter {
 
 export class OpModeMonitor {
   private readonly alerter: Alerter;
-  private readonly hubDomain: string;
+  private readonly hubDomain: number;
   private readonly switcher: Switcher;
   private readonly verifier: ProposedRootVerifier;
 
-  constructor(context: VerifierContext, hubDomain: string) {
+  constructor(context: VerifierContext, hubDomain: number, hubProvider: providers.JsonRpcProvider) {
     this.alerter = new Alerter();
     this.switcher = new Switcher(context);
-    this.verifier = new ProposedRootVerifier(context, hubDomain);
+    this.verifier = new ProposedRootVerifier(context, hubDomain, hubProvider);
     this.hubDomain = hubDomain;
   }
 
@@ -135,9 +136,9 @@ export class OpModeMonitor {
     return await this.verifier.checkInvariant(requestContext);
   }
 
-  public async switch(_requestContext: RequestContext, reason: string): Promise<SwitchResponse> {
+  public async switch(requestContext: RequestContext, reason: string): Promise<SwitchResponse> {
     // This is redundant but we keep it to be consistent with flow
-    return await this.switcher.switch(_requestContext, reason, this.hubDomain);
+    return await this.switcher.switch(requestContext, reason, this.hubDomain);
   }
 
   public async alert(report: Report, config: WatcherAlertsConfig): Promise<void> {

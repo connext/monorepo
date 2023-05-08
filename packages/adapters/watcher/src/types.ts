@@ -1,10 +1,13 @@
 import {
   getDeployedConnextContract,
+  getDeployedMerkleTreeManagerOfRootManagerContract,
   getDeployedRootManagerContract,
-  getDeployedSpokeConnecterContract,
+  getDeployedSpokeConnecterContractByName,
   TransactionService,
 } from "@connext/nxtp-txservice";
 import { Logger, RequestContext } from "@connext/nxtp-utils";
+import { getConnectorName } from "@connext/smart-contracts";
+import { MESSAGING_PROTOCOL_CONFIGS } from "@connext/smart-contracts/dist/deployConfig/shared";
 import { Static, Type } from "@sinclair/typebox";
 import { ethers } from "ethers";
 
@@ -27,7 +30,7 @@ export type WatcherInvariantResponse = VerifyResponse & { transactions?: Record<
 export type ProposedData = {
   snapshotId: string;
   endOfDispute: string;
-  proposedRoot: string;
+  aggregateRoot: string;
   baseRoot: string;
   snapshotRoots: string[];
   domains: string[];
@@ -38,7 +41,7 @@ export type ProposedData = {
 export abstract class Verifier {
   constructor(public readonly context: VerifierContext) {}
 
-  public async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
+  public async checkInvariant(requestContext: RequestContext): Promise<VerifyResponse> {
     throw new Error("not implemented");
   }
 
@@ -60,8 +63,26 @@ export abstract class Verifier {
     return rootManager;
   }
 
+  public getMerkleTreeManagerOfRootManagerDeployment(chainId: number): { address: string; abi: any } {
+    const merkleTreeManager = getDeployedMerkleTreeManagerOfRootManagerContract(
+      chainId,
+      this.context.isStaging ? "Staging" : "",
+    );
+    if (!merkleTreeManager) {
+      // TODO: Custom errors for package
+      throw new Error(`MerkleManager deployment not found for chain ${chainId}!`);
+    }
+    return merkleTreeManager;
+  }
+
   public getSpokeConnectorDeployment(chainId: number): { address: string; abi: any } {
-    const spokeConnector = getDeployedSpokeConnecterContract(chainId, this.context.isStaging ? "Staging" : "");
+    const protocol = this.context.isStaging ? MESSAGING_PROTOCOL_CONFIGS.testnet : MESSAGING_PROTOCOL_CONFIGS.mainnet;
+    const connectorName = getConnectorName(protocol, chainId);
+    const spokeConnector = getDeployedSpokeConnecterContractByName(
+      chainId,
+      connectorName,
+      this.context.isStaging ? "Staging" : "",
+    );
     if (!spokeConnector) {
       // TODO: Custom errors for package
       throw new Error(`SpokeConnector deployment not found for chain ${chainId}!`);
@@ -71,7 +92,7 @@ export abstract class Verifier {
 }
 
 export type SwitchResponse = {
-  domain: string;
+  domain: number;
   switched: boolean;
   error: any;
   relevantTransaction: ethers.providers.TransactionResponse | string;

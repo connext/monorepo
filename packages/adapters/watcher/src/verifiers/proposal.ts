@@ -3,9 +3,14 @@ import { Contract, providers, utils } from "ethers";
 
 import { ProposedData, Verifier, VerifierContext, VerifyResponse } from "../types";
 import { virtualTreeBytecode } from "../bytecodes";
+import { EMPTY_ROOT } from "../helpers/constants";
 
 export class ProposedRootVerifier extends Verifier {
-  constructor(context: VerifierContext, private readonly hubDomain: string) {
+  constructor(
+    context: VerifierContext,
+    private readonly hubDomain: number,
+    private readonly hubProvider: providers.JsonRpcProvider,
+  ) {
     super(context);
   }
 
@@ -17,11 +22,31 @@ export class ProposedRootVerifier extends Verifier {
    * @returns object - Whether the invariant was verified. `true` if propose was verified (no switch needed).
    * `false` if the invariant was violated (switch is needed)! If false, a reason is included in the response object.
    */
-  public override async checkInvariant(_requestContext: RequestContext): Promise<VerifyResponse> {
-    const proposedData = await this.getProposedData(this.hubDomain, _requestContext);
-    const virtualRoot = await this.getVirtualRoot(proposedData, _requestContext);
-    const { proposedRoot } = proposedData;
+  public override async checkInvariant(requestContext: RequestContext): Promise<VerifyResponse> {
+    // get root manager contract of the hub domain chain
+    const hubDomainChainId = domainToChainId(this.hubDomain);
+    const rootManagerContract = this.getRootManagerContract(hubDomainChainId);
+
+    // get proposed data from root manager contract
+    const proposedData = await this.getProposedData(rootManagerContract, hubDomainChainId, requestContext);
+    const { aggregateRoot: proposedRoot } = proposedData;
+
+    // stop check execution if the proposed root dispute period has elapsed
+    const isDisputeTimeOver = await this.checkDisputeTimeFinalization(+proposedData.endOfDispute);
+    if (isDisputeTimeOver) {
+      return {
+        needsAction: false,
+        reason: `Dispute time for root ${proposedRoot} is already over`,
+      };
+    }
+
+    // get snapshot roots from spoke connectors and insert them into the virtual tree to generate the virtual root
+    const spokeConnectors = proposedData.domains.map((domain) => this.getSpokeConnectorData(+domain));
+    const snapshotRoots = await this.getSnapshotRoots(proposedData, spokeConnectors);
+    const virtualRoot = await this.insertVirtualLeaves(snapshotRoots);
+
     // Invariant: proposedRoot == virtualRoot
+    // Compare virtual root with proposed root and return if action is needed or not
     if (virtualRoot !== proposedRoot) {
       return {
         needsAction: true,
@@ -36,69 +61,34 @@ export class ProposedRootVerifier extends Verifier {
 
   /**
    * @notice Get the latest proposed aggregate root in the RootManager contract at a given snapshot.
-   * @param hubDomain - The hub domain.
+   * @param rootManager - Root Manager contract instance.
+   * @param hubDomainChainId - The hub domain chain id.
+   * @param requestContext - The request context.
    * @returns ProposedData representing the data emitted by the last AggregateRootProposed event.
    */
-  public async getProposedData(hubDomain: string, requestContext: RequestContext): Promise<ProposedData> {
+  public async getProposedData(
+    rootManager: Contract,
+    hubDomainChainId: number,
+    requestContext: RequestContext,
+  ): Promise<ProposedData> {
     const { methodContext } = createLoggingContext(this.getProposedData.name);
 
-    // TODO: check with preetham how they handle this--this requires the RPC from the config
     // It's important to ensure the provider doesn't have a block-limit to fetch block from, otherwise we must add a contraint
     // in the toBlock and fromBlock optional parameters of rootManagerInstance.queryFilter
-    const provider = providers.getDefaultProvider();
-    const chainId = domainToChainId(+hubDomain);
-    const rootManager = this.getRootManagerDeployment(chainId);
-
-    const rootManagerInterface = new utils.Interface(rootManager.abi as string[]);
-    const rootManagerInstance = new Contract(rootManager.address, rootManager.abi, provider);
-
-    const getSnapshotDurationCalldata = rootManagerInterface.encodeFunctionData("getSnapshotDuration");
 
     try {
-      const getSnapshotDuration = await this.context.txservice.readTx({
-        domain: +hubDomain,
-        to: rootManager.address,
-        data: getSnapshotDurationCalldata,
-      });
+      // create a filter to get the latest proposed root event
+      const eventFilter = rootManager.filters.AggregateRootProposed();
+      const events = await rootManager.queryFilter(eventFilter);
 
-      // Note: a custom abi could be used for the event if necessary.
+      // sort events by block number to get the latest proposed root
+      const [latestProposedRootEvent] = events.sort((a, b) => b.blockNumber - a.blockNumber);
 
-      const block = await provider.getBlock("latest");
-      const [snapshotDuration] = rootManagerInterface.decodeFunctionResult("getSnapshotDuration", getSnapshotDuration);
-      this.context.logger.debug("Queried for snapshot duration", requestContext, methodContext, {
-        domain: +hubDomain,
-        chainId,
-        rootManager: rootManager.address,
-        data: getSnapshotDurationCalldata,
-        result: snapshotDuration,
-      });
-
-      const snapshotId = Math.floor(block.timestamp / Number(snapshotDuration));
-
-      const snapshotIdFilter = rootManagerInstance.filters.AggregateRootProposed(snapshotId);
-      const events = await rootManagerInstance.queryFilter(snapshotIdFilter);
-
-      if (events.length == 0) {
-        throw new Error(`No event found with snapshotId: ${snapshotId}`);
+      if (!latestProposedRootEvent?.args) {
+        throw new Error(`No valid events found for root proposal`);
       }
 
-      const latestProposedRootEvent = events.sort((a, b) => b.blockNumber - a.blockNumber)[0];
-      if (!latestProposedRootEvent.args) {
-        throw new Error(
-          "An error ocurred fetching the latestProposedRoot from the events. Check the event abi and filter are correct",
-        );
-      }
-
-      // TODO: check if this works correctly. If aggregateRoot is inexistent in the filter we can a custom event abi.
-      const proposedData: ProposedData = {
-        snapshotId: latestProposedRootEvent.args.snapshotId,
-        endOfDispute: latestProposedRootEvent.args.endOfDispute,
-        proposedRoot: latestProposedRootEvent.args.aggregateRoot,
-        baseRoot: latestProposedRootEvent.args.baseRoot,
-        snapshotRoots: latestProposedRootEvent.args.snapshotRoots,
-        domains: latestProposedRootEvent.args.domains,
-      };
-      return proposedData;
+      return latestProposedRootEvent.args as unknown as ProposedData;
     } catch (error: any) {
       this.context.logger.error(
         "Failed when getting the latest proposed aggregate root",
@@ -106,8 +96,8 @@ export class ProposedRootVerifier extends Verifier {
         methodContext,
         jsonifyError(error as Error),
         {
-          domain: +hubDomain,
-          chainId,
+          domain: this.hubDomain,
+          chainId: hubDomainChainId,
           rootManager: rootManager.address,
         },
       );
@@ -118,58 +108,37 @@ export class ProposedRootVerifier extends Verifier {
   /**
    * @notice Get the virtual aggregate root.
    * @param proposedData - ProposedData the data returned by the last AggregateRootProposed event.
+   * @param spokeConnectors - List of every spoke connector instance for every domain used in the propose.
    * @returns string representing the virtual root.
    */
-  public async getVirtualRoot(proposedData: ProposedData, requestContext: RequestContext): Promise<string> {
-    const { methodContext } = createLoggingContext(this.getVirtualRoot.name);
-
+  public async getSnapshotRoots(
+    proposedData: ProposedData,
+    spokeConnectors: { address: string; abi: any }[],
+  ): Promise<string[]> {
+    // Get the snapshot roots from domains. We parallelize the calls to the spoke connectors.
     const snapshotRoots = await Promise.all(
-      proposedData.domains.map(async (domain) => {
-        const chainId = domainToChainId(+domain);
-        const spokeConnector = this.getSpokeConnectorDeployment(chainId);
+      spokeConnectors.map(async (spokeConnector, i) => {
+        // spokeConnectors are ordered by domain, so we can use the index to get the domain
+        const domain = +proposedData.domains[i];
         const spokeConnectorInterface = new utils.Interface(spokeConnector.abi as string[]);
-        const snapshotRootCalldata = spokeConnectorInterface.encodeFunctionData("snapshotRoots(uint256)", [
+        let snapshotRoot = await this.getSnapshotRootForDomain(
           proposedData.snapshotId,
-        ]);
+          spokeConnector.address,
+          spokeConnectorInterface,
+          domain,
+        );
 
-        const snapshotRootRes = await this.context.txservice.readTx({
-          domain: +domain,
-          to: spokeConnector.address,
-          data: snapshotRootCalldata,
-        });
-
-        let [snapshotRoot] = spokeConnectorInterface.decodeFunctionResult("snapshotRoots(uint256)", snapshotRootRes);
-
-        // TODO: check typeof return value
-        if (snapshotRoot === "0") {
-          const snapshotRootCalldata = spokeConnectorInterface.encodeFunctionData("outboundRoot()", []);
-
-          const snapshotRootRes = await this.context.txservice.readTx({
-            domain: +domain,
-            to: spokeConnector.address,
-            data: snapshotRootCalldata,
-          });
-
-          [snapshotRoot] = spokeConnectorInterface.decodeFunctionResult("outboundRoot()", snapshotRootRes);
+        // If the snapshot root is empty, we need to get the root from `getOutboundRoot` method
+        if (snapshotRoot == EMPTY_ROOT) {
+          snapshotRoot = await this.getOutboundRoot(spokeConnector.address, spokeConnectorInterface, domain);
         }
 
+        // push the snapshot root to the array
         return snapshotRoot;
       }),
     );
 
-    try {
-      const aggregateRoot = await this.insertVirtualLeaves(snapshotRoots);
-      return aggregateRoot;
-    } catch (error) {
-      this.context.logger.error(
-        "Failed inserting leaves in virtual tree",
-        requestContext,
-        methodContext,
-        jsonifyError(error as Error),
-      );
-
-      throw new Error("Failed inserting leaves in virtual tree");
-    }
+    return snapshotRoots;
   }
 
   /**
@@ -178,27 +147,103 @@ export class ProposedRootVerifier extends Verifier {
    * @return virtualRoot The virtual aggregate root computed after the insertion of the leaves
    */
   private async insertVirtualLeaves(leaves: string[]): Promise<string> {
-    // TODO: check with preetham how they handle this--this requires the RPC from the config
-    // we are using this provider across this methods quite a bit, passing it as an arguments could make sense
-    const provider = providers.getDefaultProvider();
-
     // Encoded input data to be sent to the batch contract constructor
-    // TODO: find a way to get the merkle manager contract in a tidy way. Making a call to the rootManager seems overkill
-    const inputData = utils.defaultAbiCoder.encode(
-      ["address", "bytes32[]"],
-      [CONTRACTS.ROOT_MERKLE_TREE.address, leaves],
-    );
+    const hubDomainChainId = domainToChainId(this.hubDomain);
+    const merkleTreeManager = this.getMerkleTreeManagerOfRootManagerDeployment(hubDomainChainId);
+
+    const inputData = utils.defaultAbiCoder.encode(["address", "bytes32[]"], [merkleTreeManager.address, leaves]);
 
     // Generate payload from input data
     const payload = virtualTreeBytecode.concat(inputData.slice(2));
 
     // Call the deployment transaction with the payload
-    const returnedData = await provider.call({ data: payload });
+    const returnedData = await this.hubProvider.call({ data: payload });
 
     // Parse the returned value: [tree, root]
     const [decoded] = utils.defaultAbiCoder.decode(["tuple(tuple(bytes32[32], uint256), bytes32)"], returnedData);
 
     const virtualRoot = decoded[1];
     return virtualRoot;
+  }
+
+  /**
+   * @notice Checks whether the time to dispute the latest proposed root has concluded or not
+   * @param endOfDispute - The time at which the disputes for the latest proposed root ends
+   * @return isDisputeTimeOver Whether the time to dispute the latest proposed has concluded or not
+   */
+  private async checkDisputeTimeFinalization(endOfDispute: number): Promise<boolean> {
+    const blockNumber = await this.hubProvider.getBlockNumber();
+    const isDisputeTimeOver = blockNumber >= endOfDispute;
+    return isDisputeTimeOver;
+  }
+
+  /**
+   * @notice Gets the snapshot root for a given snapshotId in a given domain
+   * @param snapshotId - The id of the snapshot root we are going to fetch
+   * @param spokeConnectorAddress - The address of the spoke connector in the given domain
+   * @param spokeConnectorInterface - The interface of the spokeConnector
+   * @return snapshotRoot The snapshot root for the given snapshotId
+   */
+  private async getSnapshotRootForDomain(
+    snapshotId: string,
+    spokeConnectorAddress: string,
+    spokeConnectorInterface: utils.Interface,
+    domain: number,
+  ): Promise<string> {
+    const snapshotRootCalldata = spokeConnectorInterface.encodeFunctionData("snapshotRoots(uint256)", [snapshotId]);
+
+    const snapshotRootRes = await this.context.txservice.readTx({
+      domain: domain,
+      to: spokeConnectorAddress,
+      data: snapshotRootCalldata,
+    });
+
+    const [snapshotRoot] = spokeConnectorInterface.decodeFunctionResult("snapshotRoots(uint256)", snapshotRootRes);
+    return snapshotRoot;
+  }
+
+  /**
+   * @notice Gets the outboundRoot of a given spoke connector in a given domain
+   * @param spokeConnectorAddress - The address of the spoke connector in the given domain
+   * @param spokeConnectorInterface - The interface of the spokeConnector
+   * @return outboundRoot The outbound root for the given spoke connetor in the given domain
+   */
+  private async getOutboundRoot(
+    spokeConnectorAddress: string,
+    spokeConnectorInterface: utils.Interface,
+    domain: number,
+  ): Promise<string> {
+    const outboundRootCalldata = spokeConnectorInterface.encodeFunctionData("outboundRoot()", []);
+
+    const outboundRootRes = await this.context.txservice.readTx({
+      domain: domain,
+      to: spokeConnectorAddress,
+      data: outboundRootCalldata,
+    });
+
+    let [outboundRoot] = spokeConnectorInterface.decodeFunctionResult("outboundRoot()", outboundRootRes);
+    return outboundRoot;
+  }
+
+  /**
+   * @notice Instantiates an instance of RootManager's contract
+   * @param chainId - The chainId of the chain where the RootManager is located
+   * @return rootManagerContract - The instance of the RootManager contract
+   */
+  private getRootManagerContract(chainId: number): Contract {
+    const rootManager = this.getRootManagerDeployment(chainId);
+    const rootManagerContract = new Contract(rootManager.address, rootManager.abi, this.hubProvider);
+    return rootManagerContract;
+  }
+
+  /**
+   * @notice Gets an instance of a spoke connector instance
+   * @param domain - The domain number where the spoke connector to instantiate is located
+   * @return spokeConnector - An object containing the abi and address of the spoke connector of the given domain
+   */
+  private getSpokeConnectorData(domain: number): { address: string; abi: any } {
+    const chainId = domainToChainId(domain);
+    const spokeConnector = this.getSpokeConnectorDeployment(chainId);
+    return spokeConnector;
   }
 }

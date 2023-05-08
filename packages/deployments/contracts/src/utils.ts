@@ -48,10 +48,10 @@ export const ProtocolNetworks: Record<string, string> = {
   "100": ProtocolNetwork.MAINNET,
 };
 
-export const getProtocolNetwork = (_chain: string | number): string => {
+export const getProtocolNetwork = (_chain: string | number): ProtocolNetwork => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+  return (ProtocolNetworks[chain] as unknown as ProtocolNetwork) ?? ProtocolNetwork.LOCAL;
 };
 
 export type RelayerProxyConfig = {

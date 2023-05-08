@@ -1,13 +1,8 @@
-import {
-  BidStatusSchema,
-  createMethodContext,
-  domainToChainId,
-  jsonifyError,
-  RequestContext,
-} from "@connext/nxtp-utils";
-import { constants, utils } from "ethers";
+import { createMethodContext, domainToChainId, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { BigNumber, constants, utils, providers } from "ethers";
 
 import { SwitchResponse, Verifier } from "../types";
+import { TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
 
 export class Switcher extends Verifier {
   /**
@@ -16,38 +11,31 @@ export class Switcher extends Verifier {
    * @param hubDomain
    * @returns object containing the information that indicates whether the switch to slow mode was successful in the hub domain.
    */
-  public async switch(requestContext: RequestContext, reason: string, hubDomain: string): Promise<SwitchResponse> {
+  public async switch(requestContext: RequestContext, reason: string, hubDomain: number): Promise<SwitchResponse> {
     const methodContext = createMethodContext(this.switch.name);
     const { logger, txservice } = this.context;
+    let receipt: providers.TransactionReceipt;
 
     try {
       logger.info(`Trying to switch to slow mode in the hub domain. Reason: ${reason}`, requestContext, methodContext, {
         reason,
       });
 
-      const hubDomainChainId = domainToChainId(+hubDomain);
+      const hubDomainChainId = domainToChainId(hubDomain);
       const rootManager = this.getRootManagerDeployment(hubDomainChainId);
 
       const rootManagerInterface = new utils.Interface(rootManager.abi as string[]);
 
       // 1. First check if we are in optimistic mode
-      const optimisticModeRes = await txservice.readTx({
-        domain: +hubDomain,
-        to: rootManager.address,
-        data: rootManagerInterface.encodeFunctionData("optimisticMode"),
-      });
-
-      const [isOptimistic] = rootManagerInterface.decodeFunctionResult("optimisticMode", optimisticModeRes) as [
-        boolean,
-      ];
+      const inOptimisticMode = await this.checkIfInOptimisticMode(rootManagerInterface, rootManager.address, hubDomain);
 
       // 2. If in slow mode, do nothing.
-      if (!isOptimistic) {
+      if (!inOptimisticMode) {
         this.context.logger.debug("Already in slow mode", requestContext, methodContext, {
           hubDomain,
           hubDomainChainId,
           rootManager: rootManager.address,
-          isOptimistic,
+          inOptimisticMode,
         });
         return {
           domain: hubDomain,
@@ -58,26 +46,28 @@ export class Switcher extends Verifier {
       }
 
       // 3. If in optimistic mode, send the tx.
-      const switchCallData = rootManagerInterface.encodeFunctionData("activateSlowMode");
+      const gasPrice = await txservice.getGasPrice(hubDomain, requestContext);
 
-      const gasPrice = await txservice.getGasPrice(+hubDomain, requestContext);
-
+      // 4. Populate switch transaction
       const tx = {
         to: rootManager.address,
-        data: switchCallData,
+        data: rootManagerInterface.encodeFunctionData("activateSlowMode"),
         value: constants.Zero,
-        domain: +hubDomain,
+        domain: hubDomain,
         from: await txservice.getAddress(),
         gasPrice: gasPrice.mul(2),
       };
+
       logger.debug("Sending switch tx", requestContext, methodContext, {
         chain: hubDomainChainId,
         ...tx,
         value: tx.value.toString(),
-        gasPrice: tx.gasPrice.toString(),
+        gasPrice: tx.gasPrice!.toString(),
         price: gasPrice.toString(),
       });
-      const receipt = await txservice.sendTx(tx, requestContext);
+
+      // 5. Send tx
+      receipt = await txservice.sendTx(tx, requestContext);
       return {
         domain: hubDomain,
         switched: !!receipt.status,
@@ -91,7 +81,37 @@ export class Switcher extends Verifier {
         methodContext,
         jsonifyError(error as Error),
       );
-      throw error;
+
+      return {
+        domain: hubDomain,
+        switched: false,
+        error: (error as Error).message ?? error,
+        relevantTransaction: receipt!?.transactionHash ?? "", // in case tx was send correctly but after code had an error.
+      };
     }
+  }
+
+  /**
+   * @notice Checks if the root manager contract is in optimistic mode.
+   * @param rootManagerInterface The interface of the RootManager
+   * @param rootManagerAddress   The address of the RootManager contract
+   * @param hubDomain            The hub domain
+   * @returns inOptimisticMode - A boolean indicating whether the root manager is in optimistic mode or not.
+   */
+  private async checkIfInOptimisticMode(
+    rootManagerInterface: utils.Interface,
+    rootManagerAddress: string,
+    hubDomain: number,
+  ): Promise<boolean> {
+    const optimisticModeRes = await this.context.txservice.readTx({
+      domain: hubDomain,
+      to: rootManagerAddress,
+      data: rootManagerInterface.encodeFunctionData("optimisticMode"),
+    });
+
+    const [inOptimisticMode] = rootManagerInterface.decodeFunctionResult("optimisticMode", optimisticModeRes) as [
+      boolean,
+    ];
+    return inOptimisticMode;
   }
 }

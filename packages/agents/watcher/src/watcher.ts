@@ -12,7 +12,7 @@ import {
   RequestContext,
   domainToChainId,
 } from "@connext/nxtp-utils";
-import { utils, Wallet } from "ethers";
+import { providers, utils, Wallet } from "ethers";
 
 import { bindServer, startMintedAssetsInvariantCheck, startProposalInvariantCheck } from "./bindings";
 import { getConfig } from "./config";
@@ -152,6 +152,7 @@ export const makeWatcher = async () => {
     );
 
     // TODO: see how to get the hubDomain programatically so it scales
+    const hubProvider = new providers.JsonRpcProvider(context.config.chains[context.config.hubDomain].providers[0]);
     context.adapters.monitor = new OpModeMonitor(
       {
         domains: Object.keys(context.config.chains),
@@ -159,13 +160,15 @@ export const makeWatcher = async () => {
         txservice,
         isStaging: context.config.environment === "staging",
       },
-      hubDomain,
+      +context.config.hubDomain,
+      hubProvider,
     );
 
     /// MARK - Bindings
     await bindServer();
     startMintedAssetsInvariantCheck();
     startProposalInvariantCheck();
+
     console.log(
       `
 C O N N E X T   W A T C H E R
