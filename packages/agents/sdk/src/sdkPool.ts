@@ -294,8 +294,12 @@ export class SdkPool extends SdkShared {
       const total_balance: string = activeLiquidity[0].total_balance.toString();
       isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(destinationAmount);
     }
+
     const destinationSlippage = BigNumber.from(
-      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+      destinationAmount
+        .sub(destinationAmountReceived ?? destinationAmount)
+        .mul(10000)
+        .div(destinationAmount),
     );
 
     return {
