@@ -19,7 +19,7 @@ import { EMPTY_ROOT } from "../../src/helpers/constants";
 import { hexZeroPad, hexlify } from "ethers/lib/utils";
 import { generateFakeProposedData, generateRandomNumberString } from "../utils";
 
-describe.only("Watcher Adapter: ProposedRootVerifier", () => {
+describe("Watcher Adapter: ProposedRootVerifier", () => {
   let context: VerifierContext;
   let hubDomain: number;
   let hubProvider: SinonStubbedInstance<providers.JsonRpcProvider>;

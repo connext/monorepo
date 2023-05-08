@@ -7,7 +7,7 @@ import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon
 import { Switcher } from "../../src/switch";
 import { VerifierContext } from "../../src/types";
 
-describe.only("Monitor Adapter: Switcher", () => {
+describe("Monitor Adapter: Switcher", () => {
   const connextAddress = mkAddress("0x987654321");
   const RANDOM_TEST_REASON = "Testing";
 

@@ -141,7 +141,6 @@ export const getDeployedSpokeConnecterContractByName = (
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  console.log(`${name}${postfix}`);
 
   const contract = record[0]?.contracts ? record[0]?.contracts[`${name}${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
