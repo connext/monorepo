@@ -23,4 +23,4 @@ CREATE INDEX idx_daily_transfer_volume_transfer_date ON public.daily_transfer_vo
 REFRESH MATERIALIZED VIEW CONCURRENTLY public.daily_transfer_volume;
 
 -- migrate:down
-DROP VIEW IF EXISTS public.daily_transfer_volume;
+DROP MATERIALIZED VIEW IF EXISTS public.daily_transfer_volume;
