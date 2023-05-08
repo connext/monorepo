@@ -2,6 +2,7 @@ import { ChainData, expect, Logger, mkAddress, OriginTransfer } from "@connext/n
 import { BigNumber, constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
+import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 
 import * as MockableFns from "../../../src/mockable";
@@ -28,6 +29,7 @@ describe("Helpers:RelayerFee", () => {
       calculateRelayerFeeStub = stub(MockableFns, "calculateRelayerFee");
       getConversionRateStub = stub(MockableFns, "getConversionRate").resolves(1000);
       getDecimalsForAssetStub = stub(MockableFns, "getDecimalsForAsset").resolves(6);
+      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ adoptedAsset: "0x456" });
     });
 
     afterEach(() => {
