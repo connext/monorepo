@@ -6,7 +6,7 @@ import { domainToChainId } from "../helpers";
 import { Logger, createLoggingContext, RequestContext } from "../logging";
 
 import { ChainData } from "./chainData";
-import { getConversionRate, getGelatoEstimatedFee } from "./gelato";
+import { safeGetConversionRate, safeGetGelatoEstimatedFee } from "./gelato";
 
 const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
 
@@ -71,7 +71,7 @@ export const calculateRelayerFee = async (
     ? Number(executeGasAmount) + Number(callDataGasAmount)
     : Number(executeGasAmount);
   const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
-    getGelatoEstimatedFee(
+    safeGetGelatoEstimatedFee(
       destinationChainId,
       constants.AddressZero,
       Number(totalGasAmount),
@@ -80,10 +80,10 @@ export const calculateRelayerFee = async (
     ),
     originNativeTokenPrice
       ? Promise.resolve(originNativeTokenPrice)
-      : getConversionRate(originChainId, undefined, logger),
+      : safeGetConversionRate(originChainId, undefined, logger),
     destinationNativeTokenPrice
       ? Promise.resolve(destinationNativeTokenPrice)
-      : getConversionRate(destinationChainId, undefined, logger),
+      : safeGetConversionRate(destinationChainId, undefined, logger),
   ]);
 
   // fallback with passed-in gas price or with callback

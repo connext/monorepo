@@ -11,6 +11,16 @@ export const GELATO_SERVER = "https://api.gelato.digital";
 
 export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
 
+/**
+ * Get the fee estimate
+ * @param _chainId - The Id of chain where the fee is to be estimated
+ * @param paymentToken - The token address that the fee will be paid in
+ * @param gasLimit - The gas limit of the transaction
+ * @param isHighPriority - Whether the transaction is high priority
+ * @param gasLimitL1 - (optional) The gas limit of the transaction on L1
+ * @param logger - (optional) A Logger instance
+ * @returns The estimated fee in the payment token denomination
+ */
 export const getGelatoEstimatedFee = async (
   _chainId: number,
   paymentToken: string,
@@ -105,6 +115,47 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
     throw new GelatoConversionRateRequestError(chainId, { err: jsonifyError(error as Error) });
   }
   return result;
+};
+
+/**
+ * Get the fee estimate
+ * @param _chainId - The Id of chain where the fee is to be estimated
+ * @param paymentToken - The token address that the fee will be paid in
+ * @param gasLimit - The gas limit of the transaction
+ * @param isHighPriority - Whether the transaction is high priority
+ * @param gasLimitL1 - (optional) The gas limit of the transaction on L1
+ * @param logger - (optional) A Logger instance
+ * @returns The estimated fee in the payment token denomination, defaults to 0 if there is an error with the API request
+ */
+export const safeGetGelatoEstimatedFee = async (
+  _chainId: number,
+  paymentToken: string,
+  gasLimit: number,
+  isHighPriority: boolean,
+  gasLimitL1?: number,
+  logger?: Logger,
+): Promise<BigNumber> => {
+  try {
+    return await getGelatoEstimatedFee(_chainId, paymentToken, gasLimit, isHighPriority, gasLimitL1, logger);
+  } catch (error: unknown) {
+    return BigNumber.from("0");
+  }
+};
+
+/**
+ * Get the conversion rate from the native token to the requested token
+ * @param _chainId - The Id of chain where the conversion rate is estimated
+ * @param to - The token address in which the conversion rate is estimated from the native token of the selected chain.
+ *    If a value is not provided, it will default to the USDC address on the selected chain
+ * @param logger - The logger instance
+ * @returns The conversion rate in number, defaults to 0 if there is an error with the API request
+ */
+export const safeGetConversionRate = async (_chainId: number, to?: string, logger?: Logger) => {
+  try {
+    return await getConversionRate(_chainId, to, logger);
+  } catch (error: unknown) {
+    return 0;
+  }
 };
 
 export const isOracleActive = async (chainId: number): Promise<boolean> => {
