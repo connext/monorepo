@@ -66,11 +66,10 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   // Store all retrieved prices for easy logging
   const prices: Record<string, number> = {};
 
-  // Get the price of native asset in USDC for conversions.
-  const originChainId = domainToChainId(+originDomain);
-  const originNativeAssetPrice = await safeGetConversionRate(originChainId, undefined, logger);
-  prices[constants.AddressZero] = originNativeAssetPrice;
   for (const asset of relayerFeeAssets) {
+    // Get origin chain
+    const originChainId = domainToChainId(+originDomain);
+
     // The relayer fee can technically be paid in any whitelisted asset, but will generally be
     // one of the three options:
     // - origin chain native asset
@@ -78,26 +77,21 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     // - adopted asset (e.g. WETH)
     // where local / adopted assets are be the transacting asset on the origin chain.
 
-    // Get the price of the asset in USDC
-    // NOTE: when using the local asset, should get the price of the canonical counterpart
+    // NOTE: when using the transacting asset, should get the price of the canonical counterpart.
+    // This is because gelato may not support adopted assets on their chain, but will generally
+    // support their canonical counterpart (i.e. DAI on BSC not supported, but DAI on mainnet is)
     let assetPriceUsd;
     if (asset.toLowerCase() === constants.AddressZero) {
-      assetPriceUsd = originNativeAssetPrice;
-    } else if (
-      asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase() &&
-      origin.assets.transacting.asset.toLowerCase() === origin.assets.bridged.asset.toLowerCase()
-    ) {
-      logger.debug("Relayer fee is in local asset", requestContext, methodContext, {
+      assetPriceUsd = await safeGetConversionRate(originChainId, undefined, logger);
+    } else {
+      logger.debug("Relayer fee is not in origin native asset", requestContext, methodContext, {
         asset,
         local: origin.assets.bridged.asset,
+        transacting: origin.assets.transacting.asset,
       });
       // relayer fee is in transacting asset && transacting asset is the local asset.
       // get the USD price of the canonical counterpart
-      const { canonicalAsset, canonicalChain } = await getCanonicalAssetAndChainFromLocal(
-        originDomain,
-        asset,
-        requestContext,
-      );
+      const { canonicalAsset, canonicalChain } = await getCanonicalAssetAndChain(originDomain, asset, requestContext);
       // get the price of the native asset on canonical chain in USDC; and canonical asset in canonical native
       const [canonicalNativeUsd, canonicalAssetCanonicalNative] = await Promise.all([
         safeGetConversionRate(canonicalChain, undefined, logger),
@@ -113,10 +107,6 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
         canonicalAssetCanonicalNative,
       });
       assetPriceUsd = canonicalNativeUsd === 0 ? 0 : canonicalAssetCanonicalNative / canonicalNativeUsd;
-    } else {
-      // otherwise it is the adopted (or unknown) asset, query the price of the asset directly
-      const assetPriceNative = await safeGetConversionRate(originChainId, asset, logger);
-      assetPriceUsd = assetPriceNative / originNativeAssetPrice;
     }
     prices[asset] = assetPriceUsd;
 
@@ -147,9 +137,9 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   return { canSubmit, needed: minimumFeeNeeded.toString() };
 };
 
-const getCanonicalAssetAndChainFromLocal = async (
+const getCanonicalAssetAndChain = async (
   _domain: string,
-  _local: string,
+  _asset: string,
   _requestContext: RequestContextWithTransactionId,
 ): Promise<{ canonicalAsset: string; canonicalChain: number }> => {
   const {
@@ -157,24 +147,27 @@ const getCanonicalAssetAndChainFromLocal = async (
     adapters: { subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(
-    getCanonicalAssetAndChainFromLocal.name,
+    getCanonicalAssetAndChain.name,
     _requestContext,
     _requestContext.id,
   );
-  logger.debug("Method start", requestContext, methodContext, { domain: _domain, local: _local });
+  logger.debug("Method start", requestContext, methodContext, { domain: _domain, asset: _asset });
 
-  // get asset record from given domain/local asset combo
-  const sendingDomainAsset = await subgraph.getAssetByLocal(_domain, _local);
-  if (!sendingDomainAsset) {
-    throw new CanonicalAssetNotFound({ domain: _domain, local: _local });
+  // get all assets on the given domain
+  const assets = await subgraph.getAssets(_domain);
+  const asset = assets.find(
+    (a) => a.adoptedAsset.toLowerCase() === _asset.toLowerCase() || a.localAsset.toLowerCase() === _asset.toLowerCase(),
+  );
+  if (!asset) {
+    throw new CanonicalAssetNotFound({ domain: _domain, asset: _asset, assets });
   }
 
-  const canonicalAsset = evmId(sendingDomainAsset.canonicalId);
-  const canonicalChain = domainToChainId(+sendingDomainAsset.canonicalDomain);
+  const canonicalAsset = evmId(asset.canonicalId);
+  const canonicalChain = domainToChainId(+asset.canonicalDomain);
 
   logger.debug("Method complete", requestContext, methodContext, {
     domain: _domain,
-    local: _local,
+    asset: _asset,
     canonicalAsset,
     canonicalChain,
   });
