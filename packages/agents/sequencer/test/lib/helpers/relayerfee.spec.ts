@@ -27,7 +27,7 @@ describe("Helpers:RelayerFee", () => {
     >;
     beforeEach(() => {
       safeCalculateRelayerFeeStub = stub(MockableFns, "calculateRelayerFee");
-      safeGetConversionRateStub = stub(MockableFns, "getConversionRate").resolves(1000);
+      safeGetConversionRateStub = stub(MockableFns, "safeGetConversionRate").resolves(1000);
       getDecimalsForAssetStub = stub(MockableFns, "getDecimalsForAsset").resolves(6);
       (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ adoptedAsset: "0x456" });
     });
