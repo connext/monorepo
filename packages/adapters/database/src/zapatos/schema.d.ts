@@ -1667,7 +1667,7 @@ declare module 'zapatos/schema' {
 
   /**
    * **daily_transfer_volume**
-   * - View in database
+   * - Materialized view in database
    */
   export namespace daily_transfer_volume {
     export type Table = 'daily_transfer_volume';
@@ -1675,151 +1675,187 @@ declare module 'zapatos/schema' {
       /**
       * **daily_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **daily_transfer_volume.transfer_date**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_date: Date | null;
       /**
       * **daily_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **daily_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain: string | null;
       /**
       * **daily_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router: string | null;
       /**
       * **daily_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **daily_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **daily_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
+      /**
+      * **daily_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Materialized view column
+      */
+      usd_volume: number | null;
+      /**
+      * **daily_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: db.Int8String | null;
     }
     export interface JSONSelectable {
       /**
       * **daily_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **daily_transfer_volume.transfer_date**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_date: db.DateString | null;
       /**
       * **daily_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **daily_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain: string | null;
       /**
       * **daily_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router: string | null;
       /**
       * **daily_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **daily_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **daily_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
+      /**
+      * **daily_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Materialized view column
+      */
+      usd_volume: number | null;
+      /**
+      * **daily_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: number | null;
     }
     export interface Whereable {
       /**
       * **daily_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.transfer_date**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **daily_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Materialized view column
+      */
+      usd_volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -1827,7 +1863,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       [key: string]: never;
     }
-    export type UniqueIndex = never;
+    export type UniqueIndex = 'daily_transfer_volume_id_idx';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -2299,6 +2335,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price: number | null;
+      /**
+      * **hourly_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -2349,6 +2391,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price: number | null;
+      /**
+      * **hourly_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume: number | null;
     }
     export interface Whereable {
       /**
@@ -2399,6 +2447,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **hourly_transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3633,6 +3687,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_usd_price: number | null;
+      /**
+      * **router_liquidity.total_balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance_usd: number | null;
+      /**
+      * **router_liquidity.total_locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked_usd: number | null;
+      /**
+      * **router_liquidity.total_supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied_usd: number | null;
+      /**
+      * **router_liquidity.total_removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed_usd: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -3683,6 +3761,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_usd_price: number | null;
+      /**
+      * **router_liquidity.total_balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance_usd: number | null;
+      /**
+      * **router_liquidity.total_locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked_usd: number | null;
+      /**
+      * **router_liquidity.total_supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied_usd: number | null;
+      /**
+      * **router_liquidity.total_removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed_usd: number | null;
     }
     export interface Whereable {
       /**
@@ -3733,6 +3835,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_balance_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_locked_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_supplied_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity.total_removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      total_removed_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -3778,6 +3904,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       price: number | null;
+      /**
+      * **router_tvl.tvl_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      tvl_usd: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -3804,6 +3936,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       price: number | null;
+      /**
+      * **router_tvl.tvl_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      tvl_usd: number | null;
     }
     export interface Whereable {
       /**
@@ -3830,6 +3968,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_tvl.tvl_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      tvl_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -4012,6 +4156,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price: number | null;
+      /**
+      * **routers_with_balances.balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance_usd: number | null;
+      /**
+      * **routers_with_balances.fee_earned_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fee_earned_usd: number | null;
+      /**
+      * **routers_with_balances.locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked_usd: number | null;
+      /**
+      * **routers_with_balances.supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied_usd: number | null;
+      /**
+      * **routers_with_balances.removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed_usd: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -4122,6 +4296,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price: number | null;
+      /**
+      * **routers_with_balances.balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance_usd: number | null;
+      /**
+      * **routers_with_balances.fee_earned_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fee_earned_usd: number | null;
+      /**
+      * **routers_with_balances.locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked_usd: number | null;
+      /**
+      * **routers_with_balances.supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied_usd: number | null;
+      /**
+      * **routers_with_balances.removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed_usd: number | null;
     }
     export interface Whereable {
       /**
@@ -4232,6 +4436,36 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.balance_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      balance_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.fee_earned_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      fee_earned_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.locked_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      locked_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.supplied_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      supplied_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **routers_with_balances.removed_usd**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      removed_usd?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -6009,6 +6243,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price: number | null;
+      /**
+      * **transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -6047,6 +6287,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price: number | null;
+      /**
+      * **transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume: number | null;
     }
     export interface Whereable {
       /**
@@ -6085,6 +6331,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.usd_volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -8367,6 +8619,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price: number | null;
+      /**
+      * **transfers_with_price.decimals**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimals: number | null;
+      /**
+      * **transfers_with_price.usd_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_amount: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -8747,6 +9011,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price: number | null;
+      /**
+      * **transfers_with_price.decimals**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimals: number | null;
+      /**
+      * **transfers_with_price.usd_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_amount: number | null;
     }
     export interface Whereable {
       /**
@@ -9127,6 +9403,18 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       asset_usd_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.decimals**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      decimals?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers_with_price.usd_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      usd_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -11334,8 +11622,8 @@ declare module 'zapatos/schema' {
   
     export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
-    export type AllMaterializedViews = [];
+    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
+    export type AllMaterializedViews = [daily_transfer_volume.Table];
     export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
   }
 

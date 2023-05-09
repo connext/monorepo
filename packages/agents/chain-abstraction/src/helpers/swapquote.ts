@@ -54,9 +54,7 @@ export const getSwapQuoteForOneInch = async (args: SwapQuoteCallbackArgs): Promi
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
-    const apiEndpoint = `https://api.1inch.io/v5.0/${
-      args.chainId
-    }/quote?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${Number(args.amountIn)}`;
+    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/quote?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${args.amountIn}`;
 
     const res = await axiosGet(apiEndpoint);
     return res.data.toTokenAmount;
