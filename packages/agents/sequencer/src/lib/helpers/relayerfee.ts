@@ -1,7 +1,7 @@
 import { XTransfer, createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { calculateRelayerFee, getConversionRate, getDecimalsForAsset } from "../../mockable";
+import { calculateRelayerFee, safeGetConversionRate, getDecimalsForAsset } from "../../mockable";
 import { getContext } from "../../sequencer";
 
 /**
@@ -54,7 +54,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   const originChainId = domainToChainId(+originDomain);
   // origin native token to usdc
   const prices: Record<string, number> = {};
-  prices[constants.AddressZero] = await getConversionRate(originChainId, undefined, logger);
+  prices[constants.AddressZero] = await safeGetConversionRate(originChainId, undefined, logger);
   for (const asset of relayerFeeAssets) {
     if (asset === constants.AddressZero) {
       const nativeFee = BigNumber.from(origin.relayerFees[asset]);
@@ -62,7 +62,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
       // origin native token to asset price
-      const originNativePriceAsset = await getConversionRate(originChainId, asset, logger);
+      const originNativePriceAsset = await safeGetConversionRate(originChainId, asset, logger);
       prices[asset] = originNativePriceAsset === 0 ? 0 : prices[constants.AddressZero] / originNativePriceAsset;
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId, undefined, chainData, () =>
         chainreader.getDecimalsForAsset(+originDomain, asset),
