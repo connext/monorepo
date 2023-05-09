@@ -2282,7 +2282,7 @@ declare module 'zapatos/schema' {
 
   /**
    * **hourly_transfer_volume**
-   * - View in database
+   * - Materialized view in database
    */
   export namespace hourly_transfer_volume {
     export type Table = 'hourly_transfer_volume';
@@ -2290,169 +2290,187 @@ declare module 'zapatos/schema' {
       /**
       * **hourly_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **hourly_transfer_volume.transfer_hour**
       * - `timestamptz` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_hour: Date | null;
       /**
       * **hourly_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **hourly_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain: string | null;
       /**
       * **hourly_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router: string | null;
       /**
       * **hourly_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **hourly_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **hourly_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
       /**
       * **hourly_transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume: number | null;
+      /**
+      * **hourly_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: db.Int8String | null;
     }
     export interface JSONSelectable {
       /**
       * **hourly_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **hourly_transfer_volume.transfer_hour**
       * - `timestamptz` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_hour: db.TimestampTzString | null;
       /**
       * **hourly_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **hourly_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain: string | null;
       /**
       * **hourly_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router: string | null;
       /**
       * **hourly_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **hourly_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **hourly_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
       /**
       * **hourly_transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume: number | null;
+      /**
+      * **hourly_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: number | null;
     }
     export interface Whereable {
       /**
       * **hourly_transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.transfer_hour**
       * - `timestamptz` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_hour?: (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampTzString | Date) | db.Parameter<(db.TimestampTzString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.destination_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.router**
       * - `text` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **hourly_transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **hourly_transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -2460,7 +2478,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       [key: string]: never;
     }
-    export type UniqueIndex = never;
+    export type UniqueIndex = 'hourly_transfer_volume_id_idx';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -6202,7 +6220,7 @@ declare module 'zapatos/schema' {
 
   /**
    * **transfer_volume**
-   * - View in database
+   * - Materialized view in database
    */
   export namespace transfer_volume {
     export type Table = 'transfer_volume';
@@ -6210,133 +6228,151 @@ declare module 'zapatos/schema' {
       /**
       * **transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **transfer_volume.transfer_day**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_day: Date | null;
       /**
       * **transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
       /**
       * **transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume: number | null;
+      /**
+      * **transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: db.Int8String | null;
     }
     export interface JSONSelectable {
       /**
       * **transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status: transfer_status | null;
       /**
       * **transfer_volume.transfer_day**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_day: db.DateString | null;
       /**
       * **transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain: string | null;
       /**
       * **transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset: string | null;
       /**
       * **transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume: number | null;
       /**
       * **transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price: number | null;
       /**
       * **transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume: number | null;
+      /**
+      * **transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id: number | null;
     }
     export interface Whereable {
       /**
       * **transfer_volume.status**
       * - `transfer_status` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.transfer_day**
       * - `date` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.origin_chain**
       * - `varchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.asset**
       * - `bpchar` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.avg_price**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       avg_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfer_volume.usd_volume**
       * - `numeric` in database
-      * - Nullable, no default
+      * - Materialized view column
       */
       usd_volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.id**
+      * - `int8` in database
+      * - Materialized view column
+      */
+      id?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       [key: string]: never;
@@ -6344,7 +6380,7 @@ declare module 'zapatos/schema' {
     export interface Updatable {
       [key: string]: never;
     }
-    export type UniqueIndex = never;
+    export type UniqueIndex = 'transfer_volume_id_idx';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -11622,8 +11658,8 @@ declare module 'zapatos/schema' {
   
     export type AllBaseTables = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, routers.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
-    export type AllMaterializedViews = [daily_transfer_volume.Table];
+    export type AllViews = [daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, router_liquidity.Table, router_tvl.Table, routers_with_balances.Table, stableswap_lp_balances.Table, transfer_count.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
+    export type AllMaterializedViews = [daily_transfer_volume.Table, hourly_transfer_volume.Table, transfer_volume.Table];
     export type AllTablesAndViews = [aggregated_roots.Table, asset_balances.Table, asset_prices.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_swap_tvl.Table, daily_swap_volume.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_swap_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, merkle_cache.Table, messages.Table, propagated_roots.Table, received_aggregate_roots.Table, root_messages.Table, router_liquidity.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, stableswap_exchanges.Table, stableswap_lp_balances.Table, stableswap_pool_events.Table, stableswap_pools.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_price.Table, transfers_with_ttr_ttv.Table, weekly_connext_metrics.Table, weekly_transfer_metrics.Table];
   }
 
