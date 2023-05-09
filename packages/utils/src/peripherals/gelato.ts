@@ -21,7 +21,7 @@ export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde9
  * @param logger - (optional) A Logger instance
  * @returns The estimated fee in the payment token denomination
  */
-export const getGelatoEstimatedFee = async (
+export const _getGelatoEstimatedFee = async (
   _chainId: number,
   paymentToken: string,
   gasLimit: number,
@@ -127,7 +127,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
  * @param logger - (optional) A Logger instance
  * @returns The estimated fee in the payment token denomination, defaults to 0 if there is an error with the API request
  */
-export const safeGetGelatoEstimatedFee = async (
+export const getGelatoEstimatedFee = async (
   _chainId: number,
   paymentToken: string,
   gasLimit: number,
@@ -136,7 +136,7 @@ export const safeGetGelatoEstimatedFee = async (
   logger?: Logger,
 ): Promise<BigNumber> => {
   try {
-    return await getGelatoEstimatedFee(_chainId, paymentToken, gasLimit, isHighPriority, gasLimitL1, logger);
+    return await _getGelatoEstimatedFee(_chainId, paymentToken, gasLimit, isHighPriority, gasLimitL1, logger);
   } catch (error: unknown) {
     return BigNumber.from("0");
   }

@@ -6,7 +6,7 @@ import { domainToChainId } from "../helpers";
 import { Logger, createLoggingContext, RequestContext } from "../logging";
 
 import { ChainData } from "./chainData";
-import { safeGetConversionRate, safeGetGelatoEstimatedFee } from "./gelato";
+import { safeGetConversionRate, getGelatoEstimatedFee } from "./gelato";
 
 const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
 
@@ -71,7 +71,7 @@ export const calculateRelayerFee = async (
     ? Number(executeGasAmount) + Number(callDataGasAmount)
     : Number(executeGasAmount);
   const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
-    safeGetGelatoEstimatedFee(
+    getGelatoEstimatedFee(
       destinationChainId,
       constants.AddressZero,
       Number(totalGasAmount),
