@@ -54,6 +54,41 @@ module "cartographer_db" {
   publicly_accessible        = true
 }
 
+module "cartographer_db_replica" {
+  domain              = "cartographer"
+  source              = "../../../modules/db-replica"
+  replicate_source_db = module.cartographer_db.db_instance_id
+  depends_on          = [module.cartographer_db]
+  replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}"
+  instance_class      = "db.t4g.2xlarge"
+  allocated_storage   = 150
+
+  name     = module.cartographer_db.db_instance_name
+  username = module.cartographer_db.db_instance_username
+  password = module.cartographer_db.db_instance_password
+  port     = module.cartographer_db.db_instance_port
+
+  engine_version = module.cartographer_db.db_instance_engine_version
+
+  maintenance_window      = module.cartographer_db.db_maintenance_window
+  backup_retention_period = module.cartographer_db.db_backup_retention_period
+  backup_window           = module.cartographer_db.db_backup_window
+
+  tags = {
+    Environment = var.environment
+    Domain      = var.domain
+  }
+
+  parameter_group_name = "default.postgres14"
+
+  hosted_zone_id        = data.aws_route53_zone.primary.zone_id
+  stage                 = var.stage
+  environment           = var.environment
+  db_security_group_ids = module.cartographer_db.db_instance_vpc_security_group_ids
+  db_subnet_group_name  = module.cartographer_db.db_subnet_group_name
+  publicly_accessible   = module.cartographer_db.db_publicly_accessible
+}
+
 
 module "postgrest" {
   source                   = "../../../modules/service"
@@ -83,6 +118,7 @@ module "postgrest" {
   container_env_vars       = local.postgrest_env_vars
   domain                   = var.domain
 }
+
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
