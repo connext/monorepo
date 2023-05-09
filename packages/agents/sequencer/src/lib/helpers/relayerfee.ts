@@ -62,8 +62,14 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
       relayerFeePaidUsd = relayerFeePaidUsd.add(relayerFeePaid);
     } else if (asset.toLowerCase() === origin.assets.transacting.asset.toLowerCase()) {
       // origin native token to asset price
-      const originNativePriceAsset = await safeGetConversionRate(originChainId, asset, logger);
-      prices[asset] = originNativePriceAsset === 0 ? 0 : prices[constants.AddressZero] / originNativePriceAsset;
+      // get adopted asset for the origin domain
+      let adoptedAsset = asset;
+      if (origin.assets.transacting.asset.toLowerCase() === origin.assets.bridged.asset.toLowerCase()) {
+        adoptedAsset = await getOriginAdoptedAsset(originDomain, origin.assets.bridged.asset);
+      }
+      const originPriceAsset = await safeGetConversionRate(originChainId, adoptedAsset, logger);
+
+      prices[asset] = originPriceAsset === 0 ? 0 : prices[constants.AddressZero] / originPriceAsset;
       const relayerFeeDecimals = await getDecimalsForAsset(asset, originChainId, undefined, chainData, () =>
         chainreader.getDecimalsForAsset(+originDomain, asset),
       );
@@ -86,4 +92,20 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
   });
 
   return { canSubmit, needed: minimumFeeNeeded.toString() };
+};
+
+export const getOriginAdoptedAsset = async (_originDomain: string, _originLocalAsset: string): Promise<string> => {
+  const {
+    adapters: { subgraph },
+  } = getContext();
+  // handle address(0) default case
+  if (_originLocalAsset === constants.AddressZero) {
+    return constants.AddressZero;
+  }
+
+  // get canonical asset from orgin domain.
+  const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
+  const adopterAsset = sendingDomainAsset!.adoptedAsset;
+
+  return adopterAsset;
 };
