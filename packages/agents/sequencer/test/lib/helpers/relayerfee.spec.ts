@@ -11,8 +11,8 @@ import { Provider } from "@ethersproject/abstract-provider";
 
 describe("Helpers:RelayerFee", () => {
   describe("#canSubmitToRelayer", () => {
-    let calculateRelayerFeeStub: SinonStub;
-    let getConversionRateStub: SinonStub<
+    let safeCalculateRelayerFeeStub: SinonStub;
+    let safeGetConversionRateStub: SinonStub<
       [_chainId: number, to?: string | undefined, logger?: Logger | undefined],
       Promise<number>
     >;
@@ -26,8 +26,8 @@ describe("Helpers:RelayerFee", () => {
       Promise<number>
     >;
     beforeEach(() => {
-      calculateRelayerFeeStub = stub(MockableFns, "calculateRelayerFee");
-      getConversionRateStub = stub(MockableFns, "getConversionRate").resolves(1000);
+      safeCalculateRelayerFeeStub = stub(MockableFns, "calculateRelayerFee");
+      safeGetConversionRateStub = stub(MockableFns, "getConversionRate").resolves(1000);
       getDecimalsForAssetStub = stub(MockableFns, "getDecimalsForAsset").resolves(6);
       (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ adoptedAsset: "0x456" });
     });
@@ -47,17 +47,17 @@ describe("Helpers:RelayerFee", () => {
 
     it("should return true if relayer fee is enough native only, native > USD", async () => {
       const transfer = mock.entity.xtransfer({ relayerFees: { [constants.AddressZero]: "80" } }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("100"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("100"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: true, needed: "80" });
     });
 
     it("should return true if relayer fee is enough native only, native < USD", async () => {
-      getConversionRateStub.resolves(0.001);
+      safeGetConversionRateStub.resolves(0.001);
       const transfer = mock.entity.xtransfer({
         relayerFees: { [constants.AddressZero]: "80000000" },
       }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("100"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("100"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: true, needed: "80" });
     });
@@ -68,7 +68,7 @@ describe("Helpers:RelayerFee", () => {
         relayerFees: { [transactingAsset]: "1" },
         asset: transactingAsset,
       }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("1000000000000"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("1000000000000"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: true, needed: "800000000000" });
     });
@@ -76,14 +76,14 @@ describe("Helpers:RelayerFee", () => {
     it("should return true if relayer fee is enough both native and usd", async () => {
       // scenario: transfering weth on xdai
       getDecimalsForAssetStub.resolves(18);
-      getConversionRateStub.onCall(0).resolves(0.9992302253800343); // 1 XDAI = 1 USD
-      getConversionRateStub.onCall(1).resolves(0.0005429445181187423); // $1 = 0.0054 ETH ($1,840.35)
+      safeGetConversionRateStub.onCall(0).resolves(0.9992302253800343); // 1 XDAI = 1 USD
+      safeGetConversionRateStub.onCall(1).resolves(0.0005429445181187423); // $1 = 0.0054 ETH ($1,840.35)
       const transactingAsset = mkAddress("0xaaa");
       const transfer = mock.entity.xtransfer({
         relayerFees: { [constants.AddressZero]: "184095455962097", [transactingAsset]: "525094043977850" },
         asset: transactingAsset,
       }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("163985699539200000"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("163985699539200000"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: true, needed: "131188559631360000" });
     });
@@ -91,14 +91,14 @@ describe("Helpers:RelayerFee", () => {
     it("should return false if relayerFee isn't enough USD", async () => {
       getDecimalsForAssetStub.resolves(18);
       const transfer = mock.entity.xtransfer({ relayerFees: { [mkAddress("0xaaa")]: "79" } }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("100"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("100"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: false, needed: "80" });
     });
 
     it("should return false if relayerFee isn't enough native", async () => {
       const transfer = mock.entity.xtransfer({ relayerFees: { [constants.AddressZero]: "79" } }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("100000"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("100000"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: false, needed: "80000" });
     });
@@ -107,7 +107,7 @@ describe("Helpers:RelayerFee", () => {
       const transfer = mock.entity.xtransfer({
         relayerFees: { [constants.AddressZero]: "3", [mkAddress("0xaaa")]: "8" },
       }) as OriginTransfer;
-      calculateRelayerFeeStub.resolves(BigNumber.from("10000000004004"));
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("10000000004004"));
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: false, needed: "8000000003203" });
     });
