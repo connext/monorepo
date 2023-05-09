@@ -107,3 +107,7 @@ variable "db_subnet_group_subnet_ids" {
 variable "publicly_accessible" {
   default = false
 }
+
+variable "performance_insights_enabled" {
+  default = true
+}

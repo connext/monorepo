@@ -8,6 +8,7 @@ resource "aws_db_instance" "db_read_replica" {
 
   vpc_security_group_ids = var.db_security_group_ids
 
+  performance_insights_enabled = var.performance_insights_enabled
   publicly_accessible        = var.publicly_accessible
   multi_az                   = false
   storage_type               = "gp2"

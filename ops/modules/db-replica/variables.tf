@@ -106,3 +106,7 @@ variable "password" {
   description = "The password for the DB user"
   type        = string
 }
+
+variable "performance_insights_enabled" {
+  default = true
+}
