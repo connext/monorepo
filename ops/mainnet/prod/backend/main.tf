@@ -118,7 +118,6 @@ module "postgrest" {
   domain                   = var.domain
 }
 
-
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
