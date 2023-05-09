@@ -526,7 +526,7 @@ export const getPendingTransfersByDomains = async (
         origin_domain,
         destination_domain,
         status: db.conditions.isNotIn(["CompletedFast", "CompletedSlow"]),
-        error_status: db.conditions.isNull,
+        error_status: db.conditions.or(db.conditions.isNull, db.conditions.isIn(["NoBidsReceived"])),
       },
       {
         offset,
