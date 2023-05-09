@@ -1,4 +1,4 @@
-import { ChainData, expect, Logger, mkAddress, OriginTransfer } from "@connext/nxtp-utils";
+import { ChainData, expect, getRandomBytes32, Logger, mkAddress, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
@@ -29,7 +29,10 @@ describe("Helpers:RelayerFee", () => {
       safeCalculateRelayerFeeStub = stub(MockableFns, "calculateRelayerFee");
       safeGetConversionRateStub = stub(MockableFns, "safeGetConversionRate").resolves(1000);
       getDecimalsForAssetStub = stub(MockableFns, "getDecimalsForAsset").resolves(6);
-      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ adoptedAsset: "0x456" });
+      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({
+        canonicalId: getRandomBytes32(),
+        canonicalDomain: 133712,
+      });
     });
 
     afterEach(() => {
