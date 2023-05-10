@@ -37,10 +37,16 @@ export const getDecimalsForAsset = async (
 };
 
 export const getAssetEntryFromChaindata = (assetId: string, domainId: number, chainData: Map<string, ChainData>) => {
+  let checksummedAssetId = assetId;
+  try {
+    checksummedAssetId = utils.getAddress(assetId);
+  } catch (e: unknown) {
+    // NOTE: this could fail, i.e. if the asset starts with "0X" or is an invalid address
+  }
   const chainInfo = chainData.get(domainId.toString());
   const assetRecord = chainInfo
     ? chainInfo.assetId[assetId] ??
-      chainInfo.assetId[utils.getAddress(assetId)] ??
+      chainInfo.assetId[checksummedAssetId] ??
       chainInfo.assetId[assetId.toLowerCase()] ??
       chainInfo.assetId[assetId.toUpperCase()]
     : undefined;
