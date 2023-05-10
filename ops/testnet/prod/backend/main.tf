@@ -43,7 +43,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "rds-pg"
+  parameter_group_name = "rds-postgres"
   vpc_id               = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id

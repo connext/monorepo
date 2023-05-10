@@ -69,14 +69,12 @@ resource "aws_db_parameter_group" "rds_postgres" {
   family = "postgres14"
 
   parameter {
-    name         = "shared_preload_libraries"
-    value        = "pg_cron"
-    apply_method = "pending-reboot"
+    name  = "shared_preload_libraries"
+    value = "pg_cron"
   }
 
   parameter {
-    name         = "cron.database_name"
-    value        = var.name
-    apply_method = "pending-reboot"
+    name  = "cron.database_name"
+    value = var.name
   }
 }
