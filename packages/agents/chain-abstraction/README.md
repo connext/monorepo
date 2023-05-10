@@ -1,12 +1,4 @@
-# SDK
-
-The Chain Abstraction SDK makes the process of creating the `_swapData` for swaps very simple.
-
-## Installation
-
-```sh
-npm install @connext/chain-abstraction
-```
+# Chain Abstraction Utilities
 
 ## Publish Package
 
@@ -15,7 +7,7 @@ npm install @connext/chain-abstraction
 2. After merging to the correct branch (e.g. `main` for `alpha` versions), run:
 
    ```
-   git tag -a sdk-v<VERSION>
+   git tag -a chain-abstraction-v<VERSION>
    ```
 
 3. Push tag
