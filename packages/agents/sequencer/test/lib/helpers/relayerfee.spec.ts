@@ -96,8 +96,18 @@ describe("Helpers:RelayerFee", () => {
     it("should return true if relayer fee is enough both native and usd", async () => {
       // scenario: transfering weth on xdai
       getDecimalsForAssetStub.resolves(18);
-      safeGetConversionRateStub.onCall(0).resolves(0.9992302253800343); // 1 XDAI = 1 USD
-      safeGetConversionRateStub.onCall(1).resolves(0.0005429445181187423); // $1 = 0.0054 ETH ($1,840.35)
+      // price  calls:
+      // 0 - call for fees[0] (xdai native) = 1
+      //    curl https://api.gelato.digital/oracles/100/conversionRate
+      //    {"chainId":100,"from":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE","to":"0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83","conversionRate":0.9984608367277733,"details":{"numerator":"245168907522","denominator":"245546844206213363511843"}}
+      // 1 - call for fees[1] (weth) canonical native
+      //    curl https://api.gelato.digital/oracles/1/conversionRate
+      //    {"chainId":1,"from":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE","to":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","conversionRate":1869.596835848627,"details":{"numerator":"6277101735386680763835789423207666416102355444464034512896","denominator":"3357462750806083151893507606525676395679729964036367769390666713561"}}%
+      // 2 - call for fees[1] (weth) canonical native in canonical asset
+      //    curl https://api.gelato.digital/oracles/1/conversionRate?to=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+      safeGetConversionRateStub.onCall(0).resolves(0.9984608367277733); // XDAI price USD
+      safeGetConversionRateStub.onCall(1).resolves(1869.596835848627); // ETH price USD
+      safeGetConversionRateStub.onCall(2).resolves(1); // ETH price WETH
       const transfer = mock.entity.xtransfer({
         relayerFees: { [constants.AddressZero]: "184095455962097", [adoptedAsset]: "525094043977850" },
         asset: adoptedAsset,
