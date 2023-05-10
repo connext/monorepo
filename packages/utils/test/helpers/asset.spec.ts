@@ -94,7 +94,7 @@ describe("Helpers:Asset", () => {
     reset();
   });
 
-  describe.only("#getAssetEntryFromChaindata", () => {
+  describe("#getAssetEntryFromChaindata", () => {
     it("should work if asset key is upper case", () => {
       const asset = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6".toLowerCase();
       expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.deep.eq({
