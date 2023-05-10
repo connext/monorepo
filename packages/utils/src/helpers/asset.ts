@@ -36,7 +36,11 @@ export const getDecimalsForAsset = async (
   return await decimalsCallback();
 };
 
-export const getAssetEntryFromChaindata = (assetId: string, domainId: number, chainData: Map<string, ChainData>) => {
+export const getAssetEntryFromChaindata = (
+  assetId: string,
+  domainId: number | string,
+  chainData: Map<string, ChainData>,
+) => {
   let checksummedAssetId = assetId;
   try {
     checksummedAssetId = utils.getAddress(assetId);
