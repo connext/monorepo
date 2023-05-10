@@ -109,7 +109,7 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
         canonicalAssetCanonicalNative,
       });
       // get pricing of asset in USD
-      assetPriceUsd = canonicalNativeUsd === 0 ? 0 : canonicalNativeUsd / canonicalAssetCanonicalNative;
+      assetPriceUsd = canonicalAssetCanonicalNative === 0 ? 0 : canonicalNativeUsd / canonicalAssetCanonicalNative;
     }
     prices[asset] = assetPriceUsd;
 
