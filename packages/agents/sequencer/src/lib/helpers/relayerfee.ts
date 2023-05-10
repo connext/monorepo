@@ -92,9 +92,11 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
       // relayer fee is in transacting asset && transacting asset is the local asset.
       // get the USD price of the canonical counterpart
       const { canonicalAsset, canonicalChain } = await getCanonicalAssetAndChain(originDomain, asset, requestContext);
-      // get the price of the native asset on canonical chain in USDC; and canonical asset in canonical native
+      // get the price of the native asset on canonical chain in USDC; and canonical asset in canonical native i.e converstion rate of native asset on canonical chain to canonical asset
       const [canonicalNativeUsd, canonicalAssetCanonicalNative] = await Promise.all([
+        // Returns the price in USD of native asset on the canonical chain
         safeGetConversionRate(canonicalChain, undefined, logger),
+        // Returns the price of the asset under native token on the canonical chain
         safeGetConversionRate(canonicalChain, canonicalAsset, logger),
       ]);
       // NOTE: log here instead of at end because intermediate step could be helpful in deep dive, but only
@@ -106,7 +108,8 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
         canonicalNativeUsd,
         canonicalAssetCanonicalNative,
       });
-      assetPriceUsd = canonicalNativeUsd === 0 ? 0 : canonicalAssetCanonicalNative / canonicalNativeUsd;
+      // get pricing of asset in USD
+      assetPriceUsd = canonicalAssetCanonicalNative === 0 ? 0 : canonicalNativeUsd / canonicalAssetCanonicalNative;
     }
     prices[asset] = assetPriceUsd;
 
