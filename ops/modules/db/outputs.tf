@@ -93,3 +93,8 @@ output "db_backup_window" {
   description = "The backup window of the RDS instance"
   value       = aws_db_instance.db.backup_window
 }
+
+output "rds_parameter_group_name" {
+  description = "The name of the RDS parameter group"
+  value       = aws_db_parameter_group.rds_postgres.name
+}
