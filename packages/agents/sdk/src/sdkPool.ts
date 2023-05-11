@@ -9,6 +9,7 @@ import {
   DEFAULT_ROUTER_FEE,
   getNtpTimeSeconds,
   jsonifyError,
+  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
@@ -1179,16 +1180,13 @@ export class SdkPool extends SdkShared {
       const assetYAddress = utils.getAddress(String(poolData.pooled_tokens[1]));
       const checkSummedLocalAsset = utils.getAddress(asset.local);
 
+      const recordX = getAssetEntryFromChaindata(assetXAddress, domainId, this.chainData);
+      const recordY = getAssetEntryFromChaindata(assetYAddress, domainId, this.chainData);
+
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name:
-          this.chainData.get(domainId)?.assetId[assetXAddress]?.name ??
-          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.name ??
-          "",
-        symbol:
-          this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ??
-          this.chainData.get(domainId)?.assetId[assetXAddress.toLowerCase()]?.symbol ??
-          "",
+        name: recordX?.name ?? "",
+        symbol: recordX?.symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
@@ -1196,14 +1194,8 @@ export class SdkPool extends SdkShared {
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name:
-          this.chainData.get(domainId)?.assetId[assetYAddress]?.name ??
-          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.name ??
-          "",
-        symbol:
-          this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ??
-          this.chainData.get(domainId)?.assetId[assetYAddress.toLowerCase()]?.symbol ??
-          "",
+        name: recordY?.name ?? "",
+        symbol: recordY?.symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
