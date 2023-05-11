@@ -1,9 +1,16 @@
-import { expect } from "@connext/nxtp-utils";
+import { chainIdToDomain, domainToChainId, expect } from "@connext/nxtp-utils";
 import { restore, reset, stub } from "sinon";
 import { constants, providers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
-import { getDecimalsForAsset, mkAddress, getOnchainBalance, chainDataToMap, getMainnetEquivalent } from "../../src";
+import {
+  getDecimalsForAsset,
+  mkAddress,
+  getOnchainBalance,
+  chainDataToMap,
+  getMainnetEquivalent,
+  getAssetEntryFromChaindata,
+} from "../../src";
 import * as SharedFns from "../../src/ethers/shared";
 import * as ChainDataFns from "../../src/peripherals/chainData";
 
@@ -26,7 +33,7 @@ const mockChainData = chainDataToMap([
         symbol: "ETH",
         mainnetEquivalent: "0x0000000000000000000000000000000000000000",
       },
-      "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6": {
+      ["0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6".toUpperCase()]: {
         name: "Wrapped Ether",
         symbol: "WETH",
         mainnetEquivalent: "0x0000000000000000000000000000000000000000",
@@ -85,6 +92,50 @@ describe("Helpers:Asset", () => {
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("#getAssetEntryFromChaindata", () => {
+    it("should work if asset key is upper case", () => {
+      const asset = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6".toLowerCase();
+      expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.deep.eq({
+        name: "Wrapped Ether",
+        symbol: "WETH",
+        mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+        decimals: 18,
+      });
+    });
+
+    it("should work if asset key is lower case", () => {
+      const asset = "0x" + "04dfd3cfca0e110b6b3c2e7d2384a851d1665988".toUpperCase();
+      expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.deep.eq({
+        symbol: "PAID",
+        mainnetEquivalent: "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787",
+      });
+    });
+
+    it("should not error if the asset cannot be checksummed", () => {
+      // try with invalid address
+      let asset = "cat";
+      expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.undefined;
+
+      // try with an address that will fail checksum but exists in lowercase
+      asset = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6".toUpperCase(); // 0X addresses fail checksum
+      expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.deep.eq({
+        name: "Wrapped Ether",
+        symbol: "WETH",
+        mainnetEquivalent: "0x0000000000000000000000000000000000000000",
+        decimals: 18,
+      });
+    });
+
+    it("should work if asset key is checksummed", () => {
+      const asset = "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a".toLowerCase();
+      expect(getAssetEntryFromChaindata(asset, chainIdToDomain(5), mockChainData)).to.be.deep.eq({
+        symbol: "fUSDCx",
+        mainnetEquivalent: "0x1BA8603DA702602A8657980e825A6DAa03Dee93a",
+        decimals: 18,
+      });
+    });
   });
 
   describe("#getOnchainBalance", async () => {
