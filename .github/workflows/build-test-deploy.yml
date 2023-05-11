@@ -519,8 +519,9 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/sequencer-subscriber
+      REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
+      IMAGE_TAG: ${{ github.sha }}
+      REPOSITORY: nxtp-cartographer
 
     steps:
       - name: Checkout repository
