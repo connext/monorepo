@@ -30,7 +30,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres
+        image: ghcr.io/connext/database:sha-fa66dca
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: qwerty

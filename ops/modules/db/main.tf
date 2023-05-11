@@ -64,3 +64,17 @@ resource "aws_route53_record" "db" {
   records = [aws_db_instance.db.address]
 }
 
+resource "aws_db_parameter_group" "rds_postgres" {
+  name   = "rds-postgres"
+  family = "postgres14"
+
+  parameter {
+    name  = "shared_preload_libraries"
+    value = "pg_cron"
+  }
+
+  parameter {
+    name  = "cron.database_name"
+    value = var.name
+  }
+}
