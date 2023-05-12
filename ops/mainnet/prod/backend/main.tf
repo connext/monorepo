@@ -43,8 +43,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = module.db.rds_parameter_group_name
-  vpc_id               = module.network.vpc_id
+  vpc_id = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
   stage                      = var.stage
