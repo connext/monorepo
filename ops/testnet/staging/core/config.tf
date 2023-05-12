@@ -1,4 +1,10 @@
 locals {
+  base_domain              = "connext.ninja"
+  default_db_endpoint      = "db.${var.environment}.${var.stage}.${local.base_domain}"
+  read_replica_db_endpoint = "db_read_replica.${var.environment}.${var.stage}.${local.base_domain}"
+  default_db_url           = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.default_db_endpoint}:5432/connext"
+  read_replica_db_url      = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.read_replica_db_endpoint}:5432/connext"
+
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
@@ -110,7 +116,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -267,7 +273,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     hubDomain       = "1735353714"
     proverBatchSize = 1

@@ -88,7 +88,7 @@ export const DestinationSwapperPerDomain: Record<string, { type: Swapper; addres
   }, // ETH mainnet
   "1869640809": {
     type: Swapper.UniV3,
-    address: "",
+    address: "0x1135Cc96A7E9d8f161BE8B6bDB74F896A9658a08",
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
   }, // Optimism
   "6450786": {
@@ -97,9 +97,9 @@ export const DestinationSwapperPerDomain: Record<string, { type: Swapper; addres
     quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
   }, // BNB Chain
   "6778479": {
-    type: Swapper.UniV3,
-    address: "",
-    quoter: "",
+    type: Swapper.UniV2,
+    address: "0x7b659eF70e18C01d88F305042ae916D235cb8648",
+    quoter: "0x7b659eF70e18C01d88F305042ae916D235cb8648",
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.UniV3,
