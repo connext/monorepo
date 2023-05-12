@@ -10,7 +10,7 @@ import {
   RelayerType,
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
-import Broker from "foo-foo-mq";
+import Broker from "amqplib";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
@@ -84,13 +84,37 @@ export const makeSubscriber = async () => {
 
   context.logger.info("Method Start", requestContext, methodContext, {});
   try {
+    const mqClient = context.adapters.mqClient;
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(
+      context.config.messageQueue.exchanges[0].name,
+      context.config.messageQueue.exchanges[0].type,
+      {
+        durable: context.config.messageQueue.exchanges[0].durable,
+      },
+    );
+
     if (context.config.messageQueue.subscriber) {
-      bindSubscriber(context.config.messageQueue.subscriber);
+      await channel.assertQueue(context.config.messageQueue.subscriber, { durable: true });
+      const binding = context.config.messageQueue.bindings.find(
+        (it) => it.target == context.config.messageQueue.subscriber,
+      );
+      if (binding) {
+        await channel.bindQueue(context.config.messageQueue.subscriber, binding?.exchange, binding?.keys[0]);
+      }
+
+      bindSubscriber(context.config.messageQueue.subscriber, channel);
     } else {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
+        context.config.messageQueue.bindings.map(async (binding) => {
+          await channel.assertQueue(binding.target, { durable: true });
+          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
+        }),
+      );
+      await Promise.all(
         context.config.messageQueue.queues.map(async (queueConfig) => {
-          if (queueConfig?.name) bindSubscriber(queueConfig.name);
+          if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
         }),
       );
     }
@@ -99,7 +123,7 @@ export const makeSubscriber = async () => {
     await bindHealthServer();
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
-    Broker.close();
+    await context.adapters.mqClient.close();
     process.exit(1);
   }
 };
@@ -117,50 +141,57 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     tasks: { updateTask },
   } = getOperations();
 
-  // Transfer ID is a CLI argument. Always provided by the parent
-  const transferId = process.argv[2];
-  const messageType = process.argv[3] as MessageType;
+  // The transferId <-> message type is a CLI argument provided by the parent
+  // ex; {
+  //        "0x33a3f2ee99315a4e0635e59a43044e94c4886b775f1ef2abe8722fc75fe35da8" : "ExecuteFast",
+  //        "0x8d634d61b323e66ab99f4f422a1724d6aeb0d97bd0db44dad364c7b8f049fc7c": "ExecuteSlow"
+  //     }
+  const args = JSON.parse(process.argv[2]) as Record<string, string>;
+  const transferIds = Object.keys(args);
 
-  const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
   context.adapters = {} as any;
   await setupContext(_configOverride);
 
-  try {
-    const { taskId } =
-      messageType === MessageType.ExecuteFast
-        ? await executeFastPathData(transferId, requestContext)
-        : await executeSlowPathData(transferId, messageType, requestContext);
+  for (const transferId of transferIds) {
+    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+    const messageType = args[transferId] as MessageType;
+    try {
+      const { taskId } =
+        messageType === MessageType.ExecuteFast
+          ? await executeFastPathData(transferId, requestContext)
+          : await executeSlowPathData(transferId, messageType, requestContext);
 
-    if (taskId) {
-      await updateTask(transferId, messageType);
-    }
-  } catch (error: any) {
-    const errorObj = jsonifyError(error as Error);
-    context.logger.error("Error executing:", requestContext, methodContext, errorObj);
-
-    let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
-    switch (errorObj.type) {
-      case SlippageToleranceExceeded.name: {
-        errorName = XTransferErrorStatus.LowSlippage;
-        break;
+      if (taskId) {
+        await updateTask(transferId, messageType);
       }
-      case NotEnoughRelayerFee.name: {
-        errorName = XTransferErrorStatus.LowRelayerFee;
-        break;
-      }
-      case NoBidsSent.name: {
-        errorName = XTransferErrorStatus.NoBidsReceived;
-        break;
-      }
-    }
-    await context.adapters.database.updateErrorStatus(transferId, errorName);
+    } catch (error: any) {
+      const errorObj = jsonifyError(error as Error);
+      context.logger.error("Error executing:", requestContext, methodContext, errorObj);
 
-    // increase backoff in case error is one of slippage or relayer fee
-    if (messageType === MessageType.ExecuteSlow) {
-      await context.adapters.database.increaseBackoff(transferId);
-    }
+      let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
+      switch (errorObj.type) {
+        case SlippageToleranceExceeded.name: {
+          errorName = XTransferErrorStatus.LowSlippage;
+          break;
+        }
+        case NotEnoughRelayerFee.name: {
+          errorName = XTransferErrorStatus.LowRelayerFee;
+          break;
+        }
+        case NoBidsSent.name: {
+          errorName = XTransferErrorStatus.NoBidsReceived;
+          break;
+        }
+      }
+      await context.adapters.database.updateErrorStatus(transferId, errorName);
 
-    process.exit(1);
+      // increase backoff in case error is one of slippage or relayer fee
+      if (messageType === MessageType.ExecuteSlow) {
+        await context.adapters.database.increaseBackoff(transferId);
+      }
+
+      process.exit(1);
+    }
   }
   process.exit(0);
 };
@@ -200,15 +231,16 @@ export const setupContext = async (_configOverride?: SequencerConfig) => {
   // Set up all adapters, peripherals, etc.
   // Either a mnemonic or a web3signer must be configured for the sequencer.
   // The signer is used for signing approvals for router paths.
-  if (!context.config.mnemonic && !context.config.web3SignerUrl) {
-    throw new Error(
-      "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
-        " URL is provided in the config. Exiting!",
-    );
-  }
-  context.adapters.wallet = context.config.mnemonic
-    ? Wallet.fromMnemonic(context.config.mnemonic)
-    : new Web3Signer(context.config.web3SignerUrl!);
+  // if (!context.config.mnemonic && !context.config.web3SignerUrl) {
+  //   throw new Error(
+  //     "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
+  //       " URL is provided in the config. Exiting!",
+  //   );
+  // }
+  // context.adapters.wallet = context.config.mnemonic
+  //   ? Wallet.fromMnemonic(context.config.mnemonic)
+  //   : new Web3Signer(context.config.web3SignerUrl!);
+  context.adapters.wallet = new Wallet("0x41130c71c475734cdf9ff7ddbf87eea1d4a6dd0a38079e96b356afb98ca5de81");
 
   context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
   context.adapters.subgraph = await setupSubgraphReader(requestContext);
@@ -315,21 +347,22 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupMQ = async (requestContext: RequestContext): Promise<typeof Broker> => {
+export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Connection> => {
   const { logger, config } = context;
 
   const methodContext = createMethodContext(setupMQ.name);
 
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
 
-  const mqConfig: Broker.ConfigurationOptions = {
-    connection: config.messageQueue.connection,
-    exchanges: config.messageQueue.exchanges,
-    queues: config.messageQueue.queues,
-    bindings: config.messageQueue.bindings,
-  };
-  await Broker.configure(mqConfig);
+  // const mqConfig: Broker.ConfigurationOptions = {
+  //   connection: config.messageQueue.connection,
+  //   exchanges: config.messageQueue.exchanges,
+  //   queues: config.messageQueue.queues,
+  //   bindings: config.messageQueue.bindings,
+  // };
+  // await Broker.configure(mqConfig);
 
+  const connection = await Broker.connect(config.messageQueue.connection.uri);
   logger.info("MQ setup is done!", requestContext, methodContext, {});
-  return Broker;
+  return connection;
 };

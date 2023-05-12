@@ -110,12 +110,17 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       type: MessageType.ExecuteFast,
     };
 
-    await mqClient.publish(config.messageQueue.publisher!, {
-      type: transfer.xparams!.originDomain,
-      body: message,
-      routingKey: transfer.xparams!.originDomain,
-      persistent: true,
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
+      durable: config.messageQueue.exchanges[0].durable,
     });
+    const res = channel.publish(
+      config.messageQueue.exchanges[0].name,
+      transfer.xparams!.originDomain,
+      Buffer.from(JSON.stringify(message)),
+      { persistent: config.messageQueue.exchanges[0].persistent },
+    );
+    await channel.close();
     await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
