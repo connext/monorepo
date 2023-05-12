@@ -30,7 +30,6 @@ module "cartographer_db" {
   allocated_storage     = 150
   max_allocated_storage = 180
 
-
   name     = "connext" // db name
   username = var.postgres_user
   password = var.postgres_password
@@ -43,8 +42,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = module.db.rds_parameter_group_name
-  vpc_id               = module.network.vpc_id
+  vpc_id = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
   stage                      = var.stage

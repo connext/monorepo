@@ -40,12 +40,6 @@ variable "db_security_group_id" {
   type        = string
 }
 
-
-variable "parameter_group_name" {
-  description = "Name of the DB parameter group to associate"
-  type        = string
-}
-
 variable "availability_zone" {
   description = "The Availability Zone of the RDS instance"
   type        = string
