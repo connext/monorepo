@@ -231,16 +231,15 @@ export const setupContext = async (_configOverride?: SequencerConfig) => {
   // Set up all adapters, peripherals, etc.
   // Either a mnemonic or a web3signer must be configured for the sequencer.
   // The signer is used for signing approvals for router paths.
-  // if (!context.config.mnemonic && !context.config.web3SignerUrl) {
-  //   throw new Error(
-  //     "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
-  //       " URL is provided in the config. Exiting!",
-  //   );
-  // }
-  // context.adapters.wallet = context.config.mnemonic
-  //   ? Wallet.fromMnemonic(context.config.mnemonic)
-  //   : new Web3Signer(context.config.web3SignerUrl!);
-  context.adapters.wallet = new Wallet("0x41130c71c475734cdf9ff7ddbf87eea1d4a6dd0a38079e96b356afb98ca5de81");
+  if (!context.config.mnemonic && !context.config.web3SignerUrl) {
+    throw new Error(
+      "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
+        " URL is provided in the config. Exiting!",
+    );
+  }
+  context.adapters.wallet = context.config.mnemonic
+    ? Wallet.fromMnemonic(context.config.mnemonic)
+    : new Web3Signer(context.config.web3SignerUrl!);
 
   context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
   context.adapters.subgraph = await setupSubgraphReader(requestContext);
