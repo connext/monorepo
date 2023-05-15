@@ -270,6 +270,7 @@ module "lighthouse_prover_cron" {
   })
   schedule_expression = "rate(5 minutes)"
   memory_size         = 1024
+  timeout             = 1000
 }
 
 module "lighthouse_process_from_root_cron" {
