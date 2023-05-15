@@ -269,7 +269,7 @@ module "lighthouse_prover_cron" {
     DATABASE_URL       = local.read_replica_db_url
   })
   schedule_expression = "rate(5 minutes)"
-  memory_size         = 1024
+  memory_size         = 2048
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -293,7 +293,7 @@ module "lighthouse_propagate_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
-  memory_size         = 1024
+  memory_size         = 2048
   schedule_expression = "rate(30 minutes)"
 }
 
