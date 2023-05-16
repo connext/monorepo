@@ -117,6 +117,36 @@ module "postgrest" {
   domain                   = var.domain
 }
 
+module "sdk-server" {
+  source                   = "../../../modules/service"
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.sdk_server_image_tag
+  container_family         = "sdk-server"
+  container_port           = 8080
+  loadbalancer_port        = 80
+  cpu                      = 256
+  memory                   = 512
+  instance_count           = 2
+  timeout                  = 180
+  environment              = var.environment
+  stage                    = var.stage
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = local.sdk_server_env_vars
+  domain                   = var.domain
+}
+
+
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"
