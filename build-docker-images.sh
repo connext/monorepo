@@ -22,3 +22,6 @@ docker build --tag lighthouse:latest --file ./docker/lighthouse/Dockerfile .
 echo "Docker: building cartographer-transfers and cartographer-routers images..."
 docker build --tag cartographer-transfers:latest --file ./docker/cartographer/transfers/Dockerfile .
 docker build --tag cartographer-routers:latest --file ./docker/cartographer/routers/Dockerfile .
+
+echo "Docker: building db image..."
+docker build --tag db:latest --file ./docker/db/Dockerfile .
