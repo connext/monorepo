@@ -114,7 +114,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
-    const res = channel.publish(
+    channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
       Buffer.from(JSON.stringify(message)),
@@ -240,8 +240,7 @@ export const executeFastPathData = async (
       needed,
     });
 
-    transfer.origin.errorStatus = XTransferErrorStatus.LowRelayerFee;
-    await database.saveTransfers([transfer]);
+    await database.updateErrorStatus(transferId, XTransferErrorStatus.LowRelayerFee);
     return { taskId };
   }
 
