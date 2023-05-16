@@ -41,7 +41,6 @@ locals {
       }
     }
     environment = var.stage
-    mnemonic    = var.sdk_server_menmonic
   })
 
   local_cartographer_config = jsonencode({

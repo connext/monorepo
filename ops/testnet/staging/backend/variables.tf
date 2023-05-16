@@ -37,11 +37,6 @@ variable "sdk_server_image_tag" {
   default     = "latest"
 }
 
-variable "sdk_server_sdk_server_menmonic" {
-  type        = string
-  description = "mnemonic to use for sdk-server"
-  default     = ""
-}
 
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
