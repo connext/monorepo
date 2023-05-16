@@ -172,7 +172,7 @@ export const updateTransfers = async () => {
 
       const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
       _destinationPendingQueryMetaParams.set(destinationDomain, {
-        maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
+        maxBlockNumber: latestBlockNumbers.get(originDomain)!,
         transferIDs: pendingTransfers,
       });
       const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
