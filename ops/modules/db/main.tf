@@ -14,10 +14,10 @@ resource "aws_db_instance" "db" {
   port     = var.port
 
 
-  vpc_security_group_ids = [var.db_security_group_id]
-  db_subnet_group_name   = aws_db_subnet_group.default.name
-  parameter_group_name   = var.parameter_group_name
-
+  vpc_security_group_ids       = [var.db_security_group_id]
+  db_subnet_group_name         = aws_db_subnet_group.default.name
+  parameter_group_name         = aws_db_parameter_group.rds_postgres.name
+  performance_insights_enabled = var.performance_insights_enabled
 
   availability_zone = var.availability_zone
 
@@ -64,3 +64,19 @@ resource "aws_route53_record" "db" {
   records = [aws_db_instance.db.address]
 }
 
+resource "aws_db_parameter_group" "rds_postgres" {
+  name   = "rds-postgres"
+  family = "postgres14"
+
+  parameter {
+    name         = "shared_preload_libraries"
+    value        = "pg_cron"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "cron.database_name"
+    value        = var.name
+    apply_method = "pending-reboot"
+  }
+}

@@ -127,9 +127,7 @@ const run = async () => {
     /// deploy
     if (!configFile.includes("local")) {
       console.log("Running Deployment command for " + n.network);
-      const { stdout, stderr } = await exec(
-        `graph deploy --node https://api.thegraph.com/deploy/ ${n.subgraphName} --access-token ${accessToken}`,
-      );
+      const { stdout, stderr } = await exec(`graph deploy --product hosted-service ${n.subgraphName}`);
 
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);

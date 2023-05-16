@@ -550,6 +550,37 @@ export const getCompletedTransfersByMessageHashes = async (
   return x.map(convertFromDbTransfer);
 };
 
+export const getPendingTransfersByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit: number,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const transfers = await db
+    .select(
+      "transfers",
+      {
+        origin_domain,
+        destination_domain,
+        status: db.conditions.isNotIn(["CompletedFast", "CompletedSlow"]),
+        error_status: db.conditions.or(db.conditions.isNull, db.conditions.isIn(["NoBidsReceived"])),
+      },
+      {
+        offset,
+        limit,
+        order: { by: "nonce", direction: orderDirection },
+      },
+    )
+    .run(poolToUse);
+
+  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
+  return transfer_ids;
+};
+
 export const saveRouterBalances = async (
   routerBalances: RouterBalance[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -679,6 +710,29 @@ export const getUnProcessedMessages = async (
     .select(
       "messages",
       { processed: false, origin_domain },
+      {
+        limit,
+        offset,
+        order: { by: "index", direction: orderDirection },
+      },
+    )
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
+export const getUnProcessedMessagesByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit = 100,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { processed: false, origin_domain, destination_domain },
       {
         limit,
         offset,
@@ -934,7 +988,7 @@ export const getMessageRootsFromIndex = async (
     s.root_messages.Selectable[]
   >`select * from ${"root_messages"} where ${{
     spoke_domain,
-  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 10`.run(poolToUse);
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 75`.run(poolToUse);
   return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 

@@ -30,7 +30,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres
+        image: ghcr.io/connext/database:sha-fa66dca
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: qwerty
@@ -51,7 +51,7 @@ jobs:
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
         with:
-          version: nightly
+          version: nightly-87bc53fc6c874bd4c92d97ed180b949e3a36d78c
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -115,11 +115,21 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
               echo "Publishing $workspace with version $subpackage_version"
-              if [[ "$tag" ]]; then
+              if [[ ! -z "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
               else
                 yarn workspace $workspace npm publish --access public
@@ -154,11 +164,70 @@ jobs:
             subpackage_version=$(cat $directory/package.json | jq -r '.version')
 
             echo "Checking $workspace for existing version..."
-            published_version=$(npm view $workspace version)
+            npm_package_info=$(npm view $workspace versions --json)
 
-            if [[ "$published_version" != "$subpackage_version" ]]; then
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
               echo "Publishing $workspace with version $subpackage_version"
-              if [[ "$tag" ]]; then
+              if [[ ! -z "$tag" ]]; then
+                yarn workspace $workspace npm publish --access public --tag $tag
+              else
+                yarn workspace $workspace npm publish --access public
+              fi
+            else
+              echo "Skipping $workspace as version $subpackage_version already exists"
+            fi
+          done
+
+      - name: Extract version, determine tag, and publish chain-abstraction
+        if: ${{ startsWith(github.ref, 'refs/tags/chain-abstraction-v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(cat packages/agents/chain-abstraction/package.json | jq -r '.version')
+
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            tag="alpha"
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            tag="beta"
+          fi
+
+          workspaces=(
+            "packages/utils:@connext/nxtp-utils"
+            "packages/agents/chain-abstraction:@connext/chain-abstraction"
+          )
+
+          for entry in "${workspaces[@]}"; do
+            IFS=":"; read -ra split_entry <<< "$entry"
+            directory="${split_entry[0]}"
+            workspace="${split_entry[1]}"
+            subpackage_version=$(cat $directory/package.json | jq -r '.version')
+
+            echo "Checking $workspace for existing version..."
+            npm_package_info=$(npm view $workspace versions --json)
+
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
+              echo "Publishing $workspace with version $subpackage_version"
+              if [[ ! -z "$tag" ]]; then
                 yarn workspace $workspace npm publish --access public --tag $tag
               else
                 yarn workspace $workspace npm publish --access public
@@ -630,6 +699,58 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
+  build-and-push-sdk-server-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/sdk-server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove watcher from version tag
+        run: |
+          tag=${{ github.ref_name }}
+          if [[ $tag == *watcher-* ]]; then
+            new_tag=${tag/watcher-/}
+            echo "::set-output name=docker_tag::$new_tag"
+          else
+            echo "::set-output name=docker_tag::''"
+          fi
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=${{ steps.build-and-push-sdk-server-image.outputs.docker_tag }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/sdk-server/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
   smoke-tests:
     runs-on: ubuntu-latest
     needs:
@@ -643,6 +764,7 @@ jobs:
         build-and-push-lighthouse-image,
         build-and-push-relayer-image,
         build-and-push-watcher-image,
+        build-and-push-sdk-server-image,
       ]
     env:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
@@ -654,6 +776,7 @@ jobs:
       LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
+      SDK_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sdk-server-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
       WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x09ac2359ab897a5ffc47d7c67df32abbf9c006e00fa2ba36580e0cecc58834fe"
@@ -679,6 +802,7 @@ jobs:
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
       watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
+      sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
 
   e2e-tests:
     if: github.ref != 'refs/heads/staging'
@@ -695,6 +819,7 @@ jobs:
         build-and-push-lighthouse-image,
         build-and-push-relayer-image,
         build-and-push-watcher-image,
+        build-and-push-sdk-server-image,
       ]
     env:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
@@ -738,6 +863,7 @@ jobs:
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
       watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
+      sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
 
   terraform-infra:
     if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
@@ -782,6 +908,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_sdk_server_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:

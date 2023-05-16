@@ -704,9 +704,9 @@ const destinationTransferByExecutedTimestampQueryString = (
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      reconciledTimestamp_gte: ${fromTimestamp},
+      executedTimestamp_gte: ${fromTimestamp},
     },
-    orderBy: nonce,
+    orderBy: executedTimestamp,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };

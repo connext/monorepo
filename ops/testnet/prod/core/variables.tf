@@ -178,3 +178,7 @@ variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
 }
+
+variable "linea_node" {
+  type = string
+}

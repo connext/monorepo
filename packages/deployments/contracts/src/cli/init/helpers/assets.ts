@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish, Contract, constants, utils } from "ethers";
-import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getAssetEntryFromChaindata } from "@connext/nxtp-utils";
 import { parseUnits } from "ethers/lib/utils";
 
 import { canonizeId } from "../../../domain";
@@ -39,8 +39,8 @@ export const setupAsset = async (args: {
 
   let canonicalDecimals = asset.canonical.decimals;
   if (!canonicalDecimals) {
-    const chainInfo = chainData.get(asset.canonical.domain);
-    canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+    const record = getAssetEntryFromChaindata(asset.canonical.address, asset.canonical.domain, chainData);
+    canonicalDecimals = record?.decimals;
   }
 
   if (!canonicalDecimals) {

@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "2.0.3-alpha.0",
+  "version": "2.0.4-alpha.2",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -10,6 +10,9 @@
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "test-sdkbase": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkBase.spec.ts'",
     "test-sdkpool": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkPool.spec.ts'",
+    "test-sdkshared": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkShared.spec.ts'",
+    "test-sdkutils": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkUtils.spec.ts'",
+    "test-sdkrouter": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkRouter.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -58,5 +61,6 @@
     "registry": "https://registry.npmjs.org",
     "access": "public"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "2.0.3-alpha.0"
 }

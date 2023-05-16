@@ -1,7 +1,13 @@
 import { config } from "dotenv";
 import { Wallet, providers, Contract, BigNumber, constants } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils";
-import { getPoolFeeForUniV3, getXCallCallData, prepareSwapAndXCall } from "../src";
+import {
+  getBridgeAmountOut,
+  getPoolFeeForUniV3,
+  getSwapAmountOut,
+  getXCallCallData,
+  prepareSwapAndXCall,
+} from "../src";
 import { DestinationCallDataParams, Swapper } from "../src/types";
 config();
 
@@ -120,7 +126,7 @@ const testMidasProtocolTarget = async () => {
   const POLYGON_WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
   const POLYGON_USDC = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
   const POLYGON_CTOKEN_WETH = "0xD809c769A04246855fee98423B180C7CCa6bF07c"; // https://app.midascapital.xyz/137/pool/5
-  const midasProtocolTarget = "0x5d7663c5483A46e7794b652aF8f155775E4F390C";
+  const midasProtocolTarget = "0xDF97CadbcCeE9cfdB12A3e9BB7663E6753A71a0C";
 
   // Params for calldata generation
   const POLYGON_DOMAIN_ID = "1886350457";
@@ -154,6 +160,52 @@ const testMidasProtocolTarget = async () => {
     relayerFeeInNativeAsset: "1000000000000000", // 0.001 BNB
     callData: callDataForMidasProtocolTarget,
   };
+
+  // estimate output amount
+  const amountOutAfterXcall = await getSwapAmountOut(
+    {
+      domainId: "6450786",
+      fromAsset,
+      toAsset,
+      amountIn: amountIn.toString(),
+      rpc: rpcURL,
+    },
+    true,
+  );
+  console.log(`amountOut after xcall (bnb -> usdc): ${amountOutAfterXcall.toString()}`);
+
+  const amountOutAfterExecute = await getSwapAmountOut(
+    {
+      domainId: "1886350457",
+      fromAsset: POLYGON_USDC,
+      toAsset: POLYGON_WETH,
+      amountIn: BigNumber.from(amountOutAfterXcall).div(BigNumber.from(10).pow(12)).mul(9995).div(10000).toString(),
+      rpc: POLYGON_RPC_URL,
+      fee: poolFee,
+    },
+    false,
+  );
+  console.log(`amountOut after execute (usdc -> weth): ${amountOutAfterExecute.toString()}`);
+
+  const amountOutDestination = await getBridgeAmountOut(
+    {
+      domainId: "6450786",
+      fromAsset,
+      toAsset,
+      amountIn: amountIn.toString(),
+      rpc: rpcURL,
+    },
+    {
+      domainId: "1886350457",
+      fromAsset: POLYGON_USDC,
+      toAsset: POLYGON_WETH,
+      amountIn: amountIn.toString(),
+      rpc: POLYGON_RPC_URL,
+    },
+    18,
+    6,
+  );
+  console.log(`amountOut on destination: ${amountOutDestination.toString()}`);
 
   const txRequest = await prepareSwapAndXCall(swapAndXCallParams, signerAddress);
   if (txRequest) {
