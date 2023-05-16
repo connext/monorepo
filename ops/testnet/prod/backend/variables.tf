@@ -31,10 +31,10 @@ variable "cartographer_image_tag" {
   default     = "latest"
 }
 
-variable "sdk_server_image_tag" {
+variable "full_image_name_sdk_server" {
   type        = string
-  description = "sdk-server image tag"
-  default     = "latest"
+  description = "router image name"
+  default     = "ghcr.io/connext/sdk-server:sha-e33b4fd"
 }
 
 variable "certificate_arn_testnet" {

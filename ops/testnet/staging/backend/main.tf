@@ -27,8 +27,8 @@ module "cartographer_db" {
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
   instance_class        = "db.t3.medium"
-  allocated_storage     = 10
-  max_allocated_storage = 20
+  allocated_storage     = 150
+  max_allocated_storage = 300
 
 
   name     = "connext" // db name
@@ -94,7 +94,7 @@ module "sdk-server" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = var.sdk_server_image_tag
+  docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
   container_port           = 8080
   loadbalancer_port        = 80

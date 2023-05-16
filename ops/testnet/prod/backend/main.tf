@@ -128,7 +128,7 @@ module "sdk-server" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = var.sdk_server_image_tag
+  docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
   container_port           = 8080
   loadbalancer_port        = 80
