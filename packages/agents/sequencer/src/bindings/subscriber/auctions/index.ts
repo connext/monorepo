@@ -7,17 +7,20 @@ import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-ut
 import { getContext } from "../../../sequencer";
 import { Message, MessageType } from "../../../lib/entities";
 
-const batchSize = 10;
-const waitPeriod = 3000;
+let numberOfChild = 0;
 export const bindSubscriber = async (queueName: string, channel: Broker.Channel) => {
-  const { logger } = getContext();
+  const {
+    logger,
+    config: {
+      executer: { batchSize, waitPeriod, maxChildCount },
+    },
+  } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name, undefined, "");
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   interval(async () => {
-    logger.debug("Trying to pull data from the queue", requestContext, methodContext);
-    try {
-      let done = false;
-      while (!done) {
+    if (numberOfChild < maxChildCount) {
+      logger.debug("Trying to pull data from the queue", requestContext, methodContext);
+      try {
         const messages: Message[] = [];
         for (let i = 0; i < batchSize; i++) {
           const message = await channel.get(queueName, { noAck: true });
@@ -28,16 +31,17 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
           }
         }
 
-        if (messages.length < batchSize) {
-          done = true;
-        }
-
         if (messages.length > 0) {
           await batchExecute(messages);
         }
+      } catch (e: unknown) {
+        logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
       }
-    } catch (e: unknown) {
-      logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
+    } else {
+      logger.debug("Waiting until the other child process completed", requestContext, methodContext, {
+        numberOfChild,
+        maxChildCount,
+      });
     }
   }, waitPeriod);
 };
@@ -65,6 +69,7 @@ const batchExecute = async (messages: Message[]) => {
   });
   logger.info("Spawned child", requestContext, methodContext, child);
   child.on("spawn", async () => {
+    numberOfChild++;
     logger.info("Child Spawn Event", requestContext, methodContext, {
       transfers: Object.keys(batchTransfers),
     });
@@ -85,6 +90,7 @@ const batchExecute = async (messages: Message[]) => {
   });
 
   child.on("exit", async (code, signal) => {
+    numberOfChild--;
     logger.debug("Executer exited", requestContext, methodContext, {
       transfers: Object.keys(batchTransfers),
       code: code,
