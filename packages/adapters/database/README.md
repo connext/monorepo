@@ -1,9 +1,15 @@
 # Local Setup
 
+- Build Postgres image:
+
+```sh
+docker build --tag db:latest --file ./docker/db/Dockerfile .
+```
+
 - Run Postgres locally:
 
 ```sh
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres
+docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=qwerty db
 ```
 
 - Run database migrations:
@@ -43,3 +49,15 @@ Create the Typescript schema using [Zapatos](https://jawj.github.io/zapatos/):
 ```sh
 yarn workspace @connext/nxtp-adapters-database zapatos
 ```
+
+# Materialized Views
+
+Checking `pg_cron` scheduled runs:
+
+```
+select * from cron.job_run_details
+```
+
+# ER Diagram
+
+![ERD](./assets/connext_erd.png)

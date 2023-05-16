@@ -43,8 +43,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "default.postgres14"
-  vpc_id               = module.network.vpc_id
+  vpc_id = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
   stage                      = var.stage
@@ -100,7 +99,7 @@ module "postgrest" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = "679752396206.dkr.ecr.${var.region}.amazonaws.com/postgrest:v9.0.0.20220107"
+  docker_image             = "postgrest/postgrest:v10.0.0.20221011"
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
