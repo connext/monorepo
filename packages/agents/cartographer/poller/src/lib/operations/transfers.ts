@@ -11,6 +11,15 @@ import {
 
 import { getContext } from "../../shared";
 
+const MIN_ORIGIN_NONCE: Record<string, number> = {
+  "9991": 101110,
+  "1668247156": 4126,
+};
+const MIN_RECONCILE_TIMESTAMP = 1683273804;
+const MAX_RECONCILE_TIMESTAMP = 1683602800;
+const MIN_EXECUTE_TIMESTAMP = 1683273804;
+const MAX_EXECUTE_TIMESTAMP = 1683602800;
+
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {
   return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.xparams.nonce ?? 0));
 };
@@ -60,31 +69,48 @@ export const updateTransfers = async () => {
         return;
       }
 
-      // Retrieve the most recent origin transfers we've saved for this domain.
-      const latestOriginNonce = await database.getCheckPoint("origin_nonce_" + domain);
+      if (domain === "9991") {
+        // Retrieve the most recent origin transfers we've saved for this domain.
+        const latestOriginNonce = Math.max(
+          MIN_ORIGIN_NONCE[domain]!,
+          await database.getCheckPoint("origin_nonce_" + domain),
+        );
 
-      subgraphOriginQueryMetaParams.set(domain, {
-        maxBlockNumber: latestBlockNumber,
-        latestNonce: latestOriginNonce == 0 ? latestOriginNonce : latestOriginNonce + 1,
-        orderDirection: "asc",
-      });
+        subgraphOriginQueryMetaParams.set(domain, {
+          maxBlockNumber: latestBlockNumber,
+          latestNonce: latestOriginNonce == 0 ? latestOriginNonce : latestOriginNonce + 1,
+          orderDirection: "asc",
+        });
+      }
 
-      // Retrieve the most recent destination transfers we've saved for this domain.
-      const executedTimestamp = await database.getCheckPoint("destination_execute_timestamp_" + domain);
+      if (domain === "1668247156") {
+        // Retrieve the most recent destination transfers we've saved for this domain.
+        const executedTimestamp = Math.min(
+          MIN_EXECUTE_TIMESTAMP,
+          await database.getCheckPoint("destination_execute_timestamp_" + domain),
+        );
 
-      subgraphDestinationQueryMetaParams.set(domain, {
-        maxBlockNumber: latestBlockNumber,
-        fromTimestamp: executedTimestamp,
-        orderDirection: "asc",
-      });
+        if (executedTimestamp <= MAX_EXECUTE_TIMESTAMP) {
+          subgraphDestinationQueryMetaParams.set(domain, {
+            maxBlockNumber: latestBlockNumber,
+            fromTimestamp: executedTimestamp,
+            orderDirection: "asc",
+          });
+        }
 
-      const reconciledTimestamp = await database.getCheckPoint("destination_reconcile_timestamp_" + domain);
+        const reconciledTimestamp = Math.min(
+          MIN_RECONCILE_TIMESTAMP,
+          await database.getCheckPoint("destination_reconcile_timestamp_" + domain),
+        );
 
-      subgraphReconcileQueryMetaParams.set(domain, {
-        maxBlockNumber: latestBlockNumber,
-        fromTimestamp: reconciledTimestamp,
-        orderDirection: "asc",
-      });
+        if (reconciledTimestamp <= MAX_RECONCILE_TIMESTAMP) {
+          subgraphReconcileQueryMetaParams.set(domain, {
+            maxBlockNumber: latestBlockNumber,
+            fromTimestamp: reconciledTimestamp,
+            orderDirection: "asc",
+          });
+        }
+      }
     }),
   );
 
@@ -115,6 +141,7 @@ export const updateTransfers = async () => {
     const transfers = await subgraph.getDestinationTransfersByExecutedTimestamp(subgraphDestinationQueryMetaParams);
     logger.info("Retrieved destination transfers by executed timestamp", requestContext, methodContext, {
       count: transfers.length,
+      params: [...subgraphDestinationQueryMetaParams.entries()],
     });
 
     const checkpoints = domains
@@ -139,7 +166,10 @@ export const updateTransfers = async () => {
     await Promise.all(
       domains.map(async (domain) => {
         // Get destination transfers per domain.
-        const domainParams = subgraphReconcileQueryMetaParams.get(domain)!;
+        const domainParams = subgraphReconcileQueryMetaParams.get(domain);
+        if (!domainParams) {
+          return;
+        }
         const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileTimestamp(
           domainParams,
           domain,
