@@ -53,6 +53,17 @@ module "cartographer_db" {
   publicly_accessible        = true
 }
 
+module "cartographer-db-alarms" {
+  source                                  = "../../../modules/db-alarms"
+  db_instance_name                        = module.cartographer_db.db_instance_name
+  db_instance_id                          = module.cartographer_db.db_instance_id
+  is_replica                              = false
+  enable_cpu_utilization_alarm            = true
+  enable_free_storage_space_too_low_alarm = true
+  stage                                   = var.stage
+  environment                             = var.environment
+  sns_topic_subscription_emails           = ["carlo@connext.network", "rahul@connext.network"]
+}
 
 module "postgrest" {
   source                   = "../../../modules/service"
