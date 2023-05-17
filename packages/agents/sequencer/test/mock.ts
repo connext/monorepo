@@ -164,9 +164,14 @@ export const mock = {
     database: () => mockDatabase(),
     mqClient: () => {
       return {
-        publish: stub(),
-        handle: stub() as any,
         close: stub() as any,
+        createChannel: () => {
+          return {
+            assertExchange: stub(),
+            publish: stub(),
+            close: stub(),
+          };
+        },
       };
     },
   },

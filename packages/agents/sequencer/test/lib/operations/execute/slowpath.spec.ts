@@ -33,7 +33,6 @@ describe("Operations:Execute:SlowPath", () => {
   let storeBackupDataStub: SinonStub;
   let setExecStatusStub: SinonStub;
   let storeSlowPathDataStub: SinonStub;
-  let publishStub: SinonStub;
   let sendExecuteSlowToRelayerStub: SinonStub;
   let getBackupDataStub: SinonStub;
   let upsertTaskStub: SinonStub;
@@ -53,7 +52,6 @@ describe("Operations:Execute:SlowPath", () => {
     getBackupDataStub = stub(executors, "getBackupData");
     upsertTaskStub = stub(executors, "upsertMetaTxTask");
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
-    publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
     canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
 
@@ -131,10 +129,8 @@ describe("Operations:Execute:SlowPath", () => {
       setExecStatusStub.resolves();
       storeSlowPathDataStub.resolves();
       storeBackupDataStub.resolves(1);
-      publishStub.resolves();
       const mockExecutorData = mock.entity.executorData();
       await storeSlowPathData(mockExecutorData, requestContext);
-      expect(publishStub.callCount).to.be.eq(1);
       expect(storeBackupDataStub.callCount).to.be.eq(0);
     });
   });

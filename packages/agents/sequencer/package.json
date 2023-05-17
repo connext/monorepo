@@ -40,6 +40,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.21",
+    "amqplib": "0.10.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.13.0",
@@ -51,6 +52,7 @@
     "tsc": "2.0.4"
   },
   "devDependencies": {
+    "@types/amqplib": "0.10.1",
     "@types/pg": "8.6.6",
     "concurrently": "7.6.0",
     "eslint": "8.34.0",
