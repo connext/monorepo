@@ -269,6 +269,7 @@ module "lighthouse_prover_cron" {
     DATABASE_URL       = local.read_replica_db_url
   })
   schedule_expression = "rate(5 minutes)"
+  timeout             = 1000
   memory_size         = 2048
 }
 

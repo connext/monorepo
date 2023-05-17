@@ -11,6 +11,7 @@
     }
   },
   "logLevel": "debug",
+  "mnemonic": "<YOUR MNEMONIC HERE>",
   "environment": "production",
   "network": "testnet"
 }
