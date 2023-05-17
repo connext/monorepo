@@ -79,7 +79,7 @@ export class SdkBase extends SdkShared {
       ? _logger.child({ name: "SdkBase" })
       : new Logger({ name: "SdkBase", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkBase(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkBase(nxtpConfig, logger, chainData));
   }
 
   async memoizeConversionRate(): Promise<any> {
