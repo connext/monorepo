@@ -1,4 +1,12 @@
-import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
+import {
+  ExecutorData,
+  ExecStatus,
+  expect,
+  mkAddress,
+  mkBytes32,
+  RelayerType,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../../src/lib/entities";
 import {
@@ -21,10 +29,10 @@ describe("Operations:Execute:SlowPath", () => {
   let storeTransferStub: SinonStub;
   let getExecutorDataStub: SinonStub;
   let getExecStatusStub: SinonStub;
+  let getExecStatusTimeStub: SinonStub;
   let storeBackupDataStub: SinonStub;
   let setExecStatusStub: SinonStub;
   let storeSlowPathDataStub: SinonStub;
-  let publishStub: SinonStub;
   let sendExecuteSlowToRelayerStub: SinonStub;
   let getBackupDataStub: SinonStub;
   let upsertTaskStub: SinonStub;
@@ -37,13 +45,13 @@ describe("Operations:Execute:SlowPath", () => {
     storeTransferStub = stub(transfers, "storeTransfers");
     getExecutorDataStub = stub(executors, "getExecutorData");
     getExecStatusStub = stub(executors, "getExecStatus");
+    getExecStatusTimeStub = stub(executors, "getExecStatusTime");
     storeBackupDataStub = stub(executors, "storeBackupData");
     setExecStatusStub = stub(executors, "setExecStatus");
     storeSlowPathDataStub = stub(executors, "storeExecutorData");
     getBackupDataStub = stub(executors, "getBackupData");
     upsertTaskStub = stub(executors, "upsertMetaTxTask");
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
-    publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
     canSubmitToRelayerStub = stub().resolves({ canSubmit: true, needed: "0" });
 
@@ -102,6 +110,7 @@ describe("Operations:Execute:SlowPath", () => {
       storeTransferStub.resolves();
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
       getExecStatusStub.resolves(ExecStatus.Queued);
+      getExecStatusTimeStub.resolves(getNtpTimeSeconds());
       storeBackupDataStub.resolves(1);
       const mockExecutorData = mock.entity.executorData();
       await storeSlowPathData(mockExecutorData, requestContext);
@@ -120,10 +129,8 @@ describe("Operations:Execute:SlowPath", () => {
       setExecStatusStub.resolves();
       storeSlowPathDataStub.resolves();
       storeBackupDataStub.resolves(1);
-      publishStub.resolves();
       const mockExecutorData = mock.entity.executorData();
       await storeSlowPathData(mockExecutorData, requestContext);
-      expect(publishStub.callCount).to.be.eq(1);
       expect(storeBackupDataStub.callCount).to.be.eq(0);
     });
   });

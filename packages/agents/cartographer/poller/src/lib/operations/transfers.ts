@@ -115,6 +115,7 @@ export const updateTransfers = async () => {
     const transfers = await subgraph.getDestinationTransfersByExecutedTimestamp(subgraphDestinationQueryMetaParams);
     logger.info("Retrieved destination transfers by executed timestamp", requestContext, methodContext, {
       count: transfers.length,
+      params: Object.fromEntries(subgraphDestinationQueryMetaParams),
     });
 
     const checkpoints = domains
@@ -147,6 +148,7 @@ export const updateTransfers = async () => {
         logger.info("Retrieved destination transfers by reconcile timestamp by domain", requestContext, methodContext, {
           domain: domain,
           count: domainTransfers.length,
+          params: domainParams,
         });
         const max = getMaxReconcileTimestamp(domainTransfers as XTransfer[]);
         const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
@@ -181,7 +183,8 @@ export const updateTransfers = async () => {
         logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
           originDomain,
           destinationDomain,
-          indexes: destinationTransfers.map((i) => i.xparams.nonce),
+          pendingTransfers,
+          nonces: destinationTransfers.map((i) => i.xparams.nonce),
           count: destinationTransfers.length,
         });
 
