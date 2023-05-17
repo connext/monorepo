@@ -671,7 +671,7 @@ const destinationTransferByExecutedTimestampQueryString = (
     where: {
       executedTimestamp_gte: ${fromTimestamp},
     },
-    orderBy: nonce,
+    orderBy: executedTimestamp,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };

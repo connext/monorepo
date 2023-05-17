@@ -57,3 +57,7 @@ Checking `pg_cron` scheduled runs:
 ```
 select * from cron.job_run_details
 ```
+
+# ER Diagram
+
+![ERD](./assets/connext_erd.png)

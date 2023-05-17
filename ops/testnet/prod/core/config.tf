@@ -109,7 +109,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -271,7 +271,7 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     relayers = [
       {

@@ -218,6 +218,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
+        "0x9584Eb0356a380b25D7ED2C14c54De58a25f2581", // Mike Nai
         "0xC4Ae07F276768A3b74AE8c47bc108a2aF0e40eBa", // P2P 2
         "0xEca085906cb531bdf1F87eFA85c5bE46aA5C9d2c", // BlockTech 2
         "0x22831e4f21ce65b33ef45df0e212b5bebf130e5a", // BlockTech 1

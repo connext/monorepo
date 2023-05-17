@@ -116,7 +116,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -273,7 +273,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     hubDomain       = "1735353714"
     proverBatchSize = 1
