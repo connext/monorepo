@@ -1,114 +1,139 @@
 import { spawn } from "child_process";
 
+import interval from "interval-promise";
+import Broker from "amqplib";
 import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { Message, MessageType } from "../../../lib/entities";
 
-export const bindSubscriber = async (queueName: string) => {
+let numberOfChild = 0;
+export const bindSubscriber = async (queueName: string, channel: Broker.Channel) => {
   const {
     logger,
-    config,
-    adapters: { cache, mqClient },
+    config: {
+      executer: { batchSize, waitPeriod, maxChildCount },
+    },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name, undefined, "");
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
-  try {
-    // Spawn job handler
-    mqClient.handle(queueName, async function (msg) {
+  interval(async () => {
+    if (numberOfChild < maxChildCount) {
+      logger.debug("Trying to pull data from the queue", requestContext, methodContext);
       try {
-        const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
-        const message: Message = msg.body as Message;
-
-        // No ack and requeue if message has no trasfer id
-        if (!message.transferId) {
-          logger.error("Message has no transfer ID", requestContext, methodContext, undefined, {
-            queue: queueName,
-            message: msg,
-          });
-          return;
+        const messages: Message[] = [];
+        for (let i = 0; i < batchSize; i++) {
+          const message = await channel.get(queueName, { noAck: true });
+          if (message === false) {
+            break;
+          } else {
+            messages.push(JSON.parse(message.content.toString()) as Message);
+          }
         }
 
-        requestContext.transferId = message.transferId;
+        if (messages.length > 0) {
+          await batchExecute(messages);
+        }
+      } catch (e: unknown) {
+        logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
+      }
+    } else {
+      logger.debug("Waiting until the other child process completed", requestContext, methodContext, {
+        numberOfChild,
+        maxChildCount,
+      });
+    }
+  }, waitPeriod);
+};
 
-        /// Mark - Executer
-        // if message.transferId, then call executer with it's type either Fast or Slow
-        logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
-        const child = spawn(process.argv[0], ["dist/executer.js", message.transferId, message.type], {
-          timeout: config.messageQueue.executerTimeout,
-        });
-        logger.info("Spawned child", requestContext, methodContext, child);
-        child.on("spawn", async () => {
-          logger.info("Child Spawn Event", requestContext, methodContext, {
-            transferId: message.transferId,
-          });
-        });
-        child.on("error", async (err) => {
-          logger.info("Child error", requestContext, methodContext, {
-            transferId: message.transferId,
-            error: err,
-          });
-        });
+const batchExecute = async (messages: Message[]) => {
+  const {
+    logger,
+    config,
+    adapters: { cache },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(batchExecute.name, undefined, "");
+  const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
+  /// Mark - Executer
+  // if message.transferId, then call executer with it's type either Fast or Slow
+  logger.debug("Spawning executer for transfers", requestContext, methodContext, {
+    msgs: messages,
+  });
+  const batchTransfers: Record<string, string> = {};
+  for (const _message of messages) {
+    batchTransfers[_message.transferId] = _message.type;
+  }
 
-        child.stdout.on("data", (data) => {
-          console.log(`${data}`);
-        });
+  const child = spawn(process.argv[0], ["dist/executer.js", JSON.stringify(batchTransfers)], {
+    timeout: config.messageQueue.executerTimeout,
+  });
+  logger.info("Spawned child", requestContext, methodContext, child);
+  child.on("spawn", async () => {
+    numberOfChild++;
+    logger.info("Child Spawn Event", requestContext, methodContext, {
+      transfers: Object.keys(batchTransfers),
+    });
+  });
+  child.on("error", async (err) => {
+    logger.info("Child error", requestContext, methodContext, {
+      transfers: Object.keys(batchTransfers),
+      error: err,
+    });
+  });
 
-        child.stderr.on("data", (data) => {
-          console.log(`${data}`);
-        });
+  child.stdout.on("data", (data) => {
+    console.log(`${data}`);
+  });
 
-        child.on("exit", async (code, signal) => {
-          logger.debug("Executer exited", requestContext, methodContext, {
-            transferId: message.transferId,
-            code: code,
-            signal: signal,
-          });
-          if ((code == null || code == 0) && (signal == null || termSignals.includes(signal))) {
-            // ACK on success
-            // Validate transfer is sent to relayer before ACK
-            const dataCache = message.type === MessageType.ExecuteFast ? cache.auctions : cache.executors;
-            const status = await dataCache.getExecStatus(message.transferId);
-            const task = await dataCache.getMetaTxTask(message.transferId);
-            if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
-              msg.ack();
-              logger.info("Transfer ACKed", requestContext, methodContext, {
-                transferId: message.transferId,
-                status,
-              });
-            } else {
-              msg.reject();
-              logger.info("Transfer Rejected", requestContext, methodContext, {
-                transferId: message.transferId,
-                status,
-              });
-            }
-            if (message.type === MessageType.ExecuteFast) {
-              await cache.auctions.pruneAuctionData(message.transferId);
-              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
-            } else {
-              await cache.executors.pruneExecutorData(message.transferId);
-            }
-          } else {
-            // No ack and requeue if child exits with error
-            if (message.type === MessageType.ExecuteFast) {
-              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
-            }
-            msg.reject();
-            logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
+  child.stderr.on("data", (data) => {
+    console.log(`${data}`);
+  });
+
+  child.on("exit", async (code, signal) => {
+    numberOfChild--;
+    logger.debug("Executer exited", requestContext, methodContext, {
+      transfers: Object.keys(batchTransfers),
+      code: code,
+      signal: signal,
+    });
+    if ((code == null || code == 0) && (signal == null || termSignals.includes(signal))) {
+      // ACK on success
+      // Validate transfer is sent to relayer before ACK
+      await Promise.all(
+        messages.map(async (message) => {
+          const dataCache = message.type === MessageType.ExecuteFast ? cache.auctions : cache.executors;
+          const status = await dataCache.getExecStatus(message.transferId);
+          const task = await dataCache.getMetaTxTask(message.transferId);
+          if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
+            logger.info("Transfer ACKed", requestContext, methodContext, {
               transferId: message.transferId,
+              status,
+            });
+          } else {
+            logger.info("Transfer Rejected", requestContext, methodContext, {
+              transferId: message.transferId,
+              status,
             });
           }
-        });
-      } catch (error: any) {
-        logger.error("Error for message!", requestContext, methodContext, jsonifyError(error as Error), {
-          queue: queueName,
-          message: msg,
-        });
-      }
-    });
-  } catch (e: unknown) {
-    logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
-    mqClient.close();
-  }
+          if (message.type === MessageType.ExecuteFast) {
+            await cache.auctions.pruneAuctionData(message.transferId);
+            await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
+          } else {
+            await cache.executors.pruneExecutorData(message.transferId);
+          }
+        }),
+      );
+    } else {
+      await Promise.all(
+        messages.map(async (message) => {
+          if (message.type === MessageType.ExecuteFast) {
+            await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
+          }
+          logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
+            transferId: message.transferId,
+          });
+        }),
+      );
+    }
+  });
 };

@@ -72,12 +72,17 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
       type: MessageType.ExecuteSlow,
     };
 
-    await mqClient.publish(config.messageQueue.publisher!, {
-      type: transfer.xparams!.originDomain,
-      body: message,
-      routingKey: transfer.xparams!.originDomain,
-      persistent: true,
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
+      durable: config.messageQueue.exchanges[0].durable,
     });
+    channel.publish(
+      config.messageQueue.exchanges[0].name,
+      transfer.xparams!.originDomain,
+      Buffer.from(JSON.stringify(message)),
+    );
+    await channel.close();
+
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
