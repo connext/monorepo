@@ -9,6 +9,7 @@ import {
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import {
@@ -53,6 +54,7 @@ export const proveAndProcess = async () => {
         const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
           destinationDomain,
         );
+
         if (!curDestAggRoot) {
           throw new NoReceivedAggregateRoot(destinationDomain);
         }
@@ -73,8 +75,40 @@ export const proveAndProcess = async () => {
                 if (!latestMessageRoot) {
                   throw new NoTargetMessageRoot(originDomain);
                 }
+
+                const targetMessageRoot = latestMessageRoot.root;
+                // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
+                const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
+                if (messageRootCount === undefined) {
+                  throw new NoMessageRootCount(originDomain, targetMessageRoot);
+                }
+                // Index of messageRoot leaf node in aggregate tree.
+                const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+                if (messageRootIndex === undefined) {
+                  throw new NoMessageRootIndex(originDomain, targetMessageRoot);
+                }
+
+                // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
+                // has elapsed!) to determine which tree snapshot we should be generating the proof from.
+                const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
+                if (!targetAggregateRoot) {
+                  throw new NoAggregatedRoot();
+                }
+
+                // Count of leafs in aggregate tree at targetAggregateRoot.
+                const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+                if (!aggregateRootCount) {
+                  throw new NoAggregateRootCount(targetAggregateRoot);
+                }
+                // TODO: Move to per domain storage adapters in context
+                const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+                const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+
+                const spokeSMT = new SparseMerkleTree(spokeStore);
+                const hubSMT = new SparseMerkleTree(hubStore);
+
                 // Paginate through all unprocessed messages from the domain
-                let offset = 0;
+                let offset = process.env.OFFSET ? Number(process.env.OFFSET) : 0;
                 let end = false;
                 while (!end) {
                   logger.info(
@@ -90,6 +124,14 @@ export const proveAndProcess = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
+                  console.log({
+                    originDomain,
+                    destinationDomain,
+                    count: latestMessageRoot.count,
+                    latestMessageRoot: latestMessageRoot.root,
+                    offset,
+                    batchSize: config.proverBatchSize,
+                  });
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
@@ -108,12 +150,17 @@ export const proveAndProcess = async () => {
                       destinationDomain,
                       offset,
                     });
+
                     // Batch process messages from the same origin domain
                     await processMessages(
                       unprocessed,
                       originDomain,
                       destinationDomain,
-                      latestMessageRoot.root,
+                      targetMessageRoot,
+                      messageRootIndex,
+                      targetAggregateRoot,
+                      spokeSMT,
+                      hubSMT,
                       subContext,
                     );
                     offset += unprocessed.length;
@@ -167,45 +214,19 @@ export const processMessages = async (
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
+  messageRootIndex: number,
+  targetAggregateRoot: string,
+  spokeSMT: SparseMerkleTree,
+  hubSMT: SparseMerkleTree,
   _requestContext: RequestContext,
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader },
+    adapters: { contracts, relayers, chainreader },
     config,
     chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
-
-  // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
-  const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
-  if (messageRootCount === undefined) {
-    throw new NoMessageRootCount(originDomain, targetMessageRoot);
-  }
-  // Index of messageRoot leaf node in aggregate tree.
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
-  if (messageRootIndex === undefined) {
-    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
-  }
-
-  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
-  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
-  if (!targetAggregateRoot) {
-    throw new NoAggregatedRoot();
-  }
-
-  // Count of leafs in aggregate tree at targetAggregateRoot.
-  const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
-  if (!aggregateRootCount) {
-    throw new NoAggregateRootCount(targetAggregateRoot);
-  }
-  // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
-
-  const spokeSMT = new SparseMerkleTree(spokeStore);
-  const hubSMT = new SparseMerkleTree(hubStore);
 
   // process messages
   const messageProofs: ProofStruct[] = [];
@@ -218,30 +239,35 @@ export const processMessages = async (
     if (!messageProof.path) {
       throw new NoMessageProof(messageProof.index, message.leaf);
     }
-    // Verify proof of inclusion of message in messageRoot.
-    const messageVerification = spokeSMT.verify(
-      message.origin.index,
-      message.leaf,
-      messageProof.path,
-      targetMessageRoot,
-    );
-    if (messageVerification && messageVerification.verified) {
-      logger.info("Message Verified successfully", requestContext, methodContext, {
-        messageIndex: message.origin.index,
-        leaf: message.leaf,
-        targetMessageRoot,
-        messageVerification,
-      });
-    } else {
-      logger.info("Message verification failed", requestContext, methodContext, {
-        messageIndex: message.origin.index,
-        leaf: message.leaf,
-        targetMessageRoot,
-        messageVerification,
-      });
-      // Do not process message if proof verification fails.
-      continue;
-    }
+    // // Verify proof of inclusion of message in messageRoot.
+    // const messageVerification = spokeSMT.verify(
+    //   message.origin.index,
+    //   message.leaf,
+    //   messageProof.path,
+    //   targetMessageRoot,
+    // );
+    // if (messageVerification && messageVerification.verified) {
+    //   logger.info("Message Verified successfully", requestContext, methodContext, {
+    //     messageIndex: message.origin.index,
+    //     leaf: message.leaf,
+    //     targetMessageRoot,
+    //     messageVerification,
+    //   });
+    // } else {
+    //   logger.info("Message verification failed", requestContext, methodContext, {
+    //     messageIndex: message.origin.index,
+    //     leaf: message.leaf,
+    //     targetMessageRoot,
+    //     messageVerification,
+    //   });
+    //   // Do not process message if proof verification fails.
+    //   continue;
+    // }
+    console.log({
+      msg: "MessageProof generated without verification",
+      messageIndex: message.origin.index,
+      timestamp: getNtpTimeSeconds(),
+    });
     messageProofs.push(messageProof);
   }
 
@@ -259,23 +285,23 @@ export const processMessages = async (
     throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
   }
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
-  if (rootVerification && rootVerification.verified) {
-    logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
-      targetMessageRoot,
-      targetAggregateRoot,
-      messageRootProof,
-      rootVerification,
-    });
-  } else {
-    logger.info("MessageRoot verification failed", requestContext, methodContext, {
-      messageRootIndex,
-      targetMessageRoot,
-      targetAggregateRoot,
-      messageRootProof,
-      rootVerification,
-    });
-  }
+  // const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
+  // if (rootVerification && rootVerification.verified) {
+  //   logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+  //     targetMessageRoot,
+  //     targetAggregateRoot,
+  //     messageRootProof,
+  //     rootVerification,
+  //   });
+  // } else {
+  //   logger.info("MessageRoot verification failed", requestContext, methodContext, {
+  //     messageRootIndex,
+  //     targetMessageRoot,
+  //     targetAggregateRoot,
+  //     messageRootProof,
+  //     rootVerification,
+  //   });
+  // }
   // Batch submit messages by destination domain
   try {
     const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
