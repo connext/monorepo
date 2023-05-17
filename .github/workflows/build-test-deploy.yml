@@ -920,7 +920,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
-      TF_VAR_sdk_server_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.smoke-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1117,6 +1117,7 @@ jobs:
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
+      sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}
 
   terraform-services-backend-prod-testnet:
     if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
@@ -1124,6 +1125,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.e2e-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1183,6 +1185,7 @@ jobs:
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
+      sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}
 
   terraform-services-backend-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -1190,6 +1193,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
