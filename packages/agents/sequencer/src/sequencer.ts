@@ -95,11 +95,16 @@ export const makeSubscriber = async () => {
     );
 
     if (context.config.messageQueue.subscriber) {
-      await channel.assertQueue(context.config.messageQueue.subscriber, { durable: true });
       const binding = context.config.messageQueue.bindings.find(
         (it) => it.target == context.config.messageQueue.subscriber,
       );
-      if (binding) {
+      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.subscriber);
+
+      if (binding && queue) {
+        await channel.assertQueue(context.config.messageQueue.subscriber, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
         await channel.bindQueue(context.config.messageQueue.subscriber, binding?.exchange, binding?.keys[0]);
       }
 
@@ -108,7 +113,8 @@ export const makeSubscriber = async () => {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
         context.config.messageQueue.bindings.map(async (binding) => {
-          await channel.assertQueue(binding.target, { durable: true });
+          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
           await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
         }),
       );
