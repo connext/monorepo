@@ -6,6 +6,7 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   jsonifyError,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
@@ -24,6 +25,7 @@ import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
 import { getHelpers } from "../../helpers";
 
+const expiryTime = 180; // 3min
 export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
@@ -59,9 +61,11 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);
+  const lastUpdateTime = await cache.executors.getExecStatusTime(transferId);
+  const isExpired = getNtpTimeSeconds() - lastUpdateTime > expiryTime;
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecStatus.None) {
+  } else if (status === ExecStatus.None || isExpired) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
