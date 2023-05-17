@@ -233,6 +233,12 @@ const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };
 
+const TRANSFER_IDS = [
+  "0x448496f1eaba916c4a7c48d849fb3efd26ab8203ea97b0bb43ec811ed05b1900",
+  "0x09419b9c5eda8e723937d9d1dac002dd706118ef04d7d2171c5364186b923ac8",
+  "0x30237bcd34712e463fd470cfea2c9cfdeb034aead24cecae854e36659d4c6606",
+];
+
 export const saveTransfers = async (
   xtransfers: XTransfer[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -246,7 +252,10 @@ export const saveTransfers = async (
   );
 
   transfers = transfers.map((_transfer) => {
-    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+    const dbTransfer = dbTransfers.find(
+      (dbTransfer) =>
+        dbTransfer.transfer_id.toString().toLowerCase() === _transfer.transfer_id.toString().toLowerCase(),
+    );
 
     if (dbTransfer !== undefined) {
       // Special handling as boolean fields defualt to false, when upstream subgraph data is null
@@ -268,6 +277,24 @@ export const saveTransfers = async (
     }
 
     const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
+    if (
+      dbTransfer &&
+      TRANSFER_IDS.includes(dbTransfer.transfer_id.toString().toLowerCase()) &&
+      dbTransfer.status !== transfer.status
+    ) {
+      console.log("");
+      console.log("");
+      console.log("********** found existing transfer in db, upserting");
+      console.log(
+        "********** inserting:",
+        xtransfers.find((x) => x.transferId.toLowerCase() === _transfer.transfer_id.toString().toLowerCase()),
+      );
+      console.log("********** existing:", convertFromDbTransfer(dbTransfer));
+      console.log("********** updated:", convertFromDbTransfer(transfer));
+      console.log("");
+      console.log("");
+    }
+
     return transfer;
   });
 
@@ -417,7 +444,7 @@ export const getTransferByTransferId = async (
   return x ? convertFromDbTransfer(x) : undefined;
 };
 
-export const getTransfersByTransferIds = async (
+const getTransfersByTransferIds = async (
   transfer_ids: string[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<s.transfers.JSONSelectable[]> => {
@@ -425,6 +452,16 @@ export const getTransfersByTransferIds = async (
 
   const x = await db.select("transfers", { transfer_id: db.conditions.isIn(transfer_ids) }).run(poolToUse);
   return x;
+};
+
+export const getTransfersByIds = async (
+  transfer_ids: string[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const x = await db.select("transfers", { transfer_id: db.conditions.isIn(transfer_ids) }).run(poolToUse);
+  return x.map(convertFromDbTransfer);
 };
 
 export const getTransfersByStatus = async (

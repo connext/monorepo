@@ -72,6 +72,7 @@ import {
   saveAssets,
   getAssets,
   saveAssetPrice,
+  getTransfersByIds,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -90,6 +91,7 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
+  getTransfersByIds: (ids: string[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<XTransfer[]>;
   getPendingTransfersByDomains: (
     origin_domain: string,
     destination_domain: string,
@@ -275,6 +277,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
 
   return {
     saveTransfers,
+    getTransfersByIds,
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,

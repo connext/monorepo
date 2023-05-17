@@ -15,10 +15,14 @@ const MIN_ORIGIN_NONCE: Record<string, number> = {
   "9991": 101110,
   "1668247156": 4126,
 };
-const MIN_RECONCILE_TIMESTAMP = 1683273804;
-const MAX_RECONCILE_TIMESTAMP = 1683602800;
 const MIN_EXECUTE_TIMESTAMP = 1683273804;
 const MAX_EXECUTE_TIMESTAMP = 1683602800;
+
+const TRANSFER_EXECUTED_TIMESTAMPS = {
+  "0x448496f1eaba916c4a7c48d849fb3efd26ab8203ea97b0bb43ec811ed05b1900": 1683602466,
+  "0x09419b9c5eda8e723937d9d1dac002dd706118ef04d7d2171c5364186b923ac8": 1683456702,
+  "0x30237bcd34712e463fd470cfea2c9cfdeb034aead24cecae854e36659d4c6606": 1683446032,
+};
 
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {
   return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.xparams.nonce ?? 0));
@@ -85,7 +89,7 @@ export const updateTransfers = async () => {
 
       if (domain === "1668247156") {
         // Retrieve the most recent destination transfers we've saved for this domain.
-        const executedTimestamp = Math.min(
+        const executedTimestamp = Math.max(
           MIN_EXECUTE_TIMESTAMP,
           await database.getCheckPoint("destination_execute_timestamp_" + domain),
         );
@@ -98,12 +102,12 @@ export const updateTransfers = async () => {
           });
         }
 
-        const reconciledTimestamp = Math.min(
-          MIN_RECONCILE_TIMESTAMP,
+        const reconciledTimestamp = Math.max(
+          MIN_EXECUTE_TIMESTAMP,
           await database.getCheckPoint("destination_reconcile_timestamp_" + domain),
         );
 
-        if (reconciledTimestamp <= MAX_RECONCILE_TIMESTAMP) {
+        if (reconciledTimestamp <= MAX_EXECUTE_TIMESTAMP) {
           subgraphReconcileQueryMetaParams.set(domain, {
             maxBlockNumber: latestBlockNumber,
             fromTimestamp: reconciledTimestamp,
@@ -130,9 +134,21 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
+    const retrieved = transfers.map((d) => d.transferId);
+    const found: string[] = retrieved
+      .map((t) => {
+        if (Object.keys(TRANSFER_EXECUTED_TIMESTAMPS).includes(t.toLowerCase())) {
+          return t;
+        }
+        return undefined;
+      })
+      .filter((x) => !!x) as string[];
     await database.saveTransfers(transfers);
     for (const checkpoint of checkpoints) {
       await database.saveCheckPoint("origin_nonce_" + checkpoint.domain, checkpoint.checkpoint);
+    }
+    if (found.length > 0) {
+      process.exit(1);
     }
   }
 
@@ -156,38 +172,63 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
+    const retrieved = transfers.map((d) => d.transferId.toLowerCase());
+    const found: string[] = retrieved
+      .map((t) => {
+        if (Object.keys(TRANSFER_EXECUTED_TIMESTAMPS).includes(t.toLowerCase())) {
+          return t;
+        }
+        return undefined;
+      })
+      .filter((x) => !!x) as string[];
     await database.saveTransfers(transfers as XTransfer[]);
     for (const checkpoint of checkpoints) {
+      if (
+        checkpoint.domain.toString() === "1668247156" &&
+        checkpoint.checkpoint > Math.min(...Object.values(TRANSFER_EXECUTED_TIMESTAMPS))
+      ) {
+        console.log("");
+        console.log("");
+        console.log("checkpoint is beyond min, should have executed events");
+        console.log(transfers.map((t) => ({ transferId: t.transferId, timestamp: t.destination.execute?.timestamp })));
+        process.exit(1);
+      }
       await database.saveCheckPoint("destination_execute_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+    }
+    if (found.length > 0) {
+      console.log("");
+      console.log("");
+      console.log("found", found.length, "executed events");
+      process.exit(1);
     }
   }
 
-  if (subgraphReconcileQueryMetaParams.size > 0) {
-    await Promise.all(
-      domains.map(async (domain) => {
-        // Get destination transfers per domain.
-        const domainParams = subgraphReconcileQueryMetaParams.get(domain);
-        if (!domainParams) {
-          return;
-        }
-        const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileTimestamp(
-          domainParams,
-          domain,
-        );
-        logger.info("Retrieved destination transfers by reconcile timestamp by domain", requestContext, methodContext, {
-          domain: domain,
-          count: domainTransfers.length,
-        });
-        const max = getMaxReconcileTimestamp(domainTransfers as XTransfer[]);
-        const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+  // if (subgraphReconcileQueryMetaParams.size > 0) {
+  //   await Promise.all(
+  //     domains.map(async (domain) => {
+  //       // Get destination transfers per domain.
+  //       const domainParams = subgraphReconcileQueryMetaParams.get(domain);
+  //       if (!domainParams) {
+  //         return;
+  //       }
+  //       const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileTimestamp(
+  //         domainParams,
+  //         domain,
+  //       );
+  //       logger.info("Retrieved destination transfers by reconcile timestamp by domain", requestContext, methodContext, {
+  //         domain: domain,
+  //         count: domainTransfers.length,
+  //       });
+  //       const max = getMaxReconcileTimestamp(domainTransfers as XTransfer[]);
+  //       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
 
-        await database.saveTransfers(domainTransfers as XTransfer[]);
-        if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
-        }
-      }),
-    );
-  }
+  //       await database.saveTransfers(domainTransfers as XTransfer[]);
+  //       if (domainTransfers.length > 0 && max > latest) {
+  //         await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
+  //       }
+  //     }),
+  //   );
+  // }
 
   for (const originDomain of domains) {
     for (const destinationDomain of domains) {
