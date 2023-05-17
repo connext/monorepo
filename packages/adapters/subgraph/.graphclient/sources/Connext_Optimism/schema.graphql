@@ -29,6 +29,10 @@ input optimism_AggregateRoot_filter {
   id_not_in: [ID!]
   root: optimism_Bytes
   root_not: optimism_Bytes
+  root_gt: optimism_Bytes
+  root_lt: optimism_Bytes
+  root_gte: optimism_Bytes
+  root_lte: optimism_Bytes
   root_in: [optimism_Bytes!]
   root_not_in: [optimism_Bytes!]
   root_contains: optimism_Bytes
@@ -43,6 +47,8 @@ input optimism_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_AggregateRoot_filter]
+  or: [optimism_AggregateRoot_filter]
 }
 
 enum optimism_AggregateRoot_orderBy {
@@ -54,6 +60,7 @@ enum optimism_AggregateRoot_orderBy {
 type optimism_Asset {
   id: ID!
   key: optimism_Bytes
+  decimal: BigInt
   canonicalId: optimism_Bytes
   canonicalDomain: BigInt
   adoptedAsset: optimism_Bytes
@@ -65,6 +72,9 @@ type optimism_Asset {
 type optimism_AssetBalance {
   id: ID!
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: optimism_Router!
   asset: optimism_Asset!
   feesEarned: BigInt!
@@ -87,6 +97,30 @@ input optimism_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -139,13 +173,32 @@ input optimism_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_AssetBalance_filter]
+  or: [optimism_AssetBalance_filter]
 }
 
 enum optimism_AssetBalance_orderBy {
   id
   amount
+  locked
+  supplied
+  removed
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -169,6 +222,8 @@ input optimism_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_AssetStatus_filter]
+  or: [optimism_AssetStatus_filter]
 }
 
 enum optimism_AssetStatus_orderBy {
@@ -187,12 +242,28 @@ input optimism_Asset_filter {
   id_not_in: [ID!]
   key: optimism_Bytes
   key_not: optimism_Bytes
+  key_gt: optimism_Bytes
+  key_lt: optimism_Bytes
+  key_gte: optimism_Bytes
+  key_lte: optimism_Bytes
   key_in: [optimism_Bytes!]
   key_not_in: [optimism_Bytes!]
   key_contains: optimism_Bytes
   key_not_contains: optimism_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: optimism_Bytes
   canonicalId_not: optimism_Bytes
+  canonicalId_gt: optimism_Bytes
+  canonicalId_lt: optimism_Bytes
+  canonicalId_gte: optimism_Bytes
+  canonicalId_lte: optimism_Bytes
   canonicalId_in: [optimism_Bytes!]
   canonicalId_not_in: [optimism_Bytes!]
   canonicalId_contains: optimism_Bytes
@@ -207,12 +278,20 @@ input optimism_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: optimism_Bytes
   adoptedAsset_not: optimism_Bytes
+  adoptedAsset_gt: optimism_Bytes
+  adoptedAsset_lt: optimism_Bytes
+  adoptedAsset_gte: optimism_Bytes
+  adoptedAsset_lte: optimism_Bytes
   adoptedAsset_in: [optimism_Bytes!]
   adoptedAsset_not_in: [optimism_Bytes!]
   adoptedAsset_contains: optimism_Bytes
   adoptedAsset_not_contains: optimism_Bytes
   localAsset: optimism_Bytes
   localAsset_not: optimism_Bytes
+  localAsset_gt: optimism_Bytes
+  localAsset_lt: optimism_Bytes
+  localAsset_gte: optimism_Bytes
+  localAsset_lte: optimism_Bytes
   localAsset_in: [optimism_Bytes!]
   localAsset_not_in: [optimism_Bytes!]
   localAsset_contains: optimism_Bytes
@@ -248,17 +327,22 @@ input optimism_Asset_filter {
   status_: optimism_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_Asset_filter]
+  or: [optimism_Asset_filter]
 }
 
 enum optimism_Asset_orderBy {
   id
   key
+  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar optimism_BigDecimal
@@ -313,24 +397,38 @@ input optimism_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: optimism_Bytes
   amb_not: optimism_Bytes
+  amb_gt: optimism_Bytes
+  amb_lt: optimism_Bytes
+  amb_gte: optimism_Bytes
+  amb_lte: optimism_Bytes
   amb_in: [optimism_Bytes!]
   amb_not_in: [optimism_Bytes!]
   amb_contains: optimism_Bytes
   amb_not_contains: optimism_Bytes
   rootManager: optimism_Bytes
   rootManager_not: optimism_Bytes
+  rootManager_gt: optimism_Bytes
+  rootManager_lt: optimism_Bytes
+  rootManager_gte: optimism_Bytes
+  rootManager_lte: optimism_Bytes
   rootManager_in: [optimism_Bytes!]
   rootManager_not_in: [optimism_Bytes!]
   rootManager_contains: optimism_Bytes
   rootManager_not_contains: optimism_Bytes
   mirrorConnector: optimism_Bytes
   mirrorConnector_not: optimism_Bytes
+  mirrorConnector_gt: optimism_Bytes
+  mirrorConnector_lt: optimism_Bytes
+  mirrorConnector_gte: optimism_Bytes
+  mirrorConnector_lte: optimism_Bytes
   mirrorConnector_in: [optimism_Bytes!]
   mirrorConnector_not_in: [optimism_Bytes!]
   mirrorConnector_contains: optimism_Bytes
   mirrorConnector_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_ConnectorMeta_filter]
+  or: [optimism_ConnectorMeta_filter]
 }
 
 enum optimism_ConnectorMeta_orderBy {
@@ -400,6 +498,10 @@ input optimism_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: optimism_Bytes
   transferId_not: optimism_Bytes
+  transferId_gt: optimism_Bytes
+  transferId_lt: optimism_Bytes
+  transferId_gte: optimism_Bytes
+  transferId_lte: optimism_Bytes
   transferId_in: [optimism_Bytes!]
   transferId_not_in: [optimism_Bytes!]
   transferId_contains: optimism_Bytes
@@ -449,12 +551,20 @@ input optimism_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: optimism_Bytes
   to_not: optimism_Bytes
+  to_gt: optimism_Bytes
+  to_lt: optimism_Bytes
+  to_gte: optimism_Bytes
+  to_lte: optimism_Bytes
   to_in: [optimism_Bytes!]
   to_not_in: [optimism_Bytes!]
   to_contains: optimism_Bytes
   to_not_contains: optimism_Bytes
   delegate: optimism_Bytes
   delegate_not: optimism_Bytes
+  delegate_gt: optimism_Bytes
+  delegate_lt: optimism_Bytes
+  delegate_gte: optimism_Bytes
+  delegate_lte: optimism_Bytes
   delegate_in: [optimism_Bytes!]
   delegate_not_in: [optimism_Bytes!]
   delegate_contains: optimism_Bytes
@@ -465,6 +575,10 @@ input optimism_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: optimism_Bytes
   callData_not: optimism_Bytes
+  callData_gt: optimism_Bytes
+  callData_lt: optimism_Bytes
+  callData_gte: optimism_Bytes
+  callData_lte: optimism_Bytes
   callData_in: [optimism_Bytes!]
   callData_not_in: [optimism_Bytes!]
   callData_contains: optimism_Bytes
@@ -487,6 +601,10 @@ input optimism_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: optimism_Bytes
   originSender_not: optimism_Bytes
+  originSender_gt: optimism_Bytes
+  originSender_lt: optimism_Bytes
+  originSender_gte: optimism_Bytes
+  originSender_lte: optimism_Bytes
   originSender_in: [optimism_Bytes!]
   originSender_not_in: [optimism_Bytes!]
   originSender_contains: optimism_Bytes
@@ -509,6 +627,10 @@ input optimism_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: optimism_Bytes
   canonicalId_not: optimism_Bytes
+  canonicalId_gt: optimism_Bytes
+  canonicalId_lt: optimism_Bytes
+  canonicalId_gte: optimism_Bytes
+  canonicalId_lte: optimism_Bytes
   canonicalId_in: [optimism_Bytes!]
   canonicalId_not_in: [optimism_Bytes!]
   canonicalId_contains: optimism_Bytes
@@ -552,12 +674,20 @@ input optimism_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: optimism_Bytes
   executedCaller_not: optimism_Bytes
+  executedCaller_gt: optimism_Bytes
+  executedCaller_lt: optimism_Bytes
+  executedCaller_gte: optimism_Bytes
+  executedCaller_lte: optimism_Bytes
   executedCaller_in: [optimism_Bytes!]
   executedCaller_not_in: [optimism_Bytes!]
   executedCaller_contains: optimism_Bytes
   executedCaller_not_contains: optimism_Bytes
   executedTransactionHash: optimism_Bytes
   executedTransactionHash_not: optimism_Bytes
+  executedTransactionHash_gt: optimism_Bytes
+  executedTransactionHash_lt: optimism_Bytes
+  executedTransactionHash_gte: optimism_Bytes
+  executedTransactionHash_lte: optimism_Bytes
   executedTransactionHash_in: [optimism_Bytes!]
   executedTransactionHash_not_in: [optimism_Bytes!]
   executedTransactionHash_contains: optimism_Bytes
@@ -596,18 +726,30 @@ input optimism_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: optimism_Bytes
   executedTxOrigin_not: optimism_Bytes
+  executedTxOrigin_gt: optimism_Bytes
+  executedTxOrigin_lt: optimism_Bytes
+  executedTxOrigin_gte: optimism_Bytes
+  executedTxOrigin_lte: optimism_Bytes
   executedTxOrigin_in: [optimism_Bytes!]
   executedTxOrigin_not_in: [optimism_Bytes!]
   executedTxOrigin_contains: optimism_Bytes
   executedTxOrigin_not_contains: optimism_Bytes
   reconciledCaller: optimism_Bytes
   reconciledCaller_not: optimism_Bytes
+  reconciledCaller_gt: optimism_Bytes
+  reconciledCaller_lt: optimism_Bytes
+  reconciledCaller_gte: optimism_Bytes
+  reconciledCaller_lte: optimism_Bytes
   reconciledCaller_in: [optimism_Bytes!]
   reconciledCaller_not_in: [optimism_Bytes!]
   reconciledCaller_contains: optimism_Bytes
   reconciledCaller_not_contains: optimism_Bytes
   reconciledTransactionHash: optimism_Bytes
   reconciledTransactionHash_not: optimism_Bytes
+  reconciledTransactionHash_gt: optimism_Bytes
+  reconciledTransactionHash_lt: optimism_Bytes
+  reconciledTransactionHash_gte: optimism_Bytes
+  reconciledTransactionHash_lte: optimism_Bytes
   reconciledTransactionHash_in: [optimism_Bytes!]
   reconciledTransactionHash_not_in: [optimism_Bytes!]
   reconciledTransactionHash_contains: optimism_Bytes
@@ -646,12 +788,18 @@ input optimism_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: optimism_Bytes
   reconciledTxOrigin_not: optimism_Bytes
+  reconciledTxOrigin_gt: optimism_Bytes
+  reconciledTxOrigin_lt: optimism_Bytes
+  reconciledTxOrigin_gte: optimism_Bytes
+  reconciledTxOrigin_lte: optimism_Bytes
   reconciledTxOrigin_in: [optimism_Bytes!]
   reconciledTxOrigin_not_in: [optimism_Bytes!]
   reconciledTxOrigin_contains: optimism_Bytes
   reconciledTxOrigin_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_DestinationTransfer_filter]
+  or: [optimism_DestinationTransfer_filter]
 }
 
 enum optimism_DestinationTransfer_orderBy {
@@ -675,6 +823,14 @@ enum optimism_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -723,6 +879,10 @@ input optimism_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: optimism_Bytes
   transferId_not: optimism_Bytes
+  transferId_gt: optimism_Bytes
+  transferId_lt: optimism_Bytes
+  transferId_gte: optimism_Bytes
+  transferId_lte: optimism_Bytes
   transferId_in: [optimism_Bytes!]
   transferId_not_in: [optimism_Bytes!]
   transferId_contains: optimism_Bytes
@@ -737,6 +897,10 @@ input optimism_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: optimism_Bytes
   leaf_not: optimism_Bytes
+  leaf_gt: optimism_Bytes
+  leaf_lt: optimism_Bytes
+  leaf_gte: optimism_Bytes
+  leaf_lte: optimism_Bytes
   leaf_in: [optimism_Bytes!]
   leaf_not_in: [optimism_Bytes!]
   leaf_contains: optimism_Bytes
@@ -751,18 +915,30 @@ input optimism_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: optimism_Bytes
   message_not: optimism_Bytes
+  message_gt: optimism_Bytes
+  message_lt: optimism_Bytes
+  message_gte: optimism_Bytes
+  message_lte: optimism_Bytes
   message_in: [optimism_Bytes!]
   message_not_in: [optimism_Bytes!]
   message_contains: optimism_Bytes
   message_not_contains: optimism_Bytes
   root: optimism_Bytes
   root_not: optimism_Bytes
+  root_gt: optimism_Bytes
+  root_lt: optimism_Bytes
+  root_gte: optimism_Bytes
+  root_lte: optimism_Bytes
   root_in: [optimism_Bytes!]
   root_not_in: [optimism_Bytes!]
   root_contains: optimism_Bytes
   root_not_contains: optimism_Bytes
   transactionHash: optimism_Bytes
   transactionHash_not: optimism_Bytes
+  transactionHash_gt: optimism_Bytes
+  transactionHash_lt: optimism_Bytes
+  transactionHash_gte: optimism_Bytes
+  transactionHash_lte: optimism_Bytes
   transactionHash_in: [optimism_Bytes!]
   transactionHash_not_in: [optimism_Bytes!]
   transactionHash_contains: optimism_Bytes
@@ -798,6 +974,8 @@ input optimism_OriginMessage_filter {
   rootCount_: optimism_RootCount_filter
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_OriginMessage_filter]
+  or: [optimism_OriginMessage_filter]
 }
 
 enum optimism_OriginMessage_orderBy {
@@ -811,6 +989,8 @@ enum optimism_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type optimism_OriginTransfer {
@@ -835,8 +1015,9 @@ type optimism_OriginTransfer {
   asset: optimism_Asset
   transactingAsset: optimism_Bytes
   message: optimism_OriginMessage
-  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: optimism_RelayerFee_orderBy, orderDirection: optimism_OrderDirection, where: optimism_RelayerFee_filter): [optimism_RelayerFee!]
+  initialRelayerFeeAsset: optimism_Bytes
   caller: optimism_Bytes
   transactionHash: optimism_Bytes
   timestamp: BigInt
@@ -865,6 +1046,10 @@ input optimism_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: optimism_Bytes
   transferId_not: optimism_Bytes
+  transferId_gt: optimism_Bytes
+  transferId_lt: optimism_Bytes
+  transferId_gte: optimism_Bytes
+  transferId_lte: optimism_Bytes
   transferId_in: [optimism_Bytes!]
   transferId_not_in: [optimism_Bytes!]
   transferId_contains: optimism_Bytes
@@ -883,6 +1068,10 @@ input optimism_OriginTransfer_filter {
   status_not_in: [optimism_TransferStatus!]
   messageHash: optimism_Bytes
   messageHash_not: optimism_Bytes
+  messageHash_gt: optimism_Bytes
+  messageHash_lt: optimism_Bytes
+  messageHash_gte: optimism_Bytes
+  messageHash_lte: optimism_Bytes
   messageHash_in: [optimism_Bytes!]
   messageHash_not_in: [optimism_Bytes!]
   messageHash_contains: optimism_Bytes
@@ -913,12 +1102,20 @@ input optimism_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: optimism_Bytes
   to_not: optimism_Bytes
+  to_gt: optimism_Bytes
+  to_lt: optimism_Bytes
+  to_gte: optimism_Bytes
+  to_lte: optimism_Bytes
   to_in: [optimism_Bytes!]
   to_not_in: [optimism_Bytes!]
   to_contains: optimism_Bytes
   to_not_contains: optimism_Bytes
   delegate: optimism_Bytes
   delegate_not: optimism_Bytes
+  delegate_gt: optimism_Bytes
+  delegate_lt: optimism_Bytes
+  delegate_gte: optimism_Bytes
+  delegate_lte: optimism_Bytes
   delegate_in: [optimism_Bytes!]
   delegate_not_in: [optimism_Bytes!]
   delegate_contains: optimism_Bytes
@@ -929,6 +1126,10 @@ input optimism_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: optimism_Bytes
   callData_not: optimism_Bytes
+  callData_gt: optimism_Bytes
+  callData_lt: optimism_Bytes
+  callData_gte: optimism_Bytes
+  callData_lte: optimism_Bytes
   callData_in: [optimism_Bytes!]
   callData_not_in: [optimism_Bytes!]
   callData_contains: optimism_Bytes
@@ -943,6 +1144,10 @@ input optimism_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: optimism_Bytes
   originSender_not: optimism_Bytes
+  originSender_gt: optimism_Bytes
+  originSender_lt: optimism_Bytes
+  originSender_gte: optimism_Bytes
+  originSender_lte: optimism_Bytes
   originSender_in: [optimism_Bytes!]
   originSender_not_in: [optimism_Bytes!]
   originSender_contains: optimism_Bytes
@@ -965,6 +1170,10 @@ input optimism_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: optimism_Bytes
   canonicalId_not: optimism_Bytes
+  canonicalId_gt: optimism_Bytes
+  canonicalId_lt: optimism_Bytes
+  canonicalId_gte: optimism_Bytes
+  canonicalId_lte: optimism_Bytes
   canonicalId_in: [optimism_Bytes!]
   canonicalId_not_in: [optimism_Bytes!]
   canonicalId_contains: optimism_Bytes
@@ -992,6 +1201,10 @@ input optimism_OriginTransfer_filter {
   asset_: optimism_Asset_filter
   transactingAsset: optimism_Bytes
   transactingAsset_not: optimism_Bytes
+  transactingAsset_gt: optimism_Bytes
+  transactingAsset_lt: optimism_Bytes
+  transactingAsset_gte: optimism_Bytes
+  transactingAsset_lte: optimism_Bytes
   transactingAsset_in: [optimism_Bytes!]
   transactingAsset_not_in: [optimism_Bytes!]
   transactingAsset_contains: optimism_Bytes
@@ -1017,14 +1230,6 @@ input optimism_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: optimism_OriginMessage_filter
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1033,14 +1238,39 @@ input optimism_OriginTransfer_filter {
   bumpRelayerFeeCount_lte: BigInt
   bumpRelayerFeeCount_in: [BigInt!]
   bumpRelayerFeeCount_not_in: [BigInt!]
+  relayerFees: [String!]
+  relayerFees_not: [String!]
+  relayerFees_contains: [String!]
+  relayerFees_contains_nocase: [String!]
+  relayerFees_not_contains: [String!]
+  relayerFees_not_contains_nocase: [String!]
+  relayerFees_: optimism_RelayerFee_filter
+  initialRelayerFeeAsset: optimism_Bytes
+  initialRelayerFeeAsset_not: optimism_Bytes
+  initialRelayerFeeAsset_gt: optimism_Bytes
+  initialRelayerFeeAsset_lt: optimism_Bytes
+  initialRelayerFeeAsset_gte: optimism_Bytes
+  initialRelayerFeeAsset_lte: optimism_Bytes
+  initialRelayerFeeAsset_in: [optimism_Bytes!]
+  initialRelayerFeeAsset_not_in: [optimism_Bytes!]
+  initialRelayerFeeAsset_contains: optimism_Bytes
+  initialRelayerFeeAsset_not_contains: optimism_Bytes
   caller: optimism_Bytes
   caller_not: optimism_Bytes
+  caller_gt: optimism_Bytes
+  caller_lt: optimism_Bytes
+  caller_gte: optimism_Bytes
+  caller_lte: optimism_Bytes
   caller_in: [optimism_Bytes!]
   caller_not_in: [optimism_Bytes!]
   caller_contains: optimism_Bytes
   caller_not_contains: optimism_Bytes
   transactionHash: optimism_Bytes
   transactionHash_not: optimism_Bytes
+  transactionHash_gt: optimism_Bytes
+  transactionHash_lt: optimism_Bytes
+  transactionHash_gte: optimism_Bytes
+  transactionHash_lte: optimism_Bytes
   transactionHash_in: [optimism_Bytes!]
   transactionHash_not_in: [optimism_Bytes!]
   transactionHash_contains: optimism_Bytes
@@ -1079,12 +1309,18 @@ input optimism_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: optimism_Bytes
   txOrigin_not: optimism_Bytes
+  txOrigin_gt: optimism_Bytes
+  txOrigin_lt: optimism_Bytes
+  txOrigin_gte: optimism_Bytes
+  txOrigin_lte: optimism_Bytes
   txOrigin_in: [optimism_Bytes!]
   txOrigin_not_in: [optimism_Bytes!]
   txOrigin_contains: optimism_Bytes
   txOrigin_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_OriginTransfer_filter]
+  or: [optimism_OriginTransfer_filter]
 }
 
 enum optimism_OriginTransfer_orderBy {
@@ -1107,10 +1343,28 @@ enum optimism_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   transactingAsset
   message
-  relayerFee
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   bumpRelayerFeeCount
+  relayerFees
+  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1329,6 +1583,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimism_Sequencer!]!
+  optimism_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimism_RelayerFee
+  optimism_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimism_RelayerFee_orderBy
+    orderDirection: optimism_OrderDirection
+    where: optimism_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimism_RelayerFee!]!
   optimism_originTransfer(
     id: ID!
     """
@@ -1573,10 +1853,107 @@ type optimism_Relayer {
   relayer: optimism_Bytes
 }
 
+type optimism_RelayerFee {
+  id: ID!
+  transfer: optimism_OriginTransfer!
+  fee: BigInt!
+  asset: optimism_Bytes!
+}
+
+input optimism_RelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: optimism_OriginTransfer_filter
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  asset: optimism_Bytes
+  asset_not: optimism_Bytes
+  asset_gt: optimism_Bytes
+  asset_lt: optimism_Bytes
+  asset_gte: optimism_Bytes
+  asset_lte: optimism_Bytes
+  asset_in: [optimism_Bytes!]
+  asset_not_in: [optimism_Bytes!]
+  asset_contains: optimism_Bytes
+  asset_not_contains: optimism_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimism_BlockChangedFilter
+  and: [optimism_RelayerFee_filter]
+  or: [optimism_RelayerFee_filter]
+}
+
+enum optimism_RelayerFee_orderBy {
+  id
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  fee
+  asset
+}
+
 type optimism_RelayerFeesIncrease {
   id: ID!
   transfer: optimism_OriginTransfer!
   increase: BigInt
+  asset: optimism_Bytes
   caller: optimism_Bytes!
   transactionHash: optimism_Bytes!
   timestamp: BigInt!
@@ -1623,14 +2000,32 @@ input optimism_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
+  asset: optimism_Bytes
+  asset_not: optimism_Bytes
+  asset_gt: optimism_Bytes
+  asset_lt: optimism_Bytes
+  asset_gte: optimism_Bytes
+  asset_lte: optimism_Bytes
+  asset_in: [optimism_Bytes!]
+  asset_not_in: [optimism_Bytes!]
+  asset_contains: optimism_Bytes
+  asset_not_contains: optimism_Bytes
   caller: optimism_Bytes
   caller_not: optimism_Bytes
+  caller_gt: optimism_Bytes
+  caller_lt: optimism_Bytes
+  caller_gte: optimism_Bytes
+  caller_lte: optimism_Bytes
   caller_in: [optimism_Bytes!]
   caller_not_in: [optimism_Bytes!]
   caller_contains: optimism_Bytes
   caller_not_contains: optimism_Bytes
   transactionHash: optimism_Bytes
   transactionHash_not: optimism_Bytes
+  transactionHash_gt: optimism_Bytes
+  transactionHash_lt: optimism_Bytes
+  transactionHash_gte: optimism_Bytes
+  transactionHash_lte: optimism_Bytes
   transactionHash_in: [optimism_Bytes!]
   transactionHash_not_in: [optimism_Bytes!]
   transactionHash_contains: optimism_Bytes
@@ -1669,12 +2064,43 @@ input optimism_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_RelayerFeesIncrease_filter]
+  or: [optimism_RelayerFeesIncrease_filter]
 }
 
 enum optimism_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
   increase
+  asset
   caller
   transactionHash
   timestamp
@@ -1698,12 +2124,18 @@ input optimism_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: optimism_Bytes
   relayer_not: optimism_Bytes
+  relayer_gt: optimism_Bytes
+  relayer_lt: optimism_Bytes
+  relayer_gte: optimism_Bytes
+  relayer_lte: optimism_Bytes
   relayer_in: [optimism_Bytes!]
   relayer_not_in: [optimism_Bytes!]
   relayer_contains: optimism_Bytes
   relayer_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_Relayer_filter]
+  or: [optimism_Relayer_filter]
 }
 
 enum optimism_Relayer_orderBy {
@@ -1736,6 +2168,8 @@ input optimism_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_RootCount_filter]
+  or: [optimism_RootCount_filter]
 }
 
 enum optimism_RootCount_orderBy {
@@ -1784,6 +2218,10 @@ input optimism_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: optimism_Bytes
   root_not: optimism_Bytes
+  root_gt: optimism_Bytes
+  root_lt: optimism_Bytes
+  root_gte: optimism_Bytes
+  root_lte: optimism_Bytes
   root_in: [optimism_Bytes!]
   root_not_in: [optimism_Bytes!]
   root_contains: optimism_Bytes
@@ -1798,12 +2236,20 @@ input optimism_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: optimism_Bytes
   caller_not: optimism_Bytes
+  caller_gt: optimism_Bytes
+  caller_lt: optimism_Bytes
+  caller_gte: optimism_Bytes
+  caller_lte: optimism_Bytes
   caller_in: [optimism_Bytes!]
   caller_not_in: [optimism_Bytes!]
   caller_contains: optimism_Bytes
   caller_not_contains: optimism_Bytes
   transactionHash: optimism_Bytes
   transactionHash_not: optimism_Bytes
+  transactionHash_gt: optimism_Bytes
+  transactionHash_lt: optimism_Bytes
+  transactionHash_gte: optimism_Bytes
+  transactionHash_lte: optimism_Bytes
   transactionHash_in: [optimism_Bytes!]
   transactionHash_not_in: [optimism_Bytes!]
   transactionHash_contains: optimism_Bytes
@@ -1842,6 +2288,8 @@ input optimism_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_RootMessageSent_filter]
+  or: [optimism_RootMessageSent_filter]
 }
 
 enum optimism_RootMessageSent_orderBy {
@@ -1945,12 +2393,28 @@ input optimism_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_RouterDailyTVL_filter]
+  or: [optimism_RouterDailyTVL_filter]
 }
 
 enum optimism_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
 }
@@ -1970,18 +2434,30 @@ input optimism_Router_filter {
   isActive_not_in: [Boolean!]
   owner: optimism_Bytes
   owner_not: optimism_Bytes
+  owner_gt: optimism_Bytes
+  owner_lt: optimism_Bytes
+  owner_gte: optimism_Bytes
+  owner_lte: optimism_Bytes
   owner_in: [optimism_Bytes!]
   owner_not_in: [optimism_Bytes!]
   owner_contains: optimism_Bytes
   owner_not_contains: optimism_Bytes
   recipient: optimism_Bytes
   recipient_not: optimism_Bytes
+  recipient_gt: optimism_Bytes
+  recipient_lt: optimism_Bytes
+  recipient_gte: optimism_Bytes
+  recipient_lte: optimism_Bytes
   recipient_in: [optimism_Bytes!]
   recipient_not_in: [optimism_Bytes!]
   recipient_contains: optimism_Bytes
   recipient_not_contains: optimism_Bytes
   proposedOwner: optimism_Bytes
   proposedOwner_not: optimism_Bytes
+  proposedOwner_gt: optimism_Bytes
+  proposedOwner_lt: optimism_Bytes
+  proposedOwner_gte: optimism_Bytes
+  proposedOwner_lte: optimism_Bytes
   proposedOwner_in: [optimism_Bytes!]
   proposedOwner_not_in: [optimism_Bytes!]
   proposedOwner_contains: optimism_Bytes
@@ -1997,6 +2473,8 @@ input optimism_Router_filter {
   assetBalances_: optimism_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_Router_filter]
+  or: [optimism_Router_filter]
 }
 
 enum optimism_Router_orderBy {
@@ -2030,12 +2508,18 @@ input optimism_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: optimism_Bytes
   sequencer_not: optimism_Bytes
+  sequencer_gt: optimism_Bytes
+  sequencer_lt: optimism_Bytes
+  sequencer_gte: optimism_Bytes
+  sequencer_lte: optimism_Bytes
   sequencer_in: [optimism_Bytes!]
   sequencer_not_in: [optimism_Bytes!]
   sequencer_contains: optimism_Bytes
   sequencer_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_Sequencer_filter]
+  or: [optimism_Sequencer_filter]
 }
 
 enum optimism_Sequencer_orderBy {
@@ -2069,12 +2553,18 @@ input optimism_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: optimism_Bytes
   caller_not: optimism_Bytes
+  caller_gt: optimism_Bytes
+  caller_lt: optimism_Bytes
+  caller_gte: optimism_Bytes
+  caller_lte: optimism_Bytes
   caller_in: [optimism_Bytes!]
   caller_not_in: [optimism_Bytes!]
   caller_contains: optimism_Bytes
   caller_not_contains: optimism_Bytes
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_Setting_filter]
+  or: [optimism_Setting_filter]
 }
 
 enum optimism_Setting_orderBy {
@@ -2135,12 +2625,20 @@ input optimism_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: optimism_Bytes
   caller_not: optimism_Bytes
+  caller_gt: optimism_Bytes
+  caller_lt: optimism_Bytes
+  caller_gte: optimism_Bytes
+  caller_lte: optimism_Bytes
   caller_in: [optimism_Bytes!]
   caller_not_in: [optimism_Bytes!]
   caller_contains: optimism_Bytes
   caller_not_contains: optimism_Bytes
   transactionHash: optimism_Bytes
   transactionHash_not: optimism_Bytes
+  transactionHash_gt: optimism_Bytes
+  transactionHash_lt: optimism_Bytes
+  transactionHash_gte: optimism_Bytes
+  transactionHash_lte: optimism_Bytes
   transactionHash_in: [optimism_Bytes!]
   transactionHash_not_in: [optimism_Bytes!]
   transactionHash_contains: optimism_Bytes
@@ -2179,11 +2677,47 @@ input optimism_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: optimism_BlockChangedFilter
+  and: [optimism_SlippageUpdate_filter]
+  or: [optimism_SlippageUpdate_filter]
 }
 
 enum optimism_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
   slippage
   caller
   transactionHash
@@ -2402,6 +2936,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimism_Sequencer!]!
+  optimism_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimism_RelayerFee
+  optimism_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimism_RelayerFee_orderBy
+    orderDirection: optimism_OrderDirection
+    where: optimism_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimism_RelayerFee!]!
   optimism_originTransfer(
     id: ID!
     """
@@ -2653,6 +3213,8 @@ type optimism__Block_ {
   hash: optimism_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
