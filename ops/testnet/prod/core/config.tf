@@ -292,7 +292,9 @@ locals {
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
     hubDomain       = "1735353714"
-    proverBatchSize = 1
+    proverBatchSize = {
+      "1668247156" = 10
+    }
   })
 
   local_relayer_config = jsonencode({
