@@ -51,7 +51,7 @@ export const proveAndProcess = async () => {
       try {
         const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
 
-        if (curDestAggRoots.length) {
+        if (curDestAggRoots.length == 0) {
           throw new NoReceivedAggregateRoot(destinationDomain);
         }
         logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {

@@ -809,7 +809,7 @@ export const getLatestAggregateRoots = async (
       { limit, order: { by: "block_number", direction: orderDirection } },
     )
     .run(poolToUse);
-  return roots.map((root) => convertFromDbReceivedAggregateRoot(root));
+  return roots.map(convertFromDbReceivedAggregateRoot);
 };
 
 export const getAggregateRootByRootAndDomain = async (
