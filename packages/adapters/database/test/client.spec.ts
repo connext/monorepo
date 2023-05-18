@@ -49,7 +49,7 @@ import {
   getRoot,
   getMessageRootIndex,
   getLatestMessageRoot,
-  getLatestAggregateRoot,
+  getLatestAggregateRoots,
   getAggregateRootCount,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
@@ -959,7 +959,7 @@ describe("Database client", () => {
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
     expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
-    expect(await getLatestAggregateRoot("", "DESC", pool)).to.eq(undefined);
+    expect(await getLatestAggregateRoots("", 1, "DESC", pool)).to.eq([]);
   });
 
   it("should throw errors", async () => {
@@ -1076,8 +1076,8 @@ describe("Database client", () => {
     }
     await saveReceivedAggregateRoot(roots, pool);
 
-    const latest = await getLatestAggregateRoot(roots[0].domain, "DESC", pool);
-    expect(latest).to.deep.eq(roots[batchSize - 1]);
+    const latest = await getLatestAggregateRoots(roots[0].domain, 1, "DESC", pool);
+    expect(latest[0]).to.deep.eq(roots[batchSize - 1]);
   });
 
   it("should update error status", async () => {

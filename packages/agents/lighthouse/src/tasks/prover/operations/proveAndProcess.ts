@@ -44,23 +44,19 @@ export const proveAndProcess = async () => {
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
 
-  // Batch size of proofs to send to relayer.
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
-          destinationDomain,
-        );
+        const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
 
-        if (!curDestAggRoot) {
+        if (curDestAggRoots.length) {
           throw new NoReceivedAggregateRoot(destinationDomain);
         }
-        logger.debug("Got latest aggregate root for domain", requestContext, methodContext, {
+        logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
           destinationDomain,
-          curDestAggRoot,
+          curDestAggRoots,
         });
 
         await Promise.all(
@@ -68,10 +64,11 @@ export const proveAndProcess = async () => {
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
               try {
-                const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
-                  originDomain,
-                  curDestAggRoot.root,
-                );
+                let latestMessageRoot: RootMessage | undefined = undefined;
+                for (const destAggregateRoot of curDestAggRoots) {
+                  latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
+                  if (latestMessageRoot) break;
+                }
                 if (!latestMessageRoot) {
                   throw new NoTargetMessageRoot(originDomain);
                 }
