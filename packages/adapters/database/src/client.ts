@@ -531,7 +531,10 @@ export const getPendingTransfersByDomains = async (
       {
         offset,
         limit,
-        order: { by: "nonce", direction: orderDirection },
+        order: [
+          { by: "update_time", direction: orderDirection },
+          { by: "nonce", direction: orderDirection },
+        ],
       },
     )
     .run(poolToUse);
