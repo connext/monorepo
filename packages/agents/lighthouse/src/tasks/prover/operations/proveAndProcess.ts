@@ -9,7 +9,6 @@ import {
   GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
-  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import {
@@ -126,14 +125,6 @@ export const proveAndProcess = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
-                  console.log({
-                    originDomain,
-                    destinationDomain,
-                    count: latestMessageRoot.count,
-                    latestMessageRoot: latestMessageRoot.root,
-                    offset,
-                    batchSize,
-                  });
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
@@ -239,7 +230,8 @@ export const processMessages = async (
   // To avoid the failure in case we do proveAndProcess in batch, that wouldn't make sense that the unprocessed messages fail due to any processed messages but not reflected to the db.
   // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
   // The quick way to verify them is to add a sanitation check against the spoke connector.
-  const messages = _messages.filter(async (message) => {
+  const messages: XMessage[] = [];
+  for (const message of _messages) {
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
@@ -249,12 +241,9 @@ export const processMessages = async (
       });
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
-      if (messageStatus == 0) return true;
-      else return false;
-    } catch (err: unknown) {
-      return false;
-    }
-  });
+      if (messageStatus == 0) messages.push(message);
+    } catch (err: unknown) {}
+  }
 
   // process messages
   const messageProofs: ProofStruct[] = [];
@@ -267,14 +256,6 @@ export const processMessages = async (
     if (!messageProof.path) {
       throw new NoMessageProof(messageProof.index, message.leaf);
     }
-    const startTime = getNtpTimeSeconds();
-    console.log({
-      msg: "Message Verify started",
-      messageIndex: message.origin.index,
-      message: message.leaf,
-      timestamp: startTime,
-    });
-
     // Verify proof of inclusion of message in messageRoot.
     const messageVerification = spokeSMT.verify(
       message.origin.index,
@@ -299,13 +280,6 @@ export const processMessages = async (
       // Do not process message if proof verification fails.
       continue;
     }
-    console.log({
-      msg: "MessageProof generated with verification",
-      messageIndex: message.origin.index,
-      message: message.leaf,
-      timestamp: getNtpTimeSeconds(),
-      elapsed: getNtpTimeSeconds() - startTime,
-    });
     messageProofs.push(messageProof);
   }
 
@@ -323,8 +297,6 @@ export const processMessages = async (
     throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
   }
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const startTime = getNtpTimeSeconds();
-  console.log({ msg: "messageRoot verification started", startTime });
   const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
@@ -342,11 +314,6 @@ export const processMessages = async (
       rootVerification,
     });
   }
-  console.log({
-    msg: "messageRoot verification done",
-    endTime: getNtpTimeSeconds(),
-    elapsed: getNtpTimeSeconds() - startTime,
-  });
   // Batch submit messages by destination domain
   try {
     const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
