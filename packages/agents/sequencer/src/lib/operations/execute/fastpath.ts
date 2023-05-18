@@ -240,7 +240,14 @@ export const executeFastPathData = async (
       needed,
     });
 
-    await database.updateErrorStatus(transferId, XTransferErrorStatus.LowRelayerFee);
+    try {
+      await database.updateErrorStatus(transferId, XTransferErrorStatus.LowRelayerFee);
+    } catch (e: unknown) {
+      logger.error("Database error:updateErrorStatus", requestContext, methodContext, undefined, {
+        transferId,
+        error: e,
+      });
+    }
     return { taskId };
   }
 
@@ -423,8 +430,14 @@ export const executeFastPathData = async (
     await cache.auctions.upsertMetaTxTask({ transferId, taskId });
     // reset error status
     transfer.origin.errorStatus = undefined;
-    await database.saveTransfers([transfer]);
-
+    try {
+      await database.saveTransfers([transfer]);
+    } catch (err: unknown) {
+      logger.error("Database error:saveTransfers", requestContext, methodContext, undefined, {
+        error: err,
+        transferId,
+      });
+    }
     return { taskId };
   }
 
