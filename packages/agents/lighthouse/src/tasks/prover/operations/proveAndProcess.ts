@@ -26,6 +26,7 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
+import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
@@ -106,6 +107,7 @@ export const proveAndProcess = async () => {
 
                 const spokeSMT = new SparseMerkleTree(spokeStore);
                 const hubSMT = new SparseMerkleTree(hubStore);
+                const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = process.env.OFFSET ? Number(process.env.OFFSET) : 0;
@@ -117,7 +119,7 @@ export const proveAndProcess = async () => {
                     methodContext,
 
                     {
-                      batchSize: config.proverBatchSize,
+                      batchSize,
                       offset,
                       originDomain,
                       destinationDomain,
@@ -130,14 +132,14 @@ export const proveAndProcess = async () => {
                     count: latestMessageRoot.count,
                     latestMessageRoot: latestMessageRoot.root,
                     offset,
-                    batchSize: config.proverBatchSize,
+                    batchSize,
                   });
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
                     latestMessageRoot.count,
                     offset,
-                    config.proverBatchSize,
+                    batchSize,
                   );
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
@@ -210,7 +212,7 @@ export const proveAndProcess = async () => {
 };
 
 export const processMessages = async (
-  messages: XMessage[],
+  _messages: XMessage[],
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
@@ -228,6 +230,32 @@ export const processMessages = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
 
+  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
+  if (!destinationSpokeConnector) {
+    throw new NoDestinationDomainForProof(destinationDomain);
+  }
+
+  // In worst case, the message status couldn't get reflected to the database properly.
+  // To avoid the failure in case we do proveAndProcess in batch, that wouldn't make sense that the unprocessed messages fail due to any processed messages but not reflected to the db.
+  // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
+  // The quick way to verify them is to add a sanitation check against the spoke connector.
+  const messages = _messages.filter(async (message) => {
+    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    try {
+      const messageResultData = await chainreader.readTx({
+        domain: +destinationDomain,
+        to: destinationSpokeConnector,
+        data: messageEncodedData,
+      });
+
+      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      if (messageStatus == 0) return true;
+      else return false;
+    } catch (err: unknown) {
+      return false;
+    }
+  });
+
   // process messages
   const messageProofs: ProofStruct[] = [];
   for (const message of messages) {
@@ -239,34 +267,44 @@ export const processMessages = async (
     if (!messageProof.path) {
       throw new NoMessageProof(messageProof.index, message.leaf);
     }
-    // // Verify proof of inclusion of message in messageRoot.
-    // const messageVerification = spokeSMT.verify(
-    //   message.origin.index,
-    //   message.leaf,
-    //   messageProof.path,
-    //   targetMessageRoot,
-    // );
-    // if (messageVerification && messageVerification.verified) {
-    //   logger.info("Message Verified successfully", requestContext, methodContext, {
-    //     messageIndex: message.origin.index,
-    //     leaf: message.leaf,
-    //     targetMessageRoot,
-    //     messageVerification,
-    //   });
-    // } else {
-    //   logger.info("Message verification failed", requestContext, methodContext, {
-    //     messageIndex: message.origin.index,
-    //     leaf: message.leaf,
-    //     targetMessageRoot,
-    //     messageVerification,
-    //   });
-    //   // Do not process message if proof verification fails.
-    //   continue;
-    // }
+    const startTime = getNtpTimeSeconds();
     console.log({
-      msg: "MessageProof generated without verification",
+      msg: "Message Verify started",
       messageIndex: message.origin.index,
+      message: message.leaf,
+      timestamp: startTime,
+    });
+
+    // Verify proof of inclusion of message in messageRoot.
+    const messageVerification = spokeSMT.verify(
+      message.origin.index,
+      message.leaf,
+      messageProof.path,
+      targetMessageRoot,
+    );
+    if (messageVerification && messageVerification.verified) {
+      logger.info("Message Verified successfully", requestContext, methodContext, {
+        messageIndex: message.origin.index,
+        leaf: message.leaf,
+        targetMessageRoot,
+        messageVerification,
+      });
+    } else {
+      logger.info("Message verification failed", requestContext, methodContext, {
+        messageIndex: message.origin.index,
+        leaf: message.leaf,
+        targetMessageRoot,
+        messageVerification,
+      });
+      // Do not process message if proof verification fails.
+      continue;
+    }
+    console.log({
+      msg: "MessageProof generated with verification",
+      messageIndex: message.origin.index,
+      message: message.leaf,
       timestamp: getNtpTimeSeconds(),
+      elapsed: getNtpTimeSeconds() - startTime,
     });
     messageProofs.push(messageProof);
   }
@@ -285,23 +323,30 @@ export const processMessages = async (
     throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
   }
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  // const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
-  // if (rootVerification && rootVerification.verified) {
-  //   logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
-  //     targetMessageRoot,
-  //     targetAggregateRoot,
-  //     messageRootProof,
-  //     rootVerification,
-  //   });
-  // } else {
-  //   logger.info("MessageRoot verification failed", requestContext, methodContext, {
-  //     messageRootIndex,
-  //     targetMessageRoot,
-  //     targetAggregateRoot,
-  //     messageRootProof,
-  //     rootVerification,
-  //   });
-  // }
+  const startTime = getNtpTimeSeconds();
+  console.log({ msg: "messageRoot verification started", startTime });
+  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
+  if (rootVerification && rootVerification.verified) {
+    logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
+      rootVerification,
+    });
+  } else {
+    logger.info("MessageRoot verification failed", requestContext, methodContext, {
+      messageRootIndex,
+      targetMessageRoot,
+      targetAggregateRoot,
+      messageRootProof,
+      rootVerification,
+    });
+  }
+  console.log({
+    msg: "messageRoot verification done",
+    endTime: getNtpTimeSeconds(),
+    elapsed: getNtpTimeSeconds() - startTime,
+  });
   // Batch submit messages by destination domain
   try {
     const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
@@ -311,10 +356,6 @@ export const processMessages = async (
       messageRootIndex,
     ]);
 
-    const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-    if (!destinationSpokeConnector) {
-      throw new NoDestinationDomainForProof(destinationDomain);
-    }
     logger.info("Proving and processing messages", requestContext, methodContext, {
       destinationDomain,
       data,
