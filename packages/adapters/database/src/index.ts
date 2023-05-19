@@ -17,6 +17,8 @@ import {
   SlippageUpdate,
   Asset,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -60,9 +62,11 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  saveStableSwapPoolEvent,
+  saveStableSwapLpBalances,
+  saveStableSwapTransfers,
   resetBackoffs,
   updateErrorStatus,
-  saveStableSwapPoolEvent,
   saveRouterDailyTVL,
   updateSlippage,
   markRootMessagesProcessed,
@@ -236,6 +240,14 @@ export type Database = {
     _poolEvents: StableSwapPoolEvent[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  saveStableSwapTransfers: (
+    _transfers: StableSwapTransfer[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapLpBalances: (
+    _transfers: StableSwapLpBalance[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
   markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveRouterDailyTVL: (_tvls: RouterDailyTVL[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   updateSlippage: (_slippageUpdates: SlippageUpdate[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -317,6 +329,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
+    saveStableSwapTransfers,
+    saveStableSwapLpBalances,
     updateErrorStatus,
     saveStableSwapPoolEvent,
     markRootMessagesProcessed,
