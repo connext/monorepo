@@ -795,20 +795,21 @@ export const getLatestMessageRoot = async (
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
 };
 
-export const getLatestAggregateRoot = async (
+export const getLatestAggregateRoots = async (
   domain: string,
+  limit = 1,
   orderDirection: "ASC" | "DESC" = "DESC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<ReceivedAggregateRoot | undefined> => {
+): Promise<ReceivedAggregateRoot[]> => {
   const poolToUse = _pool ?? pool;
-  const root = await db
-    .selectOne(
+  const roots = await db
+    .select(
       "received_aggregate_roots",
       { domain: domain },
-      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+      { limit, order: { by: "block_number", direction: orderDirection } },
     )
     .run(poolToUse);
-  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+  return roots.map(convertFromDbReceivedAggregateRoot);
 };
 
 export const getAggregateRootByRootAndDomain = async (
