@@ -1423,8 +1423,6 @@ export type Query = {
   stagingarbitrumgoerli_relayerFeesIncreases: Array<stagingarbitrumgoerli_RelayerFeesIncrease>;
   stagingarbitrumgoerli_slippageUpdate?: Maybe<stagingarbitrumgoerli_SlippageUpdate>;
   stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
-  stagingarbitrumgoerli_snapshotRoot?: Maybe<stagingarbitrumgoerli_SnapshotRoot>;
-  stagingarbitrumgoerli_snapshotRoots: Array<stagingarbitrumgoerli_SnapshotRoot>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -1749,24 +1747,6 @@ export type Querystagingarbitrumgoerli_slippageUpdatesArgs = {
   orderBy?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
   where?: InputMaybe<stagingarbitrumgoerli_SlippageUpdate_filter>;
-  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingarbitrumgoerli_snapshotRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingarbitrumgoerli_snapshotRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_filter>;
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2655,80 +2635,6 @@ export type stagingarbitrumgoerli_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type stagingarbitrumgoerli_SnapshotRoot = {
-  id: Scalars['ID'];
-  spokeDomain?: Maybe<Scalars['BigInt']>;
-  root: Scalars['stagingarbitrumgoerli_Bytes'];
-  count: Scalars['BigInt'];
-  timestamp: Scalars['BigInt'];
-  blockNumber: Scalars['BigInt'];
-};
-
-export type stagingarbitrumgoerli_SnapshotRoot_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  spokeDomain?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
-  count?: InputMaybe<Scalars['BigInt']>;
-  count_not?: InputMaybe<Scalars['BigInt']>;
-  count_gt?: InputMaybe<Scalars['BigInt']>;
-  count_lt?: InputMaybe<Scalars['BigInt']>;
-  count_gte?: InputMaybe<Scalars['BigInt']>;
-  count_lte?: InputMaybe<Scalars['BigInt']>;
-  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SnapshotRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SnapshotRoot_filter>>>;
-};
-
-export type stagingarbitrumgoerli_SnapshotRoot_orderBy =
-  | 'id'
-  | 'spokeDomain'
-  | 'root'
-  | 'count'
-  | 'timestamp'
-  | 'blockNumber';
-
 export type Subscription = {
   stagingarbitrumgoerli_asset?: Maybe<stagingarbitrumgoerli_Asset>;
   stagingarbitrumgoerli_assets: Array<stagingarbitrumgoerli_Asset>;
@@ -2766,8 +2672,6 @@ export type Subscription = {
   stagingarbitrumgoerli_relayerFeesIncreases: Array<stagingarbitrumgoerli_RelayerFeesIncrease>;
   stagingarbitrumgoerli_slippageUpdate?: Maybe<stagingarbitrumgoerli_SlippageUpdate>;
   stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
-  stagingarbitrumgoerli_snapshotRoot?: Maybe<stagingarbitrumgoerli_SnapshotRoot>;
-  stagingarbitrumgoerli_snapshotRoots: Array<stagingarbitrumgoerli_SnapshotRoot>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -3097,24 +3001,6 @@ export type Subscriptionstagingarbitrumgoerli_slippageUpdatesArgs = {
 };
 
 
-export type Subscriptionstagingarbitrumgoerli_snapshotRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingarbitrumgoerli_snapshotRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
-  where?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_filter>;
-  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Subscriptionstagingarbitrumgoerli__metaArgs = {
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
 };
@@ -3230,10 +3116,6 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_slippageUpdate: InContextSdkMethod<Query['stagingarbitrumgoerli_slippageUpdate'], Querystagingarbitrumgoerli_slippageUpdateArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_slippageUpdates: InContextSdkMethod<Query['stagingarbitrumgoerli_slippageUpdates'], Querystagingarbitrumgoerli_slippageUpdatesArgs, MeshContext>,
-  /** null **/
-  stagingarbitrumgoerli_snapshotRoot: InContextSdkMethod<Query['stagingarbitrumgoerli_snapshotRoot'], Querystagingarbitrumgoerli_snapshotRootArgs, MeshContext>,
-  /** null **/
-  stagingarbitrumgoerli_snapshotRoots: InContextSdkMethod<Query['stagingarbitrumgoerli_snapshotRoots'], Querystagingarbitrumgoerli_snapshotRootsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Query['stagingarbitrumgoerli__meta'], Querystagingarbitrumgoerli__metaArgs, MeshContext>
   };
@@ -3315,10 +3197,6 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_slippageUpdate: InContextSdkMethod<Subscription['stagingarbitrumgoerli_slippageUpdate'], Subscriptionstagingarbitrumgoerli_slippageUpdateArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_slippageUpdates: InContextSdkMethod<Subscription['stagingarbitrumgoerli_slippageUpdates'], Subscriptionstagingarbitrumgoerli_slippageUpdatesArgs, MeshContext>,
-  /** null **/
-  stagingarbitrumgoerli_snapshotRoot: InContextSdkMethod<Subscription['stagingarbitrumgoerli_snapshotRoot'], Subscriptionstagingarbitrumgoerli_snapshotRootArgs, MeshContext>,
-  /** null **/
-  stagingarbitrumgoerli_snapshotRoots: InContextSdkMethod<Subscription['stagingarbitrumgoerli_snapshotRoots'], Subscriptionstagingarbitrumgoerli_snapshotRootsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Subscription['stagingarbitrumgoerli__meta'], Subscriptionstagingarbitrumgoerli__metaArgs, MeshContext>
   };
