@@ -316,24 +316,22 @@ export const STABLESWAP_POOL_EVENT_ENTITY = `
 `;
 
 export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
-      lpTransferEvents {
-        id
-        token {
-          address
-          stableSwap {
-            key
-            pooledTokens
-          }
+      id
+      token {
+        address
+        stableSwap {
+          key
+          pooledTokens
         }
-        from
-        to
-        fromBalance
-        toBalance
-        amount
-        timestamp
-        block
-        transaction
       }
+      from
+      to
+      fromBalance
+      toBalance
+      amount
+      timestamp
+      block
+      transaction
 `;
 
 export const RELAYER_FEES_INCREASE_ENTITY = `
@@ -1225,7 +1223,7 @@ const lpTransfersQueryString = (
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
 ) => {
-  return `${prefix}_swap_lpTransferEvents"}(
+  return `${prefix}_swap_lpTransferEvents (
     where: {
       timestamp_gte: ${fromTimestamp},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
