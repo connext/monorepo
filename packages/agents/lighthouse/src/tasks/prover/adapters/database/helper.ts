@@ -2,6 +2,9 @@ import { Database } from "@connext/nxtp-adapters-database";
 import { DBHelper } from "@connext/nxtp-utils";
 
 export class SpokeDBHelper implements DBHelper {
+  private cachedNode: Record<string, string> = {};
+  private cachedNodes: Record<string, string[]> = {};
+  private cachedRoot: Record<string, string> = {};
   constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
@@ -9,15 +12,34 @@ export class SpokeDBHelper implements DBHelper {
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    return await this.db.getSpokeNode(this.domain, index, this.count);
+    let node: string | undefined = this.cachedNode[`${index}`];
+    if (!node) {
+      node = await this.db.getSpokeNode(this.domain, index, this.count);
+      if (node) {
+        this.cachedNode[`${index}`] = node;
+      }
+    }
+    return node;
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    return await this.db.getSpokeNodes(this.domain, start, end, this.count);
+    let nodes: string[] = this.cachedNodes[`${start}-${end}`];
+    if (!nodes || nodes.length == 0) {
+      nodes = await this.db.getSpokeNodes(this.domain, start, end, this.count);
+      this.cachedNodes[`${start}-${end}`] = nodes;
+    }
+    return nodes;
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
-    return await this.db.getRoot(this.domain, path);
+    let root: string | undefined = this.cachedRoot[path];
+    if (!root) {
+      root = await this.db.getRoot(this.domain, path);
+      if (root) {
+        this.cachedRoot[path] = root;
+      }
+    }
+    return root;
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
@@ -26,6 +48,9 @@ export class SpokeDBHelper implements DBHelper {
 }
 
 export class HubDBHelper implements DBHelper {
+  private cachedNode: Record<string, string> = {};
+  private cachedNodes: Record<string, string[]> = {};
+  private cachedRoot: Record<string, string> = {};
   constructor(private domain: string, private count: number, private db: Database) {}
 
   public async getCount(): Promise<number> {
@@ -33,15 +58,34 @@ export class HubDBHelper implements DBHelper {
   }
 
   public async getNode(index: number): Promise<string | undefined> {
-    return await this.db.getHubNode(index, this.count);
+    let node: string | undefined = this.cachedNode[`${index}`];
+    if (!node) {
+      node = await this.db.getHubNode(index, this.count);
+      if (node) {
+        this.cachedNode[`${index}`] = node;
+      }
+    }
+    return node;
   }
 
   public async getNodes(start: number, end: number): Promise<string[]> {
-    return await this.db.getHubNodes(start, end, this.count);
+    let nodes: string[] = this.cachedNodes[`${start}-${end}`];
+    if (!nodes || nodes.length == 0) {
+      nodes = await this.db.getHubNodes(start, end, this.count);
+      this.cachedNodes[`${start}-${end}`] = nodes;
+    }
+    return nodes;
   }
 
   public async getRoot(path: string): Promise<string | undefined> {
-    return await this.db.getRoot(this.domain, path);
+    let root: string | undefined = this.cachedRoot[path];
+    if (!root) {
+      root = await this.db.getRoot(this.domain, path);
+      if (root) {
+        this.cachedRoot[path] = root;
+      }
+    }
+    return root;
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
