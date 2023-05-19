@@ -220,8 +220,6 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
 }
 
 export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
-  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
-
   let stableSwap = removeLiquidityOneToken(
     event.params.key,
     event.params.lpTokenAmount,
@@ -246,7 +244,7 @@ export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): voi
   log.tokenAmounts = tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
   log.balances = stableSwap.balances;
-  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
+  log.lpTokenAmount = event.params.lpTokenAmount;
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;

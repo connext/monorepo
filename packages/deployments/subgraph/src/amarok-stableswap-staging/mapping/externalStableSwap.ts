@@ -147,8 +147,6 @@ export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance):
 }
 
 export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
-  let stableSwapBefore = getOrCreateStableSwap(event.address);
-
   let stableSwap = removeLiquidityOneToken(
     event.address,
     event.params.lpTokenAmount,
@@ -173,7 +171,7 @@ export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
   log.tokenAmounts = tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
   log.balances = stableSwap.balances;
-  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
+  log.lpTokenAmount = event.params.lpTokenAmount;
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
