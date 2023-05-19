@@ -24,6 +24,7 @@ import {
 } from "../../../generated/schema";
 import {
   addLiquidity,
+  createLpToken,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -79,6 +80,11 @@ export function handleInternalSwapInitialized(event: SwapInitialized): void {
   stableSwap.isActive = true;
 
   stableSwap.save();
+
+  let lpAddress = event.params.swap.lpToken;
+  if (lpAddress != Address.zero()) {
+    createLpToken(stableSwap.id, lpAddress);
+  }
 }
 
 export function handleInternalSwapRemoved(event: SwapRemoved): void {

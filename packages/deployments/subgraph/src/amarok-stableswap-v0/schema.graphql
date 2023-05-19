@@ -138,3 +138,53 @@ type SwapWeeklyVolume implements SwapTradeVolume @entity {
   timestamp: BigInt!
   volume: BigDecimal!
 }
+
+type LpAccount @entity {
+  id: ID!
+  address: Bytes!
+  balances: [LpAccountBalance!]! @derivedFrom(field: "account")
+}
+
+type LpAccountBalance @entity {
+  id: ID!
+  account: LpAccount!
+  token: LpToken!
+  amount: BigDecimal!
+  block: BigInt
+  modified: BigInt
+  transaction: Bytes
+}
+
+type LpToken @entity {
+  id: ID!
+  address: Bytes!
+  stableSwap: StableSwap!
+  decimals: Int!
+  name: String!
+  symbol: String!
+  totalSupply: BigDecimal!
+  events: [LpTokenEvent!]! @derivedFrom(field: "token")
+}
+
+interface LpTokenEvent {
+  id: ID!
+  token: LpToken!
+  amount: BigDecimal!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type LpTransferEvent implements LpTokenEvent @entity {
+  id: ID!
+  token: LpToken!
+  amount: BigDecimal!
+  from: Bytes!
+  to: Bytes!
+  fromBalance: BigDecimal!
+  toBalance: BigDecimal!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
