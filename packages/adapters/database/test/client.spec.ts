@@ -959,7 +959,7 @@ describe("Database client", () => {
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
     expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
-    expect(await getLatestAggregateRoots("", 1, "DESC", pool)).to.eq([]);
+    expect(await getLatestAggregateRoots("", 1, "DESC", pool)).to.be.deep.eq([]);
   });
 
   it("should throw errors", async () => {
