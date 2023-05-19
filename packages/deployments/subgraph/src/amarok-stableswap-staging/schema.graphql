@@ -169,7 +169,6 @@ interface LpTokenEvent {
   id: ID!
   token: LpToken!
   amount: BigDecimal!
-  sender: Bytes!
 
   block: BigInt!
   timestamp: BigInt!

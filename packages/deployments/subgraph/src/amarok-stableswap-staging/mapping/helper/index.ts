@@ -603,6 +603,7 @@ export function createLpToken(address: Address): void {
       token.name = "Lp Token";
       token.symbol = "LP";
       token.decimals = 18;
+      token.totalSupply = decimal.ZERO;
 
       token.save();
 
