@@ -106,7 +106,7 @@ export const proveAndProcess = async () => {
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
 
                 // Paginate through all unprocessed messages from the domain
-                let offset = process.env.OFFSET ? Number(process.env.OFFSET) : 0;
+                let offset = 0;
                 let end = false;
                 while (!end) {
                   logger.info(
