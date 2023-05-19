@@ -637,11 +637,11 @@ export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
   const balances = [+entity.fromBalance, +entity.toBalance];
 
   return {
-    id: entity.id,
+    id: `${entity.domain}-${entity.id}`,
     domain: entity.domain,
-    poolId: entity.stableSwap.key,
+    poolId: entity.token.stableSwap.key,
     lpToken: entity.token.address,
-    pooledTokens: entity.stableSwap.pooledTokens,
+    pooledTokens: entity.token.stableSwap.pooledTokens,
     fromAddress: entity.from,
     toAddress: entity.to,
     amount: +entity.amount,
