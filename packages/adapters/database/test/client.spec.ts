@@ -69,6 +69,7 @@ import {
   getAssets,
   saveAssetPrice,
   getPendingTransfersByDomains,
+  updateExecuteSimulationData,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -1239,5 +1240,17 @@ describe("Database client", () => {
     expect(transfers).includes(xTransfer0.transferId);
     expect(transfers).includes(xTransfer1.transferId);
     expect(transfers).includes(xTransfer2.transferId);
+  });
+
+  it("should update execution simulation data", async () => {
+    const originDomain = "1337";
+    const destinationDomain = "1338";
+    const xTransfer: XTransfer = mock.entity.xtransfer({
+      transferId: getRandomBytes32(),
+      originDomain,
+      destinationDomain,
+      status: XTransferStatus.XCalled,
+    });
+    await updateExecuteSimulationData(xTransfer.transferId, "0x", "0x", "0x", "0x", pool);
   });
 });
