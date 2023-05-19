@@ -142,6 +142,7 @@ jobs:
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          workspaces=(
             "packages/utils:@connext/nxtp-utils"
             "packages/deployments/contracts:@connext/smart-contracts"
           )
