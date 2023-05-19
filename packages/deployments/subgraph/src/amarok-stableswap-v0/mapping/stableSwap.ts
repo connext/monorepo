@@ -36,6 +36,7 @@ import {
   removeLiquidityOneToken,
   swap,
 } from "./helper";
+import { StableSwap as StableSwapTemplate } from "../../../generated/templates";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   if (!address.isZeroAddress(event.params.swapPool)) {
@@ -47,6 +48,8 @@ export function handleStableSwapAdded(event: StableSwapAdded): void {
     stableSwap.swapPool = event.params.swapPool;
 
     stableSwap.save();
+
+    StableSwapTemplate.create(event.params.swapPool);
   }
 }
 
