@@ -23,6 +23,7 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   RouterDailyTVL,
+  StableSwapTransfer,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -58,6 +59,7 @@ import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
   getAssetsQuery,
+  getLpTransfersQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
@@ -977,6 +979,32 @@ export class SubgraphReader {
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
+  }
+
+  public async getStableSwapLpTransferEventsByDomainAndTimestamp(
+    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<StableSwapTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const transfersQuery = getLpTransfersQuery(agents);
+    const response = await execute(transfersQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapTransfer[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapLpTransfer);
 
     return domainEvents;
   }
