@@ -83,7 +83,7 @@ export function handleInternalSwapInitialized(event: SwapInitialized): void {
 
   let lpAddress = event.params.swap.lpToken;
   if (lpAddress != Address.zero()) {
-    createLpToken(lpAddress);
+    createLpToken(stableSwap.id, lpAddress);
   }
 }
 

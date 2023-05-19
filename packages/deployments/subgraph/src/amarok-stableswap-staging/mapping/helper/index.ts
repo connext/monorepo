@@ -592,13 +592,14 @@ export function removeLiquidityOneToken(
   return stableSwap;
 }
 
-export function createLpToken(address: Address): void {
+export function createLpToken(poolId: string, address: Address): void {
   if (address != Address.zero()) {
     // Persist token data if it doesn't already exist
     let token = LpToken.load(address.toHex());
 
     if (token == null) {
       token = new LpToken(address.toHex());
+      token.stableSwap = poolId;
       token.address = address;
       token.name = "Lp Token";
       token.symbol = "LP";

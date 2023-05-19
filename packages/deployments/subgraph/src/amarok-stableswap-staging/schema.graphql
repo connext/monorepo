@@ -158,6 +158,7 @@ type LpAccountBalance @entity {
 type LpToken @entity {
   id: ID!
   address: Bytes!
+  stableSwap: StableSwap!
   decimals: Int!
   name: String!
   symbol: String!
@@ -179,8 +180,10 @@ type LpTransferEvent implements LpTokenEvent @entity {
   id: ID!
   token: LpToken!
   amount: BigDecimal!
-  source: Bytes!
-  destination: Bytes!
+  from: Bytes!
+  to: Bytes!
+  fromBalance: BigDecimal!
+  toBalance: BigDecimal!
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!

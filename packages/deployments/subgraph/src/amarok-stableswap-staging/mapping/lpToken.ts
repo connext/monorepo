@@ -20,21 +20,18 @@ export function handleLpTransfer(event: Transfer): void {
       token.totalSupply = token.totalSupply.minus(amount);
     } else if (isMint) {
       token.totalSupply = token.totalSupply.plus(amount);
-    } else if (isTransfer) {
-      let transferEvent = new LpTransferEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-      transferEvent.token = event.address.toHex();
-      transferEvent.amount = amount;
-      transferEvent.source = event.params.from;
-      transferEvent.destination = event.params.to;
-
-      transferEvent.block = event.block.number;
-      transferEvent.timestamp = event.block.timestamp;
-      transferEvent.transaction = event.transaction.hash;
-
-      transferEvent.save();
     }
-
     token.save();
+
+    let transferEvent = new LpTransferEvent(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
+    transferEvent.token = event.address.toHex();
+    transferEvent.amount = amount;
+    transferEvent.from = event.params.from;
+    transferEvent.to = event.params.to;
+
+    transferEvent.block = event.block.number;
+    transferEvent.timestamp = event.block.timestamp;
+    transferEvent.transaction = event.transaction.hash;
 
     // Updates balances of accounts
     if (isTransfer || isBurn) {
@@ -48,6 +45,10 @@ export function handleLpTransfer(event: Transfer): void {
 
       sourceAccount.save();
       sourceAccountBalance.save();
+
+      transferEvent.fromBalance = sourceAccountBalance.amount;
+    } else {
+      transferEvent.fromBalance = decimal.ZERO;
     }
 
     if (isTransfer || isMint) {
@@ -61,6 +62,12 @@ export function handleLpTransfer(event: Transfer): void {
 
       destinationAccount.save();
       destAccountBalance.save();
+
+      transferEvent.toBalance = destAccountBalance.amount;
+    } else {
+      transferEvent.toBalance = decimal.ZERO;
     }
+
+    transferEvent.save();
   }
 }
