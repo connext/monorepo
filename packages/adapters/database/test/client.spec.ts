@@ -69,6 +69,11 @@ import {
   getAssets,
   saveAssetPrice,
   getPendingTransfersByDomains,
+  updateExecuteSimulationData,
+  saveStableSwapPool,
+  saveStableSwapPoolEvent,
+  saveStableSwapTransfers,
+  saveStableSwapLpBalances,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -96,6 +101,10 @@ describe("Database client", () => {
     await pool.query("DELETE FROM propagated_roots CASCADE");
     await pool.query("DELETE FROM received_aggregate_roots CASCADE");
     await pool.query("DELETE FROM merkle_cache CASCADE");
+    await pool.query("DELETE FROM stableswap_pools CASCADE");
+    await pool.query("DELETE FROM stableswap_pool_events CASCADE");
+    await pool.query("DELETE FROM stableswap_lp_balances CASCADE");
+    await pool.query("DELETE FROM stableswap_lp_transfers CASCADE");
 
     restore();
     reset();
@@ -1239,5 +1248,111 @@ describe("Database client", () => {
     expect(transfers).includes(xTransfer0.transferId);
     expect(transfers).includes(xTransfer1.transferId);
     expect(transfers).includes(xTransfer2.transferId);
+  });
+
+  it("should update execution simulation data", async () => {
+    const originDomain = "1337";
+    const destinationDomain = "1338";
+    const xTransfer: XTransfer = mock.entity.xtransfer({
+      transferId: getRandomBytes32(),
+      originDomain,
+      destinationDomain,
+      status: XTransferStatus.XCalled,
+    });
+    await updateExecuteSimulationData(xTransfer.transferId, "0x", "0x", "0x", "0x", pool);
+  });
+
+  it("should save stable swap pool", async () => {
+    const pools = [mock.entity.stableSwapPool(), mock.entity.stableSwapPool()];
+    await saveStableSwapPool(pools, pool);
+    let queryRes = await pool.query("SELECT * FROM stableswap_pools");
+
+    pools.forEach((swapPool) => {
+      expect(queryRes.rows).to.deep.include({
+        key: swapPool.key,
+        domain: swapPool.domain,
+        is_active: swapPool.isActive,
+        lp_token: swapPool.lpToken,
+        initial_a: swapPool.initialA,
+        future_a: swapPool.futureA,
+        initial_a_time: swapPool.initialATime,
+        future_a_time: swapPool.futureATime,
+        swap_fee: swapPool.swapFee,
+        admin_fee: swapPool.adminFee,
+        pooled_tokens: swapPool.pooledTokens,
+        token_precision_multipliers: swapPool.tokenPrecisionMultipliers,
+        pool_token_decimals: swapPool.poolTokenDecimals,
+        balances: swapPool.balances,
+        virtual_price: swapPool.virtualPrice,
+        invariant: swapPool.invariant,
+        lp_token_supply: swapPool.lpTokenSupply,
+      });
+    });
+  });
+
+  it("should save stable swap pool events", async () => {
+    const poolEvents = [mock.entity.stableswapPoolEvent(), mock.entity.stableswapPoolEvent()];
+    await saveStableSwapPoolEvent(poolEvents, pool);
+    let queryRes = await pool.query("SELECT * FROM stableswap_pool_events");
+
+    poolEvents.forEach((event) => {
+      expect(queryRes.rows).to.deep.include({
+        id: event.id,
+        domain: event.domain,
+        pool_id: event.poolId,
+        provider: event.provider,
+        action: event.action,
+        pooled_tokens: event.pooledTokens,
+        pool_token_decimals: event.poolTokenDecimals,
+        token_amounts: event.tokenAmounts,
+        balances: event.balances,
+        lp_token_amount: String(event.lpTokenAmount),
+        lp_token_supply: String(event.lpTokenSupply),
+        fees: event.fees,
+        block_number: event.blockNumber,
+        transaction_hash: event.transactionHash,
+        timestamp: event.timestamp,
+      });
+    });
+  });
+
+  it("should save stable swap lp transfers", async () => {
+    const transfers = [mock.entity.stableSwapLpTransfer(), mock.entity.stableSwapLpTransfer()];
+    await saveStableSwapTransfers(transfers, pool);
+    let queryRes = await pool.query("SELECT * FROM stableswap_lp_transfers");
+
+    transfers.forEach((event) => {
+      expect(queryRes.rows).to.deep.include({
+        id: event.id,
+        pool_id: event.poolId,
+        domain: event.domain,
+        lp_token: event.lpToken,
+        from_address: event.fromAddress,
+        to_address: event.toAddress,
+        pooled_tokens: event.pooledTokens,
+        amount: String(event.amount),
+        balances: event.balances,
+        block_number: event.blockNumber,
+        transaction_hash: event.transactionHash,
+        timestamp: event.timestamp,
+      });
+    });
+  });
+
+  it("should save stable swap lp balances", async () => {
+    const balances = [mock.entity.stableSwapLpBalance(), mock.entity.stableSwapLpBalance()];
+    await saveStableSwapLpBalances(balances, pool);
+    let queryRes = await pool.query("SELECT * FROM stableswap_lp_balances");
+
+    balances.forEach((event) => {
+      expect(queryRes.rows).to.deep.include({
+        pool_id: event.poolId,
+        domain: event.domain,
+        lp_token: event.lpToken,
+        provider: event.provider,
+        balance: String(event.balance),
+        last_timestamp: event.lastTimestamp,
+      });
+    });
   });
 });
