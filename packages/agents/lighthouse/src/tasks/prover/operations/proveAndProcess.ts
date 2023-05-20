@@ -108,6 +108,7 @@ export const proveAndProcess = async () => {
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
+                let concurrentbatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
@@ -141,30 +142,45 @@ export const proveAndProcess = async () => {
                       offset,
                     });
 
-                    // Batch process messages from the same origin domain
-                    await processMessages(
-                      unprocessed,
-                      originDomain,
-                      destinationDomain,
-                      targetMessageRoot,
-                      messageRootIndex,
-                      targetAggregateRoot,
-                      spokeSMT,
-                      hubSMT,
-                      subContext,
-                    );
-                    offset += unprocessed.length;
-                    logger.info(
-                      "Processed unprocessed messages for origin and destination pair",
-                      subContext,
-                      methodContext,
-                      {
+                    concurrentbatch.push(
+                      processMessages(
                         unprocessed,
                         originDomain,
                         destinationDomain,
+                        targetMessageRoot,
+                        messageRootIndex,
+                        targetAggregateRoot,
+                        spokeSMT,
+                        hubSMT,
+                        subContext,
+                      ),
+                    );
+                    offset += unprocessed.length;
+                    logger.info(
+                      "Batched unprocessed messages for origin and destination pair",
+                      subContext,
+                      methodContext,
+                      {
+                        originDomain,
+                        destinationDomain,
                         offset,
+                        batchSize: concurrentbatch.length,
                       },
                     );
+                    if (unprocessed.length === 0 || concurrentbatch.length >= 10) {
+                      await Promise.all(concurrentbatch);
+                      concurrentbatch = [];
+                      logger.info(
+                        "Processed unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
                   } else {
                     // End the loop if no more messages are found
                     end = true;
@@ -228,6 +244,7 @@ export const processMessages = async (
   // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
   // The quick way to verify them is to add a sanitation check against the spoke connector.
   const messages: XMessage[] = [];
+  console.log("XXXXXXLenght", messages.length);
   for (const message of _messages) {
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
@@ -239,8 +256,10 @@ export const processMessages = async (
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
+      console.log("XXXXXXStatus", message.leaf, messageStatus);
     } catch (err: unknown) {}
   }
+  console.log("XXXXXXPostLenght", messages.length);
 
   // process messages
   const messageProofs: ProofStruct[] = [];
