@@ -50,18 +50,12 @@ input arbitrumone_swap_PooledToken_filter {
   id_not_in: [ID!]
   asset: arbitrumone_swap_Bytes
   asset_not: arbitrumone_swap_Bytes
-  asset_gt: arbitrumone_swap_Bytes
-  asset_lt: arbitrumone_swap_Bytes
-  asset_gte: arbitrumone_swap_Bytes
-  asset_lte: arbitrumone_swap_Bytes
   asset_in: [arbitrumone_swap_Bytes!]
   asset_not_in: [arbitrumone_swap_Bytes!]
   asset_contains: arbitrumone_swap_Bytes
   asset_not_contains: arbitrumone_swap_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_PooledToken_filter]
-  or: [arbitrumone_swap_PooledToken_filter]
 }
 
 enum arbitrumone_swap_PooledToken_orderBy {
@@ -435,10 +429,6 @@ input arbitrumone_swap_StableSwapAddLiquidityEvent_filter {
   stableSwap_: arbitrumone_swap_StableSwap_filter
   provider: arbitrumone_swap_Bytes
   provider_not: arbitrumone_swap_Bytes
-  provider_gt: arbitrumone_swap_Bytes
-  provider_lt: arbitrumone_swap_Bytes
-  provider_gte: arbitrumone_swap_Bytes
-  provider_lte: arbitrumone_swap_Bytes
   provider_in: [arbitrumone_swap_Bytes!]
   provider_not_in: [arbitrumone_swap_Bytes!]
   provider_contains: arbitrumone_swap_Bytes
@@ -503,39 +493,17 @@ input arbitrumone_swap_StableSwapAddLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: arbitrumone_swap_Bytes
   transaction_not: arbitrumone_swap_Bytes
-  transaction_gt: arbitrumone_swap_Bytes
-  transaction_lt: arbitrumone_swap_Bytes
-  transaction_gte: arbitrumone_swap_Bytes
-  transaction_lte: arbitrumone_swap_Bytes
   transaction_in: [arbitrumone_swap_Bytes!]
   transaction_not_in: [arbitrumone_swap_Bytes!]
   transaction_contains: arbitrumone_swap_Bytes
   transaction_not_contains: arbitrumone_swap_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_StableSwapAddLiquidityEvent_filter]
-  or: [arbitrumone_swap_StableSwapAddLiquidityEvent_filter]
 }
 
 enum arbitrumone_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -604,39 +572,17 @@ input arbitrumone_swap_StableSwapEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: arbitrumone_swap_Bytes
   transaction_not: arbitrumone_swap_Bytes
-  transaction_gt: arbitrumone_swap_Bytes
-  transaction_lt: arbitrumone_swap_Bytes
-  transaction_gte: arbitrumone_swap_Bytes
-  transaction_lte: arbitrumone_swap_Bytes
   transaction_in: [arbitrumone_swap_Bytes!]
   transaction_not_in: [arbitrumone_swap_Bytes!]
   transaction_contains: arbitrumone_swap_Bytes
   transaction_not_contains: arbitrumone_swap_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_StableSwapEvent_filter]
-  or: [arbitrumone_swap_StableSwapEvent_filter]
 }
 
 enum arbitrumone_swap_StableSwapEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -689,10 +635,6 @@ input arbitrumone_swap_StableSwapExchange_filter {
   stableSwap_: arbitrumone_swap_StableSwap_filter
   buyer: arbitrumone_swap_Bytes
   buyer_not: arbitrumone_swap_Bytes
-  buyer_gt: arbitrumone_swap_Bytes
-  buyer_lt: arbitrumone_swap_Bytes
-  buyer_gte: arbitrumone_swap_Bytes
-  buyer_lte: arbitrumone_swap_Bytes
   buyer_in: [arbitrumone_swap_Bytes!]
   buyer_not_in: [arbitrumone_swap_Bytes!]
   buyer_contains: arbitrumone_swap_Bytes
@@ -761,39 +703,17 @@ input arbitrumone_swap_StableSwapExchange_filter {
   timestamp_not_in: [BigInt!]
   transaction: arbitrumone_swap_Bytes
   transaction_not: arbitrumone_swap_Bytes
-  transaction_gt: arbitrumone_swap_Bytes
-  transaction_lt: arbitrumone_swap_Bytes
-  transaction_gte: arbitrumone_swap_Bytes
-  transaction_lte: arbitrumone_swap_Bytes
   transaction_in: [arbitrumone_swap_Bytes!]
   transaction_not_in: [arbitrumone_swap_Bytes!]
   transaction_contains: arbitrumone_swap_Bytes
   transaction_not_contains: arbitrumone_swap_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_StableSwapExchange_filter]
-  or: [arbitrumone_swap_StableSwapExchange_filter]
 }
 
 enum arbitrumone_swap_StableSwapExchange_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
@@ -853,10 +773,6 @@ input arbitrumone_swap_StableSwapRemoveLiquidityEvent_filter {
   stableSwap_: arbitrumone_swap_StableSwap_filter
   provider: arbitrumone_swap_Bytes
   provider_not: arbitrumone_swap_Bytes
-  provider_gt: arbitrumone_swap_Bytes
-  provider_lt: arbitrumone_swap_Bytes
-  provider_gte: arbitrumone_swap_Bytes
-  provider_lte: arbitrumone_swap_Bytes
   provider_in: [arbitrumone_swap_Bytes!]
   provider_not_in: [arbitrumone_swap_Bytes!]
   provider_contains: arbitrumone_swap_Bytes
@@ -921,39 +837,17 @@ input arbitrumone_swap_StableSwapRemoveLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: arbitrumone_swap_Bytes
   transaction_not: arbitrumone_swap_Bytes
-  transaction_gt: arbitrumone_swap_Bytes
-  transaction_lt: arbitrumone_swap_Bytes
-  transaction_gte: arbitrumone_swap_Bytes
-  transaction_lte: arbitrumone_swap_Bytes
   transaction_in: [arbitrumone_swap_Bytes!]
   transaction_not_in: [arbitrumone_swap_Bytes!]
   transaction_contains: arbitrumone_swap_Bytes
   transaction_not_contains: arbitrumone_swap_Bytes
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_StableSwapRemoveLiquidityEvent_filter]
-  or: [arbitrumone_swap_StableSwapRemoveLiquidityEvent_filter]
 }
 
 enum arbitrumone_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -981,20 +875,12 @@ input arbitrumone_swap_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: arbitrumone_swap_Bytes
   key_not: arbitrumone_swap_Bytes
-  key_gt: arbitrumone_swap_Bytes
-  key_lt: arbitrumone_swap_Bytes
-  key_gte: arbitrumone_swap_Bytes
-  key_lte: arbitrumone_swap_Bytes
   key_in: [arbitrumone_swap_Bytes!]
   key_not_in: [arbitrumone_swap_Bytes!]
   key_contains: arbitrumone_swap_Bytes
   key_not_contains: arbitrumone_swap_Bytes
   canonicalId: arbitrumone_swap_Bytes
   canonicalId_not: arbitrumone_swap_Bytes
-  canonicalId_gt: arbitrumone_swap_Bytes
-  canonicalId_lt: arbitrumone_swap_Bytes
-  canonicalId_gte: arbitrumone_swap_Bytes
-  canonicalId_lte: arbitrumone_swap_Bytes
   canonicalId_in: [arbitrumone_swap_Bytes!]
   canonicalId_not_in: [arbitrumone_swap_Bytes!]
   canonicalId_contains: arbitrumone_swap_Bytes
@@ -1009,20 +895,12 @@ input arbitrumone_swap_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: arbitrumone_swap_Bytes
   swapPool_not: arbitrumone_swap_Bytes
-  swapPool_gt: arbitrumone_swap_Bytes
-  swapPool_lt: arbitrumone_swap_Bytes
-  swapPool_gte: arbitrumone_swap_Bytes
-  swapPool_lte: arbitrumone_swap_Bytes
   swapPool_in: [arbitrumone_swap_Bytes!]
   swapPool_not_in: [arbitrumone_swap_Bytes!]
   swapPool_contains: arbitrumone_swap_Bytes
   swapPool_not_contains: arbitrumone_swap_Bytes
   lpToken: arbitrumone_swap_Bytes
   lpToken_not: arbitrumone_swap_Bytes
-  lpToken_gt: arbitrumone_swap_Bytes
-  lpToken_lt: arbitrumone_swap_Bytes
-  lpToken_gte: arbitrumone_swap_Bytes
-  lpToken_lte: arbitrumone_swap_Bytes
   lpToken_in: [arbitrumone_swap_Bytes!]
   lpToken_not_in: [arbitrumone_swap_Bytes!]
   lpToken_contains: arbitrumone_swap_Bytes
@@ -1123,15 +1001,12 @@ input arbitrumone_swap_StableSwap_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
-  events_: arbitrumone_swap_StableSwapEvent_filter
   exchanges_: arbitrumone_swap_StableSwapExchange_filter
   hourlyVolumes_: arbitrumone_swap_SwapHourlyVolume_filter
   dailyVolumes_: arbitrumone_swap_SwapDailyVolume_filter
   weeklyVolumes_: arbitrumone_swap_SwapWeeklyVolume_filter
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_StableSwap_filter]
-  or: [arbitrumone_swap_StableSwap_filter]
 }
 
 enum arbitrumone_swap_StableSwap_orderBy {
@@ -1508,29 +1383,11 @@ input arbitrumone_swap_SwapDailyVolume_filter {
   volume_not_in: [arbitrumone_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_SwapDailyVolume_filter]
-  or: [arbitrumone_swap_SwapDailyVolume_filter]
 }
 
 enum arbitrumone_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1590,29 +1447,11 @@ input arbitrumone_swap_SwapHourlyVolume_filter {
   volume_not_in: [arbitrumone_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_SwapHourlyVolume_filter]
-  or: [arbitrumone_swap_SwapHourlyVolume_filter]
 }
 
 enum arbitrumone_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1663,28 +1502,10 @@ input arbitrumone_swap_SwapTradeVolume_filter {
   volume_not_in: [arbitrumone_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_SwapTradeVolume_filter]
-  or: [arbitrumone_swap_SwapTradeVolume_filter]
 }
 
 enum arbitrumone_swap_SwapTradeVolume_orderBy {
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1744,29 +1565,11 @@ input arbitrumone_swap_SwapWeeklyVolume_filter {
   volume_not_in: [arbitrumone_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_SwapWeeklyVolume_filter]
-  or: [arbitrumone_swap_SwapWeeklyVolume_filter]
 }
 
 enum arbitrumone_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1804,8 +1607,6 @@ input arbitrumone_swap_SystemInfo_filter {
   swapCount_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_swap_BlockChangedFilter
-  and: [arbitrumone_swap_SystemInfo_filter]
-  or: [arbitrumone_swap_SystemInfo_filter]
 }
 
 enum arbitrumone_swap_SystemInfo_orderBy {
@@ -1819,8 +1620,6 @@ type arbitrumone_swap__Block_ {
   hash: arbitrumone_swap_Bytes
   """The block number"""
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
-  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
