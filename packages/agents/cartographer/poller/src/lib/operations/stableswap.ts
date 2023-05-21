@@ -307,6 +307,7 @@ export const updateLpTransfers = async () => {
         return undefined;
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
     for (const checkpoint of checkpoints) {
       await database.saveCheckPoint("stableswap_lp_transfer_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
     }
