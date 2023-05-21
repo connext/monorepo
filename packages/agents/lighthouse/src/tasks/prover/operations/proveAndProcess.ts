@@ -109,7 +109,7 @@ export const proveAndProcess = async () => {
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
-                let concurrentbatch: Promise<void>[] = [];
+                let concurrentBatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
@@ -143,7 +143,7 @@ export const proveAndProcess = async () => {
                       offset,
                     });
 
-                    concurrentbatch.push(
+                    concurrentBatch.push(
                       processMessages(
                         unprocessed,
                         originDomain,
@@ -165,12 +165,12 @@ export const proveAndProcess = async () => {
                         originDomain,
                         destinationDomain,
                         offset,
-                        batchSize: concurrentbatch.length,
+                        batchSize: concurrentBatch.length,
                       },
                     );
-                    if (unprocessed.length === 0 || concurrentbatch.length >= concurrency) {
-                      await Promise.all(concurrentbatch);
-                      concurrentbatch = [];
+                    if (unprocessed.length === 0 || concurrentBatch.length >= concurrency) {
+                      await Promise.all(concurrentBatch);
+                      concurrentBatch = [];
                       logger.info(
                         "Processed unprocessed messages for origin and destination pair",
                         subContext,
