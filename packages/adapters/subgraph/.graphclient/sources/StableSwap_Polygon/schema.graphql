@@ -50,18 +50,12 @@ input polygon_swap_PooledToken_filter {
   id_not_in: [ID!]
   asset: polygon_swap_Bytes
   asset_not: polygon_swap_Bytes
-  asset_gt: polygon_swap_Bytes
-  asset_lt: polygon_swap_Bytes
-  asset_gte: polygon_swap_Bytes
-  asset_lte: polygon_swap_Bytes
   asset_in: [polygon_swap_Bytes!]
   asset_not_in: [polygon_swap_Bytes!]
   asset_contains: polygon_swap_Bytes
   asset_not_contains: polygon_swap_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_PooledToken_filter]
-  or: [polygon_swap_PooledToken_filter]
 }
 
 enum polygon_swap_PooledToken_orderBy {
@@ -435,10 +429,6 @@ input polygon_swap_StableSwapAddLiquidityEvent_filter {
   stableSwap_: polygon_swap_StableSwap_filter
   provider: polygon_swap_Bytes
   provider_not: polygon_swap_Bytes
-  provider_gt: polygon_swap_Bytes
-  provider_lt: polygon_swap_Bytes
-  provider_gte: polygon_swap_Bytes
-  provider_lte: polygon_swap_Bytes
   provider_in: [polygon_swap_Bytes!]
   provider_not_in: [polygon_swap_Bytes!]
   provider_contains: polygon_swap_Bytes
@@ -503,39 +493,17 @@ input polygon_swap_StableSwapAddLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: polygon_swap_Bytes
   transaction_not: polygon_swap_Bytes
-  transaction_gt: polygon_swap_Bytes
-  transaction_lt: polygon_swap_Bytes
-  transaction_gte: polygon_swap_Bytes
-  transaction_lte: polygon_swap_Bytes
   transaction_in: [polygon_swap_Bytes!]
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_StableSwapAddLiquidityEvent_filter]
-  or: [polygon_swap_StableSwapAddLiquidityEvent_filter]
 }
 
 enum polygon_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -604,39 +572,17 @@ input polygon_swap_StableSwapEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: polygon_swap_Bytes
   transaction_not: polygon_swap_Bytes
-  transaction_gt: polygon_swap_Bytes
-  transaction_lt: polygon_swap_Bytes
-  transaction_gte: polygon_swap_Bytes
-  transaction_lte: polygon_swap_Bytes
   transaction_in: [polygon_swap_Bytes!]
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_StableSwapEvent_filter]
-  or: [polygon_swap_StableSwapEvent_filter]
 }
 
 enum polygon_swap_StableSwapEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -689,10 +635,6 @@ input polygon_swap_StableSwapExchange_filter {
   stableSwap_: polygon_swap_StableSwap_filter
   buyer: polygon_swap_Bytes
   buyer_not: polygon_swap_Bytes
-  buyer_gt: polygon_swap_Bytes
-  buyer_lt: polygon_swap_Bytes
-  buyer_gte: polygon_swap_Bytes
-  buyer_lte: polygon_swap_Bytes
   buyer_in: [polygon_swap_Bytes!]
   buyer_not_in: [polygon_swap_Bytes!]
   buyer_contains: polygon_swap_Bytes
@@ -761,39 +703,17 @@ input polygon_swap_StableSwapExchange_filter {
   timestamp_not_in: [BigInt!]
   transaction: polygon_swap_Bytes
   transaction_not: polygon_swap_Bytes
-  transaction_gt: polygon_swap_Bytes
-  transaction_lt: polygon_swap_Bytes
-  transaction_gte: polygon_swap_Bytes
-  transaction_lte: polygon_swap_Bytes
   transaction_in: [polygon_swap_Bytes!]
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_StableSwapExchange_filter]
-  or: [polygon_swap_StableSwapExchange_filter]
 }
 
 enum polygon_swap_StableSwapExchange_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
@@ -853,10 +773,6 @@ input polygon_swap_StableSwapRemoveLiquidityEvent_filter {
   stableSwap_: polygon_swap_StableSwap_filter
   provider: polygon_swap_Bytes
   provider_not: polygon_swap_Bytes
-  provider_gt: polygon_swap_Bytes
-  provider_lt: polygon_swap_Bytes
-  provider_gte: polygon_swap_Bytes
-  provider_lte: polygon_swap_Bytes
   provider_in: [polygon_swap_Bytes!]
   provider_not_in: [polygon_swap_Bytes!]
   provider_contains: polygon_swap_Bytes
@@ -921,39 +837,17 @@ input polygon_swap_StableSwapRemoveLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: polygon_swap_Bytes
   transaction_not: polygon_swap_Bytes
-  transaction_gt: polygon_swap_Bytes
-  transaction_lt: polygon_swap_Bytes
-  transaction_gte: polygon_swap_Bytes
-  transaction_lte: polygon_swap_Bytes
   transaction_in: [polygon_swap_Bytes!]
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_StableSwapRemoveLiquidityEvent_filter]
-  or: [polygon_swap_StableSwapRemoveLiquidityEvent_filter]
 }
 
 enum polygon_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -981,20 +875,12 @@ input polygon_swap_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: polygon_swap_Bytes
   key_not: polygon_swap_Bytes
-  key_gt: polygon_swap_Bytes
-  key_lt: polygon_swap_Bytes
-  key_gte: polygon_swap_Bytes
-  key_lte: polygon_swap_Bytes
   key_in: [polygon_swap_Bytes!]
   key_not_in: [polygon_swap_Bytes!]
   key_contains: polygon_swap_Bytes
   key_not_contains: polygon_swap_Bytes
   canonicalId: polygon_swap_Bytes
   canonicalId_not: polygon_swap_Bytes
-  canonicalId_gt: polygon_swap_Bytes
-  canonicalId_lt: polygon_swap_Bytes
-  canonicalId_gte: polygon_swap_Bytes
-  canonicalId_lte: polygon_swap_Bytes
   canonicalId_in: [polygon_swap_Bytes!]
   canonicalId_not_in: [polygon_swap_Bytes!]
   canonicalId_contains: polygon_swap_Bytes
@@ -1009,20 +895,12 @@ input polygon_swap_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: polygon_swap_Bytes
   swapPool_not: polygon_swap_Bytes
-  swapPool_gt: polygon_swap_Bytes
-  swapPool_lt: polygon_swap_Bytes
-  swapPool_gte: polygon_swap_Bytes
-  swapPool_lte: polygon_swap_Bytes
   swapPool_in: [polygon_swap_Bytes!]
   swapPool_not_in: [polygon_swap_Bytes!]
   swapPool_contains: polygon_swap_Bytes
   swapPool_not_contains: polygon_swap_Bytes
   lpToken: polygon_swap_Bytes
   lpToken_not: polygon_swap_Bytes
-  lpToken_gt: polygon_swap_Bytes
-  lpToken_lt: polygon_swap_Bytes
-  lpToken_gte: polygon_swap_Bytes
-  lpToken_lte: polygon_swap_Bytes
   lpToken_in: [polygon_swap_Bytes!]
   lpToken_not_in: [polygon_swap_Bytes!]
   lpToken_contains: polygon_swap_Bytes
@@ -1123,15 +1001,12 @@ input polygon_swap_StableSwap_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
-  events_: polygon_swap_StableSwapEvent_filter
   exchanges_: polygon_swap_StableSwapExchange_filter
   hourlyVolumes_: polygon_swap_SwapHourlyVolume_filter
   dailyVolumes_: polygon_swap_SwapDailyVolume_filter
   weeklyVolumes_: polygon_swap_SwapWeeklyVolume_filter
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_StableSwap_filter]
-  or: [polygon_swap_StableSwap_filter]
 }
 
 enum polygon_swap_StableSwap_orderBy {
@@ -1508,29 +1383,11 @@ input polygon_swap_SwapDailyVolume_filter {
   volume_not_in: [polygon_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_SwapDailyVolume_filter]
-  or: [polygon_swap_SwapDailyVolume_filter]
 }
 
 enum polygon_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1590,29 +1447,11 @@ input polygon_swap_SwapHourlyVolume_filter {
   volume_not_in: [polygon_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_SwapHourlyVolume_filter]
-  or: [polygon_swap_SwapHourlyVolume_filter]
 }
 
 enum polygon_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1663,28 +1502,10 @@ input polygon_swap_SwapTradeVolume_filter {
   volume_not_in: [polygon_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_SwapTradeVolume_filter]
-  or: [polygon_swap_SwapTradeVolume_filter]
 }
 
 enum polygon_swap_SwapTradeVolume_orderBy {
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1744,29 +1565,11 @@ input polygon_swap_SwapWeeklyVolume_filter {
   volume_not_in: [polygon_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_SwapWeeklyVolume_filter]
-  or: [polygon_swap_SwapWeeklyVolume_filter]
 }
 
 enum polygon_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1804,8 +1607,6 @@ input polygon_swap_SystemInfo_filter {
   swapCount_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
-  and: [polygon_swap_SystemInfo_filter]
-  or: [polygon_swap_SystemInfo_filter]
 }
 
 enum polygon_swap_SystemInfo_orderBy {
@@ -1819,8 +1620,6 @@ type polygon_swap__Block_ {
   hash: polygon_swap_Bytes
   """The block number"""
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
-  timestamp: Int
 }
 
 """The type for the top-level _meta field"""

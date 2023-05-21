@@ -537,9 +537,14 @@ sources:
   - name: StableSwap_Optimism
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-optimism
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-optimism"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-optimism"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_swap_
@@ -552,9 +557,14 @@ sources:
   - name: StableSwap_Polygon
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-polygon
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-polygon"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-polygon"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygon_swap_
@@ -567,9 +577,14 @@ sources:
   - name: StableSwap_ArbitrumOne
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arbitrum-one
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-arbitrum-one"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arbitrum-one"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: arbitrumone_swap_
@@ -582,9 +597,14 @@ sources:
   - name: StableSwap_Bnb
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-bnb
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-bnb"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-bnb"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_swap_
@@ -597,9 +617,14 @@ sources:
   - name: StableSwap_Xdai
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: fallback
+        sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-gnosis"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: xdai_swap_

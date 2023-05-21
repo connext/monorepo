@@ -50,18 +50,12 @@ input xdai_swap_PooledToken_filter {
   id_not_in: [ID!]
   asset: xdai_swap_Bytes
   asset_not: xdai_swap_Bytes
-  asset_gt: xdai_swap_Bytes
-  asset_lt: xdai_swap_Bytes
-  asset_gte: xdai_swap_Bytes
-  asset_lte: xdai_swap_Bytes
   asset_in: [xdai_swap_Bytes!]
   asset_not_in: [xdai_swap_Bytes!]
   asset_contains: xdai_swap_Bytes
   asset_not_contains: xdai_swap_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_PooledToken_filter]
-  or: [xdai_swap_PooledToken_filter]
 }
 
 enum xdai_swap_PooledToken_orderBy {
@@ -435,10 +429,6 @@ input xdai_swap_StableSwapAddLiquidityEvent_filter {
   stableSwap_: xdai_swap_StableSwap_filter
   provider: xdai_swap_Bytes
   provider_not: xdai_swap_Bytes
-  provider_gt: xdai_swap_Bytes
-  provider_lt: xdai_swap_Bytes
-  provider_gte: xdai_swap_Bytes
-  provider_lte: xdai_swap_Bytes
   provider_in: [xdai_swap_Bytes!]
   provider_not_in: [xdai_swap_Bytes!]
   provider_contains: xdai_swap_Bytes
@@ -503,39 +493,17 @@ input xdai_swap_StableSwapAddLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: xdai_swap_Bytes
   transaction_not: xdai_swap_Bytes
-  transaction_gt: xdai_swap_Bytes
-  transaction_lt: xdai_swap_Bytes
-  transaction_gte: xdai_swap_Bytes
-  transaction_lte: xdai_swap_Bytes
   transaction_in: [xdai_swap_Bytes!]
   transaction_not_in: [xdai_swap_Bytes!]
   transaction_contains: xdai_swap_Bytes
   transaction_not_contains: xdai_swap_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_StableSwapAddLiquidityEvent_filter]
-  or: [xdai_swap_StableSwapAddLiquidityEvent_filter]
 }
 
 enum xdai_swap_StableSwapAddLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -604,39 +572,17 @@ input xdai_swap_StableSwapEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: xdai_swap_Bytes
   transaction_not: xdai_swap_Bytes
-  transaction_gt: xdai_swap_Bytes
-  transaction_lt: xdai_swap_Bytes
-  transaction_gte: xdai_swap_Bytes
-  transaction_lte: xdai_swap_Bytes
   transaction_in: [xdai_swap_Bytes!]
   transaction_not_in: [xdai_swap_Bytes!]
   transaction_contains: xdai_swap_Bytes
   transaction_not_contains: xdai_swap_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_StableSwapEvent_filter]
-  or: [xdai_swap_StableSwapEvent_filter]
 }
 
 enum xdai_swap_StableSwapEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   block
   timestamp
   transaction
@@ -689,10 +635,6 @@ input xdai_swap_StableSwapExchange_filter {
   stableSwap_: xdai_swap_StableSwap_filter
   buyer: xdai_swap_Bytes
   buyer_not: xdai_swap_Bytes
-  buyer_gt: xdai_swap_Bytes
-  buyer_lt: xdai_swap_Bytes
-  buyer_gte: xdai_swap_Bytes
-  buyer_lte: xdai_swap_Bytes
   buyer_in: [xdai_swap_Bytes!]
   buyer_not_in: [xdai_swap_Bytes!]
   buyer_contains: xdai_swap_Bytes
@@ -761,39 +703,17 @@ input xdai_swap_StableSwapExchange_filter {
   timestamp_not_in: [BigInt!]
   transaction: xdai_swap_Bytes
   transaction_not: xdai_swap_Bytes
-  transaction_gt: xdai_swap_Bytes
-  transaction_lt: xdai_swap_Bytes
-  transaction_gte: xdai_swap_Bytes
-  transaction_lte: xdai_swap_Bytes
   transaction_in: [xdai_swap_Bytes!]
   transaction_not_in: [xdai_swap_Bytes!]
   transaction_contains: xdai_swap_Bytes
   transaction_not_contains: xdai_swap_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_StableSwapExchange_filter]
-  or: [xdai_swap_StableSwapExchange_filter]
 }
 
 enum xdai_swap_StableSwapExchange_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   buyer
   boughtId
   tokensBought
@@ -853,10 +773,6 @@ input xdai_swap_StableSwapRemoveLiquidityEvent_filter {
   stableSwap_: xdai_swap_StableSwap_filter
   provider: xdai_swap_Bytes
   provider_not: xdai_swap_Bytes
-  provider_gt: xdai_swap_Bytes
-  provider_lt: xdai_swap_Bytes
-  provider_gte: xdai_swap_Bytes
-  provider_lte: xdai_swap_Bytes
   provider_in: [xdai_swap_Bytes!]
   provider_not_in: [xdai_swap_Bytes!]
   provider_contains: xdai_swap_Bytes
@@ -921,39 +837,17 @@ input xdai_swap_StableSwapRemoveLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transaction: xdai_swap_Bytes
   transaction_not: xdai_swap_Bytes
-  transaction_gt: xdai_swap_Bytes
-  transaction_lt: xdai_swap_Bytes
-  transaction_gte: xdai_swap_Bytes
-  transaction_lte: xdai_swap_Bytes
   transaction_in: [xdai_swap_Bytes!]
   transaction_not_in: [xdai_swap_Bytes!]
   transaction_contains: xdai_swap_Bytes
   transaction_not_contains: xdai_swap_Bytes
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_StableSwapRemoveLiquidityEvent_filter]
-  or: [xdai_swap_StableSwapRemoveLiquidityEvent_filter]
 }
 
 enum xdai_swap_StableSwapRemoveLiquidityEvent_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   provider
   tokenAmounts
   fees
@@ -981,20 +875,12 @@ input xdai_swap_StableSwap_filter {
   isActive_not_in: [Boolean!]
   key: xdai_swap_Bytes
   key_not: xdai_swap_Bytes
-  key_gt: xdai_swap_Bytes
-  key_lt: xdai_swap_Bytes
-  key_gte: xdai_swap_Bytes
-  key_lte: xdai_swap_Bytes
   key_in: [xdai_swap_Bytes!]
   key_not_in: [xdai_swap_Bytes!]
   key_contains: xdai_swap_Bytes
   key_not_contains: xdai_swap_Bytes
   canonicalId: xdai_swap_Bytes
   canonicalId_not: xdai_swap_Bytes
-  canonicalId_gt: xdai_swap_Bytes
-  canonicalId_lt: xdai_swap_Bytes
-  canonicalId_gte: xdai_swap_Bytes
-  canonicalId_lte: xdai_swap_Bytes
   canonicalId_in: [xdai_swap_Bytes!]
   canonicalId_not_in: [xdai_swap_Bytes!]
   canonicalId_contains: xdai_swap_Bytes
@@ -1009,20 +895,12 @@ input xdai_swap_StableSwap_filter {
   domain_not_in: [BigInt!]
   swapPool: xdai_swap_Bytes
   swapPool_not: xdai_swap_Bytes
-  swapPool_gt: xdai_swap_Bytes
-  swapPool_lt: xdai_swap_Bytes
-  swapPool_gte: xdai_swap_Bytes
-  swapPool_lte: xdai_swap_Bytes
   swapPool_in: [xdai_swap_Bytes!]
   swapPool_not_in: [xdai_swap_Bytes!]
   swapPool_contains: xdai_swap_Bytes
   swapPool_not_contains: xdai_swap_Bytes
   lpToken: xdai_swap_Bytes
   lpToken_not: xdai_swap_Bytes
-  lpToken_gt: xdai_swap_Bytes
-  lpToken_lt: xdai_swap_Bytes
-  lpToken_gte: xdai_swap_Bytes
-  lpToken_lte: xdai_swap_Bytes
   lpToken_in: [xdai_swap_Bytes!]
   lpToken_not_in: [xdai_swap_Bytes!]
   lpToken_contains: xdai_swap_Bytes
@@ -1123,15 +1001,12 @@ input xdai_swap_StableSwap_filter {
   lpTokenSupply_lte: BigInt
   lpTokenSupply_in: [BigInt!]
   lpTokenSupply_not_in: [BigInt!]
-  events_: xdai_swap_StableSwapEvent_filter
   exchanges_: xdai_swap_StableSwapExchange_filter
   hourlyVolumes_: xdai_swap_SwapHourlyVolume_filter
   dailyVolumes_: xdai_swap_SwapDailyVolume_filter
   weeklyVolumes_: xdai_swap_SwapWeeklyVolume_filter
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_StableSwap_filter]
-  or: [xdai_swap_StableSwap_filter]
 }
 
 enum xdai_swap_StableSwap_orderBy {
@@ -1508,29 +1383,11 @@ input xdai_swap_SwapDailyVolume_filter {
   volume_not_in: [xdai_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_SwapDailyVolume_filter]
-  or: [xdai_swap_SwapDailyVolume_filter]
 }
 
 enum xdai_swap_SwapDailyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1590,29 +1447,11 @@ input xdai_swap_SwapHourlyVolume_filter {
   volume_not_in: [xdai_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_SwapHourlyVolume_filter]
-  or: [xdai_swap_SwapHourlyVolume_filter]
 }
 
 enum xdai_swap_SwapHourlyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1663,28 +1502,10 @@ input xdai_swap_SwapTradeVolume_filter {
   volume_not_in: [xdai_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_SwapTradeVolume_filter]
-  or: [xdai_swap_SwapTradeVolume_filter]
 }
 
 enum xdai_swap_SwapTradeVolume_orderBy {
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1744,29 +1565,11 @@ input xdai_swap_SwapWeeklyVolume_filter {
   volume_not_in: [xdai_swap_BigDecimal!]
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_SwapWeeklyVolume_filter]
-  or: [xdai_swap_SwapWeeklyVolume_filter]
 }
 
 enum xdai_swap_SwapWeeklyVolume_orderBy {
   id
   stableSwap
-  stableSwap__id
-  stableSwap__isActive
-  stableSwap__key
-  stableSwap__canonicalId
-  stableSwap__domain
-  stableSwap__swapPool
-  stableSwap__lpToken
-  stableSwap__initialA
-  stableSwap__futureA
-  stableSwap__initialATime
-  stableSwap__futureATime
-  stableSwap__swapFee
-  stableSwap__adminFee
-  stableSwap__virtualPrice
-  stableSwap__invariant
-  stableSwap__lpTokenSupply
   timestamp
   volume
 }
@@ -1804,8 +1607,6 @@ input xdai_swap_SystemInfo_filter {
   swapCount_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_swap_BlockChangedFilter
-  and: [xdai_swap_SystemInfo_filter]
-  or: [xdai_swap_SystemInfo_filter]
 }
 
 enum xdai_swap_SystemInfo_orderBy {
@@ -1819,8 +1620,6 @@ type xdai_swap__Block_ {
   hash: xdai_swap_Bytes
   """The block number"""
   number: Int!
-  """Integer representation of the timestamp stored in blocks for the chain"""
-  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
