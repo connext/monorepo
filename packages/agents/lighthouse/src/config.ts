@@ -162,8 +162,9 @@ export const getEnvConfig = (
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
-    concurrency:
-      process.env.NXTP_PROVER_CONCURRENCY || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
+    concurrency: process.env.NXTP_PROVER_CONCURRENCY
+      ? +process.env.NXTP_PROVER_CONCURRENCY
+      : undefined || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
   };
 
   nxtpConfig.cartographerUrl =
