@@ -244,7 +244,6 @@ export const processMessages = async (
   // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
   // The quick way to verify them is to add a sanitation check against the spoke connector.
   const messages: XMessage[] = [];
-  console.log("XXXXXXLenght", messages.length);
   for (const message of _messages) {
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
@@ -256,10 +255,8 @@ export const processMessages = async (
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
-      console.log("XXXXXXStatus", message.leaf, messageStatus);
     } catch (err: unknown) {}
   }
-  console.log("XXXXXXPostLenght", messages.length);
 
   // process messages
   const messageProofs: ProofStruct[] = [];
