@@ -25,7 +25,7 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_CONCURRENCY, DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
@@ -104,6 +104,7 @@ export const proveAndProcess = async () => {
                 const spokeSMT = new SparseMerkleTree(spokeStore);
                 const hubSMT = new SparseMerkleTree(hubStore);
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
@@ -167,7 +168,7 @@ export const proveAndProcess = async () => {
                         batchSize: concurrentbatch.length,
                       },
                     );
-                    if (unprocessed.length === 0 || concurrentbatch.length >= 10) {
+                    if (unprocessed.length === 0 || concurrentbatch.length >= concurrency) {
                       await Promise.all(concurrentbatch);
                       concurrentbatch = [];
                       logger.info(

@@ -12,6 +12,7 @@ const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
+export const DEFAULT_CONCURRENCY = 10;
 
 dotenvConfig();
 
@@ -62,6 +63,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
+  concurrency: Type.Integer({ minimum: 0 }),
   service: Type.Union([
     Type.Literal("prover"),
     Type.Literal("propagate"),
@@ -160,6 +162,8 @@ export const getEnvConfig = (
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
+    concurrency:
+      process.env.NXTP_PROVER_CONCURRENCY || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
   };
 
   nxtpConfig.cartographerUrl =
