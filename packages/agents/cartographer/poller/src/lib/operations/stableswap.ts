@@ -1,3 +1,4 @@
+import { constants } from "ethers";
 import {
   createLoggingContext,
   SubgraphQueryByTimestampMetaParams,
@@ -8,7 +9,6 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
-import { constants } from "ethers";
 
 const getMaxTimestamp = (items: StableSwapExchange[] | StableSwapPoolEvent[] | StableSwapTransfer[]): number => {
   return items.length == 0 ? 0 : Math.max(...items.map((item) => item?.timestamp ?? 0));
