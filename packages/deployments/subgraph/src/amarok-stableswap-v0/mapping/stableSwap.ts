@@ -24,6 +24,7 @@ import {
 } from "../../../generated/schema";
 import {
   addLiquidity,
+  createLpToken,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -36,6 +37,7 @@ import {
   removeLiquidityOneToken,
   swap,
 } from "./helper";
+import { StableSwap as StableSwapTemplate } from "../../../generated/templates";
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   if (!address.isZeroAddress(event.params.swapPool)) {
@@ -47,6 +49,8 @@ export function handleStableSwapAdded(event: StableSwapAdded): void {
     stableSwap.swapPool = event.params.swapPool;
 
     stableSwap.save();
+
+    StableSwapTemplate.create(event.params.swapPool);
   }
 }
 
@@ -76,6 +80,11 @@ export function handleInternalSwapInitialized(event: SwapInitialized): void {
   stableSwap.isActive = true;
 
   stableSwap.save();
+
+  let lpAddress = event.params.swap.lpToken;
+  if (lpAddress != Address.zero()) {
+    createLpToken(stableSwap.id, lpAddress);
+  }
 }
 
 export function handleInternalSwapRemoved(event: SwapRemoved): void {
@@ -217,8 +226,6 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
 }
 
 export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): void {
-  let stableSwapBefore = getOrCreateStableSwap(event.params.key);
-
   let stableSwap = removeLiquidityOneToken(
     event.params.key,
     event.params.lpTokenAmount,
@@ -243,7 +250,7 @@ export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): voi
   log.tokenAmounts = tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
   log.balances = stableSwap.balances;
-  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
+  log.lpTokenAmount = event.params.lpTokenAmount;
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
