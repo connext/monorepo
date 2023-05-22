@@ -315,6 +315,25 @@ export const STABLESWAP_POOL_EVENT_ENTITY = `
       transaction
 `;
 
+export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
+      id
+      token {
+        address
+        stableSwap {
+          key
+          pooledTokens
+        }
+      }
+      from
+      to
+      fromBalance
+      toBalance
+      amount
+      timestamp
+      block
+      transaction
+`;
+
 export const RELAYER_FEES_INCREASE_ENTITY = `
       id
       increase
@@ -1193,6 +1212,48 @@ export const getPoolEventsQuery = (
 
   return gql`
     query GetPoolEvents { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const lpTransfersQueryString = (
+  prefix: string,
+  fromTimestamp: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_swap_lpTransferEvents (
+    where: {
+      timestamp_gte: ${fromTimestamp},
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${STABLESWAP_LP_TRANSFER_EVENT_ENTITY}}`;
+};
+
+export const getLpTransfersQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += lpTransfersQueryString(
+        prefix,
+        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetLpTransfers { 
         ${combinedQuery}
       }
   `;
