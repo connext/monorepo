@@ -1,5 +1,5 @@
 /* eslint-disable  */
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { decimal } from "@protofire/subgraph-toolkit";
 
 import {
@@ -24,6 +24,7 @@ import {
 
 import {
   addLiquidity,
+  createLpToken,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -63,6 +64,11 @@ export function handleSwapInitialized(event: SwapInitialized): void {
   stableSwap.isActive = true;
 
   stableSwap.save();
+
+  let lpAddress = event.params.swap.lpToken;
+  if (lpAddress != Address.zero()) {
+    createLpToken(stableSwap.id, lpAddress);
+  }
 }
 
 export function handleAddLiquidity(event: AddLiquidity): void {
@@ -147,8 +153,6 @@ export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance):
 }
 
 export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
-  let stableSwapBefore = getOrCreateStableSwap(event.address);
-
   let stableSwap = removeLiquidityOneToken(
     event.address,
     event.params.lpTokenAmount,
@@ -173,7 +177,7 @@ export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
   log.tokenAmounts = tokenAmounts;
   log.lpTokenSupply = event.params.lpTokenSupply;
   log.balances = stableSwap.balances;
-  log.lpTokenAmount = stableSwapBefore.lpTokenSupply.minus(event.params.lpTokenSupply);
+  log.lpTokenAmount = event.params.lpTokenAmount;
 
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
