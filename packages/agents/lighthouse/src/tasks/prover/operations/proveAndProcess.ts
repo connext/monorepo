@@ -239,7 +239,14 @@ export const processMessages = async (
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
-    } catch (err: unknown) {}
+    } catch (err: unknown) {
+      logger.debug(
+        "Failed to read the message status from onchain",
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+    }
   }
 
   // process messages
