@@ -25,7 +25,7 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_CONCURRENCY, DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
@@ -104,10 +104,12 @@ export const proveAndProcess = async () => {
                 const spokeSMT = new SparseMerkleTree(spokeStore);
                 const hubSMT = new SparseMerkleTree(hubStore);
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
+                let concurrentBatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
@@ -141,30 +143,45 @@ export const proveAndProcess = async () => {
                       offset,
                     });
 
-                    // Batch process messages from the same origin domain
-                    await processMessages(
-                      unprocessed,
-                      originDomain,
-                      destinationDomain,
-                      targetMessageRoot,
-                      messageRootIndex,
-                      targetAggregateRoot,
-                      spokeSMT,
-                      hubSMT,
-                      subContext,
-                    );
-                    offset += unprocessed.length;
-                    logger.info(
-                      "Processed unprocessed messages for origin and destination pair",
-                      subContext,
-                      methodContext,
-                      {
+                    concurrentBatch.push(
+                      processMessages(
                         unprocessed,
                         originDomain,
                         destinationDomain,
+                        targetMessageRoot,
+                        messageRootIndex,
+                        targetAggregateRoot,
+                        spokeSMT,
+                        hubSMT,
+                        subContext,
+                      ),
+                    );
+                    offset += unprocessed.length;
+                    logger.info(
+                      "Batched unprocessed messages for origin and destination pair",
+                      subContext,
+                      methodContext,
+                      {
+                        originDomain,
+                        destinationDomain,
                         offset,
+                        batchSize: concurrentBatch.length,
                       },
                     );
+                    if (unprocessed.length === 0 || concurrentBatch.length >= concurrency) {
+                      await Promise.all(concurrentBatch);
+                      concurrentBatch = [];
+                      logger.info(
+                        "Processed unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
                   } else {
                     // End the loop if no more messages are found
                     end = true;
