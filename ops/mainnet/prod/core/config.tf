@@ -84,7 +84,7 @@ locals {
     }
 
     server = {
-      adminToken = var.admin_token_router
+      adminToken = var.admin_token_sequencer
     }
 
     logLevel = "debug"
