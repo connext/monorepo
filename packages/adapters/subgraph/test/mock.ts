@@ -412,8 +412,8 @@ export const mockSubgraph = () =>
       id: "ROOT_MANAGER_META_ID",
     }),
     getStableSwapPools: Promise.resolve(mockStableSwapPoolResponse),
-    getStableSwapExchangeByDomainAndTimestamp: Promise.resolve(mockStableSwapExchangeResponse),
-    getStableSwapPoolEventsByDomainAndTimestamp: Promise.resolve(mockStableSwapAddLiquidityResponse),
+    getStableSwapExchangeByDomainAndNonce: Promise.resolve(mockStableSwapExchangeResponse),
+    getStableSwapPoolEventsByDomainAndNonce: Promise.resolve(mockStableSwapAddLiquidityResponse),
     getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
     getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
   });

@@ -517,6 +517,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
@@ -548,6 +549,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     fee,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };
@@ -570,6 +572,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
@@ -603,6 +606,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };
@@ -625,6 +629,7 @@ export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: Message entity missing required field", {
@@ -648,6 +653,7 @@ export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
     balances,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };

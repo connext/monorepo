@@ -35,7 +35,7 @@ describe("StableSwap operations", () => {
 
   describe("#updatePoolEvents", () => {
     it("should work", async () => {
-      (mockContext.adapters.subgraph.getStableSwapPoolEventsByDomainAndTimestamp as SinonStub).resolves(
+      (mockContext.adapters.subgraph.getStableSwapPoolEventsByDomainAndNonce as SinonStub).resolves(
         mockStableSwapAddLiquidityResponse,
       );
       await updatePoolEvents();
@@ -54,7 +54,7 @@ describe("StableSwap operations", () => {
 
   describe("#updateLpTransfers", () => {
     it("should work", async () => {
-      (mockContext.adapters.subgraph.getStableSwapLpTransferEventsByDomainAndTimestamp as SinonStub).resolves(
+      (mockContext.adapters.subgraph.getStableSwapLpTransferEventsByDomainAndNonce as SinonStub).resolves(
         mockStableSwapLpTransferResponse,
       );
       await updateLpTransfers();
