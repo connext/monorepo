@@ -25,6 +25,7 @@ import {
 import {
   addLiquidity,
   createLpToken,
+  generateNonce,
   getOrCreatePooledToken,
   getOrCreateStableSwap,
   getStableSwapCurrentA,
@@ -95,6 +96,7 @@ export function handleAddLiquidity(event: AddLiquidity): void {
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
   log.transaction = event.transaction.hash;
+  log.nonce = generateNonce(event);
 
   log.save();
 }
@@ -120,6 +122,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidity): void {
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
   log.transaction = event.transaction.hash;
+  log.nonce = generateNonce(event);
 
   log.save();
 }
@@ -148,6 +151,7 @@ export function handleRemoveLiquidityImbalance(event: RemoveLiquidityImbalance):
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
   log.transaction = event.transaction.hash;
+  log.nonce = generateNonce(event);
 
   log.save();
 }
@@ -182,6 +186,7 @@ export function handleRemoveLiquidityOne(event: RemoveLiquidityOne): void {
   log.block = event.block.number;
   log.timestamp = event.block.timestamp;
   log.transaction = event.transaction.hash;
+  log.nonce = generateNonce(event);
 
   log.save();
 }
@@ -245,6 +250,7 @@ export function handleTokenSwap(event: TokenSwap): void {
     exchange.block = event.block.number;
     exchange.timestamp = event.block.timestamp;
     exchange.transaction = event.transaction.hash;
+    exchange.nonce = generateNonce(event);
     exchange.save();
   }
   // update system
