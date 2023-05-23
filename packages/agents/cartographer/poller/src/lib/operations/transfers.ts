@@ -172,10 +172,12 @@ export const updateTransfers = async () => {
         "ASC",
       );
 
+      const pendingTransferIds = pendingTransfers.map((transfer) => transfer.transferId);
+
       const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
       _destinationPendingQueryMetaParams.set(destinationDomain, {
         maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
-        transferIDs: pendingTransfers,
+        transferIDs: pendingTransferIds,
       });
       const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
 
@@ -183,12 +185,22 @@ export const updateTransfers = async () => {
         logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
           originDomain,
           destinationDomain,
-          pendingTransfers,
+          pendingTransferIds,
           nonces: destinationTransfers.map((i) => i.xparams.nonce),
           count: destinationTransfers.length,
         });
 
         await database.saveTransfers(destinationTransfers as XTransfer[]);
+      } else {
+        // Resets update_time so that the same set of transfers are not considered again,
+        //   even when destination data does not exist.
+        await database.saveTransfers(pendingTransfers);
+        logger.info("Touched pending transfers", requestContext, methodContext, {
+          originDomain,
+          destinationDomain,
+          pendingTransfers,
+          count: pendingTransfers.length,
+        });
       }
     }
   }

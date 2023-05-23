@@ -1235,9 +1235,10 @@ describe("Database client", () => {
 
     await saveTransfers([xTransfer0, xTransfer1, xTransfer2, xTransfer3, xTransfer4], pool);
     const transfers = await getPendingTransfersByDomains(originDomain, destinationDomain, 100, 0, "ASC", pool);
+    const tranferIds = transfers.map((transfer) => transfer.transferId);
     expect(transfers.length).to.be.eq(3);
-    expect(transfers).includes(xTransfer0.transferId);
-    expect(transfers).includes(xTransfer1.transferId);
-    expect(transfers).includes(xTransfer2.transferId);
+    expect(tranferIds).includes(xTransfer0.transferId);
+    expect(tranferIds).includes(xTransfer1.transferId);
+    expect(tranferIds).includes(xTransfer2.transferId);
   });
 });

@@ -122,7 +122,7 @@ export const TransferIdInformationSchema = Type.Object({
   originSender: TAddress,
   bridgedAmt: Type.String(),
   normalizedIn: TIntegerString,
-  nonce: Type.Number(),
+  nonce: Type.Union([Type.Number(), Type.Undefined()]),
   canonicalId: Type.String(),
 });
 
@@ -169,7 +169,7 @@ export const DestinationTransferSchema = Type.Intersect([
       bridgedAmt: Type.String(),
       normalizedIn: TIntegerString,
       amount: TIntegerString,
-      nonce: Type.Optional(Type.Number()),
+      nonce: Type.Union([Type.Number(), Type.Undefined()]),
       canonicalId: Type.String(),
     }),
   }),

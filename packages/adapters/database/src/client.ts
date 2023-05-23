@@ -516,7 +516,7 @@ export const getPendingTransfersByDomains = async (
   offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string[]> => {
+): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
 
   const transfers = await db
@@ -539,8 +539,7 @@ export const getPendingTransfersByDomains = async (
     )
     .run(poolToUse);
 
-  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
-  return transfer_ids;
+  return transfers.map(convertFromDbTransfer);
 };
 
 export const saveRouterBalances = async (

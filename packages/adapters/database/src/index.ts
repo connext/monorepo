@@ -97,7 +97,7 @@ export type Database = {
     offset: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string[]>;
+  ) => Promise<XTransfer[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
