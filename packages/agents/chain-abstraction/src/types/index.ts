@@ -62,3 +62,38 @@ export const SwapQuoteParamsSchema = Type.Object({
   fee: Type.Optional(TIntegerString),
 });
 export type SwapQuoteParams = Static<typeof SwapQuoteParamsSchema>;
+
+export const honeySwapTokenSchema = Type.Object({
+  name: Type.String(),
+  address: TAddress,
+  symbol: Type.String(),
+  chainId: Type.Number(),
+  logoURI: Type.String(),
+});
+
+export type honeyswapTokenType = Static<typeof honeySwapTokenSchema>;
+
+export type uniswapTokenType = {
+  chainId: number;
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  logoURI: string;
+  extensions: {
+    bridgeInfo: {
+      [key: string]: {
+        tokenAddress: string;
+      };
+    };
+  };
+};
+
+export type asset = {
+  name: string;
+  chainId: number;
+  symbol: string;
+  logoURI: string;
+  address: string;
+};
+
