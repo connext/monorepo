@@ -155,7 +155,9 @@ export function handleInternalAddLiquidity(event: AddLiquidity): void {
     event.params.invariant,
     event.params.lpTokenSupply,
   );
-  let log = new StableSwapAddLiquidityEvent("add_liquidity-" + event.transaction.hash.toHexString());
+  let log = new StableSwapAddLiquidityEvent(
+    "add_liquidity-" + event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
+  );
 
   log.stableSwap = stableSwap.id;
   log.provider = event.params.provider;
@@ -183,7 +185,9 @@ export function handleInternalRemoveLiquidity(event: RemoveLiquidity): void {
     event.params.lpTokenSupply,
     event.block.timestamp,
   );
-  let log = new StableSwapRemoveLiquidityEvent("remove_liquidity-" + event.transaction.hash.toHexString());
+  let log = new StableSwapRemoveLiquidityEvent(
+    "remove_liquidity-" + event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
+  );
 
   log.stableSwap = stableSwap.id;
   log.provider = event.params.provider;
@@ -210,7 +214,9 @@ export function handleInternalRemoveLiquidityImbalance(event: RemoveLiquidityImb
     event.params.invariant,
     event.params.lpTokenSupply,
   );
-  let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_imbalance-" + event.transaction.hash.toHexString());
+  let log = new StableSwapRemoveLiquidityEvent(
+    "remove_liquidity_imbalance-" + event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
+  );
 
   log.stableSwap = stableSwap.id;
   log.provider = event.params.provider;
@@ -238,7 +244,9 @@ export function handleInternalRemoveLiquidityOne(event: RemoveLiquidityOne): voi
     event.params.tokensBought,
     event.block.timestamp,
   );
-  let log = new StableSwapRemoveLiquidityEvent("remove_liquidity_one-" + event.transaction.hash.toHexString());
+  let log = new StableSwapRemoveLiquidityEvent(
+    "remove_liquidity_one-" + event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
+  );
 
   let tokenAmounts: BigInt[] = [];
   for (let i = 0; i < stableSwap.pooledTokens.length; i++) {
