@@ -168,7 +168,8 @@ CREATE TABLE public.stableswap_exchanges (
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
     balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
-    fee numeric DEFAULT 0 NOT NULL
+    fee numeric DEFAULT 0 NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -191,7 +192,8 @@ CREATE TABLE public.stableswap_pool_events (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -771,7 +773,8 @@ CREATE TABLE public.stableswap_lp_transfers (
     balances numeric[],
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
-    "timestamp" integer NOT NULL
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -1345,4 +1348,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230509123037'),
     ('20230509165732'),
     ('20230510210620'),
-    ('20230519155643');
+    ('20230519155643'),
+    ('20230523134345');
