@@ -31,6 +31,549 @@ export type optimism_swap_Block_height = {
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
+export type optimism_swap_LpAccount = {
+  id: Scalars['ID'];
+  address: Scalars['optimism_swap_Bytes'];
+  balances: Array<optimism_swap_LpAccountBalance>;
+};
+
+
+export type optimism_swap_LpAccountbalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpAccountBalance_filter>;
+};
+
+export type optimism_swap_LpAccountBalance = {
+  id: Scalars['ID'];
+  account: optimism_swap_LpAccount;
+  token: optimism_swap_LpToken;
+  amount: Scalars['optimism_swap_BigDecimal'];
+  block?: Maybe<Scalars['BigInt']>;
+  modified?: Maybe<Scalars['BigInt']>;
+  transaction?: Maybe<Scalars['optimism_swap_Bytes']>;
+};
+
+export type optimism_swap_LpAccountBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  account?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<optimism_swap_LpAccount_filter>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<optimism_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  modified?: InputMaybe<Scalars['BigInt']>;
+  modified_not?: InputMaybe<Scalars['BigInt']>;
+  modified_gt?: InputMaybe<Scalars['BigInt']>;
+  modified_lt?: InputMaybe<Scalars['BigInt']>;
+  modified_gte?: InputMaybe<Scalars['BigInt']>;
+  modified_lte?: InputMaybe<Scalars['BigInt']>;
+  modified_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  modified_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_swap_LpAccountBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_swap_LpAccountBalance_filter>>>;
+};
+
+export type optimism_swap_LpAccountBalance_orderBy =
+  | 'id'
+  | 'account'
+  | 'account__id'
+  | 'account__address'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'block'
+  | 'modified'
+  | 'transaction';
+
+export type optimism_swap_LpAccount_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  address?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  balances_?: InputMaybe<optimism_swap_LpAccountBalance_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_swap_LpAccount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_swap_LpAccount_filter>>>;
+};
+
+export type optimism_swap_LpAccount_orderBy =
+  | 'id'
+  | 'address'
+  | 'balances';
+
+export type optimism_swap_LpToken = {
+  id: Scalars['ID'];
+  address: Scalars['optimism_swap_Bytes'];
+  stableSwap: optimism_swap_StableSwap;
+  decimals: Scalars['Int'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
+  totalSupply: Scalars['optimism_swap_BigDecimal'];
+  events: Array<optimism_swap_LpTokenEvent>;
+};
+
+
+export type optimism_swap_LpTokeneventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpTokenEvent_filter>;
+};
+
+export type optimism_swap_LpTokenEvent = {
+  id: Scalars['ID'];
+  token: optimism_swap_LpToken;
+  amount: Scalars['optimism_swap_BigDecimal'];
+  block: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transaction: Scalars['optimism_swap_Bytes'];
+};
+
+export type optimism_swap_LpTokenEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<optimism_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_swap_LpTokenEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_swap_LpTokenEvent_filter>>>;
+};
+
+export type optimism_swap_LpTokenEvent_orderBy =
+  | 'id'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'block'
+  | 'timestamp'
+  | 'transaction';
+
+export type optimism_swap_LpToken_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  address?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  stableSwap?: InputMaybe<Scalars['String']>;
+  stableSwap_not?: InputMaybe<Scalars['String']>;
+  stableSwap_gt?: InputMaybe<Scalars['String']>;
+  stableSwap_lt?: InputMaybe<Scalars['String']>;
+  stableSwap_gte?: InputMaybe<Scalars['String']>;
+  stableSwap_lte?: InputMaybe<Scalars['String']>;
+  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_?: InputMaybe<optimism_swap_StableSwap_filter>;
+  decimals?: InputMaybe<Scalars['Int']>;
+  decimals_not?: InputMaybe<Scalars['Int']>;
+  decimals_gt?: InputMaybe<Scalars['Int']>;
+  decimals_lt?: InputMaybe<Scalars['Int']>;
+  decimals_gte?: InputMaybe<Scalars['Int']>;
+  decimals_lte?: InputMaybe<Scalars['Int']>;
+  decimals_in?: InputMaybe<Array<Scalars['Int']>>;
+  decimals_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  name?: InputMaybe<Scalars['String']>;
+  name_not?: InputMaybe<Scalars['String']>;
+  name_gt?: InputMaybe<Scalars['String']>;
+  name_lt?: InputMaybe<Scalars['String']>;
+  name_gte?: InputMaybe<Scalars['String']>;
+  name_lte?: InputMaybe<Scalars['String']>;
+  name_in?: InputMaybe<Array<Scalars['String']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']>>;
+  name_contains?: InputMaybe<Scalars['String']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_not_contains?: InputMaybe<Scalars['String']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_starts_with?: InputMaybe<Scalars['String']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_starts_with?: InputMaybe<Scalars['String']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_ends_with?: InputMaybe<Scalars['String']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol?: InputMaybe<Scalars['String']>;
+  symbol_not?: InputMaybe<Scalars['String']>;
+  symbol_gt?: InputMaybe<Scalars['String']>;
+  symbol_lt?: InputMaybe<Scalars['String']>;
+  symbol_gte?: InputMaybe<Scalars['String']>;
+  symbol_lte?: InputMaybe<Scalars['String']>;
+  symbol_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_contains?: InputMaybe<Scalars['String']>;
+  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_contains?: InputMaybe<Scalars['String']>;
+  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  totalSupply?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  events_?: InputMaybe<optimism_swap_LpTokenEvent_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_swap_LpToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_swap_LpToken_filter>>>;
+};
+
+export type optimism_swap_LpToken_orderBy =
+  | 'id'
+  | 'address'
+  | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
+  | 'decimals'
+  | 'name'
+  | 'symbol'
+  | 'totalSupply'
+  | 'events';
+
+export type optimism_swap_LpTransferEvent = optimism_swap_LpTokenEvent & {
+  id: Scalars['ID'];
+  token: optimism_swap_LpToken;
+  amount: Scalars['optimism_swap_BigDecimal'];
+  from: Scalars['optimism_swap_Bytes'];
+  to: Scalars['optimism_swap_Bytes'];
+  fromBalance: Scalars['optimism_swap_BigDecimal'];
+  toBalance: Scalars['optimism_swap_BigDecimal'];
+  block: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transaction: Scalars['optimism_swap_Bytes'];
+};
+
+export type optimism_swap_LpTransferEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<optimism_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  from?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  from_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  from_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  from_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  fromBalance?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  fromBalance_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  fromBalance_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  toBalance?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_not?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_gt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_lt?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_gte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_lte?: InputMaybe<Scalars['optimism_swap_BigDecimal']>;
+  toBalance_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  toBalance_not_in?: InputMaybe<Array<Scalars['optimism_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['optimism_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['optimism_swap_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<optimism_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimism_swap_LpTransferEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimism_swap_LpTransferEvent_filter>>>;
+};
+
+export type optimism_swap_LpTransferEvent_orderBy =
+  | 'id'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'from'
+  | 'to'
+  | 'fromBalance'
+  | 'toBalance'
+  | 'block'
+  | 'timestamp'
+  | 'transaction';
+
 /** Defines the order direction, either ascending or descending */
 export type optimism_swap_OrderDirection =
   | 'asc'
@@ -89,10 +632,20 @@ export type Query = {
   optimism_swap_swapHourlyVolumes: Array<optimism_swap_SwapHourlyVolume>;
   optimism_swap_swapWeeklyVolume?: Maybe<optimism_swap_SwapWeeklyVolume>;
   optimism_swap_swapWeeklyVolumes: Array<optimism_swap_SwapWeeklyVolume>;
+  optimism_swap_lpAccount?: Maybe<optimism_swap_LpAccount>;
+  optimism_swap_lpAccounts: Array<optimism_swap_LpAccount>;
+  optimism_swap_lpAccountBalance?: Maybe<optimism_swap_LpAccountBalance>;
+  optimism_swap_lpAccountBalances: Array<optimism_swap_LpAccountBalance>;
+  optimism_swap_lpToken?: Maybe<optimism_swap_LpToken>;
+  optimism_swap_lpTokens: Array<optimism_swap_LpToken>;
+  optimism_swap_lpTransferEvent?: Maybe<optimism_swap_LpTransferEvent>;
+  optimism_swap_lpTransferEvents: Array<optimism_swap_LpTransferEvent>;
   optimism_swap_stableSwapEvent?: Maybe<optimism_swap_StableSwapEvent>;
   optimism_swap_stableSwapEvents: Array<optimism_swap_StableSwapEvent>;
   optimism_swap_swapTradeVolume?: Maybe<optimism_swap_SwapTradeVolume>;
   optimism_swap_swapTradeVolumes: Array<optimism_swap_SwapTradeVolume>;
+  optimism_swap_lpTokenEvent?: Maybe<optimism_swap_LpTokenEvent>;
+  optimism_swap_lpTokenEvents: Array<optimism_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
   optimism_swap__meta?: Maybe<optimism_swap__Meta_>;
 };
@@ -260,6 +813,78 @@ export type Queryoptimism_swap_swapWeeklyVolumesArgs = {
 };
 
 
+export type Queryoptimism_swap_lpAccountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpAccountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpAccount_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpAccountBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpAccountBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpToken_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTransferEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTransferEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Queryoptimism_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<optimism_swap_Block_height>;
@@ -291,6 +916,24 @@ export type Queryoptimism_swap_swapTradeVolumesArgs = {
   orderBy?: InputMaybe<optimism_swap_SwapTradeVolume_orderBy>;
   orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
   where?: InputMaybe<optimism_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTokenEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryoptimism_swap_lpTokenEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpTokenEvent_filter>;
   block?: InputMaybe<optimism_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1161,10 +1804,20 @@ export type Subscription = {
   optimism_swap_swapHourlyVolumes: Array<optimism_swap_SwapHourlyVolume>;
   optimism_swap_swapWeeklyVolume?: Maybe<optimism_swap_SwapWeeklyVolume>;
   optimism_swap_swapWeeklyVolumes: Array<optimism_swap_SwapWeeklyVolume>;
+  optimism_swap_lpAccount?: Maybe<optimism_swap_LpAccount>;
+  optimism_swap_lpAccounts: Array<optimism_swap_LpAccount>;
+  optimism_swap_lpAccountBalance?: Maybe<optimism_swap_LpAccountBalance>;
+  optimism_swap_lpAccountBalances: Array<optimism_swap_LpAccountBalance>;
+  optimism_swap_lpToken?: Maybe<optimism_swap_LpToken>;
+  optimism_swap_lpTokens: Array<optimism_swap_LpToken>;
+  optimism_swap_lpTransferEvent?: Maybe<optimism_swap_LpTransferEvent>;
+  optimism_swap_lpTransferEvents: Array<optimism_swap_LpTransferEvent>;
   optimism_swap_stableSwapEvent?: Maybe<optimism_swap_StableSwapEvent>;
   optimism_swap_stableSwapEvents: Array<optimism_swap_StableSwapEvent>;
   optimism_swap_swapTradeVolume?: Maybe<optimism_swap_SwapTradeVolume>;
   optimism_swap_swapTradeVolumes: Array<optimism_swap_SwapTradeVolume>;
+  optimism_swap_lpTokenEvent?: Maybe<optimism_swap_LpTokenEvent>;
+  optimism_swap_lpTokenEvents: Array<optimism_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
   optimism_swap__meta?: Maybe<optimism_swap__Meta_>;
 };
@@ -1332,6 +1985,78 @@ export type Subscriptionoptimism_swap_swapWeeklyVolumesArgs = {
 };
 
 
+export type Subscriptionoptimism_swap_lpAccountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpAccountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpAccount_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpAccountBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpAccountBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpToken_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTransferEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTransferEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionoptimism_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<optimism_swap_Block_height>;
@@ -1363,6 +2088,24 @@ export type Subscriptionoptimism_swap_swapTradeVolumesArgs = {
   orderBy?: InputMaybe<optimism_swap_SwapTradeVolume_orderBy>;
   orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
   where?: InputMaybe<optimism_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTokenEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<optimism_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionoptimism_swap_lpTokenEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<optimism_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<optimism_swap_OrderDirection>;
+  where?: InputMaybe<optimism_swap_LpTokenEvent_filter>;
   block?: InputMaybe<optimism_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1797,6 +2540,22 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimism_swap_swapWeeklyVolumes: InContextSdkMethod<Query['optimism_swap_swapWeeklyVolumes'], Queryoptimism_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
+  optimism_swap_lpAccount: InContextSdkMethod<Query['optimism_swap_lpAccount'], Queryoptimism_swap_lpAccountArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccounts: InContextSdkMethod<Query['optimism_swap_lpAccounts'], Queryoptimism_swap_lpAccountsArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccountBalance: InContextSdkMethod<Query['optimism_swap_lpAccountBalance'], Queryoptimism_swap_lpAccountBalanceArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccountBalances: InContextSdkMethod<Query['optimism_swap_lpAccountBalances'], Queryoptimism_swap_lpAccountBalancesArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpToken: InContextSdkMethod<Query['optimism_swap_lpToken'], Queryoptimism_swap_lpTokenArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokens: InContextSdkMethod<Query['optimism_swap_lpTokens'], Queryoptimism_swap_lpTokensArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTransferEvent: InContextSdkMethod<Query['optimism_swap_lpTransferEvent'], Queryoptimism_swap_lpTransferEventArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTransferEvents: InContextSdkMethod<Query['optimism_swap_lpTransferEvents'], Queryoptimism_swap_lpTransferEventsArgs, MeshContext>,
+  /** null **/
   optimism_swap_stableSwapEvent: InContextSdkMethod<Query['optimism_swap_stableSwapEvent'], Queryoptimism_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
   optimism_swap_stableSwapEvents: InContextSdkMethod<Query['optimism_swap_stableSwapEvents'], Queryoptimism_swap_stableSwapEventsArgs, MeshContext>,
@@ -1804,6 +2563,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_swap_swapTradeVolume: InContextSdkMethod<Query['optimism_swap_swapTradeVolume'], Queryoptimism_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
   optimism_swap_swapTradeVolumes: InContextSdkMethod<Query['optimism_swap_swapTradeVolumes'], Queryoptimism_swap_swapTradeVolumesArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokenEvent: InContextSdkMethod<Query['optimism_swap_lpTokenEvent'], Queryoptimism_swap_lpTokenEventArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokenEvents: InContextSdkMethod<Query['optimism_swap_lpTokenEvents'], Queryoptimism_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   optimism_swap__meta: InContextSdkMethod<Query['optimism_swap__meta'], Queryoptimism_swap__metaArgs, MeshContext>
   };
@@ -1850,6 +2613,22 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   optimism_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['optimism_swap_swapWeeklyVolumes'], Subscriptionoptimism_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
+  optimism_swap_lpAccount: InContextSdkMethod<Subscription['optimism_swap_lpAccount'], Subscriptionoptimism_swap_lpAccountArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccounts: InContextSdkMethod<Subscription['optimism_swap_lpAccounts'], Subscriptionoptimism_swap_lpAccountsArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccountBalance: InContextSdkMethod<Subscription['optimism_swap_lpAccountBalance'], Subscriptionoptimism_swap_lpAccountBalanceArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpAccountBalances: InContextSdkMethod<Subscription['optimism_swap_lpAccountBalances'], Subscriptionoptimism_swap_lpAccountBalancesArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpToken: InContextSdkMethod<Subscription['optimism_swap_lpToken'], Subscriptionoptimism_swap_lpTokenArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokens: InContextSdkMethod<Subscription['optimism_swap_lpTokens'], Subscriptionoptimism_swap_lpTokensArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTransferEvent: InContextSdkMethod<Subscription['optimism_swap_lpTransferEvent'], Subscriptionoptimism_swap_lpTransferEventArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTransferEvents: InContextSdkMethod<Subscription['optimism_swap_lpTransferEvents'], Subscriptionoptimism_swap_lpTransferEventsArgs, MeshContext>,
+  /** null **/
   optimism_swap_stableSwapEvent: InContextSdkMethod<Subscription['optimism_swap_stableSwapEvent'], Subscriptionoptimism_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
   optimism_swap_stableSwapEvents: InContextSdkMethod<Subscription['optimism_swap_stableSwapEvents'], Subscriptionoptimism_swap_stableSwapEventsArgs, MeshContext>,
@@ -1857,6 +2636,10 @@ export type _SubgraphErrorPolicy_ =
   optimism_swap_swapTradeVolume: InContextSdkMethod<Subscription['optimism_swap_swapTradeVolume'], Subscriptionoptimism_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
   optimism_swap_swapTradeVolumes: InContextSdkMethod<Subscription['optimism_swap_swapTradeVolumes'], Subscriptionoptimism_swap_swapTradeVolumesArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokenEvent: InContextSdkMethod<Subscription['optimism_swap_lpTokenEvent'], Subscriptionoptimism_swap_lpTokenEventArgs, MeshContext>,
+  /** null **/
+  optimism_swap_lpTokenEvents: InContextSdkMethod<Subscription['optimism_swap_lpTokenEvents'], Subscriptionoptimism_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   optimism_swap__meta: InContextSdkMethod<Subscription['optimism_swap__meta'], Subscriptionoptimism_swap__metaArgs, MeshContext>
   };
