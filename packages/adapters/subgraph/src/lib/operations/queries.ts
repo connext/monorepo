@@ -1091,7 +1091,7 @@ const swapExchangeQueryString = (
 ) => {
   return `${prefix}_swap_stableSwapExchanges(
     where: {
-      nonce_gte: ${lastestNonce},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
@@ -1182,7 +1182,7 @@ const poolEventsQueryString = (
 ) => {
   return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
     where: {
-      nonce_gte: ${lastestNonce},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
@@ -1228,7 +1228,7 @@ const lpTransfersQueryString = (
 ) => {
   return `${prefix}_swap_lpTransferEvents (
     where: {
-      nonce_gte: ${lastestNonce},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
