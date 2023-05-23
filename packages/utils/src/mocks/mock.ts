@@ -506,6 +506,7 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
       ...overrides,
     }),
     stableswapPoolEvent: (overrides: Partial<StableSwapPoolEvent> = {}): StableSwapPoolEvent => ({
@@ -524,6 +525,7 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
       ...overrides,
     }),
     stableSwapLpTransfer: (overrides: Partial<StableSwapTransfer> = {}): StableSwapTransfer => ({
@@ -539,6 +541,7 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
       ...overrides,
     }),
     stableSwapLpBalance: (overrides: Partial<StableSwapLpBalance> = {}): StableSwapLpBalance => ({
