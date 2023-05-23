@@ -298,6 +298,7 @@ export const mockStableSwapExchangeResponse: StableSwapExchange[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
   },
 ];
 
@@ -318,6 +319,7 @@ export const mockStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
   },
 ];
 
@@ -338,6 +340,7 @@ export const removeStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
   },
 ];
 
@@ -355,6 +358,7 @@ export const mockStableSwapLpTransferResponse: StableSwapTransfer[] = [
     blockNumber: Math.floor(Date.now() / 1000),
     transactionHash: mkBytes32("0xb"),
     timestamp: Math.floor(Date.now() / 1000),
+    nonce: Math.floor(Date.now() * 10),
   },
 ];
 
