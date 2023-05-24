@@ -1312,6 +1312,7 @@ describe("Database client", () => {
         block_number: event.blockNumber,
         transaction_hash: event.transactionHash,
         timestamp: event.timestamp,
+        nonce: String(event.nonce),
       });
     });
   });
@@ -1335,6 +1336,7 @@ describe("Database client", () => {
         block_number: event.blockNumber,
         transaction_hash: event.transactionHash,
         timestamp: event.timestamp,
+        nonce: String(event.nonce),
       });
     });
   });

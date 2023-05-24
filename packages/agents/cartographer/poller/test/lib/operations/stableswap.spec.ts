@@ -27,15 +27,15 @@ describe("StableSwap operations", () => {
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "stableswap_exchange_timestamp_" + mockStableSwapExchangeResponse[0].domain,
-        mockStableSwapExchangeResponse[0].timestamp,
+        "stableswap_exchange_nonce_" + mockStableSwapExchangeResponse[0].domain,
+        mockStableSwapExchangeResponse[0].nonce,
       );
     });
   });
 
   describe("#updatePoolEvents", () => {
     it("should work", async () => {
-      (mockContext.adapters.subgraph.getStableSwapPoolEventsByDomainAndTimestamp as SinonStub).resolves(
+      (mockContext.adapters.subgraph.getStableSwapPoolEventsByDomainAndNonce as SinonStub).resolves(
         mockStableSwapAddLiquidityResponse,
       );
       await updatePoolEvents();
@@ -46,15 +46,15 @@ describe("StableSwap operations", () => {
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length * 2);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(2);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "stableswap_add_liquidity_timestamp_" + mockStableSwapAddLiquidityResponse[0].domain,
-        mockStableSwapAddLiquidityResponse[0].timestamp,
+        "stableswap_add_liquidity_nonce_" + mockStableSwapAddLiquidityResponse[0].domain,
+        mockStableSwapAddLiquidityResponse[0].nonce,
       );
     });
   });
 
   describe("#updateLpTransfers", () => {
     it("should work", async () => {
-      (mockContext.adapters.subgraph.getStableSwapLpTransferEventsByDomainAndTimestamp as SinonStub).resolves(
+      (mockContext.adapters.subgraph.getStableSwapLpTransferEventsByDomainAndNonce as SinonStub).resolves(
         mockStableSwapLpTransferResponse,
       );
       await updateLpTransfers();
@@ -65,8 +65,8 @@ describe("StableSwap operations", () => {
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "stableswap_lp_transfer_timestamp_" + mockStableSwapLpTransferResponse[0].domain,
-        mockStableSwapLpTransferResponse[0].timestamp,
+        "stableswap_lp_transfer_nonce_" + mockStableSwapLpTransferResponse[0].domain,
+        mockStableSwapLpTransferResponse[0].nonce,
       );
 
       expect(mockContext.adapters.database.saveStableSwapLpBalances as SinonStub).callCount(1);

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { decimal } from "@protofire/subgraph-toolkit";
 
 import {
@@ -643,4 +643,8 @@ export function getOrCreateLpAccountBalance(account: LpAccount, token: LpToken):
   newBalance.amount = decimal.ZERO;
 
   return newBalance;
+}
+
+export function generateNonce(event: ethereum.Event): BigInt {
+  return event.block.timestamp.times(BigInt.fromI32(10000)).plus(event.logIndex);
 }

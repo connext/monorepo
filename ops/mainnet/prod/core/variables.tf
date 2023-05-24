@@ -71,6 +71,11 @@ variable "admin_token_router" {
   description = "admin token"
 }
 
+variable "admin_token_sequencer" {
+  type        = string
+  description = "admin token"
+}
+
 variable "rmq_mgt_password" {
   type        = string
   description = "RabbitMQ management password"

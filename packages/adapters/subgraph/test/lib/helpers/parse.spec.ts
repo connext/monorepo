@@ -606,6 +606,7 @@ describe("Helpers:parse", () => {
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),
+        nonce: "16728234800000",
       };
       expect(stableSwapExchange(entity)).to.be.deep.eq(
         mock.entity.stableSwapExchange({
@@ -622,6 +623,7 @@ describe("Helpers:parse", () => {
           blockNumber: 25792350,
           timestamp: 1672823480,
           transactionHash: mkBytes32("0xa"),
+          nonce: 16728234800000,
         }),
       );
     });
@@ -662,6 +664,7 @@ describe("Helpers:parse", () => {
         block: 37933815,
         timestamp: 1673421076,
         transaction: mkBytes32("0xb"),
+        nonce: 16734210760001,
       };
       expect(stableSwapPoolEvent(entity)).to.be.deep.eq(
         mock.entity.stableswapPoolEvent({
@@ -680,6 +683,7 @@ describe("Helpers:parse", () => {
           blockNumber: 37933815,
           timestamp: 1673421076,
           transactionHash: mkBytes32("0xb"),
+          nonce: 16734210760001,
         }),
       );
     });

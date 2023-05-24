@@ -197,6 +197,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -217,6 +218,7 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };
 
@@ -234,6 +236,7 @@ const convertToDbStableSwapTransfer = (event: StableSwapTransfer): s.stableswap_
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };
 
