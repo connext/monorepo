@@ -222,6 +222,7 @@ export type xdai_swap_LpTokenEvent = {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_LpTokenEvent_filter = {
@@ -288,6 +289,14 @@ export type xdai_swap_LpTokenEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_LpTokenEvent_filter>>>;
@@ -306,7 +315,8 @@ export type xdai_swap_LpTokenEvent_orderBy =
   | 'amount'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type xdai_swap_LpToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -448,6 +458,7 @@ export type xdai_swap_LpTransferEvent = xdai_swap_LpTokenEvent & {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_LpTransferEvent_filter = {
@@ -550,6 +561,14 @@ export type xdai_swap_LpTransferEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_LpTransferEvent_filter>>>;
@@ -572,7 +591,8 @@ export type xdai_swap_LpTransferEvent_orderBy =
   | 'toBalance'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 /** Defines the order direction, either ascending or descending */
 export type xdai_swap_OrderDirection =
@@ -1029,6 +1049,7 @@ export type xdai_swap_StableSwapAddLiquidityEvent = xdai_swap_StableSwapEvent & 
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_StableSwapAddLiquidityEvent_filter = {
@@ -1139,6 +1160,14 @@ export type xdai_swap_StableSwapAddLiquidityEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_StableSwapAddLiquidityEvent_filter>>>;
@@ -1173,7 +1202,8 @@ export type xdai_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'balances'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type xdai_swap_StableSwapEvent = {
   id: Scalars['ID'];
@@ -1181,6 +1211,7 @@ export type xdai_swap_StableSwapEvent = {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_StableSwapEvent_filter = {
@@ -1239,6 +1270,14 @@ export type xdai_swap_StableSwapEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_StableSwapEvent_filter>>>;
@@ -1266,7 +1305,8 @@ export type xdai_swap_StableSwapEvent_orderBy =
   | 'stableSwap__lpTokenSupply'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type xdai_swap_StableSwapExchange = {
   id: Scalars['ID'];
@@ -1281,6 +1321,7 @@ export type xdai_swap_StableSwapExchange = {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_StableSwapExchange_filter = {
@@ -1395,6 +1436,14 @@ export type xdai_swap_StableSwapExchange_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_StableSwapExchange_filter>>>;
@@ -1429,7 +1478,8 @@ export type xdai_swap_StableSwapExchange_orderBy =
   | 'fee'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type xdai_swap_StableSwapRemoveLiquidityEvent = xdai_swap_StableSwapEvent & {
   id: Scalars['ID'];
@@ -1444,6 +1494,7 @@ export type xdai_swap_StableSwapRemoveLiquidityEvent = xdai_swap_StableSwapEvent
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['xdai_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type xdai_swap_StableSwapRemoveLiquidityEvent_filter = {
@@ -1554,6 +1605,14 @@ export type xdai_swap_StableSwapRemoveLiquidityEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['xdai_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['xdai_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<xdai_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<xdai_swap_StableSwapRemoveLiquidityEvent_filter>>>;
@@ -1588,7 +1647,8 @@ export type xdai_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'balances'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type xdai_swap_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
