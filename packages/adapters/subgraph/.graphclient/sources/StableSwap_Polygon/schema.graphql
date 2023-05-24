@@ -203,6 +203,7 @@ interface polygon_swap_LpTokenEvent {
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_LpTokenEvent_filter {
@@ -269,6 +270,14 @@ input polygon_swap_LpTokenEvent_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_LpTokenEvent_filter]
@@ -288,6 +297,7 @@ enum polygon_swap_LpTokenEvent_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 input polygon_swap_LpToken_filter {
@@ -431,6 +441,7 @@ type polygon_swap_LpTransferEvent implements polygon_swap_LpTokenEvent {
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_LpTransferEvent_filter {
@@ -533,6 +544,14 @@ input polygon_swap_LpTransferEvent_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_LpTransferEvent_filter]
@@ -556,6 +575,7 @@ enum polygon_swap_LpTransferEvent_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -1061,6 +1081,7 @@ type polygon_swap_StableSwapAddLiquidityEvent implements polygon_swap_StableSwap
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_StableSwapAddLiquidityEvent_filter {
@@ -1171,6 +1192,14 @@ input polygon_swap_StableSwapAddLiquidityEvent_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_StableSwapAddLiquidityEvent_filter]
@@ -1206,6 +1235,7 @@ enum polygon_swap_StableSwapAddLiquidityEvent_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 interface polygon_swap_StableSwapEvent {
@@ -1214,6 +1244,7 @@ interface polygon_swap_StableSwapEvent {
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_StableSwapEvent_filter {
@@ -1272,6 +1303,14 @@ input polygon_swap_StableSwapEvent_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_StableSwapEvent_filter]
@@ -1300,6 +1339,7 @@ enum polygon_swap_StableSwapEvent_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 type polygon_swap_StableSwapExchange {
@@ -1315,6 +1355,7 @@ type polygon_swap_StableSwapExchange {
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_StableSwapExchange_filter {
@@ -1429,6 +1470,14 @@ input polygon_swap_StableSwapExchange_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_StableSwapExchange_filter]
@@ -1464,6 +1513,7 @@ enum polygon_swap_StableSwapExchange_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 type polygon_swap_StableSwapRemoveLiquidityEvent implements polygon_swap_StableSwapEvent {
@@ -1479,6 +1529,7 @@ type polygon_swap_StableSwapRemoveLiquidityEvent implements polygon_swap_StableS
   block: BigInt!
   timestamp: BigInt!
   transaction: polygon_swap_Bytes!
+  nonce: BigInt!
 }
 
 input polygon_swap_StableSwapRemoveLiquidityEvent_filter {
@@ -1589,6 +1640,14 @@ input polygon_swap_StableSwapRemoveLiquidityEvent_filter {
   transaction_not_in: [polygon_swap_Bytes!]
   transaction_contains: polygon_swap_Bytes
   transaction_not_contains: polygon_swap_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_swap_BlockChangedFilter
   and: [polygon_swap_StableSwapRemoveLiquidityEvent_filter]
@@ -1624,6 +1683,7 @@ enum polygon_swap_StableSwapRemoveLiquidityEvent_orderBy {
   block
   timestamp
   transaction
+  nonce
 }
 
 input polygon_swap_StableSwap_filter {
