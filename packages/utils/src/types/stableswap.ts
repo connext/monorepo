@@ -37,6 +37,7 @@ export const StableSwapExchangeSchema = Type.Object({
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
+  nonce: Type.Number(),
 });
 export type StableSwapExchange = Static<typeof StableSwapExchangeSchema>;
 
@@ -62,6 +63,7 @@ export const StableSwapPoolEventSchema = Type.Object({
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
+  nonce: Type.Number(),
 });
 export type StableSwapPoolEvent = Static<typeof StableSwapPoolEventSchema>;
 
@@ -78,6 +80,7 @@ export const StableSwapTransferSchema = Type.Object({
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
+  nonce: Type.Number(),
 });
 export type StableSwapTransfer = Static<typeof StableSwapTransferSchema>;
 

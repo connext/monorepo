@@ -4,7 +4,8 @@ import { decimal } from "@protofire/subgraph-toolkit";
 import { LpToken, LpTransferEvent } from "../../../generated/schema";
 import { Transfer } from "../../../generated/templates/LpToken/ERC20";
 import { ADDRESS_ZERO } from "@protofire/subgraph-toolkit";
-import { getOrCreateLpAccount, getOrCreateLpAccountBalance } from "./helper";
+import { generateNonce, getOrCreateLpAccount, getOrCreateLpAccountBalance } from "./helper";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleLpTransfer(event: Transfer): void {
   let token = LpToken.load(event.address.toHex());
@@ -32,6 +33,7 @@ export function handleLpTransfer(event: Transfer): void {
     transferEvent.block = event.block.number;
     transferEvent.timestamp = event.block.timestamp;
     transferEvent.transaction = event.transaction.hash;
+    transferEvent.nonce = generateNonce(event);
 
     // Updates balances of accounts
     if (isTransfer || isBurn) {

@@ -930,8 +930,8 @@ export class SubgraphReader {
     return pools;
   }
 
-  public async getStableSwapExchangeByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapExchangeByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
   ): Promise<StableSwapExchange[]> {
     const { execute, parser } = getHelpers();
     const exchangeQuery = getSwapExchangesQuery(agents);
@@ -956,8 +956,8 @@ export class SubgraphReader {
     return domainExchanges;
   }
 
-  public async getStableSwapPoolEventsByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapPoolEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
     addOrRemove: "add" | "remove" = "add",
   ): Promise<StableSwapPoolEvent[]> {
     const { execute, parser } = getHelpers();
@@ -983,8 +983,8 @@ export class SubgraphReader {
     return domainEvents;
   }
 
-  public async getStableSwapLpTransferEventsByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapLpTransferEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
   ): Promise<StableSwapTransfer[]> {
     const { execute, parser } = getHelpers();
     const transfersQuery = getLpTransfersQuery(agents);

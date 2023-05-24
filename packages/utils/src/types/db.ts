@@ -1,7 +1,13 @@
 import { BigNumber, constants } from "ethers";
 
 import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
-import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
+import {
+  PoolActionType,
+  StableSwapExchange,
+  StableSwapPool,
+  StableSwapPoolEvent,
+  StableSwapTransfer,
+} from "./stableswap";
 import {
   Asset,
   AssetBalance,
@@ -473,6 +479,7 @@ export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchan
     blockNumber: exchange.blockNumber,
     transactionHash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -498,5 +505,29 @@ export const convertFromDbStableSwapPoolEvent = (event: any): StableSwapPoolEven
     blockNumber: event.blockNumber,
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+/**
+ * Converts a stable swap lp token transfer events from the cartographer db through
+ * @param event - the stable swap lp transfer event from the cartographer db as a JSON object
+ * @returns an StableSwapTransfer object
+ */
+export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfer => {
+  return {
+    id: event.id,
+    poolId: event.poolId,
+    domain: event.domain,
+    lpToken: event.lp_token,
+    fromAddress: event.from_address,
+    toAddress: event.to_address,
+    pooledTokens: event.pooled_tokens,
+    balances: event.balances,
+    amount: event.amount,
+    blockNumber: event.block_number,
+    transactionHash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };
