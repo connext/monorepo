@@ -13,7 +13,6 @@ import {
 
 import {
   NoDestinationDomainForProof,
-  NoAggregatedRoot,
   NoAggregateRootCount,
   NoMessageRootIndex,
   NoMessageRootCount,
