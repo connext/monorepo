@@ -103,7 +103,7 @@ module "router_executor" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
+  cpu                      = 2048
   memory                   = 2048
   instance_count           = 1
   timeout                  = 180
