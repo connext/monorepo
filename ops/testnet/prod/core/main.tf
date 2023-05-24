@@ -104,7 +104,7 @@ module "router_executor" {
   container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 2048
-  memory                   = 2048
+  memory                   = 4096
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
