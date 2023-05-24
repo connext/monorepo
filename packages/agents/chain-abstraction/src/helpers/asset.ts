@@ -1,5 +1,5 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import { axiosGet } from "@connext/nxtp-utils";
+import { axiosGet } from "../mockable";
 
 import { uniswapTokenType, asset, honeyswapTokenType } from "../types";
 import { HONEYSWAP_TOKENS, UNISWAP_GATEWAY } from "../helpers/api";
