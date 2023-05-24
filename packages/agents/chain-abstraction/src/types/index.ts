@@ -63,7 +63,7 @@ export const SwapQuoteParamsSchema = Type.Object({
 });
 export type SwapQuoteParams = Static<typeof SwapQuoteParamsSchema>;
 
-export const honeySwapTokenSchema = Type.Object({
+export const HoneySwapTokenSchema = Type.Object({
   name: Type.String(),
   address: TAddress,
   symbol: Type.String(),
@@ -71,9 +71,9 @@ export const honeySwapTokenSchema = Type.Object({
   logoURI: Type.String(),
 });
 
-export type honeyswapTokenType = Static<typeof honeySwapTokenSchema>;
+export type HoneyswapToken = Static<typeof HoneySwapTokenSchema>;
 
-export type uniswapTokenType = {
+export type UniswapToken = {
   chainId: number;
   address: string;
   name: string;
@@ -89,11 +89,10 @@ export type uniswapTokenType = {
   };
 };
 
-export type asset = {
+export type Asset = {
   name: string;
   chainId: number;
   symbol: string;
   logoURI: string;
   address: string;
 };
-

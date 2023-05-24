@@ -1,14 +1,14 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
 import { axiosGet } from "../mockable";
-import { uniswapTokenType, asset, honeyswapTokenType } from "../types";
+import { UniswapToken, Asset, HoneyswapToken } from "../types";
 import { HONEYSWAP_TOKENS, UNISWAP_GATEWAY } from "../helpers/api";
 
 /**
  * Returns the `supportedAsset` which will be specific to chain ID
  * in form of array to be used on client side.
  */
-export const getSupportedAssets = async (chainID: number): Promise<asset[] | null> => {
+export const getSupportedAssets = async (chainID: number): Promise<Asset[] | null> => {
   try {
     if (chainID === 100) {
       // get token from honeyswap for gnosis
@@ -17,9 +17,9 @@ export const getSupportedAssets = async (chainID: number): Promise<asset[] | nul
         throw new Error("HONEY_SWAP API failing");
       }
       const { tokens } = res.data;
-      const supportedAssetForChain: [asset] = tokens
-        .filter((token: honeyswapTokenType) => token.chainId === chainID)
-        .map((token: honeyswapTokenType) => ({
+      const supportedAssetForChain: [Asset] = tokens
+        .filter((token: HoneyswapToken) => token.chainId === chainID)
+        .map((token: HoneyswapToken) => ({
           name: token.name,
           chainId: chainID,
           symbol: token.symbol,
@@ -33,9 +33,9 @@ export const getSupportedAssets = async (chainID: number): Promise<asset[] | nul
         throw new Error("UNISWAP Gateway failing");
       }
       const { tokens } = res.data;
-      const supportedTokens: asset[] = tokens.map((token: uniswapTokenType) => {
+      const supportedTokens: Asset[] = tokens.map((token: UniswapToken) => {
         if (token.chainId === chainID) {
-          const asset: asset = {
+          const asset: Asset = {
             name: token.name,
             symbol: token.symbol,
             logoURI: token.logoURI,
@@ -45,7 +45,7 @@ export const getSupportedAssets = async (chainID: number): Promise<asset[] | nul
           return asset;
         } else {
           if (token.extensions && token.extensions.bridgeInfo[chainID.toString()]) {
-            const asset: asset = {
+            const asset: Asset = {
               name: token.name,
               symbol: token.symbol,
               logoURI: token.logoURI,
