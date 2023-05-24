@@ -61,8 +61,8 @@ jobs:
 
       - name: Install commitlint
         run: |
-          npm install conventional-changelog-conventionalcommits
-          npm install commitlint@latest
+          npm install conventional-changelog-conventionalcommits -g
+          npm install commitlint@latest -g
 
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'
