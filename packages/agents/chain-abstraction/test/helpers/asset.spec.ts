@@ -100,7 +100,7 @@ describe("Helpers:asset", () => {
     it("should throw if axioGet fails", async () => {
       const mockChainID = 56;
       axiosGetStub.throws();
-      expect(await getSupportedAssets(mockChainID)).to.be.throw;
+      await expect(getSupportedAssets(mockChainID)).to.eventually.be.rejectedWith(Error);
     });
   });
 });
