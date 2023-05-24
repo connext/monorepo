@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
@@ -59,18 +61,8 @@ jobs:
           node-version: "18"
           cache: "yarn"
 
-      - name: Install commitlint
-        run: |
-          npm install conventional-changelog-conventionalcommits -g
-          npm install commitlint@latest -g
-
-      - name: Validate current commit (last commit) with commitlint
-        if: github.event_name == 'push'
-        run: git log -1 --pretty=format:"%s" | npx commitlint --verbose
-
-      - name: Validate PR commits with commitlint
-        if: github.event_name == 'pull_request'
-        run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
+      - name: Validate using commitlint
+        uses: wagoid/commitlint-github-action@v5
 
       - name: Yarn install
         run: yarn install
