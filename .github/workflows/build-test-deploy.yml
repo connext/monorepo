@@ -62,6 +62,7 @@ jobs:
           cache: "yarn"
 
       - name: Validate using commitlint
+        if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
         uses: wagoid/commitlint-github-action@v5
 
       - name: Yarn install
