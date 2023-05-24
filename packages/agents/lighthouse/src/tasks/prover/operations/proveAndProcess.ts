@@ -65,6 +65,7 @@ export const proveAndProcess = async () => {
             .map(async (originDomain) => {
               try {
                 let latestMessageRoot: RootMessage | undefined = undefined;
+                const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
                 for (const destAggregateRoot of curDestAggRoots) {
                   latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
                   if (latestMessageRoot) break;
@@ -85,17 +86,10 @@ export const proveAndProcess = async () => {
                   throw new NoMessageRootIndex(originDomain, targetMessageRoot);
                 }
 
-                // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
-                // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-                const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
-                if (!targetAggregateRoot) {
-                  throw new NoAggregatedRoot();
-                }
-
                 // Count of leafs in aggregate tree at targetAggregateRoot.
-                const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+                const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot.root);
                 if (!aggregateRootCount) {
-                  throw new NoAggregateRootCount(targetAggregateRoot);
+                  throw new NoAggregateRootCount(targetAggregateRoot.root);
                 }
                 // TODO: Move to per domain storage adapters in context
                 const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
@@ -150,7 +144,7 @@ export const proveAndProcess = async () => {
                         destinationDomain,
                         targetMessageRoot,
                         messageRootIndex,
-                        targetAggregateRoot,
+                        targetAggregateRoot.root,
                         spokeSMT,
                         hubSMT,
                         subContext,
