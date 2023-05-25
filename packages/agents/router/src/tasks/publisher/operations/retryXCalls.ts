@@ -31,21 +31,20 @@ export const retryXCalls = async (): Promise<void> => {
   logger.info("Retrying xcalls", requestContext, methodContext, { allowedDomains });
 
   for (const domain of allowedDomains) {
-    // Random sort transfers
-    const unsorted = await cache.transfers.getPending(domain);
-
-    const domainPending = shuffle(unsorted);
-    logger.debug(`Getting pending transfers from the cache for domain: ${domain}`, requestContext, methodContext, {
-      domainPending,
-    });
-
     // Page through the pending transfers
+    let offset = 0;
     const pageSize = 100;
-    for (let offset = 0; offset < domainPending.length; offset += pageSize) {
-      const pending = domainPending.slice(offset, pageSize);
+    let done = false;
+    while (!done) {
+      const pending = await cache.transfers.getPending(domain, offset, pageSize);
+      logger.debug(`Getting pending transfers from the cache for domain: ${domain}`, requestContext, methodContext, {
+        domain,
+        offset,
+        pageSize,
+        read: pending.length,
+      });
 
       const originTransfersFromSubgraph: XTransfer[] = await subgraph.getOriginTransfersByDomain(domain, pending);
-
       const originTransfers = (
         await Promise.all(
           originTransfersFromSubgraph.flatMap(async (transfer) => {
@@ -111,6 +110,9 @@ export const retryXCalls = async (): Promise<void> => {
           }
         }),
       );
+
+      if (pending.length == pageSize) offset += pageSize;
+      else done = true;
     }
   }
 };
