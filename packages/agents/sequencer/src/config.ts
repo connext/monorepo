@@ -118,11 +118,13 @@ export const getEnvConfig = (
     executer: {
       batchSize: process.env.EXECUTER_BATCH_SIZE
         ? Number(process.env.EXECUTER_BATCH_SIZE)
-        : DEFAULT_EXECUTER_BATCH_SIZE,
+        : undefined || configFile?.executer?.batchSize || DEFAULT_EXECUTER_BATCH_SIZE,
       maxChildCount: process.env.MAX_CHILD_PROCESS
         ? Number(process.env.MAX_CHILD_PROCESS)
-        : DEFAULT_CHILD_PROCESS_COUNT,
-      waitPeriod: process.env.WAIT_PERIOD ? Number(process.env.WAIT_PERIOD) : DEFAULT_EXECUTER_WAIT_PERIOD,
+        : undefined || configFile?.executer?.maxChildCount || DEFAULT_CHILD_PROCESS_COUNT,
+      waitPeriod: process.env.WAIT_PERIOD
+        ? Number(process.env.WAIT_PERIOD)
+        : undefined || configFile?.executer?.waitPeriod || DEFAULT_EXECUTER_WAIT_PERIOD,
     },
   };
 
