@@ -8,17 +8,11 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
 --
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE public.action_type AS ENUM (
-    'Add',
-    'Remove'
-);
-
-
+CREATE TYPE public.action_type AS ENUM ('Add', 'Remove');
 --
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
@@ -30,26 +24,16 @@ CREATE TYPE public.transfer_status AS ENUM (
     'CompletedSlow',
     'CompletedFast'
 );
-
-
 --
 -- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  NEW.update_time = NOW();
-  RETURN NEW;
+CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.update_time = NOW();
+RETURN NEW;
 END;
 $$;
-
-
 SET default_tablespace = '';
-
 SET default_table_access_method = heap;
-
 --
 -- Name: aggregated_roots; Type: TABLE; Schema: public; Owner: -
 --
@@ -60,8 +44,6 @@ CREATE TABLE public.aggregated_roots (
     received_root character(66) NOT NULL,
     domain_index numeric NOT NULL
 );
-
-
 --
 -- Name: asset_balances; Type: TABLE; Schema: public; Owner: -
 --
@@ -76,8 +58,6 @@ CREATE TABLE public.asset_balances (
     removed numeric DEFAULT 0 NOT NULL,
     locked numeric DEFAULT 0 NOT NULL
 );
-
-
 --
 -- Name: asset_prices; Type: TABLE; Schema: public; Owner: -
 --
@@ -89,28 +69,16 @@ CREATE TABLE public.asset_prices (
     "timestamp" integer,
     price numeric
 );
-
-
 --
 -- Name: asset_prices_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.asset_prices_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
+CREATE SEQUENCE public.asset_prices_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 --
 -- Name: asset_prices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.asset_prices_id_seq OWNED BY public.asset_prices.id;
-
-
 --
 -- Name: assets; Type: TABLE; Schema: public; Owner: -
 --
@@ -125,8 +93,6 @@ CREATE TABLE public.assets (
     id character(42),
     "decimal" numeric DEFAULT 0
 );
-
-
 --
 -- Name: checkpoints; Type: TABLE; Schema: public; Owner: -
 --
@@ -135,8 +101,6 @@ CREATE TABLE public.checkpoints (
     check_name character varying(255) NOT NULL,
     check_point numeric DEFAULT 0 NOT NULL
 );
-
-
 --
 -- Name: daily_router_tvl; Type: TABLE; Schema: public; Owner: -
 --
@@ -149,8 +113,6 @@ CREATE TABLE public.daily_router_tvl (
     day date NOT NULL,
     balance character varying(255) NOT NULL
 );
-
-
 --
 -- Name: stableswap_exchanges; Type: TABLE; Schema: public; Owner: -
 --
@@ -167,12 +129,10 @@ CREATE TABLE public.stableswap_exchanges (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    balances numeric [] DEFAULT ARRAY []::numeric [] NOT NULL,
     fee numeric DEFAULT 0 NOT NULL,
     nonce numeric DEFAULT 0 NOT NULL
 );
-
-
 --
 -- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
 --
@@ -183,73 +143,127 @@ CREATE TABLE public.stableswap_pool_events (
     domain character varying(255) NOT NULL,
     provider character(42) NOT NULL,
     action public.action_type DEFAULT 'Add'::public.action_type NOT NULL,
-    pooled_tokens text[],
-    pool_token_decimals integer[],
-    token_amounts numeric[],
-    balances numeric[],
+    pooled_tokens text [],
+    pool_token_decimals integer [],
+    token_amounts numeric [],
+    balances numeric [],
     lp_token_amount numeric NOT NULL,
     lp_token_supply numeric NOT NULL,
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    fees numeric [] DEFAULT ARRAY []::numeric [] NOT NULL,
     nonce numeric DEFAULT 0 NOT NULL
 );
-
-
 --
 -- Name: daily_swap_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.daily_swap_tvl AS
- SELECT r.pool_id,
+SELECT r.pool_id,
     r.domain,
     r.day,
     r.balances,
     r.total_fee,
     r.total_vol,
-    ( SELECT sum(b.b) AS sum
-           FROM unnest(r.balances) b(b)) AS total_tvl
-   FROM ( SELECT e.pool_id,
+    (
+        SELECT sum(b.b) AS sum
+        FROM unnest(r.balances) b(b)
+    ) AS total_tvl
+FROM (
+        SELECT e.pool_id,
             e.domain,
-            (date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date AS day,
-            ARRAY( SELECT unnest((array_agg(e.balances ORDER BY e."timestamp" DESC))[1:1]) AS unnest) AS balances,
+            (
+                date_trunc(
+                    'day'::text,
+                    to_timestamp((e."timestamp")::double precision)
+                )
+            )::date AS day,
+            ARRAY(
+                SELECT unnest(
+                        (
+                            array_agg(
+                                e.balances
+                                ORDER BY e."timestamp" DESC
+                            )
+                        ) [1:1]
+                    ) AS unnest
+            ) AS balances,
             sum(e.fee) AS total_fee,
             sum(e.vol) AS total_vol
-           FROM ( SELECT stableswap_pool_events.pool_id,
+        FROM (
+                SELECT stableswap_pool_events.pool_id,
                     stableswap_pool_events.domain,
                     stableswap_pool_events.balances,
-                    ( SELECT sum(f.f) AS sum
-                           FROM unnest(stableswap_pool_events.fees) f(f)) AS fee,
+                    (
+                        SELECT sum(f.f) AS sum
+                        FROM unnest(stableswap_pool_events.fees) f(f)
+                    ) AS fee,
                     0 AS vol,
                     stableswap_pool_events."timestamp"
-                   FROM public.stableswap_pool_events
+                FROM public.stableswap_pool_events
                 UNION ALL
-                 SELECT stableswap_exchanges.pool_id,
+                SELECT stableswap_exchanges.pool_id,
                     stableswap_exchanges.domain,
                     stableswap_exchanges.balances,
                     stableswap_exchanges.fee,
-                    ((stableswap_exchanges.tokens_sold + stableswap_exchanges.tokens_bought) / (2)::numeric) AS vol,
+                    (
+                        (
+                            stableswap_exchanges.tokens_sold + stableswap_exchanges.tokens_bought
+                        ) / (2)::numeric
+                    ) AS vol,
                     stableswap_exchanges."timestamp"
-                   FROM public.stableswap_exchanges) e
-          GROUP BY e.pool_id, e.domain, ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date)
-          ORDER BY ((date_trunc('day'::text, to_timestamp((e."timestamp")::double precision)))::date)) r;
-
-
+                FROM public.stableswap_exchanges
+            ) e
+        GROUP BY e.pool_id,
+            e.domain,
+            (
+                (
+                    date_trunc(
+                        'day'::text,
+                        to_timestamp((e."timestamp")::double precision)
+                    )
+                )::date
+            )
+        ORDER BY (
+                (
+                    date_trunc(
+                        'day'::text,
+                        to_timestamp((e."timestamp")::double precision)
+                    )
+                )::date
+            )
+    ) r;
 --
 -- Name: daily_swap_volume; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.daily_swap_volume AS
- SELECT swap.pool_id,
+SELECT swap.pool_id,
     swap.domain,
-    (date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date AS swap_day,
-    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
+    (
+        date_trunc(
+            'day'::text,
+            to_timestamp((swap."timestamp")::double precision)
+        )
+    )::date AS swap_day,
+    sum(
+        (
+            (swap.tokens_sold + swap.tokens_bought) / (2)::numeric
+        )
+    ) AS volume,
     count(swap.pool_id) AS swap_count
-   FROM public.stableswap_exchanges swap
-  GROUP BY swap.pool_id, swap.domain, ((date_trunc('day'::text, to_timestamp((swap."timestamp")::double precision)))::date);
-
-
+FROM public.stableswap_exchanges swap
+GROUP BY swap.pool_id,
+    swap.domain,
+    (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((swap."timestamp")::double precision)
+            )
+        )::date
+    );
 --
 -- Name: transfers; Type: TABLE; Schema: public; Owner: -
 --
@@ -275,7 +289,7 @@ CREATE TABLE public.transfers (
     xcall_block_number integer,
     destination_chain character varying(255),
     status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
-    routers character(42)[],
+    routers character(42) [],
     destination_transacting_asset character(42),
     destination_transacting_amount character varying(255),
     destination_local_asset character(42),
@@ -318,64 +332,102 @@ CREATE TABLE public.transfers (
     message_status character varying(255),
     relayer_fees jsonb
 );
-
-
 --
 -- Name: daily_transfer_metrics; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.daily_transfer_metrics AS
- SELECT (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+SELECT (
+        date_trunc(
+            'day'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     count(tf.transfer_id) AS transfer_count,
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
+            WHEN (
+                (tf.origin_bridged_amount)::bpchar = '0'::character(1)
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS zero_amount_transfer_count,
+        END
+    ) AS zero_amount_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedfast_transfer_count,
+        END
+    ) AS completedfast_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedslow_transfer_count,
+        END
+    ) AS completedslow_transfer_count,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttv_in_secs,
+        END
+    ) AS fastpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttr_in_secs,
+        END
+    ) AS fastpath_avg_ttr_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttv_in_secs,
+        END
+    ) AS slowpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttr_in_secs
-   FROM public.transfers tf
-  GROUP BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain
-  ORDER BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date);
-
-
+        END
+    ) AS slowpath_avg_ttr_in_secs
+FROM public.transfers tf
+GROUP BY (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    ),
+    tf.origin_domain,
+    tf.destination_domain
+ORDER BY (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    );
 --
 -- Name: transfers_with_price; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.transfers_with_price AS
- SELECT t.transfer_id,
+SELECT t.transfer_id,
     t.nonce,
     t."to",
     t.call_data,
@@ -439,140 +491,265 @@ CREATE VIEW public.transfers_with_price AS
     t.relayer_fees,
     p.asset_usd_price,
     p.decimals,
-    (p.asset_usd_price * ((t.bridged_amt)::numeric / ((10)::numeric ^ p.decimals))) AS usd_amount
-   FROM (public.transfers t
-     LEFT JOIN ( SELECT t_1.transfer_id,
-            t_1.xcall_timestamp,
-            COALESCE(p_1.price, (0)::numeric) AS asset_usd_price,
-            ( SELECT a."decimal"
-                   FROM public.assets a
-                  WHERE (a.canonical_id = t_1.canonical_id)
-                 LIMIT 1) AS decimals
-           FROM (public.transfers t_1
-             LEFT JOIN public.asset_prices p_1 ON (((p_1.canonical_id = t_1.canonical_id) AND (p_1."timestamp" = ( SELECT max(asset_prices."timestamp") AS max
-                   FROM public.asset_prices
-                  WHERE ((asset_prices.canonical_id = t_1.canonical_id) AND (asset_prices."timestamp" <= t_1.xcall_timestamp)))))))) p ON ((t.transfer_id = p.transfer_id)));
-
-
+    (
+        p.asset_usd_price * (
+            (t.bridged_amt)::numeric / ((10)::numeric ^ p.decimals)
+        )
+    ) AS usd_amount
+FROM (
+        public.transfers t
+        LEFT JOIN (
+            SELECT t_1.transfer_id,
+                t_1.xcall_timestamp,
+                COALESCE(p_1.price, (0)::numeric) AS asset_usd_price,
+                (
+                    SELECT a."decimal"
+                    FROM public.assets a
+                    WHERE (a.canonical_id = t_1.canonical_id)
+                    LIMIT 1
+                ) AS decimals
+            FROM (
+                    public.transfers t_1
+                    LEFT JOIN public.asset_prices p_1 ON (
+                        (
+                            (p_1.canonical_id = t_1.canonical_id)
+                            AND (
+                                p_1."timestamp" = (
+                                    SELECT max(asset_prices."timestamp") AS max
+                                    FROM public.asset_prices
+                                    WHERE (
+                                            (asset_prices.canonical_id = t_1.canonical_id)
+                                            AND (asset_prices."timestamp" <= t_1.xcall_timestamp)
+                                        )
+                                )
+                            )
+                        )
+                    )
+                )
+        ) p ON ((t.transfer_id = p.transfer_id))
+    );
 --
 -- Name: daily_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
 CREATE MATERIALIZED VIEW public.daily_transfer_volume AS
- SELECT tf.status,
-    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+SELECT tf.status,
+    (
+        date_trunc(
+            'day'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
-    regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
+    regexp_replace(
+        (tf.routers)::text,
+        '[\{\}]'::text,
+        ''::text,
+        'g'::text
+    ) AS router,
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
     sum(tf.usd_amount) AS usd_volume,
     row_number() OVER () AS id
-   FROM public.transfers_with_price tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
-  WITH NO DATA;
-
-
+FROM public.transfers_with_price tf
+GROUP BY tf.status,
+    (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    ),
+    tf.origin_domain,
+    tf.destination_domain,
+    (
+        regexp_replace(
+            (tf.routers)::text,
+            '[\{\}]'::text,
+            ''::text,
+            'g'::text
+        )
+    ),
+    tf.origin_transacting_asset WITH NO DATA;
 --
 -- Name: hourly_swap_volume; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.hourly_swap_volume AS
- SELECT swap.pool_id,
+SELECT swap.pool_id,
     swap.domain,
-    date_trunc('hour'::text, to_timestamp((swap."timestamp")::double precision)) AS swap_hour,
-    sum(((swap.tokens_sold + swap.tokens_bought) / (2)::numeric)) AS volume,
+    date_trunc(
+        'hour'::text,
+        to_timestamp((swap."timestamp")::double precision)
+    ) AS swap_hour,
+    sum(
+        (
+            (swap.tokens_sold + swap.tokens_bought) / (2)::numeric
+        )
+    ) AS volume,
     count(swap.pool_id) AS swap_count
-   FROM public.stableswap_exchanges swap
-  GROUP BY swap.pool_id, swap.domain, (date_trunc('hour'::text, to_timestamp((swap."timestamp")::double precision)));
-
-
+FROM public.stableswap_exchanges swap
+GROUP BY swap.pool_id,
+    swap.domain,
+    (
+        date_trunc(
+            'hour'::text,
+            to_timestamp((swap."timestamp")::double precision)
+        )
+    );
 --
 -- Name: hourly_transfer_metrics; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.hourly_transfer_metrics AS
- SELECT (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+SELECT (
+        date_trunc(
+            'hour'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     count(tf.transfer_id) AS transfer_count,
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
+            WHEN (
+                (tf.origin_bridged_amount)::bpchar = '0'::character(1)
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS zero_amount_transfer_count,
+        END
+    ) AS zero_amount_transfer_count,
     count(
         CASE
             WHEN (tf.status = 'XCalled'::public.transfer_status) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS xcalled_transfer_count,
+        END
+    ) AS xcalled_transfer_count,
     count(
         CASE
             WHEN (tf.status = 'Executed'::public.transfer_status) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS executed_transfer_count,
+        END
+    ) AS executed_transfer_count,
     count(
         CASE
             WHEN (tf.status = 'Reconciled'::public.transfer_status) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS reconciled_transfer_count,
+        END
+    ) AS reconciled_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedfast_transfer_count,
+        END
+    ) AS completedfast_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedslow_transfer_count,
+        END
+    ) AS completedslow_transfer_count,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttv_in_secs,
+        END
+    ) AS fastpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttr_in_secs,
+        END
+    ) AS fastpath_avg_ttr_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttv_in_secs,
+        END
+    ) AS slowpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttr_in_secs
-   FROM public.transfers tf
-  GROUP BY ((date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain
-  ORDER BY ((date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date);
-
-
+        END
+    ) AS slowpath_avg_ttr_in_secs
+FROM public.transfers tf
+GROUP BY (
+        (
+            date_trunc(
+                'hour'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    ),
+    tf.origin_domain,
+    tf.destination_domain
+ORDER BY (
+        (
+            date_trunc(
+                'hour'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    );
 --
 -- Name: hourly_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
 CREATE MATERIALIZED VIEW public.hourly_transfer_volume AS
- SELECT tf.status,
-    date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
+SELECT tf.status,
+    date_trunc(
+        'hour'::text,
+        to_timestamp((tf.xcall_timestamp)::double precision)
+    ) AS transfer_hour,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
-    regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
+    regexp_replace(
+        (tf.routers)::text,
+        '[\{\}]'::text,
+        ''::text,
+        'g'::text
+    ) AS router,
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
     sum(tf.usd_amount) AS usd_volume,
     row_number() OVER () AS id
-   FROM public.transfers_with_price tf
-  GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
-  WITH NO DATA;
-
-
+FROM public.transfers_with_price tf
+GROUP BY tf.status,
+    (
+        date_trunc(
+            'hour'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    ),
+    tf.origin_domain,
+    tf.destination_domain,
+    (
+        regexp_replace(
+            (tf.routers)::text,
+            '[\{\}]'::text,
+            ''::text,
+            'g'::text
+        )
+    ),
+    tf.origin_transacting_asset WITH NO DATA;
 --
 -- Name: merkle_cache; Type: TABLE; Schema: public; Owner: -
 --
@@ -582,8 +759,6 @@ CREATE TABLE public.merkle_cache (
     domain_path character(32) NOT NULL,
     tree_root character(66) NOT NULL
 );
-
-
 --
 -- Name: messages; Type: TABLE; Schema: public; Owner: -
 --
@@ -598,8 +773,6 @@ CREATE TABLE public.messages (
     processed boolean DEFAULT false,
     return_data character varying(255)
 );
-
-
 --
 -- Name: propagated_roots; Type: TABLE; Schema: public; Owner: -
 --
@@ -610,8 +783,6 @@ CREATE TABLE public.propagated_roots (
     leaf_count numeric NOT NULL,
     domains_hash text
 );
-
-
 --
 -- Name: received_aggregate_roots; Type: TABLE; Schema: public; Owner: -
 --
@@ -622,8 +793,6 @@ CREATE TABLE public.received_aggregate_roots (
     root character(66) NOT NULL,
     block_number integer NOT NULL
 );
-
-
 --
 -- Name: root_messages; Type: TABLE; Schema: public; Owner: -
 --
@@ -646,23 +815,17 @@ CREATE TABLE public.root_messages (
     sent_task_id character(66),
     relayer_type text
 );
-
-
 --
 -- Name: routers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.routers (
-    address character(42) NOT NULL
-);
-
-
+CREATE TABLE public.routers (address character(42) NOT NULL);
 --
 -- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.routers_with_balances AS
- SELECT routers.address,
+SELECT routers.address,
     asset_balances.asset_canonical_id,
     asset_balances.asset_domain,
     asset_balances.router_address,
@@ -680,24 +843,68 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.removed,
     assets."decimal",
     COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price,
-    (asset_prices.price * (asset_balances.balance / ((10)::numeric ^ assets."decimal"))) AS balance_usd,
-    (asset_prices.price * (asset_balances.fees_earned / ((10)::numeric ^ assets."decimal"))) AS fee_earned_usd,
-    (asset_prices.price * (asset_balances.locked / ((10)::numeric ^ assets."decimal"))) AS locked_usd,
-    (asset_prices.price * (asset_balances.supplied / ((10)::numeric ^ assets."decimal"))) AS supplied_usd,
-    (asset_prices.price * (asset_balances.removed / ((10)::numeric ^ assets."decimal"))) AS removed_usd
-   FROM (((public.routers
-     LEFT JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
-     LEFT JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))))
-     LEFT JOIN public.asset_prices ON (((assets.canonical_id = asset_prices.canonical_id) AND (asset_prices."timestamp" = ( SELECT max(asset_prices_1."timestamp") AS max
-           FROM public.asset_prices asset_prices_1)))));
-
-
+    (
+        asset_prices.price * (
+            asset_balances.balance / ((10)::numeric ^ assets."decimal")
+        )
+    ) AS balance_usd,
+    (
+        asset_prices.price * (
+            asset_balances.fees_earned / ((10)::numeric ^ assets."decimal")
+        )
+    ) AS fee_earned_usd,
+    (
+        asset_prices.price * (
+            asset_balances.locked / ((10)::numeric ^ assets."decimal")
+        )
+    ) AS locked_usd,
+    (
+        asset_prices.price * (
+            asset_balances.supplied / ((10)::numeric ^ assets."decimal")
+        )
+    ) AS supplied_usd,
+    (
+        asset_prices.price * (
+            asset_balances.removed / ((10)::numeric ^ assets."decimal")
+        )
+    ) AS removed_usd
+FROM (
+        (
+            (
+                public.routers
+                LEFT JOIN public.asset_balances ON (
+                    (routers.address = asset_balances.router_address)
+                )
+            )
+            LEFT JOIN public.assets ON (
+                (
+                    (
+                        asset_balances.asset_canonical_id = assets.canonical_id
+                    )
+                    AND (
+                        (asset_balances.asset_domain)::text = (assets.domain)::text
+                    )
+                )
+            )
+        )
+        LEFT JOIN public.asset_prices ON (
+            (
+                (assets.canonical_id = asset_prices.canonical_id)
+                AND (
+                    asset_prices."timestamp" = (
+                        SELECT max(asset_prices_1."timestamp") AS max
+                        FROM public.asset_prices asset_prices_1
+                    )
+                )
+            )
+        )
+    );
 --
 -- Name: router_liquidity; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.router_liquidity AS
- SELECT r.domain,
+SELECT r.domain,
     r.local,
     r.adopted,
     sum(r.balance) AS total_balance,
@@ -705,44 +912,71 @@ CREATE VIEW public.router_liquidity AS
     sum(r.supplied) AS total_supplied,
     sum(r.removed) AS total_removed,
     avg(r.asset_usd_price) AS avg_usd_price,
-    sum((r.asset_usd_price * (r.balance / ((10)::numeric ^ r."decimal")))) AS total_balance_usd,
-    sum((r.asset_usd_price * (r.locked / ((10)::numeric ^ r."decimal")))) AS total_locked_usd,
-    sum((r.asset_usd_price * (r.supplied / ((10)::numeric ^ r."decimal")))) AS total_supplied_usd,
-    sum((r.asset_usd_price * (r.removed / ((10)::numeric ^ r."decimal")))) AS total_removed_usd
-   FROM public.routers_with_balances r
-  GROUP BY r.domain, r.local, r.adopted
-  ORDER BY r.domain;
-
-
+    sum(
+        (
+            r.asset_usd_price * (r.balance / ((10)::numeric ^ r."decimal"))
+        )
+    ) AS total_balance_usd,
+    sum(
+        (
+            r.asset_usd_price * (r.locked / ((10)::numeric ^ r."decimal"))
+        )
+    ) AS total_locked_usd,
+    sum(
+        (
+            r.asset_usd_price * (r.supplied / ((10)::numeric ^ r."decimal"))
+        )
+    ) AS total_supplied_usd,
+    sum(
+        (
+            r.asset_usd_price * (r.removed / ((10)::numeric ^ r."decimal"))
+        )
+    ) AS total_removed_usd
+FROM public.routers_with_balances r
+GROUP BY r.domain,
+    r.local,
+    r.adopted
+ORDER BY r.domain;
 --
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.router_tvl AS
- SELECT latest_transfer.latest_transfer_day,
+SELECT latest_transfer.latest_transfer_day,
     router_tvl.asset,
     router_tvl.tvl,
     router_tvl.price,
     router_tvl.tvl_usd
-   FROM (( SELECT rb.local AS asset,
-            sum(rb.balance) AS tvl,
-            avg(rb.asset_usd_price) AS price,
-            sum((rb.asset_usd_price * (rb.balance / ((10)::numeric ^ rb."decimal")))) AS tvl_usd
-           FROM public.routers_with_balances rb
-          GROUP BY rb.local) router_tvl
-     CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
-           FROM public.transfers tf) latest_transfer);
-
-
+FROM (
+        (
+            SELECT rb.local AS asset,
+                sum(rb.balance) AS tvl,
+                avg(rb.asset_usd_price) AS price,
+                sum(
+                    (
+                        rb.asset_usd_price * (rb.balance / ((10)::numeric ^ rb."decimal"))
+                    )
+                ) AS tvl_usd
+            FROM public.routers_with_balances rb
+            GROUP BY rb.local
+        ) router_tvl
+        CROSS JOIN (
+            SELECT max(
+                    (
+                        date_trunc(
+                            'day'::text,
+                            to_timestamp((tf.xcall_timestamp)::double precision)
+                        )
+                    )::date
+                ) AS latest_transfer_day
+            FROM public.transfers tf
+        ) latest_transfer
+    );
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.schema_migrations (
-    version character varying(255) NOT NULL
-);
-
-
+CREATE TABLE public.schema_migrations (version character varying(255) NOT NULL);
 --
 -- Name: stableswap_lp_balances; Type: TABLE; Schema: public; Owner: -
 --
@@ -755,8 +989,6 @@ CREATE TABLE public.stableswap_lp_balances (
     balance numeric NOT NULL,
     last_timestamp integer NOT NULL
 );
-
-
 --
 -- Name: stableswap_lp_transfers; Type: TABLE; Schema: public; Owner: -
 --
@@ -768,16 +1000,14 @@ CREATE TABLE public.stableswap_lp_transfers (
     lp_token character(42) NOT NULL,
     from_address character(42) NOT NULL,
     to_address character(42) NOT NULL,
-    pooled_tokens text[],
+    pooled_tokens text [],
     amount numeric NOT NULL,
-    balances numeric[],
+    balances numeric [],
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
     nonce numeric DEFAULT 0 NOT NULL
 );
-
-
 --
 -- Name: stableswap_pools; Type: TABLE; Schema: public; Owner: -
 --
@@ -793,36 +1023,47 @@ CREATE TABLE public.stableswap_pools (
     future_a_time integer NOT NULL,
     swap_fee character varying(255) NOT NULL,
     admin_fee character varying(255) NOT NULL,
-    pooled_tokens text[],
-    token_precision_multipliers text[],
-    pool_token_decimals integer[],
-    balances text[],
+    pooled_tokens text [],
+    token_precision_multipliers text [],
+    pool_token_decimals integer [],
+    balances text [],
     virtual_price character varying(255) NOT NULL,
     invariant character varying(255) NOT NULL,
     lp_token_supply character varying(255) NOT NULL
 );
-
-
 --
 -- Name: transfer_count; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.transfer_count AS
- SELECT tf.status,
-    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
+SELECT tf.status,
+    (
+        date_trunc(
+            'day'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_day,
     tf.origin_domain AS origin_chain,
     tf.origin_transacting_asset AS asset,
     count(tf.transfer_id) AS transfer_count
-   FROM public.transfers tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
-
-
+FROM public.transfers tf
+GROUP BY tf.status,
+    (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    ),
+    tf.origin_domain,
+    tf.origin_transacting_asset;
 --
 -- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.transfers_with_ttr_ttv AS
- SELECT tf.transfer_id,
+SELECT tf.transfer_id,
     tf.nonce,
     tf."to",
     tf.call_data,
@@ -879,408 +1120,430 @@ CREATE VIEW public.transfers_with_ttr_ttv AS
     tf.next_execution_timestamp,
     (tf.execute_timestamp - tf.xcall_timestamp) AS ttv,
     (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttr
-   FROM public.transfers tf;
-
-
+FROM public.transfers tf;
 --
 -- Name: weekly_connext_metrics; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.weekly_connext_metrics AS
- SELECT (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+SELECT (
+        date_trunc(
+            'day'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_date,
     count(tf.transfer_id) AS transfer_count,
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
+            WHEN (
+                (tf.origin_bridged_amount)::bpchar = '0'::character(1)
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS zero_amount_transfer_count,
+        END
+    ) AS zero_amount_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedfast_transfer_count,
+        END
+    ) AS completedfast_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedslow_transfer_count,
+        END
+    ) AS completedslow_transfer_count,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttv_in_secs,
+        END
+    ) AS fastpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttr_in_secs,
+        END
+    ) AS fastpath_avg_ttr_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttv_in_secs,
+        END
+    ) AS slowpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttr_in_secs
-   FROM public.transfers tf
-  GROUP BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date)
-  ORDER BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date);
-
-
+        END
+    ) AS slowpath_avg_ttr_in_secs
+FROM public.transfers tf
+GROUP BY (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    )
+ORDER BY (
+        (
+            date_trunc(
+                'day'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    );
 --
 -- Name: weekly_transfer_metrics; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.weekly_transfer_metrics AS
- SELECT (date_trunc('week'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+SELECT (
+        date_trunc(
+            'week'::text,
+            to_timestamp((tf.xcall_timestamp)::double precision)
+        )
+    )::date AS transfer_date,
     tf.origin_domain AS origin_chain,
     tf.destination_domain AS destination_chain,
     count(tf.transfer_id) AS transfer_count,
     count(DISTINCT tf.xcall_caller) AS unique_user_count,
     count(
         CASE
-            WHEN ((tf.origin_bridged_amount)::bpchar = '0'::character(1)) THEN tf.transfer_id
+            WHEN (
+                (tf.origin_bridged_amount)::bpchar = '0'::character(1)
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS zero_amount_transfer_count,
+        END
+    ) AS zero_amount_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedfast_transfer_count,
+        END
+    ) AS completedfast_transfer_count,
     count(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN tf.transfer_id
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN tf.transfer_id
             ELSE NULL::bpchar
-        END) AS completedslow_transfer_count,
+        END
+    ) AS completedslow_transfer_count,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttv_in_secs,
+        END
+    ) AS fastpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedFast'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS fastpath_avg_ttr_in_secs,
+        END
+    ) AS fastpath_avg_ttr_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.execute_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttv_in_secs,
+        END
+    ) AS slowpath_avg_ttv_in_secs,
     avg(
         CASE
-            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            WHEN (
+                tf.status = 'CompletedSlow'::public.transfer_status
+            ) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
             ELSE NULL::integer
-        END) AS slowpath_avg_ttr_in_secs
-   FROM public.transfers tf
-  GROUP BY ((date_trunc('week'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain
-  ORDER BY ((date_trunc('week'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date);
-
-
+        END
+    ) AS slowpath_avg_ttr_in_secs
+FROM public.transfers tf
+GROUP BY (
+        (
+            date_trunc(
+                'week'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    ),
+    tf.origin_domain,
+    tf.destination_domain
+ORDER BY (
+        (
+            date_trunc(
+                'week'::text,
+                to_timestamp((tf.xcall_timestamp)::double precision)
+            )
+        )::date
+    );
 --
 -- Name: asset_prices id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.asset_prices ALTER COLUMN id SET DEFAULT nextval('public.asset_prices_id_seq'::regclass);
-
-
+ALTER TABLE ONLY public.asset_prices
+ALTER COLUMN id
+SET DEFAULT nextval('public.asset_prices_id_seq'::regclass);
 --
 -- Name: aggregated_roots aggregated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.aggregated_roots
-    ADD CONSTRAINT aggregated_roots_pkey PRIMARY KEY (domain_index, domain);
-
-
+ADD CONSTRAINT aggregated_roots_pkey PRIMARY KEY (domain_index, domain);
 --
 -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_balances
-    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
-
-
+ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
 --
 -- Name: asset_prices asset_prices_canonical_id_canonical_domain_timestamp_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_prices
-    ADD CONSTRAINT asset_prices_canonical_id_canonical_domain_timestamp_key UNIQUE (canonical_id, canonical_domain, "timestamp");
-
-
+ADD CONSTRAINT asset_prices_canonical_id_canonical_domain_timestamp_key UNIQUE (canonical_id, canonical_domain, "timestamp");
 --
 -- Name: asset_prices asset_prices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_prices
-    ADD CONSTRAINT asset_prices_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT asset_prices_pkey PRIMARY KEY (id);
 --
 -- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.assets
-    ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
-
-
+ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
 --
 -- Name: checkpoints checkpoints_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.checkpoints
-    ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
-
-
+ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
 --
 -- Name: daily_router_tvl daily_router_tvl_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.daily_router_tvl
-    ADD CONSTRAINT daily_router_tvl_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT daily_router_tvl_pkey PRIMARY KEY (id);
 --
 -- Name: merkle_cache merkle_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.merkle_cache
-    ADD CONSTRAINT merkle_cache_pkey PRIMARY KEY (domain, domain_path);
-
-
+ADD CONSTRAINT merkle_cache_pkey PRIMARY KEY (domain, domain_path);
 --
 -- Name: messages messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
-
-
+ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
 --
 -- Name: propagated_roots propagated_roots_aggregate_root_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.propagated_roots
-    ADD CONSTRAINT propagated_roots_aggregate_root_key UNIQUE (aggregate_root);
-
-
+ADD CONSTRAINT propagated_roots_aggregate_root_key UNIQUE (aggregate_root);
 --
 -- Name: propagated_roots propagated_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.propagated_roots
-    ADD CONSTRAINT propagated_roots_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT propagated_roots_pkey PRIMARY KEY (id);
 --
 -- Name: received_aggregate_roots received_aggregate_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.received_aggregate_roots
-    ADD CONSTRAINT received_aggregate_roots_pkey PRIMARY KEY (root, domain);
-
-
+ADD CONSTRAINT received_aggregate_roots_pkey PRIMARY KEY (root, domain);
 --
 -- Name: root_messages root_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.root_messages
-    ADD CONSTRAINT root_messages_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT root_messages_pkey PRIMARY KEY (id);
 --
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.routers
-    ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
-
-
+ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
 --
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-
-
+ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
 --
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_exchanges
-    ADD CONSTRAINT stableswap_exchanges_id_key UNIQUE (id);
-
-
+ADD CONSTRAINT stableswap_exchanges_id_key UNIQUE (id);
 --
 -- Name: stableswap_exchanges stableswap_exchanges_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_exchanges
-    ADD CONSTRAINT stableswap_exchanges_pkey PRIMARY KEY (domain, id);
-
-
+ADD CONSTRAINT stableswap_exchanges_pkey PRIMARY KEY (domain, id);
 --
 -- Name: stableswap_lp_balances stableswap_lp_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_lp_balances
-    ADD CONSTRAINT stableswap_lp_balances_pkey PRIMARY KEY (pool_id, domain, provider);
-
-
+ADD CONSTRAINT stableswap_lp_balances_pkey PRIMARY KEY (pool_id, domain, provider);
 --
 -- Name: stableswap_lp_transfers stableswap_lp_transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_lp_transfers
-    ADD CONSTRAINT stableswap_lp_transfers_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT stableswap_lp_transfers_pkey PRIMARY KEY (id);
 --
 -- Name: stableswap_pool_events stableswap_pool_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_pool_events
-    ADD CONSTRAINT stableswap_pool_events_pkey PRIMARY KEY (id);
-
-
+ADD CONSTRAINT stableswap_pool_events_pkey PRIMARY KEY (id);
 --
 -- Name: stableswap_pools stableswap_pools_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stableswap_pools
-    ADD CONSTRAINT stableswap_pools_pkey PRIMARY KEY (domain, key);
-
-
+ADD CONSTRAINT stableswap_pools_pkey PRIMARY KEY (domain, key);
 --
 -- Name: transfers transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.transfers
-    ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
-
-
+ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
 --
 -- Name: asset_prices_timestamp; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX asset_prices_timestamp ON public.asset_prices USING btree ("timestamp");
-
-
 --
 -- Name: daily_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX daily_transfer_volume_id_idx ON public.daily_transfer_volume USING btree (id);
-
-
 --
 -- Name: hourly_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX hourly_transfer_volume_id_idx ON public.hourly_transfer_volume USING btree (id);
-
-
 --
 -- Name: idx_daily_transfer_volume_transfer_date; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_daily_transfer_volume_transfer_date ON public.daily_transfer_volume USING btree (transfer_date);
-
-
 --
 -- Name: idx_hourly_transfer_volume_transfer_hour; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_volume USING btree (transfer_hour);
-
-
 --
 -- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
-
-
 --
 -- Name: transfers_destination_domain_update_time_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
-
-
 --
 -- Name: transfers_origin_domain_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USING btree (origin_domain, xcall_timestamp);
-
-
 --
 -- Name: transfers_status_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
-
-
 --
 -- Name: transfers_xcall_timestamp; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_xcall_timestamp ON public.transfers USING btree (xcall_timestamp);
-
-
 --
 -- Name: transfers_xcall_transaction_hash_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_xcall_transaction_hash_idx ON public.transfers USING btree (xcall_transaction_hash);
-
-
 --
 -- Name: transfers_xcall_tx_origin_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX transfers_xcall_tx_origin_idx ON public.transfers USING btree (xcall_tx_origin);
-
-
 --
 -- Name: transfers update_time_on_transfers; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_time_on_transfers BEFORE UPDATE ON public.transfers FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
-
-
+CREATE TRIGGER update_time_on_transfers BEFORE
+UPDATE ON public.transfers FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 --
 -- Name: asset_balances fk_asset; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_balances
-    ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
-
-
+ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
 --
 -- Name: asset_balances fk_router; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_balances
-    ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
-
-
+ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
+<< << << < HEAD == == == = --
+-- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: -
 --
+
+CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
+--
+-- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: -
+--
+
+CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
+--
+-- Name: job; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
+--
+-- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
+>> >> >> > 18e72e27b (fix: merge) --
 -- PostgreSQL database dump complete
 --
-
 
 --
 -- Dbmate schema migrations
 --
 
-INSERT INTO public.schema_migrations (version) VALUES
-    ('20220520150644'),
+INSERT INTO public.schema_migrations (version)
+VALUES ('20220520150644'),
     ('20220524141906'),
     ('20220617215641'),
     ('20220618065158'),
