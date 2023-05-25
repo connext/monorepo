@@ -19,7 +19,7 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   interval(async () => {
     if (numberOfChild < maxChildCount) {
-      logger.debug("Trying to pull data from the queue", requestContext, methodContext);
+      logger.debug("Trying to pull data from the queue", requestContext, methodContext, { waitPeriod });
       try {
         const messages: Broker.GetMessage[] = [];
         for (let i = 0; i < batchSize; i++) {
