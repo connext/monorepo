@@ -400,34 +400,6 @@ export const mockStableSwapLpBalanceResponse: StableSwapLpBalance[] = [
   },
 ];
 
-export const mockStableSwapLpTransferResponse: StableSwapTransfer[] = [
-  {
-    id: `${mock.domain.A}-${mkBytes32("0xa")}-1`,
-    poolId: mkBytes32("0xb"),
-    domain: "1337",
-    lpToken: mkAddress("0xa"),
-    fromAddress: mkAddress("0xaa"),
-    toAddress: mkAddress("0xbb"),
-    pooledTokens: [mkAddress("0x11"), mkAddress("0x22")],
-    amount: 200,
-    balances: [200, 200],
-    blockNumber: Math.floor(Date.now() / 1000),
-    transactionHash: mkBytes32("0xb"),
-    timestamp: Math.floor(Date.now() / 1000),
-  },
-];
-
-export const mockStableSwapLpBalanceResponse: StableSwapLpBalance[] = [
-  {
-    poolId: mkBytes32("0xb"),
-    domain: "1337",
-    lpToken: mkAddress("0xa"),
-    provider: mkAddress("0xb"),
-    balance: 200,
-    lastTimestamp: Math.floor(Date.now() / 1000),
-  },
-];
-
 export const mockRelayerFeesIncreaseResponse: RelayerFeesIncrease[] = [
   {
     id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
