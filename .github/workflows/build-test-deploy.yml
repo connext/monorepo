@@ -61,7 +61,7 @@ jobs:
           node-version: "18"
           cache: "yarn"
 
-      - name: Validate commits using commitlint
+      - name: Validate using commitlint
         if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
         uses: wagoid/commitlint-github-action@v5
 

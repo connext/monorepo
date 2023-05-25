@@ -87,7 +87,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
-  if (execStatus && execStatus.status === ExecStatus.Sent) {
+  if (execStatus && execStatus.status !== ExecStatus.None) {
     const startTime = Number(execStatus.timestamp);
     const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
     if (elapsed > config.executionWaitTime) {
@@ -100,7 +100,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
         elapsed,
         waitTime: config.executionWaitTime,
       });
-      status = execStatus.status;
+      status = execStatus.status as ExecStatus;
     }
   }
   if (status === ExecStatus.None) {
