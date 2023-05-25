@@ -251,34 +251,6 @@ const convertToDbStableSwapLpBalance = (event: StableSwapLpBalance): s.stableswa
   };
 };
 
-const convertToDbStableSwapTransfer = (event: StableSwapTransfer): s.stableswap_lp_transfers.Insertable => {
-  return {
-    id: event.id,
-    pool_id: event.poolId,
-    domain: event.domain,
-    lp_token: event.lpToken,
-    from_address: event.fromAddress,
-    to_address: event.toAddress,
-    pooled_tokens: event.pooledTokens,
-    amount: event.amount,
-    balances: event.balances,
-    block_number: event.blockNumber,
-    transaction_hash: event.transactionHash,
-    timestamp: event.timestamp,
-  };
-};
-
-const convertToDbStableSwapLpBalance = (event: StableSwapLpBalance): s.stableswap_lp_balances.Insertable => {
-  return {
-    pool_id: event.poolId,
-    domain: event.domain,
-    lp_token: event.lpToken,
-    provider: event.provider,
-    balance: event.balance,
-    last_timestamp: event.lastTimestamp,
-  };
-};
-
 const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Insertable => {
   return {
     id: tvl.id,

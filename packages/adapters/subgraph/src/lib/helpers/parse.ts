@@ -658,51 +658,6 @@ export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
   };
 };
 
-export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
-  // Sanity checks.
-  if (!entity) {
-    throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: stableSwapLpTransfer, entity is `undefined`.");
-  }
-
-  for (const field of [
-    "id",
-    "token",
-    "domain",
-    "from",
-    "to",
-    "fromBalance",
-    "toBalance",
-    "amount",
-    "block",
-    "transaction",
-    "timestamp",
-  ]) {
-    if (!entity[field]) {
-      throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: Message entity missing required field", {
-        missingField: field,
-        entity,
-      });
-    }
-  }
-
-  const balances = [+entity.fromBalance, +entity.toBalance];
-
-  return {
-    id: `${entity.domain}-${entity.id}`,
-    domain: entity.domain,
-    poolId: entity.token.stableSwap.key,
-    lpToken: entity.token.address,
-    pooledTokens: entity.token.stableSwap.pooledTokens,
-    fromAddress: entity.from,
-    toAddress: entity.to,
-    amount: +entity.amount,
-    balances,
-    blockNumber: BigNumber.from(entity.block).toNumber(),
-    timestamp: BigNumber.from(entity.timestamp).toNumber(),
-    transactionHash: entity.transaction,
-  };
-};
-
 export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
   // Sanity checks.
   if (!entity) {

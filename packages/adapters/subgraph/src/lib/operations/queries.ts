@@ -337,25 +337,6 @@ export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
       nonce
 `;
 
-export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
-      id
-      token {
-        address
-        stableSwap {
-          key
-          pooledTokens
-        }
-      }
-      from
-      to
-      fromBalance
-      toBalance
-      amount
-      timestamp
-      block
-      transaction
-`;
-
 export const RELAYER_FEES_INCREASE_ENTITY = `
       id
       increase
