@@ -16,6 +16,7 @@ export enum ExecStatus {
 /// MARK - Shared API
 export const AdminSchema = Type.Object({
   adminToken: Type.String(),
+  additions: Type.Any(),
 });
 export type AdminRequest = Static<typeof AdminSchema>;
 
