@@ -279,11 +279,11 @@ export class TransfersCache extends Cache {
    */
   public async setBidStatus(transferId: string): Promise<number> {
     const currentBid = await this.getBidStatus(transferId);
-    const attempt = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const attempts = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const timestamp = currentBid ? currentBid.timestamp : getNtpTimeSeconds().toString();
     const currrentStatus: BidStatus = {
-      // Update the timestamp to current time
-      timestamp: getNtpTimeSeconds().toString(),
-      attempts: attempt,
+      timestamp,
+      attempts,
     };
     return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
   }

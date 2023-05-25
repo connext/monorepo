@@ -36,7 +36,8 @@ export const retryXCalls = async (): Promise<void> => {
     const pageSize = 100;
     let done = false;
     while (!done) {
-      const pending = await cache.transfers.getPending(domain, offset, pageSize);
+      const _pending = await cache.transfers.getPending(domain, offset, pageSize);
+      const pending = shuffle(_pending);
       logger.debug(`Getting pending transfers from the cache for domain: ${domain}`, requestContext, methodContext, {
         domain,
         offset,
