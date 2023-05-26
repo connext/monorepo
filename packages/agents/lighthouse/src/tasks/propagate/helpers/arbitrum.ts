@@ -107,7 +107,6 @@ export const getPropagateParams = async (
       callValue: callValue.toString(),
     });
   } catch (err: unknown) {
-    console.log(err);
     logger.error("Error getting propagate params for Arbitrum", requestContext, methodContext, err as NxtpError);
     submissionPriceWei = "0";
     maxGas = "0";
