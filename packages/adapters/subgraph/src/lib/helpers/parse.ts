@@ -14,6 +14,7 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   StableSwapPoolEvent,
+  StableSwapTransfer,
   PoolActionType,
   RouterDailyTVL,
 } from "@connext/nxtp-utils";
@@ -516,6 +517,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
@@ -547,6 +549,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     fee,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };
@@ -569,6 +572,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
@@ -602,6 +606,54 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: stableSwapLpTransfer, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "token",
+    "domain",
+    "from",
+    "to",
+    "fromBalance",
+    "toBalance",
+    "amount",
+    "block",
+    "transaction",
+    "timestamp",
+    "nonce",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const balances = [+entity.fromBalance, +entity.toBalance];
+
+  return {
+    id: `${entity.domain}-${entity.id}`,
+    domain: entity.domain,
+    poolId: entity.token.stableSwap.key,
+    lpToken: entity.token.address,
+    pooledTokens: entity.token.stableSwap.pooledTokens,
+    fromAddress: entity.from,
+    toAddress: entity.to,
+    amount: +entity.amount,
+    balances,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };

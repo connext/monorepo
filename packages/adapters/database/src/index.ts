@@ -17,6 +17,8 @@ import {
   SlippageUpdate,
   Asset,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -46,7 +48,7 @@ import {
   getAggregateRootCount,
   getMessageRootIndex,
   getLatestMessageRoot,
-  getLatestAggregateRoot,
+  getLatestAggregateRoots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
@@ -60,9 +62,11 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  saveStableSwapPoolEvent,
+  saveStableSwapLpBalances,
+  saveStableSwapTransfers,
   resetBackoffs,
   updateErrorStatus,
-  saveStableSwapPoolEvent,
   saveRouterDailyTVL,
   updateSlippage,
   markRootMessagesProcessed,
@@ -175,11 +179,12 @@ export type Database = {
     aggregate_root: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<RootMessage | undefined>;
-  getLatestAggregateRoot: (
+  getLatestAggregateRoots: (
     domain: string,
+    limit: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<ReceivedAggregateRoot | undefined>;
+  ) => Promise<ReceivedAggregateRoot[]>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -233,6 +238,14 @@ export type Database = {
   updateErrorStatus: (transferId: string, error: XTransferErrorStatus) => Promise<void>;
   saveStableSwapPoolEvent: (
     _poolEvents: StableSwapPoolEvent[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapTransfers: (
+    _transfers: StableSwapTransfer[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapLpBalances: (
+    _transfers: StableSwapLpBalance[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
   markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -302,7 +315,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getAggregateRootCount,
     getMessageRootIndex,
     getLatestMessageRoot,
-    getLatestAggregateRoot,
+    getLatestAggregateRoots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
@@ -316,6 +329,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
+    saveStableSwapTransfers,
+    saveStableSwapLpBalances,
     updateErrorStatus,
     saveStableSwapPoolEvent,
     markRootMessagesProcessed,

@@ -197,7 +197,14 @@ export const executeSlowPathData = async (
     // reset error status
     if (transfer.origin) {
       transfer.origin.errorStatus = undefined;
-      await database.saveTransfers([transfer]);
+      try {
+        await database.saveTransfers([transfer]);
+      } catch (err: unknown) {
+        logger.error("Database error:saveTransfers", requestContext, methodContext, undefined, {
+          error: err,
+          transferId,
+        });
+      }
     }
   } else {
     // Prunes all the executor data for a given transferId

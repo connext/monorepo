@@ -23,6 +23,8 @@ import {
   XTransferMessageStatus,
   Asset,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -195,6 +197,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -215,6 +218,36 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+const convertToDbStableSwapTransfer = (event: StableSwapTransfer): s.stableswap_lp_transfers.Insertable => {
+  return {
+    id: event.id,
+    pool_id: event.poolId,
+    domain: event.domain,
+    lp_token: event.lpToken,
+    from_address: event.fromAddress,
+    to_address: event.toAddress,
+    pooled_tokens: event.pooledTokens,
+    amount: event.amount,
+    balances: event.balances,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+const convertToDbStableSwapLpBalance = (event: StableSwapLpBalance): s.stableswap_lp_balances.Insertable => {
+  return {
+    pool_id: event.poolId,
+    domain: event.domain,
+    lp_token: event.lpToken,
+    provider: event.provider,
+    balance: event.balance,
+    last_timestamp: event.lastTimestamp,
   };
 };
 
@@ -531,7 +564,10 @@ export const getPendingTransfersByDomains = async (
       {
         offset,
         limit,
-        order: { by: "nonce", direction: orderDirection },
+        order: [
+          { by: "update_time", direction: orderDirection },
+          { by: "nonce", direction: orderDirection },
+        ],
       },
     )
     .run(poolToUse);
@@ -795,20 +831,21 @@ export const getLatestMessageRoot = async (
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
 };
 
-export const getLatestAggregateRoot = async (
+export const getLatestAggregateRoots = async (
   domain: string,
+  limit = 1,
   orderDirection: "ASC" | "DESC" = "DESC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<ReceivedAggregateRoot | undefined> => {
+): Promise<ReceivedAggregateRoot[]> => {
   const poolToUse = _pool ?? pool;
-  const root = await db
-    .selectOne(
+  const roots = await db
+    .select(
       "received_aggregate_roots",
       { domain: domain },
-      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+      { limit, order: { by: "block_number", direction: orderDirection } },
     )
     .run(poolToUse);
-  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+  return roots.map(convertFromDbReceivedAggregateRoot);
 };
 
 export const getAggregateRootByRootAndDomain = async (
@@ -1037,6 +1074,30 @@ export const saveStableSwapPoolEvent = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveStableSwapTransfers = async (
+  _transfers: StableSwapTransfer[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const transfers: s.stableswap_lp_transfers.Insertable[] = _transfers
+    .map((m) => convertToDbStableSwapTransfer(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_lp_transfers", transfers, ["id"]).run(poolToUse);
+};
+
+export const saveStableSwapLpBalances = async (
+  _balances: StableSwapLpBalance[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const balances: s.stableswap_lp_balances.Insertable[] = _balances
+    .map((m) => convertToDbStableSwapLpBalance(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_lp_balances", balances, ["pool_id", "domain", "provider"]).run(poolToUse);
 };
 
 export const saveRouterDailyTVL = async (

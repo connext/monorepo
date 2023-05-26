@@ -95,11 +95,16 @@ export const makeSubscriber = async () => {
     );
 
     if (context.config.messageQueue.subscriber) {
-      await channel.assertQueue(context.config.messageQueue.subscriber, { durable: true });
       const binding = context.config.messageQueue.bindings.find(
         (it) => it.target == context.config.messageQueue.subscriber,
       );
-      if (binding) {
+      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.subscriber);
+
+      if (binding && queue) {
+        await channel.assertQueue(context.config.messageQueue.subscriber, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
         await channel.bindQueue(context.config.messageQueue.subscriber, binding?.exchange, binding?.keys[0]);
       }
 
@@ -108,7 +113,8 @@ export const makeSubscriber = async () => {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
         context.config.messageQueue.bindings.map(async (binding) => {
-          await channel.assertQueue(binding.target, { durable: true });
+          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
           await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
         }),
       );
@@ -183,11 +189,25 @@ export const execute = async (_configOverride?: SequencerConfig) => {
           break;
         }
       }
-      await context.adapters.database.updateErrorStatus(transferId, errorName);
+      try {
+        await context.adapters.database.updateErrorStatus(transferId, errorName);
+      } catch (e: unknown) {
+        context.logger.error("Database error:updateErrorStatus", requestContext, methodContext, undefined, {
+          transferId,
+          error: e,
+        });
+      }
 
       // increase backoff in case error is one of slippage or relayer fee
       if (messageType === MessageType.ExecuteSlow) {
-        await context.adapters.database.increaseBackoff(transferId);
+        try {
+          await context.adapters.database.increaseBackoff(transferId);
+        } catch (e: unknown) {
+          context.logger.error("Database error:increaseBackoff", requestContext, methodContext, undefined, {
+            transferId,
+            error: e,
+          });
+        }
       }
 
       process.exit(1);
@@ -269,7 +289,13 @@ export const setupContext = async (_configOverride?: SequencerConfig) => {
     });
   }
   context.adapters.mqClient = await setupMQ(requestContext);
-  context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+  try {
+    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+  } catch (err: unknown) {
+    context.logger.error("Database error:getDatabase", requestContext, methodContext, undefined, {
+      error: err,
+    });
+  }
 };
 
 export const setupCache = async (

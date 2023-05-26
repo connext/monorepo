@@ -736,14 +736,15 @@ describe("SubgraphReader", () => {
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),
+        nonce: "16728234800001",
       };
       response.set("1111", [exchange]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
 
-      const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndTimestamp(agents);
+      const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndNonce(agents);
       expect(swapExchange).to.be.deep.eq([ParserFns.stableSwapExchange(exchange)]);
     });
   });

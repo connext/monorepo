@@ -1,5 +1,6 @@
 import {
   AggregatedRoot,
+  Asset,
   chainDataToMap,
   DestinationTransfer,
   mkAddress,
@@ -12,10 +13,13 @@ import {
   RelayerFeesIncrease,
   RootMessage,
   RouterBalance,
+  RouterDailyTVL,
   SlippageUpdate,
   StableSwapExchange,
+  StableSwapLpBalance,
   StableSwapPool,
   StableSwapPoolEvent,
+  StableSwapTransfer,
   XMessage,
   XTransferStatus,
 } from "@connext/nxtp-utils";
@@ -253,6 +257,31 @@ export const mockRouterResponse: RouterBalance[] = [
   },
 ];
 
+export const mockAssetsResponse: Asset[] = [
+  {
+    id: mkAddress("0x1"),
+    key: mkBytes32("0xa"),
+    decimal: "18",
+    adoptedAsset: mkAddress("0x2"),
+    canonicalId: mkBytes32("0xa"),
+    canonicalDomain: "1337",
+    localAsset: mkAddress("0x1"),
+    blockNumber: "23423423",
+    domain: "1337",
+  },
+  {
+    id: mkAddress("0x1"),
+    key: mkBytes32("0xa"),
+    decimal: "18",
+    adoptedAsset: mkAddress("0x2"),
+    canonicalId: mkBytes32("0xa"),
+    canonicalDomain: "1337",
+    localAsset: mkAddress("0x1"),
+    blockNumber: "23423423",
+    domain: "1338",
+  },
+];
+
 export const mockConnectorMeta = [
   {
     hubDomain: "1337",
@@ -296,6 +325,7 @@ export const mockStableSwapExchangeResponse: StableSwapExchange[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
   },
 ];
 
@@ -316,6 +346,7 @@ export const mockStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
   },
 ];
 
@@ -336,6 +367,36 @@ export const removeStableSwapAddLiquidityResponse: StableSwapPoolEvent[] = [
     blockNumber: 37933815,
     timestamp: 1673421076,
     transactionHash: mkBytes32("0xb"),
+    nonce: 16734210760001,
+  },
+];
+
+export const mockStableSwapLpTransferResponse: StableSwapTransfer[] = [
+  {
+    id: `${mock.domain.A}-${mkBytes32("0xa")}-1`,
+    poolId: mkBytes32("0xb"),
+    domain: "1337",
+    lpToken: mkAddress("0xa"),
+    fromAddress: mkAddress("0xaa"),
+    toAddress: mkAddress("0xbb"),
+    pooledTokens: [mkAddress("0x11"), mkAddress("0x22")],
+    amount: 200,
+    balances: [200, 200],
+    blockNumber: Math.floor(Date.now() / 1000),
+    transactionHash: mkBytes32("0xb"),
+    timestamp: Math.floor(Date.now() / 1000),
+    nonce: Math.floor(Date.now() * 10),
+  },
+];
+
+export const mockStableSwapLpBalanceResponse: StableSwapLpBalance[] = [
+  {
+    poolId: mkBytes32("0xb"),
+    domain: "1337",
+    lpToken: mkAddress("0xa"),
+    provider: mkAddress("0xb"),
+    balance: 200,
+    lastTimestamp: Math.floor(Date.now() / 1000),
   },
 ];
 
@@ -357,6 +418,17 @@ export const mockSlippageUpdateResponse: SlippageUpdate[] = [
     transferId: mkBytes32("0xa"),
     domain: "1337",
     timestamp: 1673421076,
+  },
+];
+
+export const mockRouterDailyTVLResponse: RouterDailyTVL[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    asset: mkAddress("0xa"),
+    router: mkAddress("0xb"),
+    domain: "1337",
+    timestamp: 1673421076,
+    balance: "23123123",
   },
 ];
 
@@ -382,8 +454,9 @@ export const mockSubgraph = () =>
       id: "ROOT_MANAGER_META_ID",
     }),
     getStableSwapPools: Promise.resolve(mockStableSwapPoolResponse),
-    getStableSwapExchangeByDomainAndTimestamp: Promise.resolve(mockStableSwapExchangeResponse),
-    getStableSwapPoolEventsByDomainAndTimestamp: Promise.resolve(mockStableSwapAddLiquidityResponse),
+    getStableSwapExchangeByDomainAndNonce: Promise.resolve(mockStableSwapExchangeResponse),
+    getStableSwapPoolEventsByDomainAndNonce: Promise.resolve(mockStableSwapAddLiquidityResponse),
     getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
     getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
+    getRouterDailyTVLByDomainAndTimestamp: Promise.resolve(mockRouterDailyTVLResponse),
   });

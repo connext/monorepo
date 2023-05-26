@@ -56,7 +56,7 @@ module "cartographer_db" {
 module "cartographer_db_replica" {
   domain              = "cartographer"
   source              = "../../../modules/db-replica"
-  replicate_source_db = module.cartographer_db.db_instance_id
+  replicate_source_db = module.cartographer_db.db_instance_identifier
   depends_on          = [module.cartographer_db]
   replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}"
   instance_class      = "db.t4g.2xlarge"

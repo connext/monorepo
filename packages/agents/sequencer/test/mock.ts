@@ -98,6 +98,11 @@ export const mock = {
     database: {
       url: "http://example.com",
     },
+    executer: {
+      batchSize: 100,
+      maxChildCount: 5,
+      waitPeriod: 3000,
+    },
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {

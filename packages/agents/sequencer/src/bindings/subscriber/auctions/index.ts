@@ -19,20 +19,20 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   interval(async () => {
     if (numberOfChild < maxChildCount) {
-      logger.debug("Trying to pull data from the queue", requestContext, methodContext);
+      logger.debug("Trying to pull data from the queue", requestContext, methodContext, { waitPeriod });
       try {
-        const messages: Message[] = [];
+        const messages: Broker.GetMessage[] = [];
         for (let i = 0; i < batchSize; i++) {
-          const message = await channel.get(queueName, { noAck: true });
-          if (message === false) {
+          const message = await channel.get(queueName, { noAck: false });
+          if (!message) {
             break;
           } else {
-            messages.push(JSON.parse(message.content.toString()) as Message);
+            messages.push(message);
           }
         }
 
         if (messages.length > 0) {
-          await batchExecute(messages);
+          await batchExecute(messages, channel);
         }
       } catch (e: unknown) {
         logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
@@ -46,7 +46,7 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
   }, waitPeriod);
 };
 
-const batchExecute = async (messages: Message[]) => {
+const batchExecute = async (brokerMessages: Broker.GetMessage[], channel: Broker.Channel) => {
   const {
     logger,
     config,
@@ -54,6 +54,10 @@ const batchExecute = async (messages: Message[]) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(batchExecute.name, undefined, "");
   const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
+  const messages: Message[] = brokerMessages.map(
+    (brokerMessage) => JSON.parse(brokerMessage.content.toString()) as Message,
+  );
+  // messages: Message[]
   /// Mark - Executer
   // if message.transferId, then call executer with it's type either Fast or Slow
   logger.debug("Spawning executer for transfers", requestContext, methodContext, {
@@ -100,7 +104,8 @@ const batchExecute = async (messages: Message[]) => {
       // ACK on success
       // Validate transfer is sent to relayer before ACK
       await Promise.all(
-        messages.map(async (message) => {
+        brokerMessages.map(async (brokerMessage) => {
+          const message = JSON.parse(brokerMessage.content.toString()) as Message;
           const dataCache = message.type === MessageType.ExecuteFast ? cache.auctions : cache.executors;
           const status = await dataCache.getExecStatus(message.transferId);
           const task = await dataCache.getMetaTxTask(message.transferId);
@@ -109,11 +114,13 @@ const batchExecute = async (messages: Message[]) => {
               transferId: message.transferId,
               status,
             });
+            channel.ack(brokerMessage);
           } else {
             logger.info("Transfer Rejected", requestContext, methodContext, {
               transferId: message.transferId,
               status,
             });
+            channel.reject(brokerMessage);
           }
           if (message.type === MessageType.ExecuteFast) {
             await cache.auctions.pruneAuctionData(message.transferId);
@@ -125,10 +132,12 @@ const batchExecute = async (messages: Message[]) => {
       );
     } else {
       await Promise.all(
-        messages.map(async (message) => {
+        brokerMessages.map(async (brokerMessage) => {
+          const message = JSON.parse(brokerMessage.content.toString()) as Message;
           if (message.type === MessageType.ExecuteFast) {
             await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
           }
+          channel.reject(brokerMessage);
           logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
             transferId: message.transferId,
           });
