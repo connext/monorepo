@@ -25,7 +25,7 @@ output "db_instance_endpoint" {
 
 output "db_instance_name" {
   description = "The database name"
-  value       = aws_db_instance.db_read_replica.name
+  value       = aws_db_instance.db_read_replica.db_name
 }
 
 output "db_instance_username" {
