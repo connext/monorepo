@@ -77,7 +77,6 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
-  concurrency: Type.Integer({ minimum: 0 }),
   service: Type.Union([
     Type.Literal("prover"),
     Type.Literal("propagate"),
@@ -177,9 +176,6 @@ export const getEnvConfig = (
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
-    concurrency: process.env.NXTP_PROVER_CONCURRENCY
-      ? +process.env.NXTP_PROVER_CONCURRENCY
-      : undefined || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
     messageQueue: process.env.MESSAGE_QUEUE
       ? JSON.parse(process.env.MESSAGE_QUEUE)
       : configJson.messageQueue ?? configFile.messageQueue,

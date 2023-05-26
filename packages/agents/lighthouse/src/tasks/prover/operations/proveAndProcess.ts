@@ -414,19 +414,12 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       domain,
     });
 
-    const {
-      _proofs: proofs,
-      _aggregateRoot: aggregateRoot,
-      _aggregatePath: aggregatePath,
-      _aggregateIndex: aggregateIndex,
-    } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      proofs,
+      messageProofs,
       aggregateRoot,
-      aggregatePath,
-      aggregateIndex,
+      messageRootProof,
+      messageRootIndex,
     ]);
 
     const { taskId } = await sendWithRelayerWithBackup(

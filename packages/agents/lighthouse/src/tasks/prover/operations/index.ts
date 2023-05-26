@@ -1,2 +1,1 @@
-export { enqueue } from "./enqueue";
-export { proveAndProcess } from "./proveAndProcess";
+export { enqueue } from "./proveAndProcess";
