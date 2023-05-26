@@ -44,7 +44,7 @@ export const TMQExchangeConfig = Type.Object({
 export const TMQQueueConfig = Type.Object({
   name: Type.String(),
   limit: Type.Integer(),
-  queueLimit: Type.Integer(),
+  queueLimit: Type.Optional(Type.Integer()),
   deadLetter: Type.Optional(Type.String()),
   subscribe: Type.Boolean(),
 });
@@ -89,6 +89,12 @@ export const TModeConfig = Type.Object({
   cleanup: Type.Boolean(),
 });
 
+export const TExecuterConfig = Type.Object({
+  batchSize: Type.Number(),
+  maxChildCount: Type.Number(),
+  waitPeriod: Type.Number(),
+});
+
 export const SequencerConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
@@ -122,6 +128,7 @@ export const SequencerConfigSchema = Type.Object({
   ),
   database: TDatabaseConfig,
   relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
+  executer: TExecuterConfig,
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

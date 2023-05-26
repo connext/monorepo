@@ -98,6 +98,11 @@ export const mock = {
     database: {
       url: "http://example.com",
     },
+    executer: {
+      batchSize: 100,
+      maxChildCount: 5,
+      waitPeriod: 3000,
+    },
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -164,9 +169,14 @@ export const mock = {
     database: () => mockDatabase(),
     mqClient: () => {
       return {
-        publish: stub(),
-        handle: stub() as any,
         close: stub() as any,
+        createChannel: () => {
+          return {
+            assertExchange: stub(),
+            publish: stub(),
+            close: stub(),
+          };
+        },
       };
     },
   },

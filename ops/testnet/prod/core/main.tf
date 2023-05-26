@@ -103,8 +103,8 @@ module "router_executor" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 4096
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -176,8 +176,8 @@ module "sequencer_publisher" {
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 4096
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -206,8 +206,8 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8082
   loadbalancer_port        = 80
-  cpu                      = 4096
-  memory                   = 8192
+  cpu                      = 8192
+  memory                   = 16384
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -270,7 +270,7 @@ module "lighthouse_prover_cron" {
   })
   schedule_expression = "rate(5 minutes)"
   timeout             = 900
-  memory_size         = 2048
+  memory_size         = 10240
 }
 
 module "lighthouse_process_from_root_cron" {

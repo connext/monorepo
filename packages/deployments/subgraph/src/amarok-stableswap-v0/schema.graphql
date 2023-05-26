@@ -62,6 +62,7 @@ interface StableSwapEvent @entity {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }
 
 type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
@@ -78,6 +79,7 @@ type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }
 
 type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
@@ -94,6 +96,7 @@ type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }
 
 type StableSwapExchange @entity {
@@ -110,6 +113,7 @@ type StableSwapExchange @entity {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }
 
 interface SwapTradeVolume @entity {
@@ -174,6 +178,7 @@ interface LpTokenEvent {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }
 
 type LpTransferEvent implements LpTokenEvent @entity {
@@ -187,4 +192,5 @@ type LpTransferEvent implements LpTokenEvent @entity {
   block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
+  nonce: BigInt!
 }

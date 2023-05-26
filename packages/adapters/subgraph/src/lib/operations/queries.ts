@@ -294,6 +294,7 @@ export const STABLESWAP_EXCHANGE_ENTITY = `
       block
       timestamp
       transaction
+      nonce
 `;
 
 export const STABLESWAP_POOL_EVENT_ENTITY = `
@@ -313,6 +314,7 @@ export const STABLESWAP_POOL_EVENT_ENTITY = `
       block
       timestamp
       transaction
+      nonce
 `;
 
 export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
@@ -332,6 +334,7 @@ export const STABLESWAP_LP_TRANSFER_EVENT_ENTITY = `
       timestamp
       block
       transaction
+      nonce
 `;
 
 export const RELAYER_FEES_INCREASE_ENTITY = `
@@ -1082,16 +1085,16 @@ export const getStableSwapPoolsQuery = (domain: string) => {
 
 const swapExchangeQueryString = (
   prefix: string,
-  fromTimestamp: number,
+  lastestNonce: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
 ) => {
   return `${prefix}_swap_stableSwapExchanges(
     where: {
-      timestamp_gte: ${fromTimestamp},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    orderBy: timestamp,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${STABLESWAP_EXCHANGE_ENTITY}}`;
 };
@@ -1144,7 +1147,7 @@ const routerDailyTVLQueryString = (
   ) {${ROUTER_DAILY_TVL_ENTITY}}`;
 };
 
-export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
@@ -1154,7 +1157,7 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
     if (agents.has(domain)) {
       combinedQuery += swapExchangeQueryString(
         prefix,
-        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.latestNonce,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );
@@ -1172,23 +1175,23 @@ export const getSwapExchangesQuery = (agents: Map<string, SubgraphQueryByTimesta
 
 const poolEventsQueryString = (
   prefix: string,
-  fromTimestamp: number,
+  lastestNonce: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
   addOrRemove: "add" | "remove" = "add",
 ) => {
   return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
     where: {
-      timestamp_gte: ${fromTimestamp},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    orderBy: timestamp,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
 };
 
 export const getPoolEventsQuery = (
-  agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  agents: Map<string, SubgraphQueryMetaParams>,
   addOrRemove: "add" | "remove" = "add",
 ): string => {
   const { config } = getContext();
@@ -1200,7 +1203,7 @@ export const getPoolEventsQuery = (
     if (agents.has(domain)) {
       combinedQuery += poolEventsQueryString(
         prefix,
-        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.latestNonce,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
         addOrRemove,
@@ -1219,21 +1222,21 @@ export const getPoolEventsQuery = (
 
 const lpTransfersQueryString = (
   prefix: string,
-  fromTimestamp: number,
+  lastestNonce: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "asc",
 ) => {
   return `${prefix}_swap_lpTransferEvents (
     where: {
-      timestamp_gte: ${fromTimestamp},
+      nonce_gte: "${lastestNonce}",
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    orderBy: timestamp,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${STABLESWAP_LP_TRANSFER_EVENT_ENTITY}}`;
 };
 
-export const getLpTransfersQuery = (agents: Map<string, SubgraphQueryByTimestampMetaParams>): string => {
+export const getLpTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
@@ -1243,7 +1246,7 @@ export const getLpTransfersQuery = (agents: Map<string, SubgraphQueryByTimestamp
     if (agents.has(domain)) {
       combinedQuery += lpTransfersQueryString(
         prefix,
-        agents.get(domain)!.fromTimestamp,
+        agents.get(domain)!.latestNonce,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
       );
