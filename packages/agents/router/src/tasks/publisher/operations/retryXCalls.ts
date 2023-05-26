@@ -3,6 +3,7 @@ import { createLoggingContext, jsonifyError, OriginTransfer, getNtpTimeSeconds, 
 import { MQ_EXCHANGE, XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
 
+const DEFAULT_EXECUTION_WINDOW = 4 * 60; // The average execution window is 4mins
 // Shuffle the input array in place
 // Algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 const shuffle = (input: string[]): string[] => {
@@ -56,7 +57,8 @@ export const retryXCalls = async (): Promise<void> => {
               if (bidStatus !== undefined) {
                 const startTime = Number(bidStatus.timestamp);
                 const elapsedTime = getNtpTimeSeconds() - startTime;
-                const waitTime = Math.pow(2, bidStatus.attempts);
+                // Retries every 2^n x 4min.
+                const waitTime = DEFAULT_EXECUTION_WINDOW * Math.pow(2, bidStatus.attempts - 1);
                 if (elapsedTime > waitTime) {
                   return transfer;
                 }
