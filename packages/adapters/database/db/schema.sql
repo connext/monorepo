@@ -9,6 +9,21 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 --
+-- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+--
+-- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+--
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -129,10 +144,14 @@ CREATE TABLE public.stableswap_exchanges (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    balances numeric [] DEFAULT ARRAY []::numeric [] NOT NULL,
-    fee numeric DEFAULT 0 NOT NULL,
-    nonce numeric DEFAULT 0 NOT NULL
-);
+    << << << < HEAD balances numeric [] DEFAULT ARRAY []::numeric [] NOT NULL,
+    == == == = balances numeric [] DEFAULT ARRAY []::numeric [] NOT NULL,
+    >> >> >> > 5860b1d41 (
+        Prod Sync (
+            #4339))
+            fee numeric DEFAULT 0 NOT NULL,
+            nonce numeric DEFAULT 0 NOT NULL
+        );
 --
 -- Name: stableswap_pool_events; Type: TABLE; Schema: public; Owner: -
 --
@@ -1514,27 +1533,9 @@ ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCE
 
 ALTER TABLE ONLY public.asset_balances
 ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
-<< << << < HEAD == == == = --
 -- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: -
 --
-
-CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
 --
--- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: -
---
-
-CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
---
--- Name: job; Type: ROW SECURITY; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
---
--- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
->> >> >> > 18e72e27b (fix: merge) --
 -- PostgreSQL database dump complete
 --
 
@@ -1612,4 +1613,8 @@ VALUES ('20220520150644'),
     ('20230509165732'),
     ('20230510210620'),
     ('20230519155643'),
-    ('20230523134345');
+    << << << < HEAD ('20230523134345');
+== == == = ('20230523134345');
+>> >> >> > 5860b1d41 (
+    Prod Sync (
+        #4339))
