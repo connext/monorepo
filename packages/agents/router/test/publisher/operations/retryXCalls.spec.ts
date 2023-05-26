@@ -97,6 +97,7 @@ describe("Operations:retryXCalls", () => {
 
     it("should work if pending set is empty", async () => {
       (mockPubContext.adapters.cache.transfers.getPending as SinonStub).resolves([]);
+      (mockPubContext.adapters.subgraph.getOriginTransfersByDomain as SinonStub).resolves([]);
       await expect(retryXCalls()).to.be.fulfilled;
 
       expect((mockPubContext.adapters.mqClient.publish as SinonStub).callCount).to.be.eq(0);
