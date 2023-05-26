@@ -12,7 +12,6 @@ const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
-export const DEFAULT_CONCURRENCY = 10;
 
 dotenvConfig();
 
@@ -33,6 +32,21 @@ export const TModeConfig = Type.Object({
 
 export const TPollingConfig = Type.Object({
   cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
+});
+
+export const TMQConfig = Type.Object({
+  connection: Type.Object({
+    uri: Type.String(),
+  }),
+  exchange: Type.Object({
+    name: Type.String(),
+    type: Type.Union([Type.Literal("fanout"), Type.Literal("topic"), Type.Literal("direct")]),
+    publishTimeout: Type.Integer(),
+    persistent: Type.Boolean(),
+    durable: Type.Boolean(),
+  }),
+  subscriber: Type.Optional(Type.String()),
+  queueLimit: Type.Optional(Type.Number()),
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
@@ -70,6 +84,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
     Type.Literal("process"),
     Type.Literal("sendoutboundroot"),
   ]),
+  messageQueue: TMQConfig,
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -165,6 +180,9 @@ export const getEnvConfig = (
     concurrency: process.env.NXTP_PROVER_CONCURRENCY
       ? +process.env.NXTP_PROVER_CONCURRENCY
       : undefined || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
+    messageQueue: process.env.MESSAGE_QUEUE
+      ? JSON.parse(process.env.MESSAGE_QUEUE)
+      : configJson.messageQueue ?? configFile.messageQueue,
   };
 
   nxtpConfig.cartographerUrl =

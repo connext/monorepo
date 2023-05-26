@@ -2,11 +2,12 @@ import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } f
 import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import Broker from "amqplib";
 
 import { NxtpLighthouseConfig } from "../../config";
 
 import { ProverContext } from "./context";
-import { proveAndProcess } from "./operations";
+import { enqueue } from "./operations";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -42,7 +43,7 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
       context.config.chains,
     );
     context.adapters.database = await getDatabase(context.config.database.url, context.logger);
-
+    context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {
       const setupFunc =
@@ -81,7 +82,7 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     );
 
     // Start the prover.
-    await proveAndProcess();
+    await enqueue();
     if (context.config.healthUrls.prover) {
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);
     }

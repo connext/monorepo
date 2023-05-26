@@ -24,21 +24,37 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
-import { DEFAULT_CONCURRENCY, DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
   path: string[];
   index: number;
 };
+export type BrokerMessage = {
+  messages: XMessage[];
+  originDomain: string;
+  destinationDomain: string;
+  messageRoot: string;
+  messageRootIndex: number;
+  messageRootCount: number;
+  aggregateRoot: string;
+  aggregateRootCount: number;
+};
 
-export const proveAndProcess = async () => {
-  const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
+const PROVER_QUEUE = "proverX";
+
+export const enqueue = async () => {
+  const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database },
+    adapters: { database, mqClient },
     config,
   } = getContext();
+  const channel = await mqClient.createChannel();
+  await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
+    durable: config.messageQueue.exchange.durable,
+  });
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
@@ -90,19 +106,12 @@ export const proveAndProcess = async () => {
                 if (!aggregateRootCount) {
                   throw new NoAggregateRootCount(targetAggregateRoot.root);
                 }
-                // TODO: Move to per domain storage adapters in context
-                const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-                const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
-                const spokeSMT = new SparseMerkleTree(spokeStore);
-                const hubSMT = new SparseMerkleTree(hubStore);
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
-                const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
-                let concurrentBatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
@@ -136,45 +145,38 @@ export const proveAndProcess = async () => {
                       offset,
                     });
 
-                    concurrentBatch.push(
-                      processMessages(
-                        unprocessed,
-                        originDomain,
-                        destinationDomain,
-                        targetMessageRoot,
-                        messageRootIndex,
-                        targetAggregateRoot.root,
-                        spokeSMT,
-                        hubSMT,
-                        subContext,
-                      ),
-                    );
-                    offset += unprocessed.length;
-                    logger.info(
-                      "Batched unprocessed messages for origin and destination pair",
+                    const brokerMessage = await createBrokerMessage(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      targetMessageRoot,
+                      messageRootIndex,
+                      messageRootCount,
+                      targetAggregateRoot.root,
+                      aggregateRootCount,
                       subContext,
-                      methodContext,
-                      {
-                        originDomain,
-                        destinationDomain,
-                        offset,
-                        batchSize: concurrentBatch.length,
-                      },
                     );
-                    if (unprocessed.length === 0 || concurrentBatch.length >= concurrency) {
-                      await Promise.all(concurrentBatch);
-                      concurrentBatch = [];
+                    if (brokerMessage) {
+                      channel.publish(
+                        config.messageQueue.exchange.name,
+                        PROVER_QUEUE,
+                        Buffer.from(JSON.stringify(brokerMessage)),
+                        { persistent: config.messageQueue.exchange.persistent },
+                      );
                       logger.info(
-                        "Processed unprocessed messages for origin and destination pair",
+                        "Enqueued unprocessed messages for origin and destination pair",
                         subContext,
                         methodContext,
                         {
                           originDomain,
                           destinationDomain,
                           offset,
+                          brokerMessage,
                         },
                       );
                     }
+
+                    offset += unprocessed.length;
                   } else {
                     // End the loop if no more messages are found
                     end = true;
@@ -207,26 +209,27 @@ export const proveAndProcess = async () => {
       }
     }),
   );
+
+  await channel.close();
 };
 
-export const processMessages = async (
+export const createBrokerMessage = async (
   _messages: XMessage[],
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
   messageRootIndex: number,
+  messageRootCount: number,
   targetAggregateRoot: string,
-  spokeSMT: SparseMerkleTree,
-  hubSMT: SparseMerkleTree,
+  aggregateRootCount: number,
   _requestContext: RequestContext,
-) => {
+): Promise<BrokerMessage | undefined> => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader },
+    adapters: { contracts, chainreader },
     config,
-    chainData,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
@@ -259,6 +262,55 @@ export const processMessages = async (
     }
   }
 
+  if (messages.length === 0) {
+    logger.info("No messages to enqueue", requestContext, methodContext, {
+      originDomain,
+      destinationDomain,
+    });
+    return undefined;
+  }
+
+  return {
+    messages,
+    originDomain,
+    destinationDomain,
+    messageRoot: targetMessageRoot,
+    messageRootIndex,
+    messageRootCount,
+    aggregateRoot: targetAggregateRoot,
+    aggregateRootCount,
+  };
+};
+
+export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
+  const {
+    logger,
+    adapters: { contracts, relayers, chainreader, database },
+    config,
+    chainData,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(processMessages.name, _requestContext);
+  const {
+    messages,
+    originDomain,
+    destinationDomain,
+    messageRoot,
+    messageRootIndex,
+    messageRootCount,
+    aggregateRoot,
+    aggregateRootCount,
+  } = brokerMessage;
+
+  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+  const spokeSMT = new SparseMerkleTree(spokeStore);
+  const hubSMT = new SparseMerkleTree(hubStore);
+
+  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
+  if (!destinationSpokeConnector) {
+    throw new NoDestinationDomainForProof(destinationDomain);
+  }
+
   // process messages
   const messageProofs: ProofStruct[] = [];
   for (const message of messages) {
@@ -271,24 +323,19 @@ export const processMessages = async (
       throw new NoMessageProof(messageProof.index, message.leaf);
     }
     // Verify proof of inclusion of message in messageRoot.
-    const messageVerification = spokeSMT.verify(
-      message.origin.index,
-      message.leaf,
-      messageProof.path,
-      targetMessageRoot,
-    );
+    const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
     if (messageVerification && messageVerification.verified) {
       logger.info("Message Verified successfully", requestContext, methodContext, {
         messageIndex: message.origin.index,
         leaf: message.leaf,
-        targetMessageRoot,
+        messageRoot,
         messageVerification,
       });
     } else {
       logger.info("Message verification failed", requestContext, methodContext, {
         messageIndex: message.origin.index,
         leaf: message.leaf,
-        targetMessageRoot,
+        messageRoot,
         messageVerification,
       });
       // Do not process message if proof verification fails.
@@ -308,22 +355,22 @@ export const processMessages = async (
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
   const messageRootProof = await hubSMT.getProof(messageRootIndex);
   if (!messageRootProof) {
-    throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
+    throw new NoMessageRootProof(messageRootIndex, messageRoot);
   }
   // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
+  const rootVerification = hubSMT.verify(messageRootIndex, messageRoot, messageRootProof, aggregateRoot);
   if (rootVerification && rootVerification.verified) {
     logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
-      targetMessageRoot,
-      targetAggregateRoot,
+      messageRoot,
+      aggregateRoot,
       messageRootProof,
       rootVerification,
     });
   } else {
     logger.info("MessageRoot verification failed", requestContext, methodContext, {
       messageRootIndex,
-      targetMessageRoot,
-      targetAggregateRoot,
+      messageRoot,
+      aggregateRoot,
       messageRootProof,
       rootVerification,
     });
@@ -332,7 +379,7 @@ export const processMessages = async (
   try {
     const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
       messageProofs,
-      targetAggregateRoot,
+      aggregateRoot,
       messageRootProof,
       messageRootIndex,
     ]);
@@ -345,7 +392,7 @@ export const processMessages = async (
 
     const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
       messageProofs,
-      targetAggregateRoot,
+      aggregateRoot,
       messageRootProof,
       messageRootIndex,
     ]);

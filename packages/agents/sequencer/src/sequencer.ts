@@ -378,15 +378,6 @@ export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Co
   const methodContext = createMethodContext(setupMQ.name);
 
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
-
-  // const mqConfig: Broker.ConfigurationOptions = {
-  //   connection: config.messageQueue.connection,
-  //   exchanges: config.messageQueue.exchanges,
-  //   queues: config.messageQueue.queues,
-  //   bindings: config.messageQueue.bindings,
-  // };
-  // await Broker.configure(mqConfig);
-
   const connection = await Broker.connect(config.messageQueue.connection.uri);
   logger.info("MQ setup is done!", requestContext, methodContext, {});
   return connection;
