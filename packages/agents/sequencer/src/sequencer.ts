@@ -22,7 +22,8 @@ import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
-import { bindServer } from "./bindings/publisher";
+import { bindHTTPSubscriber } from "./bindings/publisher";
+import { bindServer } from "./bindings/server";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
 import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
@@ -46,7 +47,43 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
   try {
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
-    await bindServer();
+    // TODO: Add queue bindings
+    const mqClient = context.adapters.mqClient;
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(
+      context.config.messageQueue.exchanges[0].name,
+      context.config.messageQueue.exchanges[0].type,
+      {
+        durable: context.config.messageQueue.exchanges[0].durable,
+      },
+    );
+
+    if (context.config.messageQueue.publisher) {
+      const binding = context.config.messageQueue.bindings.find(
+        (it) => it.target == context.config.messageQueue.publisher,
+      );
+      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.publisher);
+
+      if (binding && queue) {
+        await channel.assertQueue(context.config.messageQueue.publisher, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
+        await channel.bindQueue(context.config.messageQueue.publisher, binding?.exchange, binding?.keys[0]);
+      }
+
+      bindServer(context.config.messageQueue.publisher, channel);
+    } else {
+      // TODO: Is this necessary? By default subscribe to all configured queues concurrently
+      // By default subscribe to all configured queues concurrently
+      await Promise.all(
+        context.config.messageQueue.bindings.map(async (binding) => {
+          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
+          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
+        }),
+      );
+    }
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
       port: {
@@ -69,6 +106,58 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     );
   } catch (error: any) {
     console.error("Error starting publisher :'(", error);
+    process.exit(1);
+  }
+};
+
+export const makeHTTPSubscriber = async () => {
+  const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
+  try {
+    const mqClient = context.adapters.mqClient;
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(
+      context.config.messageQueue.exchanges[0].name,
+      context.config.messageQueue.exchanges[0].type,
+      {
+        durable: context.config.messageQueue.exchanges[0].durable,
+      },
+    );
+
+    if (context.config.messageQueue.publisher) {
+      const binding = context.config.messageQueue.bindings.find(
+        (it) => it.target == context.config.messageQueue.publisher,
+      );
+      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.publisher);
+
+      if (binding && queue) {
+        await channel.assertQueue(context.config.messageQueue.publisher, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
+        await channel.bindQueue(context.config.messageQueue.publisher, binding?.exchange, binding?.keys[0]);
+      }
+
+      bindHTTPSubscriber(context.config.messageQueue.publisher, channel);
+    } else {
+      // TODO: Is this necessary? By default subscribe to all configured queues concurrently
+      // By default subscribe to all configured queues concurrently
+      await Promise.all(
+        context.config.messageQueue.bindings.map(async (binding) => {
+          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
+          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
+        }),
+      );
+    }
+
+    // Create health server, set up routes, and start listening.
+    // TODO: Uncomment when health server is implemented
+    // await bindHealthServer();
+  } catch (error: any) {
+    console.error("Error starting subscriber :'(", error);
+    await context.adapters.mqClient.close();
     process.exit(1);
   }
 };

@@ -1,4 +1,9 @@
-import { makePublisher as _makePublisher, makeSubscriber as _makeSubscriber, setupContext } from "./sequencer";
+import {
+  makePublisher as _makePublisher,
+  makeSubscriber as _makeSubscriber,
+  makeHTTPSubscriber as _makeHTTPSubscriber,
+  setupContext,
+} from "./sequencer";
 import { SequencerConfig } from "./lib/entities";
 
 export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
@@ -18,6 +23,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
   try {
     await setupContext(_configOverride);
 
+    await _makeHTTPSubscriber();
     await _makePublisher();
   } catch (err: unknown) {
     console.error("Error starting sequencer :(", err);
@@ -32,6 +38,19 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
 
     await _makeSubscriber();
     await _makePublisher();
+    await _makeHTTPSubscriber();
+  } catch (err: unknown) {
+    console.error("Error starting sequencer :(", err);
+    process.exit(1);
+  }
+};
+
+export const makeHTTPSubscriber = async (_configOverride?: SequencerConfig) => {
+  /// MARK - Context
+  try {
+    await setupContext(_configOverride);
+
+    await _makeHTTPSubscriber();
   } catch (err: unknown) {
     console.error("Error starting sequencer :(", err);
     process.exit(1);

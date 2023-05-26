@@ -25,11 +25,12 @@ import {
   ExecStatusResponse,
   ExecStatusResponseSchema,
 } from "@connext/nxtp-utils";
+import Broker from "amqplib";
 
-import { getContext } from "../../../sequencer";
-import { getOperations } from "../../../lib/operations";
+import { getContext } from "../../sequencer";
+import { MessageType, HTTPMessage } from "../../lib/entities";
 
-export const bindServer = async (): Promise<FastifyInstance> => {
+export const bindServer = async (queueName: string, channel: Broker.Channel): Promise<FastifyInstance> => {
   const {
     config,
     logger,
@@ -100,9 +101,6 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       },
     },
     async (request, response) => {
-      const {
-        execute: { storeFastPathData },
-      } = getOperations();
       const { requestContext, methodContext } = createLoggingContext(
         "POST /execute-fast/:transferId endpoint",
         undefined,
@@ -111,14 +109,19 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
-        await storeFastPathData(bid, requestContext);
+
+        const message: HTTPMessage = { transferId: bid.transferId, type: MessageType.ExecuteFast, data: bid };
+
+        channel.publish(queueName, queueName, Buffer.from(JSON.stringify(message)), {
+          persistent: config.messageQueue.exchanges[0].persistent,
+        });
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
-        logger.error(`Failed to store fastpath data`, requestContext, methodContext, jsonifyError(error as Error));
+        logger.error(`Failed to submit fastpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
         return response
           .code(500)
-          .send({ message: type ?? "Failed to store fastpath data", error: jsonifyError(error as Error) });
+          .send({ message: type ?? "Failed to submit fastpath data", error: jsonifyError(error as Error) });
       }
     },
   );
@@ -158,19 +161,25 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       const { requestContext, methodContext } = createLoggingContext("POST /execute-slow endpoint");
-      const {
-        execute: { storeSlowPathData },
-      } = getOperations();
       try {
         const executorData = request.body;
-        await storeSlowPathData(executorData, requestContext);
+
+        const message: HTTPMessage = {
+          transferId: executorData.transferId,
+          type: MessageType.ExecuteSlow,
+          data: executorData,
+        };
+
+        channel.publish(queueName, queueName, Buffer.from(JSON.stringify(message)), {
+          persistent: config.messageQueue.exchanges[0].persistent,
+        });
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
-        logger.error(`Failed to store slowpath data`, requestContext, methodContext, jsonifyError(error as Error));
+        logger.error(`Failed to submit slowpath data`, requestContext, methodContext, jsonifyError(error as Error));
         const type = (error as NxtpError).type;
         return response
           .code(500)
-          .send({ message: type ?? "Failed to store slowpath data", error: jsonifyError(error as Error) });
+          .send({ message: type ?? "Failed to submit slowpath data", error: jsonifyError(error as Error) });
       }
     },
   );

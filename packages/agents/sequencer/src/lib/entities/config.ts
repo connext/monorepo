@@ -144,3 +144,10 @@ export const messageSchema = Type.Object({
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;
+
+export const httpMessageSchema = Type.Object({
+  transferId: Type.String(),
+  type: Type.Enum(MessageType),
+  data: Type.Any(),
+});
+export type HTTPMessage = Static<typeof httpMessageSchema>;
