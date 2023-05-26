@@ -88,7 +88,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
       }
       "2053862260" = {
         providers = ["https://testnet.era.zksync.dev"]
@@ -232,7 +232,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
       }
       "2053862260" = {
         providers = ["https://testnet.era.zksync.dev"]
@@ -262,7 +262,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://consensys-zkevm-goerli-prealpha.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
       }
       "2053862260" = {
         providers = ["https://testnet.era.zksync.dev"]
