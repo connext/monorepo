@@ -9,15 +9,15 @@ resource "aws_db_instance" "db_read_replica" {
   vpc_security_group_ids = var.db_security_group_ids
 
   performance_insights_enabled = var.performance_insights_enabled
-  publicly_accessible        = var.publicly_accessible
-  multi_az                   = false
-  storage_type               = "gp2"
-  apply_immediately          = true
-  skip_final_snapshot        = true
-  maintenance_window         = var.maintenance_window
-  backup_retention_period    = var.backup_retention_period
-  backup_window              = var.backup_window
-  auto_minor_version_upgrade = true
+  publicly_accessible          = var.publicly_accessible
+  multi_az                     = false
+  storage_type                 = "gp2"
+  apply_immediately            = true
+  skip_final_snapshot          = true
+  maintenance_window           = var.maintenance_window
+  backup_retention_period      = var.backup_retention_period
+  backup_window                = var.backup_window
+  auto_minor_version_upgrade   = true
 
   tags = merge(
     var.tags,
