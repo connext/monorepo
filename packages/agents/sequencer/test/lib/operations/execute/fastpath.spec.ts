@@ -102,7 +102,7 @@ describe("Operations:Execute:FastPath", () => {
       const bid: Bid = mock.entity.bid({ transferId });
 
       getStatusStub.onCall(0).resolves(ExecStatus.None);
-      getStatusStub.onCall(1).resolves(ExecStatus.Queued);
+      getStatusStub.onCall(1).resolves(ExecStatus.Enqueued);
 
       await storeFastPathData(bid, requestContext);
 
