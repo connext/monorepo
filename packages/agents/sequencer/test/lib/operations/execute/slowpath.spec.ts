@@ -181,7 +181,7 @@ describe("Operations:Execute:SlowPath", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecStatusStub.resolves(ExecStatus.Enqueued);
+      getExecStatusStub.resolves(ExecStatus.Dequeued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
       sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
@@ -208,7 +208,7 @@ describe("Operations:Execute:SlowPath", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecStatusStub.resolves(ExecStatus.Enqueued);
+      getExecStatusStub.resolves(ExecStatus.Dequeued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
       sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
