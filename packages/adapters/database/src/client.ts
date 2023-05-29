@@ -891,9 +891,13 @@ export const getMessageRootsFromIndex = async (
   const root = await db.sql<
     s.root_messages.SQL,
     s.root_messages.Selectable[]
-  >`select * from ${"root_messages"} where ${{
+  >`(select * from ${"root_messages"} where ${{
     spoke_domain,
-  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 75`.run(poolToUse);
+  }} and ${{ leaf_count: dc.gte(index) }} and ${{ processed: true }} order by ${"leaf_count"} asc nulls last limit 1) 
+  union all 
+  (select * from ${"root_messages"} where ${{
+    spoke_domain,
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 10)`.run(poolToUse);
   return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
