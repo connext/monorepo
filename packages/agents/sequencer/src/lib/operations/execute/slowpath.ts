@@ -138,7 +138,7 @@ export const executeSlowPathData = async (
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);
-  if (status !== ExecStatus.Enqueued) {
+  if (status !== ExecStatus.Dequeued) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
