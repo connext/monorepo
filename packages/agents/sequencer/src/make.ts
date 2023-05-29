@@ -18,12 +18,11 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
   }
 };
 
-export const makePublisher = async (_configOverride?: SequencerConfig) => {
+export const makeHTTPPublisher = async (_configOverride?: SequencerConfig) => {
   /// MARK - Context
   try {
     await setupContext(_configOverride);
 
-    await _makeHTTPSubscriber();
     await _makePublisher();
   } catch (err: unknown) {
     console.error("Error starting sequencer :(", err);
@@ -37,8 +36,8 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     await setupContext(_configOverride);
 
     await _makeSubscriber();
-    await _makePublisher();
     await _makeHTTPSubscriber();
+    await _makePublisher();
   } catch (err: unknown) {
     console.error("Error starting sequencer :(", err);
     process.exit(1);

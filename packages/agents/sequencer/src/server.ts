@@ -1,6 +1,6 @@
-import { makePublisher } from "./make";
+import { makeHTTPPublisher } from "./make";
 
 export { SequencerConfig, ChainConfig } from "./lib/entities";
-export { makePublisher };
+export { makeHTTPPublisher };
 
-makePublisher();
+makeHTTPPublisher();

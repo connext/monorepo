@@ -21,7 +21,7 @@ import { getDatabase } from "@connext/nxtp-adapters-database";
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
+import { bindSubscriber } from "./bindings/subscriber";
 import { bindHTTPSubscriber } from "./bindings/publisher";
 import { bindServer } from "./bindings/server";
 import { getHelpers } from "./lib/helpers";
@@ -104,6 +104,9 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 };
 
 export const makeHTTPSubscriber = async () => {
+  const {
+    healthserver: { bindHealthServer },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
 
   context.logger.info("Method Start", requestContext, methodContext, {});
@@ -137,9 +140,7 @@ export const makeHTTPSubscriber = async () => {
     }
 
     // Create health server, set up routes, and start listening.
-    // TODO: Uncomment when health server is implemented
-    // await bindHealthServer();
-    // TODO: Type this error everywhere
+    await bindHealthServer(context.config.server.pub.host, context.config.server.pub.port);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     await context.adapters.mqClient.close();
@@ -154,6 +155,9 @@ export const makeHTTPSubscriber = async () => {
  * @param _configOverride - Overrides for configuration; normally only used for testing.
  */
 export const makeSubscriber = async () => {
+  const {
+    healthserver: { bindHealthServer },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
 
   context.logger.info("Method Start", requestContext, methodContext, {});
@@ -200,7 +204,7 @@ export const makeSubscriber = async () => {
     }
 
     // Create health server, set up routes, and start listening.
-    await bindHealthServer();
+    await bindHealthServer(context.config.server.sub.host, context.config.server.sub.port);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     await context.adapters.mqClient.close();

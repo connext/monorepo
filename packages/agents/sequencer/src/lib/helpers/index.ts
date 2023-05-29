@@ -6,6 +6,7 @@ import {
   getMinimumBidsCountForRound,
 } from "./auctions";
 import { canSubmitToRelayer } from "./relayerfee";
+import { bindHealthServer } from "./healthserver";
 
 export const getHelpers = () => {
   return {
@@ -18,6 +19,9 @@ export const getHelpers = () => {
     },
     relayerfee: {
       canSubmitToRelayer,
+    },
+    healthserver: {
+      bindHealthServer,
     },
   };
 };
