@@ -61,6 +61,7 @@ export const TMessageQueueConfig = Type.Object({
   queues: Type.Array(TMQQueueConfig),
   bindings: Type.Array(TMQBindingConfig),
   executerTimeout: Type.Integer(),
+  prefetch: Type.Optional(Type.Integer()),
   publisher: Type.Optional(Type.String()),
   subscriber: Type.Optional(Type.String()),
 });
