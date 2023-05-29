@@ -2,7 +2,7 @@ import { ExecStatus, NxtpError } from "@connext/nxtp-utils";
 
 export class ExecutorDataExpired extends NxtpError {
   constructor(status: ExecStatus, context: any = {}) {
-    super("This lighthouse data has already expired.", { status, ...context }, ExecutorDataExpired.name);
+    super("This executor data has already expired.", { status, ...context }, ExecutorDataExpired.name);
   }
 }
 
@@ -26,7 +26,7 @@ export class MissingTransfer extends NxtpError {
 
 export class MissingExecutorData extends NxtpError {
   constructor(context: any = {}) {
-    super("No lighthouse data found in the cache", context, MissingExecutorData.name);
+    super("No executor data found in the cache", context, MissingExecutorData.name);
   }
 }
 
