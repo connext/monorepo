@@ -6,7 +6,6 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   jsonifyError,
-  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
@@ -25,7 +24,6 @@ import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
 import { getHelpers } from "../../helpers";
 
-const expiryTime = 180; // 3min
 export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
