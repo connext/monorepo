@@ -201,7 +201,7 @@ locals {
       port = module.router_cache.redis_instance_port
     },
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_server.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       pub = {
