@@ -133,37 +133,48 @@ locals {
       ]
       queues = [
         {
+          name       = "http"
+          limit      = 1
+          queueLimit = 100000
+          subscribe  = true
+        },
+        {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "2053862260"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1734439522"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
       ]
       bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "http"
+          keys     = ["http"]
+        },
         {
           exchange = "sequencerX"
           target   = "1735353714"
