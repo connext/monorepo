@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
+import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot, RootMessageStatus } from "./amb";
 import {
   PoolActionType,
   StableSwapExchange,
@@ -430,6 +430,21 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
     domain: message.domain,
     blockNumber: message.block_number,
   };
+};
+
+/**
+ * Converts a root message status from the cartographer db through either DB queries or Postgrest into the RootMessageStatus type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an RootMessageStatus object
+ */
+export const convertFromDbRootStatus = (status: any): RootMessageStatus => {
+  const obj = {
+    processedCount: status.processed_count,
+    unprocessedCount: status.unprocessed_count,
+    aggregatedCount: status.aggregated_count,
+    lastAggregatedRoot: status.last_aggregated_id ? status.last_aggregated_id.split("-")[0] : undefined,
+  };
+  return sanitizeNull(obj);
 };
 
 /**
