@@ -31,7 +31,7 @@ const context: AppContext = {} as any;
 export const getContext = () => context;
 export const msgContentType = "application/json";
 export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
-export const DEFAULT_PREFETCH_SIZE = 10;
+export const DEFAULT_PREFETCH_SIZE = 100;
 /// MARK - Make Agents
 /**
  * Sets up and runs the sequencer publisher unit. Receives bids from router network and assigns to transfer by ID,
