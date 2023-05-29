@@ -42,7 +42,12 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Enqueued && status !== ExecStatus.Sent) {
+  if (
+    status !== ExecStatus.None &&
+    status !== ExecStatus.Enqueued &&
+    status !== ExecStatus.Dequeued &&
+    status !== ExecStatus.Sent
+  ) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
