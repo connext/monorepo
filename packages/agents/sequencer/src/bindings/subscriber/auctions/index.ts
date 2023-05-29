@@ -18,7 +18,7 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
   });
   channel.consume(
     queueName,
-    async (consumeMessage) => {
+    async function (consumeMessage) {
       if (consumeMessage) {
         const { transferId, type: messageType } = JSON.parse(consumeMessage.content.toString()) as Message;
         const { requestContext, methodContext } = createLoggingContext("Subscriber.consume", undefined, transferId);

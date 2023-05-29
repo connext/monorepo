@@ -115,17 +115,6 @@ export const getEnvConfig = (
       : configFile.relayerFeeTolerance
       ? configFile.relayerFeeTolerance
       : DEFAULT_RELAYER_FEE_TOLERANCE,
-    executer: {
-      batchSize: process.env.EXECUTER_BATCH_SIZE
-        ? Number(process.env.EXECUTER_BATCH_SIZE)
-        : undefined || configFile?.executer?.batchSize || DEFAULT_EXECUTER_BATCH_SIZE,
-      maxChildCount: process.env.MAX_CHILD_PROCESS
-        ? Number(process.env.MAX_CHILD_PROCESS)
-        : undefined || configFile?.executer?.maxChildCount || DEFAULT_CHILD_PROCESS_COUNT,
-      waitPeriod: process.env.WAIT_PERIOD
-        ? Number(process.env.WAIT_PERIOD)
-        : undefined || configFile?.executer?.waitPeriod || DEFAULT_EXECUTER_WAIT_PERIOD,
-    },
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
