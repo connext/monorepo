@@ -75,11 +75,9 @@ export const getEnvConfig = (
       configJson.auctionWaitTime ||
       configFile.auctionWaitTime ||
       DEFAULT_AUCTION_WAIT_TIME,
-    executionWaitTime:
-      process.env.SEQ_EXECUTION_WAIT_TIME ||
-      configJson.executionWaitTime ||
-      configFile.executionWaitTime ||
-      DEFAULT_EXECUTION_WAIT_TIME,
+    executionWaitTime: process.env.SEQ_EXECUTION_WAIT_TIME
+      ? +process.env.SEQ_EXECUTION_WAIT_TIME
+      : undefined || configJson.executionWaitTime || configFile.executionWaitTime || DEFAULT_EXECUTION_WAIT_TIME,
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
