@@ -159,7 +159,7 @@ describe("Bindings:Server", () => {
     });
 
     it("should get 500 on non-existent auction instance", async () => {
-      getStatusStub.resolves(ExecStatus.Queued);
+      getStatusStub.resolves(ExecStatus.Enqueued);
       getAuctionStub.resolves(undefined);
       const response = await fastifyApp.inject({
         method: "GET",
@@ -169,7 +169,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should get 200", async () => {
-      getStatusStub.resolves(ExecStatus.Queued);
+      getStatusStub.resolves(ExecStatus.Enqueued);
       const bid1 = mock.entity.bid({ router: mkAddress("0x111") });
       const bid2 = mock.entity.bid({ router: mkAddress("0x222") });
       getAuctionStub.resolves({ bids: { bid1, bid2 }, timestamp: 1000 });

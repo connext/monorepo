@@ -42,7 +42,12 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
+  if (
+    status !== ExecStatus.None &&
+    status !== ExecStatus.Enqueued &&
+    status !== ExecStatus.Dequeued &&
+    status !== ExecStatus.Sent
+  ) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -103,7 +108,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       status = execStatus.status as ExecStatus;
     }
   }
-  if (status === ExecStatus.None) {
+  if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -121,7 +126,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       { persistent: config.messageQueue.exchanges[0].persistent },
     );
     await channel.close();
-    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
