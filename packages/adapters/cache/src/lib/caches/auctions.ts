@@ -62,11 +62,6 @@ export class AuctionsCache extends Cache {
     };
     const res = await this.data.hset(`${this.prefix}:auction`, transferId, JSON.stringify(auction));
 
-    if (!existing) {
-      // If the auction didn't previously exist, create an entry for status as well.
-      await this.setExecStatus(transferId, ExecStatus.Enqueued);
-    }
-
     return Number(res >= 1);
   }
 
