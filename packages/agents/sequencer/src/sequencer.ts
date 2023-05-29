@@ -30,6 +30,7 @@ import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./li
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
+export const HTTP_QUEUE = "http";
 export const msgContentType = "application/json";
 export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 
@@ -58,31 +59,23 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
       },
     );
 
-    if (context.config.messageQueue.publisher) {
-      const binding = context.config.messageQueue.bindings.find(
-        (it) => it.target == context.config.messageQueue.publisher,
-      );
-      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.publisher);
+    if (HTTP_QUEUE) {
+      const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
+      const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
 
       if (binding && queue) {
-        await channel.assertQueue(context.config.messageQueue.publisher, {
+        await channel.assertQueue(HTTP_QUEUE, {
           durable: true,
           maxLength: queue.queueLimit,
         });
-        await channel.bindQueue(context.config.messageQueue.publisher, binding?.exchange, binding?.keys[0]);
+        await channel.bindQueue(HTTP_QUEUE, binding?.exchange, binding?.keys[0]);
+      } else {
+        throw new Error("Sequencer publisher not configured");
       }
 
-      bindServer(context.config.messageQueue.publisher, channel);
+      bindServer(HTTP_QUEUE, channel);
     } else {
-      // TODO: Is this necessary? By default subscribe to all configured queues concurrently
-      // By default subscribe to all configured queues concurrently
-      await Promise.all(
-        context.config.messageQueue.bindings.map(async (binding) => {
-          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
-          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
-          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
-        }),
-      );
+      throw new Error("Sequencer publisher not configured");
     }
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
@@ -124,37 +117,29 @@ export const makeHTTPSubscriber = async () => {
         durable: context.config.messageQueue.exchanges[0].durable,
       },
     );
-
-    if (context.config.messageQueue.publisher) {
-      const binding = context.config.messageQueue.bindings.find(
-        (it) => it.target == context.config.messageQueue.publisher,
-      );
-      const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.publisher);
+    if (HTTP_QUEUE) {
+      const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
+      const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
 
       if (binding && queue) {
-        await channel.assertQueue(context.config.messageQueue.publisher, {
+        await channel.assertQueue(HTTP_QUEUE, {
           durable: true,
           maxLength: queue.queueLimit,
         });
-        await channel.bindQueue(context.config.messageQueue.publisher, binding?.exchange, binding?.keys[0]);
+        await channel.bindQueue(HTTP_QUEUE, binding?.exchange, binding?.keys[0]);
+      } else {
+        throw new Error("Sequencer publisher not configured");
       }
 
-      bindHTTPSubscriber(context.config.messageQueue.publisher, channel);
+      bindHTTPSubscriber(HTTP_QUEUE, channel);
     } else {
-      // TODO: Is this necessary? By default subscribe to all configured queues concurrently
-      // By default subscribe to all configured queues concurrently
-      await Promise.all(
-        context.config.messageQueue.bindings.map(async (binding) => {
-          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
-          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
-          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
-        }),
-      );
+      throw new Error("Sequencer publisher not configured");
     }
 
     // Create health server, set up routes, and start listening.
     // TODO: Uncomment when health server is implemented
     // await bindHealthServer();
+    // TODO: Type this error everywhere
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     await context.adapters.mqClient.close();

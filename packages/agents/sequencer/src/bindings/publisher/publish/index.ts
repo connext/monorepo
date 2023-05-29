@@ -15,14 +15,27 @@ export const bindHTTPSubscriber = async (queueName: string, channel: Broker.Chan
     await channel.consume(queueName, async (message) => {
       if (!message) return;
       const httpMessage: HTTPMessage = JSON.parse(message.content.toString()) as HTTPMessage;
-      switch (httpMessage.type) {
-        case MessageType.ExecuteFast:
-          await storeFastPathData(httpMessage.data as Bid, requestContext);
-          break;
-        case MessageType.ExecuteSlow: {
-          await storeSlowPathData(httpMessage.data as ExecutorData, requestContext);
-          break;
+      try {
+        switch (httpMessage.type) {
+          case MessageType.ExecuteFast:
+            await storeFastPathData(httpMessage.data as Bid, requestContext);
+            channel.ack(message);
+            break;
+          case MessageType.ExecuteSlow:
+            await storeSlowPathData(httpMessage.data as ExecutorData, requestContext);
+            channel.ack(message);
+            break;
+          default:
+            // Could drop the message permanently
+            // channel.nack(message, requeue);
+            // Drop the message permanently
+            channel.reject(message, false);
+            break;
         }
+      } catch (e: unknown) {
+        // Drop the message permanently
+        channel.reject(message, false);
+        logger.error("Error while processing HTTP request", requestContext, methodContext, jsonifyError(e as Error));
       }
     });
   } catch (e: unknown) {

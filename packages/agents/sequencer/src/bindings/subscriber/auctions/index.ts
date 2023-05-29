@@ -137,7 +137,7 @@ const batchExecute = async (brokerMessages: Broker.GetMessage[], channel: Broker
           if (message.type === MessageType.ExecuteFast) {
             await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
           }
-          channel.reject(brokerMessage);
+          channel.reject(brokerMessage, false);
           logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
             transferId: message.transferId,
           });

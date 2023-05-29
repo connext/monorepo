@@ -64,7 +64,7 @@ export class AuctionsCache extends Cache {
 
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
-      await this.setExecStatus(transferId, ExecStatus.Queued);
+      await this.setExecStatus(transferId, ExecStatus.None);
     }
 
     return Number(res >= 1);

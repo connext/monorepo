@@ -112,7 +112,7 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
 
         const message: HTTPMessage = { transferId: bid.transferId, type: MessageType.ExecuteFast, data: bid };
 
-        channel.publish(queueName, queueName, Buffer.from(JSON.stringify(message)), {
+        channel.publish(config.messageQueue.publisher!, queueName, Buffer.from(JSON.stringify(message)), {
           persistent: config.messageQueue.exchanges[0].persistent,
         });
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
@@ -170,7 +170,8 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
           data: executorData,
         };
 
-        channel.publish(queueName, queueName, Buffer.from(JSON.stringify(message)), {
+        //TODO: error handling
+        channel.publish(config.messageQueue.publisher!, queueName, Buffer.from(JSON.stringify(message)), {
           persistent: config.messageQueue.exchanges[0].persistent,
         });
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
