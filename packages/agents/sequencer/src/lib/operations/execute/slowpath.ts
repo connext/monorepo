@@ -6,7 +6,6 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   jsonifyError,
-  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
@@ -25,7 +24,6 @@ import { Message, MessageType } from "../../entities";
 import { getOperations } from "..";
 import { getHelpers } from "../../helpers";
 
-const expiryTime = 180; // 3min
 export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
@@ -61,11 +59,9 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);
-  const lastUpdateTime = await cache.executors.getExecStatusTime(transferId);
-  const isExpired = getNtpTimeSeconds() - lastUpdateTime > expiryTime;
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecStatus.None || isExpired) {
+  } else if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -87,7 +83,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
       message: message,
     });
 
-    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
+    await cache.executors.setExecStatus(transferId, ExecStatus.Enqueued);
     await cache.executors.storeExecutorData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
   } else {
@@ -142,7 +138,7 @@ export const executeSlowPathData = async (
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);
-  if (status !== ExecStatus.Queued) {
+  if (status !== ExecStatus.Enqueued) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
