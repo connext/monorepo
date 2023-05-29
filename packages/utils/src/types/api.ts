@@ -7,7 +7,8 @@ import { TAddress, TChainId, TDecimalString } from "./primitives";
 
 export enum ExecStatus {
   None = "None",
-  Queued = "Queued",
+  Enqueued = "Enqueued",
+  Dequeued = "Dequeued",
   Sent = "Sent",
   Completed = "Completed",
   Cancelled = "Cancelled",
