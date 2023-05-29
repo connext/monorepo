@@ -17,9 +17,7 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
 
   try {
     context.chainData = chainData;
-    console.log("context.chainData: ", context.chainData);
     context.config = config;
-    console.log("context.config: ", context.config);
 
     // Make logger instance.
     context.logger = new Logger({
