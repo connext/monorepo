@@ -1,4 +1,4 @@
-# Cross Chain Subgraph for NXTP
+# Cross Chain Subgraph for Amarok
 
 The subgraph adapter has been built on top of the [graphclient](https://github.com/graphprotocol/graph-client). This basically works in cross-chain mode right now and uses `highestValue` strategy, but we will integrate the `most-synced` strategy once they get it released [here](https://github.com/graphprotocol/graph-client/issues/63).
 
