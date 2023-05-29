@@ -22,7 +22,7 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
       if (consumeMessage) {
         const { transferId, type: messageType } = JSON.parse(consumeMessage.content.toString()) as Message;
         const { requestContext, methodContext } = createLoggingContext("Subscriber.consume", undefined, transferId);
-        logger.info("Executing the transfer", requestContext, methodContext, { message: consumeMessage });
+        logger.info("Executing the transfer", requestContext, methodContext, { transferId, messageType });
 
         if (messageType === MessageType.ExecuteFast) {
           await cache.auctions.setExecStatus(transferId, ExecStatus.Dequeued);
@@ -80,7 +80,7 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
             }
           }
 
-          channel.reject(consumeMessage);
+          channel.reject(consumeMessage, false);
         }
       }
     },
