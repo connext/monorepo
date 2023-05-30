@@ -56,7 +56,11 @@ describe("Bindings:Server", () => {
     });
 
     after(() => {
-      fastifyApp.close();
+      if (fastifyApp) {
+        (async () => {
+          await fastifyApp.close();
+        })();
+      }
       restore();
       reset();
     });
@@ -72,7 +76,48 @@ describe("Bindings:Server", () => {
       expect(response.payload).to.be.eq("pong\n");
     });
 
+    it("should fail to post a bid if publish fails", async () => {
+      (channel.publish as SinonStub).throws();
+      const bid = mock.entity.bid();
+      const data: ExecuteFastApiPostBidReq = bid;
+
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/execute-fast",
+        payload: data,
+      });
+
+      expect(response.statusCode).to.be.eq(500);
+    });
+
+    it("should fail to post a bid if data is invalid", async () => {
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/execute-fast",
+        payload: {},
+      });
+
+      expect(response.statusCode).to.be.eq(400);
+    });
+
+    it("should fail to post a bid if data has invalid attribute", async () => {
+      const invalidBid: any = {
+        ...mock.entity.bid(),
+        signatures: {
+          99999: -1234,
+        },
+      };
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/execute-fast",
+        payload: invalidBid,
+      });
+
+      expect(response.statusCode).to.be.eq(500);
+    });
+
     it("happy: should succeed to post a bid", async () => {
+      (channel.publish as SinonStub).resolves();
       const bid = mock.entity.bid();
       const data: ExecuteFastApiPostBidReq = bid;
 
@@ -86,7 +131,7 @@ describe("Bindings:Server", () => {
       expect(JSON.parse(response.payload).message).to.be.eq("Bid received");
     });
 
-    it("should fail to post a execute-slow data", async () => {
+    it("should fail to post execute-slow data if publish fails", async () => {
       (channel.publish as SinonStub).throws();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),
@@ -103,6 +148,24 @@ describe("Bindings:Server", () => {
       });
 
       expect(response.statusCode).to.be.eq(500);
+    });
+
+    it("should fail to post execute-slow when data invalid", async () => {
+      (channel.publish as SinonStub).resolves();
+      const badExecutorData = {
+        transferId: mkBytes32(),
+        origin: "13337",
+        executorVersion: "0.0.1",
+        routerAddress: mkAddress(),
+      };
+
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/execute-slow",
+        payload: badExecutorData,
+      });
+
+      expect(response.statusCode).to.be.eq(400);
     });
 
     it("happy: should succeed to post a execute-slow data", async () => {
