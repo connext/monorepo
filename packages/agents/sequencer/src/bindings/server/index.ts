@@ -1,5 +1,8 @@
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
+import Broker from "amqplib";
 import {
+  ajv,
+  BidSchema,
   ExecStatus,
   createLoggingContext,
   jsonifyError,
@@ -25,8 +28,8 @@ import {
   ExecStatusResponse,
   ExecStatusResponseSchema,
 } from "@connext/nxtp-utils";
-import Broker from "amqplib";
 
+import { DataInvalid } from "../../lib/errors";
 import { getContext } from "../../sequencer";
 import { MessageType, HTTPMessage } from "../../lib/entities";
 
@@ -109,6 +112,16 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
+        // Validate Input schema
+        const validateInput = ajv.compile(BidSchema);
+        const validInput = validateInput(bid);
+        if (!validInput) {
+          const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+          throw new DataInvalid({
+            paramsError: msg,
+            bid,
+          });
+        }
 
         const message: HTTPMessage = { transferId: bid.transferId, type: MessageType.ExecuteFast, data: bid };
 
@@ -163,6 +176,17 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
       const { requestContext, methodContext } = createLoggingContext("POST /execute-slow endpoint");
       try {
         const executorData = request.body;
+
+        // Validate Input schema
+        const validateInput = ajv.compile(ExecutorDataSchema);
+        const validInput = validateInput(executorData);
+        if (!validInput) {
+          const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+          throw new DataInvalid({
+            paramsError: msg,
+            executorData,
+          });
+        }
 
         const message: HTTPMessage = {
           transferId: executorData.transferId,

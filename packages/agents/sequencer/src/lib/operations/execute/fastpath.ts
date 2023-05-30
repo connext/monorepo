@@ -29,17 +29,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   const { transferId, origin } = bid;
 
-  // Validate Input schema
-  const validateInput = ajv.compile(BidSchema);
-  const validInput = validateInput(bid);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      bid,
-    });
-  }
-
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);
   if (

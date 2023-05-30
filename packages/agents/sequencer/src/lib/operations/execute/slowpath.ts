@@ -35,17 +35,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
 
   const { transferId, origin } = executorData;
 
-  // Validate Input schema
-  const validateInput = ajv.compile(ExecutorDataSchema);
-  const validInput = validateInput(executorData);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      executorData,
-    });
-  }
-
   // Get the XCall from the subgraph for this transfer.
   const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {

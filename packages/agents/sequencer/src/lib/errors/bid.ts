@@ -33,3 +33,9 @@ export class NoBidsSent extends NxtpError {
     super(`No bids sent for transfer`, context, NoBidsSent.name);
   }
 }
+
+export class DataInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Data invalid`, context, DataInvalid.name);
+  }
+}
