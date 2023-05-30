@@ -170,7 +170,6 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
           data: executorData,
         };
 
-        //TODO: error handling
         channel.publish(config.messageQueue.publisher!, queueName, Buffer.from(JSON.stringify(message)), {
           persistent: config.messageQueue.exchanges[0].persistent,
         });

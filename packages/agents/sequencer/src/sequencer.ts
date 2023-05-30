@@ -48,7 +48,6 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
   try {
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
-    // TODO: Add queue bindings
     const mqClient = context.adapters.mqClient;
     const channel = await mqClient.createChannel();
     await channel.assertExchange(
