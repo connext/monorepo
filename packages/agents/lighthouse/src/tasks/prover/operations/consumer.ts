@@ -62,6 +62,7 @@ export const consume = async () => {
       if (message) {
         try {
           const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
+          logger.info("Processing an unprocessed message", requestContext, methodContext, { message: brokerMessage });
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);
         } catch (err: unknown) {
@@ -74,6 +75,8 @@ export const consume = async () => {
   );
 };
 
+const cachedSpokeSMT: Record<string, SparseMerkleTree> = {};
+const cachedHubSMT: Record<string, SparseMerkleTree> = {};
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
     logger,
@@ -93,10 +96,23 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
   } = brokerMessage;
 
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
-  const spokeSMT = new SparseMerkleTree(spokeStore);
-  const hubSMT = new SparseMerkleTree(hubStore);
+  let spokeSMT: SparseMerkleTree;
+  const spokeKey = `${originDomain}-${messageRootCount + 1}`;
+  if (cachedSpokeSMT[spokeKey]) {
+    spokeSMT = cachedSpokeSMT[spokeKey];
+  } else {
+    const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+    spokeSMT = new SparseMerkleTree(spokeStore);
+  }
+
+  let hubSMT: SparseMerkleTree;
+  const hubKey = `hub-${aggregateRootCount}`;
+  if (cachedHubSMT[hubKey]) {
+    hubSMT = cachedHubSMT[hubKey];
+  } else {
+    const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+    hubSMT = new SparseMerkleTree(hubStore);
+  }
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
