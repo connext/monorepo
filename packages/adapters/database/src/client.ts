@@ -895,7 +895,7 @@ export const getMessageRootsFromIndex = async (
     s.root_messages.Selectable[]
   >`select * from ${"root_messages"} where ${{
     spoke_domain,
-  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 75`.run(poolToUse);
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 100`.run(poolToUse);
   return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
@@ -927,6 +927,7 @@ export const getMessageRootStatusFromIndex = async (
 					left join aggregated_roots as aggregated 
 					on roots.root=aggregated.received_root) 
     )
+    select
     COUNT(CASE WHEN processed=true THEN 1 END) AS processed_count, 
     COUNT(CASE WHEN processed=false THEN 1 END) AS unprocessed_count, 
     COUNT(CASE WHEN aggregated_id IS not null then 1 END) aggregated_count,
