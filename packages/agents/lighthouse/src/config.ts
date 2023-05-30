@@ -197,11 +197,9 @@ export const getEnvConfig = (
           configJson.server?.prover?.host ||
           configFile.server?.prover?.host ||
           "0.0.0.0",
-        port:
-          process.env.PROVER_SUB_SERVER_PORT ||
-          configJson.server?.prover?.port ||
-          configFile.server?.prover?.port ||
-          7072,
+        port: process.env.PROVER_SUB_SERVER_PORT
+          ? +process.env.PROVER_SUB_SERVER_PORT
+          : undefined || configJson.server?.prover?.port || configFile.server?.prover?.port || 7072,
       },
       adminToken:
         process.env.LH_SERVER_ADMIN_TOKEN ||

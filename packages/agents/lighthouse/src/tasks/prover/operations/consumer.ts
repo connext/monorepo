@@ -103,6 +103,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   } else {
     const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
     spokeSMT = new SparseMerkleTree(spokeStore);
+    cachedSpokeSMT[spokeKey] = spokeSMT;
   }
 
   let hubSMT: SparseMerkleTree;
@@ -112,6 +113,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   } else {
     const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
     hubSMT = new SparseMerkleTree(hubStore);
+    cachedHubSMT[hubKey] = hubSMT;
   }
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
