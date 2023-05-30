@@ -1,1 +1,2 @@
-export { enqueue } from "./proveAndProcess";
+export { enqueue } from "./publisher";
+export { consume } from "./consumer";

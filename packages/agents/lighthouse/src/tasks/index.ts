@@ -3,7 +3,7 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig } from "../config";
 
-import { makeProver } from "./prover";
+import { makeProverPublisher, makeProverSubscriber } from "./prover";
 import { makePropagate } from "./propagate";
 import { makeProcessFromRoot } from "./processFromRoot";
 import { makeSendOutboundRoot } from "./sendOutboundRoot";
@@ -15,8 +15,11 @@ export const makeLighthouse = async () => {
   }
   const config = await getConfig(chainData, contractDeployments);
   switch (process.env.LIGHTHOUSE_SERVICE) {
-    case "prover":
-      await makeProver(config, chainData);
+    case "prover-pub":
+      await makeProverPublisher(config, chainData);
+      break;
+    case "prover-sub":
+      await makeProverSubscriber(config, chainData);
       break;
     case "propagate":
       await makePropagate(config, chainData);

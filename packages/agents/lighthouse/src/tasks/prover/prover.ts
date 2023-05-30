@@ -7,70 +7,95 @@ import Broker from "amqplib";
 import { NxtpLighthouseConfig } from "../../config";
 
 import { ProverContext } from "./context";
-import { enqueue } from "./operations";
+import { enqueue, consume } from "./operations";
+import { bindHealthServer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
 export const getContext = () => context;
+export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+  try {
+    await makeProver(config, chainData);
+    await enqueue();
+    if (context.config.healthUrls.prover) {
+      await sendHeartbeat(context.config.healthUrls.prover, context.logger);
+    }
+  } catch (e: unknown) {
+    console.error("Error starting Prover-Publisher. Sad! :(", e);
+  } finally {
+    await closeDatabase();
+    process.exit();
+  }
+};
 
-export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+export const makeProverSubscriber = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+  try {
+    await makeProver(config, chainData);
+    await consume();
+    await bindHealthServer();
+  } catch (e: unknown) {
+    console.error("Error starting Prover-Subscriber. Sad! :(", e);
+  } finally {
+    await closeDatabase();
+    process.exit();
+  }
+};
+
+const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makeProver.name);
 
-  try {
-    context.chainData = chainData;
-    console.log("context.chainData: ", context.chainData);
-    context.config = config;
-    console.log("context.config: ", context.config);
+  context.chainData = chainData;
+  context.config = config;
 
-    // Make logger instance.
-    context.logger = new Logger({
-      level: context.config.logLevel,
-      name: "lighthouse",
-      formatters: {
-        level: (label) => {
-          return { level: label.toUpperCase() };
-        },
+  // Make logger instance.
+  context.logger = new Logger({
+    level: context.config.logLevel,
+    name: "lighthouse",
+    formatters: {
+      level: (label) => {
+        return { level: label.toUpperCase() };
       },
-    });
-    context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
-      config: { ...context.config, mnemonic: "*****" },
-    });
+    },
+  });
+  context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
+    config: { ...context.config, mnemonic: "*****" },
+  });
 
-    // Adapters
-    context.adapters = {} as any;
-    context.adapters.chainreader = new ChainReader(
-      context.logger.child({ module: "ChainReader" }),
-      context.config.chains,
-    );
-    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
-    context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
-    context.adapters.relayers = [];
-    for (const relayerConfig of context.config.relayers) {
-      const setupFunc =
-        relayerConfig.type == RelayerType.Gelato
-          ? setupGelatoRelayer
-          : RelayerType.Connext
-          ? setupConnextRelayer
-          : undefined;
+  // Adapters
+  context.adapters = {} as any;
+  context.adapters.chainreader = new ChainReader(
+    context.logger.child({ module: "ChainReader" }),
+    context.config.chains,
+  );
+  context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+  context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
+  context.adapters.relayers = [];
+  for (const relayerConfig of context.config.relayers) {
+    const setupFunc =
+      relayerConfig.type == RelayerType.Gelato
+        ? setupGelatoRelayer
+        : RelayerType.Connext
+        ? setupConnextRelayer
+        : undefined;
 
-      if (!setupFunc) {
-        throw new Error(`Unknown relayer configured, relayer: ${relayerConfig}`);
-      }
-
-      const relayer = await setupFunc(relayerConfig.url);
-      context.adapters.relayers.push({
-        instance: relayer,
-        apiKey: relayerConfig.apiKey,
-        type: relayerConfig.type as RelayerType,
-      });
+    if (!setupFunc) {
+      throw new Error(`Unknown relayer configured, relayer: ${relayerConfig}`);
     }
-    context.adapters.contracts = getContractInterfaces();
 
-    context.logger.info("Prover boot complete!", requestContext, methodContext, {
-      chains: [...Object.keys(context.config.chains)],
+    const relayer = await setupFunc(relayerConfig.url);
+    context.adapters.relayers.push({
+      instance: relayer,
+      apiKey: relayerConfig.apiKey,
+      type: relayerConfig.type as RelayerType,
     });
-    console.log(
-      `
+  }
+  context.adapters.contracts = getContractInterfaces();
+
+  context.logger.info("Prover boot complete!", requestContext, methodContext, {
+    chains: [...Object.keys(context.config.chains)],
+  });
+  console.log(
+    `
 
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
       _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
@@ -79,17 +104,5 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
 
       `,
-    );
-
-    // Start the prover.
-    await enqueue();
-    if (context.config.healthUrls.prover) {
-      await sendHeartbeat(context.config.healthUrls.prover, context.logger);
-    }
-  } catch (e: unknown) {
-    console.error("Error starting Prover. Sad! :(", e);
-  } finally {
-    await closeDatabase();
-    process.exit();
-  }
+  );
 };

@@ -9,7 +9,8 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:prover": "LIGHTHOUSE_SERVICE=prover node --enable-source-maps dist/tasks/run.js",
+    "start:prover:pub": "LIGHTHOUSE_SERVICE=prover-pub node --enable-source-maps dist/tasks/run.js",
+    "start:prover:sub": "LIGHTHOUSE_SERVICE=prover-sub node --enable-source-maps dist/tasks/run.js",
     "start:process": "LIGHTHOUSE_SERVICE=process node --enable-source-maps dist/tasks/run.js",
     "start:propagate": "LIGHTHOUSE_SERVICE=propagate node --enable-source-maps dist/tasks/run.js",
     "start:sendoutboundroot": "LIGHTHOUSE_SERVICE=sendoutboundroot node --enable-source-maps dist/tasks/run.js",

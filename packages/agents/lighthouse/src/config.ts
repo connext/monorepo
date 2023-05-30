@@ -47,6 +47,15 @@ export const TMQConfig = Type.Object({
   }),
   subscriber: Type.Optional(Type.String()),
   queueLimit: Type.Optional(Type.Number()),
+  prefetchSize: Type.Optional(Type.Number()),
+});
+
+export const TServerConfig = Type.Object({
+  prover: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
+  adminToken: Type.String(),
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
@@ -78,12 +87,14 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   service: Type.Union([
-    Type.Literal("prover"),
+    Type.Literal("prover-pub"),
+    Type.Literal("prover-sub"),
     Type.Literal("propagate"),
     Type.Literal("process"),
     Type.Literal("sendoutboundroot"),
   ]),
   messageQueue: TMQConfig,
+  server: TServerConfig,
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -179,8 +190,26 @@ export const getEnvConfig = (
     messageQueue: process.env.MESSAGE_QUEUE
       ? JSON.parse(process.env.MESSAGE_QUEUE)
       : configJson.messageQueue ?? configFile.messageQueue,
+    server: {
+      prover: {
+        host:
+          process.env.PROVER_SUB_SERVER_HOST ||
+          configJson.server?.prover?.host ||
+          configFile.server?.prover?.host ||
+          "0.0.0.0",
+        port:
+          process.env.PROVER_SUB_SERVER_PORT ||
+          configJson.server?.prover?.port ||
+          configFile.server?.prover?.port ||
+          7072,
+      },
+      adminToken:
+        process.env.LH_SERVER_ADMIN_TOKEN ||
+        configJson.server?.adminToken ||
+        configFile.server?.adminToken ||
+        "blahblah",
+    },
   };
-
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??
     (nxtpConfig.environment === "production"
