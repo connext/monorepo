@@ -76,6 +76,7 @@ import {
   saveStableSwapLpBalances,
   getMessageRootStatusFromIndex,
   getAggregateRootByRootAndDomain,
+  getMessageByLeaf,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -797,6 +798,17 @@ describe("Database client", () => {
         return { ...m, processed: true };
       }),
     );
+  });
+
+  it("should getMessageByLeaf", async () => {
+    const messages: XMessage[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.xMessage());
+    }
+    await saveMessages(messages, pool);
+
+    const message = await getMessageByLeaf(mock.entity.xMessage().originDomain, messages[1].leaf, pool);
+    expect(message).to.deep.eq(messages[1]);
   });
 
   it("should filter processed properly", async () => {

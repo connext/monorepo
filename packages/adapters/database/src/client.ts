@@ -109,6 +109,7 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
     index: message.origin?.index,
     root: message.origin?.root,
     message: message.origin?.message,
+    transfer_id: message.transferId,
     processed: message.destination?.processed,
     return_data: message.destination?.returnData,
   };
