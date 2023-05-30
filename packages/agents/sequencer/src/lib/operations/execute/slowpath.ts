@@ -76,6 +76,8 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
+    const queue = config.messageQueue.queues.find((it) => it.name == transfer.xparams!.originDomain);
+    await channel.prefetch(queue?.limit || 1);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,

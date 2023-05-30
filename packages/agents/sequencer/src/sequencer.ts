@@ -62,6 +62,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     if (HTTP_QUEUE) {
       const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
       const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
+      await channel.prefetch(queue?.limit || 1);
 
       if (binding && queue) {
         await channel.assertQueue(HTTP_QUEUE, {
@@ -123,6 +124,7 @@ export const makeHTTPSubscriber = async () => {
     if (HTTP_QUEUE) {
       const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
       const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
+      await channel.prefetch(queue?.limit || 1);
 
       if (binding && queue) {
         await channel.assertQueue(HTTP_QUEUE, {
@@ -177,6 +179,7 @@ export const makeSubscriber = async () => {
         (it) => it.target == context.config.messageQueue.subscriber,
       );
       const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.subscriber);
+      await channel.prefetch(queue?.limit || 1);
 
       if (binding && queue) {
         await channel.assertQueue(context.config.messageQueue.subscriber, {

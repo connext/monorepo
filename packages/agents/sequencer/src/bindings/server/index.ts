@@ -213,7 +213,7 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
     async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
   );
 
-  const address = await server.listen({ port: config.server.pub.port, host: config.server.pub.host });
+  const address = await server.listen({ port: config.server.http.port, host: config.server.http.host });
   logger.info(`Server listening at ${address}`);
   return server;
 };

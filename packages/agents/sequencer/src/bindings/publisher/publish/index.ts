@@ -10,8 +10,6 @@ export const bindHTTPSubscriber = async (queueName: string, channel: Broker.Chan
   const { requestContext, methodContext } = createLoggingContext(bindHTTPSubscriber.name, undefined, "");
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   try {
-    // TODO: Assert that the queue exists
-    // TODO: Verify acks are working
     await channel.consume(queueName, async (message) => {
       if (!message) return;
       const httpMessage: HTTPMessage = JSON.parse(message.content.toString()) as HTTPMessage;
@@ -26,8 +24,6 @@ export const bindHTTPSubscriber = async (queueName: string, channel: Broker.Chan
             channel.ack(message);
             break;
           default:
-            // Could drop the message permanently
-            // channel.nack(message, requeue);
             // Drop the message permanently
             channel.reject(message, false);
             break;
