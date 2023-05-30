@@ -211,6 +211,42 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "XOC",
+      canonical: {
+        domain: "1886350457",
+        address: "0xa411c9aa00e020e4f88bc19996d29c5b7adb4acf",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // ethereum
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bnb
+        "6450786": {
+          local: "0xa411c9aa00e020e4f88bc19996d29c5b7adb4acf",
+          adopted: "0xa411c9aa00e020e4f88bc19996d29c5b7adb4acf",
+        },
+        // gnosis
+        "6778479": {
+          local: "0xa411c9aa00e020e4f88bc19996d29c5b7adb4acf",
+          adopted: "0xa411c9aa00e020e4f88bc19996d29c5b7adb4acf",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+      },
+    },
   ],
   agents: {
     watchers: {
