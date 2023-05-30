@@ -28,15 +28,16 @@ POST {{baseUrl}}/xcall
 Content-Type: application/json
 
 {
-  "origin": "1869640809",
+  "origin": "6450786",
   "destination": "1886350457",
-  "to": "{{yourAddress}}",
-  "asset": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "delegate": "{{yourAddress}}",
-  "amount": "100",
-  "slippage": "10000",
+  "to": "0x6d91e35d502fb6F654992283e6E4f397fC23DC2c",
+  "asset": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+  "delegate": "0x6d91e35d502fb6F654992283e6E4f397fC23DC2c",
+  "amount": "879768508293730767",
+  "slippage": "300",
   "callData": "0x",
-  "receiveLocal": true
+  "receiveLocal": false,
+  "relayerFeeInTransactingAsset": "120231491706269206"
 }
 
 ##############

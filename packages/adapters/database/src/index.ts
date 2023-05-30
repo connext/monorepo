@@ -19,6 +19,7 @@ import {
   AssetPrice,
   StableSwapTransfer,
   StableSwapLpBalance,
+  RootMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -52,6 +53,7 @@ import {
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
+  getMessageRootStatusFromIndex,
   getSpokeNode,
   getSpokeNodes,
   getHubNode,
@@ -206,6 +208,11 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getMessageRootStatusFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessageStatus>;
   getSpokeNode: (
     domain: string,
     index: number,
@@ -319,6 +326,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
+    getMessageRootStatusFromIndex,
     getSpokeNode,
     getSpokeNodes,
     getHubNode,

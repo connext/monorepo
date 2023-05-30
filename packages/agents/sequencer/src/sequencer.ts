@@ -33,7 +33,7 @@ export const getContext = () => context;
 export const HTTP_QUEUE = "http";
 export const msgContentType = "application/json";
 export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
-
+export const DEFAULT_PREFETCH_SIZE = 100;
 /// MARK - Make Agents
 /**
  * Sets up and runs the sequencer publisher unit. Receives bids from router network and assigns to transfer by ID,
@@ -166,6 +166,9 @@ export const makeSubscriber = async () => {
   try {
     const mqClient = context.adapters.mqClient;
     const channel = await mqClient.createChannel();
+    const prefetchSize = context.config.messageQueue.prefetch ?? DEFAULT_PREFETCH_SIZE;
+    channel.prefetch(prefetchSize);
+
     await channel.assertExchange(
       context.config.messageQueue.exchanges[0].name,
       context.config.messageQueue.exchanges[0].type,

@@ -235,8 +235,8 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8082
   loadbalancer_port        = 80
-  cpu                      = 4096
-  memory                   = 8192
+  cpu                      = 8192
+  memory                   = 16384
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -293,7 +293,10 @@ module "lighthouse_prover_cron" {
   container_family    = "lighthouse-prover"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
+  container_env_vars = merge(local.lighthouse_env_vars, {
+    LIGHTHOUSE_SERVICE = "prover"
+    DATABASE_URL       = local.read_replica_db_url
+  })
   schedule_expression = "rate(5 minutes)"
   timeout             = 900
   memory_size         = 10240
