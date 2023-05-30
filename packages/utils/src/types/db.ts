@@ -439,9 +439,9 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
  */
 export const convertFromDbRootStatus = (status: any): RootMessageStatus => {
   const obj = {
-    processedCount: status.processed_count,
-    unprocessedCount: status.unprocessed_count,
-    aggregatedCount: status.aggregated_count,
+    processedCount: +status.processed_count,
+    unprocessedCount: +status.unprocessed_count,
+    aggregatedCount: +status.aggregated_count,
     lastAggregatedRoot: status.last_aggregated_id ? status.last_aggregated_id.split("-")[0] : undefined,
   };
   return sanitizeNull(obj);
