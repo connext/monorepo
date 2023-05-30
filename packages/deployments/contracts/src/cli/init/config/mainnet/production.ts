@@ -211,6 +211,78 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "MIVA",
+      canonical: {
+        domain: "6778479",
+        address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // ethereum
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bnb
+        "6450786": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
+          adopted: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+      },
+    },
+    {
+      name: "FRACTION",
+      canonical: {
+        domain: "6778479",
+        address: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // ethereum
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bnb
+        "6450786": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+          adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        },
+      },
+    },
   ],
   agents: {
     watchers: {
