@@ -8,6 +8,7 @@ import { AssetStack, NetworkStack } from "./types";
 import { getValue, updateIfNeeded } from "./tx";
 
 export const setupAsset = async (args: {
+  network: "mainnet" | "testnet";
   apply: boolean;
   asset: AssetStack;
   networks: NetworkStack[];
@@ -52,7 +53,7 @@ export const setupAsset = async (args: {
   const tokenName = `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
-  if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
+  if (args.network === "mainnet" && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
   }
 
@@ -70,7 +71,7 @@ export const setupAsset = async (args: {
         tokenSymbol,
         asset.canonical.address,
         constants.AddressZero,
-        asset.canonical.cap,
+        asset.canonical.cap ?? constants.Zero,
       ],
     },
   });
@@ -159,6 +160,11 @@ export const setupAsset = async (args: {
       // TODO: add liquidity with balance assertions; proper min to mint calculations; etc.
       // Fixing this is useful in testnet, but on mainnets youre using safes anyway.
       console.warn(`Must implement safe pool initialization. Skipping.`);
+      continue;
+    }
+
+    // If did not apply any transactions, skip pool setup.
+    if (!apply) {
       continue;
     }
 

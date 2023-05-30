@@ -233,7 +233,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized, apply, name as Stage);
+  await initProtocol(sanitized, apply, name as Stage, network as "mainnet" | "testnet");
 };
 
 /**
@@ -244,7 +244,12 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stage: Stage) => {
+export const initProtocol = async (
+  protocol: ProtocolStack,
+  apply: boolean,
+  stage: Stage,
+  network: "mainnet" | "testnet",
+) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
@@ -366,6 +371,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
     // - Set up mapping for stableswap pool if applicable.
     for (const asset of protocol.assets) {
       await setupAsset({
+        network,
         apply,
         asset,
         networks: protocol.networks,
