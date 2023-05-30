@@ -1,10 +1,8 @@
 import { BigNumber, constants } from "ethers";
 import {
   Bid,
-  BidSchema,
   RequestContext,
   createLoggingContext,
-  ajv,
   ExecStatus,
   getNtpTimeSeconds,
   jsonifyError,
@@ -12,7 +10,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";

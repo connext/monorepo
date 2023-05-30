@@ -1,16 +1,7 @@
-import {
-  ExecutorData,
-  RequestContext,
-  createLoggingContext,
-  ajv,
-  ExecutorDataSchema,
-  ExecStatus,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { ExecutorData, RequestContext, createLoggingContext, ExecStatus, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
-  ParamsInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
