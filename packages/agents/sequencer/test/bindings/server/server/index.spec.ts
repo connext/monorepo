@@ -9,12 +9,14 @@ import {
   mkBytes32,
 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
+import Broker from "amqplib";
 
-import * as BindingFns from "../../../../src/bindings/publisher";
+import * as BindingFns from "../../../../src/bindings/server";
 import { mock } from "../../../mock";
 import { ctxMock, getOperationsStub } from "../../../globalTestHook";
 
 let fastifyApp: FastifyInstance;
+let channel: Broker.Channel;
 describe("Bindings:Server", () => {
   describe("#bindServer", () => {
     // db
@@ -29,6 +31,7 @@ describe("Bindings:Server", () => {
     // operations
     let storeFastPathDataStub: SinonStub;
     let storeSlowPathDataStub: SinonStub;
+    let brokerStub: SinonStub;
 
     beforeEach(() => {
       const { auctions, executors } = ctxMock.adapters.cache;
@@ -49,6 +52,7 @@ describe("Bindings:Server", () => {
           storeSlowPathData: storeSlowPathDataStub,
         },
       });
+      brokerStub = stub(Broker, "connect").resolves();
     });
 
     after(() => {
@@ -58,7 +62,8 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should respond with `pong`", async () => {
-      fastifyApp = await BindingFns.bindServer();
+      channel = await ctxMock.adapters.mqClient.createChannel();
+      fastifyApp = await BindingFns.bindServer("http_test", channel);
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/ping",
@@ -68,7 +73,6 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should succeed to post a bid", async () => {
-      storeFastPathDataStub.resolves();
       const bid = mock.entity.bid();
       const data: ExecuteFastApiPostBidReq = bid;
 
@@ -80,12 +84,10 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("Bid received");
-      expect(storeFastPathDataStub.callCount).to.be.eq(1);
-      expect(storeFastPathDataStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([bid]);
     });
 
     it("should fail to post a execute-slow data", async () => {
-      storeSlowPathDataStub.throws();
+      (channel.publish as SinonStub).throws();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),
         origin: "13337",
@@ -104,7 +106,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should succeed to post a execute-slow data", async () => {
-      storeSlowPathDataStub.resolves();
+      (channel.publish as SinonStub).resolves();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),
         origin: "13337",
@@ -121,8 +123,6 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("executor data received");
-      expect(storeSlowPathDataStub.callCount).to.be.eq(1);
-      expect(storeSlowPathDataStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([mockExecutorData]);
     });
 
     it("happy: should get empty queued bids", async () => {
@@ -196,20 +196,6 @@ describe("Bindings:Server", () => {
         url: "/execute-slow/badid",
       });
       expect(response.statusCode).to.be.eq(200);
-    });
-
-    it("happy: should receive 500 error if handling the bid fails", async () => {
-      storeFastPathDataStub.throws(new Error("Handling the bid failed!"));
-      const bid = mock.entity.bid();
-      const data: ExecuteFastApiPostBidReq = bid;
-
-      const response = await fastifyApp.inject({
-        method: "POST",
-        url: "/execute-fast",
-        payload: data,
-      });
-
-      expect(response.statusCode).to.be.eq(500);
     });
 
     it("happy: should call clearCache", async () => {
