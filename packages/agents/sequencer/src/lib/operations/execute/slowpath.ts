@@ -1,16 +1,7 @@
-import {
-  ExecutorData,
-  RequestContext,
-  createLoggingContext,
-  ajv,
-  ExecutorDataSchema,
-  ExecStatus,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { ExecutorData, RequestContext, createLoggingContext, ExecStatus, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
-  ParamsInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
@@ -34,17 +25,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
   const { transferId, origin } = executorData;
-
-  // Validate Input schema
-  const validateInput = ajv.compile(ExecutorDataSchema);
-  const validInput = validateInput(executorData);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      executorData,
-    });
-  }
 
   // Get the XCall from the subgraph for this transfer.
   const transfer = await subgraph.getOriginTransferById(origin, transferId);
@@ -72,6 +52,8 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
+    const queue = config.messageQueue.queues.find((it) => it.name == transfer.xparams!.originDomain);
+    await channel.prefetch(queue?.limit || 1);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,

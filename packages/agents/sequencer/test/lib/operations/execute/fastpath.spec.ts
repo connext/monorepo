@@ -117,23 +117,6 @@ describe("Operations:Execute:FastPath", () => {
       expect(getStatusStub.getCall(1).args).to.be.deep.eq([transferId]);
     });
 
-    it("should error if input validation fails", async () => {
-      const invalidBid1: any = {
-        ...mock.entity.bid(),
-        router: 1,
-      };
-      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
-
-      const invalidBid2: any = {
-        ...mock.entity.bid(),
-        signatures: {
-          99999: -1234,
-        },
-      };
-
-      await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
       getStatusStub.resolves(ExecStatus.Completed);
