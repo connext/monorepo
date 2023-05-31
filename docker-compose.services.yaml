@@ -106,7 +106,7 @@ services:
     image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8882:8081"
+      - "8883:8081"
     logging:
       driver: json-file
       options:
@@ -125,7 +125,7 @@ services:
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8883:8081"
+      - "8884:8081"
     logging:
       driver: json-file
       options:
