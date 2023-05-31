@@ -266,7 +266,7 @@ module "lighthouse_prover_cron" {
     LIGHTHOUSE_SERVICE = "prover"
   })
   schedule_expression = "rate(15 minutes)"
-  memory_size         = 1024
+  memory_size         = 4096
   timeout             = 900
 }
 
