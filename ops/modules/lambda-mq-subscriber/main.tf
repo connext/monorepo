@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_iam_role" "lambda" {
-  name = "${var.container_family}-${var.environment}-${var.stage}-lambda-role"
+  name = "${var.container_family}-${var.environment}-${var.stage}-lambda-mq-subscriber-role"
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -23,7 +23,7 @@ resource "aws_iam_role" "lambda" {
   })
 
   inline_policy {
-    name = "${var.container_family}-${var.environment}-${var.stage}-lambda-policies"
+    name = "${var.container_family}-${var.environment}-${var.stage}-lambda-mq-subscriber-policies"
     policy = jsonencode({
       "Version" : "2012-10-17",
       "Statement" : [
@@ -49,7 +49,7 @@ resource "aws_iam_role" "lambda" {
   }
 }
 resource "aws_lambda_function" "executable" {
-  function_name = "${var.container_family}-${var.environment}-${var.stage}"
+  function_name = "${var.container_family}-${var.environment}-${var.stage}-mq-subscriber"
   image_uri     = "${local.repository_url}:${var.docker_image_tag}"
   package_type  = "Image"
   role          = aws_iam_role.lambda.arn
@@ -62,15 +62,15 @@ resource "aws_lambda_function" "executable" {
 }
 
 
-resource "aws_lambda_event_source_mapping" "example" {
+resource "aws_lambda_event_source_mapping" "prover_x" {
   batch_size       = 10
-  event_source_arn = aws_mq_broker.example.arn
+  event_source_arn = var.aws_mq_broker_arn
   enabled          = true
   function_name    = aws_lambda_function.executable.arn
-  queues           = ["example"]
+  queues           = ["proverX"]
 
   source_access_configuration {
     type = "BASIC_AUTH"
-    uri  = aws_secretsmanager_secret_version.rmq_password.arn
+    uri  = aws_secretsmanager_secret_version.rmq_uri.arn
   }
 }

@@ -93,3 +93,8 @@ variable "aws_mq_amqp_endpoint" {
   type        = string
   description = "The AMQP endpoint of the broker"
 }
+
+variable "aws_mq_broker_arn" {
+  type        = string
+  description = "The ARN of the broker"
+}

@@ -157,28 +157,6 @@ module "centralised_message_queue" {
   rmq_mgt_password    = var.rmq_mgt_password
 }
 
-module "lambda_subscriber" {
-  source               = "../../../modules/lambda-subscriber"
-  stage                = var.stage
-  environment          = var.environment
-  sg_id                = module.network.ecs_task_sg
-  vpc_id               = module.network.vpc_id
-  zone_id              = data.aws_route53_zone.primary.zone_id
-  publicly_accessible  = true
-  subnet_ids           = module.network.public_subnets
-  rmq_mgt_user         = var.rmq_mgt_user
-  rmq_mgt_password     = var.rmq_mgt_password
-  aws_mq_amqp_endpoint = module.centralised_message_queue.aws_mq_amqp_endpoint
-  ecr_repository_name  = "nxtp-lighthouse"
-  docker_image_tag     = var.lighthouse_image_tag
-  container_family     = "lighthouse-process-from-root"
-  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
-  schedule_expression  = "rate(5 minutes)"
-  memory_size          = 512
-}
-
-
-
 module "sequencer_publisher" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -292,6 +270,26 @@ module "lighthouse_prover_cron" {
   schedule_expression = "rate(5 minutes)"
   timeout             = 900
   memory_size         = 10240
+}
+
+module "lighthouse_prover_subscriber" {
+  source               = "../../../modules/lambda-mq-subscriber"
+  stage                = var.stage
+  environment          = var.environment
+  sg_id                = module.network.ecs_task_sg
+  vpc_id               = module.network.vpc_id
+  zone_id              = data.aws_route53_zone.primary.zone_id
+  publicly_accessible  = true
+  subnet_ids           = module.network.public_subnets
+  rmq_mgt_user         = var.rmq_mgt_user
+  rmq_mgt_password     = var.rmq_mgt_password
+  aws_mq_amqp_endpoint = module.centralised_message_queue.aws_mq_amqp_endpoint
+  aws_mq_broker_arn    = module.centralised_message_queue.aws_mq_amqp_arn
+  ecr_repository_name  = "nxtp-lighthouse"
+  docker_image_tag     = var.lighthouse_image_tag
+  container_family     = "lighthouse-prover"
+  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
+  memory_size          = 512
 }
 
 module "lighthouse_process_from_root_cron" {
