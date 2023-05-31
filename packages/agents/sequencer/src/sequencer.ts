@@ -21,14 +21,16 @@ import { getDatabase } from "@connext/nxtp-adapters-database";
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
-import { bindServer } from "./bindings/publisher";
+import { bindSubscriber } from "./bindings/subscriber";
+import { bindHTTPSubscriber } from "./bindings/publisher";
+import { bindServer } from "./bindings/server";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
 import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
+export const HTTP_QUEUE = "http";
 export const msgContentType = "application/json";
 export const SlippageErrorPatterns = ["dy < minDy", "Reverted 0x6479203c206d696e4479", "more than pool balance"]; // 0x6479203c206d696e4479 -- encoded hex string of "dy < minDy"
 export const DEFAULT_PREFETCH_SIZE = 100;
@@ -46,7 +48,35 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
   try {
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
-    await bindServer();
+    const mqClient = context.adapters.mqClient;
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(
+      context.config.messageQueue.exchanges[0].name,
+      context.config.messageQueue.exchanges[0].type,
+      {
+        durable: context.config.messageQueue.exchanges[0].durable,
+      },
+    );
+
+    if (HTTP_QUEUE) {
+      const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
+      const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
+      await channel.prefetch(queue?.limit || 1);
+
+      if (binding && queue) {
+        await channel.assertQueue(HTTP_QUEUE, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
+        await channel.bindQueue(HTTP_QUEUE, binding?.exchange, binding?.keys[0]);
+      } else {
+        throw new Error("Sequencer publisher not configured");
+      }
+
+      bindServer(HTTP_QUEUE, channel);
+    } else {
+      throw new Error("Sequencer publisher not configured");
+    }
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
       port: {
@@ -73,6 +103,52 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
   }
 };
 
+export const makeHTTPSubscriber = async () => {
+  const {
+    healthserver: { bindHealthServer },
+  } = getHelpers();
+  const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
+
+  context.logger.info("Method Start", requestContext, methodContext, {});
+  try {
+    const mqClient = context.adapters.mqClient;
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(
+      context.config.messageQueue.exchanges[0].name,
+      context.config.messageQueue.exchanges[0].type,
+      {
+        durable: context.config.messageQueue.exchanges[0].durable,
+      },
+    );
+    if (HTTP_QUEUE) {
+      const binding = context.config.messageQueue.bindings.find((it) => it.target == HTTP_QUEUE);
+      const queue = context.config.messageQueue.queues.find((it) => it.name == HTTP_QUEUE);
+      await channel.prefetch(queue?.limit || 1);
+
+      if (binding && queue) {
+        await channel.assertQueue(HTTP_QUEUE, {
+          durable: true,
+          maxLength: queue.queueLimit,
+        });
+        await channel.bindQueue(HTTP_QUEUE, binding?.exchange, binding?.keys[0]);
+      } else {
+        throw new Error("Sequencer publisher not configured");
+      }
+
+      bindHTTPSubscriber(HTTP_QUEUE, channel);
+    } else {
+      throw new Error("Sequencer publisher not configured");
+    }
+
+    // Create health server, set up routes, and start listening.
+    await bindHealthServer(context.config.server.pub.host, context.config.server.pub.port);
+  } catch (error: any) {
+    console.error("Error starting subscriber :'(", error);
+    await context.adapters.mqClient.close();
+    process.exit(1);
+  }
+};
+
 /**
  * Sets up and runs the sequencer subscriber unit. Listens for messages regarding incoming bids and delegates
  * to child processes (see `execute` below).
@@ -80,6 +156,9 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
  * @param _configOverride - Overrides for configuration; normally only used for testing.
  */
 export const makeSubscriber = async () => {
+  const {
+    healthserver: { bindHealthServer },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(makeSubscriber.name);
 
   context.logger.info("Method Start", requestContext, methodContext, {});
@@ -102,6 +181,7 @@ export const makeSubscriber = async () => {
         (it) => it.target == context.config.messageQueue.subscriber,
       );
       const queue = context.config.messageQueue.queues.find((it) => it.name == context.config.messageQueue.subscriber);
+      await channel.prefetch(queue?.limit || 1);
 
       if (binding && queue) {
         await channel.assertQueue(context.config.messageQueue.subscriber, {
@@ -129,7 +209,7 @@ export const makeSubscriber = async () => {
     }
 
     // Create health server, set up routes, and start listening.
-    await bindHealthServer();
+    await bindHealthServer(context.config.server.sub.host, context.config.server.sub.port);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     await context.adapters.mqClient.close();
