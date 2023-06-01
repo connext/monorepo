@@ -119,8 +119,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
-    const queue = config.messageQueue.queues.find((it) => it.name == transfer.xparams!.originDomain);
-    await channel.prefetch(queue?.limit || 1);
 
     // Set status before publish
     // Avoid a race condition where the message is consumed before the status is set
