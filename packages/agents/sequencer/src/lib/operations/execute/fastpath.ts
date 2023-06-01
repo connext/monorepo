@@ -108,7 +108,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       status = execStatus.status as ExecStatus;
     }
   }
-  if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
+  if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
