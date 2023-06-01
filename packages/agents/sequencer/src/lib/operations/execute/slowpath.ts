@@ -72,6 +72,12 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
+
+    // Set status before publish
+    // Avoid a race condition where the message is consumed before the status is set
+    // If publish fails we we will have bad state, but publish is HA so we should be fine
+    await cache.executors.setExecStatus(transferId, ExecStatus.Enqueued);
+    await cache.executors.storeExecutorData(executorData);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
@@ -83,8 +89,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
       message: message,
     });
 
-    await cache.executors.setExecStatus(transferId, ExecStatus.Enqueued);
-    await cache.executors.storeExecutorData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
   } else {
     // The executor data status here is Pending/Cancelled.
