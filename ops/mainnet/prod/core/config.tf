@@ -143,7 +143,7 @@ locals {
       queues = [
         {
           name       = "http"
-          limit      = 1
+          limit      = 100
           queueLimit = 100000
           subscribe  = true
         },
@@ -319,14 +319,14 @@ locals {
       propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
-    hubDomain       = "6648936"
+    hubDomain = "6648936"
     proverBatchSize = {
-      "6648936"     = 10,
-      "1869640809"  = 10,
-      "1886350457"  = 10,
-      "1634886255"  = 10,
-      "6450786"     = 10,
-      "6778479"     = 10
+      "6648936"    = 10,
+      "1869640809" = 10,
+      "1886350457" = 10,
+      "1634886255" = 10,
+      "6450786"    = 10,
+      "6778479"    = 10
     }
   })
 
