@@ -119,6 +119,13 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
+    const queue = config.messageQueue.queues.find((it) => it.name == transfer.xparams!.originDomain);
+    await channel.prefetch(queue?.limit || 1);
+
+    // Set status before publish
+    // Avoid a race condition where the message is consumed before the status is set
+    // If publish fails we we will have bad state, but publish is HA so we should be fine
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
@@ -126,7 +133,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       { persistent: config.messageQueue.exchanges[0].persistent },
     );
     await channel.close();
-    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
