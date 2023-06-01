@@ -38,7 +38,7 @@ export const makeProverSubscriber = async (config: NxtpLighthouseConfig, chainDa
   }
 };
 
-const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext(makeProver.name);
 
   context.chainData = chainData;

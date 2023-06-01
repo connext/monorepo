@@ -8,13 +8,14 @@ import { makePropagate } from "./propagate";
 import { makeProcessFromRoot } from "./processFromRoot";
 import { makeSendOutboundRoot } from "./sendOutboundRoot";
 
-export const makeLighthouse = async () => {
+export const makeLighthouse = async (_service?: string) => {
   const chainData = await getChainData();
   if (!chainData) {
     throw new Error("Could not get chain data");
   }
   const config = await getConfig(chainData, contractDeployments);
-  switch (process.env.LIGHTHOUSE_SERVICE) {
+  const service = _service ?? process.env.LIGHTHOUSE_SERVICE;
+  switch (service) {
     case "prover-pub":
       await makeProverPublisher(config, chainData);
       break;
