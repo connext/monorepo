@@ -281,19 +281,19 @@ locals {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]
       },
       "1886350457" = {
         providers = ["https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
       },
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc"]
       },
       "6450786" = {
-        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
