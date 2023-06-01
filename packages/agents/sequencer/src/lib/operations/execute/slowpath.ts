@@ -1,4 +1,11 @@
-import { ExecutorData, RequestContext, createLoggingContext, ExecStatus, jsonifyError } from "@connext/nxtp-utils";
+import {
+  ExecutorData,
+  RequestContext,
+  createLoggingContext,
+  ExecStatus,
+  jsonifyError,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
@@ -38,10 +45,27 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   await cache.transfers.storeTransfers([transfer]);
 
   // Ensure that the executor data for this transfer hasn't expired.
-  const status = await cache.executors.getExecStatus(transferId);
+  let status = await cache.executors.getExecStatus(transferId);
+  if (status != ExecStatus.None) {
+    const lastExecTime = await cache.executors.getExecStatusTime(transferId);
+    const elapsed = (getNtpTimeSeconds() - lastExecTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Executor merits retry", requestContext, methodContext, { transferId: transferId, status });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.executors.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+        status,
+      });
+    }
+  }
+
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
+  } else if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
