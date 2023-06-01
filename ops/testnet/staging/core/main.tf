@@ -214,6 +214,15 @@ module "sequencer_publisher" {
   container_env_vars       = local.sequencer_env_vars
 }
 
+module "sequencer_publisher_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+}
+
 module "sequencer_subscriber" {
   source                   = "../../../modules/service"
   stage                    = var.stage
