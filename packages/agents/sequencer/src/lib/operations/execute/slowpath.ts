@@ -61,7 +61,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   const status = await cache.executors.getExecStatus(transferId);
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
+  } else if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
