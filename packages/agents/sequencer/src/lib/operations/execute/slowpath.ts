@@ -52,7 +52,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
-
     // Set status before publish
     // Avoid a race condition where the message is consumed before the status is set
     // If publish fails we we will have bad state, but publish is HA so we should be fine
