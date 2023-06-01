@@ -2,10 +2,10 @@ import { jsonifyError, NxtpError, AdminRequest } from "@connext/nxtp-utils";
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { register } from "prom-client";
 
-import { getContext } from "../../../sequencer";
+import { getContext } from "../../sequencer";
 
-export const bindHealthServer = async (): Promise<FastifyInstance> => {
-  const { config, logger } = getContext();
+export const bindHealthServer = async (host: string, port: number): Promise<FastifyInstance> => {
+  const { logger } = getContext();
 
   const server = fastify();
 
@@ -13,7 +13,7 @@ export const bindHealthServer = async (): Promise<FastifyInstance> => {
 
   server.get("/metrics", (_, res) => api.get.metrics(res));
 
-  const address = await server.listen({ port: config.server.sub.port, host: config.server.sub.host });
+  const address = await server.listen({ port, host });
   logger.info(`Server listening at ${address}`);
   return server;
 };

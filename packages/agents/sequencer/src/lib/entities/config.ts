@@ -61,6 +61,7 @@ export const TMessageQueueConfig = Type.Object({
   queues: Type.Array(TMQQueueConfig),
   bindings: Type.Array(TMQBindingConfig),
   executerTimeout: Type.Integer(),
+  prefetch: Type.Optional(Type.Integer()),
   publisher: Type.Optional(Type.String()),
   subscriber: Type.Optional(Type.String()),
 });
@@ -77,6 +78,10 @@ export const TServerConfig = Type.Object({
     port: Type.Integer({ minimum: 1, maximum: 65535 }),
     host: Type.String({ format: "ipv4" }),
   }),
+  http: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
   adminToken: Type.String(),
 });
 
@@ -87,12 +92,6 @@ export const TRedisConfig = Type.Object({
 
 export const TModeConfig = Type.Object({
   cleanup: Type.Boolean(),
-});
-
-export const TExecuterConfig = Type.Object({
-  batchSize: Type.Number(),
-  maxChildCount: Type.Number(),
-  waitPeriod: Type.Number(),
 });
 
 export const SequencerConfigSchema = Type.Object({
@@ -128,7 +127,6 @@ export const SequencerConfigSchema = Type.Object({
   ),
   database: TDatabaseConfig,
   relayerFeeTolerance: Type.Number({ minimum: 0, maximum: 100 }),
-  executer: TExecuterConfig,
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
@@ -144,3 +142,10 @@ export const messageSchema = Type.Object({
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;
+
+export const httpMessageSchema = Type.Object({
+  transferId: Type.String(),
+  type: Type.Enum(MessageType),
+  data: Type.Any(),
+});
+export type HTTPMessage = Static<typeof httpMessageSchema>;
