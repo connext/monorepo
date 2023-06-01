@@ -97,8 +97,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "IXT",
       canonical: {
-        domain: "1735353714",
-        address: "0x9B11e38299F2E2094793640B67b5e29678792ab4",
+        domain: "9991",
+        address: "0xA24E850BB444586897226b7Bc4A3C338C995252f",
         decimals: 18,
       },
       representations: {
@@ -106,10 +106,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
-        /// MUMBAI
-        "9991": {
-          local: "0xA24E850BB444586897226b7Bc4A3C338C995252f",
-          adopted: "0xA24E850BB444586897226b7Bc4A3C338C995252f",
+        /// GOERLI
+        "1735353714": {
+          local: "0x9B11e38299F2E2094793640B67b5e29678792ab4",
+          adopted: "0x9B11e38299F2E2094793640B67b5e29678792ab4",
         },
         /// ARBITRUM-GOERLI
         "1734439522": {
