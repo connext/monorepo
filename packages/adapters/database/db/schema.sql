@@ -596,7 +596,8 @@ CREATE TABLE public.messages (
     root character(66),
     message character varying,
     processed boolean DEFAULT false,
-    return_data character varying(255)
+    return_data character varying(255),
+    transfer_id character(66)
 );
 
 
@@ -1349,4 +1350,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230509165732'),
     ('20230510210620'),
     ('20230519155643'),
-    ('20230523134345');
+    ('20230523134345'),
+    ('20230530074124');

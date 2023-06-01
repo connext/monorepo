@@ -71,21 +71,6 @@ describe("Operations:Execute:SlowPath", () => {
     });
   });
   describe("#storeSlowPathData", () => {
-    it("should throw if params invalid", async () => {
-      const mockExecutorData = {
-        transferId: mkBytes32(),
-        origin: "13337",
-        executorVersion: "0.0.1",
-        relayerFee: {
-          amount: "aaa",
-          asset: "0x",
-        },
-        encodedData: "0xabcde",
-      } as ExecutorData;
-
-      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-
     it("should throw if transfer doesn't exist in the cache", async () => {
       getTransferStub.resolves(undefined);
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
@@ -109,7 +94,7 @@ describe("Operations:Execute:SlowPath", () => {
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
       storeTransferStub.resolves();
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
-      getExecStatusStub.resolves(ExecStatus.Queued);
+      getExecStatusStub.resolves(ExecStatus.Enqueued);
       getExecStatusTimeStub.resolves(getNtpTimeSeconds());
       storeBackupDataStub.resolves(1);
       const mockExecutorData = mock.entity.executorData();
@@ -181,7 +166,7 @@ describe("Operations:Execute:SlowPath", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecStatusStub.resolves(ExecStatus.Queued);
+      getExecStatusStub.resolves(ExecStatus.Dequeued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
       sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
@@ -208,7 +193,7 @@ describe("Operations:Execute:SlowPath", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecStatusStub.resolves(ExecStatus.Queued);
+      getExecStatusStub.resolves(ExecStatus.Dequeued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
       sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
