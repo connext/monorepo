@@ -15,6 +15,8 @@ import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKey
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { redis } = s;
+  const CACHE_EXPIRATION_TIME = 5; // Cache expiration time in seconds
 
   s.post<{ Body: SdkXCallParams }>(
     "/xcall",
@@ -37,27 +39,37 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
       },
     },
     async (request, reply) => {
-      const {
-        originDomain,
-        destinationDomain,
-        callDataGasAmount,
-        priceIn,
-        isHighPriority,
-        originNativeTokenPrice,
-        destinationNativeTokenPrice,
-        destinationGasPrice,
-      } = request.body;
-      const txReq = await sdkBaseInstance.estimateRelayerFee({
-        originDomain,
-        destinationDomain,
-        callDataGasAmount,
-        priceIn,
-        isHighPriority,
-        originNativeTokenPrice,
-        destinationNativeTokenPrice,
-        destinationGasPrice,
-      });
-      reply.status(200).send(txReq);
+      const cacheKey = JSON.stringify(request.body);
+      const cachedFee = await server.redis.get(cacheKey);
+
+      if (cachedFee) {
+        reply.status(200).send({ fee: JSON.parse(cachedFee) });
+      } else {
+        const {
+          originDomain,
+          destinationDomain,
+          callDataGasAmount,
+          priceIn,
+          isHighPriority,
+          originNativeTokenPrice,
+          destinationNativeTokenPrice,
+          destinationGasPrice,
+        } = request.body;
+
+        const txReq = await sdkBaseInstance.estimateRelayerFee({
+          originDomain,
+          destinationDomain,
+          callDataGasAmount,
+          priceIn,
+          isHighPriority,
+          originNativeTokenPrice,
+          destinationNativeTokenPrice,
+          destinationGasPrice,
+        });
+
+        await server.redis.set(cacheKey, JSON.stringify(txReq), "EX", CACHE_EXPIRATION_TIME);
+        reply.status(200).send(txReq);
+      }
     },
   );
 

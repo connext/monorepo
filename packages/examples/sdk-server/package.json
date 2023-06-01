@@ -21,6 +21,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@connext/sdk": "workspace:*",
+    "@fastify/redis": "^6.1.1",
     "@fastify/type-provider-typebox": "2.4.0",
     "ethers": "5.7.2",
     "fastify": "4.13.0",

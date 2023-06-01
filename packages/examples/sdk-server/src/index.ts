@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
+import { fastifyRedis } from "@fastify/redis";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk";
 import { getBestProvider } from "@connext/nxtp-utils";
@@ -14,7 +15,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
 
   // Initialize SDK
-
   let configJson: Record<string, any> = {};
 
   try {
@@ -57,8 +57,10 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
 
   const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
-  // Register routes
+  // Register Redis plugin
+  server.register(fastifyRedis, { host: "127.0.0.1" });
 
+  // Register routes
   server.get("/ping", async (_, reply) => {
     return reply.status(200).send("pong\n");
   });
