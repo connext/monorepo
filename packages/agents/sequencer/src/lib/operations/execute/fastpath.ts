@@ -1,10 +1,8 @@
 import { BigNumber, constants } from "ethers";
 import {
   Bid,
-  BidSchema,
   RequestContext,
   createLoggingContext,
-  ajv,
   ExecStatus,
   getNtpTimeSeconds,
   jsonifyError,
@@ -12,7 +10,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -28,17 +26,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   logger.debug(`Method start: ${storeFastPathData.name}`, requestContext, methodContext, { bid });
 
   const { transferId, origin } = bid;
-
-  // Validate Input schema
-  const validateInput = ajv.compile(BidSchema);
-  const validInput = validateInput(bid);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      bid,
-    });
-  }
 
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);

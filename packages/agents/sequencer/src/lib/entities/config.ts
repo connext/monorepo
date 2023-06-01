@@ -78,6 +78,10 @@ export const TServerConfig = Type.Object({
     port: Type.Integer({ minimum: 1, maximum: 65535 }),
     host: Type.String({ format: "ipv4" }),
   }),
+  http: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
   adminToken: Type.String(),
 });
 
@@ -138,3 +142,10 @@ export const messageSchema = Type.Object({
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;
+
+export const httpMessageSchema = Type.Object({
+  transferId: Type.String(),
+  type: Type.Enum(MessageType),
+  data: Type.Any(),
+});
+export type HTTPMessage = Static<typeof httpMessageSchema>;

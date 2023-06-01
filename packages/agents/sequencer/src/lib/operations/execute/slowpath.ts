@@ -2,8 +2,6 @@ import {
   ExecutorData,
   RequestContext,
   createLoggingContext,
-  ajv,
-  ExecutorDataSchema,
   ExecStatus,
   jsonifyError,
   getNtpTimeSeconds,
@@ -11,7 +9,6 @@ import {
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
-  ParamsInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
@@ -35,17 +32,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
   const { transferId, origin } = executorData;
-
-  // Validate Input schema
-  const validateInput = ajv.compile(ExecutorDataSchema);
-  const validInput = validateInput(executorData);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      executorData,
-    });
-  }
 
   // Get the XCall from the subgraph for this transfer.
   const transfer = await subgraph.getOriginTransferById(origin, transferId);

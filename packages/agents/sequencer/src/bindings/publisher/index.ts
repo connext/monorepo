@@ -1,1 +1,1 @@
-export { bindServer } from "./server";
+export { bindHTTPSubscriber } from "./publish";
