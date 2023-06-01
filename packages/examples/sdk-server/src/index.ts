@@ -57,8 +57,13 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
 
   const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
-  // Register Redis plugin
-  server.register(fastifyRedis, { host: "127.0.0.1" });
+  // Register Redis plugin if enabled
+  if (configJson.cache?.enabled) {
+    server.register(fastifyRedis, {
+      host: configJson.cache?.host || "localhost",
+      port: configJson.cache?.port || 6379,
+    });
+  }
 
   // Register routes
   server.get("/ping", async (_, reply) => {
@@ -77,7 +82,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
-  server.register(baseRoutes, sdkBase);
+  server.register(baseRoutes, { sdkBaseInstance: sdkBase, cacheConfig: configJson.cache });
   server.register(poolRoutes, sdkPool);
   server.register(utilsRoutes, sdkUtils);
   server.register(routerRoutes, sdkRouter);
