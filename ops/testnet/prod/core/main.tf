@@ -158,6 +158,35 @@ module "centralised_message_queue" {
 }
 
 
+module "sequencer_server" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  docker_image             = var.full_image_name_sequencer_server
+  container_family         = "sequencer"
+  health_check_path        = "/ping"
+  container_port           = 8081
+  loadbalancer_port        = 80
+  cpu                      = 2048
+  memory                   = 4096
+  instance_count           = 1
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = local.sequencer_env_vars
+}
+
 module "sequencer_publisher" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -172,9 +201,9 @@ module "sequencer_publisher" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_publisher
-  container_family         = "sequencer"
+  container_family         = "sequencer-publisher"
   health_check_path        = "/ping"
-  container_port           = 8081
+  container_port           = 8082
   loadbalancer_port        = 80
   cpu                      = 2048
   memory                   = 4096
@@ -185,6 +214,15 @@ module "sequencer_publisher" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
+}
+
+module "sequencer_publisher_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
 }
 
 module "sequencer_subscriber" {
@@ -204,7 +242,7 @@ module "sequencer_subscriber" {
   docker_image             = var.full_image_name_sequencer_subscriber
   container_family         = "sequencer-subscriber"
   health_check_path        = "/ping"
-  container_port           = 8082
+  container_port           = 8083
   loadbalancer_port        = 80
   cpu                      = 8192
   memory                   = 16384
@@ -266,7 +304,6 @@ module "lighthouse_prover_cron" {
   stage               = var.stage
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover"
-    DATABASE_URL       = local.read_replica_db_url
   })
   schedule_expression = "rate(5 minutes)"
   timeout             = 900

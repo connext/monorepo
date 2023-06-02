@@ -74,6 +74,9 @@ import {
   saveStableSwapPoolEvent,
   saveStableSwapTransfers,
   saveStableSwapLpBalances,
+  getMessageRootStatusFromIndex,
+  getAggregateRootByRootAndDomain,
+  getMessageByLeaf,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -797,6 +800,17 @@ describe("Database client", () => {
     );
   });
 
+  it("should getMessageByLeaf", async () => {
+    const messages: XMessage[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.xMessage());
+    }
+    await saveMessages(messages, pool);
+
+    const message = await getMessageByLeaf(mock.entity.xMessage().originDomain, messages[1].leaf, pool);
+    expect(message).to.deep.eq(messages[1]);
+  });
+
   it("should filter processed properly", async () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
@@ -1134,6 +1148,54 @@ describe("Database client", () => {
     expect(queryRes.rows[0].processed).to.eq(true);
     queryRes = await pool.query("SELECT * FROM root_messages WHERE id = $1", [roots[2].id]);
     expect(queryRes.rows[0].processed).to.eq(false);
+  });
+
+  it("should get getAggregateRootByRootAndDomain", async () => {
+    const roots: ReceivedAggregateRoot[] = [];
+    for (let _i = 0; _i < 10; _i++) {
+      const m = mock.entity.receivedAggregateRoot();
+      m.domain = mock.domain.A;
+      roots.push(m);
+    }
+
+    await saveReceivedAggregateRoot(roots, pool);
+
+    const receivedAggregatedRoot = await getAggregateRootByRootAndDomain(mock.domain.A, roots[1].root, "ASC", pool);
+
+    expect(receivedAggregatedRoot).to.deep.eq(roots[1]);
+  });
+
+  it("should get getMessageRootStatusFromIndex", async () => {
+    const messages: RootMessage[] = [];
+    const roots: AggregatedRoot[] = [];
+    const totalCount = 100;
+    const processedCount = 10;
+    const aggregatedCount = 20;
+    for (let _i = 0; _i < totalCount; _i++) {
+      const rootMessage = mock.entity.rootMessage();
+      rootMessage.spokeDomain = mock.domain.A;
+      rootMessage.count = _i;
+      rootMessage.processed = _i < processedCount;
+      messages.push(rootMessage);
+
+      const m = mock.entity.aggregatedRoot();
+      m.index = _i;
+      m.domain = mock.domain.A;
+      m.receivedRoot = _i < aggregatedCount ? rootMessage.root : getRandomBytes32();
+      roots.push(m);
+    }
+
+    await saveSentRootMessages(messages, pool);
+    await saveAggregatedRoots(roots, pool);
+
+    const messageStatus = await getMessageRootStatusFromIndex(mock.domain.A, 0, pool);
+
+    expect(messageStatus).to.deep.eq({
+      aggregatedCount: aggregatedCount,
+      lastAggregatedRoot: roots[aggregatedCount - 1].id,
+      processedCount: processedCount,
+      unprocessedCount: totalCount - processedCount,
+    });
   });
 
   it("should save assets", async () => {

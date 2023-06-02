@@ -126,43 +126,54 @@ locals {
       ]
       queues = [
         {
+          name       = "http"
+          limit      = 100
+          queueLimit = 100000
+          subscribe  = true
+        },
+        {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1734439522"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1668247156"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "2053862260"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
       ]
       bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "http"
+          keys     = ["http"]
+        },
         {
           exchange = "sequencerX"
           target   = "1735356532"
@@ -205,7 +216,7 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_server.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       pub = {

@@ -1,10 +1,8 @@
 import { BigNumber, constants } from "ethers";
 import {
   Bid,
-  BidSchema,
   RequestContext,
   createLoggingContext,
-  ajv,
   ExecStatus,
   getNtpTimeSeconds,
   jsonifyError,
@@ -12,7 +10,7 @@ import {
   XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, NoBidsSent, ParamsInvalid, SlippageToleranceExceeded } from "../../errors";
+import { AuctionExpired, MissingXCall, NoBidsSent, SlippageToleranceExceeded } from "../../errors";
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
@@ -29,20 +27,14 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
 
   const { transferId, origin } = bid;
 
-  // Validate Input schema
-  const validateInput = ajv.compile(BidSchema);
-  const validInput = validateInput(bid);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      bid,
-    });
-  }
-
   // Ensure that the auction for this transfer hasn't expired.
   let status = await cache.auctions.getExecStatus(transferId);
-  if (status !== ExecStatus.None && status !== ExecStatus.Queued && status !== ExecStatus.Sent) {
+  if (
+    status !== ExecStatus.None &&
+    status !== ExecStatus.Enqueued &&
+    status !== ExecStatus.Dequeued &&
+    status !== ExecStatus.Sent
+  ) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -114,6 +106,11 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
+
+    // Set status before publish
+    // Avoid a race condition where the message is consumed before the status is set
+    // If publish fails we we will have bad state, but publish is HA so we should be fine
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
@@ -121,7 +118,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       { persistent: config.messageQueue.exchanges[0].persistent },
     );
     await channel.close();
-    await cache.auctions.setExecStatus(transferId, ExecStatus.Queued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });

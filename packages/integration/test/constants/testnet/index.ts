@@ -271,12 +271,16 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     redis: {},
     server: {
       adminToken: "b",
+      http: {
+        port: 8080,
+        host: LOCALHOST,
+      },
       pub: {
         port: 8081,
         host: LOCALHOST,
       },
       sub: {
-        port: 8080,
+        port: 8082,
         host: LOCALHOST,
       },
     },
@@ -326,11 +330,6 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
     },
     relayerFeeTolerance: 20,
-    executer: {
-      batchSize: 10,
-      maxChildCount: 2,
-      waitPeriod: 1_000,
-    },
   };
 })();
 
