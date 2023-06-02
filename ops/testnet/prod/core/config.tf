@@ -308,7 +308,7 @@ locals {
     }
     messageQueue = {
       connection = {
-        uri = "amqp://guest:guest@localhost:5672"
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
       }
       exchange = {
         name           = "proverX"
