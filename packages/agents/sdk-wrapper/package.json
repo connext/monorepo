@@ -20,6 +20,7 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/sdk-core": "workspace:^",
     "ethers": "5.7.2"
   },
   "devDependencies": {
