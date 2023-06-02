@@ -49,7 +49,7 @@ import { BigNumber, providers } from "ethers";
 export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: SdkShared): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
 
-  s.get(
+  s.get<{ Params: SdkGetConversionRateParams }>(
     "/getConversionRate/:chainId",
     {
       schema: {
@@ -57,13 +57,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { chainId } = request.params as SdkGetConversionRateParams;
+      const { chainId } = request.params;
       const res = await sdkSharedInstance.getConversionRate(chainId);
       reply.status(200).send(res);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetProviderParams }>(
     "/getProvider/:domainId",
     {
       schema: {
@@ -71,13 +71,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params as SdkGetProviderParams;
+      const { domainId } = request.params;
       const txReq = await sdkSharedInstance.getProvider(domainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetDeploymentAddressParams }>(
     "/getDeploymentAddress/:domainId/:deploymentName",
     {
       schema: {
@@ -85,13 +85,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, deploymentName } = request.params as SdkGetDeploymentAddressParams;
+      const { domainId, deploymentName } = request.params;
       const txReq = await sdkSharedInstance.getDeploymentAddress(domainId, deploymentName as keyof ChainDeployments);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetConnextParams }>(
     "/getConnext/:domainId",
     {
       schema: {
@@ -99,13 +99,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params as SdkGetConnextParams;
+      const { domainId } = request.params;
       const txReq = await sdkSharedInstance.getConnext(domainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetERC20Params }>(
     "/getERC20/:domainId/:tokenAddress",
     {
       schema: {
@@ -113,13 +113,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.params as SdkGetERC20Params;
+      const { domainId, tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.getERC20(domainId, tokenAddress);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetChainIdParams }>(
     "/getChainId/:domainId",
     {
       schema: {
@@ -127,13 +127,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params as SdkGetChainIdParams;
+      const { domainId } = request.params;
       const txReq = await sdkSharedInstance.getChainId(domainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkDomainToChainNameParams }>(
     "/domainToChainName/:domainId",
     {
       schema: {
@@ -141,13 +141,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params as SdkDomainToChainNameParams;
+      const { domainId } = request.params;
       const txReq = await SdkShared.domainToChainName(domainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkChainIdToDomainParams }>(
     "/chainIdToDomain/:chainId",
     {
       schema: {
@@ -155,13 +155,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { chainId } = request.params as SdkChainIdToDomainParams;
+      const { chainId } = request.params;
       const txReq = await SdkShared.chainIdToDomain(chainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkDomainToChainIdParams }>(
     "/domainToChainId/:domainId",
     {
       schema: {
@@ -169,13 +169,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params as SdkDomainToChainIdParams;
+      const { domainId } = request.params;
       const txReq = await SdkShared.domainToChainId(domainId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetBlockNumberFromUnixTimestampParams }>(
     "/getBlockNumberFromUnixTimestamp/:domainId/:unixTimestamp",
     {
       schema: {
@@ -183,13 +183,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, unixTimestamp } = request.params as SdkGetBlockNumberFromUnixTimestampParams;
+      const { domainId, unixTimestamp } = request.params;
       const txReq = await SdkShared.getBlockNumberFromUnixTimestamp(domainId, unixTimestamp);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkApproveIfNeededParams }>(
     "/approveIfNeeded/:domainId/:assetId/:amount/:infiniteApprove",
     {
       schema: {
@@ -197,7 +197,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, assetId, amount, infiniteApprove } = request.params as SdkApproveIfNeededParams;
+      const { domainId, assetId, amount, infiniteApprove } = request.params;
       const txReq = await sdkSharedInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
       reply.status(200).send(txReq);
     },
@@ -208,7 +208,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     reply.status(200).send(txReq);
   });
 
-  s.get(
+  s.get<{ Params: SdkGetConversionRateParams }>(
     "/getActiveLiquidity",
     {
       schema: {
@@ -227,7 +227,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     reply.status(200).send(txReq);
   });
 
-  s.get(
+  s.get<{ Params: SdkGetAssetsDataByDomainAndAddressParams }>(
     "/getAssetsDataByDomainAndAddress/:domainId/:tokenAddress",
     {
       schema: {
@@ -235,13 +235,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.params as SdkGetAssetsDataByDomainAndAddressParams;
+      const { domainId, tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetAssetsWithSameCanonicalParams }>(
     "/getAssetsWithSameCanonical/:domainId/:tokenAddress",
     {
       schema: {
@@ -249,13 +249,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.params as SdkGetAssetsWithSameCanonicalParams;
+      const { domainId, tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.getAssetsDataByDomainAndAddress(domainId, tokenAddress);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetAssetsDataByDomainAndKeyParams }>(
     "/getAssetsDataByDomainAndKey/:domainId/:key",
     {
       schema: {
@@ -263,13 +263,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, key } = request.params as SdkGetAssetsDataByDomainAndKeyParams;
+      const { domainId, key } = request.params;
       const txReq = await sdkSharedInstance.getAssetsDataByDomainAndKey(domainId, key);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkIsNextAssetParams }>(
     "/isNextAsset/:domainId/:tokenAddress",
     {
       schema: {
@@ -277,13 +277,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { tokenAddress } = request.params as SdkIsNextAssetParams;
+      const { tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.isNextAsset(tokenAddress);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkChangeSignerAddressParams }>(
     "/changeSignerAddress/:signerAddress",
     {
       schema: {
@@ -291,13 +291,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { signerAddress } = request.params as SdkChangeSignerAddressParams;
+      const { signerAddress } = request.params;
       const txReq = await sdkSharedInstance.changeSignerAddress(signerAddress);
       reply.status(200).send(txReq);
     },
   );
 
-  s.post(
+  s.post<{ Body: SdkParseConnextTransactionReceiptParams }>(
     "/parseConnextTransactionReceipt",
     {
       schema: {
@@ -305,7 +305,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const requestBody = request.body as SdkParseConnextTransactionReceiptParams;
+      const requestBody = request.body;
 
       // create a new object with the correct types
       const transactionReceipt: providers.TransactionReceipt = {
@@ -321,7 +321,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkCalculateCanonicalKeyParams }>(
     "/calculateCanonicalKey/:domainId/:canonicalId",
     {
       schema: {
@@ -329,13 +329,13 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, canonicalId } = request.params as SdkCalculateCanonicalKeyParams;
+      const { domainId, canonicalId } = request.params;
       const txReq = await sdkSharedInstance.calculateCanonicalKey(domainId, canonicalId);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get(
+  s.get<{ Params: SdkGetCanonicalTokenIdParams }>(
     "/getCanonicalTokenId/:domainId/:tokenAddress",
     {
       schema: {
@@ -343,7 +343,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.params as SdkGetCanonicalTokenIdParams;
+      const { domainId, tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.getCanonicalTokenId(domainId, tokenAddress);
       reply.status(200).send(txReq);
     },

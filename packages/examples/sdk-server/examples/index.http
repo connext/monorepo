@@ -16,7 +16,7 @@ GET {{baseUrl}}/ping
 GET {{baseUrl}}/getConversionRate/10
 
 ##############
-### GET getConversionRate
+### GET getProvider
 GET {{baseUrl}}/getProvider/1869640809
 
 ##############
