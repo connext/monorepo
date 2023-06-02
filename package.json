@@ -30,6 +30,7 @@
     "packages/agents/sequencer",
     "packages/agents/cartographer/poller",
     "packages/agents/sdk",
+    "packages/agents/sdk-wrapper",
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/agents/watcher",
