@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "3.0.0",
+    "@types/amqplib": "0.10.1",
     "@types/mocha": "10.0.1",
     "@types/pg": "8.6.6",
     "@types/sinon": "10.0.13",
