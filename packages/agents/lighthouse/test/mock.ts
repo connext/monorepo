@@ -1,5 +1,4 @@
 import { utils, BigNumber } from "ethers";
-import Broker from "amqplib";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
