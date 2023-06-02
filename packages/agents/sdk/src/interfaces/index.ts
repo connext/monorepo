@@ -204,7 +204,7 @@ export const SdkParseConnextTransactionReceiptParamsSchema = Type.Object({
   logsBloom: Type.String(),
   blockHash: Type.String(),
   transactionHash: Type.String(),
-  logs: Type.Array(LogSchema), // Assuming you have LogSchema defined
+  logs: Type.Array(LogSchema),
   blockNumber: Type.Number(),
   confirmations: Type.Number(),
   cumulativeGasUsed: TIntegerString,
@@ -261,14 +261,6 @@ export const SdkBumpTransferParamsSchema = Type.Object({
 
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
-export const SdkUpdateSlippageSchema = Type.Object({
-  domainId: TIntegerString,
-  transferId: Type.String(),
-  slippage: TIntegerString,
-});
-
-export type SdkUpdateSlippage = Static<typeof SdkUpdateSlippageSchema>;
-
 export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,
@@ -299,4 +291,4 @@ export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
   checkFastLiquidity: Type.Optional(Type.Boolean()),
 });
 
-export type SdkCalculateAmountReceivedParams = Static<typeof SdkUpdateSlippageParamsSchema>;
+export type SdkCalculateAmountReceivedParams = Static<typeof SdkCalculateAmountReceivedParamsSchema>;

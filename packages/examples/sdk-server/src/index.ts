@@ -5,10 +5,11 @@ import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk-core";
 import { getBestProvider } from "@connext/nxtp-utils";
 
+import { sharedRoutes } from "./shared";
+import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
-import { baseRoutes } from "./base";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -55,7 +56,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
+  const { sdkShared, sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
   // Register routes
 
@@ -75,6 +76,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
+  server.register(sharedRoutes, sdkShared);
   server.register(baseRoutes, sdkBase);
   server.register(poolRoutes, sdkPool);
   server.register(utilsRoutes, sdkUtils);

@@ -11,7 +11,7 @@ import {
   domainToChainId as _domainToChainId,
   getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
-import { providers, BigNumber, BigNumberish } from "ethers";
+import { providers } from "ethers";
 import { ChainDeployments, domainsToChainNames } from "@connext/sdk-core/dist/config";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 import { AssetData, ConnextSupport } from "@connext/sdk-core";
