@@ -31,6 +31,12 @@ variable "cartographer_image_tag" {
   default     = "latest"
 }
 
+variable "full_image_name_sdk_server" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/sdk-server:sha-e33b4fd"
+}
+
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-west-1:679752396206:certificate/0ebbf095-681a-4a0a-9dc9-fa70cb80166a"
 }
