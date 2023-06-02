@@ -110,4 +110,11 @@ export type Transfer = {
   reconcile_tx_origin: string;
   relayer_fee: string;
   error_status?: string;
+  execute_simulation_input?: string;
+  execute_simulation_from?: string;
+  execute_simulation_to?: string;
+  execute_simulation_network?: string;
+  error_message?: string;
+  message_status?: string;
+  relayer_fees?: string[];
 };
