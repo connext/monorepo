@@ -3,13 +3,9 @@ import { providers, BigNumber, BigNumberish } from "ethers";
 import { SdkShared } from "./sdkShared";
 import {
   SdkConfig,
-  SdkXCallParamsSchema,
   SdkXCallParams,
-  SdkBumpTransferParamsSchema,
   SdkBumpTransferParams,
-  SdkUpdateSlippageParamsSchema,
   SdkUpdateSlippageParams,
-  SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
 } from "@connext/sdk-core";
 
@@ -31,7 +27,6 @@ export class SdkBase extends SdkShared {
     this.logger.info("Method start", requestContext, methodContext, { params });
 
     const response = await axiosPost(`${this.baseUri}/xcall`, params);
-
     return response.data;
   }
 
@@ -39,8 +34,7 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.updateSlippage.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-
+    const response = await axiosPost(`${this.baseUri}/updateSlippage`, params);
     return response.data;
   }
 
@@ -48,8 +42,7 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-
+    const response = await axiosPost(`${this.baseUri}/bumpTransfer`, params);
     return response.data;
   }
 
@@ -89,7 +82,6 @@ export class SdkBase extends SdkShared {
     };
 
     const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-
     return response.data;
   }
 }
