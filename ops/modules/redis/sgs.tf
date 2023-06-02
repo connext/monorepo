@@ -48,7 +48,7 @@ resource "aws_security_group" "allow_from_anywhere" {
   count       = var.public_redis ? 1 : 0
   description = "Allow all inbound traffic"
   name        = "allow_redis_access"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 6379
