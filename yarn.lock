@@ -2264,7 +2264,7 @@ __metadata:
     "@eth-optimism/sdk": 2.0.1
     "@graphql-codegen/cli": 3.0.0
     "@sinclair/typebox": 0.25.21
-    "@types/amqplib": ^0.10.1
+    "@types/amqplib": 0.10.1
     "@types/aws-lambda": 8.10.110
     "@types/mocha": 10.0.1
     "@types/pg": 8.6.6
@@ -6944,7 +6944,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/amqplib@npm:0.10.1, @types/amqplib@npm:^0.10.1":
+"@types/amqplib@npm:0.10.1":
   version: 0.10.1
   resolution: "@types/amqplib@npm:0.10.1"
   dependencies:
