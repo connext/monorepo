@@ -201,9 +201,9 @@ module "sequencer_publisher" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_publisher
-  container_family         = "sequencer"
+  container_family         = "sequencer-publisher"
   health_check_path        = "/ping"
-  container_port           = 8081
+  container_port           = 8082
   loadbalancer_port        = 80
   cpu                      = 2048
   memory                   = 4096
@@ -214,6 +214,15 @@ module "sequencer_publisher" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
+}
+
+module "sequencer_publisher_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
 }
 
 module "sequencer_subscriber" {
@@ -233,7 +242,7 @@ module "sequencer_subscriber" {
   docker_image             = var.full_image_name_sequencer_subscriber
   container_family         = "sequencer-subscriber"
   health_check_path        = "/ping"
-  container_port           = 8082
+  container_port           = 8083
   loadbalancer_port        = 80
   cpu                      = 8192
   memory                   = 16384
