@@ -261,13 +261,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -277,7 +278,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-publisher-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -313,13 +314,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -329,7 +331,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-subscriber-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -365,13 +367,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -381,7 +384,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-executor-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -674,13 +677,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove watcher from version tag
+        id: remove-watcher
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *watcher-* ]]; then
             new_tag=${tag/watcher-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -690,7 +694,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-watcher-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-watcher.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -725,14 +729,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Remove watcher from version tag
+      - name: Remove sdk-server from version tag
+        id: remove-sdk-server
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *watcher-* ]]; then
-            new_tag=${tag/watcher-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            new_tag=${tag/sdk-server-/}
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -742,7 +747,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-sdk-server-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-sdk-server.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
