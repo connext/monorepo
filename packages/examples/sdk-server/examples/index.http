@@ -7,10 +7,116 @@
 ### ẂELCOME
 GET {{baseUrl}}
 
-
 ##############
 ### PLAY PING
 GET {{baseUrl}}/ping
+
+##############
+### GET getConversionRate
+GET {{baseUrl}}/getConversionRate/10
+
+##############
+### GET getConversionRate
+GET {{baseUrl}}/getProvider/1869640809
+
+##############
+### GET getDeploymentAddress
+GET {{baseUrl}}/getDeploymentAddress/1869640809/connext
+
+##############
+### GET getConnext
+GET {{baseUrl}}/getConnext/1869640809
+
+##############
+### GET getERC20
+GET {{baseUrl}}/getERC20/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+
+##############
+### GET getChainId
+GET {{baseUrl}}/getChainId/1869640809
+
+##############
+### GET domainToChainName
+GET {{baseUrl}}/domainToChainName/1869640809
+
+##############
+### GET getChainId
+GET {{baseUrl}}/chainIdToDomain/10
+
+##############
+### GET domainToChainId
+GET {{baseUrl}}/domainToChainId/1869640809
+
+##############
+### GET getBlockNumberFromUnixTimestamp
+GET {{baseUrl}}/getBlockNumberFromUnixTimestamp/1869640809/1683745427
+
+##############
+### GET approveIfNeeded
+GET {{baseUrl}}/approveIfNeeded/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607/100/false
+
+##############
+### GET getAssetsData
+GET {{baseUrl}}/getAssetsData
+
+##############
+### GET getActiveLiquidity
+GET {{baseUrl}}/getActiveLiquidity?domain=1634886255&local=0x2fd7e61033b3904c65aa9a9b83dcd344fa19ffd2
+
+##############
+### GET getSupported
+GET {{baseUrl}}/getSupported
+
+##############
+### GET getAssetsDataByDomainAndAddress
+GET {{baseUrl}}/getAssetsDataByDomainAndAddress/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+
+##############
+### GET getAssetsWithSameCanonical
+GET {{baseUrl}}/getAssetsWithSameCanonical/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+
+##############
+### GET getAssetsDataByDomainAndKey
+GET {{baseUrl}}/getAssetsDataByDomainAndKey/1869640809/0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5
+
+##############
+### GET isNextAsset
+GET {{baseUrl}}/isNextAsset/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+
+##############
+### GET changeSignerAddress
+GET {{baseUrl}}/changeSignerAddress/{{yourAddress}}
+
+##############
+### POST parseConnextTransactionReceipt 
+POST {{baseUrl}}/parseConnextTransactionReceipt
+Content-Type: application/json
+
+{
+  "to": "0x0000000000000000000000000000000000000000",
+  "from": "0x0000000000000000000000000000000000000000",
+  "contractAddress": "0x0000000000000000000000000000000000000000",
+  "transactionIndex": 10,
+  "gasUsed": 10,
+  "logsBloom": "",
+  "blockHash": "0x0000000000000000000000000000000000000000",
+  "transactionHash": "0x0000000000000000000000000000000000000000",
+  "logs": [], 
+  "blockNumber": 10000000,
+  "confirmations": 5,
+  "cumulativeGasUsed": 10,
+  "effectiveGasPrice": 10,
+  "byzantium": true,
+  "type": 1
+}
+
+##############
+### GET calculateCanonicalKey
+GET {{baseUrl}}/calculateCanonicalKey/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+
+##############
+### GET getCanonicalTokenId
+GET {{baseUrl}}/getCanonicalTokenId/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
 
 ##############
 ### POST sendTransaction 
@@ -71,21 +177,12 @@ Content-Type: application/json
 }
 
 ##############
-### GET getCanonicalTokenId
-GET {{baseUrl}}/getCanonicalTokenId/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69
-
-##############
 ### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
 
 ##############
 ### GET getTokenSupply
 GET {{baseUrl}}/getTokenSupply/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
-
-##############
-### GET calculateCanonicalKey
-GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
-##############
 
 ### GET getLPTokenUserBalance
 GET {{baseUrl}}/getTokenUserBalance/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD/{{yourAddress}}
