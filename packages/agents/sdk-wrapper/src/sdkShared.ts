@@ -1,6 +1,20 @@
 import { SdkConfig } from "@connext/sdk-core";
+import { axiosGetRequest } from "./lib/helpers";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { Logger, ChainData } from "@connext/nxtp-utils";
+import {
+  Logger,
+  ChainData,
+  axiosGet,
+  axiosPost,
+  formatUrl,
+  chainIdToDomain as _chainIdToDomain,
+  domainToChainId as _domainToChainId,
+  getConversionRate as _getConversionRate,
+} from "@connext/nxtp-utils";
+import { providers, BigNumber, BigNumberish } from "ethers";
+import { ChainDeployments, domainsToChainNames } from "@connext/sdk-core/dist/config";
+import { Connext, IERC20 } from "@connext/smart-contracts";
+import { AssetData, ConnextSupport } from "@connext/sdk-core";
 
 export class SdkShared {
   readonly config: SdkConfig;
@@ -9,7 +23,7 @@ export class SdkShared {
   protected readonly chainreader: ChainReader;
   protected readonly logger: Logger;
 
-  protected readonly baseUri = "http://example.com"; // TODO: replace with SDK server uri based on env
+  protected readonly baseUri = "localhost:8080"; // TODO: replace with SDK server uri based on env
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
@@ -19,5 +33,127 @@ export class SdkShared {
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
   }
 
-  // TODO: add the rest of the shared methods
+  async getConversionRate(chainId: number) {
+    this.logger.info("Method start");
+    const response = await axiosGet(`${this.baseUri}/getConversionRate/${chainId}`);
+    return response.data;
+  }
+
+  async getProvider(domainId: string): Promise<providers.StaticJsonRpcProvider> {
+    const response = await axiosGet(`${this.baseUri}/getProvider/${domainId}`);
+    return response.data;
+  }
+
+  async getDeploymentAddress(domainId: string, deploymentName: keyof ChainDeployments): Promise<string> {
+    const response = await axiosGet(`${this.baseUri}/getDeploymentAddress/${domainId}/${deploymentName}`);
+    return response.data;
+  }
+
+  async getConnext(domainId: string): Promise<Connext> {
+    const response = await axiosGet(`${this.baseUri}/getConnext/${domainId}`);
+    return response.data;
+  }
+
+  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
+    const response = await axiosGet(`${this.baseUri}/getDeploymentAddress/${domainId}/${tokenAddress}`);
+    return response.data;
+  }
+
+  async getChainId(domainId: string): Promise<number> {
+    const response = await axiosGet(`${this.baseUri}/getChainId/${domainId}`);
+    return response.data;
+  }
+
+  static domainToChainName(domainId: string) {
+    return domainsToChainNames[domainId];
+  }
+
+  static chainIdToDomain(chainId: number): number {
+    return _chainIdToDomain(chainId);
+  }
+
+  static domainToChainId(domainId: number): number {
+    return _domainToChainId(domainId);
+  }
+
+  static async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
+    const baseUrl = "https://coins.llama.fi";
+    const uri = formatUrl(baseUrl, "block");
+    const chainName = this.domainToChainName(domainId);
+    const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+
+    return res.height;
+  }
+
+  async approveIfNeeded(
+    domainId: string,
+    assetId: string,
+    amount: string,
+    infiniteApprove = true,
+  ): Promise<providers.TransactionRequest | undefined> {
+    const response = await axiosGet(
+      `${this.baseUri}/approveIfNeeded/${domainId}/${assetId}/${amount}/${infiniteApprove}`,
+    );
+    return response.data;
+  }
+
+  async getAssetsData(): Promise<AssetData[]> {
+    const response = await axiosGet(`${this.baseUri}/getAssetsData`);
+    return response.data;
+  }
+
+  async getActiveLiquidity(domain?: string, local?: string): Promise<any> {
+    const response = await axiosGet(`${this.baseUri}/getActiveLiquidity`, {
+      params: {
+        domain: domain,
+        local: local,
+      },
+    });
+    return response.data;
+  }
+
+  async getSupported(): Promise<ConnextSupport[]> {
+    const response = await axiosGet(`${this.baseUri}/getSupported`);
+    return response.data;
+  }
+
+  async getAssetsDataByDomainAndAddress(domainId: string, tokenAddress: string): Promise<AssetData | undefined> {
+    const response = await axiosGet(`${this.baseUri}/getAssetsDataByDomainAndAddress/${domainId}/${tokenAddress}`);
+    return response.data;
+  }
+
+  async getAssetsWithSameCanonical(domainId: string, tokenAddress: string): Promise<AssetData[]> {
+    const response = await axiosGet(`${this.baseUri}/getAssetsDataByDomainAndAddress/${domainId}/${tokenAddress}`);
+    return response.data;
+  }
+
+  async getAssetsDataByDomainAndKey(domainId: string, key: string): Promise<AssetData | undefined> {
+    const response = await axiosGet(`${this.baseUri}/getAssetsDataByDomainAndKey/${domainId}/${key}`);
+    return response.data;
+  }
+
+  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
+    const response = await axiosGet(`${this.baseUri}/isNextAsset/${tokenAddress}`);
+    return response.data;
+  }
+
+  async changeSignerAddress(signerAddress: string): Promise<AssetData[]> {
+    const response = await axiosGet(`${this.baseUri}/changeSignerAddress/${signerAddress}`);
+    return response.data;
+  }
+
+  async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt) {
+    const response = await axiosPost(`${this.baseUri}/changeSignerAddress/`, transactionReceipt);
+    return response.data;
+  }
+
+  async calculateCanonicalKey(domainId: string, canonicalId: string): Promise<[string, string]> {
+    const response = await axiosGet(`${this.baseUri}/calculateCanonicalKey/${domainId}/${canonicalId}`);
+    return response.data;
+  }
+
+  async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {
+    const response = await axiosGet(`${this.baseUri}/getCanonicalTokenId/${domainId}/${tokenAddress}`);
+    return response.data;
+  }
 }
