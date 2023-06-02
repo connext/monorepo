@@ -11,6 +11,7 @@ import {
   getHardcodedGasLimits as _getHardcodedGasLimits,
   calculateRelayerFee as _calculateRelayerFee,
   axiosGet,
+  XTransferStatus,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 
@@ -76,7 +77,7 @@ export type Transfer = {
   xcall_gas_limit: string;
   xcall_block_number: string;
   destination_chain: string;
-  status: string;
+  status: XTransferStatus;
   routers: string[];
   destination_transacting_asset: string;
   destination_transacting_amount: string;
