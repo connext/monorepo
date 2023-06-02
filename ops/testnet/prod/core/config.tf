@@ -306,6 +306,18 @@ locals {
     proverBatchSize = {
       "1668247156" = 10
     }
+    messageQueue = {
+      connection = {
+        uri = "amqp://guest:guest@localhost:5672"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+    }
   })
 
   local_relayer_config = jsonencode({
