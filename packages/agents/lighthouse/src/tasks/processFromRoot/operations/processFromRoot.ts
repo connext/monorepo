@@ -157,7 +157,6 @@ export const processSingleRootMessage = async (
       });
     }
     const status = await relayer.instance.getTaskStatus(rootMessage.sentTaskId);
-    console.log("status: ", status);
     if (status === RelayerTaskStatus.ExecSuccess) {
       logger.info("Process from root sent successfully, waiting for subgraph update", requestContext, methodContext, {
         rootMessage,

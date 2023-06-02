@@ -5,7 +5,6 @@ services:
     container_name: router-publisher
     depends_on:
       - message-queue
-      - sequencer-publisher
       - signer-router
     image: ${ROUTER_PUBLISHER_IMAGE}
     restart: always
@@ -26,7 +25,7 @@ services:
     container_name: router-subscriber
     depends_on:
       - message-queue
-      - sequencer-publisher
+      - sequencer-server
       - signer-router
     image: ${ROUTER_SUBSCRIBER_IMAGE}
     restart: always
@@ -47,7 +46,7 @@ services:
     container_name: router-executor
     depends_on:
       - message-queue
-      - sequencer-publisher
+      - sequencer-server
       - signer-router
     image: ${ROUTER_EXECUTOR_IMAGE}
     restart: always
@@ -81,6 +80,25 @@ services:
     ports:
       - "6379:6379"
 
+  sequencer-server:
+    container_name: sequencer-server
+    depends_on:
+      - message-queue
+    image: ${SEQUENCER_SERVER_IMAGE}
+    restart: always
+    ports:
+      - "8882:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
   sequencer-publisher:
     container_name: sequencer-publisher
     depends_on:
@@ -88,7 +106,7 @@ services:
     image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8882:8081"
+      - "8883:8081"
     logging:
       driver: json-file
       options:
@@ -107,7 +125,7 @@ services:
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8883:8081"
+      - "8884:8081"
     logging:
       driver: json-file
       options:

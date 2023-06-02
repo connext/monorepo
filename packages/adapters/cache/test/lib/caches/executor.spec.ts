@@ -66,9 +66,9 @@ describe("ExecutorCache", () => {
 
   describe("#setExecStatus", () => {
     it("happy", async () => {
-      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Enqueued);
       let status = await cache.getExecStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecStatus.Queued);
+      expect(status).to.be.eq(ExecStatus.Enqueued);
       await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
       status = await cache.getExecStatus(mockData1.transferId);
       expect(status).to.be.eq(ExecStatus.Sent);
@@ -84,9 +84,9 @@ describe("ExecutorCache", () => {
       expect(status).to.be.eq(ExecStatus.None);
     });
     it("happy", async () => {
-      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Enqueued);
       let status = await cache.getExecStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecStatus.Queued);
+      expect(status).to.be.eq(ExecStatus.Enqueued);
       await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
       status = await cache.getExecStatus(mockData1.transferId);
       expect(status).to.be.eq(ExecStatus.Sent);
@@ -125,7 +125,7 @@ describe("ExecutorCache", () => {
     it("happy", async () => {
       await cache.storeExecutorData(mockData1);
       await cache.storeBackupData(mockData2);
-      await cache.setExecStatus(mockTransferId, ExecStatus.Queued);
+      await cache.setExecStatus(mockTransferId, ExecStatus.Enqueued);
       await cache.pruneExecutorData(mockTransferId);
 
       const executorData = await cache.getExecutorData(mockTransferId);

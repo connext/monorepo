@@ -11,6 +11,7 @@ import {
   convertFromDbAggregatedRoot,
   convertFromDbPropagatedRoot,
   convertFromDbReceivedAggregateRoot,
+  convertFromDbRootStatus,
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
@@ -25,6 +26,7 @@ import {
   AssetPrice,
   StableSwapTransfer,
   StableSwapLpBalance,
+  RootMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -107,6 +109,7 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
     index: message.origin?.index,
     root: message.origin?.root,
     message: message.origin?.message,
+    transfer_id: message.transferId,
     processed: message.destination?.processed,
     return_data: message.destination?.returnData,
   };
@@ -893,7 +896,7 @@ export const getMessageRootsFromIndex = async (
     s.root_messages.Selectable[]
   >`select * from ${"root_messages"} where ${{
     spoke_domain,
-  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 75`.run(poolToUse);
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 100`.run(poolToUse);
   return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
@@ -907,6 +910,45 @@ export const getMessageRootCount = async (
   // This will be the count at the time messageRoot was sent
   const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
   return message ? convertFromDbMessage(message).origin?.index : undefined;
+};
+
+export const getMessageRootStatusFromIndex = async (
+  spoke_domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessageStatus> => {
+  const poolToUse = _pool ?? pool;
+  // Find the processed, unprocessed count, aggregated root count that contains the index, for a given domain
+  const status = await db.sql<s.root_messages.SQL, s.root_messages.Selectable[]>`with cte as (
+    select *, aggregated.id as aggregated_id
+			from 
+				((select * from root_messages where ${{
+          spoke_domain,
+        }} and ${{ leaf_count: dc.gte(index) }}) as roots 
+					left join aggregated_roots as aggregated 
+					on roots.root=aggregated.received_root) 
+    )
+    select
+    COUNT(CASE WHEN processed=true THEN 1 END) AS processed_count, 
+    COUNT(CASE WHEN processed=false THEN 1 END) AS unprocessed_count, 
+    COUNT(CASE WHEN aggregated_id IS not null then 1 END) aggregated_count,
+    (
+        SELECT aggregated_id
+        FROM cte
+        ORDER BY domain_index desc nulls last
+        LIMIT 1
+      ) as last_aggregated_id
+    from 
+      cte
+  `.run(poolToUse);
+  return status.length > 0
+    ? convertFromDbRootStatus(status[0])
+    : {
+        processedCount: 0,
+        unprocessedCount: 0,
+        aggregatedCount: 0,
+        lastAggregatedRoot: undefined,
+      };
 };
 
 export const getSpokeNode = async (
