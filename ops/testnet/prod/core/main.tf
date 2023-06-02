@@ -303,7 +303,7 @@ module "lighthouse_prover_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars = merge(local.lighthouse_env_vars, {
-    LIGHTHOUSE_SERVICE = "prover"
+    LIGHTHOUSE_SERVICE = "prover-pub"
   })
   schedule_expression = "rate(5 minutes)"
   timeout             = 900
@@ -326,7 +326,7 @@ module "lighthouse_prover_subscriber" {
   ecr_repository_name  = "nxtp-lighthouse"
   docker_image_tag     = var.lighthouse_image_tag
   container_family     = "lighthouse-prover"
-  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
+  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-sub" })
   memory_size          = 512
 }
 
