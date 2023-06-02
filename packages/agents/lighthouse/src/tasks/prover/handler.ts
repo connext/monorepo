@@ -4,8 +4,8 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 import { getConfig } from "../../config";
 
 import { getContext, makeProver } from "./prover";
-import { BrokerMessage } from "./operations/publisher";
-import { processMessages } from "./operations/consumer";
+import { BrokerMessage } from "./operations/types";
+import { processMessages } from "./operations";
 
 export const handler = async (event: any): Promise<{ statusCode: number; body: string }> => {
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");

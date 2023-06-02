@@ -20,23 +20,7 @@ import {
 import { getContext } from "../prover";
 import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
-export type ProofStruct = {
-  message: string;
-  path: string[];
-  index: number;
-};
-export type BrokerMessage = {
-  messages: XMessage[];
-  originDomain: string;
-  destinationDomain: string;
-  messageRoot: string;
-  messageRootIndex: number;
-  messageRootCount: number;
-  aggregateRoot: string;
-  aggregateRootCount: number;
-};
-
-const PROVER_QUEUE = "proverX";
+import { BrokerMessage, PROVER_QUEUE } from "./types";
 
 export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
@@ -46,7 +30,6 @@ export const enqueue = async () => {
     config,
   } = getContext();
   const channel = await mqClient.createChannel();
-  console.log({ messageQueue: config.messageQueue });
   await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
     durable: config.messageQueue.exchange.durable,
   });

@@ -1,4 +1,5 @@
 import { utils, BigNumber } from "ethers";
+import Broker from "amqplib";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
@@ -33,6 +34,21 @@ export const mockXMessage1: XMessage = { ..._mock.entity.xMessage(), transferId:
 export const mockRootMessage: RootMessage = _mock.entity.rootMessage();
 export const mockReceivedRoot: ReceivedAggregateRoot = _mock.entity.receivedAggregateRoot();
 
+export const mockMqClient = () => {
+  return {
+    createChannel: () => {
+      return {
+        assertExchange: stub().resolves(),
+        assertQueue: stub().resolves(),
+        prefetch: stub().resolves(),
+        publish: stub().resolves(),
+        bindQueue: stub().resolves(),
+        consume: stub().resolves(),
+        close: stub().resolves(),
+      };
+    },
+  };
+};
 export const mockXMessage2: XMessage = {
   ..._mock.entity.xMessage(),
   originDomain: _mock.domain.B,
@@ -50,6 +66,7 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        mqClient: mockMqClient() as any,
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -136,9 +153,31 @@ export const mock = {
         apiKey: "foo",
       },
     ],
-    proverBatchSize: 10,
+    proverBatchSize: {
+      "1111": 10,
+      "2222": 10,
+    },
     relayerWaitTime: 1000,
-    service: "prover",
+    service: "prover-pub",
+    messageQueue: {
+      connection: {
+        uri: "amqp://guest:guest@localhost:5672",
+      },
+      exchange: {
+        name: "proverX",
+        type: "direct",
+        publishTimeout: 1000,
+        persistent: true,
+        durable: true,
+      },
+    },
+    server: {
+      prover: {
+        host: "0.0.0.0",
+        port: 1000,
+      },
+      adminToken: "foo",
+    },
   }),
   adapters: {
     chainreader: () => mockChainReader(),
