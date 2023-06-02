@@ -1,7 +1,7 @@
 FROM node:18-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-watcher package.
+# Builds Docker container for sdk-server package.
 
 # ----------------------------------------
 
@@ -23,6 +23,7 @@ ARG TEMP_DEPS_DIR
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
+COPY packages/examples/sdk-server/package.json /tmp/build/packages/examples/sdk-server/
 COPY packages/agents/sdk/package.json /tmp/build/packages/agents/sdk/
 COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
@@ -38,6 +39,7 @@ RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
+COPY packages/examples/sdk-server /tmp/build/packages/examples/sdk-server
 COPY packages/agents/sdk /tmp/build/packages/agents/sdk
 COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
@@ -68,7 +70,7 @@ COPY --from=build --chown=node:node /tmp/build /home/node
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/agents/sdk
+WORKDIR /home/node/packages/examples/sdk-server
 
 EXPOSE 8080
 
