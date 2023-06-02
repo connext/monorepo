@@ -268,7 +268,7 @@ jobs:
             new_tag=${tag/router-/}
             echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "docker_tag=''" >> $GITHUB_OUTPUT
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -321,7 +321,7 @@ jobs:
             new_tag=${tag/router-/}
             echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "docker_tag=''" >> $GITHUB_OUTPUT
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -374,7 +374,7 @@ jobs:
             new_tag=${tag/router-/}
             echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "docker_tag=''" >> $GITHUB_OUTPUT
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -684,7 +684,7 @@ jobs:
             new_tag=${tag/watcher-/}
             echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "docker_tag=''" >> $GITHUB_OUTPUT
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -737,7 +737,7 @@ jobs:
             new_tag=${tag/sdk-server-/}
             echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "docker_tag=''" >> $GITHUB_OUTPUT
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
