@@ -1,4 +1,4 @@
-import { SdkUtils } from "@connext/sdk";
+import { SdkUtils } from "@connext/sdk-core";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 

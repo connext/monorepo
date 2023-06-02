@@ -9,7 +9,7 @@ import {
   SdkBumpTransferParamsSchema,
   SdkUpdateSlippageSchema,
   SdkCalculateAmountReceivedParamsSchema,
-} from "@connext/sdk";
+} from "@connext/sdk-core";
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 

@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { SdkConfig, create } from "@connext/sdk";
+import { SdkConfig, create } from "@connext/sdk-core";
 import { getBestProvider } from "@connext/nxtp-utils";
 
 import { poolRoutes } from "./pool";

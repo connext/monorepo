@@ -1,4 +1,4 @@
-import { SdkRouter } from "@connext/sdk";
+import { SdkRouter } from "@connext/sdk-core";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 

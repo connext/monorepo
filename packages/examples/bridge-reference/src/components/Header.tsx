@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { create, SdkConfig } from "@connext/sdk";
+import { create, SdkConfig } from "@connext/sdk-core";
 import { ChainConfig } from "@connext/sdk/dist/config";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
