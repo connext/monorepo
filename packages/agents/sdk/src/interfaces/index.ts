@@ -472,7 +472,7 @@ export const SdkGetPoolTokenBalanceParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   poolTokenAddress: Type.String(),
-  _index: Type.Optional(Type.Number()),
+  index: Type.Optional(Type.Number()),
 });
 export type SdkGetPoolTokenBalanceParams = Static<typeof SdkGetPoolTokenBalanceParamsSchema>;
 

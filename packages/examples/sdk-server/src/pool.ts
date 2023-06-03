@@ -203,7 +203,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     async (request, reply) => {
       const { scientificNotationString } = request.body;
       const res = sdkPoolInstance.scientificToBigInt(scientificNotationString);
-      reply.status(200).send(res);
+      reply.status(200).send(res.toString()); // serialize to string here
     },
   );
 
@@ -261,8 +261,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       const res = sdkPoolInstance.calculatePriceImpact(
         BigNumber.from(tokenInputAmount),
         BigNumber.from(tokenOutputAmount),
-        BigNumber.from(virtualPrice),
-        isDeposit,
+        virtualPrice ? BigNumber.from(virtualPrice) : undefined,
+        isDeposit ? isDeposit : undefined,
       );
       reply.status(200).send(res);
     },
@@ -388,8 +388,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, poolTokenAddress, _index } = request.body;
-      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress, _index);
+      const { domainId, tokenAddress, poolTokenAddress, index } = request.body;
+      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress, index);
       reply.status(200).send(res);
     },
   );
