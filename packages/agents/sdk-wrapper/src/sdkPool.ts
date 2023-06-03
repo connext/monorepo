@@ -4,8 +4,6 @@ import { Logger, ChainData, axiosPost, StableSwapExchange } from "@connext/nxtp-
 import { SdkConfig, Pool } from "@connext/sdk-core";
 import { SdkShared } from "./sdkShared";
 import { PriceFeed } from "./lib/priceFeed";
-import { validateUri, axiosGetRequest } from "./lib/helpers";
-import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
 
 /**
  * @classdesc Class that wraps all async SdkPool functions with requests to hosted server.
