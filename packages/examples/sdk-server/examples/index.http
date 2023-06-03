@@ -735,12 +735,10 @@ POST {{baseUrl}}/addLiquidityForRouter
 Content-Type: application/json
 
 {
-  "params": {
-    "domainId": "1735356532",
-    "amount": "100000000",
-    "tokenAddress": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
-    "router": "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"
-  }
+  "domainId": "1869640809",
+  "amount": "1000000000000000000",
+  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "router": "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"
 }
 
 ##############
@@ -749,12 +747,10 @@ POST {{baseUrl}}/removeRouterLiquidity
 Content-Type: application/json
 
 {
-  "params": {
-    "domainId": "1634886255",
-    "amount": "50989998589326827",
-    "tokenAddress": "0x2983bf5c334743Aa6657AD70A55041d720d225dB",
-    "recipient": "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c"
-  }
+  "domainId": "1869640809",
+  "amount": "1000000000000000000",
+  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "recipient": "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"
 }
 
 ##############
@@ -763,11 +759,9 @@ POST {{baseUrl}}/removeRouterLiquidityFor
 Content-Type: application/json
 
 {
-  "params": {
-    "domainId": "1735353714",
-    "amount": "1000000000000000000",
-    "tokenAddress": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
-    "recipient": "0xd2ad711861ab345977b7379c81165708c8717ff1",
-    "router": "0xd2ad711861ab345977b7379c81165708c8717ff1"
-  }
+  "domainId": "1869640809",
+  "amount": "1000000000000000000",
+  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "recipient": "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+  "router": "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"
 }
