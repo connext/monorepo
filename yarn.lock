@@ -2685,7 +2685,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/sdk-core@workspace:packages/agents/sdk":
+"@connext/sdk-core@workspace:^, @connext/sdk-core@workspace:packages/agents/sdk":
   version: 0.0.0-use.local
   resolution: "@connext/sdk-core@workspace:packages/agents/sdk"
   dependencies:
