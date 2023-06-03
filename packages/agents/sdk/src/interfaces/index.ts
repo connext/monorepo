@@ -90,126 +90,6 @@ export const PoolSchema = Type.Object({
   address: Type.Optional(Type.String()),
 });
 
-/************************************
-SDK Shared Types
-*************************************/
-
-export const SdkGetConversionRateParamsSchema = Type.Object({
-  chainId: Type.Number(),
-});
-
-export type SdkGetConversionRateParams = Static<typeof SdkGetConversionRateParamsSchema>;
-
-export const SdkGetProviderParamsSchema = Type.Object({
-  domainId: Type.String(),
-});
-
-export type SdkGetProviderParams = Static<typeof SdkGetProviderParamsSchema>;
-
-export const SdkGetDeploymentAddressParamsSchema = Type.Object({
-  domainId: Type.String(),
-  deploymentName: Type.Enum({
-    connext: "connext",
-    multisend: "multisend",
-    unwrapper: "unwrapper",
-    stableSwap: "stableSwap",
-  }),
-});
-
-export type SdkGetDeploymentAddressParams = Static<typeof SdkGetDeploymentAddressParamsSchema>;
-
-export const SdkGetConnextParamsSchema = Type.Object({
-  domainId: Type.String(),
-});
-
-export type SdkGetConnextParams = Static<typeof SdkGetConnextParamsSchema>;
-
-export const SdkGetERC20ParamsSchema = Type.Object({
-  domainId: Type.String(),
-  tokenAddress: Type.String(),
-});
-
-export type SdkGetERC20Params = Static<typeof SdkGetERC20ParamsSchema>;
-
-export const SdkGetChainIdParamsSchema = Type.Object({
-  domainId: Type.String(),
-});
-
-export type SdkGetChainIdParams = Static<typeof SdkGetChainIdParamsSchema>;
-
-export const SdkDomainToChainNameParamsSchema = Type.Object({
-  domainId: Type.String(),
-});
-
-export type SdkDomainToChainNameParams = Static<typeof SdkDomainToChainNameParamsSchema>;
-
-export const SdkChainIdToDomainParamsSchema = Type.Object({
-  chainId: Type.Number(),
-});
-
-export type SdkChainIdToDomainParams = Static<typeof SdkChainIdToDomainParamsSchema>;
-
-export const SdkDomainToChainIdParamsSchema = Type.Object({
-  domainId: Type.Number(),
-});
-
-export type SdkDomainToChainIdParams = Static<typeof SdkDomainToChainIdParamsSchema>;
-
-export const SdkGetBlockNumberFromUnixTimestampParamsSchema = Type.Object({
-  domainId: Type.String(),
-  unixTimestamp: Type.Number(),
-});
-
-export type SdkGetBlockNumberFromUnixTimestampParams = Static<typeof SdkGetBlockNumberFromUnixTimestampParamsSchema>;
-
-export const SdkApproveIfNeededParamsSchema = Type.Object({
-  domainId: Type.String(),
-  assetId: Type.String(),
-  amount: Type.String(),
-  infiniteApprove: Type.Boolean(),
-});
-
-export type SdkApproveIfNeededParams = Static<typeof SdkApproveIfNeededParamsSchema>;
-
-export const SdkGetActiveLiquidityParamsSchema = Type.Object({
-  domain: Type.Optional(Type.String()),
-  local: Type.Optional(Type.String()),
-});
-
-export type SdkGetActiveLiquidityParams = Static<typeof SdkGetActiveLiquidityParamsSchema>;
-
-export const SdkGetAssetsDataByDomainAndAddressParamsSchema = Type.Object({
-  domainId: Type.String(),
-  tokenAddress: Type.String(),
-});
-
-export type SdkGetAssetsDataByDomainAndAddressParams = Static<typeof SdkGetAssetsDataByDomainAndAddressParamsSchema>;
-
-export const SdkGetAssetsWithSameCanonicalParamsSchema = Type.Object({
-  domainId: Type.String(),
-  tokenAddress: Type.String(),
-});
-export type SdkGetAssetsWithSameCanonicalParams = Static<typeof SdkGetAssetsWithSameCanonicalParamsSchema>;
-
-export const SdkGetAssetsDataByDomainAndKeyParamsSchema = Type.Object({
-  domainId: Type.String(),
-  key: Type.String(),
-});
-
-export type SdkGetAssetsDataByDomainAndKeyParams = Static<typeof SdkGetAssetsDataByDomainAndKeyParamsSchema>;
-
-export const SdkIsNextAssetParamsSchema = Type.Object({
-  tokenAddress: Type.String(),
-});
-
-export type SdkIsNextAssetParams = Static<typeof SdkIsNextAssetParamsSchema>;
-
-export const SdkChangeSignerAddressParamsSchema = Type.Object({
-  signerAddress: Type.String(),
-});
-
-export type SdkChangeSignerAddressParams = Static<typeof SdkChangeSignerAddressParamsSchema>;
-
 export const LogSchema = Type.Object({
   blockNumber: Type.Number(),
   blockHash: Type.String(),
@@ -224,6 +104,128 @@ export const LogSchema = Type.Object({
 
 export type LogType = Static<typeof LogSchema>;
 
+/************************************
+SDK Shared Types
+*************************************/
+
+// getConversionRate
+export const SdkGetConversionRateParamsSchema = Type.Object({
+  chainId: Type.Number(),
+});
+export type SdkGetConversionRateParams = Static<typeof SdkGetConversionRateParamsSchema>;
+
+// getProvider
+export const SdkGetProviderParamsSchema = Type.Object({
+  domainId: Type.String(),
+});
+export type SdkGetProviderParams = Static<typeof SdkGetProviderParamsSchema>;
+
+// getDeploymentAddress
+export const SdkGetDeploymentAddressParamsSchema = Type.Object({
+  domainId: Type.String(),
+  deploymentName: Type.Enum({
+    connext: "connext",
+    multisend: "multisend",
+    unwrapper: "unwrapper",
+    stableSwap: "stableSwap",
+  }),
+});
+export type SdkGetDeploymentAddressParams = Static<typeof SdkGetDeploymentAddressParamsSchema>;
+
+// getConnext
+export const SdkGetConnextParamsSchema = Type.Object({
+  domainId: Type.String(),
+});
+export type SdkGetConnextParams = Static<typeof SdkGetConnextParamsSchema>;
+
+// getERC20
+export const SdkGetERC20ParamsSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+});
+export type SdkGetERC20Params = Static<typeof SdkGetERC20ParamsSchema>;
+
+// getChainId
+export const SdkGetChainIdParamsSchema = Type.Object({
+  domainId: Type.String(),
+});
+export type SdkGetChainIdParams = Static<typeof SdkGetChainIdParamsSchema>;
+
+// domainToChainName
+export const SdkDomainToChainNameParamsSchema = Type.Object({
+  domainId: Type.String(),
+});
+export type SdkDomainToChainNameParams = Static<typeof SdkDomainToChainNameParamsSchema>;
+
+// chainIdToDomain
+export const SdkChainIdToDomainParamsSchema = Type.Object({
+  chainId: Type.Number(),
+});
+export type SdkChainIdToDomainParams = Static<typeof SdkChainIdToDomainParamsSchema>;
+
+// domainToChainId
+export const SdkDomainToChainIdParamsSchema = Type.Object({
+  domainId: Type.Number(),
+});
+export type SdkDomainToChainIdParams = Static<typeof SdkDomainToChainIdParamsSchema>;
+
+// getBlockNumberFromUnixTimestamp
+export const SdkGetBlockNumberFromUnixTimestampParamsSchema = Type.Object({
+  domainId: Type.String(),
+  unixTimestamp: Type.Number(),
+});
+export type SdkGetBlockNumberFromUnixTimestampParams = Static<typeof SdkGetBlockNumberFromUnixTimestampParamsSchema>;
+
+// approveIfNeeded
+export const SdkApproveIfNeededParamsSchema = Type.Object({
+  domainId: Type.String(),
+  assetId: Type.String(),
+  amount: Type.String(),
+  infiniteApprove: Type.Boolean(),
+});
+export type SdkApproveIfNeededParams = Static<typeof SdkApproveIfNeededParamsSchema>;
+
+// getActiveLiquidity
+export const SdkGetActiveLiquidityParamsSchema = Type.Object({
+  domain: Type.Optional(Type.String()),
+  local: Type.Optional(Type.String()),
+});
+export type SdkGetActiveLiquidityParams = Static<typeof SdkGetActiveLiquidityParamsSchema>;
+
+// getAssetsDataByDomainAndAddress
+export const SdkGetAssetsDataByDomainAndAddressParamsSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+});
+export type SdkGetAssetsDataByDomainAndAddressParams = Static<typeof SdkGetAssetsDataByDomainAndAddressParamsSchema>;
+
+// getAssetsWithSameCanonical
+export const SdkGetAssetsWithSameCanonicalParamsSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+});
+export type SdkGetAssetsWithSameCanonicalParams = Static<typeof SdkGetAssetsWithSameCanonicalParamsSchema>;
+
+// getAssetsDataByDomainAndKey
+export const SdkGetAssetsDataByDomainAndKeyParamsSchema = Type.Object({
+  domainId: Type.String(),
+  key: Type.String(),
+});
+export type SdkGetAssetsDataByDomainAndKeyParams = Static<typeof SdkGetAssetsDataByDomainAndKeyParamsSchema>;
+
+// isNextAsset
+export const SdkIsNextAssetParamsSchema = Type.Object({
+  tokenAddress: Type.String(),
+});
+export type SdkIsNextAssetParams = Static<typeof SdkIsNextAssetParamsSchema>;
+
+// changeSignerAddress
+export const SdkChangeSignerAddressParamsSchema = Type.Object({
+  signerAddress: Type.String(),
+});
+export type SdkChangeSignerAddressParams = Static<typeof SdkChangeSignerAddressParamsSchema>;
+
+// parseConnextTransactionReceipt
 export const SdkParseConnextTransactionReceiptParamsSchema = Type.Object({
   to: Type.String(),
   from: Type.String(),
@@ -243,27 +245,27 @@ export const SdkParseConnextTransactionReceiptParamsSchema = Type.Object({
   type: Type.Number(),
   status: Type.Optional(Type.Number()),
 });
-
 export type SdkParseConnextTransactionReceiptParams = Static<typeof SdkParseConnextTransactionReceiptParamsSchema>;
 
+// calculateCanonicalKey
 export const SdkCalculateCanonicalKeyParamsSchema = Type.Object({
   domainId: Type.String(),
   canonicalId: Type.String(),
 });
-
 export type SdkCalculateCanonicalKeyParams = Static<typeof SdkCalculateCanonicalKeyParamsSchema>;
 
+// getCanonicalTokenId
 export const SdkGetCanonicalTokenIdParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
 });
-
 export type SdkGetCanonicalTokenIdParams = Static<typeof SdkGetCanonicalTokenIdParamsSchema>;
 
 /************************************
 SDK Base Types
 *************************************/
 
+// xCall
 export const SdkXCallParamsSchema = Type.Object({
   origin: TIntegerString,
   destination: TIntegerString,
@@ -279,18 +281,18 @@ export const SdkXCallParamsSchema = Type.Object({
   wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
   unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
 });
-
 export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
 
+// bumpTransfer
 export const SdkBumpTransferParamsSchema = Type.Object({
   domainId: TIntegerString,
   transferId: Type.String(),
   asset: Type.String(),
   relayerFee: TIntegerString,
 });
-
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
+// estimateRelayerFee
 export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originDomain: TIntegerString,
   destinationDomain: TIntegerString,
@@ -301,17 +303,17 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   destinationNativeTokenPrice: Type.Optional(Type.Number()),
   destinationGasPrice: Type.Optional(Type.String()),
 });
-
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
 
+// updateSlippage
 export const SdkUpdateSlippageParamsSchema = Type.Object({
   domainId: TIntegerString,
   transferId: Type.String(),
   slippage: TIntegerString,
 });
-
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
 
+// calculateAmountReceived
 export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
   originDomain: Type.String(),
   destinationDomain: Type.String(),
@@ -320,7 +322,6 @@ export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
   receiveLocal: Type.Optional(Type.Boolean()),
   checkFastLiquidity: Type.Optional(Type.Boolean()),
 });
-
 export type SdkCalculateAmountReceivedParams = Static<typeof SdkCalculateAmountReceivedParamsSchema>;
 
 /************************************
