@@ -426,6 +426,16 @@ Content-Type: application/json
 }
 
 ##############
+### POST getTokenSupply
+POST {{baseUrl}}/getTokenSupply
+Content-Type: application/json
+
+{
+  "domainId": "1869640809",
+  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+}
+
+##############
 ### POST getTokenUserBalance
 POST {{baseUrl}}/getTokenUserBalance
 Content-Type: application/json
@@ -680,6 +690,20 @@ Content-Type: application/json
 }
 
 ##############
+### POST getRoutersData
+POST {{baseUrl}}/getRoutersData
+Content-Type: application/json
+
+{
+  "params": {
+    "order": {
+      "orderBy": "balance",
+      "ascOrDesc": "desc"
+    }
+  }
+}
+
+##############
 ### POST getTransfers
 POST {{baseUrl}}/getTransfers
 Content-Type: application/json
@@ -695,34 +719,15 @@ Content-Type: application/json
 }
 
 ##############
-### POST getRoutersData
-POST {{baseUrl}}/getRoutersData
+### POST checkRouterLiquidity
+POST {{baseUrl}}/checkRouterLiquidity
 Content-Type: application/json
 
 {
-  "params": {
-    "order": {
-      "orderBy": "balance",
-      "ascOrDesc": "desc"
-    }
-  }
+  "domainId": "1869640809",
+  "asset": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "topN": 4
 }
-
-##############
-### GET checkRouterLiquidity
-GET {{baseUrl}}/checkRouterLiquidity/6648936/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/4
-
-##############
-### GET getBlockNumberFromUnixTimestamp
-GET {{baseUrl}}/getBlockNumberFromUnixTimestamp/6648936/1658171864
-
-##############
-### GET getYieldStatsForDay
-GET {{baseUrl}}/getYieldStatsForDay/9991/0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69/1669746799
-
-##############
-### GET getYieldData
-GET {{baseUrl}}/getYieldData/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD/1
 
 ##############
 ### POST addLiquidityForRouter
@@ -764,54 +769,5 @@ Content-Type: application/json
     "tokenAddress": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
     "recipient": "0xd2ad711861ab345977b7379c81165708c8717ff1",
     "router": "0xd2ad711861ab345977b7379c81165708c8717ff1"
-  }
-}
-
-##############
-### GET getAssetsData
-GET {{baseUrl}}/getAssetsData
-
-##############
-### GET getSupported
-GET {{baseUrl}}/getSupported
-
-##############
-### GET getTokenSwapEvents
-POST {{baseUrl}}/getTokenSwapEvents
-Content-Type: application/json
-
-{
-  "params": {
-    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-    "buyer": "0xba05138df56ea700435448fba4a8cf9a716ed252",
-    "transactionHash": "0x5f9c237682049e4efe7f4bc4bfb9bd5174fccb9e86241254ea3e369515943e59"
-  }
-}
-
-##############
-### GET getHourlySwapVolume
-POST {{baseUrl}}/getHourlySwapVolume
-Content-Type: application/json
-
-{
-  "params": {
-    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-    "domainId": "9991",
-    "startTimestamp": 1661640192,
-    "endTimestamp": 1671640192
-  }
-}
-
-##############
-### GET getDailySwapVolume
-POST {{baseUrl}}/getDailySwapVolume
-Content-Type: application/json
-
-{
-  "params": {
-    "key": "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
-    "domainId": "9991",
-    "startTimestamp": 1661640192,
-    "endTimestamp": 1671640192
   }
 }
