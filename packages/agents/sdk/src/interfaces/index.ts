@@ -745,3 +745,35 @@ export const SdkCheckRouterLiquidityParamsSchema = Type.Object({
   topN: Type.Optional(Type.Number()),
 });
 export type SdkCheckRouterLiquidityParams = Static<typeof SdkCheckRouterLiquidityParamsSchema>;
+
+/************************************
+SDK Router Types
+*************************************/
+
+// addLiquidityForRouter
+export const SdkAddLiquidityForRouterParamsSchema = Type.Object({
+  domainId: Type.String(),
+  amount: Type.String(),
+  tokenAddress: Type.String(),
+  router: Type.String(),
+});
+export type SdkAddLiquidityForRouterParams = Static<typeof SdkAddLiquidityForRouterParamsSchema>;
+
+// removeRouterLiquidity
+export const SdkRemoveRouterLiquidityParamsSchema = Type.Object({
+  domainId: Type.String(),
+  amount: Type.String(),
+  tokenAddress: Type.String(),
+  recipient: Type.String(),
+});
+export type SdkRemoveRouterLiquidityParams = Static<typeof SdkRemoveRouterLiquidityParamsSchema>;
+
+// removeRouterLiquidityFor
+export const SdkRemoveRouterLiquidityForParamsSchema = Type.Object({
+  domainId: Type.String(),
+  amount: Type.String(),
+  tokenAddress: Type.String(),
+  recipient: Type.String(),
+  router: Type.String(),
+});
+export type SdkRemoveRouterLiquidityForParams = Static<typeof SdkRemoveRouterLiquidityForParamsSchema>;
