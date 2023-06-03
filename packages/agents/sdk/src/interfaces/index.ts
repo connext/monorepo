@@ -101,8 +101,24 @@ export const LogSchema = Type.Object({
   transactionHash: Type.String(),
   logIndex: Type.Number(),
 });
-
 export type LogType = Static<typeof LogSchema>;
+
+export const XTransferErrorStatus = Type.Union([
+  Type.Literal("LowSlippage"),
+  Type.Literal("LowRelayerFee"),
+  Type.Literal("ExecutionError"),
+  Type.Literal("NoBidsReceived"),
+]);
+export type TXTransferErrorStatus = Static<typeof XTransferErrorStatus>;
+
+export const XTransferStatus = Type.Union([
+  Type.Literal("XCalled"),
+  Type.Literal("Executed"),
+  Type.Literal("Reconciled"),
+  Type.Literal("CompletedFast"),
+  Type.Literal("CompletedSlow"),
+]);
+export type TXTransferStatus = Static<typeof XTransferStatus>;
 
 /************************************
 SDK Shared Types
@@ -668,3 +684,64 @@ export const SdkGetDailySwapVolumeParamsSchema = Type.Object({
   ),
 });
 export type SdkGetDailySwapVolumeParams = Static<typeof SdkGetDailySwapVolumeParamsSchema>;
+
+/************************************
+SDK Utils Types
+*************************************/
+
+export const TSortOrder = Type.Union([Type.Literal("asc"), Type.Literal("desc")]);
+
+export const TOrderBy = Type.Object({
+  orderBy: Type.Optional(Type.String()),
+  ascOrDesc: Type.Optional(TSortOrder),
+});
+
+export const TRange = Type.Object({
+  limit: Type.Optional(Type.Number()),
+  offset: Type.Optional(Type.Number()),
+});
+
+// getRoutersData
+export const SdkGetRoutersDataParamsSchema = Type.Object({
+  params: Type.Optional(
+    Type.Object({
+      order: Type.Optional(TOrderBy),
+    }),
+  ),
+});
+export type SdkGetRoutersDataParams = Static<typeof SdkGetRoutersDataParamsSchema>;
+
+// getRouterLiquidity
+export const SdkGetRouterLiquidityParamsSchema = Type.Object({
+  params: Type.Optional(
+    Type.Object({
+      order: Type.Optional(TOrderBy),
+    }),
+  ),
+});
+export type SdkGetRouterLiquidityParams = Static<typeof SdkGetRouterLiquidityParamsSchema>;
+
+// getTransfers
+export const SdkGetTransfersParamsSchema = Type.Object({
+  params: Type.Optional(
+    Type.Object({
+      userAddress: Type.Optional(Type.String()),
+      routerAddress: Type.Optional(Type.String()),
+      status: Type.Optional(XTransferStatus),
+      errorStatus: Type.Optional(XTransferErrorStatus),
+      transferId: Type.Optional(Type.String()),
+      transactionHash: Type.Optional(Type.String()),
+      xcallCaller: Type.Optional(Type.String()),
+      range: Type.Optional(TRange),
+    }),
+  ),
+});
+export type SdkGetTransfersParams = Static<typeof SdkGetTransfersParamsSchema>;
+
+// checkRouterLiquidity
+export const SdkCheckRouterLiquidityParamsSchema = Type.Object({
+  domainId: Type.String(),
+  asset: Type.String(),
+  topN: Type.Optional(Type.Number()),
+});
+export type SdkCheckRouterLiquidityParams = Static<typeof SdkCheckRouterLiquidityParamsSchema>;
