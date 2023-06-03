@@ -443,6 +443,13 @@ export const SdkGetLPTokenAddressParamsSchema = Type.Object({
 });
 export type SdkGetLPTokenAddressParams = Static<typeof SdkGetLPTokenAddressParamsSchema>;
 
+// getTokenSupply
+export const SdkGetTokenSupplyParamsSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+});
+export type SdkGetTokenSupplyParams = Static<typeof SdkGetTokenSupplyParamsSchema>;
+
 // getTokenUserBalance
 export const SdkGetTokenUserBalanceParamsSchema = Type.Object({
   domainId: Type.String(),

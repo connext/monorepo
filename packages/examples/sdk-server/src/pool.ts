@@ -29,6 +29,8 @@ import {
   SdkGetTokenPriceParams,
   SdkGetLPTokenAddressParamsSchema,
   SdkGetLPTokenAddressParams,
+  SdkGetTokenSupplyParamsSchema,
+  SdkGetTokenSupplyParams,
   SdkGetTokenUserBalanceParamsSchema,
   SdkGetTokenUserBalanceParams,
   SdkGetPoolTokenIndexParamsSchema,
@@ -334,6 +336,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     async (request, reply) => {
       const { domainId, tokenAddress } = request.body;
       const res = await sdkPoolInstance.getLPTokenAddress(domainId, tokenAddress);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post<{ Body: SdkGetTokenSupplyParams }>(
+    "/getTokenSupply",
+    {
+      schema: {
+        body: SdkGetTokenSupplyParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, tokenAddress } = request.body;
+      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress);
       reply.status(200).send(res);
     },
   );
