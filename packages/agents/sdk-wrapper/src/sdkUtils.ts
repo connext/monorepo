@@ -1,20 +1,11 @@
-import { utils, BigNumber } from "ethers";
-import {
-  Logger,
-  ChainData,
-  formatUrl,
-  XTransferStatus,
-  transfersCastForUrl,
-  XTransferErrorStatus,
-  axiosGet,
-  axiosPost,
-} from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
+import { Logger, ChainData, XTransferStatus, XTransferErrorStatus, axiosPost } from "@connext/nxtp-utils";
 
 import { SdkConfig, RouterBalance } from "@connext/sdk-core";
 import { SdkShared } from "./sdkShared";
 
 /**
- * @classdesc SDK class encapsulating utility functions.
+ * @classdesc Class that wraps all async SdkUtils functions with requests to hosted server.
  *
  */
 export class SdkUtils extends SdkShared {
@@ -34,13 +25,11 @@ export class SdkUtils extends SdkShared {
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
   }): Promise<RouterBalance[]> {
     const response = await axiosPost(`${this.baseUri}/getRoutersData`, params);
-
     return response.data;
   }
 
   async getRouterLiquidity(params?: { order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" } }): Promise<any> {
     const response = await axiosPost(`${this.baseUri}/getRouterLiquidity`, params);
-
     return response.data;
   }
 
@@ -55,7 +44,6 @@ export class SdkUtils extends SdkShared {
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
     const response = await axiosPost(`${this.baseUri}/getTransfers`, params);
-
     return response.data;
   }
 
@@ -66,7 +54,6 @@ export class SdkUtils extends SdkShared {
       topN,
     };
     const response = await axiosPost(`${this.baseUri}/checkRouterLiquidity`, params);
-
     return response.data;
   }
 }
