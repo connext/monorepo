@@ -93,8 +93,8 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     domains = _domains;
   }
 
-  function forTest_setLastPropagatedRoot(bytes32 _root) public {
-    lastPropagatedRoot = _root;
+  function forTest_setLastPropagatedRoot(uint32 _domain, bytes32 _root) public {
+    lastPropagatedRoot[_domain] = _root;
   }
 
   function forTest_pause() public {
@@ -402,7 +402,10 @@ contract RootManager_General is Base {
     bytes32 currentRoot = MerkleTreeManager(_merkle).root();
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
-    assertEq(_rootManager.lastPropagatedRoot(), currentRoot);
+    for (uint256 i; i < numSpokes; i++) {
+      // Expect a call to every hub connector!
+      assertEq(_rootManager.lastPropagatedRoot(_rootManager.domains(i)), currentRoot);
+    }
 
     // The current root has already been sent, the following call should revert since sending
     // again would be redundant.
@@ -1211,7 +1214,10 @@ contract RootManager_SendRootToHubs is Base {
   }
 
   function test_revertIfRedundantRoot(bytes32 aggregateRoot) public {
-    _rootManager.forTest_setLastPropagatedRoot(aggregateRoot);
+    _rootManager.forTest_setDomains(_domains);
+    for (uint256 i = 0; i < _connectors.length; i++) {
+      _rootManager.forTest_setLastPropagatedRoot(_domains[i], aggregateRoot);
+    }
 
     vm.expectRevert(bytes("redundant root"));
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
