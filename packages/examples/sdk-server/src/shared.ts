@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import {
+  ChainDeployments,
   SdkShared,
   SdkGetConversionRateParamsSchema,
   SdkGetConversionRateParams,
@@ -43,7 +44,6 @@ import {
   SdkGetCanonicalTokenIdParamsSchema,
   SdkGetCanonicalTokenIdParams,
 } from "@connext/sdk-core";
-import { ChainDeployments } from "@connext/sdk-core/dist/config";
 import { BigNumber, providers } from "ethers";
 
 export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: SdkShared): Promise<any> => {
