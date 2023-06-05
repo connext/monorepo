@@ -264,10 +264,13 @@ module "lighthouse_prover_cron" {
   container_family    = "lighthouse-prover"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
+  container_env_vars = merge(local.lighthouse_env_vars, {
+    LIGHTHOUSE_SERVICE = "prover"
+    DATABASE_URL       = local.read_replica_db_url
+  })
   schedule_expression = "rate(5 minutes)"
   timeout             = 900
-  memory_size         = 10240
+  memory_size         = 2048
 }
 
 module "lighthouse_process_from_root_cron" {
