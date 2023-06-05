@@ -7,11 +7,12 @@ import { BrokerMessage } from "./operations/types";
 import { processMessages } from "./operations";
 
 export const makeProverFunc = async (
-  event: any,
   config: NxtpLighthouseConfig,
   chainData: Map<string, ChainData>,
 ): Promise<{ statusCode: number; body: string }> => {
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");
+  const cmdArg = process.argv.slice(2);
+  const event = cmdArg[0];
   try {
     await makeProver(config, chainData);
 
