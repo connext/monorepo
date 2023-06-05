@@ -1,4 +1,5 @@
 import { createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { base64 } from "ethers/lib/utils";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -47,7 +48,7 @@ export const makeProverFunc = async (
     const brokerMessagesToProcess: BrokerMessage[] = [];
     for (const queue of queues) {
       const queueMessages = rmqMessagesByQueue[queue].map(
-        (msg: any) => JSON.parse(msg.data as string) as BrokerMessage,
+        (msg: any) => JSON.parse(base64.decode(msg.data as string).toString()) as BrokerMessage,
       );
       brokerMessagesToProcess.push(...queueMessages);
     }
