@@ -264,9 +264,13 @@ contract RelayerProxyHub is RelayerProxy {
    *
    * @return True if the RootManager has a workable root.
    */
-  function propagateWorkable() public returns (bool) {
+  function propagateWorkable(uint32[] memory domains) public returns (bool) {
     (bytes32 _aggregateRoot, ) = rootManager.dequeue();
-    return (rootManager.lastPropagatedRoot() != _aggregateRoot) && _propagateCooledDown();
+    bool updatedRoot = false;
+    for (uint256 i; i < domains.length; i++) {
+      updatedRoot = rootManager.lastPropagatedRoot(domains[i]) != _aggregateRoot;
+    }
+    return updatedRoot && _propagateCooledDown();
   }
 
   /**
