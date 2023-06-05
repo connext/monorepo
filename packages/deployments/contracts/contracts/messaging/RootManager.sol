@@ -181,10 +181,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   bool public optimisticMode;
 
   /**
-   * @notice The last aggregate root we propagated to spoke chains. Used to prevent sending redundant
+   * @notice The last aggregate root we propagated to spoke chains (mapping keyed on domain). Used to prevent sending redundant
    * aggregate roots in `propagate`.
    */
-  bytes32 public lastPropagatedRoot;
+  mapping(uint32 => bytes32) public lastPropagatedRoot;
 
   /**
    * @notice The last finalized aggregate root in optimistic mode.
@@ -572,12 +572,15 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     uint256[] calldata _fees,
     bytes[] memory _encodedData
   ) internal {
-    // Sanity check: make sure we are not propagating a redundant aggregate root.
-    require(_aggregateRoot != lastPropagatedRoot, "redundant root");
-    lastPropagatedRoot = _aggregateRoot;
-
     uint256 refund = msg.value;
     for (uint32 i; i < _connectors.length; ) {
+      // Sanity check: make sure we are not propagating a redundant aggregate root.
+      bytes32 previous = lastPropagatedRoot[domains[i]];
+      require(_aggregateRoot != previous, "redundant root");
+
+      // Set the last propagated root optimistically
+      lastPropagatedRoot[domains[i]] = _aggregateRoot;
+
       // Try to send the message with appropriate encoded data and fees
       // Continue on revert, but emit an event
       try
@@ -588,6 +591,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         // sufficient budget, this function will revert
         refund -= _fees[i];
       } catch {
+        // unset updated domain on failure
+        lastPropagatedRoot[domains[i]] = previous;
         emit PropagateFailed(domains[i], _connectors[i]);
       }
 
