@@ -89,6 +89,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   service: Type.Union([
     Type.Literal("prover-pub"),
     Type.Literal("prover-sub"),
+    Type.Literal("prover-func"),
     Type.Literal("propagate"),
     Type.Literal("process"),
     Type.Literal("sendoutboundroot"),

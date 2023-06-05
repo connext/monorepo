@@ -326,7 +326,7 @@ module "lighthouse_prover_subscriber" {
   ecr_repository_name  = "nxtp-lighthouse"
   docker_image_tag     = var.lighthouse_image_tag
   container_family     = "lighthouse-prover"
-  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-sub" })
+  container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-func" })
   memory_size          = 512
 }
 
