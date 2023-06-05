@@ -194,10 +194,11 @@ export const proveAndProcess = async () => {
                 }
               } catch (err: unknown) {
                 logger.error(
-                  "Error processing messages",
+                  "Error processing messages on origin",
                   requestContext,
                   methodContext,
                   jsonifyError(err as NxtpError),
+                  { originDomain, destinationDomain },
                 );
               }
             }),
