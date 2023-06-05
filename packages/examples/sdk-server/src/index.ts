@@ -22,16 +22,19 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   } catch (e: unknown) {
     console.info("No NXTP_CONFIG exists, using config file and individual env vars");
   }
-  try {
-    let json: string;
-    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
-    if (fs.existsSync(path)) {
-      json = fs.readFileSync(path, { encoding: "utf-8" });
-      configJson = JSON.parse(json);
+
+  if (Object.keys(configJson).length === 0) {
+    try {
+      const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+      if (fs.existsSync(path)) {
+        const json = fs.readFileSync(path, { encoding: "utf-8" });
+        configJson = JSON.parse(json);
+        console.info("Using config file");
+      }
+    } catch (e: unknown) {
+      console.error("Error reading config file!");
+      process.exit(1);
     }
-  } catch (e: unknown) {
-    console.error("Error reading config file!");
-    process.exit(1);
   }
 
   const signer = ethers.Wallet.createRandom();
