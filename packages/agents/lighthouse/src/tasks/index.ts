@@ -9,9 +9,7 @@ import { makeProcessFromRoot } from "./processFromRoot";
 import { makeSendOutboundRoot } from "./sendOutboundRoot";
 import { makeProverFunc } from "./prover/handler";
 
-export const makeLighthouse = async (event?: any, context?: any) => {
-  console.log("starting a lighthouse");
-  console.log({ event, context });
+export const makeLighthouse = async (event?: any) => {
   const chainData = await getChainData();
   if (!chainData) {
     throw new Error("Could not get chain data");
@@ -26,7 +24,7 @@ export const makeLighthouse = async (event?: any, context?: any) => {
       await makeProverSubscriber(config, chainData);
       break;
     case "prover-func":
-      await makeProverFunc(config, chainData);
+      await makeProverFunc(event, config, chainData);
       break;
     case "propagate":
       await makePropagate(config, chainData);

@@ -7,12 +7,8 @@ import { getContext, makeProver } from "./prover";
 import { BrokerMessage } from "./operations/types";
 import { processMessages } from "./operations";
 
-export const makeProverFunc = async (
-  config: NxtpLighthouseConfig,
-  chainData: Map<string, ChainData>,
-): Promise<{ statusCode: number; body: string }> => {
+export const makeProverFunc = async (event: any, config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");
-  const cmdArg = process.argv.slice(2);
 
   try {
     await makeProver(config, chainData);
@@ -40,8 +36,7 @@ export const makeProverFunc = async (
      *   }
      * }
      */
-    logger.info("Received an event from mq", requestContext, methodContext, { arg1: cmdArg[0], arg2: cmdArg[1] });
-    const event = JSON.parse(cmdArg[0]);
+    logger.info("Received an event from mq", requestContext, methodContext);
 
     const rmqMessagesByQueue = event.rmqMessagesByQueue as Record<string, any[]>;
     const queues = Object.keys(rmqMessagesByQueue);
@@ -56,15 +51,10 @@ export const makeProverFunc = async (
     for (const brokerMessage of brokerMessagesToProcess) {
       await processMessages(brokerMessage, requestContext);
     }
-    return {
-      statusCode: 200,
-      body: `Processed ${brokerMessagesToProcess.length} messages`,
-    };
+    logger.info("Processed messages successfully", requestContext, methodContext, {
+      length: brokerMessagesToProcess.length,
+    });
   } catch (err: unknown) {
     console.error(`Message processing failed, error: ${err}`);
-    return {
-      statusCode: 500,
-      body: `Message processing failed, error: ${err}`,
-    };
   }
 };
