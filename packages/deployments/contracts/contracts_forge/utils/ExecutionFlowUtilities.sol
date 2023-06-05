@@ -702,6 +702,9 @@ contract ExecutionFlowUtilities is ForgeHelper {
     // Get initial bridge balance and router liquidity
     ReconcileBalances memory initial = utils_getReconcileBalances(transferId, routers);
 
+    // Get message
+    bytes memory message = MessagingUtils.formatTransferMessage(params);
+
     // expect emit
     vm.expectEmit(true, true, true, true);
     emit Reconciled(
@@ -713,7 +716,6 @@ contract ExecutionFlowUtilities is ForgeHelper {
       address(_destinationManager)
     );
 
-    bytes memory message = MessagingUtils.formatTransferMessage(params);
     vm.prank(address(_destinationManager));
     _destinationConnext.handle(_origin, 0, TypeCasts.addressToBytes32(address(_originConnext)), message);
 
