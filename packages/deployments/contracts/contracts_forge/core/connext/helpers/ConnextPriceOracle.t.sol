@@ -50,13 +50,11 @@ contract ConnextPriceOracleTest is ForgeHelper {
 
   // ============ utils ============
   function utils_deployAndSetup() public {
-    vm.expectEmit(true, true, true, true);
-    emit OwnershipTransferred(address(0), address(this));
     priceOracle = new ConnextPriceOracle(_wrapped);
+    assertEq(priceOracle.owner(), address(this));
 
-    vm.expectEmit(true, true, true, true);
-    emit OwnershipTransferred(address(0), address(this));
     v1PriceOracle = new ConnextPriceOracle(_tokenV1);
+    assertEq(v1PriceOracle.owner(), address(this));
     _aggregator = address(new TestAggregator(18));
     _tokenA = address(new MockERC20(18));
     _tokenB = address(new MockERC20(36));
@@ -136,8 +134,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address _aggregator2 = address(new TestAggregator(36));
     _sources[0] = _aggregator1;
     _sources[1] = _aggregator2;
-    vm.expectEmit(true, true, true, true);
     for (uint256 i = 0; i < 2; i++) {
+      vm.expectEmit(true, true, true, true);
       emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
     }
     priceOracle.setAggregators(_tokenAddresses, _sources);
@@ -158,8 +156,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address _aggregator2 = address(new TestAggregator(36));
     _sources[0] = _aggregator1;
     _sources[1] = _aggregator2;
-    vm.expectEmit(true, true, true, true);
     for (uint256 i = 0; i < 2; i++) {
+      vm.expectEmit(true, true, true, true);
       emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
     }
     priceOracle.setAggregators(_tokenAddresses, _sources);
@@ -178,8 +176,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address[] memory _sources = new address[](1);
     address _aggregator = address(new TestAggregator(24));
     _sources[0] = _aggregator;
-    vm.expectEmit(true, true, true, true);
     for (uint256 i = 0; i < 1; i++) {
+      vm.expectEmit(true, true, true, true);
       emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
     }
     priceOracle.setAggregators(_tokenAddresses, _sources);
@@ -197,8 +195,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address[] memory _sources = new address[](1);
     address _aggregator = address(new TestAggregator(24));
     _sources[0] = _aggregator;
-    vm.expectEmit(true, true, true, true);
     for (uint256 i = 0; i < 1; i++) {
+      vm.expectEmit(true, true, true, true);
       emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
     }
     priceOracle.setAggregators(_tokenAddresses, _sources);
