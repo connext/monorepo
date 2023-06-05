@@ -39,7 +39,9 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
   }
 
   /**
-   * @dev Sends `aggregateRoot` to messaging on l2
+   * @notice Sends `aggregateRoot` to messaging on l2.
+   * @dev Caller must provide L2 gas and refund recipient. If the _refundRecipient is a smart contract,
+   * then during the L1 to L2 transaction its address is aliased.
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should include L2 gas that transaction can consume during execution on L2 + address of
