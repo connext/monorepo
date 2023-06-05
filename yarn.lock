@@ -2716,6 +2716,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@connext/sdk": "workspace:*"
+    "@connext/sdk-core": "workspace:^"
     "@fastify/type-provider-typebox": 2.4.0
     "@types/node": 18.13.0
     "@types/pino": 7.0.5
