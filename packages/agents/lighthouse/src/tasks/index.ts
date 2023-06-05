@@ -9,7 +9,9 @@ import { makeProcessFromRoot } from "./processFromRoot";
 import { makeSendOutboundRoot } from "./sendOutboundRoot";
 import { makeProverFunc } from "./prover/handler";
 
-export const makeLighthouse = async () => {
+export const makeLighthouse = async (event: any, context: any) => {
+  console.log("starting a lighthouse");
+  console.log({ event, context });
   const chainData = await getChainData();
   if (!chainData) {
     throw new Error("Could not get chain data");
