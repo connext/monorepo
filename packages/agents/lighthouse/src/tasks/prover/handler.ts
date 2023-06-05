@@ -13,6 +13,7 @@ export const makeProverFunc = async (
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");
   const cmdArg = process.argv.slice(2);
   const event = JSON.parse(cmdArg[0]);
+
   try {
     await makeProver(config, chainData);
 
@@ -39,7 +40,7 @@ export const makeProverFunc = async (
      *   }
      * }
      */
-    logger.info("Received an event from mq", requestContext, methodContext, { event });
+    logger.info("Received an event from mq", requestContext, methodContext, { arg1: cmdArg[0], arg2: cmdArg[1] });
 
     const rmqMessagesByQueue = event.rmqMessagesByQueue as Record<string, any[]>;
     const queues = Object.keys(rmqMessagesByQueue);
