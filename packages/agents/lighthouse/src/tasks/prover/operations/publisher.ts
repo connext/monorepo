@@ -33,6 +33,11 @@ export const enqueue = async () => {
   await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
     durable: config.messageQueue.exchange.durable,
   });
+  await channel.assertQueue(PROVER_QUEUE, {
+    durable: true,
+    maxLength: config.messageQueue.queueLimit,
+  });
+  await channel.bindQueue(PROVER_QUEUE, config.messageQueue.exchange.name, PROVER_QUEUE);
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
