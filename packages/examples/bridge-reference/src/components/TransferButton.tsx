@@ -244,7 +244,7 @@ export const TransferButton = ({
           } catch (error: unknown) {}
           if (
             [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
-              transfer?.status,
+              transfer?.status as any,
             )
           ) {
             reset();
@@ -261,7 +261,7 @@ export const TransferButton = ({
 
           if (
             [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
-              transfer?.status,
+              transfer?.status as any,
             )
           ) {
             reset();
