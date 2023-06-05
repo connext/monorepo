@@ -215,7 +215,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer.address,
       log: true,
       contract: "RelayerProxy",
-      args: [connextAddress, spokeConnector.address, gelatoRelayer, feeCollector],
+      args: [
+        connextAddress,
+        spokeConnector.address,
+        gelatoRelayer,
+        feeCollector,
+        KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
+        constants.AddressZero,
+        AUTONOLAS_PRIORITY,
+      ],
     });
 
     console.log("relayerProxy: ", relayerProxy.address);

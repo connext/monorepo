@@ -1,0 +1,3 @@
+[
+  "function onMessageReceived(address originAddress, uint32 originNetwork, bytes data) payable"
+]

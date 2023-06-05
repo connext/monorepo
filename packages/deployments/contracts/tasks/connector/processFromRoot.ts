@@ -7,6 +7,7 @@ import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { FetchedEvent } from "@arbitrum/sdk/dist/lib/utils/eventFetcher";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 import { NODE_INTERFACE_ADDRESS } from "@arbitrum/sdk/dist/lib/dataEntities/constants";
+import { chainIdToDomain, generateExitPayload } from "@connext/nxtp-utils";
 
 import {
   Env,
@@ -19,13 +20,38 @@ import {
 } from "../../src/utils";
 import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
-import { NodeCreatedEvent, delay } from "../../src";
+import { NodeCreatedEvent, delay, getProviderUrlFromHardhatConfig } from "../../src";
 
 type TaskArgs = {
   tx: string;
   spoke: string;
   env?: Env;
   networkType?: ProtocolNetwork;
+};
+
+const processFromPolygonRoot = async (spoke: number, sendHash: string, hubProvider: providers.JsonRpcProvider) => {
+  const hubChain = (await hubProvider.getNetwork()).chainId;
+  const SEND_MESSAGE_EVENT_SIG = "0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036"; // keccak256(MessageSent(bytes))
+
+  const providerMapping = new Map<string, string[]>();
+  const spokeDomain = chainIdToDomain(spoke);
+  const hubDomain = chainIdToDomain(hubChain);
+  providerMapping.set(hubDomain.toString(), [getProviderUrlFromHardhatConfig(hubChain)]);
+  providerMapping.set(spokeDomain.toString(), [getProviderUrlFromHardhatConfig(spoke)]);
+  console.log("hubDomain", hubDomain.toString());
+  console.log("spokeDomain", spokeDomain.toString());
+  const { hash, payload } = await generateExitPayload(
+    spokeDomain.toString(),
+    hubDomain.toString(),
+    sendHash,
+    SEND_MESSAGE_EVENT_SIG,
+    providerMapping,
+  );
+  if (!hash || !payload) {
+    throw new Error(`no hash or payload. already or not yet ready to be processed`);
+  }
+  console.log("hash: ", hash);
+  return [payload];
 };
 
 const processFromArbitrumRoot = async (
@@ -240,7 +266,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
 
       const env = mustGetEnv(_env);
       const spoke = +_spoke;
-      const networkType = _networkType ?? ProtocolNetwork.TESTNET;
+      const networkType = (_networkType ?? process.env.NETWORK ?? ProtocolNetwork.TESTNET) as ProtocolNetwork;
       console.log("networkType: ", networkType);
       console.log("env:", env);
       console.log("spoke", spoke);
@@ -259,12 +285,17 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       const prefix = protocolConfig.configs[spoke].prefix;
 
       let args: any[];
+      let method = "processFromRoot";
       switch (prefix) {
         case "Optimism":
           args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
           break;
         case "Arbitrum":
           args = await processFromArbitrumRoot(spoke, sendHash, l2Provider, l1Provider, deployer);
+          break;
+        case "Polygon":
+          method = "receiveMessage";
+          args = await processFromPolygonRoot(spoke, sendHash, l1Provider);
           break;
         default:
           throw new Error(`${prefix} is not supported`);
@@ -279,7 +310,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       const connector = new Contract(address, deployment.abi, deployer.connect(l1Provider));
       console.log("created connector");
 
-      const tx = await connector.processMessageFromRoot(...args);
+      const tx = await connector[method](...args);
       console.log("tx", tx.hash);
       await tx.wait();
       console.log("tx mined");

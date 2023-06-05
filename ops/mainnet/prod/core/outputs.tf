@@ -5,11 +5,19 @@ output "sequencer-publisher-dns" {
   value = module.sequencer_publisher.dns_name
 }
 
+output "sequencer-server-dns" {
+  value = module.sequencer_server.dns_name
+}
+
 output "router-subscriber-dns" {
   value = module.router_subscriber.dns_name
 }
 output "router-publisher-dns" {
   value = module.router_publisher.dns_name
+}
+
+output "sequencer-server-service-endpoint" {
+  value = module.sequencer_server.service_endpoint
 }
 
 output "sequencer-publisher-service-endpoint" {

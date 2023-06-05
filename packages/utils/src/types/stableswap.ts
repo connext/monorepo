@@ -37,6 +37,7 @@ export const StableSwapExchangeSchema = Type.Object({
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
+  nonce: Type.Number(),
 });
 export type StableSwapExchange = Static<typeof StableSwapExchangeSchema>;
 
@@ -44,7 +45,7 @@ export const PoolActionType = {
   Add: "Add",
   Remove: "Remove",
 } as const;
-export type PoolActionType = typeof PoolActionType[keyof typeof PoolActionType];
+export type PoolActionType = (typeof PoolActionType)[keyof typeof PoolActionType];
 
 export const StableSwapPoolEventSchema = Type.Object({
   id: Type.String(),
@@ -62,5 +63,33 @@ export const StableSwapPoolEventSchema = Type.Object({
   blockNumber: Type.Number(),
   transactionHash: Type.String(),
   timestamp: Type.Number(),
+  nonce: Type.Number(),
 });
 export type StableSwapPoolEvent = Static<typeof StableSwapPoolEventSchema>;
+
+export const StableSwapTransferSchema = Type.Object({
+  id: Type.String(),
+  poolId: Type.String(),
+  domain: Type.String(),
+  lpToken: Type.String(),
+  fromAddress: Type.String(),
+  toAddress: Type.String(),
+  pooledTokens: Type.Array(Type.String()),
+  balances: Type.Array(Type.Number()),
+  amount: Type.Number(),
+  blockNumber: Type.Number(),
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+  nonce: Type.Number(),
+});
+export type StableSwapTransfer = Static<typeof StableSwapTransferSchema>;
+
+export const StableSwapLpBalanceSchema = Type.Object({
+  poolId: Type.String(),
+  domain: Type.String(),
+  lpToken: Type.String(),
+  provider: Type.String(),
+  balance: Type.Number(),
+  lastTimestamp: Type.Number(),
+});
+export type StableSwapLpBalance = Static<typeof StableSwapLpBalanceSchema>;

@@ -1,4 +1,10 @@
 locals {
+  base_domain              = "connext.ninja"
+  default_db_endpoint      = "db.${var.environment}.${var.stage}.${local.base_domain}"
+  read_replica_db_endpoint = "db_read_replica.${var.environment}.${var.stage}.${local.base_domain}"
+  default_db_url           = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.default_db_endpoint}:5432/connext"
+  read_replica_db_url      = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.read_replica_db_endpoint}:5432/connext"
+
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
@@ -110,7 +116,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -127,37 +133,48 @@ locals {
       ]
       queues = [
         {
+          name       = "http"
+          limit      = 100
+          queueLimit = 100000
+          subscribe  = true
+        },
+        {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "2053862260"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1734439522"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
       ]
       bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "http"
+          keys     = ["http"]
+        },
         {
           exchange = "sequencerX"
           target   = "1735353714"
@@ -195,7 +212,7 @@ locals {
       port = module.router_cache.redis_instance_port
     },
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_server.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       pub = {
@@ -267,7 +284,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.testnet.staging.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     hubDomain       = "1735353714"
     proverBatchSize = 1

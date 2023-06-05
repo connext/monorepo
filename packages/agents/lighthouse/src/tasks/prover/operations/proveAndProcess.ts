@@ -13,7 +13,6 @@ import {
 
 import {
   NoDestinationDomainForProof,
-  NoAggregatedRoot,
   NoAggregateRootCount,
   NoMessageRootIndex,
   NoMessageRootCount,
@@ -25,6 +24,7 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
+import { DEFAULT_CONCURRENCY, DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
@@ -43,22 +43,19 @@ export const proveAndProcess = async () => {
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
 
-  // Batch size of proofs to send to relayer.
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
-          destinationDomain,
-        );
-        if (!curDestAggRoot) {
+        const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
+
+        if (curDestAggRoots.length == 0) {
           throw new NoReceivedAggregateRoot(destinationDomain);
         }
-        logger.debug("Got latest aggregate root for domain", requestContext, methodContext, {
+        logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
           destinationDomain,
-          curDestAggRoot,
+          curDestAggRoots,
         });
 
         await Promise.all(
@@ -66,29 +63,66 @@ export const proveAndProcess = async () => {
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
               try {
-                const latestMessageRoot: RootMessage | undefined = await database.getLatestMessageRoot(
-                  originDomain,
-                  curDestAggRoot.root,
-                );
+                let latestMessageRoot: RootMessage | undefined = undefined;
+                const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
+                for (const destAggregateRoot of curDestAggRoots) {
+                  latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
+                  if (latestMessageRoot) break;
+                }
                 if (!latestMessageRoot) {
                   throw new NoTargetMessageRoot(originDomain);
                 }
+
+                const targetMessageRoot = latestMessageRoot.root;
+                // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
+                const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
+                if (messageRootCount === undefined) {
+                  throw new NoMessageRootCount(originDomain, targetMessageRoot);
+                }
+                // Index of messageRoot leaf node in aggregate tree.
+                const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+                if (messageRootIndex === undefined) {
+                  throw new NoMessageRootIndex(originDomain, targetMessageRoot);
+                }
+
+                // Count of leafs in aggregate tree at targetAggregateRoot.
+                const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot.root);
+                if (!aggregateRootCount) {
+                  throw new NoAggregateRootCount(targetAggregateRoot.root);
+                }
+                // TODO: Move to per domain storage adapters in context
+                const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+                const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+
+                const spokeSMT = new SparseMerkleTree(spokeStore);
+                const hubSMT = new SparseMerkleTree(hubStore);
+                const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
+
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
+                let concurrentBatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
                     requestContext,
                     methodContext,
-                    { batchSize: config.proverBatchSize, offset, originDomain, destinationDomain },
+
+                    {
+                      batchSize,
+                      offset,
+                      originDomain,
+                      destinationDomain,
+                      index: latestMessageRoot.count,
+                    },
                   );
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
                     latestMessageRoot.count,
                     offset,
-                    config.proverBatchSize,
+                    batchSize,
                   );
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
@@ -101,26 +135,46 @@ export const proveAndProcess = async () => {
                       destinationDomain,
                       offset,
                     });
-                    // Batch process messages from the same origin domain
-                    await processMessages(
-                      unprocessed,
-                      originDomain,
-                      destinationDomain,
-                      latestMessageRoot.root,
-                      subContext,
-                    );
-                    offset += unprocessed.length;
-                    logger.info(
-                      "Processed unprocessed messages for origin and destination pair",
-                      subContext,
-                      methodContext,
-                      {
+
+                    concurrentBatch.push(
+                      processMessages(
                         unprocessed,
                         originDomain,
                         destinationDomain,
+                        targetMessageRoot,
+                        messageRootIndex,
+                        targetAggregateRoot.root,
+                        spokeSMT,
+                        hubSMT,
+                        subContext,
+                      ),
+                    );
+                    offset += unprocessed.length;
+                    logger.info(
+                      "Batched unprocessed messages for origin and destination pair",
+                      subContext,
+                      methodContext,
+                      {
+                        originDomain,
+                        destinationDomain,
                         offset,
+                        batchSize: concurrentBatch.length,
                       },
                     );
+                    if (unprocessed.length === 0 || concurrentBatch.length >= concurrency) {
+                      await Promise.all(concurrentBatch);
+                      concurrentBatch = [];
+                      logger.info(
+                        "Processed unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                        },
+                      );
+                    }
                   } else {
                     // End the loop if no more messages are found
                     end = true;
@@ -156,49 +210,54 @@ export const proveAndProcess = async () => {
 };
 
 export const processMessages = async (
-  messages: XMessage[],
+  _messages: XMessage[],
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
+  messageRootIndex: number,
+  targetAggregateRoot: string,
+  spokeSMT: SparseMerkleTree,
+  hubSMT: SparseMerkleTree,
   _requestContext: RequestContext,
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader },
+    adapters: { contracts, relayers, chainreader },
     config,
     chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
 
-  // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
-  const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
-  if (messageRootCount === undefined) {
-    throw new NoMessageRootCount(originDomain, targetMessageRoot);
-  }
-  // Index of messageRoot leaf node in aggregate tree.
-  const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
-  if (messageRootIndex === undefined) {
-    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
+  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
+  if (!destinationSpokeConnector) {
+    throw new NoDestinationDomainForProof(destinationDomain);
   }
 
-  // Get the currentAggregateRoot from on-chain state (or pending, if the validation period
-  // has elapsed!) to determine which tree snapshot we should be generating the proof from.
-  const targetAggregateRoot = await database.getAggregateRoot(targetMessageRoot);
-  if (!targetAggregateRoot) {
-    throw new NoAggregatedRoot();
-  }
+  // In worst case, the message status couldn't get reflected to the database properly.
+  // To avoid the failure in case we do proveAndProcess in batch, that wouldn't make sense that the unprocessed messages fail due to any processed messages but not reflected to the db.
+  // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
+  // The quick way to verify them is to add a sanitation check against the spoke connector.
+  const messages: XMessage[] = [];
+  for (const message of _messages) {
+    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    try {
+      const messageResultData = await chainreader.readTx({
+        domain: +destinationDomain,
+        to: destinationSpokeConnector,
+        data: messageEncodedData,
+      });
 
-  // Count of leafs in aggregate tree at targetAggregateRoot.
-  const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
-  if (!aggregateRootCount) {
-    throw new NoAggregateRootCount(targetAggregateRoot);
+      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      if (messageStatus == 0) messages.push(message);
+    } catch (err: unknown) {
+      logger.debug(
+        "Failed to read the message status from onchain",
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+    }
   }
-  // TODO: Move to per domain storage adapters in context
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
-
-  const spokeSMT = new SparseMerkleTree(spokeStore);
-  const hubSMT = new SparseMerkleTree(hubStore);
 
   // process messages
   const messageProofs: ProofStruct[] = [];
@@ -278,10 +337,6 @@ export const processMessages = async (
       messageRootIndex,
     ]);
 
-    const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-    if (!destinationSpokeConnector) {
-      throw new NoDestinationDomainForProof(destinationDomain);
-    }
     logger.info("Proving and processing messages", requestContext, methodContext, {
       destinationDomain,
       data,

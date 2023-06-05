@@ -1,4 +1,11 @@
 locals {
+  base_domain              = "connext.ninja"
+  default_db_endpoint      = "db.${var.environment}.${local.base_domain}"
+  read_replica_db_endpoint = "db_read_replica.${var.environment}.${local.base_domain}"
+  default_db_url           = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.default_db_endpoint}:5432/connext"
+  read_replica_db_url      = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.read_replica_db_endpoint}:5432/connext"
+
+
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
@@ -77,7 +84,7 @@ locals {
     }
 
     server = {
-      adminToken = var.admin_token_router
+      adminToken = var.admin_token_sequencer
     }
 
     logLevel = "debug"
@@ -118,7 +125,7 @@ locals {
     relayerFeeTolerance = 60
     environment         = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -135,43 +142,54 @@ locals {
       ]
       queues = [
         {
+          name       = "http"
+          limit      = 100
+          queueLimit = 100000
+          subscribe  = true
+        },
+        {
           name       = "6648936"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1869640809"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1886350457"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "1634886255"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "6450786"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
         {
           name       = "6778479"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 100000
           subscribe  = true
         },
       ]
       bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "http"
+          keys     = ["http"]
+        },
         {
           exchange = "sequencerX"
           target   = "6648936"
@@ -214,7 +232,7 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_server.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       pub = {
@@ -260,28 +278,28 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
       },
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc"]
       },
       "6450786" = {
-        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     relayers = [
       {
@@ -301,8 +319,15 @@ locals {
       propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
-    hubDomain       = "6648936"
-    proverBatchSize = 1
+    hubDomain = "6648936"
+    proverBatchSize = {
+      "6648936"    = 10,
+      "1869640809" = 10,
+      "1886350457" = 10,
+      "1634886255" = 10,
+      "6450786"    = 10,
+      "6778479"    = 10
+    }
   })
 
   local_relayer_config = jsonencode({

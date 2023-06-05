@@ -10,8 +10,9 @@ import { existsSync, readFileSync } from "./mockable";
 // Polling mins and defaults.
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
-const DEFAULT_PROVER_BATCH_SIZE = 10;
+export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
+export const DEFAULT_CONCURRENCY = 1;
 
 dotenvConfig();
 
@@ -60,8 +61,9 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       sendOutboundRoot: Type.String({ format: "uri" }),
     }),
   ),
-  proverBatchSize: Type.Integer({ minimum: 1, maximum: 1000 }),
+  proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
+  concurrency: Type.Integer({ minimum: 0 }),
   service: Type.Union([
     Type.Literal("prover"),
     Type.Literal("propagate"),
@@ -154,16 +156,15 @@ export const getEnvConfig = (
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
     service: process.env.LIGHTHOUSE_SERVICE || configJson.service || configFile.service,
-    proverBatchSize:
-      process.env.NXTP_PROVER_BATCH_SIZE ||
-      configJson.proverBatchSize ||
-      configFile.proverBatchSize ||
-      DEFAULT_PROVER_BATCH_SIZE,
+    proverBatchSize: configJson.proverBatchSize || configFile.proverBatchSize || {},
     relayerWaitTime:
       process.env.NXTP_RELAYER_WAIT_TIME ||
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
+    concurrency: process.env.NXTP_PROVER_CONCURRENCY
+      ? +process.env.NXTP_PROVER_CONCURRENCY
+      : undefined || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
   };
 
   nxtpConfig.cartographerUrl =

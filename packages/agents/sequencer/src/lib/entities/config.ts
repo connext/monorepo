@@ -44,7 +44,7 @@ export const TMQExchangeConfig = Type.Object({
 export const TMQQueueConfig = Type.Object({
   name: Type.String(),
   limit: Type.Integer(),
-  queueLimit: Type.Integer(),
+  queueLimit: Type.Optional(Type.Integer()),
   deadLetter: Type.Optional(Type.String()),
   subscribe: Type.Boolean(),
 });
@@ -61,6 +61,7 @@ export const TMessageQueueConfig = Type.Object({
   queues: Type.Array(TMQQueueConfig),
   bindings: Type.Array(TMQBindingConfig),
   executerTimeout: Type.Integer(),
+  prefetch: Type.Optional(Type.Integer()),
   publisher: Type.Optional(Type.String()),
   subscriber: Type.Optional(Type.String()),
 });
@@ -74,6 +75,10 @@ export const TServerConfig = Type.Object({
     host: Type.String({ format: "ipv4" }),
   }),
   sub: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
+  http: Type.Object({
     port: Type.Integer({ minimum: 1, maximum: 65535 }),
     host: Type.String({ format: "ipv4" }),
   }),
@@ -137,3 +142,10 @@ export const messageSchema = Type.Object({
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;
+
+export const httpMessageSchema = Type.Object({
+  transferId: Type.String(),
+  type: Type.Enum(MessageType),
+  data: Type.Any(),
+});
+export type HTTPMessage = Static<typeof httpMessageSchema>;

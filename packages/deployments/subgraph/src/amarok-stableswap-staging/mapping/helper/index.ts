@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { decimal } from "@protofire/subgraph-toolkit";
 
 import {
   SystemInfo,
@@ -9,9 +10,11 @@ import {
   SwapHourlyVolume,
   SwapDailyVolume,
   SwapWeeklyVolume,
+  LpToken,
+  LpAccount,
+  LpAccountBalance,
 } from "../../../../generated/schema";
-
-import { decimal } from "@protofire/subgraph-toolkit";
+import { LpToken as LpTokenTemplate } from "../../../../generated/templates";
 
 export function getSystemInfo(): SystemInfo {
   let state = SystemInfo.load("current");
@@ -587,4 +590,61 @@ export function removeLiquidityOneToken(
   stableSwap.save();
 
   return stableSwap;
+}
+
+export function createLpToken(poolId: string, address: Address): void {
+  if (address != Address.zero()) {
+    // Persist token data if it doesn't already exist
+    let token = LpToken.load(address.toHex());
+
+    if (token == null) {
+      token = new LpToken(address.toHex());
+      token.stableSwap = poolId;
+      token.address = address;
+      token.name = "Lp Token";
+      token.symbol = "LP";
+      token.decimals = 18;
+      token.totalSupply = decimal.ZERO;
+
+      token.save();
+
+      // Start indexing token events
+      LpTokenTemplate.create(address);
+    } else {
+      log.warning("Lp Token {} already in registry", [address.toHex()]);
+    }
+  }
+}
+export function getOrCreateLpAccount(accountAddress: Bytes): LpAccount {
+  const accountId = accountAddress.toHex();
+  const existingAccount = LpAccount.load(accountId);
+
+  if (existingAccount != null) {
+    return existingAccount;
+  }
+
+  const newAccount = new LpAccount(accountId);
+  newAccount.address = accountAddress;
+
+  return newAccount;
+}
+
+export function getOrCreateLpAccountBalance(account: LpAccount, token: LpToken): LpAccountBalance {
+  const balanceId = account.id + "-" + token.id;
+  const previousBalance = LpAccountBalance.load(balanceId);
+
+  if (previousBalance != null) {
+    return previousBalance;
+  }
+
+  const newBalance = new LpAccountBalance(balanceId);
+  newBalance.account = account.id;
+  newBalance.token = token.id;
+  newBalance.amount = decimal.ZERO;
+
+  return newBalance;
+}
+
+export function generateNonce(event: ethereum.Event): BigInt {
+  return event.block.timestamp.times(BigInt.fromI32(10000)).plus(event.logIndex);
 }

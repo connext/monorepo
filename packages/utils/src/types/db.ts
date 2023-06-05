@@ -1,8 +1,15 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot } from "./amb";
-import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
+import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot, RootMessageStatus } from "./amb";
 import {
+  PoolActionType,
+  StableSwapExchange,
+  StableSwapPool,
+  StableSwapPoolEvent,
+  StableSwapTransfer,
+} from "./stableswap";
+import {
+  Asset,
   AssetBalance,
   RouterBalance,
   XTransfer,
@@ -238,6 +245,25 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
 };
 
 /**
+ * Converts asset from the cartographer db through either DB queries or Postgrest into the Asset type
+ * @param asset - the asset from the cartographer db as a JSON object
+ * @returns an Asset object
+ */
+export const convertFromDbAsset = (asset: any): Asset => {
+  return {
+    key: asset.key,
+    id: asset.id,
+    decimal: asset.decimal,
+    localAsset: asset.local,
+    adoptedAsset: asset.adopted,
+    canonicalId: asset.canonical_id,
+    canonicalDomain: asset.canonical_domain,
+    domain: asset.domain,
+    blockNumber: asset.block_number,
+  };
+};
+
+/**
  * Converts router balance rows into a RouterBalance array
  * Example rows:
 [
@@ -322,7 +348,7 @@ export const convertFromDbMessage = (message: any): XMessage => {
     leaf: message.leaf,
     originDomain: message.origin_domain,
     destinationDomain: message.destination_domain,
-    transferId: message.transferId,
+    transferId: message.transfer_id,
     origin: {
       index: BigNumber.from(message.index).toNumber(),
       root: message.root,
@@ -407,6 +433,21 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
 };
 
 /**
+ * Converts a root message status from the cartographer db through either DB queries or Postgrest into the RootMessageStatus type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an RootMessageStatus object
+ */
+export const convertFromDbRootStatus = (status: any): RootMessageStatus => {
+  const obj = {
+    processedCount: +status.processed_count,
+    unprocessedCount: +status.unprocessed_count,
+    aggregatedCount: +status.aggregated_count,
+    lastAggregatedRoot: status.last_aggregated_id ? status.last_aggregated_id.split("-")[0] : undefined,
+  };
+  return sanitizeNull(obj);
+};
+
+/**
  * Converts a stable swap pool from the cartographer db through
  * @param pool - the stable swap pool from the cartographer db as a JSON object
  * @returns an StableSwapPool object
@@ -453,6 +494,7 @@ export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchan
     blockNumber: exchange.blockNumber,
     transactionHash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -478,5 +520,29 @@ export const convertFromDbStableSwapPoolEvent = (event: any): StableSwapPoolEven
     blockNumber: event.blockNumber,
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+/**
+ * Converts a stable swap lp token transfer events from the cartographer db through
+ * @param event - the stable swap lp transfer event from the cartographer db as a JSON object
+ * @returns an StableSwapTransfer object
+ */
+export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfer => {
+  return {
+    id: event.id,
+    poolId: event.poolId,
+    domain: event.domain,
+    lpToken: event.lp_token,
+    fromAddress: event.from_address,
+    toAddress: event.to_address,
+    pooledTokens: event.pooled_tokens,
+    balances: event.balances,
+    amount: event.amount,
+    blockNumber: event.block_number,
+    transactionHash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };

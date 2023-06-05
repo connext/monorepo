@@ -42,15 +42,21 @@ variable "full_image_name_router_executor" {
   default     = "ghcr.io/connext/router-executor:0.2.1-beta.8"
 }
 
+variable "full_image_name_sequencer_server" {
+  type        = string
+  description = "sequencer server image name"
+  default     = "ghcr.io/connext/sequencer-server:0.2.1-beta.8"
+}
+
 variable "full_image_name_sequencer_publisher" {
   type        = string
-  description = "sequencer image name"
+  description = "sequencer publisher image name"
   default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.8"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
-  description = "sequencer image name"
+  description = "sequencer subscriber image name"
   default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.8"
 }
 
@@ -173,4 +179,8 @@ variable "relayer_web3_signer_private_key" {
 variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
+}
+
+variable "linea_node" {
+  type = string
 }

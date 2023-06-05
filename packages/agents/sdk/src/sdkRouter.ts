@@ -55,7 +55,7 @@ export class SdkRouter extends SdkShared {
       ? _logger.child({ name: "SdkRouter" })
       : new Logger({ name: "SdkRouter", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkRouter(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkRouter(nxtpConfig, logger, chainData));
   }
 
   /**

@@ -8,6 +8,7 @@ import { PoolAsset, Pool } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
 
 import * as ConfigFns from "../src/config";
+import * as SharedFns from "../src/lib/helpers/shared";
 import { UriInvalid } from "../src/lib/errors";
 
 const mockConfig = mock.config();
@@ -45,6 +46,14 @@ describe("SdkPool", () => {
     lpTokenAddress: utils.formatBytes32String("asdf"),
     canonicalHash: utils.formatBytes32String("13337"),
     swapFee: "4000000",
+    balances: [BigNumber.from("20000"), BigNumber.from("20000")],
+    decimals: [18, 18],
+    invariant: BigNumber.from("20000"),
+    initialA: BigNumber.from("20000"),
+    initialATime: 0,
+    futureA: BigNumber.from("20000"),
+    futureATime: 0,
+    currentA: BigNumber.from("20000"),
     adminFee: "0",
   };
 
@@ -81,6 +90,7 @@ describe("SdkPool", () => {
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
+    stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkPool = await SdkPool.create(config, undefined, mockChainData);
   });
@@ -101,6 +111,7 @@ describe("SdkPool", () => {
       expect(sdkPool.getDefaultDeadline).to.be.a("function");
       expect(sdkPool.calculateCanonicalKey).to.be.a("function");
       expect(sdkPool.calculateSwap).to.be.a("function");
+      expect(sdkPool.calculateSwapLocal).to.be.a("function");
       expect(sdkPool.calculateTokenAmount).to.be.a("function");
       expect(sdkPool.calculateRemoveSwapLiquidity).to.be.a("function");
       expect(sdkPool.calculatePriceImpact).to.be.a("function");
@@ -376,7 +387,7 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for destination pool
         .resolves(destinationAmountAfterSwap);
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
@@ -404,7 +415,7 @@ describe("SdkPool", () => {
       const destinationAmountAfterSwap = destinationAmount.mul(9).div(10); // assume swap ate 10%;
       const destinationSlippage = "1000"; // 10% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap)
         .onCall(1) // swap once for destination pool
@@ -431,7 +442,7 @@ describe("SdkPool", () => {
       const originSlippage = "1000"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
-      stub(sdkPool, "calculateSwap")
+      stub(sdkPool, "calculateSwapLocal")
         .onCall(0) // swap once for origin pool
         .resolves(originAmountAfterSwap);
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
@@ -469,6 +480,34 @@ describe("SdkPool", () => {
 
       expect(res.originSlippage.toString()).to.equal(originSlippage);
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+    });
+
+    it("happy: should work with 6 decimals local asset and 18 decimals adopted asset", async () => {
+      const pool: Pool = {
+        domainId: mock.domain.A,
+        name: "TSTB Pool",
+        symbol: "TSTB-TSTA",
+        local: localAsset,
+        adopted: adoptedAsset,
+        lpTokenAddress: utils.formatBytes32String("asdf"),
+        canonicalHash: utils.formatBytes32String("13337"),
+        swapFee: "4000000",
+        balances: [BigNumber.from("706924186329"), BigNumber.from("749171899882428175742051")],
+        decimals: [6, 18],
+        invariant: BigNumber.from("1456093034430419725194080"),
+        initialA: BigNumber.from("20000"),
+        initialATime: 0,
+        futureA: BigNumber.from("20000"),
+        futureATime: 0,
+        currentA: BigNumber.from("20000"),
+        adminFee: "0",
+      };
+
+      const originAmount = BigNumber.from(1_000);
+      const receivedAmount = originAmount.mul(BigNumber.from(10).pow(12)).mul(9).div(10); // assume swap ate 10%
+
+      const res = await sdkPool.calculateSwapLocal(mock.domain.A, pool, pool.local.address, 0, 1, originAmount);
+      expect(res.gt(receivedAmount)).to.equal(true);
     });
   });
 
@@ -567,6 +606,28 @@ describe("SdkPool", () => {
     });
   });
 
+  describe("#calculateRemoveSwapLiquidityOneToken", () => {
+    it("happy: should work", async () => {
+      const mockConnext = {
+        calculateRemoveSwapLiquidityOneToken: function () {
+          return ["100", "100"];
+        },
+      };
+
+      stub(sdkPool, "getConnext").resolves(mockConnext as any);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockPool.domainId, mockPool.adopted.address]);
+
+      const res = await sdkPool.calculateRemoveSwapLiquidityOneToken(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        0,
+      );
+
+      expect(res).to.deep.equal(["100", "100"]);
+    });
+  });
+
   describe("#calculatePriceImpact", () => {
     const mockParams = {
       totalReservesIn: BigNumber.from("100"),
@@ -609,6 +670,64 @@ describe("SdkPool", () => {
       const res = await sdkPool.calculatePriceImpact(BigNumber.from(0), BigNumber.from(0), mockParams.virtualPrice);
 
       expect(res.toString()).to.equal(BigNumber.from("0").toString());
+    });
+  });
+
+  describe("#calculateAddLiquidityPriceImpact", () => {
+    it("happy: should work", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+
+      const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
+
+      expect(res?.toString()).to.equal(
+        (
+          await sdkPool.calculatePriceImpact(BigNumber.from("20"), BigNumber.from("10"), BigNumber.from("20"), true)
+        ).toString(),
+      );
+    });
+
+    it("should return undefined when pool is not exist", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
+      expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#calculateRemoveLiquidityPriceImpact", () => {
+    it("happy: should work", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+
+      const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        "10",
+      );
+
+      expect(res?.toString()).to.equal(
+        (
+          await sdkPool.calculatePriceImpact(BigNumber.from("10"), BigNumber.from("20"), BigNumber.from("20"), false)
+        ).toString(),
+      );
+    });
+
+    it("should return undefined when pool is not exist", async () => {
+      stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
+      stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
+        mockPool.domainId,
+        mockPool.local.address,
+        "10",
+        "10",
+      );
+      expect(res).to.be.undefined;
     });
   });
 
@@ -908,6 +1027,16 @@ describe("SdkPool", () => {
       (sdkPool as any).config.cartographerUrl = "invalidUrl";
 
       await expect(sdkPool.getDailySwapVolume({})).to.be.rejectedWith(UriInvalid);
+    });
+  });
+
+  describe("#scientificToBigInt", () => {
+    it("happy: should work", async () => {
+      expect(sdkPool.scientificToBigInt("1e5")).to.be.equal(BigInt("100000"));
+      expect(sdkPool.scientificToBigInt("1.3e5")).to.be.equal(BigInt("130000"));
+      expect(sdkPool.scientificToBigInt("1e0")).to.be.equal(BigInt("1"));
+      expect(sdkPool.scientificToBigInt("10")).to.be.equal(BigInt("10"));
+      expect(sdkPool.scientificToBigInt("1.0e0")).to.be.equal(BigInt("1"));
     });
   });
 });

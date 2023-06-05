@@ -1,16 +1,16 @@
 [
-  "event Approval(address indexed,address indexed,uint256)",
-  "event Transfer(address indexed,address indexed,uint256)",
-  "function allowance(address,address) view returns (uint256)",
-  "function approve(address,uint256) returns (bool)",
-  "function balanceOf(address) view returns (uint256)",
-  "function burn(address,uint256)",
+  "event Approval(address indexed owner, address indexed spender, uint256 value)",
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function balanceOf(address account) view returns (uint256)",
+  "function burn(address _from, uint256 _amnt)",
   "function decimals() view returns (uint8)",
-  "function mint(address,uint256)",
+  "function mint(address _to, uint256 _amnt)",
   "function name() view returns (string)",
-  "function setDetails(string,string)",
+  "function setDetails(string _name, string _symbol)",
   "function symbol() view returns (string)",
   "function totalSupply() view returns (uint256)",
-  "function transfer(address,uint256) returns (bool)",
-  "function transferFrom(address,address,uint256) returns (bool)"
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function transferFrom(address from, address to, uint256 amount) returns (bool)"
 ]

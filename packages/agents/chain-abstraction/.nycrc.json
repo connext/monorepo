@@ -1,0 +1,18 @@
+{
+  "extends": "../../../.nycrc.json",
+  "exclude": [
+    "src/index.ts",
+    "src/types/index.ts",
+    "src/libs/index.ts",
+    "src/libs/origin/index.ts",
+    "src/libs/shared/index.ts",
+    "src/interfaces/index.ts",
+    "src/interfaces/origin/index.ts",
+    "src/interfaces/destination/index.ts",
+    "src/helpers/index.ts",
+    "src/helpers/abis.ts",
+    "src/helpers/address.ts",
+    "test/**/*.ts",
+    "./globalTestHook.ts"
+  ]
+}

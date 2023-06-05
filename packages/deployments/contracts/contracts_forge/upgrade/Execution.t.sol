@@ -32,11 +32,11 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
     utils_upgradeDiamonds();
     // set the hub domain and chain
     if (forkRpcsByChain[MAINNET_HUB_CHAIN].equal("")) {
-      HUB_DOMAIN = MAINNET_HUB_DOMAIN;
-      HUB_CHAIN = MAINNET_HUB_CHAIN;
-    } else {
       HUB_DOMAIN = TESTNET_HUB_DOMAIN;
       HUB_CHAIN = TESTNET_HUB_CHAIN;
+    } else {
+      HUB_DOMAIN = MAINNET_HUB_CHAIN;
+      HUB_CHAIN = MAINNET_HUB_DOMAIN;
     }
   }
 
@@ -148,7 +148,7 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, MotherForker {
             1, // adopted idx always 1
             amountIn // no min
           );
-        uint256 relayerFee = 0;
+        uint256 relayerFee = 0.0001 ether;
 
         // 1. xcall
         TransferInfo memory params = utils_createTransferIdInformation(_destination, amountIn, bridgedAmount);

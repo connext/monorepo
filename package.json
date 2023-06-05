@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@jtbennett/ts-project-scripts": "1.0.0-rc.4",
     "@typescript-eslint/eslint-plugin": "5.52.0",
@@ -10,6 +12,7 @@
     "eslint": "8.34.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-node": "11.1.0",
+    "husky": "^8.0.3",
     "rimraf": "3.0.2"
   },
   "workspaces": [
@@ -30,13 +33,14 @@
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/agents/watcher",
+    "packages/agents/chain-abstraction",
     "packages/integration",
     "packages/examples/sdk-server",
     "packages/examples/bridge-reference"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration --exclude @connext/smart-contracts run lint",
-    "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
+    "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/sdk run test",
     "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
@@ -51,6 +55,6 @@
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.5.0",
   "stableVersion": "0.1.25"
 }

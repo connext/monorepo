@@ -7,7 +7,8 @@ import { TAddress, TChainId, TDecimalString } from "./primitives";
 
 export enum ExecStatus {
   None = "None",
-  Queued = "Queued",
+  Enqueued = "Enqueued",
+  Dequeued = "Dequeued",
   Sent = "Sent",
   Completed = "Completed",
   Cancelled = "Cancelled",
@@ -16,6 +17,7 @@ export enum ExecStatus {
 /// MARK - Shared API
 export const AdminSchema = Type.Object({
   adminToken: Type.String(),
+  additions: Type.Optional(Type.Any()),
 });
 export type AdminRequest = Static<typeof AdminSchema>;
 

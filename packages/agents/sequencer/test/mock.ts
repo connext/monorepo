@@ -66,6 +66,10 @@ export const mock = {
         port: 3000,
         host: "0.0.0.0",
       },
+      http: {
+        port: 3002,
+        host: "0.0.0.0",
+      },
     },
     network: "testnet",
     auctionWaitTime: 1_000,
@@ -97,6 +101,11 @@ export const mock = {
     relayerFeeTolerance: 20,
     database: {
       url: "http://example.com",
+    },
+    executer: {
+      batchSize: 100,
+      maxChildCount: 5,
+      waitPeriod: 3000,
     },
   }),
   adapters: {
@@ -164,9 +173,15 @@ export const mock = {
     database: () => mockDatabase(),
     mqClient: () => {
       return {
-        publish: stub(),
-        handle: stub() as any,
         close: stub() as any,
+        createChannel: () => {
+          return {
+            assertExchange: stub(),
+            publish: stub(),
+            prefetch: stub(),
+            close: stub(),
+          };
+        },
       };
     },
   },

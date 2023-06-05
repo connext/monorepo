@@ -12,19 +12,19 @@ import {
   MultiSend as TMultisend,
   Unwrapper as TUnwrapper,
 } from "@connext/smart-contracts";
-import RootManagerArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/RootManager.sol/RootManager.json";
-import PriceOracleArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import ConnextArtifact from "@connext/smart-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
-import StableSwapArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
-import SpokeConnectorArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
-import RelayerProxyArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
-import RelayerProxyHubArtifact from "@connext/smart-contracts/artifacts/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
-import MultiSendArtifact from "@connext/smart-contracts/artifacts/contracts/shared/libraries/Multisend.sol/MultiSend.json";
-import UnwrapperArtifact from "@connext/smart-contracts/artifacts/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
-import GnosisAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
-import MultichainAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
-import OptimismAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
-import ArbitrumAmbArtifact from "@connext/smart-contracts/artifacts/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
+import RootManagerAbi from "@connext/smart-contracts/abi/contracts/messaging/RootManager.sol/RootManager.json";
+import PriceOracleAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import ConnextAbi from "@connext/smart-contracts/abi/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
+import StableSwapAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
+import SpokeConnectorAbi from "@connext/smart-contracts/abi/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import RelayerProxyAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
+import RelayerProxyHubAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
+import MultiSendAbi from "@connext/smart-contracts/abi/contracts/shared/libraries/Multisend.sol/MultiSend.json";
+import UnwrapperAbi from "@connext/smart-contracts/abi/contracts/core/xreceivers/Unwrapper.sol/Unwrapper.json";
+import GnosisAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/GnosisAmb.sol/GnosisAmb.json";
+import MultichainAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
+import OptimismAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
+import ArbitrumAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
@@ -244,27 +244,24 @@ export const contractDeployments: ConnextContractDeployments = {
 
 export const getErc20Interface = () => new utils.Interface(ERC20Abi) as TIERC20Minimal["interface"];
 
-export const getConnextInterface = () => new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
+export const getConnextInterface = () => new utils.Interface(ConnextAbi) as TConnext["interface"];
 
-export const getRelayerProxyInterface = () =>
-  new utils.Interface(RelayerProxyArtifact.abi) as TRelayerProxy["interface"];
+export const getRelayerProxyInterface = () => new utils.Interface(RelayerProxyAbi) as TRelayerProxy["interface"];
 
 export const getRelayerProxyHubInterface = () =>
-  new utils.Interface(RelayerProxyHubArtifact.abi) as TRelayerProxyHub["interface"];
+  new utils.Interface(RelayerProxyHubAbi) as TRelayerProxyHub["interface"];
 
-export const getPriceOracleInterface = () =>
-  new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
+export const getPriceOracleInterface = () => new utils.Interface(PriceOracleAbi) as TConnextPriceOracle["interface"];
 
-export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
+export const getStableSwapInterface = () => new utils.Interface(StableSwapAbi) as TStableSwap["interface"];
 
-export const getSpokeConnectorInterface = () =>
-  new utils.Interface(SpokeConnectorArtifact.abi) as TSpokeConnector["interface"];
+export const getSpokeConnectorInterface = () => new utils.Interface(SpokeConnectorAbi) as TSpokeConnector["interface"];
 
-export const getRootManagerInterface = () => new utils.Interface(RootManagerArtifact.abi) as TRootManager["interface"];
+export const getRootManagerInterface = () => new utils.Interface(RootManagerAbi) as TRootManager["interface"];
 
-export const getMultisendInterface = () => new utils.Interface(MultiSendArtifact.abi) as TMultisend["interface"];
+export const getMultisendInterface = () => new utils.Interface(MultiSendAbi) as TMultisend["interface"];
 
-export const getUnwrapperInterface = () => new utils.Interface(UnwrapperArtifact.abi) as TUnwrapper["interface"];
+export const getUnwrapperInterface = () => new utils.Interface(UnwrapperAbi) as TUnwrapper["interface"];
 
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
@@ -300,8 +297,8 @@ export type AmbContractABIs = {
 };
 
 export const getAmbABIs = (): AmbContractABIs => ({
-  optimism: OptimismAmbArtifact.abi,
-  gnosis: GnosisAmbArtifact.abi,
-  arbitrum: ArbitrumAmbArtifact.abi,
-  bnb: MultichainAmbArtifact.abi,
+  optimism: OptimismAmbAbi,
+  gnosis: GnosisAmbAbi,
+  arbitrum: ArbitrumAmbAbi,
+  bnb: MultichainAmbAbi,
 });

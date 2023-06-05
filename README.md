@@ -61,7 +61,7 @@
 
 ## Connext Architecture
 
-The Connext architecture can be seen as a layered system, as follows:
+The Connext architecture can be seen as a layered system, as follows.
 
 | Layer                            | Protocol/Stakeholders                  |
 | -------------------------------- | -------------------------------------- |
@@ -112,6 +112,8 @@ And Make sure you are on the latest yarn version:
 
 - `yarn set version berry`
 
+To set up the containers, use Docker. _If Docker is not already installed on your system, you can easily install it by clicking [here](https://www.docker.com)._
+
 Try running `yarn` to update everything. If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
 
 # Dev Environment
@@ -121,6 +123,18 @@ Setup Environment, by initiating the build:
 - `yarn && yarn build:all`
 
 Here `yarn`: Install deps, create symlinks, hoist packages. & `yarn build:all`: Build all packages.
+
+To run RabbitMQ with the management plugin using Docker, run the following command:
+
+`docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.10-management`
+
+This command will download the latest RabbitMQ image with the management plugin and start a container with the name rabbitmq.
+
+To run Redis, execute the following command:
+
+`docker run -it --rm --name redis -p 6379:6379 redis`
+
+This command will download the latest Redis image and start a container with the name redis.
 
 And now you are all ready to interact with Monorepo.
 

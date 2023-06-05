@@ -7,6 +7,9 @@ import {
   formatUrl,
   StableSwapExchange,
   DEFAULT_ROUTER_FEE,
+  getNtpTimeSeconds,
+  jsonifyError,
+  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
@@ -74,7 +77,7 @@ export class SdkPool extends SdkShared {
       ? _logger.child({ name: "SdkPool" })
       : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
@@ -113,9 +116,85 @@ export class SdkPool extends SdkShared {
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
+
     const minAmount = await connextContract.calculateSwap(key, tokenIndexFrom, tokenIndexTo, amount);
 
     return minAmount;
+  }
+
+  /**
+   * Calculates the amount of tokens received on a swap.
+   *
+   * @param domainId - The domain ID of the pool.
+   * @param tokenAddress - The address of local or adopted token.
+   * @param tokenIndexFrom - The index of the token to sell.
+   * @param tokenIndexTo - The index of the token to buy.
+   * @param amount - The number of tokens to sell, in the "From" token's native decimal precision.
+   * @returns Minimum amount received, in the "To" token's native decimal precision.
+   */
+  async calculateSwapLocal(
+    domainId: string,
+    pool: Pool,
+    tokenAddress: string,
+    tokenIndexFrom: number,
+    tokenIndexTo: number,
+    amount: BigNumberish,
+  ): Promise<BigNumber> {
+    let minAmount = BigNumber.from(0);
+
+    if (pool) {
+      const fee = BigNumber.from(pool.swapFee);
+      const xp = pool.balances.map((balance: BigNumber, index: number) =>
+        balance.mul(BigNumber.from(10).pow(18 - pool.decimals[index])),
+      );
+      const x = xp[tokenIndexFrom].add(
+        BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexFrom])),
+      );
+      const y = this.getSwapOut(pool, x, xp, tokenIndexFrom, tokenIndexTo);
+      const dy = xp[tokenIndexTo].sub(y).div(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexTo]));
+      const dyFee = fee ? dy.mul(fee).div(BigNumber.from(1e10)) : 0;
+      minAmount = dy.gt(dyFee) ? dy.sub(dyFee) : BigNumber.from(0);
+    } else {
+      minAmount = await this.calculateSwap(domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount);
+    }
+
+    return minAmount;
+  }
+
+  getSwapOut(pool: Pool, x: BigNumber, xp: BigNumber[], tokenIndexFrom = 0, tokenIndexTo = 1): BigNumber {
+    const d = pool.invariant;
+    let c = d;
+    let s = BigNumber.from(0);
+    const nT = pool.balances.length;
+    const nA = pool.currentA.mul(BigNumber.from(nT));
+    const A_PRECISION = BigNumber.from(100);
+
+    let _x = BigNumber.from(0);
+    for (let i = 0; i < nT; i++) {
+      if (i === tokenIndexFrom) {
+        _x = x;
+      } else if (i !== tokenIndexTo) {
+        _x = xp[i];
+      } else {
+        continue;
+      }
+      s = s.add(_x);
+      c = c.mul(d).div(_x.mul(nT));
+    }
+    c = c.mul(d).mul(A_PRECISION).div(nA.mul(nT));
+    const b = s.add(d.mul(A_PRECISION).div(nA));
+    let yPrev = BigNumber.from(0);
+    let y = d;
+
+    for (let i = 0; i < 255; i++) {
+      yPrev = y;
+      y = y.mul(y).add(c).div(y.mul(2).add(b).sub(d));
+      if (y.sub(yPrev).abs().lte(1)) {
+        return y;
+      }
+    }
+
+    throw new Error("Approximation did not converge");
   }
 
   /**
@@ -151,12 +230,11 @@ export class SdkPool extends SdkShared {
       _originTokenAddress,
       amount,
     });
-
-    const [originPool, [canonicalDomain, canonicalId], isNextAsset] = await Promise.all([
+    const [originPool, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getPool(originDomain, _originTokenAddress),
       this.getCanonicalTokenId(originDomain, _originTokenAddress),
-      this.isNextAsset(_originTokenAddress),
     ]);
+    const isNextAsset = originPool ? utils.getAddress(originPool.local.address) === _originTokenAddress : undefined;
 
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
@@ -167,8 +245,9 @@ export class SdkPool extends SdkShared {
     // Swap IFF supplied origin token is an adopted asset
     let originAmountReceived = amount;
     if (!isNextAsset && originPool) {
-      originAmountReceived = await this.calculateSwap(
+      originAmountReceived = await this.calculateSwapLocal(
         originDomain,
+        originPool,
         _originTokenAddress,
         originPool.adopted.index,
         originPool.local.index,
@@ -189,14 +268,17 @@ export class SdkPool extends SdkShared {
     // Swap IFF desired destination token is an adopted asset
     if (!receiveLocal && destinationPool) {
       promises.push(
-        this.calculateSwap(
+        this.calculateSwapLocal(
           destinationDomain,
+          destinationPool,
           destinationAssetData.local,
           destinationPool.local.index,
           destinationPool.adopted.index,
           destinationAmount,
         ),
       );
+    } else {
+      promises.push(Promise.resolve(undefined));
     }
 
     // Determine if fast liquidity is available (pre-destination-swap amount)
@@ -213,8 +295,12 @@ export class SdkPool extends SdkShared {
       const total_balance: string = activeLiquidity[0].total_balance.toString();
       isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(destinationAmount);
     }
+
     const destinationSlippage = BigNumber.from(
-      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
+      destinationAmount
+        .sub(destinationAmountReceived ?? destinationAmount)
+        .mul(10000)
+        .div(destinationAmount),
     );
 
     return {
@@ -233,7 +319,10 @@ export class SdkPool extends SdkShared {
    * @returns BigInt result.
    */
   scientificToBigInt(scientificNotationString: string) {
-    const [coeff, exp] = scientificNotationString.split("e").map((item) => parseFloat(item));
+    const parts = scientificNotationString.split("e");
+    const coeff = parseFloat(parts[0]);
+    const exp = parts.length > 1 ? parseFloat(parts[1]) : 0;
+
     const decimalParts = coeff.toString().split(".");
     const numDecimals = decimalParts[1]?.length || 0;
 
@@ -1091,10 +1180,13 @@ export class SdkPool extends SdkShared {
       const assetYAddress = utils.getAddress(String(poolData.pooled_tokens[1]));
       const checkSummedLocalAsset = utils.getAddress(asset.local);
 
+      const recordX = getAssetEntryFromChaindata(assetXAddress, domainId, this.chainData);
+      const recordY = getAssetEntryFromChaindata(assetYAddress, domainId, this.chainData);
+
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name: this.chainData.get(domainId)?.assetId[assetXAddress].name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetXAddress].symbol ?? "",
+        name: recordX?.name ?? "",
+        symbol: recordX?.symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
         balance: poolData.balances[0],
@@ -1102,12 +1194,31 @@ export class SdkPool extends SdkShared {
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name: this.chainData.get(domainId)?.assetId[assetYAddress].name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetYAddress].symbol ?? "",
+        name: recordY?.name ?? "",
+        symbol: recordY?.symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
         balance: poolData.balances[1],
       };
+
+      // Calculate Current A
+      const t1 = BigNumber.from(poolData.future_a_time); // time when ramp is finished
+      const a1 = BigNumber.from(poolData.future_a); // final A value when ramp is finished
+      const timestamp = BigNumber.from(getNtpTimeSeconds());
+      let currentA;
+      if (timestamp.lt(t1)) {
+        const t0 = BigNumber.from(poolData.initial_a_time); // time when ramp is started
+        const a0 = BigNumber.from(poolData.initial_a); // initial A value when ramp is started
+        if (a1 > a0) {
+          // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0)
+          currentA = a0.add(a1.sub(a0).mul(timestamp.sub(t0)).div(t1.sub(t0)));
+        } else {
+          // a0 - (a0 - a1) * (block.timestamp - t0) / (t1 - t0)
+          currentA = a0.sub(a0.sub(a1).mul(timestamp.sub(t0)).div(t1.sub(t0)));
+        }
+      } else {
+        currentA = a1;
+      }
 
       const pool: Pool = {
         domainId: domainId,
@@ -1120,10 +1231,17 @@ export class SdkPool extends SdkShared {
         adopted: checkSummedLocalAsset == assetX.address ? assetY : assetX,
         lpTokenAddress: poolData.lp_token,
         canonicalHash: poolData.key,
+        balances: poolData.balances.map((b: string) => BigNumber.from(b)),
+        decimals: poolData.pool_token_decimals,
+        invariant: BigNumber.from(poolData.invariant),
+        initialA: poolData.initial_a,
+        initialATime: poolData.initial_a_time,
+        futureA: poolData.future_a,
+        futureATime: poolData.future_a_time,
+        currentA: currentA,
         swapFee: poolData.swap_fee,
         adminFee: poolData.admin_fee,
       };
-
       return pool;
     },
     { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
@@ -1140,7 +1258,7 @@ export class SdkPool extends SdkShared {
     domainId: string,
     userAddress: string,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
-    const { requestContext, methodContext } = createLoggingContext(this.swap.name);
+    const { requestContext, methodContext } = createLoggingContext(this.getUserPools.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, userAddress });
 
     const result: { info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[] = [];
@@ -1149,23 +1267,32 @@ export class SdkPool extends SdkShared {
 
     await Promise.all(
       Object.values(assetsData).map(async (data) => {
-        if (data.domain === domainId) {
-          const pool = await this.getPool(domainId, data.local);
-          if (pool) {
-            const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
-            const adoptedTokenUserBalance = await this.getTokenUserBalance(domainId, pool.adopted.address, userAddress);
-            const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
+        try {
+          if (data.domain === domainId) {
+            const pool = await this.getPool(domainId, data.local);
+            if (pool) {
+              const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+              const adoptedTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.adopted.address,
+                userAddress,
+              );
+              const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
 
-            if (lpTokenUserBalance.gt(0)) {
-              result.push({
-                info: pool,
-                lpTokenBalance: lpTokenUserBalance,
-                poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
-              });
+              if (lpTokenUserBalance.gt(0)) {
+                result.push({
+                  info: pool,
+                  lpTokenBalance: lpTokenUserBalance,
+                  poolTokenBalances: [adoptedTokenUserBalance, localTokenUserBalance],
+                });
+              }
+            } else {
+              this.logger.info("No pool for asset", requestContext, methodContext, { data });
             }
-          } else {
-            this.logger.info("No pool for asset", requestContext, methodContext, { data });
           }
+        } catch (error: any) {
+          const jsonError = jsonifyError(error as Error);
+          this.logger.error("Error while processing assetData", requestContext, methodContext, jsonError);
         }
       }),
     );

@@ -11,8 +11,9 @@ import {
   Logger,
   RequestContext,
   domainToChainId,
+  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
-import { utils, Wallet } from "ethers";
+import { Wallet } from "ethers";
 
 import { bindServer, bindInterval } from "./bindings";
 import { getConfig } from "./config";
@@ -100,26 +101,12 @@ export const makeWatcher = async () => {
     const assets = await Promise.all(
       assetInfo.map(async (a) => {
         const { id: address, canonicalDomain, canonicalId } = a;
-        const chain = domainToChainId(+canonicalDomain);
-        const entry = context.chainData.get(chain.toString());
-        if (!entry) {
-          context.logger.warn("Could not find entry in chaindata", requestContext, methodContext, { asset: a, chain });
-          return {
-            address,
-            canonicalDomain,
-            canonicalId,
-            symbol: "N/A",
-          };
-        }
-        let symbol =
-          entry.assetId[address.toLowerCase()]?.symbol ??
-          entry.assetId[address].symbol ??
-          entry.assetId[utils.getAddress(address)].symbol ??
-          entry.assetId[address.toUpperCase()].symbol;
+        const record = getAssetEntryFromChaindata(address, domainToChainId(+canonicalDomain), context.chainData);
+        let symbol = record?.symbol;
         if (!symbol) {
           context.logger.warn("Could not find symbol in chaindata", requestContext, methodContext, {
             address,
-            assets: entry.assetId,
+            assets: address,
           });
           symbol = "N/A";
         }

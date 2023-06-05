@@ -2,15 +2,13 @@ import {
   ExecutorData,
   RequestContext,
   createLoggingContext,
-  ajv,
-  ExecutorDataSchema,
   ExecStatus,
   jsonifyError,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import { getContext, SlippageErrorPatterns } from "../../../sequencer";
 import {
-  ParamsInvalid,
   ExecutorDataExpired,
   MissingXCall,
   MissingTransfer,
@@ -35,17 +33,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
 
   const { transferId, origin } = executorData;
 
-  // Validate Input schema
-  const validateInput = ajv.compile(ExecutorDataSchema);
-  const validInput = validateInput(executorData);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      executorData,
-    });
-  }
-
   // Get the XCall from the subgraph for this transfer.
   const transfer = await subgraph.getOriginTransferById(origin, transferId);
   if (!transfer || !transfer.origin) {
@@ -58,7 +45,24 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   await cache.transfers.storeTransfers([transfer]);
 
   // Ensure that the executor data for this transfer hasn't expired.
-  const status = await cache.executors.getExecStatus(transferId);
+  let status = await cache.executors.getExecStatus(transferId);
+  if (status != ExecStatus.None) {
+    const lastExecTime = await cache.executors.getExecStatusTime(transferId);
+    const elapsed = (getNtpTimeSeconds() - lastExecTime) * 1000;
+    if (elapsed > config.executionWaitTime) {
+      logger.info("Executor merits retry", requestContext, methodContext, { transferId: transferId, status });
+      // Publish this transferId to sequencer subscriber to retry execution
+      status = ExecStatus.None;
+      await cache.executors.setExecStatus(transferId, status);
+    } else {
+      logger.info("Transfer awaiting execution", requestContext, methodContext, {
+        elapsed,
+        waitTime: config.executionWaitTime,
+        status,
+      });
+    }
+  }
+
   if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecStatus.None) {
@@ -68,18 +72,27 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
       type: MessageType.ExecuteSlow,
     };
 
-    await mqClient.publish(config.messageQueue.publisher!, {
-      type: transfer.xparams!.originDomain,
-      body: message,
-      routingKey: transfer.xparams!.originDomain,
-      persistent: true,
+    const channel = await mqClient.createChannel();
+    await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
+      durable: config.messageQueue.exchanges[0].durable,
     });
+
+    // Set status before publish
+    // Avoid a race condition where the message is consumed before the status is set
+    // If publish fails we we will have bad state, but publish is HA so we should be fine
+    await cache.executors.setExecStatus(transferId, ExecStatus.Enqueued);
+    await cache.executors.storeExecutorData(executorData);
+    channel.publish(
+      config.messageQueue.exchanges[0].name,
+      transfer.xparams!.originDomain,
+      Buffer.from(JSON.stringify(message)),
+    );
+    await channel.close();
+
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
 
-    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
-    await cache.executors.storeExecutorData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
   } else {
     // The executor data status here is Pending/Cancelled.
@@ -133,7 +146,7 @@ export const executeSlowPathData = async (
 
   // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecStatus(transferId);
-  if (status !== ExecStatus.Queued) {
+  if (status !== ExecStatus.Dequeued) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
@@ -188,7 +201,14 @@ export const executeSlowPathData = async (
     // reset error status
     if (transfer.origin) {
       transfer.origin.errorStatus = undefined;
-      await database.saveTransfers([transfer]);
+      try {
+        await database.saveTransfers([transfer]);
+      } catch (err: unknown) {
+        logger.error("Database error:saveTransfers", requestContext, methodContext, undefined, {
+          error: err,
+          transferId,
+        });
+      }
     }
   } else {
     // Prunes all the executor data for a given transferId

@@ -16,6 +16,10 @@ import {
   RouterDailyTVL,
   SlippageUpdate,
   Asset,
+  AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
+  RootMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -24,6 +28,7 @@ import {
   getTransfersByStatus,
   getTransfersWithOriginPending,
   getTransfersWithDestinationPending,
+  getPendingTransfersByDomains,
   saveTransfers,
   saveRouterBalances,
   saveMessages,
@@ -38,15 +43,17 @@ import {
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
+  getUnProcessedMessagesByDomains,
   getAggregateRoot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
   getMessageRootIndex,
   getLatestMessageRoot,
-  getLatestAggregateRoot,
+  getLatestAggregateRoots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
+  getMessageRootStatusFromIndex,
   getSpokeNode,
   getSpokeNodes,
   getHubNode,
@@ -57,9 +64,11 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  saveStableSwapPoolEvent,
+  saveStableSwapLpBalances,
+  saveStableSwapTransfers,
   resetBackoffs,
   updateErrorStatus,
-  saveStableSwapPoolEvent,
   saveRouterDailyTVL,
   updateSlippage,
   markRootMessagesProcessed,
@@ -67,6 +76,8 @@ import {
   getPendingTransfersByMessageStatus,
   getMessageByLeaf,
   saveAssets,
+  getAssets,
+  saveAssetPrice,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -85,6 +96,14 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
+  getPendingTransfersByDomains: (
+    origin_domain: string,
+    destination_domain: string,
+    limit: number,
+    offset: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
@@ -103,6 +122,8 @@ export type Database = {
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveAssets: (assets: Asset[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getAssets: (limit?: number, offset?: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<Asset[]>;
+  saveAssetPrice: (prices: AssetPrice[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getRootMessages: (
     processed: boolean | undefined,
@@ -123,6 +144,14 @@ export type Database = {
   ) => Promise<void>;
   getUnProcessedMessages: (
     origin_domain: string,
+    limit?: number,
+    offset?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByDomains: (
+    origin_domain: string,
+    destination_domain: string,
     limit?: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
@@ -152,11 +181,12 @@ export type Database = {
     aggregate_root: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<RootMessage | undefined>;
-  getLatestAggregateRoot: (
+  getLatestAggregateRoots: (
     domain: string,
+    limit: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<ReceivedAggregateRoot | undefined>;
+  ) => Promise<ReceivedAggregateRoot[]>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -178,6 +208,11 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getMessageRootStatusFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessageStatus>;
   getSpokeNode: (
     domain: string,
     index: number,
@@ -210,6 +245,14 @@ export type Database = {
   updateErrorStatus: (transferId: string, error: XTransferErrorStatus) => Promise<void>;
   saveStableSwapPoolEvent: (
     _poolEvents: StableSwapPoolEvent[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapTransfers: (
+    _transfers: StableSwapTransfer[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapLpBalances: (
+    _transfers: StableSwapLpBalance[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
   markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -255,9 +298,12 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,
+    getPendingTransfersByDomains,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveAssets,
+    getAssets,
+    saveAssetPrice,
     saveMessages,
     getRootMessages,
     saveSentRootMessages,
@@ -269,16 +315,18 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     savePropagatedRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
+    getUnProcessedMessagesByDomains,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootByRootAndDomain,
     getAggregateRootCount,
     getMessageRootIndex,
     getLatestMessageRoot,
-    getLatestAggregateRoot,
+    getLatestAggregateRoots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
+    getMessageRootStatusFromIndex,
     getSpokeNode,
     getSpokeNodes,
     getHubNode,
@@ -289,6 +337,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
+    saveStableSwapTransfers,
+    saveStableSwapLpBalances,
     updateErrorStatus,
     saveStableSwapPoolEvent,
     markRootMessagesProcessed,

@@ -7,16 +7,16 @@
   "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "event BeaconUpgraded(address indexed,address)",
-  "event OwnershipProposed(address indexed)",
-  "event OwnershipTransferred(address indexed,address indexed)",
+  "event BeaconUpgraded(address indexed beacon, address implementation)",
+  "event OwnershipProposed(address indexed proposedOwner)",
+  "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function owner() view returns (address)",
-  "function proposeNewOwner(address)",
+  "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function upgrade(address,address)"
+  "function upgrade(address _beacon, address _implementation)"
 ]

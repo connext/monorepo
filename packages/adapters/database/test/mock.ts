@@ -1,4 +1,4 @@
-import { mock } from "@connext/nxtp-utils";
+import { mkAddress, mkHash, mock } from "@connext/nxtp-utils";
 import { stub } from "sinon";
 
 import { Database } from "../src/index";
@@ -10,6 +10,7 @@ export const mockDatabase = (): Database => {
     getTransfersByStatus: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithDestinationPending: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithOriginPending: stub().resolves([mock.entity.xtransfer()]),
+    getPendingTransfersByDomains: stub().resolves([mock.entity.xtransfer()]),
     getCompletedTransfersByMessageHashes: stub().resolves([mock.entity.xtransfer()]),
     saveCheckPoint: stub().resolves(),
     saveMessages: stub().resolves(),
@@ -20,13 +21,15 @@ export const mockDatabase = (): Database => {
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
     getUnProcessedMessagesByIndex: stub().resolves([]),
+    getUnProcessedMessagesByDomains: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
     getMessageRootAggregatedFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
     getLatestMessageRoot: stub().resolves(),
-    getLatestAggregateRoot: stub().resolves(),
+    getLatestAggregateRoots: stub().resolves(),
+    getMessageRootStatusFromIndex: stub().resolves(),
     getSpokeNode: stub().resolves(),
     getSpokeNodes: stub().resolves([]),
     getHubNode: stub().resolves(),
@@ -39,11 +42,12 @@ export const mockDatabase = (): Database => {
     increaseBackoff: stub().resolves(),
     saveStableSwapPool: stub().resolves(),
     saveStableSwapExchange: stub().resolves(),
+    saveStableSwapTransfers: stub().resolves(),
+    saveStableSwapLpBalances: stub().resolves(),
     resetBackoffs: stub().resolves(),
     saveStableSwapPoolEvent: stub().resolves(),
     updateErrorStatus: stub().resolves(),
     markRootMessagesProcessed: stub().resolves(),
-    updateErrorStatus: stub().resolves(),
     updateSlippage: stub().resolves(),
     saveRouterDailyTVL: stub().resolves(),
     updateExecuteSimulationData: stub().resolves(),
@@ -51,5 +55,15 @@ export const mockDatabase = (): Database => {
     getMessageRootsFromIndex: stub().resolves(),
     getAggregateRootByRootAndDomain: stub().resolves(),
     getMessageByLeaf: stub().resolves(),
+    saveAssets: stub().resolves(),
+    saveAssetPrice: stub().resolves(),
+    getAssets: stub().resolves([
+      mock.entity.asset({
+        canonicalDomain: "1337",
+        domain: "1337",
+        canonicalId: mkHash("0xa"),
+        adoptedAsset: mkAddress("0xb"),
+      }),
+    ]),
   };
 };
