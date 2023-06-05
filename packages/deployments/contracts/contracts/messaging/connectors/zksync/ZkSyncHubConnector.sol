@@ -40,7 +40,10 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
 
   /**
    * @notice Sends `aggregateRoot` to messaging on l2.
-   * @dev Caller must provide L2 gas and refund recipient. If the _refundRecipient is a smart contract,
+   * @dev Caller must provide the following:
+   * - L2 gas: gas limit of l2 transaction
+   * - l2GasPerPubdataByteLimit: gas required to publish l1 -> l2 transactions
+   * - refund recipient: who gets excess fees on executino. If the _refundRecipient is a smart contract,
    * then during the L1 to L2 transaction its address is aliased.
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
@@ -52,11 +55,11 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
 
-    // Maximum amount of L2 gas that transaction can consume during execution on L2
-    (uint256 l2GasLimit, address refundRecipient) = abi.decode(_encodedData, (uint256, address));
-
-    // The maximum amount L2 gas that the operator may charge the user for.
-    uint256 l2GasPerPubdataByteLimit = 800;
+    // Decode all passed-through data
+    (uint256 l2GasLimit, uint256 l2GasPerPubdataByteLimit, address refundRecipient) = abi.decode(
+      _encodedData,
+      (uint256, uint256, address)
+    );
 
     // Get the max supplied
     uint256 fee = _getGas(msg.value);
