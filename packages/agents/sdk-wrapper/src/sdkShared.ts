@@ -64,7 +64,7 @@ export class SdkShared {
     return response.data;
   }
 
-  static domainToChainName(domainId: string) {
+  domainToChainName(domainId: string) {
     return domainsToChainNames[domainId];
   }
 
@@ -72,11 +72,11 @@ export class SdkShared {
     return _chainIdToDomain(chainId);
   }
 
-  static domainToChainId(domainId: number): number {
+  domainToChainId(domainId: number): number {
     return _domainToChainId(domainId);
   }
 
-  static async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
+  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
     const baseUrl = "https://coins.llama.fi";
     const uri = formatUrl(baseUrl, "block");
     const chainName = this.domainToChainName(domainId);
