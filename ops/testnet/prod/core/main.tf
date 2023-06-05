@@ -327,7 +327,7 @@ module "lighthouse_prover_subscriber" {
   docker_image_tag     = var.lighthouse_image_tag
   container_family     = "lighthouse-prover"
   container_env_vars   = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-func" })
-  memory_size          = 512
+  memory_size          = 2048
 }
 
 module "lighthouse_process_from_root_cron" {
