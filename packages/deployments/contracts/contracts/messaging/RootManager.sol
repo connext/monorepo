@@ -134,6 +134,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_constructor__DisputeBlocksLowerThanMin();
 
+  error RootManager__renounceOwnership_prohibited();
+
   // ============ Properties ============
 
   /**
@@ -394,7 +396,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
    * and only the owner can add them back
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
+    revert RootManager__renounceOwnership_prohibited();
+  }
 
   // ============ Public Functions ============
 

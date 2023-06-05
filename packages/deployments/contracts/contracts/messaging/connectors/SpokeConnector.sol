@@ -309,7 +309,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * WatcherClient, and as long as only the owner can remove pending roots in case of
    * fraud.
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
+    require(false, "prohibited");
+  }
 
   // ============ Public Functions ============
 

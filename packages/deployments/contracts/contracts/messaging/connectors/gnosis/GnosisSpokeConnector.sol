@@ -42,7 +42,9 @@ contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
   /**
    * @notice Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {
+    require(false, "prohibited");
+  }
 
   // ============ Private fns ============
   /**
