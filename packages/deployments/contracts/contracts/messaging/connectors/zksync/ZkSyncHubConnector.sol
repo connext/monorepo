@@ -121,12 +121,11 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     // NOTE: there are no guarantees the messages are processed once, so processed roots
     // must be tracked within the connector. See:
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
-    if (!processed[_root]) {
-      // set root to processed
-      processed[_root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
-      emit MessageProcessed(_message, msg.sender);
-    } // otherwise root was already sent to root manager
+    require(!processed[_root], "processed");
+    // set root to processed
+    processed[_root] = true;
+
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+    emit MessageProcessed(_message, msg.sender);
   }
 }
