@@ -166,13 +166,26 @@ contract ConductorTest is ForgeHelper {
   }
 
   // ============ execute ============
-  function test_Conductor__execute_failIfNotElapsed() public {
+  function test_Conductor__execute_failIfNotEnteredWindow() public {
     bytes[] memory transactions = new bytes[](1);
     transactions[0] = formatHelperTransaction(address(this), 100);
 
     utils_queue(transactions);
     vm.expectRevert(
-      abi.encodePacked(Conductor.Conductor_execute__notElapsed.selector, keccak256(abi.encode(transactions)))
+      abi.encodePacked(Conductor.Conductor_execute__notInWindow.selector, keccak256(abi.encode(transactions)))
+    );
+    conductor.execute(transactions);
+  }
+
+  function test_Conductor__execute_failIfWindowElapsed() public {
+    bytes[] memory transactions = new bytes[](1);
+    transactions[0] = formatHelperTransaction(address(this), 100);
+
+    bytes32 key = utils_queue(transactions);
+    vm.warp(conductor.proposals(key) + conductor.EXECUTION_WINDOW() + 100);
+
+    vm.expectRevert(
+      abi.encodePacked(Conductor.Conductor_execute__notInWindow.selector, keccak256(abi.encode(transactions)))
     );
     conductor.execute(transactions);
   }

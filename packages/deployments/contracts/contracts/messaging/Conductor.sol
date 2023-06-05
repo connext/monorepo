@@ -76,9 +76,17 @@ contract Conductor is ProposedOwnable {
   error Conductor_renounceOwnership__prohibited();
   error Conductor_queue__alreadyQueued(bytes32 key);
   error Conductor_dequeue__notQueued(bytes32 key);
-  error Conductor_execute__notElapsed(bytes32 key);
+  error Conductor_execute__notInWindow(bytes32 key);
   error Conductor_execute__cannotBypass(bytes4 selector, address target);
   error Conductor_execute__callFailed();
+
+  // ============ Constants ============
+  /**
+   * @notice You will always have 14 days to execute a queued transaction. If it is not
+   * executed within this window, it must be dequeued + requeued.
+   * @dev This is *NOT* enforced for transactions that have been added to the bypass
+   */
+  uint256 public immutable EXECUTION_WINDOW = delay() + 14 days;
 
   // ============ Storage ============
 
@@ -183,8 +191,9 @@ contract Conductor is ProposedOwnable {
    */
   function execute(bytes[] memory _transactions) public payable onlyOwner {
     bytes32 key = keccak256(abi.encode(_transactions));
-    if (block.timestamp < proposals[key]) {
-      revert Conductor_execute__notElapsed(key);
+    uint256 start = proposals[key];
+    if (block.timestamp < start || block.timestamp > start + EXECUTION_WINDOW) {
+      revert Conductor_execute__notInWindow(key);
     }
     delete proposals[key];
     _execute(_transactions, false);
