@@ -105,6 +105,12 @@ contract ConductorTest is ForgeHelper {
   }
 
   // ============ addBypass ============
+  function test_Conductor__addBypass_failsIfConductor() public {
+    vm.expectRevert(Conductor.Conductor_addBypass__cannotBypassConductor.selector);
+    vm.prank(address(conductor));
+    conductor.addBypass(address(conductor), Helper.executeCalldata.selector);
+  }
+
   function test_Conductor__addBypass_shouldWork() public {
     utils_addBypass(address(helper), Helper.executeCalldata.selector);
   }
