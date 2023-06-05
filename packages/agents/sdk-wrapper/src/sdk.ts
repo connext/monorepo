@@ -1,10 +1,10 @@
 import { Logger, ChainData } from "@connext/nxtp-utils";
 import { SdkConfig } from "@connext/sdk-core";
+
 import { SdkUtils } from "./sdkUtils";
 import { SdkBase } from "./sdkBase";
 import { SdkRouter } from "./sdkRouter";
 import { SdkPool } from "./sdkPool";
-import { SdkShared } from "./sdkShared";
 
 export const create = async (
   _config: SdkConfig,

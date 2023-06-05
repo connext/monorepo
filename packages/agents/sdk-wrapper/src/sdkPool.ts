@@ -22,7 +22,7 @@ export class SdkPool extends SdkShared {
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkPool> {
     const logger = _logger ? _logger.child({ name: "SdkPool" }) : new Logger({ name: "SdkPool" });
 
-    return (this._instance = new SdkPool(_config, logger, _chainData || new Map()));
+    return (this._instance = new SdkPool(_config, logger, _chainData || new Map<string, ChainData>()));
   }
 
   getDefaultDeadline(): number {

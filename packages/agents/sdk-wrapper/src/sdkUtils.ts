@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { Logger, ChainData, XTransferStatus, XTransferErrorStatus, axiosPost } from "@connext/nxtp-utils";
+import { SdkConfig, RouterBalance, Transfer } from "@connext/sdk-core";
 
-import { SdkConfig, RouterBalance } from "@connext/sdk-core";
 import { SdkShared } from "./sdkShared";
 
 /**
@@ -18,7 +18,7 @@ export class SdkUtils extends SdkShared {
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkUtils> {
     const logger = _logger ? _logger.child({ name: "SdkUtils" }) : new Logger({ name: "SdkUtils" });
 
-    return (this._instance = new SdkUtils(_config, logger, _chainData || new Map()));
+    return (this._instance = new SdkUtils(_config, logger, _chainData || new Map<string, ChainData>()));
   }
 
   async getRoutersData(params?: {
@@ -42,7 +42,7 @@ export class SdkUtils extends SdkShared {
     transactionHash?: string;
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
-  }): Promise<any> {
+  }): Promise<Transfer[]> {
     const response = await axiosPost(`${this.baseUri}/getTransfers`, params);
     return response.data;
   }

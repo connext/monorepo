@@ -18,7 +18,7 @@ export class SdkRouter extends SdkShared {
   static async create(_config: SdkConfig, _logger?: Logger, _chainData?: Map<string, ChainData>): Promise<SdkRouter> {
     const logger = _logger ? _logger.child({ name: "SdkRouter" }) : new Logger({ name: "SdkRouter" });
 
-    return (this._instance = new SdkRouter(_config, logger, _chainData || new Map()));
+    return (this._instance = new SdkRouter(_config, logger, _chainData || new Map<string, ChainData>()));
   }
 
   async addLiquidityForRouter(params: {

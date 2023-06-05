@@ -1,5 +1,3 @@
-import { SdkConfig } from "@connext/sdk-core";
-import { axiosGetRequest } from "./lib/helpers";
 import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import {
   Logger,
@@ -9,12 +7,12 @@ import {
   formatUrl,
   chainIdToDomain as _chainIdToDomain,
   domainToChainId as _domainToChainId,
-  getConversionRate as _getConversionRate,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
-import { ChainDeployments, domainsToChainNames } from "@connext/sdk-core/dist/config";
 import { Connext, IERC20 } from "@connext/smart-contracts";
-import { AssetData, ConnextSupport } from "@connext/sdk-core";
+import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
+
+import { axiosGetRequest } from "./lib/helpers";
 
 export class SdkShared {
   readonly config: SdkConfig;
@@ -30,7 +28,7 @@ export class SdkShared {
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
-    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }, this.config.logLevel), config.chains);
+    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }), config.chains);
   }
 
   async getConversionRate(chainId: number) {
