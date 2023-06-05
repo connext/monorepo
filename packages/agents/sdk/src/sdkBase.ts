@@ -434,7 +434,7 @@ export class SdkBase extends SdkShared {
       throw new ParamsInvalid({
         paramsError: "Must update slippage on destination domain",
         domain: domainId,
-        destination: transfer.destionation_domain,
+        destination: transfer.destination_domain,
         transferId,
       });
     }
