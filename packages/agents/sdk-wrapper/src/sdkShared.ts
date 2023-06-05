@@ -68,7 +68,7 @@ export class SdkShared {
     return domainsToChainNames[domainId];
   }
 
-  static chainIdToDomain(chainId: number): number {
+  chainIdToDomain(chainId: number): number {
     return _chainIdToDomain(chainId);
   }
 
@@ -132,8 +132,8 @@ export class SdkShared {
     return response.data;
   }
 
-  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
-    const response = await axiosGet(`${this.baseUri}/isNextAsset/${tokenAddress}`);
+  async isNextAsset(domainId: string, tokenAddress: string): Promise<boolean | undefined> {
+    const response = await axiosGet(`${this.baseUri}/isNextAsset/${domainId}/${tokenAddress}`);
     return response.data;
   }
 

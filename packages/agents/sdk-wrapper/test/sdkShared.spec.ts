@@ -1,9 +1,10 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect, Logger } from "@connext/nxtp-utils";
+import { expect, Logger, mkAddress } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
+import { providers, BigNumber } from "ethers";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -12,7 +13,6 @@ import * as MockableFns from "./mockable";
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
-
 
 describe("#SDK Shared", () => {
   let sdkShared: SdkShared;
@@ -331,6 +331,198 @@ describe("#SDK Shared", () => {
       });
       const asset = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.A, mock.asset.A.address);
       expect(asset.length).to.be.greaterThan(0);
+    });
+  });
+
+  describe("#getAssetsWithSameCanonical", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return asset", async () => {
+      axiosGetStub.resolves({
+        data: null,
+      });
+      const asset = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
+      expect(asset).to.be.eq(null);
+    });
+  });
+
+  describe("#getAssetsDataByDomainAndKey", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return asset", async () => {
+      axiosGetStub.resolves({
+        data: null,
+      });
+      const asset = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mock.asset.A.address);
+      expect(asset).to.be.eq(null);
+    });
+  });
+
+  describe("#isNextAsset", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return isNextAsset", async () => {
+      axiosGetStub.resolves({
+        data: null,
+      });
+      const isNextAsset = await sdkShared.isNextAsset(mock.domain.A, mock.asset.A.address);
+      expect(isNextAsset).to.be.eq(null);
+    });
+  });
+
+  describe("#changeSignerAddress", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return changeSigner", async () => {
+      axiosGetStub.resolves({
+        data: null,
+      });
+      const changeSignerAddress = await sdkShared.changeSignerAddress(mkAddress());
+      expect(changeSignerAddress).to.be.eq(null);
+    });
+  });
+
+  describe("#parseConnextTransactionReceipt", async () => {
+    let axiosPostStub: SinonStub;
+    axiosPostStub = stub(MockableFns, "axiosPost");
+    beforeEach(async () => {
+      axiosPostStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return parseConnextTransactionReceipt", async () => {
+      axiosPostStub.resolves({
+        data: null,
+      });
+
+      const mockTransactionRecipt: providers.TransactionReceipt = {
+        to: "0x0000000000000000000000000000000000000000",
+        from: "0x0000000000000000000000000000000000000000",
+        contractAddress: "0x0000000000000000000000000000000000000000",
+        transactionIndex: 10,
+        gasUsed: BigNumber.from(10),
+        logsBloom: "",
+        blockHash: "0x0000000000000000000000000000000000000000",
+        transactionHash: "0x0000000000000000000000000000000000000000",
+        logs: [],
+        blockNumber: 10000000,
+        confirmations: 5,
+        cumulativeGasUsed: BigNumber.from(10),
+        effectiveGasPrice: BigNumber.from(10),
+        byzantium: true,
+        type: 1,
+      };
+      const parsedData = await sdkShared.parseConnextTransactionReceipt(mockTransactionRecipt);
+      expect(parsedData.length).to.be.eq(0);
+    });
+  });
+
+  describe("#calculateCanonicalKey", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return canonical key", async () => {
+      const mockCanonicalID = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+      axiosGetStub.resolves({
+        data: "0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5",
+      });
+      const canonicalKey = await sdkShared.calculateCanonicalKey(mock.domain.A, mockCanonicalID);
+      expect(canonicalKey).to.be.eq("0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5");
+    });
+  });
+
+  describe("#getCanonicalTokenId", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return canonical Token ID", async () => {
+      const mockCanonicalID = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+      axiosGetStub.resolves({
+        data: ["0", "0x0000000000000000000000000000000000000000000000000000000000000000"],
+      });
+      const canonicalTokenID = await sdkShared.calculateCanonicalKey(mock.domain.A, mockCanonicalID);
+      expect(canonicalTokenID).to.be.eq(["0", "0x0000000000000000000000000000000000000000000000000000000000000000"]);
+    });
+  });
+
+  describe("#domainToChainName", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return chainName", async () => {
+      axiosGetStub.resolves({
+        data: "optimism",
+      });
+      const chainName = await sdkShared.domainToChainName(mock.domain.A);
+      expect(chainName).to.be.eq("optimism");
+    });
+  });
+
+  describe("#chainIdToDomain", async () => {
+    let axiosGetStub: SinonStub;
+    axiosGetStub = stub(MockableFns, "axiosGet");
+    beforeEach(async () => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("Happy: should return DomainID", async () => {
+      axiosGetStub.resolves({
+        data: "1869640809",
+      });
+      const mockChainID = 10;
+      const domainId = await sdkShared.domainToChainId(mockChainID);
+      expect(domainId).to.be.eq("1869640809");
     });
   });
 });
