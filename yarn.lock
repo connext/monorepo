@@ -26,27 +26,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arbitrum/sdk@npm:3.1.1":
-  version: 3.1.1
-  resolution: "@arbitrum/sdk@npm:3.1.1"
+"@arbitrum/sdk@npm:3.1.3":
+  version: 3.1.3
+  resolution: "@arbitrum/sdk@npm:3.1.3"
   dependencies:
     "@ethersproject/address": ^5.0.8
     "@ethersproject/bignumber": ^5.1.1
     "@ethersproject/bytes": ^5.0.8
     ethers: ^5.1.0
-  checksum: ed4f9ba5c0ad275e2182324b646b5a0d9fea1d6e28ddd6561e8c502e9ed2571ae6bc2b3c46515ea3bf64d5e750d2325b62e1b695537ca3c995664e2b1d96b876
-  languageName: node
-  linkType: hard
-
-"@arbitrum/sdk@npm:3.1.2":
-  version: 3.1.2
-  resolution: "@arbitrum/sdk@npm:3.1.2"
-  dependencies:
-    "@ethersproject/address": ^5.0.8
-    "@ethersproject/bignumber": ^5.1.1
-    "@ethersproject/bytes": ^5.0.8
-    ethers: ^5.1.0
-  checksum: 6f5a633ab566567866996860599ef498379eb2b48e428633d2c34167d63272258003c633a14f882b2b6204c7b991498751ae04f79c942ac1979fd5bf258c5a9a
+  checksum: 1b3527090b302c3f65d61abca61c18cc1e99fa5e7cd80160bcc62f467e1c99af2ade4cc5ee088f0bb6b7672628c094e8aa02158cb314cba5a17d94676d911feb
   languageName: node
   linkType: hard
 
@@ -2261,13 +2249,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
-    "@arbitrum/sdk": 3.1.1
+    "@arbitrum/sdk": 3.1.3
     "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-relayer": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": 2.0.1
+    "@eth-optimism/sdk": 2.0.2
     "@graphql-codegen/cli": 3.0.0
     "@sinclair/typebox": 0.25.21
     "@types/aws-lambda": 8.10.110
@@ -2738,9 +2726,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
-    "@arbitrum/sdk": 3.1.2
+    "@arbitrum/sdk": 3.1.3
     "@connext/nxtp-utils": "workspace:*"
-    "@eth-optimism/sdk": 2.0.1
+    "@eth-optimism/sdk": 2.0.2
     "@gelatonetwork/relay-context": 2.1.0
     "@matterlabs/hardhat-zksync-deploy": ^0.6.2
     "@matterlabs/hardhat-zksync-solc": ^0.3.14
@@ -2984,16 +2972,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.13.1":
-  version: 0.13.1
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.13.1"
+"@eth-optimism/contracts-bedrock@npm:0.13.2":
+  version: 0.13.2
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.13.2"
   dependencies:
     "@eth-optimism/core-utils": ^0.12.0
     "@openzeppelin/contracts": 4.7.3
     "@openzeppelin/contracts-upgradeable": 4.7.3
     ethers: ^5.7.0
     hardhat: ^2.9.6
-  checksum: 2347f7e984a39c74e65e114adc4efe5e8bf6843291c8d417df94b6616e821a4e5fc677aff875ca8edbbaea154c4d4f2cb936f0412c7b6e1eaa9010990f9f854b
+  checksum: 0c973dcd81aee3774f5d3863e757509c4cc5ec29e2f30e436f96689a3628fe6083dda6fcc718121a7c9ecb7c643700ee70ce3f5f5438fb12e4c3f6bc102b2859
   languageName: node
   linkType: hard
 
@@ -3034,19 +3022,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/sdk@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@eth-optimism/sdk@npm:2.0.1"
+"@eth-optimism/sdk@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@eth-optimism/sdk@npm:2.0.2"
   dependencies:
     "@eth-optimism/contracts": 0.5.40
-    "@eth-optimism/contracts-bedrock": 0.13.1
+    "@eth-optimism/contracts-bedrock": 0.13.2
     "@eth-optimism/core-utils": 0.12.0
     lodash: ^4.17.21
     merkletreejs: ^0.2.27
     rlp: ^2.2.7
   peerDependencies:
     ethers: ^5
-  checksum: da64fa7c0e9a17687560ed979b5d840b8a016ab867204b13f87a25fbe2bf6dbdf615b71f13fb1b2f4386ef21057d59a12957c880011a81004018dc779f8f536f
+  checksum: b389291b3793c9536916dade1dd8486b4781c5d38977a0bf4ba0e7bab078f0cb16b52c22bd8866e4bc8d6e04414dbf31499bdac8abd4b27bb0275dd1aabb9291
   languageName: node
   linkType: hard
 
