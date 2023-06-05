@@ -1,23 +1,18 @@
-import { createLoggingContext, getChainData } from "@connext/nxtp-utils";
-import { contractDeployments } from "@connext/nxtp-txservice";
+import { createLoggingContext, ChainData } from "@connext/nxtp-utils";
 
-import { getConfig } from "../../config";
+import { NxtpLighthouseConfig } from "../../config";
 
 import { getContext, makeProver } from "./prover";
 import { BrokerMessage } from "./operations/types";
 import { processMessages } from "./operations";
 
-export const handler = async (event: any): Promise<{ statusCode: number; body: string }> => {
+export const makeProverFunc = async (
+  event: any,
+  config: NxtpLighthouseConfig,
+  chainData: Map<string, ChainData>,
+): Promise<{ statusCode: number; body: string }> => {
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");
   try {
-    const chainData = await getChainData();
-    if (!chainData) {
-      return {
-        statusCode: 500,
-        body: "Failed to get chaind data",
-      };
-    }
-    const config = await getConfig(chainData, contractDeployments);
     await makeProver(config, chainData);
 
     const { logger } = getContext();
