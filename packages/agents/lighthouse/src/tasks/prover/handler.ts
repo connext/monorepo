@@ -12,7 +12,7 @@ export const makeProverFunc = async (
 ): Promise<{ statusCode: number; body: string }> => {
   const { requestContext, methodContext } = createLoggingContext("AmazonMQ.consumer");
   const cmdArg = process.argv.slice(2);
-  const event = cmdArg[0];
+  const event = JSON.parse(cmdArg[0]);
   try {
     await makeProver(config, chainData);
 
