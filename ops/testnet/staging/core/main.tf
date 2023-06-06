@@ -499,6 +499,7 @@ module "sequencer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
+  public_redis                  = true
 }
 
 module "router_cache" {
@@ -508,7 +509,8 @@ module "router_cache" {
   family                        = "router"
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
-  cache_subnet_group_subnet_ids = module.network.public_subnets
+  cache_subnet_group_subnet_ids = module.network.public_sub
+  public_redis                  = true
 }
 
 module "relayer_cache" {
@@ -519,4 +521,5 @@ module "relayer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
+  public_redis                  = true
 }
