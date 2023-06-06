@@ -2692,7 +2692,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@connext/sdk": "workspace:*"
-    "@fastify/redis": ^6.1.1
+    "@fastify/redis": 6.1.1
     "@fastify/type-provider-typebox": 2.4.0
     "@types/node": 18.13.0
     "@types/pino": 7.0.5
@@ -3633,7 +3633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/redis@npm:^6.1.1":
+"@fastify/redis@npm:6.1.1":
   version: 6.1.1
   resolution: "@fastify/redis@npm:6.1.1"
   dependencies:
