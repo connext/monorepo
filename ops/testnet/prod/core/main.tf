@@ -311,6 +311,36 @@ module "lighthouse_prover_cron" {
 }
 
 module "lighthouse_prover_subscriber" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.full_image_name_lighthouse_prover_subscriber
+  container_family         = "lighthouse-prover"
+  health_check_path        = "/ping"
+  container_port           = 7072
+  loadbalancer_port        = 80
+  cpu                      = 8192
+  memory                   = 16384
+  instance_count           = 10
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-subscriber" })
+}
+
+module "lighthouse_prover_subscriber" {
   source               = "../../../modules/lambda-mq-subscriber"
   stage                = var.stage
   environment          = var.environment
