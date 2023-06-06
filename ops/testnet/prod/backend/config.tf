@@ -40,7 +40,8 @@ locals {
       }
     }
     environment = var.stage
-    cache = {
+    network     = var.environment
+    redis = {
       enabled        = true
       expirationTime = 10
       host           = module.sdk_server_cache.redis_instance_address,
