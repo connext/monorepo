@@ -34,112 +34,113 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     // Find the spoke domain.
     // let foundMirror = false;
     for (const spoke of protocol.networks) {
-      if (spoke.domain === mirrorDomain) {
-        if (spoke.domain === hub.domain) {
-          throw new Error("Mirror domain was hub? Bruh");
-        }
-        // foundMirror = true;
-        const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
-
-        console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
-
-        /// MARK - Sanity Checks
-        // Sanity check: Make sure RootManager is set correctly for the HubConnector.
-        // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-        console.log("\tVerifying Connectors' ROOT_MANAGER set correctly.");
-        await assertValue({
-          deployment: HubConnector,
-          read: "ROOT_MANAGER",
-          desired: RootManager.address,
-        });
-        // Sanity check: Make sure RootManager is set correctly for the SpokeConnector.
-        await assertValue({
-          deployment: SpokeConnector,
-          read: "ROOT_MANAGER",
-          desired: RootManager.address,
-        });
-
-        /// MARK - Connectors: Mirrors
-        // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
-        console.log("\tVerifying mirror connectors are set correctly.");
-        await updateIfNeeded({
-          apply,
-          deployment: HubConnector,
-          desired: SpokeConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
-        });
-        await updateIfNeeded({
-          apply,
-          deployment: SpokeConnector,
-          desired: HubConnector.address,
-          read: { method: "mirrorConnector", args: [] },
-          write: { method: "setMirrorConnector", args: [HubConnector.address] },
-        });
-
-        /// MARK - RootManager: Add Connector
-        // Set hub connector address for this domain on RootManager.
-        console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
-        try {
-          const currentValue: undefined | string = await getValue({
-            deployment: RootManager,
-            read: { method: "getConnectorForDomain", args: [spoke.domain] },
-          });
-          // If the current connector address is not correct and isn't empty, we need to remove the connector first.
-          if (
-            currentValue &&
-            currentValue.toLowerCase() !== HubConnector.address.toLowerCase() &&
-            currentValue.toLowerCase() !== constants.AddressZero
-          ) {
-            await updateIfNeeded({
-              apply,
-              deployment: RootManager,
-              desired: constants.AddressZero,
-              read: { method: "getConnectorForDomain", args: [spoke.domain] },
-              write: { method: "removeConnector", args: [spoke.domain] },
-            });
-          }
-        } catch {}
-
-        await updateIfNeeded({
-          apply,
-          deployment: RootManager,
-          desired: HubConnector.address,
-          read: { method: "getConnectorForDomain", args: [spoke.domain] },
-          write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
-        });
-
-        /// MARK - Connectors: Allowlist Senders
-        console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
-        await updateIfNeeded({
-          apply,
-          deployment: SpokeConnector,
-          desired: true,
-          read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
-          write: { method: "addSender", args: [spoke.deployments.Connext.address] },
-        });
-
-        /// MARK - MerkleTreeManager
-        console.log("\tVerifying merkle tree managers are set correctly.");
-        await updateIfNeeded({
-          apply,
-          deployment: MerkleTreeManager,
-          desired: SpokeConnector.address,
-          read: { method: "arborist", args: [] },
-          write: { method: "setArborist", args: [SpokeConnector.address] },
-        });
-
-        /// MARK - xAppManager
-        // setXAppConnectionManager to Connext with SpokeConnector
-        console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
-        await updateIfNeeded({
-          apply,
-          deployment: spoke.deployments.Connext,
-          desired: SpokeConnector.address,
-          read: { method: "xAppConnectionManager", args: [] },
-          write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
-        });
+      if (spoke.domain !== mirrorDomain) {
+        continue;
       }
+      if (spoke.domain === hub.domain) {
+        throw new Error("Mirror domain was hub? Bruh");
+      }
+      // foundMirror = true;
+      const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
+
+      console.log(`\n\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
+
+      /// MARK - Sanity Checks
+      // Sanity check: Make sure RootManager is set correctly for the HubConnector.
+      // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+      console.log("\tVerifying Connectors' ROOT_MANAGER set correctly.");
+      await assertValue({
+        deployment: HubConnector,
+        read: "ROOT_MANAGER",
+        desired: RootManager.address,
+      });
+      // Sanity check: Make sure RootManager is set correctly for the SpokeConnector.
+      await assertValue({
+        deployment: SpokeConnector,
+        read: "ROOT_MANAGER",
+        desired: RootManager.address,
+      });
+
+      /// MARK - Connectors: Mirrors
+      // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+      console.log("\tVerifying mirror connectors are set correctly.");
+      await updateIfNeeded({
+        apply,
+        deployment: HubConnector,
+        desired: SpokeConnector.address,
+        read: { method: "mirrorConnector", args: [] },
+        write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
+      });
+      await updateIfNeeded({
+        apply,
+        deployment: SpokeConnector,
+        desired: HubConnector.address,
+        read: { method: "mirrorConnector", args: [] },
+        write: { method: "setMirrorConnector", args: [HubConnector.address] },
+      });
+
+      /// MARK - RootManager: Add Connector
+      // Set hub connector address for this domain on RootManager.
+      console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
+      try {
+        const currentValue: undefined | string = await getValue({
+          deployment: RootManager,
+          read: { method: "getConnectorForDomain", args: [spoke.domain] },
+        });
+        // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+        if (
+          currentValue &&
+          currentValue.toLowerCase() !== HubConnector.address.toLowerCase() &&
+          currentValue.toLowerCase() !== constants.AddressZero
+        ) {
+          await updateIfNeeded({
+            apply,
+            deployment: RootManager,
+            desired: constants.AddressZero,
+            read: { method: "getConnectorForDomain", args: [spoke.domain] },
+            write: { method: "removeConnector", args: [spoke.domain] },
+          });
+        }
+      } catch {}
+
+      await updateIfNeeded({
+        apply,
+        deployment: RootManager,
+        desired: HubConnector.address,
+        read: { method: "getConnectorForDomain", args: [spoke.domain] },
+        write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
+      });
+
+      /// MARK - Connectors: Allowlist Senders
+      console.log(`\tVerifying allowlistSender of SpokeConnector are set correctly.`, spoke.chain);
+      await updateIfNeeded({
+        apply,
+        deployment: SpokeConnector,
+        desired: true,
+        read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
+        write: { method: "addSender", args: [spoke.deployments.Connext.address] },
+      });
+
+      /// MARK - MerkleTreeManager
+      console.log("\tVerifying merkle tree managers are set correctly.");
+      await updateIfNeeded({
+        apply,
+        deployment: MerkleTreeManager,
+        desired: SpokeConnector.address,
+        read: { method: "arborist", args: [] },
+        write: { method: "setArborist", args: [SpokeConnector.address] },
+      });
+
+      /// MARK - xAppManager
+      // setXAppConnectionManager to Connext with SpokeConnector
+      console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
+      await updateIfNeeded({
+        apply,
+        deployment: spoke.deployments.Connext,
+        desired: SpokeConnector.address,
+        read: { method: "xAppConnectionManager", args: [] },
+        write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
+      });
     }
 
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
