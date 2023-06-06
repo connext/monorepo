@@ -9,6 +9,7 @@ import { NxtpLighthouseConfig } from "../../config";
 import { ProverContext } from "./context";
 import { enqueue, consume } from "./operations";
 import { bindHealthServer } from "./bindings";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -66,6 +67,12 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
   );
   context.adapters.database = await getDatabase(context.config.database.url, context.logger);
   context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
+  context.adapters.cache = StoreManager.getInstance({
+    redis: { host: context.config.redis.host, port: context.config.redis.port, instance: undefined },
+    mock: !context.config.redis.host || !context.config.redis.port,
+    logger: context.logger.child({ module: "StoreManager" }),
+  });
+
   context.adapters.relayers = [];
   for (const relayerConfig of context.config.relayers) {
     const setupFunc =

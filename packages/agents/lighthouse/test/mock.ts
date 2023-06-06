@@ -48,6 +48,15 @@ export const mockMqClient = () => {
     },
   };
 };
+
+export const mockCache = () => {
+  return {
+    messages: {
+      getNonce: stub().resolves(1),
+      setNonce: stub().resolves(),
+    },
+  };
+};
 export const mockXMessage2: XMessage = {
   ..._mock.entity.xMessage(),
   originDomain: _mock.domain.B,
@@ -65,6 +74,7 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        cache: mockCache() as any,
         mqClient: mockMqClient() as any,
       },
       config: mock.config(),
@@ -176,6 +186,10 @@ export const mock = {
         port: 1000,
       },
       adminToken: "foo",
+    },
+    redis: {
+      host: "127.0.0.1",
+      port: 6397,
     },
   }),
   adapters: {

@@ -48,6 +48,7 @@ describe("Operations: Process", () => {
       getProofStub.resolves(undefined);
       verifyStub.resolves({ verified: true });
       (proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([0]);
       await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(NoMessageProof);
     });
     it("should do nothing if empty message proof", async () => {

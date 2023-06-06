@@ -50,6 +50,11 @@ export const TMQConfig = Type.Object({
   prefetchSize: Type.Optional(Type.Number()),
 });
 
+export const TRedisConfig = Type.Object({
+  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  host: Type.Optional(Type.String()),
+});
+
 export const TServerConfig = Type.Object({
   prover: Type.Object({
     port: Type.Integer({ minimum: 1, maximum: 65535 }),
@@ -75,6 +80,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
     Type.Object({
@@ -176,6 +182,12 @@ export const getEnvConfig = (
       : configFile.relayers,
     database: {
       url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
+    },
+    redis: {
+      host: process.env.REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "127.0.0.1",
+      port: process.env.REDIS_PORT
+        ? +process.env.REDIS_PORT
+        : undefined || configJson.redis?.port || configFile.redis?.port || 6379,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,

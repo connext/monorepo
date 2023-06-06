@@ -26,7 +26,7 @@ export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database, mqClient },
+    adapters: { database, mqClient, cache },
     config,
   } = getContext();
   const channel = await mqClient.createChannel();
@@ -109,10 +109,12 @@ export const enqueue = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
+                  const cachedNonce = await cache.messages.getNonce(originDomain);
+                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    latestMessageRoot.count,
+                    index,
                     offset,
                     batchSize,
                   );
@@ -157,6 +159,9 @@ export const enqueue = async () => {
                           brokerMessage,
                         },
                       );
+
+                      const indexes = unprocessed.map((item: XMessage) => item.origin.index);
+                      await cache.messages.setNonce(originDomain, Math.max(...indexes));
                     }
 
                     offset += unprocessed.length;

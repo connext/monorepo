@@ -37,6 +37,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
         .onFirstCall()
         .resolves([mockXMessage1, mockXMessage2]);
+      (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
+      (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
       createBrokerMessageStub.resolves(mockBrokerMesage);
       await enqueue();
     });
