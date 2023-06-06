@@ -91,3 +91,11 @@ export const ReceivedAggregateRootSchema = Type.Object({
   blockNumber: Type.Number(),
 });
 export type ReceivedAggregateRoot = Static<typeof ReceivedAggregateRootSchema>;
+
+export const RootMessageStatusSchema = Type.Object({
+  processedCount: Type.Number(),
+  unprocessedCount: Type.Number(),
+  aggregatedCount: Type.Number(),
+  lastAggregatedRoot: Type.Optional(Type.String()),
+});
+export type RootMessageStatus = Static<typeof RootMessageStatusSchema>;

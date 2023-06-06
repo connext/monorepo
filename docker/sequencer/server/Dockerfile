@@ -1,7 +1,9 @@
 FROM node:18-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for sdk-server package.
+# Builds Docker container for nxtp-router package.
+# @dev configuraion located ./config.json (relative to this file)
+
 
 # ----------------------------------------
 
@@ -23,12 +25,14 @@ ARG TEMP_DEPS_DIR
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
-COPY packages/examples/sdk-server/package.json /tmp/build/packages/examples/sdk-server/
-COPY packages/agents/sdk/package.json /tmp/build/packages/agents/sdk/
+COPY packages/agents/sequencer/package.json /tmp/build/packages/agents/sequencer/
+COPY packages/agents/relayer/package.json /tmp/build/packages/agents/relayer/
 COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/adapters/relayer/package.json /tmp/build/packages/adapters/relayer/
+COPY packages/adapters/database/package.json /tmp/build/packages/adapters/database/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 COPY yarn.lock /tmp/build/
@@ -39,12 +43,14 @@ RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
-COPY packages/examples/sdk-server /tmp/build/packages/examples/sdk-server
-COPY packages/agents/sdk /tmp/build/packages/agents/sdk
+COPY packages/agents/sequencer /tmp/build/packages/agents/sequencer
+COPY packages/agents/relayer /tmp/build/packages/agents/relayer
 COPY packages/adapters/cache /tmp/build/packages/adapters/cache
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/adapters/relayer /tmp/build/packages/adapters/relayer
+COPY packages/adapters/database /tmp/build/packages/adapters/database
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
@@ -59,7 +65,8 @@ RUN yarn build
 
 FROM node as runtime
 
-ENV NODE_ENV=production 
+ENV NODE_ENV=production \
+    PORT=8081
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
@@ -70,8 +77,8 @@ COPY --from=build --chown=node:node /tmp/build /home/node
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/examples/sdk-server
+WORKDIR /home/node/packages/agents/sequencer
 
-EXPOSE 8080
+EXPOSE 8081
 
-CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ["node", "--trace-warnings", "dist/server.js"]
