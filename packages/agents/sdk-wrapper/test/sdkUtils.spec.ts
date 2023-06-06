@@ -3,17 +3,16 @@ import { expect } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
-import { getEnvConfig } from "../src/config";
 
-import * as ConfigFns from "../src/config";
+import * as ConfigFns from "@connext/sdk-core/src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import * as MockableFns from "./mockable";
+import * as MockableFns from "../src/mockable";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-describe("#SDK Utils", () => {
+describe("#SDKUtils", () => {
   let sdkUtils: SdkUtils;
   let config: ConfigFns.SdkConfig;
 
@@ -21,7 +20,7 @@ describe("#SDK Utils", () => {
 
   beforeEach(async () => {
     chainreader = createStubInstance(ChainReader);
-    config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+    config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "axiosGetRequest").resolves([]);

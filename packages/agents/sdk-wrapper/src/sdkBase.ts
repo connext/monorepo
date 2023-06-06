@@ -1,4 +1,5 @@
-import { Logger, createLoggingContext, ChainData, axiosPost } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { axiosPost } from "./mockable";
 import { providers, BigNumber, BigNumberish } from "ethers";
 import {
   SdkConfig,

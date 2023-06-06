@@ -2,18 +2,17 @@ import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstan
 import { expect, Logger, mkAddress } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mock } from "./mock";
-import { getEnvConfig } from "../src/config";
 import { SdkRouter } from "../src/sdkRouter";
 
-import * as ConfigFns from "../src/config";
+import * as ConfigFns from "@connext/sdk-core/src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import * as MockableFns from "./mockable";
+import * as MockableFns from "../src/mockable";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-describe("#SDK Utils", () => {
+describe("#SDKRouter", () => {
   let sdkRouter: SdkRouter;
   let config: ConfigFns.SdkConfig;
 
@@ -21,7 +20,7 @@ describe("#SDK Utils", () => {
 
   beforeEach(async () => {
     chainreader = createStubInstance(ChainReader);
-    config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+    config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "axiosGetRequest").resolves([]);
@@ -40,10 +39,7 @@ describe("#SDK Utils", () => {
     beforeEach(async () => {
       axiosPostStub = stub(MockableFns, "axiosPost");
     });
-    afterEach(() => {
-      restore();
-      reset();
-    });
+
     it("Happy: should return router liquidity", async () => {
       const params = {
         domainId: "1869640809",
@@ -100,10 +96,7 @@ describe("#SDK Utils", () => {
     beforeEach(async () => {
       axiosPostStub = stub(MockableFns, "axiosPost");
     });
-    afterEach(() => {
-      restore();
-      reset();
-    });
+
     it("Happy: should return remove Router liquidity", async () => {
       const params = {
         domainId: "1869640809",

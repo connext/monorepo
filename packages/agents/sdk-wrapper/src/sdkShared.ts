@@ -2,12 +2,11 @@ import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@
 import {
   Logger,
   ChainData,
-  axiosGet,
-  axiosPost,
   formatUrl,
   chainIdToDomain as _chainIdToDomain,
   domainToChainId as _domainToChainId,
 } from "@connext/nxtp-utils";
+import { axiosPost, axiosGet } from "./mockable";
 import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
@@ -32,7 +31,6 @@ export class SdkShared {
   }
 
   async getConversionRate(chainId: number) {
-    this.logger.info("Method start");
     const response = await axiosGet(`${this.baseUri}/getConversionRate/${chainId}`);
     return response.data;
   }

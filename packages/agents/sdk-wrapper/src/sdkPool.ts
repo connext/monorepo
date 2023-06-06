@@ -1,6 +1,7 @@
 import { providers, BigNumber, BigNumberish, constants } from "ethers";
-import { Logger, ChainData, axiosPost, StableSwapExchange } from "@connext/nxtp-utils";
-import { SdkConfig } from "@connext/sdk-core";
+import { Logger, ChainData, StableSwapExchange } from "@connext/nxtp-utils";
+import { axiosPost } from "./mockable";
+import { SdkConfig } from "@connext/sdk-core/src/config";
 import { Pool } from "./interfaces/index";
 import { SdkShared } from "./sdkShared";
 import { PriceFeed } from "./lib/priceFeed";
@@ -177,9 +178,10 @@ export class SdkPool extends SdkShared {
   }
 
   async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
-    const params: { domainId: string; tokenAddress: string } = {
+    const params: { domainId: string; tokenAddress: string; amount: string } = {
       domainId,
       tokenAddress,
+      amount,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveSwapLiquidity`, params);
     return response.data;
@@ -599,6 +601,8 @@ export class SdkPool extends SdkShared {
       totoalTokens: totalTokens,
       totalBlocks: totalBlocks,
       numPools: numPools,
+      tokenSymbol,
+      poolTVL,
     };
     const response = await axiosPost(`${this.baseUri}/getLiquidityMiningAprPerPool`, params);
     return response.data;
