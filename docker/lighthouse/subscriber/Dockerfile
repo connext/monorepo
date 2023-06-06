@@ -78,7 +78,7 @@ COPY --from=build --chown=node:node /tmp/build /home/node
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/agents/sequencer
+WORKDIR /home/node/packages/agents/lighthouse
 
 EXPOSE 8081
 
