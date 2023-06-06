@@ -214,7 +214,7 @@ export const createBrokerMessage = async (
 ): Promise<BrokerMessage | undefined> => {
   const {
     logger,
-    adapters: { contracts, chainreader },
+    adapters: { contracts, chainreader, database },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
@@ -229,6 +229,7 @@ export const createBrokerMessage = async (
   // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
   // The quick way to verify them is to add a sanitation check against the spoke connector.
   const messages: XMessage[] = [];
+  const processedMessages: XMessage[] = [];
   for (const message of _messages) {
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
@@ -240,6 +241,11 @@ export const createBrokerMessage = async (
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
+      else if (messageStatus == 2)
+        processedMessages.push({
+          ...message,
+          destination: { returnData: message.destination?.returnData ?? "", processed: true },
+        });
     } catch (err: unknown) {
       logger.debug(
         "Failed to read the message status from onchain",
@@ -248,6 +254,10 @@ export const createBrokerMessage = async (
         jsonifyError(err as NxtpError),
       );
     }
+  }
+
+  if (processedMessages.length > 0) {
+    await database.saveMessages(processedMessages);
   }
 
   if (messages.length === 0) {
