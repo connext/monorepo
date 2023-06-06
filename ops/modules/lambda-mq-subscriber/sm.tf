@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "rmq_secret" {
-  name = "aws-rmq-pw-${var.environment}-${var.stage}"
+  name = "aws-rmq-pw-2-${var.environment}-${var.stage}"
 }
 
 resource "aws_secretsmanager_secret_version" "rmq_uri" {
