@@ -26,7 +26,8 @@ export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database, mqClient, cache },
+    // adapters: { database, mqClient, cache },
+    adapters: { database, mqClient },
     config,
   } = getContext();
   const channel = await mqClient.createChannel();
@@ -109,8 +110,10 @@ export const enqueue = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
-                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
-                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
+                  // TODO: Resolve redis connection issue
+                  // const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
+                  // const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
+                  const index = latestMessageRoot.count;
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
@@ -160,8 +163,8 @@ export const enqueue = async () => {
                         },
                       );
 
-                      const indexes = unprocessed.map((item: XMessage) => item.origin.index);
-                      await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
+                      // const indexes = unprocessed.map((item: XMessage) => item.origin.index);
+                      // await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
                     }
 
                     offset += unprocessed.length;
