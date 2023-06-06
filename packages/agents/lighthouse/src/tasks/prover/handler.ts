@@ -37,13 +37,13 @@ export const makeProverFunc = async (event: any, config: NxtpLighthouseConfig, c
      * }
      */
     logger.info("Received an event from mq", requestContext, methodContext);
-
+    const decoder = new TextDecoder("utf8");
     const rmqMessagesByQueue = event.rmqMessagesByQueue as Record<string, any[]>;
     const queues = Object.keys(rmqMessagesByQueue);
     const brokerMessagesToProcess: BrokerMessage[] = [];
     for (const queue of queues) {
       const queueMessages = rmqMessagesByQueue[queue].map(
-        (msg: any) => JSON.parse(base64.decode(msg.data as string).toString()) as BrokerMessage,
+        (msg: any) => JSON.parse(decoder.decode(base64.decode(msg.data as string))) as BrokerMessage,
       );
       brokerMessagesToProcess.push(...queueMessages);
     }
