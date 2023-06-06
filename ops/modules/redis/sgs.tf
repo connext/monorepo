@@ -41,3 +41,33 @@ resource "aws_security_group_rule" "allow-res-to-redis" {
   to_port                  = 6379
   type                     = "ingress"
 }
+
+
+
+resource "aws_security_group" "allow_from_anywhere" {
+  count       = var.public_redis ? 1 : 0
+  description = "Allow all inbound traffic"
+  name        = "redis-cluster-${var.environment}-${var.family}-allow-all"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+
+resource "aws_security_group_rule" "allow-all-to-redis" {
+  count                    = var.public_redis ? 1 : 0
+  description              = "Allow worker nodes to communicate with cache"
+  from_port                = 6379
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.redis.id
+  source_security_group_id = aws_security_group.allow_from_anywhere[0].id
+  to_port                  = 6379
+  type                     = "ingress"
+}
+
