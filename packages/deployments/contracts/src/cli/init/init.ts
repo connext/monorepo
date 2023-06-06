@@ -44,7 +44,7 @@ export const sanitizeAndInit = async () => {
   try {
     cmdArgs = commandLineArgs(optionDefinitions);
   } catch (err: any) {
-    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
+    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}. Error: ${err.message}`);
   }
 
   // Validate command line arguments
