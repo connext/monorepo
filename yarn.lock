@@ -2692,6 +2692,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@connext/sdk": "workspace:*"
+    "@fastify/redis": ^6.1.1
     "@fastify/type-provider-typebox": 2.4.0
     "@types/node": 18.13.0
     "@types/pino": 7.0.5
@@ -3626,6 +3627,16 @@ __metadata:
   dependencies:
     fast-json-stringify: ^5.0.0
   checksum: c79e9aab14fe2693c4ae399824e0bdd2337a5f1ae403aeec0178a566b03633681d10fc16f010bcf503fb13a50127db463cfa25783dfbed1338b9ccd2593124bd
+  languageName: node
+  linkType: hard
+
+"@fastify/redis@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "@fastify/redis@npm:6.1.1"
+  dependencies:
+    fastify-plugin: ^4.0.0
+    ioredis: ^5.0.0
+  checksum: cdc7defa9cf64100aa98696f987d371ee867f31acfe2e85b255b9ce524d737dfcdedf116a2b7508c6c65d0880b614a958db7bd2e5d50ec1020d97722fdf778b5
   languageName: node
   linkType: hard
 
@@ -14657,6 +14668,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fastify-plugin@npm:^4.0.0":
+  version: 4.5.0
+  resolution: "fastify-plugin@npm:4.5.0"
+  checksum: 3cc36a43ec72ee9974d3cd1989027e77b277b0994e4fc02ed4e6492aabd83a0be66f14fdec56e60d9a41911ea1ff1ea70c9d957a87e46bcdb8fedd859f4988fe
+  languageName: node
+  linkType: hard
+
 "fastify@npm:4.13.0":
   version: 4.13.0
   resolution: "fastify@npm:4.13.0"
@@ -17132,7 +17150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ioredis@npm:*":
+"ioredis@npm:*, ioredis@npm:^5.0.0":
   version: 5.3.2
   resolution: "ioredis@npm:5.3.2"
   dependencies:
