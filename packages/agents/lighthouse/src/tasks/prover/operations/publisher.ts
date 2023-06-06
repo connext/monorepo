@@ -109,7 +109,7 @@ export const enqueue = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
-                  const cachedNonce = await cache.messages.getNonce(originDomain);
+                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
                   const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
@@ -161,7 +161,7 @@ export const enqueue = async () => {
                       );
 
                       const indexes = unprocessed.map((item: XMessage) => item.origin.index);
-                      await cache.messages.setNonce(originDomain, Math.max(...indexes));
+                      await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
                     }
 
                     offset += unprocessed.length;

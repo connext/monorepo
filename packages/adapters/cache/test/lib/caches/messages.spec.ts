@@ -11,13 +11,13 @@ describe("MessagesCache", () => {
 
   describe("#nonce", () => {
     it("should get default nonce if none exists", async () => {
-      const latestNonce = await messagesCache.getNonce("1111");
+      const latestNonce = await messagesCache.getNonce("1111", "2222");
       expect(latestNonce).to.be.equal(0);
     });
 
     it("should get domain's latest nonce according to the cache", async () => {
-      await messagesCache.setNonce("1111", 100);
-      const latestNonce = await messagesCache.getNonce("1111");
+      await messagesCache.setNonce("1111", "2222", 100);
+      const latestNonce = await messagesCache.getNonce("1111", "2222");
       expect(latestNonce).to.be.equal(100);
     });
   });
