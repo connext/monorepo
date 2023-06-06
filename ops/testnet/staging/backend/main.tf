@@ -27,8 +27,8 @@ module "cartographer_db" {
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
   instance_class        = "db.t3.medium"
-  allocated_storage     = 10
-  max_allocated_storage = 20
+  allocated_storage     = 150
+  max_allocated_storage = 300
 
 
   name     = "connext" // db name
@@ -43,8 +43,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "default.postgres14"
-  vpc_id               = module.network.vpc_id
+  vpc_id = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
   stage                      = var.stage
@@ -54,6 +53,17 @@ module "cartographer_db" {
   publicly_accessible        = true
 }
 
+module "cartographer-db-alarms" {
+  source                                  = "../../../modules/db-alarms"
+  db_instance_name                        = module.cartographer_db.db_instance_name
+  db_instance_id                          = module.cartographer_db.db_instance_id
+  is_replica                              = false
+  enable_cpu_utilization_alarm            = true
+  enable_free_storage_space_too_low_alarm = true
+  stage                                   = var.stage
+  environment                             = var.environment
+  sns_topic_subscription_emails           = ["carlo@connext.network", "rahul@connext.network"]
+}
 
 module "postgrest" {
   source                   = "../../../modules/service"
@@ -95,7 +105,7 @@ module "sdk-server" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = var.sdk_server_image_tag
+  docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
   container_port           = 8080
   loadbalancer_port        = 80
