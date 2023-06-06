@@ -1,20 +1,29 @@
 import { createRequestContext, expect, mkAddress, mkBytes32, mkHash } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
-import { CrossChainMessage, CrossChainMessageProof } from "@eth-optimism/sdk";
+import { CrossChainMessage, MessageStatus } from "@eth-optimism/sdk";
 
 import * as MockableFns from "../../../../src/mockable";
 import { getProcessFromOptimismRootArgs } from "../../../../src/tasks/processFromRoot/helpers";
 import { NoRootAvailable } from "../../../../src/tasks/processFromRoot/errors";
 import { BigNumber, constants } from "ethers";
 
-let getMessageStateRootStub: SinonStub;
-let getMessagesByTransactionStub: SinonStub;
-let getMessageProofStub: SinonStub;
+let getMessageStatusStub: SinonStub;
+let toCrosschainMessageStub: SinonStub;
+let toLowLevelMessageStub: SinonStub;
+let getBedrockMessageProofStub: SinonStub;
+
+// TODO: need to import from sdk but not in types
+interface BedrockCrossChainMessageProof {
+  l2OutputIndex: number;
+  outputRootProof: string[];
+  withdrawalProof: string[];
+}
 
 class MockCrossChainMessenger {
-  public getMessageStateRoot = getMessageStateRootStub;
-  public getMessagesByTransaction = getMessagesByTransactionStub;
-  public getMessageProof = getMessageProofStub;
+  public getMessageStatus = getMessageStatusStub;
+  public toCrossChainMessage = toCrosschainMessageStub;
+  public getBedrockMessageProof = getBedrockMessageProofStub;
+  public toLowLevelMessage = toLowLevelMessageStub;
 }
 
 const mockCrossChainMessage: CrossChainMessage = {
@@ -30,30 +39,23 @@ const mockCrossChainMessage: CrossChainMessage = {
   value: constants.Two,
 };
 
-const mockCrossChainMessageProof: CrossChainMessageProof = {
-  stateRoot: mkBytes32("0xdeadbeef"),
-  stateRootBatchHeader: {
-    batchIndex: constants.One,
-    batchRoot: mkBytes32("0xbbb"),
-    batchSize: constants.Two,
-    extraData: "0xfee",
-    prevTotalElements: constants.Zero,
-  },
-  stateRootProof: { index: 42, siblings: [] },
-  stateTrieWitness: mkAddress("0xdeaf"),
-  storageTrieWitness: mkAddress("0xddbeef"),
+const mockCrossChainMessageProof: BedrockCrossChainMessageProof = {
+  l2OutputIndex: 1235,
+  outputRootProof: [mkBytes32("0xdeaf")],
+  withdrawalProof: [mkBytes32("0xddbeef")],
 };
 
 describe("Helpers: Optimism", () => {
   beforeEach(() => {
     stub(MockableFns, "CrossChainMessenger").value(MockCrossChainMessenger);
-    getMessageStateRootStub = stub().resolves(mkHash("0xdeadbeef"));
-    getMessagesByTransactionStub = stub().resolves([mockCrossChainMessage]);
-    getMessageProofStub = stub().resolves(mockCrossChainMessageProof);
+    getMessageStatusStub = stub().resolves(MessageStatus.READY_TO_PROVE);
+    toCrosschainMessageStub = stub().resolves(mockCrossChainMessage);
+    toLowLevelMessageStub = stub().resolves(mockCrossChainMessage);
+    getBedrockMessageProofStub = stub().resolves(mockCrossChainMessageProof);
   });
 
-  it("should throw error if undefined", async () => {
-    getMessageStateRootStub.resolves(undefined);
+  it("should throw error if status is not ready to prove", async () => {
+    getMessageStatusStub.resolves(MessageStatus.STATE_ROOT_NOT_PUBLISHED);
     await expect(
       getProcessFromOptimismRootArgs({
         spokeChainId: 1,
@@ -64,6 +66,26 @@ describe("Helpers: Optimism", () => {
         hubProvider: "hello",
         sendHash: mkHash("0xbaa"),
         _requestContext: createRequestContext("foo"),
+        message: "0xbabababababa",
+        blockNumber: 1,
+      }),
+    ).to.be.rejectedWith(`Optimism message status is not ready to prove: ${MessageStatus.STATE_ROOT_NOT_PUBLISHED}`);
+  });
+
+  it("should throw error if no proof found", async () => {
+    getBedrockMessageProofStub.resolves(undefined);
+    await expect(
+      getProcessFromOptimismRootArgs({
+        spokeChainId: 1,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 2,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        _requestContext: createRequestContext("foo"),
+        message: "0xbabababababa",
+        blockNumber: 1,
       }),
     ).to.be.rejectedWith(NoRootAvailable);
   });
@@ -78,13 +100,21 @@ describe("Helpers: Optimism", () => {
       hubProvider: "hello",
       sendHash: mkHash("0xbaa"),
       _requestContext: createRequestContext("foo"),
+      message: "0xbabababababa",
+      blockNumber: 1,
     });
     expect(args).to.deep.eq([
-      mockCrossChainMessage.target,
-      mockCrossChainMessage.sender,
-      mockCrossChainMessage.message,
-      mockCrossChainMessage.messageNonce,
-      mockCrossChainMessageProof,
+      {
+        nonce: mockCrossChainMessage.messageNonce.toString(),
+        target: mockCrossChainMessage.target,
+        sender: mockCrossChainMessage.sender,
+        data: mockCrossChainMessage.message,
+        value: mockCrossChainMessage.value,
+        gasLimit: mockCrossChainMessage.minGasLimit,
+      },
+      mockCrossChainMessageProof.l2OutputIndex,
+      mockCrossChainMessageProof.outputRootProof,
+      mockCrossChainMessageProof.withdrawalProof,
     ]);
   });
 });
