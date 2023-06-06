@@ -257,6 +257,8 @@ export const createBrokerMessage = async (
   }
 
   if (processedMessages.length > 0) {
+    console.log(`Saving the processed messages, count: ${processedMessages.length}`);
+    logger.info("Saving the processed messages", requestContext, methodContext, { count: processedMessages.length });
     await database.saveMessages(processedMessages);
   }
 
