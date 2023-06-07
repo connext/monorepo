@@ -47,6 +47,7 @@ export const proveAndProcess = async () => {
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
+      if (destinationDomain != "6778479") return;
       try {
         const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
 
