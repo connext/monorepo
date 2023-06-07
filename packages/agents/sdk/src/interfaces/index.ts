@@ -2,6 +2,8 @@ import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
+import { TChainConfig } from "../config";
+
 export type Pool = {
   domainId: string;
   name: string;
@@ -188,11 +190,18 @@ SDK Shared Types
 *************************************/
 
 export const OptionsSchema = Type.Object({
+  chains: Type.Optional(Type.Record(Type.String(), TChainConfig)),
   originProviderUrl: Type.Optional(Type.String()),
   destinationProviderUrl: Type.Optional(Type.String()),
   signerAddress: Type.Optional(TAddress),
 });
 export type Options = Static<typeof OptionsSchema>;
+
+export const ProviderSanityCheckSchema = Type.Object({
+  domains: Type.Array(TIntegerString),
+  options: Type.Optional(OptionsSchema),
+});
+export type ProviderSanityCheck = Static<typeof ProviderSanityCheckSchema>;
 
 // getConversionRate
 export const SdkGetConversionRateParamsSchema = Type.Object({

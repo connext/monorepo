@@ -14,9 +14,9 @@ import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/sma
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData, ConnextSupport, Options } from "./interfaces";
+import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import { SdkConfig, domainsToChainNames, ChainDeployments, ChainConfig } from "./config";
 
 declare global {
   interface Window {
@@ -76,6 +76,33 @@ export class SdkShared {
 
     this.logger.info(`Using static provider for domain: ${domainId}`);
     return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+  }
+
+  /**
+   * Checks if at least one provider is configured for all given domains.
+   *
+   * @param domainId - The domain ID.
+   * @returns Boolean.
+   */
+  async providerSanityCheck(params: ProviderSanityCheck): Promise<boolean> {
+    const { domains, options } = params;
+    let { chains } = this.config;
+
+    if (options && options.chains) {
+      chains = options.chains;
+    }
+
+    for (const domainId of domains) {
+      if (!(domainId in chains)) {
+        return false;
+      }
+      const chain = chains[domainId];
+      if ((chain.providers?.length ?? 0) <= 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   getDeploymentAddress = memoize(
