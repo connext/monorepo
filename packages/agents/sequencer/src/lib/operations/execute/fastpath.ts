@@ -52,10 +52,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
-  // Store the transfer locally. We will use this as a reference later when we execute this transfer
-  // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
-  await cache.transfers.storeTransfers([transfer]);
-
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {
@@ -111,6 +107,9 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     // Avoid a race condition where the message is consumed before the status is set
     // If publish fails we we will have bad state, but publish is HA so we should be fine
     await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
+    // Store the transfer locally. We will use this as a reference later when we execute this transfer
+    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+    await cache.transfers.storeTransfers([transfer]);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
