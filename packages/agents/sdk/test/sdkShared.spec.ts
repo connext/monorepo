@@ -4,7 +4,7 @@ import { constants, providers, Contract, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
-import { ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
+import { ContractAddressMissing, SignerAddressMissing, ProviderMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -127,15 +127,14 @@ describe("SdkShared", () => {
       expect(res).to.be.true;
     });
 
-    it("should return false with a domain not in existingconfig", async () => {
+    it("should throw with a domain not in existing config", async () => {
       const params = {
         domains: ["1000"],
       };
-      const res = await sdkShared.providerSanityCheck(params);
-      expect(res).to.be.false;
+      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
     });
 
-    it("should return false with a domain not in passed-in config", async () => {
+    it("should throw with a domain not in passed-in config", async () => {
       const params = {
         domains: ["1000"],
         options: {
@@ -146,8 +145,7 @@ describe("SdkShared", () => {
           },
         },
       };
-      const res = await sdkShared.providerSanityCheck(params);
-      expect(res).to.be.false;
+      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
     });
   });
 

@@ -172,6 +172,8 @@ export class SdkBase extends SdkShared {
       unwrapNativeOnDestination,
       options,
     } = params;
+    this.providerSanityCheck({ domains: [origin], options });
+
     let { to, callData } = params;
 
     // Set default values if not provided
@@ -403,6 +405,8 @@ export class SdkBase extends SdkShared {
 
     const { domainId, transferId, slippage: _newSlippage, options } = params;
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
       throw new SlippageInvalid(_newSlippage, params);
@@ -518,6 +522,8 @@ export class SdkBase extends SdkShared {
     }
 
     const { domainId, transferId, asset, relayerFee, options } = params;
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {

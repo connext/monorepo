@@ -85,6 +85,8 @@ export class SdkRouter extends SdkShared {
 
     const { domainId, amount, tokenAddress, router, options } = params;
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const connextContract = await this.getConnext(domainId, options);
     const txRequest = await connextContract.populateTransaction.addRouterLiquidityFor(amount, tokenAddress, router);
 
@@ -127,6 +129,8 @@ export class SdkRouter extends SdkShared {
 
     const { domainId, amount, tokenAddress, recipient, options } = params;
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -164,6 +168,8 @@ export class SdkRouter extends SdkShared {
     }
 
     const { domainId, amount, tokenAddress, recipient, router, options } = params;
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),

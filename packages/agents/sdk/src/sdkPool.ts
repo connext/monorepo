@@ -110,6 +110,8 @@ export class SdkPool extends SdkShared {
     amount: BigNumberish,
     options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -350,6 +352,8 @@ export class SdkPool extends SdkShared {
     isDeposit = true,
     options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -376,6 +380,8 @@ export class SdkPool extends SdkShared {
     amount: string,
     options?: Options,
   ): Promise<BigNumber[]> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -404,6 +410,8 @@ export class SdkPool extends SdkShared {
     index: number,
     options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -537,6 +545,8 @@ export class SdkPool extends SdkShared {
     tokenY: string,
     options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenX = utils.getAddress(tokenX);
     const _tokenY = utils.getAddress(tokenY);
 
@@ -690,6 +700,8 @@ export class SdkPool extends SdkShared {
     _index?: number,
     options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -732,6 +744,8 @@ export class SdkPool extends SdkShared {
    * @returns The virtual price, scaled to the pool's decimal precision (10^18).
    */
   async getVirtualPrice(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -929,6 +943,8 @@ export class SdkPool extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const signerAddress = this.config.signerAddress;
@@ -970,6 +986,8 @@ export class SdkPool extends SdkShared {
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
     const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
@@ -1018,6 +1036,8 @@ export class SdkPool extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const signerAddress = this.config.signerAddress;
@@ -1058,6 +1078,8 @@ export class SdkPool extends SdkShared {
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityImbalance.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, maxBurnAmount, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -1124,6 +1146,8 @@ export class SdkPool extends SdkShared {
       amount,
       deadline,
     });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 

@@ -15,7 +15,7 @@ import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
-import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
+import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 declare global {
@@ -94,11 +94,11 @@ export class SdkShared {
 
     for (const domainId of domains) {
       if (!(domainId in chains)) {
-        return false;
+        throw new ProviderMissing(domainId);
       }
       const chain = chains[domainId];
       if ((chain.providers?.length ?? 0) <= 0) {
-        return false;
+        throw new ProviderMissing(domainId);
       }
     }
 
@@ -124,6 +124,8 @@ export class SdkShared {
    */
   getConnext = memoize(
     async (domainId: string, options?: Options): Promise<Connext> => {
+      this.providerSanityCheck({ domains: [domainId], options });
+
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
       const provider = options?.originProviderUrl
@@ -141,6 +143,8 @@ export class SdkShared {
    * @returns ERC20 Contract object.
    */
   async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const provider = options?.originProviderUrl
       ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
       : await this.getProvider(domainId);
@@ -227,6 +231,8 @@ export class SdkShared {
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const signerAddress = this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
