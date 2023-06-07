@@ -20,7 +20,7 @@ import {
 } from "../../src/utils";
 import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
-import { NodeCreatedEvent, delay, getProviderUrlFromHardhatConfig } from "../../src";
+import { NodeCreatedEvent, getProviderUrlFromHardhatConfig } from "../../src";
 
 type TaskArgs = {
   tx: string;
@@ -261,6 +261,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       let method = "processFromRoot";
       switch (prefix) {
         case "Optimism":
+          method = "processMessageFromRoot";
           args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
           break;
         case "Arbitrum":
