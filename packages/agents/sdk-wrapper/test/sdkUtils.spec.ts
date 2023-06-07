@@ -15,10 +15,13 @@ const mockDeployments = mock.contracts.deployments();
 describe("#SDKUtils", () => {
   let sdkUtils: SdkUtils;
   let config: ConfigFns.SdkConfig;
+  let axiosPostStub: SinonStub;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
   beforeEach(async () => {
+    axiosPostStub = stub(MockableFns, "axiosPost");
+
     chainreader = createStubInstance(ChainReader);
     config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
@@ -34,17 +37,8 @@ describe("#SDKUtils", () => {
   });
 
   describe("#getRoutersData", async () => {
-    let axiosGetStub: SinonStub;
-    axiosGetStub = stub(MockableFns, "axiosGet");
-    beforeEach(async () => {
-      axiosGetStub = stub(MockableFns, "axiosGet");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("Happy: should return router data", async () => {
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: [
           {
             address: "0xe879261f44041e030404ac9847f0cee2591f62f5",
@@ -79,17 +73,8 @@ describe("#SDKUtils", () => {
   });
 
   describe("#getRouterLiquidity", async () => {
-    let axiosGetStub: SinonStub;
-    axiosGetStub = stub(MockableFns, "axiosGet");
-    beforeEach(async () => {
-      axiosGetStub = stub(MockableFns, "axiosGet");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("Happy: should return router data", async () => {
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: "0123",
       });
       const routerData = await sdkUtils.getRouterLiquidity();
@@ -98,18 +83,9 @@ describe("#SDKUtils", () => {
   });
 
   describe("#getTransfers", async () => {
-    let axiosGetStub: SinonStub;
-    axiosGetStub = stub(MockableFns, "axiosGet");
-    beforeEach(async () => {
-      axiosGetStub = stub(MockableFns, "axiosGet");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("Happy: should return get transfer", async () => {
-      axiosGetStub.resolves({
-        data: { transfer_id: "0xdd3e203a8633f8d6329214a236eb64651301568e79691918062e3c738d309f8a" },
+      axiosPostStub.resolves({
+        data: [{ transfer_id: "0xdd3e203a8633f8d6329214a236eb64651301568e79691918062e3c738d309f8a" }],
       });
       const transfers = await sdkUtils.getTransfers();
       expect(transfers[0].transfer_id).to.be.eq("0xdd3e203a8633f8d6329214a236eb64651301568e79691918062e3c738d309f8a");
@@ -117,17 +93,8 @@ describe("#SDKUtils", () => {
   });
 
   describe("#checkRouterLiquidity", async () => {
-    let axiosGetStub: SinonStub;
-    axiosGetStub = stub(MockableFns, "axiosGet");
-    beforeEach(async () => {
-      axiosGetStub = stub(MockableFns, "axiosGet");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("Happy: should return checkRouterLiquidity", async () => {
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: {
           type: "BigNumber",
           hex: "0x00",

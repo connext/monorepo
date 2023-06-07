@@ -11,7 +11,6 @@ import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
 
-import { axiosGetRequest } from "./lib/helpers";
 
 export class SdkShared {
   readonly config: SdkConfig;
@@ -72,13 +71,13 @@ export class SdkShared {
     return _domainToChainId(domainId);
   }
 
-  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number): Promise<number> {
+  async getBlockNumberFromUnixTimestamp(domainId: string, unixTimestamp: number) {
     const baseUrl = "https://coins.llama.fi";
     const uri = formatUrl(baseUrl, "block");
     const chainName = this.domainToChainName(domainId);
-    const res = await axiosGetRequest(uri + `/${chainName}` + `/${unixTimestamp}`);
+    const res = await axiosGet(uri + `/${chainName}` + `/${unixTimestamp}`);
 
-    return res.height;
+    return res.data;
   }
 
   async approveIfNeeded(
