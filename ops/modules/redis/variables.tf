@@ -22,5 +22,17 @@ variable "family" {
 
 variable "cache_subnet_group_subnet_ids" {
   description = "subnet group ids"
-  type = list(string)
+  type        = list(string)
+}
+
+variable "node_type" {
+  description = "node type of redis cluster"
+  default     = "cache.t2.small"
+  type        = string
+}
+
+variable "public_redis" {
+  description = "whether to make redis public"
+  default     = false
+  type        = bool
 }
