@@ -275,6 +275,10 @@ locals {
   })
 
   local_lighthouse_config = jsonencode({
+    redis = {
+      host = module.lighthouse_cache.redis_instance_address,
+      port = module.lighthouse_cache.redis_instance_port
+    }
     logLevel = "debug"
     chains = {
       "6648936" = {
