@@ -188,9 +188,9 @@ SDK Shared Types
 *************************************/
 
 export const OptionsSchema = Type.Object({
-  originProviderUrl: Type.String(),
-  destinationProviderUrl: Type.String(),
-  signerAddress: TAddress,
+  originProviderUrl: Type.Optional(Type.String()),
+  destinationProviderUrl: Type.Optional(Type.String()),
+  signerAddress: Type.Optional(TAddress),
 });
 export type Options = Static<typeof OptionsSchema>;
 
