@@ -40,9 +40,6 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
       executorData,
     });
   }
-  // Store the transfer locally. We will use this as a reference later when we execute this transfer
-  // in the cycle, for both encoding data and passing relayer fee to the relayer.
-  await cache.transfers.storeTransfers([transfer]);
 
   // Ensure that the executor data for this transfer hasn't expired.
   let status = await cache.executors.getExecStatus(transferId);
@@ -82,6 +79,9 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     // If publish fails we we will have bad state, but publish is HA so we should be fine
     await cache.executors.setExecStatus(transferId, ExecStatus.Enqueued);
     await cache.executors.storeExecutorData(executorData);
+    // Store the transfer locally. We will use this as a reference later when we execute this transfer
+    // in the cycle, for both encoding data and passing relayer fee to the relayer.
+    await cache.transfers.storeTransfers([transfer]);
     channel.publish(
       config.messageQueue.exchanges[0].name,
       transfer.xparams!.originDomain,
@@ -118,7 +118,7 @@ export const executeSlowPathData = async (
 ): Promise<{ taskId: string | undefined }> => {
   const {
     logger,
-    adapters: { cache, database },
+    adapters: { cache, database, subgraph },
   } = getContext();
 
   const {
@@ -132,16 +132,26 @@ export const executeSlowPathData = async (
   const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
-  const transfer = await cache.transfers.getTransfer(transferId);
-  if (!transfer) {
-    await cache.executors.setExecStatus(transferId, ExecStatus.None);
-    throw new MissingTransfer({ transferId });
-  }
-
   const executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
     await cache.executors.setExecStatus(transferId, ExecStatus.None);
-    throw new MissingExecutorData({ transfer });
+    throw new MissingExecutorData({ transferId });
+  }
+
+  let transfer = await cache.transfers.getTransfer(transferId);
+  if (!transfer) {
+    // This can happen in a race between concurrent previous and current attempts that are inflight
+    logger.error("Transfer data not found for transfer!", requestContext, methodContext, undefined, {
+      transferId,
+      executorData,
+    });
+    // Get the XCall from the subgraph for this transfer.
+    transfer = await subgraph.getOriginTransferById(executorData.origin, transferId);
+    if (!transfer || !transfer.origin) {
+      await cache.executors.setExecStatus(transferId, ExecStatus.None);
+      throw new MissingTransfer({ transferId });
+    }
+    await cache.transfers.storeTransfers([transfer]);
   }
 
   // Ensure that the executor data for this transfer hasn't expired.
