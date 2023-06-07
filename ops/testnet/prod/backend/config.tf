@@ -39,8 +39,12 @@ locals {
         providers = ["https://rpc.ankr.com/polygon_mumbai"]
       }
     }
+
+    # The following are defined in variables.tf and don't map to the
+    # definitions of environment and network in agent configs.
     environment = var.stage
     network     = var.environment
+
     redis = {
       enabled        = true
       expirationTime = 10
