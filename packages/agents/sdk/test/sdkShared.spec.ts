@@ -105,6 +105,52 @@ describe("SdkShared", () => {
     });
   });
 
+  describe("#providerSanityCheck", () => {
+    it("happy: should return true with a domain in existing config", async () => {
+      const params = { domains: [mock.domain.A] };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.true;
+    });
+
+    it("happy: should return true with a domain in passed-in config", async () => {
+      const params = {
+        domains: ["1000"],
+        options: {
+          chains: {
+            "1000": {
+              providers: ["http://example.com"],
+            },
+          },
+        },
+      };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.true;
+    });
+
+    it("should return false with a domain not in existingconfig", async () => {
+      const params = {
+        domains: ["1000"],
+      };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.false;
+    });
+
+    it("should return false with a domain not in passed-in config", async () => {
+      const params = {
+        domains: ["1000"],
+        options: {
+          chains: {
+            "2000": {
+              providers: ["http://example.com"],
+            },
+          },
+        },
+      };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.false;
+    });
+  });
+
   describe("#getDeploymentAddress", () => {
     it("happy: should work", async () => {
       const connext = await sdkShared.getDeploymentAddress(mock.domain.A, "connext");
