@@ -50,9 +50,9 @@ export const getEnvConfig = (): SdkServerConfig => {
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.SDK_SERVER_CONFIG_FILE || "");
+    configJson = JSON.parse(process.env.SDK_SERVER_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No SDK_SERVER_CONFIG_FILE exists, using config file and individual env vars");
+    console.info("No SDK_SERVER_CONFIG exists, using config file and individual env vars");
   }
   try {
     let json: string;
