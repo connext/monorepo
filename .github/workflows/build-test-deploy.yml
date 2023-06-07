@@ -66,7 +66,7 @@ jobs:
         uses: wagoid/commitlint-github-action@v5
         with:
           commitDepth: 1
-
+          
       - name: Yarn install
         run: yarn install
 
