@@ -2641,27 +2641,7 @@ __metadata:
 
 "@connext/sdk-core@workspace:^, @connext/sdk-core@workspace:packages/agents/sdk":
   version: 0.0.0-use.local
-  resolution: "@connext/sdk-server@workspace:packages/examples/sdk-server"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@connext/sdk": "workspace:*"
-    "@fastify/redis": ^6.1.1
-    "@fastify/type-provider-typebox": 2.4.0
-    "@types/node": 18.13.0
-    "@types/pino": 7.0.5
-    ethers: 5.7.2
-    fastify: 4.13.0
-    pino: 8.10.0
-    pino-pretty: 9.2.0
-    rimraf: 3.0.2
-    typescript: 4.9.5
-  languageName: unknown
-  linkType: soft
-
-"@connext/sdk@workspace:*, @connext/sdk@workspace:packages/agents/sdk":
-  version: 0.0.0-use.local
-  resolution: "@connext/sdk@workspace:packages/agents/sdk"
+  resolution: "@connext/sdk-core@workspace:packages/agents/sdk"
   dependencies:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
@@ -2690,7 +2670,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@connext/sdk": "workspace:*"
-    "@connext/sdk-core": "workspace:^"
+    "@fastify/redis": ^6.1.1
     "@fastify/type-provider-typebox": 2.4.0
     "@types/node": 18.13.0
     "@types/pino": 7.0.5

@@ -22,20 +22,40 @@ describe("#SDKShared", () => {
   let chainreader: SinonStubbedInstance<ChainReader>;
 
   beforeEach(async () => {
+    sdkShared = new SdkShared(mockConfig, new Logger({ name: "SDK shared" }), mockChainData);
     chainreader = createStubInstance(ChainReader);
     config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
-
-    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "axiosGetRequest").resolves([]);
     axiosGetStub = stub(MockableFns, "axiosGet");
     axiosPostStub = stub(MockableFns, "axiosPost");
-
-    sdkShared = new SdkShared(mockConfig, new Logger({ name: "SDK shared" }), mockChainData);
+    stub(SharedFns, "axiosGetRequest").resolves([]);
   });
 
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("#instance", () => {
+    it("happy: should work", async () => {
+      expect(sdkShared).to.not.be.undefined;
+      expect(sdkShared.config).to.not.be.null;
+      expect(sdkShared.chainData).to.not.be.null;
+
+      expect(sdkShared.getConnext).to.be.a("function");
+      expect(sdkShared.getERC20).to.be.a("function");
+      expect(sdkShared.approveIfNeeded).to.be.a("function");
+      expect(sdkShared.getAssetsData).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
+      expect(sdkShared.getAssetsWithSameCanonical).to.be.a("function");
+      expect(sdkShared.getActiveLiquidity).to.be.a("function");
+      expect(sdkShared.getSupported).to.be.a("function");
+      expect(sdkShared.isNextAsset).to.be.a("function");
+      expect(sdkShared.changeSignerAddress).to.be.a("function");
+      expect(sdkShared.parseConnextTransactionReceipt).to.be.a("function");
+      expect(sdkShared.calculateCanonicalKey).to.be.a("function");
+      expect(sdkShared.getCanonicalTokenId).to.be.a("function");
+    });
   });
 
   describe("#getConversionRate", async () => {
@@ -53,6 +73,7 @@ describe("#SDKShared", () => {
       axiosGetStub.resolves({ data: { _isProvider: true } });
       const provider = await sdkShared.getProvider(mockDomainID);
       expect(provider._isProvider).to.be.eq(true);
+      expect(provider).to.be.a("object");
     });
   });
 
@@ -311,19 +332,24 @@ describe("#SDKShared", () => {
     });
   });
 
-  describe("#domainToChainName", async () => {
-    it("Happy: should return chainName", async () => {
-      const mockDomain = "1869640809";
-      const chainName = await sdkShared.domainToChainName(mockDomain);
-      expect(chainName).to.be.eq("optimism");
+  describe("#domainToChainName", () => {
+    it("happy: should work", async () => {
+      const chainName = sdkShared.domainToChainName("6648936");
+      expect(chainName).to.not.be.undefined;
     });
   });
 
-  describe("#chainIdToDomain", async () => {
-    it("Happy: should return chainID", async () => {
-      const mockChainID = 1869640809;
-      const chainID = await sdkShared.domainToChainId(mockChainID);
-      expect(chainID).to.be.eq(10);
+  describe("#domainToChainId", () => {
+    it("happy: should work", async () => {
+      const chainId = sdkShared.domainToChainId(133712);
+      expect(chainId).to.be.eq(1337);
+    });
+  });
+
+  describe("#chainIdToDomain", () => {
+    it("happy: should work", async () => {
+      const domain = sdkShared.chainIdToDomain(1337);
+      expect(domain).to.be.eq(133712);
     });
   });
 });

@@ -118,12 +118,12 @@ describe("#SDKPool", () => {
       const mockxp = [BigNumber.from("100000000000000")];
       const mockIndexFrom = 1;
       const mockIndexTo = 1;
-      axiosPostStub.resolves({
-        data: {
-          type: "BigNumber",
-          hex: "0xb5d380956000",
-        },
-      });
+      // axiosPostStub.resolves({
+      //   data: {
+      //     type: "BigNumber",
+      //     hex: "0xb5d380956000",
+      //   },
+      // });
       const swapOut = await sdkPool.getSwapOut(mockPool, mockX, mockxp, mockIndexFrom, mockIndexTo);
       expect(swapOut).not.to.be.eq(null);
     });

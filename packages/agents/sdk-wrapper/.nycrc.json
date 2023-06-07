@@ -1,6 +1,5 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
-  "extension": [".ts"],
   "exclude": [
     "src/index.ts",
     "src/interfaces/*.ts",
