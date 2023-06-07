@@ -194,17 +194,26 @@ export const executeFastPathData = async (
   });
 
   // NOTE: Should be an OriginTransfer, but we will sanity check below.
-  const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
+  let transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
   if (!transfer) {
-    // This should never happen.
-    // TODO: Should this be tossed out? We literally can't handle a transfer without the xcall data.
+    // This can happen in a race between concurrent previous and current attempts that are inflight
     logger.error("Transfer data not found for transfer!", requestContext, methodContext, undefined, {
       transferId,
       origin,
       destination,
       bids,
     });
-    return { taskId };
+
+    // Try to resolve it by rehydrating from the subgraph
+    // Get the XCall from the subgraph for this transfer.
+    transfer = (await subgraph.getOriginTransferById(origin, transferId)) as OriginTransfer | undefined;
+    if (!transfer || !transfer.origin) {
+      // Router shouldn't be bidding on a transfer that doesn't exist.
+      throw new MissingXCall(origin, transferId, {
+        bids,
+      });
+    }
+    await cache.transfers.storeTransfers([transfer]);
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
