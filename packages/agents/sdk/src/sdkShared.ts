@@ -16,7 +16,7 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
-import { SdkConfig, domainsToChainNames, ChainDeployments, ChainConfig } from "./config";
+import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 declare global {
   interface Window {
@@ -75,7 +75,7 @@ export class SdkShared {
     }
 
     this.logger.info(`Using static provider for domain: ${domainId}`);
-    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers?.[0]);
   }
 
   /**
