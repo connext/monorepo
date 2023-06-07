@@ -186,6 +186,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync)
         "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato
         "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934", // connext relayer
