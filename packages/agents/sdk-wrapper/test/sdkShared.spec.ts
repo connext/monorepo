@@ -5,7 +5,7 @@ import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { providers, BigNumber } from "ethers";
 
-import * as ConfigFns from "@connext/sdk-core/src/config";
+import * as ConfigFns from "@connext/sdk-core";
 import * as SharedFns from "../src/lib/helpers/shared";
 import * as MockableFns from "../src/mockable";
 
