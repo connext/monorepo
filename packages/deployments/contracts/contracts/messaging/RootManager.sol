@@ -318,7 +318,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
-    emit MinDisputeBlocksUpdated(_minDisputeBlocks, minDisputeBlocks);
+    emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
     minDisputeBlocks = _minDisputeBlocks;
   }
 
