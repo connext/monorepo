@@ -20,7 +20,7 @@ import {
 } from "../../src/utils";
 import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
-import { NodeCreatedEvent, delay, getProviderUrlFromHardhatConfig } from "../../src";
+import { NodeCreatedEvent, getProviderUrlFromHardhatConfig } from "../../src";
 
 type TaskArgs = {
   tx: string;
@@ -180,7 +180,6 @@ const processFromOptimismRoot = async (
   //   L2MessageInclusionProof memory _proof -> taken from sdk
 
   // Determine if this is using bedrock or not
-  const isBedrock = protocolConfig.hub !== 1;
 
   // create the messenger
   const messenger = new CrossChainMessenger({
@@ -188,71 +187,45 @@ const processFromOptimismRoot = async (
     l2SignerOrProvider: spokeProvider,
     l1ChainId: protocolConfig.hub,
     l1SignerOrProvider: hubProvider,
-    bedrock: isBedrock,
+    bedrock: true,
   });
 
-  if (isBedrock) {
-    const status = await messenger.getMessageStatus(sendHash);
-    if (status !== MessageStatus.READY_TO_PROVE) {
-      throw new Error(`Optimism message status is not ready to prove: ${status}`);
-    }
-    // get the message
-    const resolved = await messenger.toCrossChainMessage(sendHash);
-    const {
-      messageNonce: nonce,
-      sender,
-      target,
-      value,
-      message: data,
-      minGasLimit: gasLimit,
-    } = await messenger.toLowLevelMessage(resolved);
-
-    // get the tx
-    const tx = {
-      nonce: nonce.toString(),
-      sender,
-      target,
-      value,
-      gasLimit,
-      data,
-    };
-    console.log("withdrawal tx", tx);
-
-    // get the proof
-    const proof = await messenger.getBedrockMessageProof(sendHash);
-    console.log("L2 message proof:", proof);
-    if (!proof) {
-      throw new Error(`no proof`);
-    }
-    const { l2OutputIndex, outputRootProof, withdrawalProof } = proof;
-
-    // Format arguments
-    return [tx, l2OutputIndex, outputRootProof, withdrawalProof];
+  const status = await messenger.getMessageStatus(sendHash);
+  if (status !== MessageStatus.READY_TO_PROVE) {
+    throw new Error(`Optimism message status is not ready to prove: ${status}`);
   }
+  // get the message
+  const resolved = await messenger.toCrossChainMessage(sendHash);
+  const {
+    messageNonce: nonce,
+    sender,
+    target,
+    value,
+    message: data,
+    minGasLimit: gasLimit,
+  } = await messenger.toLowLevelMessage(resolved);
 
-  // check to make sure you can prove
-  let root;
-  while (!root) {
-    root = await messenger.getMessageStateRoot(sendHash);
-    if (!root) {
-      console.log("no root yet, waiting so patiently");
-      await delay(2_000);
-    }
-  }
-  // const root = await messenger.getMessageStateRoot(sendHash);
-  // if (!root) {
-  //   throw new Error("Data not yet available on hub network");
-  // }
+  // get the tx
+  const tx = {
+    nonce: nonce.toString(),
+    sender,
+    target,
+    value,
+    gasLimit,
+    data,
+  };
+  console.log("withdrawal tx", tx);
 
-  // get the message to get the message nonce
-  const [message] = await messenger.getMessagesByTransaction(sendHash);
-  console.log("message", message);
-
-  // get the inclusion proof
-  const proof = await messenger.getMessageProof(sendHash);
+  // get the proof
+  const proof = await messenger.getBedrockMessageProof(sendHash);
   console.log("L2 message proof:", proof);
+  if (!proof) {
+    throw new Error(`no proof`);
+  }
+  const { l2OutputIndex, outputRootProof, withdrawalProof } = proof;
 
-  return [message.target, message.sender, message.message, message.messageNonce, proof];
+  // Format arguments
+  return [tx, l2OutputIndex, outputRootProof, withdrawalProof];
 };
 
 export default task("process-from-root", "Call `Connector.processFromRoot()` to process message")
@@ -288,6 +261,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       let method = "processFromRoot";
       switch (prefix) {
         case "Optimism":
+          method = "processMessageFromRoot";
           args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
           break;
         case "Arbitrum":

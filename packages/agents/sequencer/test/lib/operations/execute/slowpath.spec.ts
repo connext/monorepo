@@ -123,6 +123,7 @@ describe("Operations:Execute:SlowPath", () => {
     it("should throw if transfer doesn't exist", async () => {
       const mockTransferId = mkBytes32();
       getTransferStub.resolves(undefined);
+      getExecutorDataStub.resolves(mock.entity.executorData());
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.be.rejectedWith(
         MissingTransfer,
       );

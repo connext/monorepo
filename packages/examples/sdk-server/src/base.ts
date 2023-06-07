@@ -13,8 +13,19 @@ import {
 
 import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
 
-export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBase): Promise<any> => {
+interface BaseRoutesOptions {
+  sdkBaseInstance: SdkBase;
+  cacheConfig?: {
+    enabled?: boolean;
+    expirationTime?: number;
+  };
+}
+
+export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOptions): Promise<void> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkBaseInstance, cacheConfig } = options;
+
+  const CACHE_EXPIRATION_SECS = cacheConfig?.expirationTime || 300;
 
   s.post<{ Body: SdkXCallParams }>(
     "/xcall",
@@ -47,17 +58,35 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
         destinationNativeTokenPrice,
         destinationGasPrice,
       } = request.body;
-      const txReq = await sdkBaseInstance.estimateRelayerFee({
-        originDomain,
-        destinationDomain,
-        callDataGasAmount,
-        priceIn,
-        isHighPriority,
-        originNativeTokenPrice,
-        destinationNativeTokenPrice,
-        destinationGasPrice,
-      });
-      reply.status(200).send(txReq);
+
+      const handleEstimateRelayerFee = async () => {
+        return sdkBaseInstance.estimateRelayerFee({
+          originDomain,
+          destinationDomain,
+          callDataGasAmount,
+          priceIn,
+          isHighPriority,
+          originNativeTokenPrice,
+          destinationNativeTokenPrice,
+          destinationGasPrice,
+        });
+      };
+
+      if (cacheConfig?.enabled) {
+        const cacheKey = JSON.stringify(request.body);
+        const cachedFee = await server.redis.get(cacheKey);
+
+        if (cachedFee) {
+          reply.status(200).send({ fee: JSON.parse(cachedFee) });
+        } else {
+          const txReq = await handleEstimateRelayerFee();
+          await server.redis.set(cacheKey, JSON.stringify(txReq), "EX", CACHE_EXPIRATION_SECS);
+          reply.status(200).send(txReq);
+        }
+      } else {
+        const txReq = await handleEstimateRelayerFee();
+        reply.status(200).send(txReq);
+      }
     },
   );
 
