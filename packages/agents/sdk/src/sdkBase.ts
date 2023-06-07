@@ -170,6 +170,7 @@ export class SdkBase extends SdkShared {
       receiveLocal: _receiveLocal,
       wrapNativeOnOrigin,
       unwrapNativeOnDestination,
+      options,
     } = params;
     let { to, callData } = params;
 
@@ -216,7 +217,7 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const connextContractAddress = (await this.getConnext(origin)).address;
+    const connextContractAddress = (await this.getConnext(origin, options)).address;
 
     const chainId = await this.getChainId(origin);
 
@@ -400,7 +401,7 @@ export class SdkBase extends SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domainId, transferId, slippage: _newSlippage } = params;
+    const { domainId, transferId, slippage: _newSlippage, options } = params;
 
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
@@ -450,7 +451,7 @@ export class SdkBase extends SdkShared {
     }
 
     const chainId = await this.getChainId(domainId);
-    const ConnextContractAddress = (await this.getConnext(domainId)).address;
+    const ConnextContractAddress = (await this.getConnext(domainId, options)).address;
 
     const transferInfo = {
       originDomain: transfer.origin_domain,
@@ -516,7 +517,7 @@ export class SdkBase extends SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const { domainId, transferId, asset, relayerFee } = params;
+    const { domainId, transferId, asset, relayerFee, options } = params;
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
@@ -534,7 +535,7 @@ export class SdkBase extends SdkShared {
     }
 
     const chainId = await this.getChainId(domainId);
-    const ConnextContractAddress = (await this.getConnext(domainId)).address;
+    const ConnextContractAddress = (await this.getConnext(domainId, options)).address;
 
     // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = asset == constants.AddressZero ? BigNumber.from(relayerFee) : constants.Zero;

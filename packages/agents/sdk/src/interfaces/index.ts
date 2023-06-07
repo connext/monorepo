@@ -187,6 +187,13 @@ export type Transfer = {
 SDK Shared Types
 *************************************/
 
+export const OptionsSchema = Type.Object({
+  originProviderUrl: Type.String(),
+  destinationProviderUrl: Type.String(),
+  signerAddress: TAddress,
+});
+export type Options = Static<typeof OptionsSchema>;
+
 // getConversionRate
 export const SdkGetConversionRateParamsSchema = Type.Object({
   chainId: Type.Number(),
@@ -359,6 +366,7 @@ export const SdkXCallParamsSchema = Type.Object({
   receiveLocal: Type.Optional(Type.Boolean()),
   wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
   unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
 
@@ -368,6 +376,7 @@ export const SdkBumpTransferParamsSchema = Type.Object({
   transferId: Type.String(),
   asset: Type.String(),
   relayerFee: TIntegerString,
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
@@ -389,6 +398,7 @@ export const SdkUpdateSlippageParamsSchema = Type.Object({
   domainId: TIntegerString,
   transferId: Type.String(),
   slippage: TIntegerString,
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
 

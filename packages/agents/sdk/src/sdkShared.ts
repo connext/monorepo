@@ -14,7 +14,7 @@ import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/sma
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData, ConnextSupport } from "./interfaces";
+import { AssetData, ConnextSupport, Options } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
@@ -96,10 +96,12 @@ export class SdkShared {
    * @returns Connext Contract object.
    */
   getConnext = memoize(
-    async (domainId: string): Promise<Connext> => {
+    async (domainId: string, options?: Options): Promise<Connext> => {
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = await this.getProvider(domainId);
+      const provider = options?.originProviderUrl
+        ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+        : await this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -111,8 +113,10 @@ export class SdkShared {
    * @param domainId - The domain ID.
    * @returns ERC20 Contract object.
    */
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const provider = await this.getProvider(domainId);
+  async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    const provider = options?.originProviderUrl
+      ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+      : await this.getProvider(domainId);
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
@@ -193,6 +197,7 @@ export class SdkShared {
     assetId: string,
     amount: string,
     infiniteApprove = true,
+    options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
@@ -208,8 +213,8 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const connextContract = await this.getConnext(domainId);
-    const erc20Contract = await this.getERC20(domainId, assetId);
+    const connextContract = await this.getConnext(domainId, options);
+    const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
       const approved = await erc20Contract.allowance(signerAddress, connextContract.address);
