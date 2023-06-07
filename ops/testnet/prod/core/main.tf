@@ -325,19 +325,27 @@ module "lighthouse_prover_subscriber" {
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_lighthouse_prover_subscriber
-  container_family         = "lighthouse-prover"
+  container_family         = "lighthouse-prover-subscriber"
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 8192
-  memory                   = 16384
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover-subscriber" })
+  container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
+}
+module "lighthouse_prover_subscriber_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -493,6 +501,16 @@ module "relayer_cache" {
   stage                         = var.stage
   environment                   = var.environment
   family                        = "relayer"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
+}
+
+module "lighthouse_cache" {
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "lighthouse"
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
