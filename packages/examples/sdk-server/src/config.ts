@@ -84,8 +84,8 @@ export const getEnvConfig = (): SdkServerConfig => {
         configJson.redis?.expirationTime ||
         configFile.redis?.expirationTime ||
         CACHE_EXPIRATION_SECS,
-      host: process.env.SEQ_REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "localhost",
-      port: process.env.SEQ_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
+      host: process.env.SDK_SERVER_REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "localhost",
+      port: process.env.SDK_SERVER_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
     },
     server: {
       http: {

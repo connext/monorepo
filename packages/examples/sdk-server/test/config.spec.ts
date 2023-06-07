@@ -48,7 +48,7 @@ describe("Config", () => {
     it("should error if no config ", () => {
       stub(process, "env").value({
         ...process.env,
-        SEQ_NETWORK: "testnet",
+        SDK_SERVER_NETWORK: "testnet",
         SDK_SERVER_CONFIG: null,
         SDK_SERVER_CONFIG_FILE: "buggypath",
       });
