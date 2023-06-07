@@ -1,0 +1,12 @@
+{
+  "extends": "../../../.nycrc.json",
+  "exclude": [
+    "src/config.ts",
+    "src/context.ts",
+    "src/server.ts",
+    "src/index.ts",
+    "src/routes/**/*.ts",
+    "src/types/**/*.ts",
+    "test/**/*.ts"
+  ]
+}
