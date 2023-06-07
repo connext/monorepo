@@ -68,10 +68,6 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         SDK_SERVER_CONFIG_FILE: "buggypath",
-        SDK_SERVER_NETWORK: "testnet",
-        SDK_SERVER_CONFIG: JSON.stringify({
-          ...mock.config(),
-        }),
       });
       expect(() => getEnvConfig()).throw();
     });
