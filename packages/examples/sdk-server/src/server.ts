@@ -1,15 +1,13 @@
 import fastify, { FastifyInstance } from "fastify";
-import { createLoggingContext, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, getBestProvider } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk";
-import { getBestProvider } from "@connext/nxtp-utils";
 
 import { poolRoutes } from "./routes/pool";
 import { utilsRoutes } from "./routes/utils";
 import { routerRoutes } from "./routes/router";
 import { baseRoutes } from "./routes/base";
-
 import { SdkServerConfig, getConfig } from "./config";
 import { SdkServerContext } from "./context";
 
@@ -39,7 +37,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     const chains = context.config.chains;
     for (const key in chains) {
       const chain = chains[key];
-      const url = await getBestProvider(chain.providers as string[]);
+      const url = await getBestProvider(chain.providers);
       const provider = new ethers.providers.JsonRpcProvider(url);
       configuredProviders[key] = provider;
     }
