@@ -15,10 +15,12 @@ const mockDeployments = mock.contracts.deployments();
 describe("#SDKRouter", () => {
   let sdkRouter: SdkRouter;
   let config: ConfigFns.SdkConfig;
+  let axiosPostStub: SinonStub;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
   beforeEach(async () => {
+    axiosPostStub = stub(MockableFns, "axiosPost");
     chainreader = createStubInstance(ChainReader);
     config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
@@ -34,12 +36,6 @@ describe("#SDKRouter", () => {
   });
 
   describe("#addLiquidityForRouter", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-
     it("Happy: should return router liquidity", async () => {
       const params = {
         domainId: "1869640809",
@@ -61,15 +57,6 @@ describe("#SDKRouter", () => {
   });
 
   describe("#removeRouterLiquidity", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("Happy: should return remove Router data", async () => {
       const params = {
         domainId: "1869640809",
@@ -91,12 +78,6 @@ describe("#SDKRouter", () => {
   });
 
   describe("#removeRouterLiquidityFor", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-
     it("Happy: should return remove Router liquidity", async () => {
       const params = {
         domainId: "1869640809",

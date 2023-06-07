@@ -123,6 +123,15 @@ module "sdk-server" {
   domain                   = var.domain
 }
 
+module "sdk_server_cache" {
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "sdk-server"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
+}
 
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"

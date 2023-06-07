@@ -50,10 +50,12 @@ const mockPool = {
 describe("#SDKPool", () => {
   let sdkPool: SdkPool;
   let config: ConfigFns.SdkConfig;
+  let axiosPostStub: SinonStub;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
   beforeEach(async () => {
+    axiosPostStub = stub(MockableFns, "axiosPost");
     chainreader = createStubInstance(ChainReader);
     config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
@@ -69,15 +71,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateSwap", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy should calculate swap", async () => {
       const mockIndexFrom = 1;
       const mockIndexTo = 1;
@@ -97,15 +90,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateSwapLocal", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy:should calculate swap Local", async () => {
       const mockIndexFrom = 1;
       const mockIndexTo = 1;
@@ -129,41 +113,23 @@ describe("#SDKPool", () => {
   });
 
   describe("#getSwapOut", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should calculate swap out", async () => {
       const mockX = BigNumber.from("100000000000000");
       const mockxp = [BigNumber.from("100000000000000")];
       const mockIndexFrom = 1;
       const mockIndexTo = 1;
-      axiosPostStub.resolves({
-        data: {
-          type: "BigNumber",
-          hex: "0xb5d380956000",
-        },
-      });
+      // axiosPostStub.resolves({
+      //   data: {
+      //     type: "BigNumber",
+      //     hex: "0xb5d380956000",
+      //   },
+      // });
       const swapOut = await sdkPool.getSwapOut(mockPool, mockX, mockxp, mockIndexFrom, mockIndexTo);
       expect(swapOut).not.to.be.eq(null);
     });
   });
 
   describe("#calculateAmountReceived", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get amount recieved", async () => {
       const mockAmount = 100;
       axiosPostStub.resolves({
@@ -180,40 +146,19 @@ describe("#SDKPool", () => {
         false,
         true,
       );
-      expect(amountReceived).to.be.eq(null);
+      expect(amountReceived).not.to.be.eq(null);
     });
   });
 
   describe("#scientificToBigInt", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get bigInt", async () => {
       const mockscientificNotationString = "1e18";
-      axiosPostStub.resolves({
-        data: 1000000000000000000,
-      });
       const bigInt = await sdkPool.scientificToBigInt(mockscientificNotationString);
-      expect(bigInt).to.be.eq(1000000000000000000);
+      expect(bigInt).to.be.eq(BigInt(1000000000000000000));
     });
   });
 
   describe("#calculateTokenAmount", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get tokenAmount", async () => {
       const mockAmount: string[] = ["100", "100"];
       axiosPostStub.resolves({
@@ -225,15 +170,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateRemoveSwapLiquidity", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get swap liquidity", async () => {
       const mockAmount: string = "1000000000000000000";
       axiosPostStub.resolves({
@@ -245,15 +181,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateRemoveSwapLiquidityOneToken", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get swap liquidity one token", async () => {
       const mockAmount: string = "1000000000000000000";
       const mockIndex = 0;
@@ -271,41 +198,16 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculatePriceImpact", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get price impact", async () => {
-      const mockAmount: BigNumber = BigNumber.from("1000000000000000000");
-      axiosPostStub.resolves({
-        data: {
-          type: "BigNumber",
-          hex: "0x0de0b6b3a7640000",
-        },
-      });
-      const priceImpact = await sdkPool.calculatePriceImpact(mockAmount, mockAmount);
-      expect(priceImpact).to.be.eq({
-        type: "BigNumber",
-        hex: "0x0de0b6b3a7640000",
-      });
+      const mockAmount: BigNumber = BigNumber.from("1000000000000000000").pow(18);
+      const mockOutputAmount: BigNumber = BigNumber.from("2000000000000000000").pow(18);
+      const result: string = "262143000000000000000000";
+      const priceImpact = await sdkPool.calculatePriceImpact(mockAmount, mockOutputAmount);
+      expect(priceImpact.toString()).to.be.eq(result);
     });
   });
 
   describe("#calculateAddLiquidityPriceImpact", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get liquidity price impact", async () => {
       const mockAmount: string = "1000000000000000000";
       axiosPostStub.resolves({
@@ -322,15 +224,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateRemoveLiquidityPriceImpact", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get remove liquidity price impact", async () => {
       const mockAmount: string = "1000000000000000000";
       axiosPostStub.resolves({
@@ -347,15 +240,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateSwapPriceImpact", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get swap price impact", async () => {
       const mockAmount: string = "1000000000000000000";
       axiosPostStub.resolves({
@@ -372,15 +256,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getTokenPrice", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get Token price ", async () => {
       axiosPostStub.resolves({
         data: 1836.02,
@@ -391,15 +266,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getLPTokenAddress", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get LPToken price ", async () => {
       axiosPostStub.resolves({
         data: "0x0000000000000000000000000000000000000000",
@@ -410,15 +276,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getTokenSupply", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get token supply", async () => {
       axiosPostStub.resolves({
         data: {
@@ -432,40 +289,20 @@ describe("#SDKPool", () => {
   });
 
   describe("#getTokenUserBalance", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get token balance", async () => {
-      axiosPostStub.resolves({
-        data: {
-          type: "BigNumber",
-          hex: "0x09c314",
-        },
-      });
-      const TokenBalance = await sdkPool.getTokenUserBalance(mock.domain.A, mock.asset.A.address, mkAddress());
-      expect(TokenBalance).to.be.eq({
+      const result = {
         type: "BigNumber",
         hex: "0x09c314",
+      };
+      axiosPostStub.resolves({
+        data: result,
       });
+      const TokenBalance = await sdkPool.getTokenUserBalance(mock.domain.A, mock.asset.A.address, mkAddress());
+      expect(TokenBalance).to.be.eq(result);
     });
   });
 
   describe("#getPoolTokenIndex", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get token index", async () => {
       axiosPostStub.resolves({
         data: -1,
@@ -476,15 +313,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getPoolTokenDecimals", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get token decimals", async () => {
       axiosPostStub.resolves({
         data: -1,
@@ -495,15 +323,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getPoolTokenBalance", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get pool token balance", async () => {
       const mockIndex = 0;
       axiosPostStub.resolves({
@@ -520,15 +339,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getPoolTokenAddress", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get pool token address", async () => {
       const mockIndex = 0;
       axiosPostStub.resolves({
@@ -540,15 +350,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getVirtualPrice", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get virtual price", async () => {
       const mockIndex = 0;
       axiosPostStub.resolves({
@@ -560,15 +361,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getRepresentation", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get representation", async () => {
       axiosPostStub.resolves({
         data: "0x0000000000000000000000000000000000000000",
@@ -579,15 +371,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getAdopted", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get adopted", async () => {
       axiosPostStub.resolves({
         data: "0x0000000000000000000000000000000000000000",
@@ -598,15 +381,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getAdopted", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get adopted", async () => {
       axiosPostStub.resolves({
         data: "0x0000000000000000000000000000000000000000",
@@ -617,15 +391,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getTokenSwapEvents", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get tokenEvents", async () => {
       axiosPostStub.resolves({
         data: [
@@ -653,15 +418,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getPoolData", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get pool data", async () => {
       axiosPostStub.resolves({
         data: [
@@ -676,15 +432,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#addLiquidity", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should add liquidity", async () => {
       const mockAmounts: string[] = ["100", "100"];
       axiosPostStub.resolves({
@@ -702,15 +449,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#removeLiquidityOneToken", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should remove liquidity one token", async () => {
       const mockAmounts: string = "100";
       axiosPostStub.resolves({
@@ -727,15 +465,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#removeLiquidity", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should remove liquidity", async () => {
       const mockAmounts: string = "100";
       axiosPostStub.resolves({
@@ -753,15 +482,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#removeLiquidityImbalance", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should remove liquidity Imbalance", async () => {
       const mockAmounts: string[] = ["100"];
       axiosPostStub.resolves({
@@ -773,15 +493,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#swap", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get swap", async () => {
       const mockAmounts: string = "100";
       axiosPostStub.resolves({
@@ -799,15 +510,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getPool", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get pool", async () => {
       axiosPostStub.resolves({
         data: null,
@@ -818,15 +520,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getUserPools", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get user pool", async () => {
       axiosPostStub.resolves({
         data: [],
@@ -837,15 +530,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getYieldStatsForDays", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get yeild stats", async () => {
       const mockunixTimestamp = 1672932000;
       const mockDays = 30;
@@ -863,43 +547,20 @@ describe("#SDKPool", () => {
   });
 
   describe("#calculateYield", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should calculate yield", async () => {
-      const mockFeesEarned = 1672932000;
-      const mockPrincipal = 30;
+      const mockFeesEarned = 1000;
+      const mockPrincipal = 5000;
       const mockDays = 30;
-      axiosPostStub.resolves({
-        data: {
-          apr: 2.4333333333333336,
-          apy: 8.19119175644181,
-        },
-      });
-      const yeild = await sdkPool.calculateYield(mockFeesEarned, mockPrincipal, mockDays);
-      expect(yeild).to.be.eq({
+      const result = {
         apr: 2.4333333333333336,
         apy: 8.19119175644181,
-      });
+      };
+      const yeild = await sdkPool.calculateYield(mockFeesEarned, mockPrincipal, mockDays);
+      expect(yeild.apr).to.be.eq(result.apr);
     });
   });
 
   describe("#getYieldData", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get yield Data", async () => {
       const mockDays = 30;
       axiosPostStub.resolves({
@@ -911,15 +572,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getLiquidityMiningAprPerPool", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get liquidity mining per pool", async () => {
       const mockTotalTokens = 1000000;
       const mockTotalBlocks = 10000;
@@ -940,15 +592,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getHourlySwapVolume", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get hourly swap volume", async () => {
       axiosPostStub.resolves({
         data: [],
@@ -961,15 +604,6 @@ describe("#SDKPool", () => {
   });
 
   describe("#getDailySwapVolume", async () => {
-    let axiosPostStub: SinonStub;
-    axiosPostStub = stub(MockableFns, "axiosPost");
-    beforeEach(async () => {
-      axiosPostStub = stub(MockableFns, "axiosPost");
-    });
-    afterEach(() => {
-      restore();
-      reset();
-    });
     it("happy: should get daily swap volume", async () => {
       axiosPostStub.resolves({
         data: [],

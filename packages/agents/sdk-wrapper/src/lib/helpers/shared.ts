@@ -10,8 +10,8 @@ import {
   getGelatoEstimatedFee as _getGelatoEstimatedFee,
   getHardcodedGasLimits as _getHardcodedGasLimits,
   calculateRelayerFee as _calculateRelayerFee,
-  axiosGet,
 } from "@connext/nxtp-utils";
+import { axiosGet } from "../../mockable";
 import { providers } from "ethers";
 
 import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/index";

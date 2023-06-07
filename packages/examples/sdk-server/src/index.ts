@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
+import { fastifyRedis } from "@fastify/redis";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk-core";
 import { getBestProvider } from "@connext/nxtp-utils";
@@ -15,7 +16,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
 
   // Initialize SDK
-
   let configJson: Record<string, any> = {};
 
   try {
@@ -23,16 +23,19 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   } catch (e: unknown) {
     console.info("No NXTP_CONFIG exists, using config file and individual env vars");
   }
-  try {
-    let json: string;
-    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
-    if (fs.existsSync(path)) {
-      json = fs.readFileSync(path, { encoding: "utf-8" });
-      configJson = JSON.parse(json);
+
+  if (Object.keys(configJson).length === 0) {
+    try {
+      const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+      if (fs.existsSync(path)) {
+        const json = fs.readFileSync(path, { encoding: "utf-8" });
+        configJson = JSON.parse(json);
+        console.info("Using config file");
+      }
+    } catch (e: unknown) {
+      console.error("Error reading config file!");
+      process.exit(1);
     }
-  } catch (e: unknown) {
-    console.error("Error reading config file!");
-    process.exit(1);
   }
 
   const signer = ethers.Wallet.createRandom();
@@ -58,8 +61,15 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
 
   const { sdkShared, sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
-  // Register routes
+  // Register Redis plugin if enabled
+  if (configJson.cache?.enabled) {
+    server.register(fastifyRedis, {
+      host: configJson.cache?.host || "localhost",
+      port: configJson.cache?.port || 6379,
+    });
+  }
 
+  // Register routes
   server.get("/ping", async (_, reply) => {
     return reply.status(200).send("pong\n");
   });
@@ -76,13 +86,12 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     reply.status(200).send(txRec);
   });
 
-  server.register(sharedRoutes, sdkShared);
-  server.register(baseRoutes, sdkBase);
+  server.register(baseRoutes, { sdkBaseInstance: sdkBase, cacheConfig: configJson.cache });
   server.register(poolRoutes, sdkPool);
   server.register(utilsRoutes, sdkUtils);
   server.register(routerRoutes, sdkRouter);
 
-  server.listen(8080, (err, address) => {
+  server.listen({ port: 8080 }, (err, address) => {
     if (err) {
       console.error(err);
       process.exit(1);
