@@ -325,8 +325,8 @@ export const rootMessage = (entity: any): RootMessage => {
     id: entity.id,
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
-    // root will be final 32 if not in
-    root: isValidBytes32(entity.root) ? entity.root : "0x" + entity.root.slice(-64),
+    // root will be final 32 if not 32 bytes
+    root: isValidBytes32(entity.root) ? entity.root : `0x${entity.root.slice(-64)}`,
     caller: entity.caller,
     transactionHash: entity.transactionHash,
     timestamp: entity.timestamp,
