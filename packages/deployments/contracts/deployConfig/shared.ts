@@ -331,9 +331,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            // TODO: should be updated to mainnet
-            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
-            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
+            // https://etherscan.io/address/0xbEb5Fc579115071764c7423A4f12eDde41f106Ed#code
+            optimismPortal: "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed",
             gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
