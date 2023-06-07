@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
+
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 import {IOptimismPortal} from "../../interfaces/ambs/optimism/IOptimismPortal.sol";
@@ -13,6 +15,10 @@ import {Types} from "./lib/Types.sol";
 import {BaseOptimism} from "./BaseOptimism.sol";
 
 contract OptimismHubConnector is HubConnector, BaseOptimism {
+  // ============ Libraries ============
+  using TypedMemView for bytes;
+  using TypedMemView for bytes29;
+
   // ============ Storage ============
   IOptimismPortal public immutable OPTIMISM_PORTAL;
 
@@ -79,9 +85,11 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     require(_target == address(this), "!target");
 
     // get the data
-    // _message = abi.encodePacked(bytes32(root))
-    require(_message.length == 32, "!length");
-    bytes32 root = bytes32(_message);
+    require(_message.length == 100, "!length");
+
+    // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
+    bytes29 _view = _message.ref(0);
+    bytes32 root = _view.index(_view.len() - 32, 32);
 
     require(!processed[root], "processed");
     // set root to processed
