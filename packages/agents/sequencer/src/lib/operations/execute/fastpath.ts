@@ -206,7 +206,7 @@ export const executeFastPathData = async (
 
     // Try to resolve it by rehydrating from the subgraph
     // Get the XCall from the subgraph for this transfer.
-    transfer = (await subgraph.getOriginTransferById(origin, transferId));
+    transfer = await subgraph.getOriginTransferById(origin, transferId);
     if (!transfer || !transfer.origin) {
       // Router shouldn't be bidding on a transfer that doesn't exist.
       throw new MissingXCall(origin, transferId, {

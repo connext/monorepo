@@ -38,6 +38,14 @@ export const bindSubscriber = async (queueName: string, channel: Broker.Channel)
 
           if (taskId) {
             await updateTask(transferId, messageType);
+          } else {
+            // Current execution failed without taskId or error
+            // Should reset status to allow future attempts
+            if (messageType === MessageType.ExecuteFast) {
+              await cache.auctions.setExecStatus(transferId, ExecStatus.None);
+            } else {
+              await cache.executors.setExecStatus(transferId, ExecStatus.None);
+            }
           }
           channel.ack(consumeMessage);
         } catch (error: any) {
