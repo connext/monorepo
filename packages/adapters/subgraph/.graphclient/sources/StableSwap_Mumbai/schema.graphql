@@ -28,6 +28,12 @@ input mumbai_swap_Block_height {
 
 scalar mumbai_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar mumbai_swap_Int8
+
 type mumbai_swap_LpAccount {
   id: ID!
   address: mumbai_swap_Bytes!

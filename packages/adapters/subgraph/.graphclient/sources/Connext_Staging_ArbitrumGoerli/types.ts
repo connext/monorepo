@@ -19,6 +19,7 @@ export type Scalars = {
   stagingarbitrumgoerli_BigDecimal: any;
   BigInt: any;
   stagingarbitrumgoerli_Bytes: any;
+  stagingarbitrumgoerli_Int8: any;
 };
 
 export type stagingarbitrumgoerli_AggregateRoot = {
