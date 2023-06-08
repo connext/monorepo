@@ -33,7 +33,7 @@ import {
   getTokenSwapEventsSchema,
   getHourlySwapVolumeSchema,
   getDailySwapVolumeSchema,
-} from "./types/api";
+} from "../types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();

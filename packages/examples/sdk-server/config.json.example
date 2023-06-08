@@ -13,7 +13,7 @@
   "logLevel": "debug",
   "environment": "production",
   "network": "testnet",
-  "cache": {
+  "redis": {
     "enabled": true,
     "expirationTime": 10,
     "host": "localhost",

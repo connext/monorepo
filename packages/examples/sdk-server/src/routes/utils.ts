@@ -2,7 +2,7 @@ import { SdkUtils } from "@connext/sdk";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
-import { getTransfersSchema, getRoutersDataSchema, checkRouterLiquiditySchema } from "./types/api";
+import { getTransfersSchema, getRoutersDataSchema, checkRouterLiquiditySchema } from "../types/api";
 
 export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: SdkUtils): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();

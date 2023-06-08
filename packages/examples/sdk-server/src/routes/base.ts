@@ -11,7 +11,7 @@ import {
   SdkCalculateAmountReceivedParamsSchema,
 } from "@connext/sdk";
 
-import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
+import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "../types/api";
 
 interface BaseRoutesOptions {
   sdkBaseInstance: SdkBase;
