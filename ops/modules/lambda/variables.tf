@@ -61,6 +61,11 @@ variable "public_subnets" {
   default = []
 }
 
+variable "private_subnets" {
+  type    = list(string)
+  default = []
+}
+
 variable "lambda_security_groups" {
   type    = list(string)
   default = []

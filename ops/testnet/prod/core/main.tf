@@ -309,6 +309,7 @@ module "lighthouse_prover_cron" {
   timeout                = 900
   memory_size            = 10240
   lambda_in_vpc          = true
+  private_subnets        = module.network.private_subnets
   public_subnets         = module.network.public_subnets
   lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 
