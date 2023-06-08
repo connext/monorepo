@@ -51,6 +51,10 @@ resource "aws_lambda_function" "executable" {
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }
+  vpc_config {
+    subnet_ids         = module.network.public_subnets
+    security_group_ids = [module.network.allow_all_sg, module.network.ecs_task_sg]
+  }
 }
 
 resource "aws_lambda_permission" "allow_events_bridge_to_run_lambda" {
@@ -72,4 +76,27 @@ resource "aws_cloudwatch_event_target" "trigger_lambda_on_schedule" {
   rule      = aws_cloudwatch_event_rule.event_rule.name
   target_id = "lambda"
   arn       = aws_lambda_function.executable.arn
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc_access_execution" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+module "network" {
+  source      = "../../modules/networking"
+  stage       = var.stage
+  environment = var.environment
+  domain      = var.domain
+  cidr_block  = var.cidr_block
+}
+
+module "sgs" {
+  source         = "../../modules/sgs/core"
+  environment    = var.environment
+  stage          = var.stage
+  domain         = var.domain
+  ecs_task_sg_id = module.network.ecs_task_sg
+  vpc_cdir_block = module.network.vpc_cdir_block
+  vpc_id         = module.network.vpc_id
 }

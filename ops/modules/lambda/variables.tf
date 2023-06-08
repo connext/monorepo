@@ -41,3 +41,12 @@ variable "memory_size" {
   description = "memory size for lambda"
   default     = 10240
 }
+
+variable "cidr_block" {
+  default = "172.17.0.0/16"
+}
+
+variable "domain" {
+  description = "domain of deployment"
+  default     = "core"
+}
