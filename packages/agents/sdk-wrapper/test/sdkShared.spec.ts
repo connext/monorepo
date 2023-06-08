@@ -243,50 +243,78 @@ describe("#SDKShared", () => {
 
   describe("#getAssetsWithSameCanonical", async () => {
     it("Happy: should return asset", async () => {
+      const result = {
+        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        canonical_domain: "6648936",
+        domain: "1869640809",
+        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
+        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        decimal: 6,
+      };
       axiosGetStub.resolves({
-        data: null,
+        data: result,
       });
       const asset = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
-      expect(asset).to.be.eq(null);
+      expect(asset).to.be.eq(result);
     });
   });
 
   describe("#getAssetsDataByDomainAndKey", async () => {
     it("Happy: should return asset", async () => {
+      const mockAssetData = {
+        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        canonical_domain: "6648936",
+        domain: "1869640809",
+        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
+        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        decimal: 6,
+      };
       axiosGetStub.resolves({
-        data: null,
+        data: mockAssetData,
       });
       const asset = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mock.asset.A.address);
-      expect(asset).to.be.eq(null);
+      expect(asset).to.be.eq(mockAssetData);
     });
   });
 
   describe("#isNextAsset", async () => {
     it("Happy: should return isNextAsset", async () => {
       axiosGetStub.resolves({
-        data: null,
+        data: true,
       });
       const isNextAsset = await sdkShared.isNextAsset(mock.domain.A, mock.asset.A.address);
-      expect(isNextAsset).to.be.eq(null);
+      expect(isNextAsset).to.be.eq(true);
+      expect(isNextAsset).not.to.be.undefined;
     });
   });
 
   describe("#changeSignerAddress", async () => {
     it("Happy: should return changeSigner", async () => {
+      const asset = {
+        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        canonical_domain: "6648936",
+        domain: "1869640809",
+        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
+        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
+        decimal: 6,
+      };
       axiosGetStub.resolves({
-        data: null,
+        data: asset,
       });
       const changeSignerAddress = await sdkShared.changeSignerAddress(mkAddress());
-      expect(changeSignerAddress).to.be.eq(null);
+      expect(changeSignerAddress).to.be.eq(asset);
+      expect(changeSignerAddress).not.to.be.null;
     });
   });
 
   describe("#parseConnextTransactionReceipt", async () => {
     it("Happy: should return parseConnextTransactionReceipt", async () => {
-      axiosPostStub.resolves({
-        data: null,
-      });
-
       const mockTransactionRecipt: providers.TransactionReceipt = {
         to: "0x0000000000000000000000000000000000000000",
         from: "0x0000000000000000000000000000000000000000",
@@ -304,8 +332,11 @@ describe("#SDKShared", () => {
         byzantium: true,
         type: 1,
       };
+      axiosPostStub.resolves({
+        data: [mockTransactionRecipt],
+      });
       const parsedData = await sdkShared.parseConnextTransactionReceipt(mockTransactionRecipt);
-      expect(parsedData).to.be.eq(null);
+      expect(parsedData[0].to).to.be.eq("0x0000000000000000000000000000000000000000");
     });
   });
 

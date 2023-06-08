@@ -10,6 +10,7 @@ import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
 import { routerRoutes } from "./router";
+import { sharedRoutes } from "./shared";
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -58,7 +59,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter, sdkShared } = await create(nxtpConfig);
 
   // Register Redis plugin if enabled
   if (configJson.cache?.enabled) {
@@ -89,6 +90,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
   server.register(poolRoutes, sdkPool);
   server.register(utilsRoutes, sdkUtils);
   server.register(routerRoutes, sdkRouter);
+  server.register(sharedRoutes, sdkShared);
 
   server.listen({ port: 8080 }, (err, address) => {
     if (err) {

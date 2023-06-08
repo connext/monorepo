@@ -6,6 +6,7 @@ import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";
 import { SdkUtils } from "../src/sdkUtils";
 import { SdkPool } from "../src/sdkPool";
+import * as MockableFns from "../src/mockable";
 
 import * as ConfigFns from "@connext/sdk-core/src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -23,13 +24,14 @@ describe("SdkBase", () => {
   let sdkUtils: SdkUtils;
   let sdkPool: SdkPool;
   let config: ConfigFns.SdkConfig;
+  let axiosPostStub: SinonStub;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
 
   beforeEach(async () => {
     chainreader = createStubInstance(ChainReader);
     config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
-
+    axiosPostStub = stub(MockableFns, "axiosPost");
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "domainToChainId").returns(chainId);
     stub(SharedFns, "axiosGetRequest").resolves([]);
@@ -59,58 +61,61 @@ describe("SdkBase", () => {
     });
   });
 
-  //   describe("#xcall", () => {
-  //     let getConversionRateStub: SinonStub;
-  //     let getDecimalsForAssetStub: SinonStub;
-  //     let getHardcodedGasLimitsStub: SinonStub;
-  //     let relayerFee = BigNumber.from("1");
+  describe("#xcall", () => {
+    let getConversionRateStub: SinonStub;
+    let getDecimalsForAssetStub: SinonStub;
+    let getHardcodedGasLimitsStub: SinonStub;
+    let relayerFee = BigNumber.from("1");
 
-  //     const mockXCallArgs = mock.entity.xcallArgs();
-  //     const standardXCallData: string = getConnextInterface().encodeFunctionData(
-  //       "xcall(uint32,address,address,address,uint256,uint256,bytes)",
-  //       [
-  //         mockXCallArgs.destination,
-  //         mockXCallArgs.to,
-  //         mockXCallArgs.asset,
-  //         mockXCallArgs.delegate,
-  //         mockXCallArgs.amount,
-  //         mockXCallArgs.slippage,
-  //         mockXCallArgs.callData,
-  //       ],
-  //     );
+    const mockXCallArgs = mock.entity.xcallArgs();
+    const standardXCallData: string = getConnextInterface().encodeFunctionData(
+      "xcall(uint32,address,address,address,uint256,uint256,bytes)",
+      [
+        mockXCallArgs.destination,
+        mockXCallArgs.to,
+        mockXCallArgs.asset,
+        mockXCallArgs.delegate,
+        mockXCallArgs.amount,
+        mockXCallArgs.slippage,
+        mockXCallArgs.callData,
+      ],
+    );
 
-  //     const mockXCallRequest: providers.TransactionRequest = {
-  //       to: mockConnextAddress,
-  //       data: standardXCallData,
-  //       from: mock.config().signerAddress,
-  //       value: relayerFee,
-  //       chainId,
-  //     };
+    const mockXCallRequest: providers.TransactionRequest = {
+      to: mockConnextAddress,
+      data: standardXCallData,
+      from: mock.config().signerAddress,
+      value: relayerFee,
+      chainId,
+    };
 
-  //     const origin = mock.entity.callParams().originDomain;
-  //     const sdkXCallArgs: SdkXCallParams = {
-  //       ...mock.entity.xcallArgs(),
-  //       origin,
-  //       relayerFee: relayerFee.toString(),
-  //       receiveLocal: false,
-  //       wrapNativeOnOrigin: false,
-  //       unwrapNativeOnDestination: false,
-  //     };
+    const origin = mock.entity.callParams().originDomain;
+    const sdkXCallArgs: SdkXCallParams = {
+      ...mock.entity.xcallArgs(),
+      origin,
+      relayerFee: relayerFee.toString(),
+      receiveLocal: false,
+      wrapNativeOnOrigin: false,
+      unwrapNativeOnDestination: false,
+    };
 
-  //     beforeEach(() => {
-  //       getConversionRateStub = stub(SharedFns, "getConversionRate");
-  //       getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
-  //       getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
-  //     });
+    beforeEach(() => {
+      getConversionRateStub = stub(SharedFns, "getConversionRate");
+      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
+      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+    });
 
-  //     afterEach(() => {
-  //       restore();
-  //       reset();
-  //     });
+    afterEach(() => {
+      restore();
+      reset();
+    });
 
-  //     it("happy: should work if ERC20", async () => {
-  //       const res = await sdkBase.xcall(sdkXCallArgs);
-  //       expect(res).to.be.deep.eq(mockXCallRequest);
-  //     });
-  //   });
+    it("happy: should work if ERC20", async () => {
+      axiosPostStub.resolves({
+        data: mockXCallRequest,
+      });
+      const res = await sdkBase.xcall(sdkXCallArgs);
+      expect(res).to.be.deep.eq(mockXCallRequest);
+    });
+  });
 });
