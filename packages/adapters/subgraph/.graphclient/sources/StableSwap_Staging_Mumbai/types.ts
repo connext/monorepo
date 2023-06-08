@@ -19,6 +19,7 @@ export type Scalars = {
   stagingmumbai_swap_BigDecimal: any;
   BigInt: any;
   stagingmumbai_swap_Bytes: any;
+  stagingmumbai_swap_Int8: any;
 };
 
 export type stagingmumbai_swap_BlockChangedFilter = {

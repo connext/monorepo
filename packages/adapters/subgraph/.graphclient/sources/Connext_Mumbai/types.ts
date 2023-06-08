@@ -19,6 +19,7 @@ export type Scalars = {
   mumbai_BigDecimal: any;
   BigInt: any;
   mumbai_Bytes: any;
+  mumbai_Int8: any;
 };
 
 export type mumbai_AggregateRoot = {

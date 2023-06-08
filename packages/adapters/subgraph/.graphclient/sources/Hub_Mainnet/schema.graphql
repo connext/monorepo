@@ -320,6 +320,12 @@ enum mainnet_GnosisConnectorMeta_orderBy {
   mirrorConnector
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar mainnet_Int8
+
 type mainnet_OptimismConnectorMeta {
   id: ID!
   spokeDomain: BigInt!

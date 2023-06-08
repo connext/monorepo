@@ -19,6 +19,7 @@ export type Scalars = {
   arbitrumgoerli_BigDecimal: any;
   BigInt: any;
   arbitrumgoerli_Bytes: any;
+  arbitrumgoerli_Int8: any;
 };
 
 export type arbitrumgoerli_AggregateRoot = {

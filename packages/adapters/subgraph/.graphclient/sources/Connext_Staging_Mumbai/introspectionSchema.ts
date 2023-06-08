@@ -12277,6 +12277,19 @@ const schemaAST = {
       "directives": []
     },
     {
+      "kind": "ScalarTypeDefinition",
+      "description": {
+        "kind": "StringValue",
+        "value": "8 bytes signed integer\n",
+        "block": true
+      },
+      "name": {
+        "kind": "Name",
+        "value": "Int8"
+      },
+      "directives": []
+    },
+    {
       "kind": "EnumTypeDefinition",
       "description": {
         "kind": "StringValue",

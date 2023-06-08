@@ -320,6 +320,12 @@ enum staginggoerli_GnosisConnectorMeta_orderBy {
   mirrorConnector
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar staginggoerli_Int8
+
 type staginggoerli_OptimismConnectorMeta {
   id: ID!
   spokeDomain: BigInt!
