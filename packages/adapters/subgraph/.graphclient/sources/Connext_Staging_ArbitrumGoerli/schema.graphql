@@ -849,6 +849,12 @@ enum stagingarbitrumgoerli_DestinationTransfer_orderBy {
   reconciledTxOrigin
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar stagingarbitrumgoerli_Int8
+
 """Defines the order direction, either ascending or descending"""
 enum stagingarbitrumgoerli_OrderDirection {
   asc

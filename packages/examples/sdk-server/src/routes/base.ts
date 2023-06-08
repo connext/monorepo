@@ -89,19 +89,6 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
     },
   );
 
-  s.post<{ Body: SdkUpdateSlippageParams }>(
-    "/updateSlippage",
-    {
-      schema: {
-        body: SdkUpdateSlippageParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const txReq = await sdkBaseInstance.updateSlippage(request.body);
-      reply.status(200).send(txReq);
-    },
-  );
-
   s.post(
     "/bumpTransfer",
     {
@@ -111,6 +98,19 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
     },
     async (request, reply) => {
       const txReq = await sdkBaseInstance.bumpTransfer(request.body);
+      reply.status(200).send(txReq);
+    },
+  );
+
+  s.post<{ Body: SdkUpdateSlippageParams }>(
+    "/updateSlippage",
+    {
+      schema: {
+        body: SdkUpdateSlippageParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const txReq = await sdkBaseInstance.updateSlippage(request.body);
       reply.status(200).send(txReq);
     },
   );

@@ -19,6 +19,7 @@ export type Scalars = {
   xdai_BigDecimal: any;
   BigInt: any;
   xdai_Bytes: any;
+  xdai_Int8: any;
 };
 
 export type xdai_AggregateRoot = {

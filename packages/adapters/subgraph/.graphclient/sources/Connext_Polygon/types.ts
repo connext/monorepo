@@ -19,6 +19,7 @@ export type Scalars = {
   polygon_BigDecimal: any;
   BigInt: any;
   polygon_Bytes: any;
+  polygon_Int8: any;
 };
 
 export type polygon_AggregateRoot = {

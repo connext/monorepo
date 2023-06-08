@@ -597,6 +597,12 @@ enum local1338_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar local1338_Int8
+
 """Defines the order direction, either ascending or descending"""
 enum local1338_OrderDirection {
   asc
