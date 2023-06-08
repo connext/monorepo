@@ -51,9 +51,13 @@ resource "aws_lambda_function" "executable" {
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }
-  vpc_config {
-    subnet_ids         = module.network.public_subnets
-    security_group_ids = [module.network.allow_all_sg, module.network.ecs_task_sg]
+
+  dynamic "vpc_config" {
+    for_each = var.lambda_in_vpc ? [1] : []
+    content {
+      subnet_ids         = var.public_subnets
+      security_group_ids = var.lambda_security_groups
+    }
   }
 }
 
@@ -83,20 +87,3 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-module "network" {
-  source      = "../../modules/networking"
-  stage       = var.stage
-  environment = var.environment
-  domain      = var.domain
-  cidr_block  = var.cidr_block
-}
-
-module "sgs" {
-  source         = "../../modules/sgs/core"
-  environment    = var.environment
-  stage          = var.stage
-  domain         = var.domain
-  ecs_task_sg_id = module.network.ecs_task_sg
-  vpc_cdir_block = module.network.vpc_cdir_block
-  vpc_id         = module.network.vpc_id
-}

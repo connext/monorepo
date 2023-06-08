@@ -50,3 +50,18 @@ variable "domain" {
   description = "domain of deployment"
   default     = "core"
 }
+
+variable "lambda_in_vpc" {
+  description = "whether or not to run lambda in vpc"
+  default     = false
+}
+
+variable "public_subnets" {
+  type    = list(string)
+  default = []
+}
+
+variable "lambda_security_groups" {
+  type    = list(string)
+  default = []
+}

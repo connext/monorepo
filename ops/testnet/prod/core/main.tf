@@ -305,9 +305,13 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression = "rate(5 minutes)"
-  timeout             = 900
-  memory_size         = 10240
+  schedule_expression    = "rate(5 minutes)"
+  timeout                = 900
+  memory_size            = 10240
+  lambda_in_vpc          = true
+  public_subnets         = module.network.public_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+
 }
 
 module "lighthouse_prover_subscriber" {
