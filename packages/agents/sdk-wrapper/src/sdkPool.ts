@@ -580,7 +580,7 @@ export class SdkPool extends SdkShared {
     return { apr, apy };
   }
 
-  async getYieldData(domainId: string, tokenAddress: string, days: number = 1) {
+  async getYieldData(domainId: string, tokenAddress: string, days = 1) {
     const params = {
       domainId,
       tokenAddress,
