@@ -6,11 +6,11 @@ import {
   chainIdToDomain as _chainIdToDomain,
   domainToChainId as _domainToChainId,
 } from "@connext/nxtp-utils";
-import { axiosPost, axiosGet } from "./mockable";
 import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
 
+import { axiosPost, axiosGet } from "./mockable";
 
 export class SdkShared {
   readonly config: SdkConfig;
@@ -19,7 +19,7 @@ export class SdkShared {
   protected readonly chainreader: ChainReader;
   protected readonly logger: Logger;
 
-  protected readonly baseUri = "localhost:8080"; // TODO: replace with SDK server uri based on env
+  readonly baseUri = "localhost:8080"; // TODO: replace with SDK server uri based on env
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;

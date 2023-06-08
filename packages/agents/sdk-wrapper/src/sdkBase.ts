@@ -1,5 +1,4 @@
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
-import { axiosPost } from "./mockable";
 import { providers, BigNumber, BigNumberish } from "ethers";
 import {
   SdkConfig,
@@ -9,6 +8,7 @@ import {
   SdkEstimateRelayerFeeParams,
 } from "@connext/sdk-core";
 
+import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 
 export class SdkBase extends SdkShared {

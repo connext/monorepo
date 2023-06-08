@@ -1,9 +1,9 @@
 import { providers } from "ethers";
 import { Logger, ChainData } from "@connext/nxtp-utils";
-import { axiosPost } from "./mockable";
-
-import { SdkShared } from "./sdkShared";
 import { SdkConfig } from "@connext/sdk-core";
+
+import { axiosPost } from "./mockable";
+import { SdkShared } from "./sdkShared";
 
 /**
  * @classdesc Class that wraps all async SdkRouter functions with requests to hosted server.
