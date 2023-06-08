@@ -1,6 +1,5 @@
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-
 import {
   SdkPool,
   SdkCalculateSwapParamsSchema,
@@ -120,7 +119,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
             ...requestBody.pool.adopted,
             balance: BigNumber.from(requestBody.pool.adopted.balance),
           },
-          balances: requestBody.pool.balances.map(BigNumber.from),
+          balances: requestBody.pool.balances.map((balance) => BigNumber.from(balance)),
           decimals: requestBody.pool.decimals,
           invariant: BigNumber.from(requestBody.pool.invariant),
           initialA: BigNumber.from(requestBody.pool.initialA),
@@ -169,7 +168,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
             ...requestBody.pool.adopted,
             balance: BigNumber.from(requestBody.pool.adopted.balance),
           },
-          balances: requestBody.pool.balances.map(BigNumber.from),
+          balances: requestBody.pool.balances.map((balance) => BigNumber.from(balance)),
           decimals: requestBody.pool.decimals,
           invariant: BigNumber.from(requestBody.pool.invariant),
           initialA: BigNumber.from(requestBody.pool.initialA),
@@ -179,12 +178,12 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
           adminFee: requestBody.pool.adminFee,
         },
         x: BigNumber.from(requestBody.x),
-        xp: requestBody.xp.map(BigNumber.from),
+        xp: requestBody.xp.map((balance) => BigNumber.from(balance)),
         tokenIndexFrom: requestBody.tokenIndexFrom ?? 0,
         tokenIndexTo: requestBody.tokenIndexTo ?? 1,
       };
 
-      const res = await sdkPoolInstance.getSwapOut(
+      const res = sdkPoolInstance.getSwapOut(
         params.pool,
         params.x,
         params.xp,
@@ -628,7 +627,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
     },
     async (request, reply) => {
       const { feesEarned, principal, days } = request.body;
-      const res = await sdkPoolInstance.calculateYield(feesEarned, principal, days);
+      const res = sdkPoolInstance.calculateYield(feesEarned, principal, days);
       reply.status(200).send(res);
     },
   );

@@ -2,6 +2,8 @@ import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
+import { TChainConfig } from "../config";
+
 export type Pool = {
   domainId: string;
   name: string;
@@ -187,6 +189,20 @@ export type Transfer = {
 SDK Shared Types
 *************************************/
 
+export const OptionsSchema = Type.Object({
+  chains: Type.Optional(Type.Record(Type.String(), TChainConfig)),
+  originProviderUrl: Type.Optional(Type.String()),
+  destinationProviderUrl: Type.Optional(Type.String()),
+  signerAddress: Type.Optional(TAddress),
+});
+export type Options = Static<typeof OptionsSchema>;
+
+export const ProviderSanityCheckSchema = Type.Object({
+  domains: Type.Array(TIntegerString),
+  options: Type.Optional(OptionsSchema),
+});
+export type ProviderSanityCheck = Static<typeof ProviderSanityCheckSchema>;
+
 // getConversionRate
 export const SdkGetConversionRateParamsSchema = Type.Object({
   chainId: Type.Number(),
@@ -359,6 +375,7 @@ export const SdkXCallParamsSchema = Type.Object({
   receiveLocal: Type.Optional(Type.Boolean()),
   wrapNativeOnOrigin: Type.Optional(Type.Boolean()),
   unwrapNativeOnDestination: Type.Optional(Type.Boolean()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkXCallParams = Static<typeof SdkXCallParamsSchema>;
 
@@ -368,6 +385,7 @@ export const SdkBumpTransferParamsSchema = Type.Object({
   transferId: Type.String(),
   asset: Type.String(),
   relayerFee: TIntegerString,
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkBumpTransferParams = Static<typeof SdkBumpTransferParamsSchema>;
 
@@ -389,6 +407,7 @@ export const SdkUpdateSlippageParamsSchema = Type.Object({
   domainId: TIntegerString,
   transferId: Type.String(),
   slippage: TIntegerString,
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkUpdateSlippageParams = Static<typeof SdkUpdateSlippageParamsSchema>;
 
