@@ -204,9 +204,11 @@ export const makeSubscriber = async () => {
           }),
       );
       await Promise.all(
-        context.config.messageQueue.queues.map(async (queueConfig) => {
-          if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
-        }),
+        context.config.messageQueue.queues
+          .filter((it) => it.name != HTTP_QUEUE)
+          .map(async (queueConfig) => {
+            if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
+          }),
       );
     }
 
