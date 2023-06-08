@@ -19,6 +19,7 @@ export type Scalars = {
   local1337_BigDecimal: any;
   BigInt: any;
   local1337_Bytes: any;
+  local1337_Int8: any;
 };
 
 export type local1337_Asset = {

@@ -28,6 +28,12 @@ input xdai_swap_Block_height {
 
 scalar xdai_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar xdai_swap_Int8
+
 type xdai_swap_LpAccount {
   id: ID!
   address: xdai_swap_Bytes!

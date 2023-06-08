@@ -19,6 +19,7 @@ export type Scalars = {
   bnb_swap_BigDecimal: any;
   BigInt: any;
   bnb_swap_Bytes: any;
+  bnb_swap_Int8: any;
 };
 
 export type bnb_swap_BlockChangedFilter = {
