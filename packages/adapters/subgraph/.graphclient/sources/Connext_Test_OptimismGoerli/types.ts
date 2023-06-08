@@ -19,6 +19,7 @@ export type Scalars = {
   testoptimismgoerli_BigDecimal: any;
   BigInt: any;
   testoptimismgoerli_Bytes: any;
+  testoptimismgoerli_Int8: any;
 };
 
 export type testoptimismgoerli_Asset = {

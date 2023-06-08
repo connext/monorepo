@@ -28,6 +28,12 @@ input goerli_swap_Block_height {
 
 scalar goerli_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar goerli_swap_Int8
+
 type goerli_swap_LpAccount {
   id: ID!
   address: goerli_swap_Bytes!

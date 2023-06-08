@@ -19,6 +19,7 @@ export type Scalars = {
   optimismgoerli_BigDecimal: any;
   BigInt: any;
   optimismgoerli_Bytes: any;
+  optimismgoerli_Int8: any;
 };
 
 export type optimismgoerli_AggregateRoot = {

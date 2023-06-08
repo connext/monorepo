@@ -849,6 +849,12 @@ enum bnb_DestinationTransfer_orderBy {
   reconciledTxOrigin
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar bnb_Int8
+
 """Defines the order direction, either ascending or descending"""
 enum bnb_OrderDirection {
   asc
