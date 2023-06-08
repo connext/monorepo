@@ -142,7 +142,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
     async (request, reply) => {
       const { domainId } = request.params;
-      const txReq = await SdkShared.domainToChainName(domainId);
+      const txReq = SdkShared.domainToChainName(domainId);
       reply.status(200).send(txReq);
     },
   );
@@ -156,7 +156,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
     async (request, reply) => {
       const { chainId } = request.params;
-      const txReq = await SdkShared.chainIdToDomain(chainId);
+      const txReq = SdkShared.chainIdToDomain(chainId);
       reply.status(200).send(txReq);
     },
   );
@@ -170,7 +170,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
     async (request, reply) => {
       const { domainId } = request.params;
-      const txReq = await SdkShared.domainToChainId(domainId);
+      const txReq = SdkShared.domainToChainId(domainId);
       reply.status(200).send(txReq);
     },
   );
@@ -330,7 +330,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
     async (request, reply) => {
       const { domainId, canonicalId } = request.params;
-      const txReq = await sdkSharedInstance.calculateCanonicalKey(domainId, canonicalId);
+      const txReq = sdkSharedInstance.calculateCanonicalKey(domainId, canonicalId);
       reply.status(200).send(txReq);
     },
   );

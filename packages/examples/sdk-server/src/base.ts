@@ -7,11 +7,9 @@ import {
   SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
   SdkBumpTransferParamsSchema,
-  SdkBumpTransferParams,
   SdkUpdateSlippageParamsSchema,
   SdkUpdateSlippageParams,
   SdkCalculateAmountReceivedParamsSchema,
-  SdkCalculateAmountReceivedParams,
 } from "@connext/sdk-core";
 
 interface BaseRoutesOptions {
@@ -112,7 +110,7 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
       },
     },
     async (request, reply) => {
-      const txReq = await sdkBaseInstance.bumpTransfer(request.body as SdkBumpTransferParams);
+      const txReq = await sdkBaseInstance.bumpTransfer(request.body);
       reply.status(200).send(txReq);
     },
   );
@@ -127,7 +125,7 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
     async (request, reply) => {
       try {
         const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
-          request.body as SdkCalculateAmountReceivedParams;
+          request.body;
         const res = await sdkBaseInstance.calculateAmountReceived(
           originDomain,
           destinationDomain,

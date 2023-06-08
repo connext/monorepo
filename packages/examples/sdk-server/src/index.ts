@@ -6,7 +6,6 @@ import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk-core";
 import { getBestProvider } from "@connext/nxtp-utils";
 
-import { sharedRoutes } from "./shared";
 import { baseRoutes } from "./base";
 import { poolRoutes } from "./pool";
 import { utilsRoutes } from "./utils";
@@ -59,7 +58,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     cartographerUrl: configJson.cartographerUrl,
   };
 
-  const { sdkShared, sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
 
   // Register Redis plugin if enabled
   if (configJson.cache?.enabled) {
