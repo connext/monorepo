@@ -1,6 +1,6 @@
 
 resource "aws_appautoscaling_target" "service_task_scaling" {
-  max_capacity       = 50
+  max_capacity       = 100
   min_capacity       = 10
   resource_id        = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -34,6 +34,6 @@ resource "aws_appautoscaling_policy" "service_avg_cpu_scaling" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    target_value = 50
+    target_value = 25
   }
 }

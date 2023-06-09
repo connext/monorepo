@@ -3,10 +3,8 @@ import {
   jsonifyError,
   NxtpError,
   XMessage,
-  SparseMerkleTree,
   RootMessage,
   ReceivedAggregateRoot,
-  GELATO_RELAYER_ADDRESS,
   createRequestContext,
   RequestContext,
 } from "@connext/nxtp-utils";
@@ -16,29 +14,30 @@ import {
   NoAggregateRootCount,
   NoMessageRootIndex,
   NoMessageRootCount,
-  NoMessageRootProof,
-  NoMessageProof,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
 } from "../../../errors";
-import { sendWithRelayerWithBackup } from "../../../mockable";
-import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
-import { DEFAULT_CONCURRENCY, DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
-export type ProofStruct = {
-  message: string;
-  path: string[];
-  index: number;
-};
+import { BrokerMessage, PROVER_QUEUE } from "./types";
 
-export const proveAndProcess = async () => {
-  const { requestContext, methodContext } = createLoggingContext(proveAndProcess.name);
+export const enqueue = async () => {
+  const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database },
+    adapters: { database, mqClient, cache },
     config,
   } = getContext();
+  const channel = await mqClient.createChannel();
+  await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
+    durable: config.messageQueue.exchange.durable,
+  });
+  await channel.assertQueue(PROVER_QUEUE, {
+    durable: true,
+    maxLength: config.messageQueue.queueLimit,
+  });
+  await channel.bindQueue(PROVER_QUEUE, config.messageQueue.exchange.name, PROVER_QUEUE);
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
@@ -90,19 +89,12 @@ export const proveAndProcess = async () => {
                 if (!aggregateRootCount) {
                   throw new NoAggregateRootCount(targetAggregateRoot.root);
                 }
-                // TODO: Move to per domain storage adapters in context
-                const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-                const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
 
-                const spokeSMT = new SparseMerkleTree(spokeStore);
-                const hubSMT = new SparseMerkleTree(hubStore);
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
-                const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
-                let concurrentBatch: Promise<void>[] = [];
                 while (!end) {
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
@@ -117,10 +109,12 @@ export const proveAndProcess = async () => {
                       index: latestMessageRoot.count,
                     },
                   );
+                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
+                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    latestMessageRoot.count,
+                    index,
                     offset,
                     batchSize,
                   );
@@ -136,45 +130,41 @@ export const proveAndProcess = async () => {
                       offset,
                     });
 
-                    concurrentBatch.push(
-                      processMessages(
-                        unprocessed,
-                        originDomain,
-                        destinationDomain,
-                        targetMessageRoot,
-                        messageRootIndex,
-                        targetAggregateRoot.root,
-                        spokeSMT,
-                        hubSMT,
-                        subContext,
-                      ),
-                    );
-                    offset += unprocessed.length;
-                    logger.info(
-                      "Batched unprocessed messages for origin and destination pair",
+                    const brokerMessage = await createBrokerMessage(
+                      unprocessed,
+                      originDomain,
+                      destinationDomain,
+                      targetMessageRoot,
+                      messageRootIndex,
+                      messageRootCount,
+                      targetAggregateRoot.root,
+                      aggregateRootCount,
                       subContext,
-                      methodContext,
-                      {
-                        originDomain,
-                        destinationDomain,
-                        offset,
-                        batchSize: concurrentBatch.length,
-                      },
                     );
-                    if (unprocessed.length === 0 || concurrentBatch.length >= concurrency) {
-                      await Promise.all(concurrentBatch);
-                      concurrentBatch = [];
+                    if (brokerMessage) {
+                      channel.publish(
+                        config.messageQueue.exchange.name,
+                        PROVER_QUEUE,
+                        Buffer.from(JSON.stringify(brokerMessage)),
+                        { persistent: config.messageQueue.exchange.persistent },
+                      );
                       logger.info(
-                        "Processed unprocessed messages for origin and destination pair",
+                        "Enqueued unprocessed messages for origin and destination pair",
                         subContext,
                         methodContext,
                         {
                           originDomain,
                           destinationDomain,
                           offset,
+                          brokerMessage,
                         },
                       );
+
+                      const indexes = unprocessed.map((item: XMessage) => item.origin.index);
+                      await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
                     }
+
+                    offset += unprocessed.length;
                   } else {
                     // End the loop if no more messages are found
                     end = true;
@@ -207,26 +197,27 @@ export const proveAndProcess = async () => {
       }
     }),
   );
+
+  await channel.close();
 };
 
-export const processMessages = async (
+export const createBrokerMessage = async (
   _messages: XMessage[],
   originDomain: string,
   destinationDomain: string,
   targetMessageRoot: string,
   messageRootIndex: number,
+  messageRootCount: number,
   targetAggregateRoot: string,
-  spokeSMT: SparseMerkleTree,
-  hubSMT: SparseMerkleTree,
+  aggregateRootCount: number,
   _requestContext: RequestContext,
-) => {
+): Promise<BrokerMessage | undefined> => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader },
+    adapters: { contracts, chainreader, database },
     config,
-    chainData,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage", _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
@@ -238,6 +229,7 @@ export const processMessages = async (
   // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
   // The quick way to verify them is to add a sanitation check against the spoke connector.
   const messages: XMessage[] = [];
+  const processedMessages: XMessage[] = [];
   for (const message of _messages) {
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
@@ -249,6 +241,11 @@ export const processMessages = async (
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
+      else if (messageStatus == 2)
+        processedMessages.push({
+          ...message,
+          destination: { returnData: message.destination?.returnData ?? "", processed: true },
+        });
     } catch (err: unknown) {
       logger.debug(
         "Failed to read the message status from onchain",
@@ -259,141 +256,27 @@ export const processMessages = async (
     }
   }
 
-  // process messages
-  const messageProofs: ProofStruct[] = [];
-  for (const message of messages) {
-    const messageProof: ProofStruct = {
-      message: message.origin.message,
-      path: await spokeSMT.getProof(message.origin.index),
-      index: message.origin.index,
-    };
-    if (!messageProof.path) {
-      throw new NoMessageProof(messageProof.index, message.leaf);
-    }
-    // Verify proof of inclusion of message in messageRoot.
-    const messageVerification = spokeSMT.verify(
-      message.origin.index,
-      message.leaf,
-      messageProof.path,
-      targetMessageRoot,
-    );
-    if (messageVerification && messageVerification.verified) {
-      logger.info("Message Verified successfully", requestContext, methodContext, {
-        messageIndex: message.origin.index,
-        leaf: message.leaf,
-        targetMessageRoot,
-        messageVerification,
-      });
-    } else {
-      logger.info("Message verification failed", requestContext, methodContext, {
-        messageIndex: message.origin.index,
-        leaf: message.leaf,
-        targetMessageRoot,
-        messageVerification,
-      });
-      // Do not process message if proof verification fails.
-      continue;
-    }
-    messageProofs.push(messageProof);
+  if (processedMessages.length > 0) {
+    logger.info("Saving the processed messages", requestContext, methodContext, { count: processedMessages.length });
+    await database.saveMessages(processedMessages);
   }
 
-  if (messageProofs.length === 0) {
-    logger.info("Empty message proofs", requestContext, methodContext, {
+  if (messages.length === 0) {
+    logger.info("No messages to enqueue", requestContext, methodContext, {
       originDomain,
       destinationDomain,
     });
-    return;
+    return undefined;
   }
 
-  // Proof path for proving inclusion of messageRoot in aggregateRoot.
-  const messageRootProof = await hubSMT.getProof(messageRootIndex);
-  if (!messageRootProof) {
-    throw new NoMessageRootProof(messageRootIndex, targetMessageRoot);
-  }
-  // Verify proof of inclusion of messageRoot in aggregateRoot.
-  const rootVerification = hubSMT.verify(messageRootIndex, targetMessageRoot, messageRootProof, targetAggregateRoot);
-  if (rootVerification && rootVerification.verified) {
-    logger.info("MessageRoot Verified successfully", requestContext, methodContext, {
-      targetMessageRoot,
-      targetAggregateRoot,
-      messageRootProof,
-      rootVerification,
-    });
-  } else {
-    logger.info("MessageRoot verification failed", requestContext, methodContext, {
-      messageRootIndex,
-      targetMessageRoot,
-      targetAggregateRoot,
-      messageRootProof,
-      rootVerification,
-    });
-  }
-  // Batch submit messages by destination domain
-  try {
-    const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      targetAggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
-    logger.info("Proving and processing messages", requestContext, methodContext, {
-      destinationDomain,
-      data,
-      destinationSpokeConnector,
-    });
-
-    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      targetAggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
-    logger.debug("Proving and processing messages", requestContext, methodContext, {
-      messages,
-      proveAndProcessEncodedData,
-      destinationSpokeConnector,
-    });
-    const chainId = chainData.get(destinationDomain)!.chainId;
-
-    /// Temp: Using relayer proxy
-    const domain = +destinationDomain;
-    const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
-
-    logger.info("Sending tx to relayer", requestContext, methodContext, {
-      relayer: relayerAddress,
-      spokeConnector: destinationSpokeConnector,
-      domain,
-    });
-
-    const {
-      _proofs: proofs,
-      _aggregateRoot: aggregateRoot,
-      _aggregatePath: aggregatePath,
-      _aggregateIndex: aggregateIndex,
-    } = contracts.spokeConnector.decodeFunctionData("proveAndProcess", proveAndProcessEncodedData);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      proofs,
-      aggregateRoot,
-      aggregatePath,
-      aggregateIndex,
-    ]);
-
-    const { taskId } = await sendWithRelayerWithBackup(
-      chainId,
-      destinationDomain,
-      destinationSpokeConnector,
-      encodedData,
-      relayers,
-      chainreader,
-      logger,
-      requestContext,
-    );
-    logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
-  } catch (err: unknown) {
-    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
-  }
+  return {
+    messages,
+    originDomain,
+    destinationDomain,
+    messageRoot: targetMessageRoot,
+    messageRootIndex,
+    messageRootCount,
+    aggregateRoot: targetAggregateRoot,
+    aggregateRootCount,
+  };
 };
