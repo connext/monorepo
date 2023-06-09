@@ -47,6 +47,10 @@ describe("#SDKRouter", () => {
       expect(sdkRouter).to.not.be.undefined;
       expect(sdkRouter.config).to.not.be.null;
       expect(sdkRouter.chainData).to.not.be.null;
+
+      expect(sdkRouter.addLiquidityForRouter).to.be.a("function");
+      expect(sdkRouter.removeRouterLiquidity).to.be.a("function");
+      expect(sdkRouter.removeRouterLiquidityFor).to.be.a("function");
     });
   });
 
