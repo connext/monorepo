@@ -94,6 +94,46 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "alUSD",
+      canonical: {
+        domain: "1735353714",
+        address: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+          adopted: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+          adopted: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+        },
+      },
+    },
+    {
+      name: "alETH",
+      canonical: {
+        domain: "1735353714",
+        address: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+          adopted: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+          adopted: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+        },
+      },
+    }
     // {
     //   name: "WETH",
     //   canonical: {
