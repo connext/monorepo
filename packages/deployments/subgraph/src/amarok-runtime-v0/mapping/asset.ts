@@ -1,12 +1,12 @@
 /* eslint-disable prefer-const */
 import { AssetAdded, AssetRemoved } from "../../../generated/Connext/Connext";
-import { Asset } from "../../../generated/schema";
+import { Asset, AssetStatus } from "../../../generated/schema";
 
 import { getTokenDecimals } from "./helper";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.key;
+  let assetId = event.params.key.toHex();
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);
@@ -18,17 +18,24 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.localAsset = event.params.localAsset;
   asset.blockNumber = event.block.number;
-  asset.status = true;
 
+  let assetStatus = AssetStatus.load(assetId);
+  if (assetStatus == null) {
+    assetStatus = new AssetStatus(assetId);
+  }
+  assetStatus.status = true;
+
+  asset.status = assetStatus.id;
+
+  assetStatus.save();
   asset.save();
 }
 
 export function handleAssetRemoved(event: AssetRemoved): void {
-  let asset = Asset.load(event.params.key.toHex());
-  if (!asset) {
-    // Nothing to do, no asset record exists so status is already false
-    return;
+  let assetStatus = AssetStatus.load(event.params.key.toHex());
+  if (assetStatus == null) {
+    assetStatus = new AssetStatus(event.params.key.toHex());
   }
-  asset.status = false;
-  asset.save();
+  assetStatus.status = false;
+  assetStatus.save();
 }
