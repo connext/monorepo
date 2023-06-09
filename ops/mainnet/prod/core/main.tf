@@ -293,6 +293,44 @@ module "sequencer_web3signer" {
   container_env_vars       = local.sequencer_web3signer_env_vars
 }
 
+module "lighthouse_prover_subscriber" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.full_image_name_lighthouse_prover_subscriber
+  container_family         = "lighthouse-prover-subscriber"
+  health_check_path        = "/ping"
+  container_port           = 7072
+  loadbalancer_port        = 80
+  cpu                      = 1024
+  memory                   = 2048
+  instance_count           = 10
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
+}
+module "lighthouse_prover_subscriber_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+}
+
 module "lighthouse_prover_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
