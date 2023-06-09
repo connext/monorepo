@@ -37,7 +37,7 @@ const mockGenericTxRequest: providers.TransactionRequest = {
   chainId,
 };
 
-describe.only("#SDKShared", () => {
+describe("#SDKShared", () => {
   let sdkShared: SdkShared;
   let axiosGetStub: SinonStub;
   let axiosPostStub: SinonStub;
