@@ -21,7 +21,7 @@ locals {
   ]
 
   sdk_server_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_sdk_server_config },
+    { name = "SDK_SERVER_CONFIG", value = local.local_sdk_server_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
