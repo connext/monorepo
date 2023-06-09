@@ -15,7 +15,7 @@ import {
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 
-describe("#SDKUtils", () => {
+describe.only("#SDKUtils", () => {
   let sdkUtils: SdkUtils;
   let axiosPostStub: SinonStub;
   let expectedBaseUri: string;
