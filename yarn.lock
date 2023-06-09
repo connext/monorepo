@@ -2218,10 +2218,12 @@ __metadata:
     "@eth-optimism/sdk": 2.1.0
     "@graphql-codegen/cli": 3.0.0
     "@sinclair/typebox": 0.25.21
+    "@types/amqplib": 0.10.1
     "@types/aws-lambda": 8.10.110
     "@types/mocha": 10.0.1
     "@types/pg": 8.6.6
     "@types/sinon": 10.0.13
+    amqplib: 0.10.3
     concurrently: 7.6.0
     datadog-lambda-js: 6.86.0
     dd-trace: 3.13.2
