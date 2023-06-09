@@ -66,7 +66,7 @@ jobs:
         uses: wagoid/commitlint-github-action@v5
         with:
           commitDepth: 1
-          
+
       - name: Yarn install
         run: yarn install
 
@@ -571,7 +571,7 @@ jobs:
           docker push ghcr.io/connext/cartographer:$IMAGE_TAG
 
   build-and-push-lighthouse-image:
-    # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod' || github.ref == 'refs/heads/feat/lh-prover-pub-sub'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
@@ -616,7 +616,7 @@ jobs:
           docker push ghcr.io/connext/lighthouse:$IMAGE_TAG
 
   build-and-push-lighthouse-prover-subscriber-image:
-    # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/lighthouse-subscriber
