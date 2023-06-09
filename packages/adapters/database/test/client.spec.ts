@@ -674,7 +674,9 @@ describe("Database client", () => {
   it("should save multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
   });
@@ -682,7 +684,9 @@ describe("Database client", () => {
   it("should upsert multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
     for (let message of messages) {
@@ -803,7 +807,9 @@ describe("Database client", () => {
   it("should getMessageByLeaf", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
 

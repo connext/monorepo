@@ -322,7 +322,7 @@ export const saveMessages = async (
   const poolToUse = _pool ?? pool;
   const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-  await db.upsert("messages", messages, ["leaf"]).run(poolToUse);
+  await db.upsert("messages", messages, ["origin_domain", "index"]).run(poolToUse);
 };
 
 export const saveSentRootMessages = async (
