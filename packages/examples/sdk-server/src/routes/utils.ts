@@ -23,8 +23,7 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Sdk
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
-      const res = await sdkUtilsInstance.getRoutersData(params);
+      const res = await sdkUtilsInstance.getRoutersData(request.body);
       reply.status(200).send(res);
     },
   );
@@ -37,8 +36,7 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Sdk
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
-      const res = await sdkUtilsInstance.getRouterLiquidity(params);
+      const res = await sdkUtilsInstance.getRouterLiquidity(request.body);
       reply.status(200).send(res);
     },
   );
@@ -51,8 +49,7 @@ export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: Sdk
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
-      const res = await sdkUtilsInstance.getTransfers(params);
+      const res = await sdkUtilsInstance.getTransfers(request.body);
       reply.status(200).send(res);
     },
   );
