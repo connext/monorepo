@@ -1,10 +1,11 @@
-import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
+import { reset, restore, stub, SinonStub } from "sinon";
 import { BigNumber, providers } from "ethers";
 import { mock } from "./mock";
 import { SdkPool } from "../src/sdkPool";
 import * as MockableFns from "../src/mockable";
 
 import {
+  Pool,
   SdkAddLiquidityParams,
   SdkCalculateAddLiquidityPriceImpactParams,
   SdkCalculateAmountReceivedParams,
@@ -40,7 +41,7 @@ import {
   SdkRemoveLiquidityParams,
   SdkSwapParams,
 } from "@connext/sdk-core";
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -89,7 +90,7 @@ const mockPool = {
   swapFee: "4000000",
   adminFee: "0",
 };
-const mockPoolBN = {
+const mockPoolBN: Pool = {
   domainId: "1869640809",
   name: "USDC Pool",
   symbol: "USDC-nextUSDC",
@@ -123,14 +124,14 @@ const mockPoolBN = {
   adminFee: "0",
 };
 
-describe("#SDKPool", () => {
+describe.only("#SDKPool", () => {
   let sdkPool: SdkPool;
   let axiosPostStub: SinonStub;
   let expectedBaseUri: string;
 
   beforeEach(async () => {
-    axiosPostStub = stub(MockableFns, "axiosPost");
     sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
+    axiosPostStub = stub(MockableFns, "axiosPost");
     expectedBaseUri = sdkPool.baseUri;
   });
 
@@ -144,6 +145,45 @@ describe("#SDKPool", () => {
       expect(sdkPool).to.not.be.undefined;
       expect(sdkPool.config).to.not.be.null;
       expect(sdkPool.chainData).to.not.be.null;
+
+      expect(sdkPool.calculateSwap).to.be.a("function");
+      expect(sdkPool.calculateSwapLocal).to.be.a("function");
+      expect(sdkPool.getSwapOut).to.be.a("function");
+      expect(sdkPool.calculateAmountReceived).to.be.a("function");
+      expect(sdkPool.scientificToBigInt).to.be.a("function");
+      expect(sdkPool.calculateTokenAmount).to.be.a("function");
+      expect(sdkPool.calculateRemoveSwapLiquidity).to.be.a("function");
+      expect(sdkPool.calculateRemoveSwapLiquidityOneToken).to.be.a("function");
+      expect(sdkPool.calculatePriceImpact).to.be.a("function");
+      expect(sdkPool.calculateAddLiquidityPriceImpact).to.be.a("function");
+      expect(sdkPool.calculateRemoveLiquidityPriceImpact).to.be.a("function");
+      expect(sdkPool.calculateSwapPriceImpact).to.be.a("function");
+      expect(sdkPool.getTokenPrice).to.be.a("function");
+      expect(sdkPool.getLPTokenAddress).to.be.a("function");
+      expect(sdkPool.getTokenSupply).to.be.a("function");
+      expect(sdkPool.getTokenUserBalance).to.be.a("function");
+      expect(sdkPool.getPoolTokenIndex).to.be.a("function");
+      expect(sdkPool.getPoolTokenDecimals).to.be.a("function");
+      expect(sdkPool.getPoolTokenBalance).to.be.a("function");
+      expect(sdkPool.getPoolTokenAddress).to.be.a("function");
+      expect(sdkPool.getVirtualPrice).to.be.a("function");
+      expect(sdkPool.getRepresentation).to.be.a("function");
+      expect(sdkPool.getAdopted).to.be.a("function");
+      expect(sdkPool.getTokenSwapEvents).to.be.a("function");
+      expect(sdkPool.getPoolData).to.be.a("function");
+      expect(sdkPool.addLiquidity).to.be.a("function");
+      expect(sdkPool.removeLiquidityOneToken).to.be.a("function");
+      expect(sdkPool.removeLiquidity).to.be.a("function");
+      expect(sdkPool.removeLiquidityImbalance).to.be.a("function");
+      expect(sdkPool.swap).to.be.a("function");
+      expect(sdkPool.getPool).to.be.a("function");
+      expect(sdkPool.getUserPools).to.be.a("function");
+      expect(sdkPool.getYieldStatsForDays).to.be.a("function");
+      expect(sdkPool.calculateYield).to.be.a("function");
+      expect(sdkPool.getYieldData).to.be.a("function");
+      expect(sdkPool.getLiquidityMiningAprPerPool).to.be.a("function");
+      expect(sdkPool.getHourlySwapVolume).to.be.a("function");
+      expect(sdkPool.getDailySwapVolume).to.be.a("function");
     });
   });
 
@@ -177,42 +217,30 @@ describe("#SDKPool", () => {
     });
   });
 
-  // TODO: pool type issue
-  // describe.only("#calculateSwapLocal", async () => {
-  //   it("happy: should send request with correct params", async () => {
-  //     const expectedEndpoint = "/calculateSwapLocal";
-  //     const expectedArgs: SdkCalculateSwapLocalParams = {
-  //       domainId: mockXTransfer.xparams.originDomain,
-  //       pool: mockPool,
-  //       tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
-  //       tokenIndexFrom: 0,
-  //       tokenIndexTo: 1,
-  //       amount: "100",
-  //     };
-  //     const expectedRes = BigNumber.from(1);
+  describe("#calculateSwapLocal", async () => {
+    it("happy: should work", async () => {
+      const expectedArgs: SdkCalculateSwapLocalParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        pool: mockPool,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        tokenIndexFrom: 0,
+        tokenIndexTo: 1,
+        amount: "100",
+      };
+      const expectedRes = BigNumber.from(199920000000000);
 
-  //     axiosPostStub.resolves({
-  //       data: expectedRes,
-  //       status: 200,
-  //     });
+      const res = await sdkPool.calculateSwapLocal(
+        expectedArgs.domainId,
+        mockPoolBN,
+        expectedArgs.tokenAddress,
+        expectedArgs.tokenIndexFrom,
+        expectedArgs.tokenIndexTo,
+        expectedArgs.amount,
+      );
 
-  //     const res = await sdkPool.calculateSwapLocal(
-  //       expectedArgs.domainId,
-  //       mockPoolBN,
-  //       expectedArgs.tokenAddress,
-  //       expectedArgs.tokenIndexFrom,
-  //       expectedArgs.tokenIndexTo,
-  //       expectedArgs.amount,
-  //     );
-
-  //     // expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
-  //     //   ...expectedArgs,
-  //     //   pool: mockPoolBN,
-  //     // });
-  //     expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-  //     expect(res).to.be.deep.eq(expectedRes);
-  //   });
-  // });
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+  });
 
   describe("#getSwapOut", async () => {
     it("happy: should calculate swap out", async () => {
@@ -579,34 +607,33 @@ describe("#SDKPool", () => {
     });
   });
 
-  // TODO: _index and index issues
-  // describe.only("#getPoolTokenBalance", async () => {
-  //   it("happy: should send request with correct params", async () => {
-  //     const expectedEndpoint = "/getPoolTokenBalance";
-  //     const expectedArgs: SdkGetPoolTokenBalanceParams = {
-  //       domainId: mockXTransfer.xparams.originDomain,
-  //       tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
-  //       poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
-  //       index: 0,
-  //     };
-  //     const expectedRes = BigNumber.from(1);
+  describe("#getPoolTokenBalance", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getPoolTokenBalance";
+      const expectedArgs: SdkGetPoolTokenBalanceParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        _index: 0,
+      };
+      const expectedRes = BigNumber.from(1);
 
-  //     axiosPostStub.resolves({
-  //       data: expectedRes,
-  //       status: 200,
-  //     });
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
 
-  //     const res = await sdkPool.getPoolTokenBalance(
-  //       expectedArgs.domainId,
-  //       expectedArgs.tokenAddress,
-  //       expectedArgs.poolTokenAddress,
-  //       expectedArgs.index,
-  //     );
+      const res = await sdkPool.getPoolTokenBalance(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.poolTokenAddress,
+        expectedArgs._index,
+      );
 
-  //     expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-  //     expect(res).to.be.deep.eq(expectedRes);
-  //   });
-  // });
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+  });
 
   describe("#getPoolTokenAddress", async () => {
     it("happy: should send request with correct params", async () => {
