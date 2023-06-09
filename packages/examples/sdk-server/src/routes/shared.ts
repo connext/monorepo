@@ -208,7 +208,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     reply.status(200).send(txReq);
   });
 
-  s.get<{ Params: SdkGetConversionRateParams }>(
+  s.get<{ Params: SdkGetActiveLiquidityParams }>(
     "/getActiveLiquidity",
     {
       schema: {
@@ -270,7 +270,7 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
   );
 
   s.get<{ Params: SdkIsNextAssetParams }>(
-    "/isNextAsset/:domainId/:tokenAddress",
+    "/isNextAsset/:tokenAddress",
     {
       schema: {
         params: SdkIsNextAssetParamsSchema,
