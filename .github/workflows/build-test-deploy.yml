@@ -1242,7 +1242,7 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      lighthouse-prover-subscriber-tags: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
+      lighthouse-prover-subscriber-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
       sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}
