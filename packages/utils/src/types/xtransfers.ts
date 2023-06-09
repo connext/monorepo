@@ -37,6 +37,7 @@ export const XTransferMethodCallSchema = Type.Object({
   gasLimit: TIntegerString,
   blockNumber: Type.Number(),
   txOrigin: Type.Optional(TAddress),
+  txNonce: Type.Number(),
 });
 
 export const XTransferOriginSchema = Type.Object({
