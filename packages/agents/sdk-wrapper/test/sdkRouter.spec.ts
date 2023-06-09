@@ -1,33 +1,40 @@
-import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect, Logger, mkAddress } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { reset, restore, stub, SinonStub } from "sinon";
+import { BigNumber, providers } from "ethers";
 import { mock } from "./mock";
 import { SdkRouter } from "../src/sdkRouter";
-
-import * as ConfigFns from "@connext/sdk-core/src/config";
-import * as SharedFns from "../src/lib/helpers/shared";
 import * as MockableFns from "../src/mockable";
+
+import {
+  SdkAddLiquidityForRouterParams,
+  SdkRemoveRouterLiquidityForParams,
+  SdkRemoveRouterLiquidityParams,
+} from "@connext/sdk-core";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
-const mockDeployments = mock.contracts.deployments();
+const mockConnextAddress = mockConfig.chains[mock.domain.A].deployments!.connext;
+
+const chainId = +mock.chain.A;
+const relayerFee = BigNumber.from("1");
+const mockXTransfer = mock.entity.xtransfer();
+const mockGenericTxRequest: providers.TransactionRequest = {
+  to: mockConnextAddress,
+  data: "0x",
+  from: mock.config().signerAddress,
+  value: relayerFee,
+  chainId,
+};
 
 describe("#SDKRouter", () => {
   let sdkRouter: SdkRouter;
-  let config: ConfigFns.SdkConfig;
   let axiosPostStub: SinonStub;
-
-  let chainreader: SinonStubbedInstance<ChainReader>;
+  let expectedBaseUri: string;
 
   beforeEach(async () => {
     axiosPostStub = stub(MockableFns, "axiosPost");
-    chainreader = createStubInstance(ChainReader);
-    config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
-
-    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "axiosGetRequest").resolves([]);
-
     sdkRouter = await SdkRouter.create(mockConfig, undefined, mockChainData);
+    expectedBaseUri = sdkRouter.baseUri;
   });
 
   afterEach(() => {
@@ -35,67 +42,79 @@ describe("#SDKRouter", () => {
     reset();
   });
 
+  describe("#create", () => {
+    it("happy: should work", async () => {
+      expect(sdkRouter).to.not.be.undefined;
+      expect(sdkRouter.config).to.not.be.null;
+      expect(sdkRouter.chainData).to.not.be.null;
+    });
+  });
+
   describe("#addLiquidityForRouter", async () => {
-    it("Happy: should return router liquidity", async () => {
-      const params = {
-        domainId: "1869640809",
-        amount: "1000000000000000000",
-        tokenAddress: "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-        router: "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/addLiquidityForRouter";
+      const expectedArgs: SdkAddLiquidityForRouterParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        router: mkAddress("0x1234"),
       };
+
       axiosPostStub.resolves({
-        data: {
-          data: "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-          to: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
-        },
+        data: mockGenericTxRequest,
+        status: 200,
       });
-      const routerLiquidity = await sdkRouter.addLiquidityForRouter(params);
-      expect(routerLiquidity.data).to.be.eq(
-        "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-      );
+
+      const res = await sdkRouter.addLiquidityForRouter(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });
 
   describe("#removeRouterLiquidity", async () => {
-    it("Happy: should return remove Router data", async () => {
-      const params = {
-        domainId: "1869640809",
-        amount: "1000000000000000000",
-        tokenAddress: "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-        recipient: "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/removeRouterLiquidity";
+      const expectedArgs: SdkRemoveRouterLiquidityParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        recipient: mkAddress("0x1234"),
       };
+      const expectedRes = BigNumber.from(1);
+
       axiosPostStub.resolves({
-        data: {
-          data: "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-          to: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
-        },
+        data: expectedRes,
+        status: 200,
       });
-      const routerLiquidity = await sdkRouter.removeRouterLiquidity(params);
-      expect(routerLiquidity.data).to.be.eq(
-        "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-      );
+
+      const res = await sdkRouter.removeRouterLiquidity(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#removeRouterLiquidityFor", async () => {
-    it("Happy: should return remove Router liquidity", async () => {
-      const params = {
-        domainId: "1869640809",
-        amount: "1000000000000000000",
-        tokenAddress: "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-        recipient: "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
-        router: "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/removeRouterLiquidityFor";
+      const expectedArgs: SdkRemoveRouterLiquidityForParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        recipient: mkAddress("0x1234"),
+        router: mkAddress("0x2234"),
       };
+
       axiosPostStub.resolves({
-        data: {
-          data: "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-          to: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
-        },
+        data: mockGenericTxRequest,
+        status: 200,
       });
-      const routerLiquidity = await sdkRouter.removeRouterLiquidityFor(params);
-      expect(routerLiquidity.data).to.be.eq(
-        "0x2d3f9ef60000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000067e51f46e8e14d4e4cab9df48c59ad8f512486dd00000000000000000000000071dd9fc6fe5427f0c7cd7d42bc89effe11c6d4b7",
-      );
+
+      const res = await sdkRouter.removeRouterLiquidityFor(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });
 });
