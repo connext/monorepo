@@ -779,40 +779,34 @@ export const TRange = Type.Object({
 });
 
 // getRoutersData
-export const SdkGetRoutersDataParamsSchema = Type.Object({
-  params: Type.Optional(
-    Type.Object({
-      order: Type.Optional(TOrderBy),
-    }),
-  ),
-});
+export const SdkGetRoutersDataParamsSchema = Type.Optional(
+  Type.Object({
+    order: Type.Optional(TOrderBy),
+  }),
+);
 export type SdkGetRoutersDataParams = Static<typeof SdkGetRoutersDataParamsSchema>;
 
 // getRouterLiquidity
-export const SdkGetRouterLiquidityParamsSchema = Type.Object({
-  params: Type.Optional(
-    Type.Object({
-      order: Type.Optional(TOrderBy),
-    }),
-  ),
-});
+export const SdkGetRouterLiquidityParamsSchema = Type.Optional(
+  Type.Object({
+    order: Type.Optional(TOrderBy),
+  }),
+);
 export type SdkGetRouterLiquidityParams = Static<typeof SdkGetRouterLiquidityParamsSchema>;
 
 // getTransfers
-export const SdkGetTransfersParamsSchema = Type.Object({
-  params: Type.Optional(
-    Type.Object({
-      userAddress: Type.Optional(Type.String()),
-      routerAddress: Type.Optional(Type.String()),
-      status: Type.Optional(XTransferStatus),
-      errorStatus: Type.Optional(XTransferErrorStatus),
-      transferId: Type.Optional(Type.String()),
-      transactionHash: Type.Optional(Type.String()),
-      xcallCaller: Type.Optional(Type.String()),
-      range: Type.Optional(TRange),
-    }),
-  ),
-});
+export const SdkGetTransfersParamsSchema = Type.Optional(
+  Type.Object({
+    userAddress: Type.Optional(Type.String()),
+    routerAddress: Type.Optional(Type.String()),
+    status: Type.Optional(XTransferStatus),
+    errorStatus: Type.Optional(XTransferErrorStatus),
+    transferId: Type.Optional(Type.String()),
+    transactionHash: Type.Optional(Type.String()),
+    xcallCaller: Type.Optional(Type.String()),
+    range: Type.Optional(TRange),
+  }),
+);
 export type SdkGetTransfersParams = Static<typeof SdkGetTransfersParamsSchema>;
 
 // checkRouterLiquidity

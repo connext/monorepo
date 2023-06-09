@@ -1,34 +1,29 @@
-import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { reset, restore, stub, SinonStub } from "sinon";
+import { BigNumber } from "ethers";
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
-
-import * as ConfigFns from "@connext/sdk-core/src/config";
-import * as SharedFns from "../src/lib/helpers/shared";
 import * as MockableFns from "../src/mockable";
+
+import { expect } from "@connext/nxtp-utils";
+import {
+  SdkCheckRouterLiquidityParams,
+  SdkGetRouterLiquidityParams,
+  SdkGetRoutersDataParams,
+  SdkGetTransfersParams,
+} from "@connext/sdk-core";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
-const mockDeployments = mock.contracts.deployments();
 
 describe("#SDKUtils", () => {
   let sdkUtils: SdkUtils;
-  let config: ConfigFns.SdkConfig;
   let axiosPostStub: SinonStub;
-
-  let chainreader: SinonStubbedInstance<ChainReader>;
+  let expectedBaseUri: string;
 
   beforeEach(async () => {
     axiosPostStub = stub(MockableFns, "axiosPost");
-
-    chainreader = createStubInstance(ChainReader);
-    config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
-
-    stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
-    stub(SharedFns, "axiosGetRequest").resolves([]);
-
     sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
+    expectedBaseUri = sdkUtils.baseUri;
   });
 
   afterEach(() => {
@@ -36,73 +31,107 @@ describe("#SDKUtils", () => {
     reset();
   });
 
+  describe("#create", () => {
+    it("happy: should work", async () => {
+      expect(sdkUtils).to.not.be.undefined;
+      expect(sdkUtils.config).to.not.be.null;
+      expect(sdkUtils.chainData).to.not.be.null;
+
+      expect(sdkUtils.getRoutersData).to.be.a("function");
+      expect(sdkUtils.getRouterLiquidity).to.be.a("function");
+      expect(sdkUtils.getTransfers).to.be.a("function");
+      expect(sdkUtils.checkRouterLiquidity).to.be.a("function");
+    });
+  });
+
   describe("#getRoutersData", async () => {
-    it("Happy: should return router data", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getRoutersData";
+      const expectedArgs: SdkGetRoutersDataParams = {
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+      };
+      const expectedRes = [];
+
       axiosPostStub.resolves({
-        data: [
-          {
-            address: "0xe879261f44041e030404ac9847f0cee2591f62f5",
-            asset_canonical_id: null,
-            asset_domain: null,
-            router_address: null,
-            balance: null,
-            local: null,
-            adopted: null,
-            canonical_id: null,
-            canonical_domain: null,
-            domain: null,
-            key: null,
-            id: null,
-            fees_earned: null,
-            locked: null,
-            supplied: null,
-            removed: null,
-            decimal: null,
-            asset_usd_price: 0,
-            balance_usd: null,
-            fee_earned_usd: null,
-            locked_usd: null,
-            supplied_usd: null,
-            removed_usd: null,
-          },
-        ],
+        data: expectedRes,
+        status: 200,
       });
-      const routerData = await sdkUtils.getRoutersData();
-      expect(routerData.length).to.be.greaterThan(0);
+
+      const res = await sdkUtils.getRoutersData(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getRouterLiquidity", async () => {
-    it("Happy: should return router data", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getRouterLiquidity";
+      const expectedArgs: SdkGetRouterLiquidityParams = {
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+      };
+      const expectedRes = {};
+
       axiosPostStub.resolves({
-        data: "0123",
+        data: expectedRes,
+        status: 200,
       });
-      const routerData = await sdkUtils.getRouterLiquidity();
-      expect(routerData).to.be.eq("0123");
+
+      const res = await sdkUtils.getRouterLiquidity(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getTransfers", async () => {
-    it("Happy: should return get transfer", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getTransfers";
+      const expectedArgs: SdkGetTransfersParams = {
+        range: {
+          limit: 100,
+          offset: 10,
+        },
+      };
+      const expectedRes = [];
+
       axiosPostStub.resolves({
-        data: [{ transfer_id: "0xdd3e203a8633f8d6329214a236eb64651301568e79691918062e3c738d309f8a" }],
+        data: expectedRes,
+        status: 200,
       });
-      const transfers = await sdkUtils.getTransfers();
-      expect(transfers[0].transfer_id).to.be.eq("0xdd3e203a8633f8d6329214a236eb64651301568e79691918062e3c738d309f8a");
+
+      const res = await sdkUtils.getTransfers(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#checkRouterLiquidity", async () => {
-    it("Happy: should return checkRouterLiquidity", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/checkRouterLiquidity";
+      const expectedArgs: SdkCheckRouterLiquidityParams = {
+        domainId: mock.domain.A,
+        asset: mock.asset.A.address,
+        topN: undefined,
+      };
+      const expectedRes = BigNumber.from(1);
+
       axiosPostStub.resolves({
-        data: {
-          type: "BigNumber",
-          hex: "0x00",
-        },
+        data: expectedRes,
+        status: 200,
       });
 
-      const liquidity = await sdkUtils.checkRouterLiquidity(mock.domain.A, mock.asset.A.address);
-      expect(liquidity).not.to.be.null;
+      const res = await sdkUtils.checkRouterLiquidity(expectedArgs.domainId, expectedArgs.asset);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 });

@@ -405,8 +405,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, poolTokenAddress, index } = request.body;
-      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress, index);
+      const { domainId, tokenAddress, poolTokenAddress, _index } = request.body;
+      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress, _index);
       reply.status(200).send(res);
     },
   );
