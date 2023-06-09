@@ -8,7 +8,7 @@ import { baseRoutes } from "./routes/base";
 import { poolRoutes } from "./routes/pool";
 import { utilsRoutes } from "./routes/utils";
 import { routerRoutes } from "./routes/router";
-import { sharedRoutes } from "./shared";
+import { sharedRoutes } from "./routes/shared";
 import { SdkServerConfig, getConfig } from "./config";
 import { SdkServerContext } from "./context";
 
