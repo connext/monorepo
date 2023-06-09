@@ -11,13 +11,6 @@ locals {
     DD_LAMBDA_HANDLER   = "packages/agents/cartographer/poller/dist/index.handler"
   }
 
-  sdk_server_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_sdk_server_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
-  ]
   postgrest_env_vars = [
     { name = "PGRST_ADMIN_SERVER_PORT", value = "3001" },
     { name = "PGRST_DB_URI", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext" },
@@ -25,6 +18,14 @@ locals {
     { name = "PGRST_DB_ANON_ROLE", value = "query" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage }
+  ]
+
+  sdk_server_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_sdk_server_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
 
   local_sdk_server_config = jsonencode({
