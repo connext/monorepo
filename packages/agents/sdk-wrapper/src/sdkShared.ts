@@ -19,7 +19,7 @@ export class SdkShared {
   protected readonly chainreader: ChainReader;
   protected readonly logger: Logger;
 
-  readonly baseUri = "localhost:8080"; // TODO: replace with SDK server uri based on env
+  readonly baseUri: string;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
@@ -27,6 +27,14 @@ export class SdkShared {
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
     this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }), config.chains);
+    this.baseUri =
+      this.config.network === "local"
+        ? "http://localhost:8080"
+        : this.config.network === "testnet"
+        ? this.config.environment === "staging"
+          ? "sdk-server.testnet.staging.connext.ninja"
+          : "sdk-server.testnet.connext.ninja"
+        : "sdk-server.mainnet.connext.ninja";
   }
 
   async getConversionRate(chainId: number) {
