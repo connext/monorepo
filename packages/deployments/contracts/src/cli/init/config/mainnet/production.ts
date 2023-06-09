@@ -211,6 +211,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "XOC",
+      // polygon
+      canonical: {
+        domain: "1886350457",
+        address: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        decimals: 18,
+        cap: utils.parseUnits("25000", 18).toString(),
+      },
+      representations: {
+        // gnosis
+        "1869640809": {
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // bsc
+        "6450786": {
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+      },
+    },
   ],
   agents: {
     watchers: {
