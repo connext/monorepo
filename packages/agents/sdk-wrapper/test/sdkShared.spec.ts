@@ -1,33 +1,53 @@
-import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect, Logger, mkAddress } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { reset, restore, stub, SinonStub } from "sinon";
+import { providers, BigNumber } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
-import { providers, BigNumber } from "ethers";
-
-import * as ConfigFns from "@connext/sdk-core";
-import * as SharedFns from "../src/lib/helpers/shared";
 import * as MockableFns from "../src/mockable";
+
+import { expect, mkAddress, Logger } from "@connext/nxtp-utils";
+import {
+  SdkApproveIfNeededParams,
+  SdkCalculateCanonicalKeyParams,
+  SdkChangeSignerAddressParams,
+  SdkGetActiveLiquidityParams,
+  SdkGetAssetsDataByDomainAndAddressParams,
+  SdkGetAssetsDataByDomainAndKeyParams,
+  SdkGetAssetsWithSameCanonicalParams,
+  SdkGetCanonicalTokenIdParams,
+  SdkGetChainIdParams,
+  SdkGetConnextParams,
+  SdkGetConversionRateParams,
+  SdkGetDeploymentAddressParams,
+  SdkGetERC20Params,
+  SdkGetProviderParams,
+  SdkIsNextAssetParams,
+} from "@connext/sdk-core";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
-const mockDeployments = mock.contracts.deployments();
+const mockConnextAddress = mockConfig.chains[mock.domain.A].deployments!.connext;
 
-describe("#SDKShared", () => {
+const chainId = +mock.chain.A;
+const relayerFee = BigNumber.from("1");
+const mockGenericTxRequest: providers.TransactionRequest = {
+  to: mockConnextAddress,
+  data: "0x",
+  from: mock.config().signerAddress,
+  value: relayerFee,
+  chainId,
+};
+
+describe.only("#SDKShared", () => {
   let sdkShared: SdkShared;
-  let config: ConfigFns.SdkConfig;
   let axiosGetStub: SinonStub;
   let axiosPostStub: SinonStub;
-
-  let chainreader: SinonStubbedInstance<ChainReader>;
+  let expectedBaseUri: string;
 
   beforeEach(async () => {
-    sdkShared = new SdkShared(mockConfig, new Logger({ name: "SDK shared" }), mockChainData);
-    chainreader = createStubInstance(ChainReader);
-    config = ConfigFns.getEnvConfig(mockConfig, mockChainData, mockDeployments);
     axiosGetStub = stub(MockableFns, "axiosGet");
     axiosPostStub = stub(MockableFns, "axiosPost");
-    stub(SharedFns, "axiosGetRequest").resolves([]);
+    sdkShared = new SdkShared(mockConfig, new Logger({ name: "SDK shared" }), mockChainData);
+    expectedBaseUri = sdkShared.baseUri;
   });
 
   afterEach(() => {
@@ -41,15 +61,23 @@ describe("#SDKShared", () => {
       expect(sdkShared.config).to.not.be.null;
       expect(sdkShared.chainData).to.not.be.null;
 
+      expect(sdkShared.getConversionRate).to.be.a("function");
+      expect(sdkShared.getProvider).to.be.a("function");
+      expect(sdkShared.getDeploymentAddress).to.be.a("function");
       expect(sdkShared.getConnext).to.be.a("function");
       expect(sdkShared.getERC20).to.be.a("function");
+      expect(sdkShared.getChainId).to.be.a("function");
+      expect(sdkShared.domainToChainName).to.be.a("function");
+      expect(sdkShared.chainIdToDomain).to.be.a("function");
+      expect(sdkShared.domainToChainId).to.be.a("function");
+      expect(sdkShared.getBlockNumberFromUnixTimestamp).to.be.a("function");
       expect(sdkShared.approveIfNeeded).to.be.a("function");
       expect(sdkShared.getAssetsData).to.be.a("function");
-      expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
-      expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
-      expect(sdkShared.getAssetsWithSameCanonical).to.be.a("function");
       expect(sdkShared.getActiveLiquidity).to.be.a("function");
       expect(sdkShared.getSupported).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndAddress).to.be.a("function");
+      expect(sdkShared.getAssetsWithSameCanonical).to.be.a("function");
+      expect(sdkShared.getAssetsDataByDomainAndKey).to.be.a("function");
       expect(sdkShared.isNextAsset).to.be.a("function");
       expect(sdkShared.changeSignerAddress).to.be.a("function");
       expect(sdkShared.parseConnextTransactionReceipt).to.be.a("function");
@@ -59,68 +87,157 @@ describe("#SDKShared", () => {
   });
 
   describe("#getConversionRate", async () => {
-    it("Happy: should work", async () => {
-      const mockChainID = 10;
-      axiosGetStub.resolves({ data: 122334 });
-      const conversionRate = await sdkShared.getConversionRate(mockChainID);
-      expect(conversionRate).to.be.eq(122334);
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getConversionRate";
+      const expectedArgs: SdkGetConversionRateParams = {
+        chainId: +mock.chain.A,
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getConversionRate(expectedArgs.chainId);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.chainId}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getProvider", async () => {
-    it("Happy: should return provider", async () => {
-      const mockDomainID = "1869640809";
-      axiosGetStub.resolves({ data: { _isProvider: true } });
-      const provider = await sdkShared.getProvider(mockDomainID);
-      expect(provider._isProvider).to.be.eq(true);
-      expect(provider).to.be.a("object");
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getProvider";
+      const expectedArgs: SdkGetProviderParams = {
+        domainId: mock.domain.A,
+      };
+      const expectedRes = new providers.StaticJsonRpcProvider("http://localhost:8545");
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getProvider(expectedArgs.domainId);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getDeploymentAddress", async () => {
-    it("Happy: should return address", async () => {
-      const mockDomainID = "1869640809";
-      const mockDeploymentName = "connext";
-      axiosGetStub.resolves({ data: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA" });
-      const address = await sdkShared.getDeploymentAddress(mockDomainID, mockDeploymentName);
-      expect(address).to.be.eq("0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA");
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getDeploymentAddress";
+      const expectedArgs: SdkGetDeploymentAddressParams = {
+        domainId: mock.domain.A,
+        deploymentName: "connext",
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getDeploymentAddress(expectedArgs.domainId, expectedArgs.deploymentName);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.deploymentName}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getConnext", async () => {
-    it("Happy: should return connext", async () => {
-      const mockDomainID = "1869640809";
-      axiosGetStub.resolves({ data: { address: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA" } });
-      const connext = await sdkShared.getConnext(mockDomainID);
-      expect(connext.address).to.be.eq("0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA");
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getConnext";
+      const expectedArgs: SdkGetConnextParams = {
+        domainId: mock.domain.A,
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getConnext(expectedArgs.domainId);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getERC20", async () => {
-    it("Happy: should return ERC20", async () => {
-      const mockDomainID = "1869640809";
-      const mockTokenAddress = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
-      axiosGetStub.resolves({ data: { address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607" } });
-      const erc20 = await sdkShared.getERC20(mockDomainID, mockTokenAddress);
-      expect(erc20.address).to.be.eq("0x7F5c764cBc14f9669B88837ca1490cCa17c31607");
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getERC20";
+      const expectedArgs: SdkGetERC20Params = {
+        domainId: mock.domain.A,
+        tokenAddress: mock.asset.A.address,
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getERC20(expectedArgs.domainId, expectedArgs.tokenAddress);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.tokenAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getChainId", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getChainId";
+      const expectedArgs: SdkGetChainIdParams = {
+        domainId: mock.domain.A,
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosGetStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getChainId(expectedArgs.domainId);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+  });
+
+  describe("#domainToChainName", async () => {
     it("Happy: should return chainID", async () => {
-      const mockDomainID = "1869640809";
-      axiosGetStub.resolves({ data: 10 });
-      const erc20 = await sdkShared.getChainId(mockDomainID);
-      expect(erc20).to.be.eq(10);
+      const chainName = sdkShared.domainToChainName("6648936");
+      expect(chainName).to.not.be.undefined;
     });
   });
 
   describe("#domainToChainId", async () => {
     it("Happy: should return chainID", async () => {
-      const mockDomainID = 1869640809;
-      axiosGetStub.resolves({ data: 10 });
-      const blockNumber = await sdkShared.domainToChainId(mockDomainID);
-      expect(blockNumber).to.be.eq(10);
+      const chainId = sdkShared.domainToChainId(133712);
+      expect(chainId).to.be.eq(1337);
+    });
+  });
+
+  describe("#chainIdToDomain", async () => {
+    it("Happy: should return chainID", async () => {
+      const domain = sdkShared.chainIdToDomain(1337);
+      expect(domain).to.be.eq(133712);
     });
   });
 
@@ -135,252 +252,272 @@ describe("#SDKShared", () => {
   });
 
   describe("#approveIfNeeded", async () => {
-    it("Happy: should return approval", async () => {
-      const mockDomainID = "1869640809";
-      const mockAsset = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
-      const mockAmount = "100";
-      axiosGetStub.resolves({
-        data: {
-          data: "0x095ea7b30000000000000000000000008f7492de823025b4cfaab1d34c58963f2af5deda0000000000000000000000000000000000000000000000000000000000000064",
-        },
-      });
-      const approval = await sdkShared.approveIfNeeded(mockDomainID, mockAsset, mockAmount, false);
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/approveIfNeeded";
+      const expectedArgs: SdkApproveIfNeededParams = {
+        domainId: mock.domain.A,
+        assetId: "1",
+        amount: "100",
+        infiniteApprove: true,
+      };
 
-      expect(approval).not.to.be.undefined;
+      axiosGetStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkShared.approveIfNeeded(
+        expectedArgs.domainId,
+        expectedArgs.assetId,
+        expectedArgs.amount,
+        expectedArgs.infiniteApprove,
+      );
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri +
+          expectedEndpoint +
+          `/${expectedArgs.domainId}` +
+          `/${expectedArgs.assetId}` +
+          `/${expectedArgs.amount}` +
+          `/${expectedArgs.infiniteApprove}`,
+      );
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });
 
   describe("#getAssetsData", async () => {
-    it("Happy: should return asset", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getAssetsData";
+      const expectedRes = mkAddress("0x1234");
+
       axiosGetStub.resolves({
-        data: [
-          {
-            local: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            adopted: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            canonical_id: "0x0000000000000000000000008ae68021f6170e5a766be613cea0d75236ecca9a",
-            canonical_domain: "1735353714",
-            domain: "1735353714",
-            key: "0x81fd9d7fae5ab5f62bb91483ea4d7c14fd7cdd826984f53ebfc6d2f3eefdba16",
-            id: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            decimal: 18,
-          },
-        ],
+        data: expectedRes,
+        status: 200,
       });
-      const asset = await sdkShared.getAssetsData();
-      expect(asset.length).to.be.greaterThan(0);
+
+      const res = await sdkShared.getAssetsData();
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getActiveLiquidity", async () => {
-    it("Happy: should return active Liquidity", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getActiveLiquidity";
+      const expectedArgs: SdkGetActiveLiquidityParams = {
+        domain: mock.domain.A,
+      };
+      const expectedRes = [];
+
       axiosGetStub.resolves({
-        data: [
-          {
-            domain: "1668247156",
-            local: "0xb706319d37b945727e71ae0d4353699d19112576",
-            adopted: "0xb706319d37b945727e71ae0d4353699d19112576",
-            total_balance: 1.0000020000008189e26,
-            total_locked: 1.000002e26,
-            total_supplied: 1.000002e26,
-            total_removed: 0,
-            avg_usd_price: 1863.39,
-            total_balance_usd: 186339372678.1526,
-            total_locked_usd: 186339372678,
-            total_supplied_usd: 186339372678,
-            total_removed_usd: 0,
-          },
-        ],
+        data: expectedRes,
+        status: 200,
       });
-      const liquidity = await sdkShared.getActiveLiquidity();
-      expect(liquidity.length).to.be.greaterThan(0);
+
+      const res = await sdkShared.getActiveLiquidity(expectedArgs.domain);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        params: {
+          domain: expectedArgs.domain,
+          local: undefined,
+        },
+      });
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getSupported", async () => {
-    it("Happy: should return active supported", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getSupported";
+      const expectedRes = [];
+
       axiosGetStub.resolves({
-        data: [
-          {
-            chainId: 80001,
-            domainId: "9991",
-            assets: [
-              "0xedb95d8037f769b72aaab41deec92903a98c9e16",
-              "0xfa2f9ce589b30f1e4c8bf20bcb496032087baaf0",
-              "0xfd2ab41e083c75085807c4a65c0a14fdd93d55a9",
-              "0x42bb40bf79730451b11f6de1cba222f17b87afd7",
-              "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
-              "0xa24e850bb444586897226b7bc4a3c338c995252f",
-              "0x0000000000000000000000000000000000000000",
-            ],
-          },
-        ],
+        data: expectedRes,
+        status: 200,
       });
-      const supported = await sdkShared.getSupported();
-      expect(supported.length).to.be.greaterThan(0);
+
+      const res = await sdkShared.getSupported();
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getAssetsDataByDomainAndAddress", async () => {
-    it("Happy: should return asset", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getAssetsDataByDomainAndAddress";
+      const expectedArgs: SdkGetAssetsDataByDomainAndAddressParams = {
+        domainId: mock.domain.A,
+        tokenAddress: mock.asset.A.address,
+      };
+      const expectedRes = {};
+
       axiosGetStub.resolves({
-        data: [
-          {
-            local: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            adopted: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            canonical_id: "0x0000000000000000000000008ae68021f6170e5a766be613cea0d75236ecca9a",
-            canonical_domain: "1735353714",
-            domain: "1735353714",
-            key: "0x81fd9d7fae5ab5f62bb91483ea4d7c14fd7cdd826984f53ebfc6d2f3eefdba16",
-            id: "0x8ae68021f6170e5a766be613cea0d75236ecca9a",
-            decimal: 18,
-          },
-        ],
+        data: expectedRes,
+        status: 200,
       });
-      const asset = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.A, mock.asset.A.address);
-      expect(asset).not.to.be.eq(null);
+
+      const res = await sdkShared.getAssetsDataByDomainAndAddress(expectedArgs.domainId, expectedArgs.tokenAddress);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.tokenAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getAssetsWithSameCanonical", async () => {
-    it("Happy: should return asset", async () => {
-      const result = {
-        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        canonical_domain: "6648936",
-        domain: "1869640809",
-        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
-        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        decimal: 6,
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getAssetsWithSameCanonical";
+      const expectedArgs: SdkGetAssetsWithSameCanonicalParams = {
+        domainId: mock.domain.A,
+        tokenAddress: mock.asset.A.address,
       };
+      const expectedRes = [];
+
       axiosGetStub.resolves({
-        data: result,
+        data: expectedRes,
+        status: 200,
       });
-      const asset = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
-      expect(asset).to.be.eq(result);
+
+      const res = await sdkShared.getAssetsWithSameCanonical(expectedArgs.domainId, expectedArgs.tokenAddress);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.tokenAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getAssetsDataByDomainAndKey", async () => {
-    it("Happy: should return asset", async () => {
-      const mockAssetData = {
-        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        canonical_domain: "6648936",
-        domain: "1869640809",
-        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
-        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        decimal: 6,
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getAssetsDataByDomainAndKey";
+      const expectedArgs: SdkGetAssetsDataByDomainAndKeyParams = {
+        domainId: mock.domain.A,
+        key: mock.asset.A.address,
       };
+      const expectedRes = {};
+
       axiosGetStub.resolves({
-        data: mockAssetData,
+        data: expectedRes,
+        status: 200,
       });
-      const asset = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mock.asset.A.address);
-      expect(asset).to.be.eq(mockAssetData);
+
+      const res = await sdkShared.getAssetsDataByDomainAndKey(expectedArgs.domainId, expectedArgs.key);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.key}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#isNextAsset", async () => {
-    it("Happy: should return isNextAsset", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/isNextAsset";
+      const expectedArgs: SdkIsNextAssetParams = {
+        tokenAddress: mock.asset.A.address,
+      };
+      const expectedRes = true;
+
       axiosGetStub.resolves({
-        data: true,
+        data: expectedRes,
+        status: 200,
       });
-      const isNextAsset = await sdkShared.isNextAsset(mock.domain.A, mock.asset.A.address);
-      expect(isNextAsset).to.be.eq(true);
-      expect(isNextAsset).not.to.be.undefined;
+
+      const res = await sdkShared.isNextAsset(expectedArgs.tokenAddress);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.tokenAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#changeSignerAddress", async () => {
-    it("Happy: should return changeSigner", async () => {
-      const asset = {
-        local: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        adopted: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-        canonical_id: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        canonical_domain: "6648936",
-        domain: "1869640809",
-        key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c",
-        id: "0x67e51f46e8e14d4e4cab9df48c59ad8f512486dd",
-        decimal: 6,
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/changeSignerAddress";
+      const expectedArgs: SdkChangeSignerAddressParams = {
+        signerAddress: mkAddress("0x1234"),
       };
+      const expectedRes = {};
+
       axiosGetStub.resolves({
-        data: asset,
+        data: expectedRes,
+        status: 200,
       });
-      const changeSignerAddress = await sdkShared.changeSignerAddress(mkAddress());
-      expect(changeSignerAddress).to.be.eq(asset);
-      expect(changeSignerAddress).not.to.be.null;
+
+      const res = await sdkShared.changeSignerAddress(expectedArgs.signerAddress);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.signerAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#parseConnextTransactionReceipt", async () => {
-    it("Happy: should return parseConnextTransactionReceipt", async () => {
-      const mockTransactionRecipt: providers.TransactionReceipt = {
-        to: "0x0000000000000000000000000000000000000000",
-        from: "0x0000000000000000000000000000000000000000",
-        contractAddress: "0x0000000000000000000000000000000000000000",
-        transactionIndex: 10,
-        gasUsed: BigNumber.from(10),
-        logsBloom: "",
-        blockHash: "0x0000000000000000000000000000000000000000",
-        transactionHash: "0x0000000000000000000000000000000000000000",
-        logs: [],
-        blockNumber: 10000000,
-        confirmations: 5,
-        cumulativeGasUsed: BigNumber.from(10),
-        effectiveGasPrice: BigNumber.from(10),
-        byzantium: true,
-        type: 1,
-      };
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/parseConnextTransactionReceipt";
+      const expectedArgs = mock.ethers.receipt();
+      const expectedRes = [];
+
       axiosPostStub.resolves({
-        data: [mockTransactionRecipt],
+        data: expectedRes,
+        status: 200,
       });
-      const parsedData = await sdkShared.parseConnextTransactionReceipt(mockTransactionRecipt);
-      expect(parsedData[0].to).to.be.eq("0x0000000000000000000000000000000000000000");
+
+      const res = await sdkShared.parseConnextTransactionReceipt(expectedArgs);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#calculateCanonicalKey", async () => {
-    it("Happy: should return canonical key", async () => {
-      const mockCanonicalID = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/calculateCanonicalKey";
+      const expectedArgs: SdkCalculateCanonicalKeyParams = {
+        domainId: mock.domain.A,
+        canonicalId: mkAddress("0x1234"),
+      };
+      const expectedRes = mkAddress("0x4321");
+
       axiosGetStub.resolves({
-        data: "0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5",
+        data: expectedRes,
+        status: 200,
       });
-      const canonicalKey = await sdkShared.calculateCanonicalKey(mock.domain.A, mockCanonicalID);
-      expect(canonicalKey).to.be.eq("0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5");
+
+      const res = await sdkShared.calculateCanonicalKey(expectedArgs.domainId, expectedArgs.canonicalId);
+
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.canonicalId}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 
   describe("#getCanonicalTokenId", async () => {
-    it("Happy: should return canonical Token ID", async () => {
-      const mockCanonicalID = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
-      const result = ["0"];
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getCanonicalTokenId";
+      const expectedArgs: SdkGetCanonicalTokenIdParams = {
+        domainId: mock.domain.A,
+        tokenAddress: mock.asset.A.address,
+      };
+      const expectedRes = [mock.domain.A, mkAddress("0x4321")];
+
       axiosGetStub.resolves({
-        data: result,
+        data: expectedRes,
+        status: 200,
       });
-      const canonicalTokenID = await sdkShared.calculateCanonicalKey(mock.domain.A, mockCanonicalID);
-      expect(canonicalTokenID).to.be.eq(result);
-    });
-  });
 
-  describe("#domainToChainName", () => {
-    it("happy: should work", async () => {
-      const chainName = sdkShared.domainToChainName("6648936");
-      expect(chainName).to.not.be.undefined;
-    });
-  });
+      const res = await sdkShared.getCanonicalTokenId(expectedArgs.domainId, expectedArgs.tokenAddress);
 
-  describe("#domainToChainId", () => {
-    it("happy: should work", async () => {
-      const chainId = sdkShared.domainToChainId(133712);
-      expect(chainId).to.be.eq(1337);
-    });
-  });
-
-  describe("#chainIdToDomain", () => {
-    it("happy: should work", async () => {
-      const domain = sdkShared.chainIdToDomain(1337);
-      expect(domain).to.be.eq(133712);
+      expect(axiosGetStub).to.have.been.calledWithExactly(
+        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.tokenAddress}`,
+      );
+      expect(res).to.be.deep.eq(expectedRes);
     });
   });
 });

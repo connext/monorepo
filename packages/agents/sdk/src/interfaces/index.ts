@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
-import { TChainConfig } from "../config";
+import { TChainConfig, TChainDeployments } from "../config";
 
 export type Pool = {
   domainId: string;
@@ -218,12 +218,7 @@ export type SdkGetProviderParams = Static<typeof SdkGetProviderParamsSchema>;
 // getDeploymentAddress
 export const SdkGetDeploymentAddressParamsSchema = Type.Object({
   domainId: Type.String(),
-  deploymentName: Type.Enum({
-    connext: "connext",
-    multisend: "multisend",
-    unwrapper: "unwrapper",
-    stableSwap: "stableSwap",
-  }),
+  deploymentName: Type.Enum(TChainDeployments),
 });
 export type SdkGetDeploymentAddressParams = Static<typeof SdkGetDeploymentAddressParamsSchema>;
 

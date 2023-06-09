@@ -50,7 +50,7 @@ export class SdkShared {
   }
 
   async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const response = await axiosGet(`${this.baseUri}/getDeploymentAddress/${domainId}/${tokenAddress}`);
+    const response = await axiosGet(`${this.baseUri}/getERC20/${domainId}/${tokenAddress}`);
     return response.data;
   }
 
@@ -118,7 +118,7 @@ export class SdkShared {
   }
 
   async getAssetsWithSameCanonical(domainId: string, tokenAddress: string): Promise<AssetData[]> {
-    const response = await axiosGet(`${this.baseUri}/getAssetsDataByDomainAndAddress/${domainId}/${tokenAddress}`);
+    const response = await axiosGet(`${this.baseUri}/getAssetsWithSameCanonical/${domainId}/${tokenAddress}`);
     return response.data;
   }
 
@@ -127,8 +127,8 @@ export class SdkShared {
     return response.data;
   }
 
-  async isNextAsset(domainId: string, tokenAddress: string): Promise<boolean | undefined> {
-    const response = await axiosGet(`${this.baseUri}/isNextAsset/${domainId}/${tokenAddress}`);
+  async isNextAsset(tokenAddress: string): Promise<boolean | undefined> {
+    const response = await axiosGet(`${this.baseUri}/isNextAsset/${tokenAddress}`);
     return response.data;
   }
 
@@ -138,7 +138,7 @@ export class SdkShared {
   }
 
   async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt) {
-    const response = await axiosPost(`${this.baseUri}/changeSignerAddress/`, transactionReceipt);
+    const response = await axiosPost(`${this.baseUri}/parseConnextTransactionReceipt`, transactionReceipt);
     return response.data;
   }
 
