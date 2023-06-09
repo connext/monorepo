@@ -598,7 +598,7 @@ export class SdkPool extends SdkShared {
     poolTVL: number,
   ) {
     const params = {
-      totoalTokens: totalTokens,
+      totalTokens: totalTokens,
       totalBlocks: totalBlocks,
       numPools: numPools,
       tokenSymbol,
