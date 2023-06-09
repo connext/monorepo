@@ -8,6 +8,11 @@ type Asset @entity {
   localAsset: Bytes
   blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
   # status
+  status: AssetStatus
+}
+
+type AssetStatus @entity {
+  id: ID! # key
   status: Boolean
 }
 
