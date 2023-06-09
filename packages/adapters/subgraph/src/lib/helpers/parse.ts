@@ -141,6 +141,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
         gasLimit: entity.gasLimit,
         blockNumber: BigNumber.from(entity.blockNumber ?? "0").toNumber(),
         txOrigin: entity.txOrigin,
+        txNonce: BigNumber.from(entity.txNonce ?? "0").toNumber(),
       },
     },
 
@@ -234,6 +235,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
             txOrigin: entity.executedTxOrigin,
+            txNonce: BigNumber.from(entity.executedTxNonce ?? "0").toNumber(),
           }
         : undefined,
 
@@ -248,6 +250,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.reconciledGasLimit,
             blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
             txOrigin: entity.reconciledTxOrigin,
+            txNonce: BigNumber.from(entity.reconciledTxNonce ?? "0").toNumber(),
           }
         : undefined,
     },

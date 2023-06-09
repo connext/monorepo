@@ -141,7 +141,7 @@ export const updateTransfers = async () => {
       domains.map(async (domain) => {
         // Get destination transfers per domain.
         const domainParams = subgraphReconcileQueryMetaParams.get(domain)!;
-        const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileTxNonce(domainParams, domain);
+        const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileNonce(domainParams, domain);
         logger.info("Retrieved destination transfers by reconcile tx nonce by domain", requestContext, methodContext, {
           domain: domain,
           count: domainTransfers.length,
