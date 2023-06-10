@@ -315,7 +315,24 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10
+      "1668247156" = 10,
+      "9991" = 10,
+      "1735353714" = 10,
+      "2053862260" = 10,
+      "1734439522" = 10,
+      "1735356532" = 10
+    }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
     }
     messageQueue = {
       connection = {
