@@ -221,12 +221,29 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         cap: utils.parseUnits("25000", 18).toString(),
       },
       representations: {
-        // gnosis
+        // mainnet
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // optimism
         "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x0000000000000000000000000000000000000000",
           adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
         // bsc
         "6450786": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x0000000000000000000000000000000000000000",
           adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
       },
