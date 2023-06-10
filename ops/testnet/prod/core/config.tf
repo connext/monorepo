@@ -264,6 +264,7 @@ locals {
     }
   })
 
+
   local_lighthouse_config = jsonencode({
     redis = {
       host = module.lighthouse_cache.redis_instance_address,
