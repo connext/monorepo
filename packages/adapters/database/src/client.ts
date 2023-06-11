@@ -73,7 +73,6 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     xcall_gas_limit: transfer.origin?.xcall?.gasLimit,
     xcall_block_number: transfer.origin?.xcall?.blockNumber,
     xcall_tx_origin: transfer.origin?.xcall?.txOrigin,
-    xcall_tx_nonce: transfer.origin?.xcall?.txNonce,
 
     destination_chain: transfer.destination?.chain,
     status: transfer.destination?.status,

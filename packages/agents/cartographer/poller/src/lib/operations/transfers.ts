@@ -12,7 +12,7 @@ import {
 import { getContext } from "../../shared";
 
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {
-  return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.origin?.xcall.txNonce ?? 0));
+  return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.xparams.nonce ?? 0));
 };
 
 const getMaxReconcileNonce = (transfers: XTransfer[]): number => {
@@ -61,7 +61,7 @@ export const updateTransfers = async () => {
       }
 
       // Retrieve the most recent origin transfers we've saved for this domain.
-      const latestOriginNonce = await database.getCheckPoint("origin_tx_nonce_" + domain);
+      const latestOriginNonce = await database.getCheckPoint("origin_nonce_" + domain);
 
       subgraphOriginQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber,
@@ -106,7 +106,7 @@ export const updateTransfers = async () => {
 
     await database.saveTransfers(transfers);
     for (const checkpoint of checkpoints) {
-      await database.saveCheckPoint("origin_tx_nonce_" + checkpoint.domain, checkpoint.checkpoint);
+      await database.saveCheckPoint("origin_nonce_" + checkpoint.domain, checkpoint.checkpoint);
     }
   }
 

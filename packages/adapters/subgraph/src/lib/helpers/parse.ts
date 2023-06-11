@@ -141,7 +141,6 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
         gasLimit: entity.gasLimit,
         blockNumber: BigNumber.from(entity.blockNumber ?? "0").toNumber(),
         txOrigin: entity.txOrigin,
-        txNonce: BigNumber.from(entity.txNonce ?? "0").toNumber(),
       },
     },
 

@@ -67,7 +67,7 @@ export const XTransferOriginSchema = Type.Object({
   relayerFees: Type.Record(Type.String(), TIntegerString),
 
   // XCall Transaction
-  xcall: Type.Intersect([XTransferMethodCallSchema]),
+  xcall: Type.Omit(XTransferMethodCallSchema, ["txNonce"]),
 });
 
 export const XTransferDestinationSchema = Type.Object({

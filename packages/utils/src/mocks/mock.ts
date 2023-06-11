@@ -300,7 +300,6 @@ export const mock = {
                 gasLimit: "80000",
                 blockNumber: 7654321,
                 txOrigin: user,
-                txNonce: Math.floor(Date.now() / 1000 - 60) * 10000,
               },
             }
           : undefined,

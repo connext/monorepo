@@ -200,7 +200,6 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             timestamp: transfer.xcall_timestamp!,
             transactionHash: transfer.xcall_transaction_hash!,
             txOrigin: transfer.xcall_tx_origin!,
-            txNonce: BigNumber.from(transfer.xcall_tx_nonce ?? "0").toNumber(),
           },
         }
       : undefined,

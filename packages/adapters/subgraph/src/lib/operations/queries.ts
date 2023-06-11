@@ -98,7 +98,6 @@ export const ORIGIN_TRANSFER_ENTITY = `
       gasLimit
       blockNumber
       txOrigin
-      txNonce
 `;
 
 export const ORIGIN_TRANSFER_ENTITY_FALLBACK = `
@@ -144,7 +143,6 @@ export const ORIGIN_TRANSFER_ENTITY_FALLBACK = `
       gasLimit
       blockNumber
       txOrigin
-      txNonce
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
@@ -656,10 +654,10 @@ const originTransferByNonceQueryString = (
 ) => {
   return `${prefix}_originTransfers(
     where: {
-      txNonce_gte: ${fromNonce},
+      nonce_gte: ${fromNonce},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    orderBy: txNonce,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
