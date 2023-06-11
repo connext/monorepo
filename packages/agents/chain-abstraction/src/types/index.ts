@@ -96,3 +96,30 @@ export type Asset = {
   logoURI: string;
   address: string;
 };
+
+export type EstimateQuoteAmountArgs = {
+  originDomain: number;
+  destinationDomain: number;
+  originRpc: string;
+  destinationRpc: string;
+  fromAsset: string;
+  toAsset: string;
+  underlyingAsset?: string;
+  amountIn: string;
+  swapper: string;
+  signerAddress: string;
+  fee?: string;
+  originDecimals?: number;
+  destinationDecimals?: number;
+};
+
+export type SwapQuoteCallbackArgs = {
+  chainId: number;
+  quoter: string;
+  rpc: string;
+  fromAsset: string;
+  toAsset: string;
+  amountIn: string;
+  fee?: string;
+  sqrtPriceLimitX96?: string;
+};

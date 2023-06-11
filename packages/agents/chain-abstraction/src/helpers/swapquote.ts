@@ -1,14 +1,10 @@
 import { constants, utils } from "ethers";
-import { domainToChainId, jsonifyError } from "@connext/nxtp-utils";
+import { jsonifyError } from "@connext/nxtp-utils";
 
 import { axiosGet, getContract, JsonRpcProvider } from "../mockable";
-import { Swapper } from "../types";
-import { getPoolFeeForUniV3 } from "../libs";
 
 import { UniV2RouterABI, UniV3QuoterABI } from "./abis";
-import { DEPLOYED_ADDRESSES } from "./address";
 
-import { SwapQuoteFns, OriginSwapperPerDomain } from ".";
 import { create, SdkConfig } from "@connext/sdk";
 
 export type SwapQuoteCallbackArgs = {
@@ -86,7 +82,7 @@ export const getSwapQuoteForOneInch = async (args: SwapQuoteCallbackArgs): Promi
   }
 };
 
-const initCoreSDK = (
+export const initCoreSDK = async (
   signerAddress: string,
   originDomain: number,
   destinationDomain: number,
@@ -103,100 +99,6 @@ const initCoreSDK = (
     chains: domainConfig,
   };
 
-  return sdkConfig;
-};
-
-export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): Promise<string> => {
-  const {
-    originDomain,
-    destinationDomain,
-    originRpc,
-    destinationRpc,
-    fromAsset,
-    toAsset,
-    amountIn,
-    fee,
-    swapper,
-    signerAddress,
-    originDecimals,
-    destinationDecimals,
-  } = args;
-  // checking the swapper
-
-  const originChainID = domainToChainId(originDomain);
-  const destinationChainID = domainToChainId(destinationDomain);
-
-  const swapFunction = SwapQuoteFns[swapper];
-
-  // just check for the swap
-
-  const originQuoterConfig = OriginSwapperPerDomain[originDomain.toString()];
-  const destinationQuoterConfig = OriginSwapperPerDomain[destinationDomain.toString()];
-
-  const originUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain.toString()];
-  const destinationUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain.toString()];
-  const _toAsset = originUnderlyingAsset; // origin Side
-  try {
-    let _fee = fee;
-    if (swapper === Swapper.UniV3 && !_fee) {
-      _fee = await getPoolFeeForUniV3(
-        originDomain.toString(),
-        originRpc,
-        utils.getAddress(fromAsset),
-        utils.getAddress(_toAsset),
-      );
-    }
-
-    const args: SwapQuoteCallbackArgs = {
-      chainId: originChainID,
-      quoter: signerAddress,
-      rpc: originRpc,
-      fromAsset,
-      toAsset: _toAsset, // fix need here
-      amountIn,
-      fee: _fee,
-    };
-
-    // Step 1: Calculate amountOut after origin swaps
-
-    const originSwapAmountOut = await swapFunction(args);
-    if (originDomain === destinationDomain) return originSwapAmountOut;
-
-    // initing the core sdk for calculating amount recieved after bridging
-    const sdkConfig = initCoreSDK(signerAddress, originDomain, destinationDomain, originRpc, destinationRpc);
-
-    const { sdkBase } = await create(sdkConfig);
-
-    // Step 2: Calculate amount after bridge.
-    const { amountReceived } =
-      (await sdkBase.calculateAmountReceived(
-        originDomain.toString(),
-        destinationDomain.toString(),
-        _toAsset,
-        originSwapAmountOut,
-      )) || {};
-
-    if (!amountReceived) {
-      throw Error("Failed to fetch estimate bridging amountOut");
-    }
-
-    if (toAsset === destinationUnderlyingAsset) return amountReceived.toString();
-
-    // check for the destination swaps quote
-    // Step 3: Calculate amount after destination swap
-    const destinationArgs: SwapQuoteCallbackArgs = {
-      chainId: destinationChainID,
-      quoter: destinationQuoterConfig.quoter,
-      rpc: destinationRpc,
-      amountIn: amountReceived.toString(),
-      fromAsset: destinationUnderlyingAsset,
-      toAsset,
-      fee,
-    };
-
-    const amountOut = await swapFunction(destinationArgs);
-    return amountOut;
-  } catch (err: unknown) {
-    throw Error(`Failed to swap with Error: ${jsonifyError(err as Error).message}`);
-  }
+  const { sdkBase } = await create(sdkConfig);
+  return { sdkBase };
 };
