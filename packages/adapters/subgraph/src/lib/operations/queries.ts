@@ -693,7 +693,7 @@ const destinationTransferByExecutedNonceQueryString = (
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      executedTxNonce_gte: ${fromNonce},
+      executedTxNonce_gte: "${fromNonce}",
     },
     orderBy: executedTxNonce,
     orderDirection: ${orderDirection}
@@ -798,7 +798,7 @@ const destinationTransfersByReconcileNonceQueryString = (
   return `
   ${prefix}_destinationTransfers(
     where: {
-      reconciledTxNonce_gte: ${fromNonce},
+      reconciledTxNonce_gte: "${fromNonce}",
       ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: reconciledTxNonce,
