@@ -1,10 +1,15 @@
 import { BigNumber, utils } from "ethers";
 import { DEFAULT_ROUTER_FEE, calculateExchangeWad, domainToChainId } from "@connext/nxtp-utils";
 
-import { DestinationSwapperPerDomain, OriginSwapperPerDomain, SwapQuoteFns } from "../../helpers";
+import {
+  DestinationSwapperPerDomain,
+  OriginSwapperPerDomain,
+  SwapQuoteFns,
+  DEPLOYED_ADDRESSES,
+  initCoreSDK,
+} from "../../helpers";
 import { SwapQuoteParams, Swapper, EstimateQuoteAmountArgs, SwapQuoteCallbackArgs } from "../../types";
 import { getPoolFeeForUniV3 } from "../origin";
-import { DEPLOYED_ADDRESSES, initCoreSDK } from "../../helpers";
 
 /**
  * Returns the amount out received after swapping
@@ -96,8 +101,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     fee,
     swapper,
     signerAddress,
-    originDecimals,
-    destinationDecimals,
   } = args;
   // checking the swapper
 
@@ -107,9 +110,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
   const swapFunction = SwapQuoteFns[swapper];
 
   // just check for the swap
-
-  const originQuoterConfig = OriginSwapperPerDomain[originDomain.toString()];
-  const destinationQuoterConfig = OriginSwapperPerDomain[destinationDomain.toString()];
 
   const originUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain.toString()];
   const destinationUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain.toString()];
@@ -162,7 +162,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     // Step 3: Calculate amount after destination swap
     const destinationArgs: SwapQuoteCallbackArgs = {
       chainId: destinationChainID,
-      quoter: destinationQuoterConfig.quoter,
+      quoter: signerAddress,
       rpc: destinationRpc,
       amountIn: amountReceived.toString(),
       fromAsset: destinationUnderlyingAsset,

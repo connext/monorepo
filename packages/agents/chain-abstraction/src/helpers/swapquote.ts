@@ -1,11 +1,10 @@
-import { constants, utils } from "ethers";
+import { constants } from "ethers";
 import { jsonifyError } from "@connext/nxtp-utils";
+import { create, SdkConfig } from "@connext/sdk";
 
 import { axiosGet, getContract, JsonRpcProvider } from "../mockable";
 
 import { UniV2RouterABI, UniV3QuoterABI } from "./abis";
-
-import { create, SdkConfig } from "@connext/sdk";
 
 export type SwapQuoteCallbackArgs = {
   chainId: number;
