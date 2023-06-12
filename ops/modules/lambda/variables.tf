@@ -41,3 +41,32 @@ variable "memory_size" {
   description = "memory size for lambda"
   default     = 10240
 }
+
+variable "cidr_block" {
+  default = "172.17.0.0/16"
+}
+
+variable "domain" {
+  description = "domain of deployment"
+  default     = "core"
+}
+
+variable "lambda_in_vpc" {
+  description = "whether or not to run lambda in vpc"
+  default     = false
+}
+
+variable "public_subnets" {
+  type    = list(string)
+  default = []
+}
+
+variable "private_subnets" {
+  type    = list(string)
+  default = []
+}
+
+variable "lambda_security_groups" {
+  type    = list(string)
+  default = []
+}

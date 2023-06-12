@@ -1,7 +1,9 @@
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Database } from "@connext/nxtp-adapters-database";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
+import Broker from "amqplib";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -13,6 +15,8 @@ export type ProverContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
+    cache: StoreManager;
+    mqClient: Broker.Connection;
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;
