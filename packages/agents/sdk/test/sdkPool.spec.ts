@@ -677,6 +677,7 @@ describe("SdkPool", () => {
     it("happy: should work", async () => {
       stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
       stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(mockPool);
 
       const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
 
@@ -701,6 +702,7 @@ describe("SdkPool", () => {
     it("happy: should work", async () => {
       stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
       stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(mockPool);
 
       const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
         mockPool.domainId,

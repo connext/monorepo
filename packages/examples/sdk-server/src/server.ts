@@ -2,12 +2,13 @@ import fastify, { FastifyInstance } from "fastify";
 import { createLoggingContext, Logger, getBestProvider } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
 import { ethers, providers } from "ethers";
-import { SdkConfig, create } from "@connext/sdk";
+import { SdkConfig, create } from "@connext/sdk-core";
 
+import { baseRoutes } from "./routes/base";
 import { poolRoutes } from "./routes/pool";
 import { utilsRoutes } from "./routes/utils";
 import { routerRoutes } from "./routes/router";
-import { baseRoutes } from "./routes/base";
+import { sharedRoutes } from "./routes/shared";
 import { SdkServerConfig, getConfig } from "./config";
 import { SdkServerContext } from "./context";
 
@@ -50,7 +51,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       environment: context.config.environment,
     };
 
-    const { sdkBase, sdkPool, sdkUtils, sdkRouter } = await create(nxtpConfig);
+    const { sdkBase, sdkPool, sdkUtils, sdkRouter, sdkShared } = await create(nxtpConfig);
 
     // Server configuration - setup redis plugin if enabled, register routes
     const server = fastify();
@@ -82,6 +83,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     server.register(poolRoutes, sdkPool);
     server.register(utilsRoutes, sdkUtils);
     server.register(routerRoutes, sdkRouter);
+    server.register(sharedRoutes, sdkShared);
 
     server.listen({ port: 8080 }, (err, address) => {
       if (err) {
