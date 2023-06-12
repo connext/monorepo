@@ -317,7 +317,6 @@ CREATE TABLE public.transfers (
     error_message character varying(255),
     message_status character varying(255),
     relayer_fees jsonb,
-    xcall_tx_nonce numeric DEFAULT 0 NOT NULL,
     execute_tx_nonce numeric DEFAULT 0 NOT NULL,
     reconcile_tx_nonce numeric DEFAULT 0 NOT NULL
 );
