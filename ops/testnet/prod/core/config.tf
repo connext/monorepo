@@ -272,13 +272,13 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
+        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}", "https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
