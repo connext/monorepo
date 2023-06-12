@@ -2642,7 +2642,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/sdk-core@workspace:^, @connext/sdk-core@workspace:packages/agents/sdk":
+"@connext/sdk-core@workspace:*, @connext/sdk-core@workspace:^, @connext/sdk-core@workspace:packages/agents/sdk":
   version: 0.0.0-use.local
   resolution: "@connext/sdk-core@workspace:packages/agents/sdk"
   dependencies:
@@ -2672,7 +2672,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@connext/sdk": "workspace:*"
+    "@connext/sdk-core": "workspace:*"
     "@fastify/redis": 6.1.1
     "@fastify/type-provider-typebox": 2.4.0
     "@types/eslint": ^8
