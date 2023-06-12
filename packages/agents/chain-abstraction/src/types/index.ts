@@ -106,7 +106,6 @@ export type EstimateQuoteAmountArgs = {
   toAsset: string;
   underlyingAsset?: string;
   amountIn: string;
-  swapper: string;
   signerAddress: string;
   fee?: string;
   originDecimals?: number;

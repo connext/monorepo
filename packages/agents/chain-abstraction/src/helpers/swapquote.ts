@@ -53,7 +53,13 @@ export const getSwapQuoteForUniV3 = async (_args: SwapQuoteCallbackArgs): Promis
   const { amountIn, quoter, rpc, fromAsset, toAsset, fee, sqrtPriceLimitX96: _sqrtPriceLimitX96 } = _args;
   const rpcProvider = new JsonRpcProvider(rpc);
   const v3QuoterV2Contract = getContract(quoter, UniV3QuoterABI, rpcProvider);
-
+  console.log({
+    tokenIn: fromAsset,
+    tokenOut: toAsset,
+    amountIn,
+    fee,
+    sqrtPriceLimitX96: _sqrtPriceLimitX96 ?? 0,
+  });
   const res = await v3QuoterV2Contract.callStatic.quoteExactInputSingle({
     tokenIn: fromAsset,
     tokenOut: toAsset,

@@ -99,35 +99,38 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     toAsset,
     amountIn,
     fee,
-    swapper,
     signerAddress,
   } = args;
   // checking the swapper
 
   const originChainID = domainToChainId(originDomain);
   const destinationChainID = domainToChainId(destinationDomain);
+  const originQuoter = OriginSwapperPerDomain[originDomain];
+  const destinationQuoter = DestinationSwapperPerDomain[destinationDomain];
 
-  const swapFunction = SwapQuoteFns[swapper];
+  const originSwapFunction = SwapQuoteFns[originQuoter.type];
 
   // just check for the swap
 
   const originUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain.toString()];
   const destinationUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain.toString()];
+
   const _toAsset = originUnderlyingAsset; // origin Side
   try {
     let _fee = fee;
-    if (swapper === Swapper.UniV3 && !_fee) {
+    if (originQuoter.type === Swapper.UniV3 && !_fee) {
       _fee = await getPoolFeeForUniV3(
         originDomain.toString(),
         originRpc,
         utils.getAddress(fromAsset),
         utils.getAddress(_toAsset),
       );
+      console.log(_fee);
     }
 
     const args: SwapQuoteCallbackArgs = {
       chainId: originChainID,
-      quoter: signerAddress,
+      quoter: originQuoter.quoter,
       rpc: originRpc,
       fromAsset,
       toAsset: _toAsset, // fix need here
@@ -137,7 +140,8 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
 
     // Step 1: Calculate amountOut after origin swaps
 
-    const originSwapAmountOut = await swapFunction(args);
+    const originSwapAmountOut = await originSwapFunction(args);
+    console.log(originSwapAmountOut, "origin swap");
     if (originDomain === destinationDomain) return originSwapAmountOut;
 
     // initing the core sdk for calculating amount recieved after bridging
@@ -152,25 +156,38 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
         originSwapAmountOut,
       )) || {};
 
+    console.log(amountReceived.toString(), "Amount after bridge");
+
     if (!amountReceived) {
       throw Error("Failed to fetch estimate bridging amountOut");
     }
 
     if (toAsset === destinationUnderlyingAsset) return amountReceived.toString();
 
+    if (destinationQuoter.type === Swapper.UniV3 && !_fee) {
+      _fee = await getPoolFeeForUniV3(
+        destinationDomain.toString(),
+        destinationRpc,
+        utils.getAddress(destinationUnderlyingAsset),
+        utils.getAddress(toAsset),
+      );
+      console.log(_fee);
+    }
+
     // check for the destination swaps quote
     // Step 3: Calculate amount after destination swap
     const destinationArgs: SwapQuoteCallbackArgs = {
       chainId: destinationChainID,
-      quoter: signerAddress,
+      quoter: destinationQuoter.quoter,
       rpc: destinationRpc,
       amountIn: amountReceived.toString(),
       fromAsset: destinationUnderlyingAsset,
       toAsset,
-      fee,
+      fee: _fee,
     };
-
-    const amountOut = await swapFunction(destinationArgs);
+    const destinationSwapFunction = SwapQuoteFns[destinationQuoter.type];
+    console.log(destinationSwapFunction, "function");
+    const amountOut = await destinationSwapFunction(destinationArgs);
     return amountOut;
   } catch (err: unknown) {
     throw Error(`Failed to swap with Error: ${(err as Error).message}`);
