@@ -147,6 +147,7 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
+  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
 
   // ============ Constructor ============
 
@@ -383,6 +384,8 @@ contract RelayerProxyHub is RelayerProxy {
 
     if (fromChain == 137 || fromChain == 80001) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
+    } else {
+      revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
     }
   }
 }
