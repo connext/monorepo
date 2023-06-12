@@ -203,6 +203,16 @@ contract RelayerProxyHub is RelayerProxy {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
 
   /**
+   * @notice Emitted when the cooldown period for proposeAggregateRoot is updated
+   * @param proposeAggregateRootCooldown New cooldown period
+   * @param oldProposeAggregateRootCooldown Old cooldown period
+   */
+  event ProposeAggregateRootCooldownChanged(
+    uint256 proposeAggregateRootCooldown,
+    uint256 oldProposeAggregateRootCooldown
+  );
+
+  /**
    * @notice Emitted when a new hub connector is updated
    * @param hubConnector New hub connector address
    * @param oldHubConnector Old hub connector address
@@ -272,11 +282,13 @@ contract RelayerProxyHub is RelayerProxy {
     address _rootManager,
     address _autonolas,
     uint256 _propagateCooldown,
+    uint256 _proposeAggregateRootCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
   ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
+    _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
     _setAutonolas(_autonolas);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
       _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
@@ -439,6 +451,8 @@ contract RelayerProxyHub is RelayerProxy {
 
     // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+
+    lastProposeAggregateRootAt = block.timestamp;
   }
 
   /**
@@ -477,6 +491,11 @@ contract RelayerProxyHub is RelayerProxy {
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
     emit PropagateCooldownChanged(_propagateCooldown, propagateCooldown);
     propagateCooldown = _propagateCooldown;
+  }
+
+  function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
+    emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
+    proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
   }
 
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
