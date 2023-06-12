@@ -125,7 +125,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
         utils.getAddress(fromAsset),
         utils.getAddress(_toAsset),
       );
-      console.log(_fee);
     }
 
     const args: SwapQuoteCallbackArgs = {
@@ -141,7 +140,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     // Step 1: Calculate amountOut after origin swaps
 
     const originSwapAmountOut = await originSwapFunction(args);
-    console.log(originSwapAmountOut, "origin swap");
     if (originDomain === destinationDomain) return originSwapAmountOut;
 
     // initing the core sdk for calculating amount recieved after bridging
@@ -156,8 +154,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
         originSwapAmountOut,
       )) || {};
 
-    console.log(amountReceived.toString(), "Amount after bridge");
-
     if (!amountReceived) {
       throw Error("Failed to fetch estimate bridging amountOut");
     }
@@ -171,7 +167,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
         utils.getAddress(destinationUnderlyingAsset),
         utils.getAddress(toAsset),
       );
-      console.log(_fee);
     }
 
     // check for the destination swaps quote
@@ -186,7 +181,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
       fee: _fee,
     };
     const destinationSwapFunction = SwapQuoteFns[destinationQuoter.type];
-    console.log(destinationSwapFunction, "function");
     const amountOut = await destinationSwapFunction(destinationArgs);
     return amountOut;
   } catch (err: unknown) {
