@@ -1,3 +1,3 @@
 [
-  "function processMessageFromRoot(address _target, address _sender, bytes _message, uint256 _messageNonce, tuple(bytes32 stateRoot, tuple(uint256 batchIndex, bytes32 batchRoot, uint256 batchSize, uint256 prevTotalElements, bytes extraData) stateRootBatchHeader, tuple(uint256 index, bytes32[] siblings) stateRootProof, bytes stateTrieWitness, bytes storageTrieWitness) _proof)"
+  "function processMessageFromRoot(tuple(uint256 nonce, address sender, address target, uint256 value, uint256 gasLimit, bytes data) _tx, uint256 _l2OutputIndex, tuple(bytes32 version, bytes32 stateRoot, bytes32 messagePasserStorageRoot, bytes32 latestBlockhash) _outputRootProof, bytes[] _withdrawalProof)"
 ]

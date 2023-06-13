@@ -6,6 +6,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
+import {Types} from "../../../messaging/connectors/optimism/lib/Types.sol";
 import {RelayerProxy} from "./RelayerProxy.sol";
 
 interface IRootManager {
@@ -60,26 +61,10 @@ interface IArbitrumHubConnector {
 }
 
 interface IOptimismHubConnector {
-  struct OutputRootProof {
-    bytes32 version;
-    bytes32 stateRoot;
-    bytes32 messagePasserStorageRoot;
-    bytes32 latestBlockhash;
-  }
-
-  struct WithdrawalTransaction {
-    uint256 nonce;
-    address sender;
-    address target;
-    uint256 value;
-    uint256 gasLimit;
-    bytes data;
-  }
-
   struct OptimismRootMessageData {
-    WithdrawalTransaction _tx;
+    Types.WithdrawalTransaction _tx;
     uint256 _l2OutputIndex;
-    OutputRootProof _outputRootProof;
+    Types.OutputRootProof _outputRootProof;
     bytes[] _withdrawalProof;
   }
 
@@ -88,9 +73,9 @@ interface IOptimismHubConnector {
    * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
    */
   function processMessageFromRoot(
-    WithdrawalTransaction memory _tx,
+    Types.WithdrawalTransaction memory _tx,
     uint256 _l2OutputIndex,
-    OutputRootProof calldata _outputRootProof,
+    Types.OutputRootProof calldata _outputRootProof,
     bytes[] calldata _withdrawalProof
   ) external;
 }
@@ -338,9 +323,7 @@ contract RelayerProxyHub is RelayerProxy {
         (IGnosisHubConnector.GnosisRootMessageData)
       );
       IGnosisHubConnector(hubConnectors[fromChain]).executeSignatures(data._data, data._signatures);
-    }
-
-    if (fromChain == 42161 || fromChain == 421613) {
+    } else if (fromChain == 42161 || fromChain == 421613) {
       IArbitrumHubConnector.ArbitrumRootMessageData memory data = abi.decode(
         encodedData,
         (IArbitrumHubConnector.ArbitrumRootMessageData)
@@ -353,9 +336,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._index,
         data._message
       );
-    }
-
-    if (fromChain == 10 || fromChain == 420) {
+    } else if (fromChain == 10 || fromChain == 420) {
       IOptimismHubConnector.OptimismRootMessageData memory data = abi.decode(
         encodedData,
         (IOptimismHubConnector.OptimismRootMessageData)
@@ -366,9 +347,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._outputRootProof,
         data._withdrawalProof
       );
-    }
-
-    if (fromChain == 324 || fromChain == 280) {
+    } else if (fromChain == 324 || fromChain == 280) {
       IZkSyncHubConnector.ZkSyncRootMessageData memory data = abi.decode(
         encodedData,
         (IZkSyncHubConnector.ZkSyncRootMessageData)
@@ -380,9 +359,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._message,
         data._proof
       );
-    }
-
-    if (fromChain == 137 || fromChain == 80001) {
+    } else if (fromChain == 137 || fromChain == 80001) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
     } else {
       revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
