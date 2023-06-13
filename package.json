@@ -30,6 +30,7 @@
     "packages/agents/sequencer",
     "packages/agents/cartographer/poller",
     "packages/agents/sdk",
+    "packages/agents/sdk-wrapper",
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/agents/watcher",
@@ -55,6 +56,6 @@
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
-  "packageManager": "yarn@3.5.0",
+  "packageManager": "yarn@3.3.1",
   "stableVersion": "0.1.25"
 }

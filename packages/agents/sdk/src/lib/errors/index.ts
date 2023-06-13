@@ -61,3 +61,9 @@ export class SlippageInvalid extends NxtpError {
     super("Invalid slippage value. Must be between 0-10000 (inclusive)", { slippage, context }, SlippageInvalid.name);
   }
 }
+
+export class ProviderMissing extends NxtpError {
+  constructor(domainId: string, context: any = {}) {
+    super("Provider missing for domain", { domainId, context }, ProviderMissing.name);
+  }
+}

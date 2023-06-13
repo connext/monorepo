@@ -6,6 +6,6 @@
 /packages/agents/ @preethamr @liu-zhipeng @wanglonghong @sanchaymittal @rhlsthrm
 /packages/agents/sdk/ @just-a-node @sanchaymittal @rhlsthrm
 /packages/deployments/ @LayneHaber @rhlsthrm @liu-zhipeng
-/packages/examples/ @just-a-node @rhlsthrm @sanchaymittal
+/packages/examples/ @just-a-node @rhlsthrm @sanchaymittal @preethamr
 /packages/integration/ @LayneHaber @preethamr @rhlsthrm
 /packages/utils/ @preethamr @liu-zhipeng @wanglonghong @rhlsthrm

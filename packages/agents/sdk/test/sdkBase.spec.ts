@@ -32,8 +32,8 @@ const chainId = +mock.chain.A;
 
 describe("SdkBase", () => {
   let sdkBase: SdkBase;
-  let sdkUtils: SdkUtils;
-  let sdkPool: SdkPool;
+  let sdkUtilsStub: SdkUtils;
+  let sdkPoolStub: SdkPool;
   let config: ConfigFns.SdkConfig;
 
   let chainreader: SinonStubbedInstance<ChainReader>;
@@ -47,8 +47,8 @@ describe("SdkBase", () => {
     stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkBase = await SdkBase.create(mockConfig, undefined, mockChainData);
-    sdkUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
-    sdkPool = await SdkPool.create(mockConfig, undefined, mockChainData);
+    sdkUtilsStub = createStubInstance(SdkUtils);
+    sdkPoolStub = createStubInstance(SdkPool);
     (sdkBase as any).chainreader = chainreader;
   });
 
@@ -462,13 +462,15 @@ describe("SdkBase", () => {
     };
 
     it("happy: should work", async () => {
-      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+      (sdkUtilsStub.getTransfers as any).returns(Promise.resolve([mockXTransfer]));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
 
       await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.not.be.undefined;
     });
 
     it("should error if not updated on destination domain", async () => {
-      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+      (sdkUtilsStub.getTransfers as any).returns(Promise.resolve([mockXTransfer]));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
 
       await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
     });
@@ -476,7 +478,8 @@ describe("SdkBase", () => {
     it("should error if not updated by delegate", async () => {
       (sdkBase as any).config.signerAddress = mkAddress("0xbeef");
 
-      stub(sdkUtils, "getTransfers").resolves([mockXTransfer]);
+      (sdkUtilsStub.getTransfers as any).returns(Promise.resolve([mockXTransfer]));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
 
       await expect(sdkBase.updateSlippage(mockUpdateSlippageParamsWrongDomain)).to.be.rejectedWith(ParamsInvalid);
     });
@@ -548,7 +551,9 @@ describe("SdkBase", () => {
     };
 
     it("happy: should work with local origin asset and local destination asset", async () => {
-      stub(sdkPool, "calculateAmountReceived").resolves(mockResponse);
+      (sdkPoolStub.calculateAmountReceived as any).returns(Promise.resolve(mockResponse));
+      stub(SdkPool, "create").resolves(sdkPoolStub);
+
       const res = await sdkBase.calculateAmountReceived(
         mockPool.domainId,
         mockPool.domainId,
