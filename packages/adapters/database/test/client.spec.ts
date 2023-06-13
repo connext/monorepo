@@ -77,6 +77,7 @@ import {
   getMessageRootStatusFromIndex,
   getAggregateRootByRootAndDomain,
   getMessageByLeaf,
+  deleteNonExistTransfers,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -249,6 +250,22 @@ describe("Database client", () => {
       expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedSlow);
       expect(dbTransfer!.transferId).equal(transfer.transferId);
     }
+  });
+
+  it("should delete duplicated transfers", async () => {
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: _i }));
+    }
+    transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: 0 }));
+
+    await saveTransfers(transfers, pool);
+    let all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.length).to.eq(batchSize + 1);
+
+    await deleteNonExistTransfers(pool);
+    all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.length).to.eq(batchSize);
   });
 
   it("should get transfer by status", async () => {
