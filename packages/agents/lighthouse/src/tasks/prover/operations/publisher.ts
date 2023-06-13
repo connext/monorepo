@@ -96,6 +96,7 @@ export const enqueue = async () => {
                 let offset = 0;
                 let end = false;
                 while (!end) {
+                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
                     requestContext,
@@ -106,14 +107,15 @@ export const enqueue = async () => {
                       offset,
                       originDomain,
                       destinationDomain,
-                      index: latestMessageRoot.count,
+                      startIndex: cachedNonce + 1,
+                      endIndex: latestMessageRoot.count,
                     },
                   );
-                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
+
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    cachedNonce,
+                    cachedNonce + 1,
                     latestMessageRoot.count,
                     offset,
                     batchSize,
@@ -127,6 +129,8 @@ export const enqueue = async () => {
                       unprocessed,
                       originDomain,
                       destinationDomain,
+                      startIndex: cachedNonce + 1,
+                      endIndex: latestMessageRoot.count,
                       offset,
                     });
 
@@ -155,6 +159,8 @@ export const enqueue = async () => {
                         {
                           originDomain,
                           destinationDomain,
+                          startIndex: cachedNonce + 1,
+                          endIndex: latestMessageRoot.count,
                           offset,
                           brokerMessage,
                         },
