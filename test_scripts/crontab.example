@@ -1,0 +1,5 @@
+* * * * * zsh /Users/preetham/connext/repo/ld_test/monorepo/cron_mumbai.sh
+* * * * * zsh /Users/preetham/connext/repo/ld_test/monorepo/cron_goerli.sh
+* * * * * zsh /Users/preetham/connext/repo/ld_test/monorepo/cron_optimism.sh
+* * * * * zsh /Users/preetham/connext/repo/ld_test/monorepo/cron_arbitrum.sh
+#* * * * * zsh /Users/preetham/connext/repo/ld_test/monorepo/cron_linea.sh
