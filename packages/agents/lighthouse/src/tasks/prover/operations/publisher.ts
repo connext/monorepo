@@ -117,7 +117,7 @@ export const enqueue = async () => {
                     destinationDomain,
                     cachedNonce + 1,
                     latestMessageRoot.count,
-                    offset,
+                    0,
                     batchSize,
                   );
                   const subContext = createRequestContext(
