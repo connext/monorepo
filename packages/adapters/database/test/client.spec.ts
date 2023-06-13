@@ -867,7 +867,7 @@ describe("Database client", () => {
     }
     await saveMessages(messages, pool);
 
-    const _messages = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, pool);
+    const _messages = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, 10000, pool);
     expect(_messages).to.deep.eq(messages.slice(1, 4).map((m) => m.leaf));
   });
 
@@ -893,7 +893,7 @@ describe("Database client", () => {
     }
     await saveAggregatedRoots(roots, pool);
 
-    const dbRoots = await getHubNodes(3, 7, batchSize, pool);
+    const dbRoots = await getHubNodes(3, 7, batchSize, 10000, pool);
     expect(dbRoots).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
   });
 
