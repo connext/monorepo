@@ -157,6 +157,7 @@ module "sdk-server" {
   internal_lb              = false
   docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
+  health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 256
