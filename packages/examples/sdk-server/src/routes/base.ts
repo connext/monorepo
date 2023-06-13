@@ -7,11 +7,10 @@ import {
   SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
   SdkBumpTransferParamsSchema,
-  SdkUpdateSlippageSchema,
+  SdkUpdateSlippageParamsSchema,
+  SdkUpdateSlippageParams,
   SdkCalculateAmountReceivedParamsSchema,
-} from "@connext/sdk";
-
-import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "./types/api";
+} from "@connext/sdk-core";
 
 interface BaseRoutesOptions {
   sdkBaseInstance: SdkBase;
@@ -91,20 +90,6 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
   );
 
   s.post(
-    "/approveIfNeeded",
-    {
-      schema: {
-        body: approveIfNeededSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, assetId, amount, infiniteApprove } = request.body;
-      const txReq = await sdkBaseInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
-      reply.status(200).send(txReq);
-    },
-  );
-
-  s.post(
     "/bumpTransfer",
     {
       schema: {
@@ -117,44 +102,16 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
     },
   );
 
-  s.post(
+  s.post<{ Body: SdkUpdateSlippageParams }>(
     "/updateSlippage",
     {
       schema: {
-        body: SdkUpdateSlippageSchema,
+        body: SdkUpdateSlippageParamsSchema,
       },
     },
     async (request, reply) => {
       const txReq = await sdkBaseInstance.updateSlippage(request.body);
       reply.status(200).send(txReq);
-    },
-  );
-
-  s.get(
-    "/getCanonicalTokenId/:domainId/:tokenAddress",
-    {
-      schema: {
-        params: getCanonicalTokenIdSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenAddress } = request.params;
-      const res = await sdkBaseInstance.getCanonicalTokenId(domainId, tokenAddress);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.get(
-    "/calculateCanonicalKey/:domainId/:tokenId",
-    {
-      schema: {
-        params: calculateCanonicalKeySchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenId } = request.params;
-      const res = sdkBaseInstance.calculateCanonicalKey(domainId, tokenId);
-      reply.status(200).send(res);
     },
   );
 

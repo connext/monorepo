@@ -176,7 +176,7 @@ export const makeSubscriber = async () => {
       },
     );
 
-    if (context.config.messageQueue.subscriber) {
+    if (context.config.messageQueue.subscriber && context.config.messageQueue.subscriber != HTTP_QUEUE) {
       const binding = context.config.messageQueue.bindings.find(
         (it) => it.target == context.config.messageQueue.subscriber,
       );
@@ -195,16 +195,20 @@ export const makeSubscriber = async () => {
     } else {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
-        context.config.messageQueue.bindings.map(async (binding) => {
-          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
-          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
-          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
-        }),
+        context.config.messageQueue.bindings
+          .filter((it) => it.target != HTTP_QUEUE)
+          .map(async (binding) => {
+            const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+            await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
+            await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
+          }),
       );
       await Promise.all(
-        context.config.messageQueue.queues.map(async (queueConfig) => {
-          if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
-        }),
+        context.config.messageQueue.queues
+          .filter((it) => it.name != HTTP_QUEUE)
+          .map(async (queueConfig) => {
+            if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
+          }),
       );
     }
 
@@ -461,15 +465,6 @@ export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Co
   const methodContext = createMethodContext(setupMQ.name);
 
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
-
-  // const mqConfig: Broker.ConfigurationOptions = {
-  //   connection: config.messageQueue.connection,
-  //   exchanges: config.messageQueue.exchanges,
-  //   queues: config.messageQueue.queues,
-  //   bindings: config.messageQueue.bindings,
-  // };
-  // await Broker.configure(mqConfig);
-
   const connection = await Broker.connect(config.messageQueue.connection.uri);
   logger.info("MQ setup is done!", requestContext, methodContext, {});
   return connection;

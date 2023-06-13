@@ -19,6 +19,7 @@ export type Scalars = {
   staginggoerli_BigDecimal: any;
   BigInt: any;
   staginggoerli_Bytes: any;
+  staginggoerli_Int8: any;
 };
 
 export type staginggoerli_AggregateRoot = {

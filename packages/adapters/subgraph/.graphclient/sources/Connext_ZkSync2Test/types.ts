@@ -19,6 +19,7 @@ export type Scalars = {
   zksync2test_BigDecimal: any;
   BigInt: any;
   zksync2test_Bytes: any;
+  zksync2test_Int8: any;
 };
 
 export type zksync2test_AggregateRoot = {

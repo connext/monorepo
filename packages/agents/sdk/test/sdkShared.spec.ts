@@ -4,7 +4,7 @@ import { constants, providers, Contract, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkShared } from "../src/sdkShared";
 import { getEnvConfig } from "../src/config";
-import { ContractAddressMissing, SignerAddressMissing } from "../src/lib/errors";
+import { ContractAddressMissing, SignerAddressMissing, ProviderMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -102,6 +102,50 @@ describe("SdkShared", () => {
       (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
       const connext = await sdkShared.getSupported();
       expect(connext).to.not.be.undefined;
+    });
+  });
+
+  describe("#providerSanityCheck", () => {
+    it("happy: should return true with a domain in existing config", async () => {
+      const params = { domains: [mock.domain.A] };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.true;
+    });
+
+    it("happy: should return true with a domain in passed-in config", async () => {
+      const params = {
+        domains: ["1000"],
+        options: {
+          chains: {
+            "1000": {
+              providers: ["http://example.com"],
+            },
+          },
+        },
+      };
+      const res = await sdkShared.providerSanityCheck(params);
+      expect(res).to.be.true;
+    });
+
+    it("should throw with a domain not in existing config", async () => {
+      const params = {
+        domains: ["1000"],
+      };
+      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
+    });
+
+    it("should throw with a domain not in passed-in config", async () => {
+      const params = {
+        domains: ["1000"],
+        options: {
+          chains: {
+            "2000": {
+              providers: ["http://example.com"],
+            },
+          },
+        },
+      };
+      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
     });
   });
 

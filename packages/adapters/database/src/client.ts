@@ -311,6 +311,27 @@ export const saveTransfers = async (
   await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
 };
 
+export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const result = await db.sql`WITH duplicates AS (
+        SELECT *,
+            ROW_NUMBER() OVER (
+              PARTITION BY origin_domain, nonce
+              ORDER BY xcall_timestamp desc nulls first) AS row_number
+        FROM transfers 
+        where nonce IS NOT NULL
+      )
+      DELETE FROM transfers
+      WHERE (transfer_id, origin_domain, nonce) IN (
+        SELECT transfer_id, origin_domain, nonce
+        FROM duplicates
+        WHERE row_number > 1
+      )
+      RETURNING *;
+  `.run(poolToUse);
+  return result.map((t) => t.transfer_id);
+};
+
 export const saveMessages = async (
   xMessages: XMessage[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -319,7 +340,7 @@ export const saveMessages = async (
   const poolToUse = _pool ?? pool;
   const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-  await db.upsert("messages", messages, ["leaf"]).run(poolToUse);
+  await db.upsert("messages", messages, ["origin_domain", "index"]).run(poolToUse);
 };
 
 export const saveSentRootMessages = async (

@@ -19,6 +19,7 @@ export type Scalars = {
   goerli_swap_BigDecimal: any;
   BigInt: any;
   goerli_swap_Bytes: any;
+  goerli_swap_Int8: any;
 };
 
 export type goerli_swap_BlockChangedFilter = {

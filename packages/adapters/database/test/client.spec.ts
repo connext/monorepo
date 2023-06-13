@@ -77,6 +77,7 @@ import {
   getMessageRootStatusFromIndex,
   getAggregateRootByRootAndDomain,
   getMessageByLeaf,
+  deleteNonExistTransfers,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -249,6 +250,28 @@ describe("Database client", () => {
       expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedSlow);
       expect(dbTransfer!.transferId).equal(transfer.transferId);
     }
+  });
+
+  it("should delete duplicated transfers", async () => {
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: _i }));
+    }
+    const duplicated = mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: 0 });
+    duplicated.origin!.xcall.timestamp = transfers[0].origin!.xcall.timestamp + 1;
+    transfers.push(duplicated);
+
+    await saveTransfers(transfers, pool);
+    let all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.length).to.eq(batchSize + 1);
+
+    const transferIds = await deleteNonExistTransfers(pool);
+
+    all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.map((t) => t.transferId).includes(duplicated.transferId)).to.be.true;
+    expect(all.length).to.eq(batchSize);
+    expect(transferIds.length).to.eq(1);
+    expect(transferIds[0]).to.eq(transfers[0].transferId);
   });
 
   it("should get transfer by status", async () => {
@@ -674,7 +697,9 @@ describe("Database client", () => {
   it("should save multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
   });
@@ -682,7 +707,9 @@ describe("Database client", () => {
   it("should upsert multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
     for (let message of messages) {
@@ -803,7 +830,9 @@ describe("Database client", () => {
   it("should getMessageByLeaf", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
 

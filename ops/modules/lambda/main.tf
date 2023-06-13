@@ -51,6 +51,14 @@ resource "aws_lambda_function" "executable" {
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }
+
+  dynamic "vpc_config" {
+    for_each = var.lambda_in_vpc ? [1] : []
+    content {
+      subnet_ids         = var.private_subnets
+      security_group_ids = var.lambda_security_groups
+    }
+  }
 }
 
 resource "aws_lambda_permission" "allow_events_bridge_to_run_lambda" {
@@ -73,3 +81,9 @@ resource "aws_cloudwatch_event_target" "trigger_lambda_on_schedule" {
   target_id = "lambda"
   arn       = aws_lambda_function.executable.arn
 }
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc_access_execution" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+

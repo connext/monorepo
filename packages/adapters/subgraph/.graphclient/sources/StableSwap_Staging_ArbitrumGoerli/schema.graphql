@@ -28,6 +28,12 @@ input stagingarbitrumgoerli_swap_Block_height {
 
 scalar stagingarbitrumgoerli_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar stagingarbitrumgoerli_swap_Int8
+
 type stagingarbitrumgoerli_swap_LpAccount {
   id: ID!
   address: stagingarbitrumgoerli_swap_Bytes!
