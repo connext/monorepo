@@ -311,9 +311,9 @@ export const saveTransfers = async (
   await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
 };
 
-export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  await db.sql`WITH duplicates AS (
+  const result = await db.sql`WITH duplicates AS (
         SELECT *,
             ROW_NUMBER() OVER (
               PARTITION BY origin_domain, nonce
@@ -326,8 +326,10 @@ export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepe
         SELECT transfer_id, origin_domain, nonce
         FROM duplicates
         WHERE row_number > 1
-      );
+      )
+      RETURNING *;
   `.run(poolToUse);
+  return result.map((t) => t.transfer_id);
 };
 
 export const saveMessages = async (

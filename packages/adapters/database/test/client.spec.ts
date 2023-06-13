@@ -257,15 +257,21 @@ describe("Database client", () => {
     for (var _i = 0; _i < batchSize; _i++) {
       transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: _i }));
     }
-    transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: 0 }));
+    const duplicated = mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: 0 });
+    duplicated.origin!.xcall.timestamp = transfers[0].origin!.xcall.timestamp + 1;
+    transfers.push(duplicated);
 
     await saveTransfers(transfers, pool);
     let all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
     expect(all.length).to.eq(batchSize + 1);
 
-    await deleteNonExistTransfers(pool);
+    const transferIds = await deleteNonExistTransfers(pool);
+
     all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.map((t) => t.transferId).includes(duplicated.transferId)).to.be.true;
     expect(all.length).to.eq(batchSize);
+    expect(transferIds.length).to.eq(1);
+    expect(transferIds[0]).to.eq(transfers[0].transferId);
   });
 
   it("should get transfer by status", async () => {

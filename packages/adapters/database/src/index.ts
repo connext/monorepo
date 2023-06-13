@@ -90,7 +90,7 @@ export type Checkpoints = {
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
-  deleteNonExistTransfers: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  deleteNonExistTransfers: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,

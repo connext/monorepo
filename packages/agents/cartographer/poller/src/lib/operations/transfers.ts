@@ -192,6 +192,12 @@ export const updateTransfers = async () => {
       }
     }
   }
+
+  const deletedTransferIds = await database.deleteNonExistTransfers();
+  logger.info("Deleted non-exist transfers", requestContext, methodContext, {
+    count: deletedTransferIds.length,
+    transferIds: deletedTransferIds,
+  });
 };
 
 export const updateBackoffs = async (): Promise<void> => {
