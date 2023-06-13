@@ -224,6 +224,7 @@ export type Database = {
     start: number,
     end: number,
     count: number,
+    pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getHubNode: (index: number, count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
@@ -231,6 +232,7 @@ export type Database = {
     start: number,
     end: number,
     count: number,
+    pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
