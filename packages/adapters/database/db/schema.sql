@@ -316,7 +316,9 @@ CREATE TABLE public.transfers (
     execute_simulation_network character varying(255),
     error_message character varying(255),
     message_status character varying(255),
-    relayer_fees jsonb
+    relayer_fees jsonb,
+    execute_tx_nonce numeric DEFAULT 0 NOT NULL,
+    reconcile_tx_nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -1367,4 +1369,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230523134345'),
     ('20230530074124'),
     ('20230608135754'),
+    ('20230608174759'),
     ('20230613125451');

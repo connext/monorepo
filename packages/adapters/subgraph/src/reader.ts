@@ -46,8 +46,8 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByExecutedTimestampQuery,
-  getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getDestinationTransfersByExecutedNonceQuery,
+  getDestinationTransfersByDomainAndReconcileNonceQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
@@ -435,11 +435,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByExecutedTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getDestinationTransfersByExecutedNonce(
+    params: Map<string, SubgraphQueryMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -508,12 +508,12 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByDomainAndReconcileTimestamp(
-    param: SubgraphQueryByTimestampMetaParams,
+  public async getDestinationTransfersByDomainAndReconcileNonce(
+    param: SubgraphQueryMetaParams,
     domain: string,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileNonceQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];

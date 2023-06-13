@@ -99,6 +99,7 @@ export const mockOriginTransferEntity = {
   gasPrice: "10000000000",
   gasLimit: "1000000",
   blockNumber: 5000,
+  txNonce: 111111110001,
   originMinOut: "123",
   destinationMinOut: "456",
 };
@@ -121,6 +122,7 @@ export const mockDestinationTransferEntity = {
   executedGasPrice: "10000000000",
   executedGasLimit: "1000000",
   executedBlockNumber: 5000,
+  executedTxNonce: 10000000001,
   reconciledCaller: mkAddress("0x15"),
   reconciledTxOrigin: mkAddress("0x15"),
   reconciledTransactionHash: mkBytes32("0xbbb"),
@@ -128,6 +130,7 @@ export const mockDestinationTransferEntity = {
   reconciledGasPrice: "10000000000",
   reconciledGasLimit: "1000000",
   reconciledBlockNumber: 5000,
+  reconciledTxNonce: 10000000002,
   destinationMinOut: "456",
 };
 
@@ -442,8 +445,8 @@ export const mockSubgraph = () =>
     getGetPropagatedRoots: Promise.resolve(mockPropagatedRootSubgraphResponse),
     getReceivedAggregatedRootsByDomain: Promise.resolve(mockReceivedAggregateRootSubgraphResponse),
     getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
-    getDestinationTransfersByExecutedTimestamp: Promise.resolve(mockDestinationExecutedSubgraphResponse),
-    getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
+    getDestinationTransfersByExecutedNonce: Promise.resolve(mockDestinationExecutedSubgraphResponse),
+    getDestinationTransfersByDomainAndReconcileNonce: Promise.resolve(mockDestinationSubgraphResponse),
     getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
     getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
     getAssetBalancesRouters: Promise.resolve(mockRouterResponse),

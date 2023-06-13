@@ -90,6 +90,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
     execute_tx_origin: transfer.destination?.execute?.txOrigin,
+    execute_tx_nonce: transfer.destination?.execute?.txNonce,
 
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,
@@ -98,6 +99,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     reconcile_gas_limit: transfer.destination?.reconcile?.gasLimit,
     reconcile_block_number: transfer.destination?.reconcile?.blockNumber,
     reconcile_tx_origin: transfer.destination?.reconcile?.txOrigin,
+    reconcile_tx_nonce: transfer.destination?.reconcile?.txNonce,
   };
 };
 
