@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pool as SdkPool } from "@connext/sdk";
+import { Pool as SdkPool } from "@connext/sdk-core";
 
 import { Chain } from "../types/chain";
 import { useChains } from "../contexts/Chains";

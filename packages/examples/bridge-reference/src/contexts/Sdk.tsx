@@ -1,4 +1,4 @@
-import { SdkBase, SdkPool, SdkRouter, SdkUtils } from "@connext/sdk";
+import { SdkBase, SdkPool, SdkRouter, SdkUtils } from "@connext/sdk-core";
 import { useContext } from "react";
 
 import { createCtx } from "../utils/context";
