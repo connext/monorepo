@@ -744,7 +744,8 @@ export const getUnProcessedMessagesByDomains = async (
 export const getUnProcessedMessagesByIndex = async (
   origin_domain: string,
   destination_domain: string,
-  index: number,
+  startIndex: number,
+  endIndex: number,
   offset: number,
   limit = 100,
   orderDirection: "ASC" | "DESC" = "ASC",
@@ -754,7 +755,12 @@ export const getUnProcessedMessagesByIndex = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain: origin_domain, destination_domain: destination_domain, index: dc.lte(index) },
+      {
+        processed: false,
+        origin_domain: origin_domain,
+        destination_domain: destination_domain,
+        index: dc.and(dc.gte(startIndex), dc.lte(endIndex)),
+      },
       { offset, limit, order: { by: "index", direction: orderDirection } },
     )
     .run(poolToUse);
@@ -969,16 +975,28 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const messages = await db
-    .select(
-      "messages",
-      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let messages: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subMessages = await db
+      .select(
+        "messages",
+        { origin_domain: domain, index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+    messages = messages.concat(subMessages);
+    if (subMessages.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return messages.map((message) => convertFromDbMessage(message).leaf);
 };
 
@@ -998,16 +1016,29 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const roots = await db
-    .select(
-      "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "domain_index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let roots: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subRoots = await db
+      .select(
+        "aggregated_roots",
+        { domain_index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "domain_index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+
+    roots = roots.concat(subRoots);
+    if (subRoots.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
 
