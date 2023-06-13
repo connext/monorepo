@@ -1221,6 +1221,13 @@ CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers US
 
 
 --
+-- Name: transfers_origin_domain_nonce_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_nonce_idx ON public.transfers USING btree (origin_domain, nonce);
+
+
+--
 -- Name: transfers_origin_domain_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1359,4 +1366,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230519155643'),
     ('20230523134345'),
     ('20230530074124'),
-    ('20230608135754');
+    ('20230608135754'),
+    ('20230613125451');
