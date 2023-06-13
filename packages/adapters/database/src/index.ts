@@ -160,7 +160,8 @@ export type Database = {
   getUnProcessedMessagesByIndex: (
     origin_domain: string,
     destination_domain: string,
-    index: number,
+    startIndex: number,
+    endIndex: number,
     offset: number,
     limit?: number,
     orderDirection?: "ASC" | "DESC",

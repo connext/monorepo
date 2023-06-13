@@ -110,11 +110,11 @@ export const enqueue = async () => {
                     },
                   );
                   const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
-                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    index,
+                    cachedNonce,
+                    latestMessageRoot.count,
                     offset,
                     batchSize,
                   );

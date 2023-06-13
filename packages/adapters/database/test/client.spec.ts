@@ -696,6 +696,7 @@ describe("Database client", () => {
     const pendingMessages = await getUnProcessedMessagesByIndex(
       mock.domain.A,
       mock.domain.B,
+      0,
       batchSize,
       0,
       100,
