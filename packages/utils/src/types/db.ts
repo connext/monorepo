@@ -229,6 +229,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             transactionHash: transfer.execute_transaction_hash!,
             originSender: transfer.execute_origin_sender!,
             txOrigin: transfer.execute_tx_origin!,
+            txNonce: BigNumber.from(transfer.execute_tx_nonce ?? "0").toNumber(),
           },
           reconcile: {
             blockNumber: transfer.reconcile_block_number!,
@@ -238,6 +239,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             timestamp: transfer.reconcile_timestamp!,
             transactionHash: transfer.reconcile_transaction_hash!,
             txOrigin: transfer.reconcile_tx_origin!,
+            txNonce: BigNumber.from(transfer.reconcile_tx_nonce ?? "0").toNumber(),
           },
         }
       : undefined,

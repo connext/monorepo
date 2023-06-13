@@ -213,6 +213,7 @@ locals {
         }
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -316,7 +317,7 @@ locals {
     hubDomain = "1735353714"
     proverBatchSize = {
       "1668247156" = 10,
-      "9991" = 10,
+      "9991"       = 10,
       "1735353714" = 10,
       "2053862260" = 10,
       "1734439522" = 10,
