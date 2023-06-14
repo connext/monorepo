@@ -13,95 +13,78 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_target",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_sender",
-        type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "_message",
-        type: "bytes",
+        components: [
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "target",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "data",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct IOptimismHubConnector.WithdrawalTransaction",
+        name: "_tx",
+        type: "tuple",
       },
       {
         internalType: "uint256",
-        name: "_messageNonce",
+        name: "_l2OutputIndex",
         type: "uint256",
       },
       {
         components: [
           {
             internalType: "bytes32",
+            name: "version",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
             name: "stateRoot",
             type: "bytes32",
           },
           {
-            components: [
-              {
-                internalType: "uint256",
-                name: "batchIndex",
-                type: "uint256",
-              },
-              {
-                internalType: "bytes32",
-                name: "batchRoot",
-                type: "bytes32",
-              },
-              {
-                internalType: "uint256",
-                name: "batchSize",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "prevTotalElements",
-                type: "uint256",
-              },
-              {
-                internalType: "bytes",
-                name: "extraData",
-                type: "bytes",
-              },
-            ],
-            internalType: "struct IOptimismHubConnector.ChainBatchHeader",
-            name: "stateRootBatchHeader",
-            type: "tuple",
+            internalType: "bytes32",
+            name: "messagePasserStorageRoot",
+            type: "bytes32",
           },
           {
-            components: [
-              {
-                internalType: "uint256",
-                name: "index",
-                type: "uint256",
-              },
-              {
-                internalType: "bytes32[]",
-                name: "siblings",
-                type: "bytes32[]",
-              },
-            ],
-            internalType: "struct IOptimismHubConnector.ChainInclusionProof",
-            name: "stateRootProof",
-            type: "tuple",
-          },
-          {
-            internalType: "bytes",
-            name: "stateTrieWitness",
-            type: "bytes",
-          },
-          {
-            internalType: "bytes",
-            name: "storageTrieWitness",
-            type: "bytes",
+            internalType: "bytes32",
+            name: "latestBlockhash",
+            type: "bytes32",
           },
         ],
-        internalType: "struct IOptimismHubConnector.L2MessageInclusionProof",
-        name: "_proof",
+        internalType: "struct IOptimismHubConnector.OutputRootProof",
+        name: "_outputRootProof",
         type: "tuple",
+      },
+      {
+        internalType: "bytes[]",
+        name: "_withdrawalProof",
+        type: "bytes[]",
       },
     ],
     name: "processMessageFromRoot",
