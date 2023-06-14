@@ -232,12 +232,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       59140: {
         prefix: "Consensys",
         ambs: {
-          // L1Bridge on goerli
-          // https://goerli.etherscan.io/address/0xe87d317eb8dcc9afe24d9f63d6c760e52bc18a40
-          hub: "0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40",
+          // ZkEvmV202 on goerli
+          // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2
+          hub: "0x70BaD09280FD342D02fe64119779BC1f0791BAC2",
           // L2Bridge on zkEvm
-          // https://explorer.goerli.zkevm.consensys.net/address/0xA59477f7742Ba7d51bb1E487a8540aB339d6801d
-          spoke: "0xA59477f7742Ba7d51bb1E487a8540aB339d6801d",
+          // https://explorer.goerli.linea.build/address/0xC499a572640B64eA1C8c194c43Bc3E19940719dC/transactions#address-tabs
+          spoke: "0xC499a572640B64eA1C8c194c43Bc3E19940719dC",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
