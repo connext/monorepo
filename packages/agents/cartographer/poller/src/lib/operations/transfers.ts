@@ -165,7 +165,7 @@ export const updateTransfers = async () => {
 
       const destinationTransfers: XTransfer[] = [];
       let offset = 0;
-      const limit = 100;
+      const limit = 1000;
       let done = false;
       while (!done) {
         const pendingTransfers = await database.getPendingTransfersByDomains(

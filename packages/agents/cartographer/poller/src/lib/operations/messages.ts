@@ -58,7 +58,7 @@ export const updateMessages = async () => {
     for (const destinationDomain of domains) {
       if (originDomain == destinationDomain) continue;
       let offset = 0;
-      const limit = 100;
+      const limit = 1000;
       let done = false;
       const xMessages: XMessage[] = [];
       while (!done) {
