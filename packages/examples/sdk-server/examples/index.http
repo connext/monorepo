@@ -1,6 +1,8 @@
 
    
 @baseUrl = http://127.0.0.1:8080
+# @baseUrl = https://sdk-server.testnet.staging.connext.ninja
+# @baseUrl = https://sdk-server.testnet.connext.ninja
 @yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
@@ -21,15 +23,40 @@ GET {{baseUrl}}/getProvider/1869640809
 
 ##############
 ### GET getDeploymentAddress
-GET {{baseUrl}}/getDeploymentAddress/1869640809/connext
+GET {{baseUrl}}/getDeploymentAddress/9991/connext
 
 ##############
-### GET getConnext
-GET {{baseUrl}}/getConnext/1869640809
+### POST getConnext
+POST {{baseUrl}}/getConnext
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "options": {
+    "chains": {
+      "9991": {
+        "providers": ["http://example.com"]
+      }
+    }
+  }
+}
 
 ##############
-### GET getERC20
-GET {{baseUrl}}/getERC20/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+### POST getERC20
+POST {{baseUrl}}/getERC20
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "options": {
+    "chains": {
+      "1735356532": {
+        "gasPrice": "50"
+      }
+    }
+  }
+}
 
 ##############
 ### GET getChainId
@@ -52,8 +79,16 @@ GET {{baseUrl}}/domainToChainId/1869640809
 GET {{baseUrl}}/getBlockNumberFromUnixTimestamp/1869640809/1683745427
 
 ##############
-### GET approveIfNeeded
-GET {{baseUrl}}/approveIfNeeded/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607/100/false
+### POST approveIfNeeded
+POST {{baseUrl}}/approveIfNeeded
+Content-Type: application/json
+
+{
+  "domainId": "9991",
+  "assetId": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "amount": "1000000",
+  "infiniteApprove": true
+}
 
 ##############
 ### GET getAssetsData
@@ -77,11 +112,11 @@ GET {{baseUrl}}/getAssetsWithSameCanonical/1869640809/0x7F5c764cBc14f9669B88837c
 
 ##############
 ### GET getAssetsDataByDomainAndKey
-GET {{baseUrl}}/getAssetsDataByDomainAndKey/1869640809/0x57a4f58914fa3ce5cdce13685ebd921385f950fce6f3ef3ce59c1d49caf273c5
+GET {{baseUrl}}/getAssetsDataByDomainAndKey/9991/0x49262240b59235bb7eb550184a0b68efa64e8e27429a6336a91d4962cce6509d
 
 ##############
 ### GET isNextAsset
-GET {{baseUrl}}/isNextAsset/1869640809/0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD
+GET {{baseUrl}}/isNextAsset/0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF
 
 ##############
 ### GET changeSignerAddress
@@ -112,11 +147,11 @@ Content-Type: application/json
 
 ##############
 ### GET calculateCanonicalKey
-GET {{baseUrl}}/calculateCanonicalKey/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x0000000000000000000000007ea6ea49b0b0ae9c5db7907d139d9cd3439862a1
 
 ##############
 ### GET getCanonicalTokenId
-GET {{baseUrl}}/getCanonicalTokenId/1869640809/0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+GET {{baseUrl}}/getCanonicalTokenId/9991/0xeDb95D8037f769B72AAab41deeC92903A98C9E16
 
 ##############
 ### POST sendTransaction 
@@ -134,8 +169,8 @@ POST {{baseUrl}}/xcall
 Content-Type: application/json
 
 {
-  "origin": "6450786",
-  "destination": "1886350457",
+  "origin": "1735353714",
+  "destination": "1735356532",
   "to": "0x6d91e35d502fb6F654992283e6E4f397fC23DC2c",
   "asset": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
   "delegate": "0x6d91e35d502fb6F654992283e6E4f397fC23DC2c",
@@ -152,8 +187,8 @@ POST {{baseUrl}}/estimateRelayerFee
 Content-Type: application/json
 
 {
-  "originDomain": "6648936",
-  "destinationDomain": "1869640809",
+  "originDomain": "1735353714",
+  "destinationDomain": "1735356532",
   "originNativeTokenPrice": 1500,
   "destinationNativeTokenPrice": 1000,
   "destinationGasPrice": "50"
@@ -165,7 +200,7 @@ POST {{baseUrl}}/updateSlippage
 Content-Type: application/json
 
 {
-  "domainId": "6778479",
+  "domainId": "1735353714",
   "transferId": "0x7e5f0712a2f25b9160439fdd05be3b212e65f7ae5a03980947be1ce576ae4869",
   "slippage": "300"
 }
@@ -176,10 +211,10 @@ POST {{baseUrl}}/bumpTransfer
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "1735353714",
   "transferId": "0x05f694632cb8f9d8fd856fc0a54aaf3ae9fead5010bf0edb196c1b1ad54d5ab6",
   "asset": "0x0000000000000000000000000000000000000000",
-  "relayerFee": "100000000000"
+  "relayerFee": "10"
 }
 
 ##############
@@ -188,9 +223,9 @@ POST {{baseUrl}}/calculateAmountReceived
 Content-Type: application/json
 
 {
-  "originDomain": "1869640809",
-  "destinationDomain": "1886350457",
-  "originTokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "originDomain": "9991",
+  "destinationDomain": "1735356532",
+  "originTokenAddress": "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
   "amount": "100000",
   "receiveLocal": false,
   "checkFastLiquidity": true
@@ -202,8 +237,8 @@ POST {{baseUrl}}/calculateSwap
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "domainId": "1735356532",
+  "tokenAddress": "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
   "tokenIndexFrom": "0",
   "tokenIndexTo": "1",
   "amount": "100000000000000"
@@ -330,8 +365,8 @@ POST {{baseUrl}}/calculateTokenAmount
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "domainId": "9991",
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
   "amounts": [100, 200],
   "isDeposit": true
 }
@@ -342,8 +377,8 @@ POST {{baseUrl}}/calculateRemoveSwapLiquidity
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "domainId": "9991",
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
   "amount": "1000000000000000000"
 }
 
@@ -353,8 +388,8 @@ POST {{baseUrl}}/calculateRemoveSwapLiquidityOneToken
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "domainId": "9991",
+  "tokenAddress": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
   "amount": "1000000000000000000",
   "index": 0
 }
@@ -400,10 +435,10 @@ POST {{baseUrl}}/calculateSwapPriceImpact
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "9991",
   "amountX": "1000000000000000000",
-  "tokenX": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "tokenY": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+  "tokenX": "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+  "tokenY": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -497,8 +532,8 @@ POST {{baseUrl}}/getVirtualPrice
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
-  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+  "domainId": "9991",
+  "tokenAddress": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
 }
 
 ##############
@@ -575,7 +610,7 @@ POST {{baseUrl}}/removeLiquidity
 Content-Type: application/json
 
 {
-  "domainId": "1869640809",
+  "domainId": "9991",
   "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
   "amount": "500"
 }
