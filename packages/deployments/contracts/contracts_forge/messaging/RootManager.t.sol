@@ -19,6 +19,25 @@ contract ReverterConnector {
   }
 }
 
+contract ReentrantConnector {
+  address[] public connectors;
+
+  uint256 public count;
+
+  function addConnector(address _connector) external payable {
+    connectors.push(_connector);
+  }
+
+  function sendMessage(bytes memory, bytes memory) external payable {
+    count++;
+    uint256[] memory _fees = new uint256[](1);
+    _fees[0] = 0;
+    bytes[] memory _extra = new bytes[](1);
+    _extra[0] = bytes("");
+    RootManager(msg.sender).propagate(connectors, _fees, _extra);
+  }
+}
+
 contract RootManagerForTest is DomainIndexer, RootManager {
   using QueueLib for QueueLib.Queue;
 
@@ -1088,6 +1107,45 @@ contract RootManager_Propagate is Base {
     );
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
+  }
+
+  function test_reentrancy(bytes32 aggregateRoot, uint256 count) public {
+    vm.assume(aggregateRoot > 0 && count > _rootManager.lastCountBeforeOpMode());
+    _rootManager.forTest_setOptimisticMode(false);
+
+    // Set mock on merkle
+    vm.mockCall(
+      _merkle,
+      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
+      abi.encode(aggregateRoot, count)
+    );
+
+    // Add reentrant connector
+    address _reentrant = address(new ReentrantConnector());
+    uint32 _domain = uint32(12);
+    vm.prank(_rootManager.owner());
+    _rootManager.addConnector(_domain, _reentrant);
+    ReentrantConnector(_reentrant).addConnector(_reentrant);
+
+    // Generate propagate args
+    address[] memory connectors = new address[](1);
+    connectors[0] = _reentrant;
+    uint256[] memory fees = new uint256[](1);
+    fees[0] = 0;
+    bytes[] memory encodedData = new bytes[](1);
+    encodedData[0] = bytes("");
+
+    // Get root before attempt
+    bytes32 _existing = _rootManager.lastPropagatedRoot(_domain);
+
+    vm.expectEmit(true, true, true, true);
+    emit PropagateFailed(_domain, _reentrant);
+    _rootManager.propagate(connectors, fees, encodedData);
+
+    // ensure `sendMessage` call did not succeed if reentrant
+    assertEq(ReentrantConnector(_reentrant).count(), 0);
+    // ensure correct last propagated root
+    assertEq(_rootManager.lastPropagatedRoot(_domain), _existing);
   }
 }
 
