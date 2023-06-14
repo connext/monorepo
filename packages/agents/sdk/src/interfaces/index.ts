@@ -228,6 +228,7 @@ export type SdkGetDeploymentAddressParams = Static<typeof SdkGetDeploymentAddres
 // getConnext
 export const SdkGetConnextParamsSchema = Type.Object({
   domainId: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetConnextParams = Static<typeof SdkGetConnextParamsSchema>;
 
@@ -235,6 +236,7 @@ export type SdkGetConnextParams = Static<typeof SdkGetConnextParamsSchema>;
 export const SdkGetERC20ParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetERC20Params = Static<typeof SdkGetERC20ParamsSchema>;
 
@@ -275,6 +277,7 @@ export const SdkApproveIfNeededParamsSchema = Type.Object({
   assetId: Type.String(),
   amount: Type.String(),
   infiniteApprove: Type.Boolean(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkApproveIfNeededParams = Static<typeof SdkApproveIfNeededParamsSchema>;
 
@@ -431,6 +434,7 @@ export const SdkCalculateSwapParamsSchema = Type.Object({
   tokenIndexFrom: Type.Number(),
   tokenIndexTo: Type.Number(),
   amount: TIntegerString,
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateSwapParams = Static<typeof SdkCalculateSwapParamsSchema>;
 
@@ -467,6 +471,7 @@ export const SdkCalculateTokenAmountParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amounts: Type.Array(Type.String()),
   isDeposit: Type.Optional(Type.Boolean()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateTokenAmountParams = Static<typeof SdkCalculateTokenAmountParamsSchema>;
 
@@ -475,6 +480,7 @@ export const SdkCalculateRemoveSwapLiquidityParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   amount: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateRemoveSwapLiquidityParams = Static<typeof SdkCalculateRemoveSwapLiquidityParamsSchema>;
 
@@ -484,6 +490,7 @@ export const SdkCalculateRemoveSwapLiquidityOneTokenParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amount: Type.String(),
   index: Type.Number(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateRemoveSwapLiquidityOneTokenParams = Static<
   typeof SdkCalculateRemoveSwapLiquidityOneTokenParamsSchema
@@ -524,6 +531,7 @@ export const SdkCalculateSwapPriceImpactParamsSchema = Type.Object({
   amountX: Type.String(),
   tokenX: Type.String(),
   tokenY: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateSwapPriceImpactParams = Static<typeof SdkCalculateSwapPriceImpactParamsSchema>;
 
@@ -577,6 +585,7 @@ export const SdkGetPoolTokenBalanceParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   poolTokenAddress: Type.String(),
   _index: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetPoolTokenBalanceParams = Static<typeof SdkGetPoolTokenBalanceParamsSchema>;
 
@@ -592,6 +601,7 @@ export type SdkGetPoolTokenAddressParams = Static<typeof SdkGetPoolTokenAddressP
 export const SdkGetVirtualPriceParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetVirtualPriceParams = Static<typeof SdkGetVirtualPriceParamsSchema>;
 
@@ -640,6 +650,7 @@ export const SdkAddLiquidityParamsSchema = Type.Object({
   amounts: Type.Array(Type.String()),
   minToMint: Type.Optional(Type.String()),
   deadline: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkAddLiquidityParams = Static<typeof SdkAddLiquidityParamsSchema>;
 
@@ -651,6 +662,7 @@ export const SdkRemoveLiquidityOneTokenParamsSchema = Type.Object({
   amount: Type.String(),
   minAmount: Type.Optional(Type.String()),
   deadline: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkRemoveLiquidityOneTokenParams = Static<typeof SdkRemoveLiquidityOneTokenParamsSchema>;
 
@@ -661,6 +673,7 @@ export const SdkRemoveLiquidityParamsSchema = Type.Object({
   amount: Type.String(),
   minAmounts: Type.Optional(Type.Array(Type.String())),
   deadline: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkRemoveLiquidityParams = Static<typeof SdkRemoveLiquidityParamsSchema>;
 
@@ -671,6 +684,7 @@ export const SdkRemoveLiquidityImbalanceParamsSchema = Type.Object({
   amounts: Type.Array(Type.String()),
   maxBurnAmount: Type.Optional(Type.String()),
   deadline: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkRemoveLiquidityImbalanceParams = Static<typeof SdkRemoveLiquidityImbalanceParamsSchema>;
 
@@ -683,6 +697,7 @@ export const SdkSwapParamsSchema = Type.Object({
   amount: Type.String(),
   minDy: Type.Optional(Type.Number()),
   deadline: Type.Optional(Type.Number()),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkSwapParams = Static<typeof SdkSwapParamsSchema>;
 
@@ -830,6 +845,7 @@ export const SdkAddLiquidityForRouterParamsSchema = Type.Object({
   amount: Type.String(),
   tokenAddress: Type.String(),
   router: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkAddLiquidityForRouterParams = Static<typeof SdkAddLiquidityForRouterParamsSchema>;
 
@@ -839,6 +855,7 @@ export const SdkRemoveRouterLiquidityParamsSchema = Type.Object({
   amount: Type.String(),
   tokenAddress: Type.String(),
   recipient: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkRemoveRouterLiquidityParams = Static<typeof SdkRemoveRouterLiquidityParamsSchema>;
 
@@ -849,5 +866,6 @@ export const SdkRemoveRouterLiquidityForParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   recipient: Type.String(),
   router: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkRemoveRouterLiquidityForParams = Static<typeof SdkRemoveRouterLiquidityForParamsSchema>;
