@@ -76,7 +76,7 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
         const cachedFee = await server.redis.get(cacheKey);
 
         if (cachedFee) {
-          reply.status(200).send({ fee: JSON.parse(cachedFee) });
+          reply.status(200).send(JSON.parse(cachedFee));
         } else {
           const txReq = await handleEstimateRelayerFee();
           await server.redis.set(cacheKey, JSON.stringify(txReq), "EX", CACHE_EXPIRATION_SECS);
