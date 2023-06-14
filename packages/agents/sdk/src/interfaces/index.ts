@@ -216,10 +216,13 @@ export const SdkGetProviderParamsSchema = Type.Object({
 export type SdkGetProviderParams = Static<typeof SdkGetProviderParamsSchema>;
 
 // getDeploymentAddress
+export const validDeploymentNames = ["connext", "multisend", "unwrapper", "stableSwap"] as const;
+
 export const SdkGetDeploymentAddressParamsSchema = Type.Object({
   domainId: Type.String(),
-  deploymentName: Type.Enum(TChainDeployments),
+  deploymentName: Type.Union(validDeploymentNames.map((name) => Type.Literal(name as string))),
 });
+
 export type SdkGetDeploymentAddressParams = Static<typeof SdkGetDeploymentAddressParamsSchema>;
 
 // getConnext
