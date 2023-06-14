@@ -18,7 +18,7 @@ export const retrieveOriginMessages = async () => {
 
   for (const domain of domains) {
     const offset = await database.getCheckPoint("message_" + domain);
-    const limit = 100;
+    const limit = 1000;
     logger.debug("Retrieving origin messages", requestContext, methodContext, {
       domain: domain,
       offset: offset,
