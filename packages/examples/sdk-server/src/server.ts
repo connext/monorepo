@@ -85,7 +85,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     server.register(routerRoutes, sdkRouter);
     server.register(sharedRoutes, sdkShared);
 
-    server.listen({ host: "0.0.0.0", port: 8080 }, (err, address) => {
+    server.listen({ host: context.config.server.http.host, port: context.config.server.http.port }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

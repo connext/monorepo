@@ -53,6 +53,13 @@ locals {
       host           = module.sdk_server_cache.redis_instance_address,
       port           = module.sdk_server_cache.redis_instance_port
     }
+
+    server = {
+      http = {
+        host = "0.0.0.0"
+        port = 8080
+      }
+    }
   })
   local_cartographer_config = jsonencode({
     logLevel = "debug"
