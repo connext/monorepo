@@ -2,7 +2,7 @@ import { providers } from "ethers";
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { SignerAddressMissing } from "./lib/errors";
+import { SignerAddressMissing, ProviderMissing } from "./lib/errors";
 import { SdkShared } from "./sdkShared";
 import { SdkConfig, getConfig } from "./config";
 import { Options } from "./interfaces";
@@ -85,7 +85,10 @@ export class SdkRouter extends SdkShared {
 
     const { domainId, amount, tokenAddress, router, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const connextContract = await this.getConnext(domainId, options);
     const txRequest = await connextContract.populateTransaction.addRouterLiquidityFor(amount, tokenAddress, router);
@@ -129,7 +132,10 @@ export class SdkRouter extends SdkShared {
 
     const { domainId, amount, tokenAddress, recipient, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
@@ -169,7 +175,10 @@ export class SdkRouter extends SdkShared {
 
     const { domainId, amount, tokenAddress, recipient, router, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),

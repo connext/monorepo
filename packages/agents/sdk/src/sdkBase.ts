@@ -13,7 +13,13 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 export type logger = Logger;
 
 import { calculateRelayerFee } from "./lib/helpers";
-import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
+import {
+  SignerAddressMissing,
+  CannotUnwrapOnDestination,
+  ParamsInvalid,
+  SlippageInvalid,
+  ProviderMissing,
+} from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
@@ -172,7 +178,10 @@ export class SdkBase extends SdkShared {
       unwrapNativeOnDestination,
       options,
     } = params;
-    this.providerSanityCheck({ domains: [origin], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [origin], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(origin);
+    }
 
     let { to, callData } = params;
 
@@ -405,7 +414,10 @@ export class SdkBase extends SdkShared {
 
     const { domainId, transferId, slippage: _newSlippage, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
@@ -523,7 +535,10 @@ export class SdkBase extends SdkShared {
 
     const { domainId, transferId, asset, relayerFee, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
