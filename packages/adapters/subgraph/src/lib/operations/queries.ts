@@ -557,6 +557,7 @@ const originTransferQueryString = (
   destinationDomains: string[],
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
 ) => {
   return `${prefix}_originTransfers(
     where: {
@@ -565,7 +566,7 @@ const originTransferQueryString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: 1000,
+    first: ${limit ?? 1000},
     orderBy: blockNumber,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -578,6 +579,7 @@ const originTransferQueryFallbackString = (
   destinationDomains: string[],
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
 ) => {
   return `${prefix}_originTransfers(
     where: {
@@ -586,7 +588,7 @@ const originTransferQueryFallbackString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: 1000,
+    first: ${limit ?? 1000},
     orderBy: blockNumber,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
@@ -635,6 +637,7 @@ export const getOriginTransfersFallbackQuery = (agents: Map<string, SubgraphQuer
         domains,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
+        agents.get(domain)!.limit,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -653,13 +656,14 @@ const originTransferByNonceQueryString = (
   fromNonce: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
 ) => {
   return `${prefix}_originTransfers(
     where: {
       nonce_gte: ${fromNonce},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: 1000,
+    first: ${limit ?? 1000},
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -678,6 +682,7 @@ export const getOriginTransfersByNonceQuery = (agents: Map<string, SubgraphQuery
         agents.get(domain)!.latestNonce,
         agents.get(domain)!.maxBlockNumber,
         agents.get(domain)!.orderDirection,
+        agents.get(domain)!.limit,
       );
     }
   }
@@ -693,12 +698,13 @@ const destinationTransferByExecutedNonceQueryString = (
   prefix: string,
   fromNonce: number,
   orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
       executedTxNonce_gte: "${fromNonce}",
     },
-    first: 1000,
+    first: ${limit ?? 1000},
     orderBy: executedTxNonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
@@ -716,6 +722,7 @@ export const getDestinationTransfersByExecutedNonceQuery = (agents: Map<string, 
         prefix,
         agents.get(domain)!.latestNonce,
         agents.get(domain)!.orderDirection,
+        agents.get(domain)!.limit,
       );
     }
   }
@@ -798,6 +805,7 @@ const destinationTransfersByReconcileNonceQueryString = (
   fromNonce: number,
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
 ) => {
   return `
   ${prefix}_destinationTransfers(
@@ -805,7 +813,7 @@ const destinationTransfersByReconcileNonceQueryString = (
       reconciledTxNonce_gte: "${fromNonce}",
       ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: 1000,
+    first: ${limit ?? 1000},
     orderBy: reconciledTxNonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
@@ -826,6 +834,7 @@ export const getDestinationTransfersByDomainAndReconcileNonceQuery = (
       param.latestNonce,
       param.maxBlockNumber,
       param.orderDirection,
+      param.limit,
     );
   }
 
@@ -894,7 +903,6 @@ export const getOriginMessagesByDomainAndIndexQuery = (
         transferId_not: null, 
         destinationDomain_not: null
       },
-      first: 1000,
       orderBy: index, 
       orderDirection: asc
     ) {
