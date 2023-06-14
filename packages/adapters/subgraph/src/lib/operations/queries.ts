@@ -565,6 +565,7 @@ const originTransferQueryString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
+    first: 1000,
     orderBy: blockNumber,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -585,6 +586,7 @@ const originTransferQueryFallbackString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
+    first: 1000,
     orderBy: blockNumber,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
@@ -657,6 +659,7 @@ const originTransferByNonceQueryString = (
       nonce_gte: ${fromNonce},
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
+    first: 1000,
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -695,6 +698,7 @@ const destinationTransferByExecutedNonceQueryString = (
     where: {
       executedTxNonce_gte: "${fromNonce}",
     },
+    first: 1000,
     orderBy: executedTxNonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
@@ -801,6 +805,7 @@ const destinationTransfersByReconcileNonceQueryString = (
       reconciledTxNonce_gte: "${fromNonce}",
       ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""}
     },
+    first: 1000,
     orderBy: reconciledTxNonce,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
@@ -889,6 +894,7 @@ export const getOriginMessagesByDomainAndIndexQuery = (
         transferId_not: null, 
         destinationDomain_not: null
       },
+      first: 1000,
       orderBy: index, 
       orderDirection: asc
     ) {

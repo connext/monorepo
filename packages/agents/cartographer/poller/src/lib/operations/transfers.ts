@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
+import { DEFAULT_LOAD_SIZE } from ".";
 
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {
   return transfers.length == 0 ? 0 : Math.max(...transfers.map((transfer) => transfer.xparams.nonce ?? 0));
@@ -161,32 +162,44 @@ export const updateTransfers = async () => {
   for (const originDomain of domains) {
     for (const destinationDomain of domains) {
       if (originDomain == destinationDomain) continue;
-      const pendingTransfers = await database.getPendingTransfersByDomains(
-        originDomain,
-        destinationDomain,
-        100,
-        0,
-        "ASC",
-      );
 
-      const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
-      _destinationPendingQueryMetaParams.set(destinationDomain, {
-        maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
-        transferIDs: pendingTransfers,
-      });
-      const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
-
-      if (destinationTransfers.length > 0) {
-        logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
+      const destinationTransfers: XTransfer[] = [];
+      let offset = 0;
+      const limit = 100;
+      let done = false;
+      while (!done) {
+        const pendingTransfers = await database.getPendingTransfersByDomains(
           originDomain,
           destinationDomain,
-          pendingTransfers,
-          nonces: destinationTransfers.map((i) => i.xparams.nonce),
-          count: destinationTransfers.length,
-        });
+          limit,
+          offset,
+          "ASC",
+        );
 
-        await database.saveTransfers(destinationTransfers as XTransfer[]);
+        const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+        _destinationPendingQueryMetaParams.set(destinationDomain, {
+          maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
+          transferIDs: pendingTransfers,
+        });
+        const _destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
+
+        if (destinationTransfers.length > 0) {
+          logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
+            originDomain,
+            destinationDomain,
+            pendingTransfers,
+            nonces: destinationTransfers.map((i) => i.xparams.nonce),
+            count: destinationTransfers.length,
+          });
+          destinationTransfers.concat(_destinationTransfers as XTransfer[]);
+        }
+
+        if (offset >= DEFAULT_LOAD_SIZE) done = true;
+        else if (pendingTransfers.length == limit) offset += limit;
+        else done = true;
       }
+
+      await database.saveTransfers(destinationTransfers as XTransfer[]);
     }
   }
 
