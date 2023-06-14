@@ -199,7 +199,7 @@ export const updateTransfers = async () => {
         else done = true;
       }
 
-      await database.saveTransfers(destinationTransfers as XTransfer[]);
+      await database.saveTransfers(destinationTransfers);
     }
   }
 
