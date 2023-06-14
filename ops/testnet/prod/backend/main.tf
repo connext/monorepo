@@ -160,8 +160,8 @@ module "sdk-server" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment
