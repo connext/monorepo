@@ -104,7 +104,7 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     address[] calldata _connectors,
     uint256[] calldata _fees,
     bytes[] memory _encodedData
-  ) public {
+  ) public payable {
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
   }
 
@@ -1350,6 +1350,109 @@ contract RootManager_SendRootToHubs is Base {
 
     vm.expectRevert(stdError.arithmeticError);
     // sends 0 eth
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
+  }
+
+  function test_revertIfNoneRootsWereSendBecauseOfRevert(bytes32 aggregateRoot, uint32 reverterDomain) public {
+     vm.assume(aggregateRoot > _finalizedHash && reverterDomain > 0);
+
+    // Create reverter connector
+    ReverterConnector reverterConnector = new ReverterConnector();
+
+    // Create _sendRootToHubs args
+    uint32[] memory domains = new uint32[](1);
+    domains[0] = reverterDomain;
+
+    address[] memory connectors = new address[](1);
+    connectors[0] = address(reverterConnector);
+
+    uint256[] memory fees = new uint256[](1);
+    fees[0] = 0;
+
+    bytes[] memory encodedData = new bytes[](1);
+    encodedData[0] = bytes("");
+
+
+    // Set domains with reverter domain only
+    _rootManager.forTest_setDomains(domains);
+
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
+
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, connectors, fees, encodedData);
+  }
+
+  function test_revertIfRootAlreadySentToEveryHub(bytes32 aggregateRoot) public {
+     vm.assume(aggregateRoot > _finalizedHash);
+
+    // Set every lastPropagatedRoot as the aggregateRoot that needs to be sent.
+    for (uint256 i = 0; i < _domains.length; i++) {
+      _rootManager.forTest_setLastPropagatedRoot(_domains[i], aggregateRoot);
+    }
+
+    // Set domains
+    _rootManager.forTest_setDomains(_domains);
+
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
+
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
+  }
+
+  function test_refundUser(bytes32 aggregateRoot, uint32 reverterDomain) public {
+    vm.assume(aggregateRoot > _finalizedHash);
+
+    // Ensure that the fuzzed revertereDomain is never equal to one of the valid domains.
+    for (uint256 i = 0; i < _domains.length; i++) {
+      vm.assume(_domains[i] != reverterDomain);
+    }
+
+    // Mock calls for the valid connectors
+    for (uint256 i = 0; i < _connectors.length; i++) {
+      vm.mockCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    }
+
+    // Create reverter connector
+    ReverterConnector reverterConnector = new ReverterConnector();
+
+    // Add the reverter domain + connector to arrays
+    _domains.push(reverterDomain);
+    _connectors.push(address(reverterConnector));
+    _encodedData.push(bytes(""));
+
+    uint256[] memory fees = new uint256[](3);
+    fees[0] = 1 ether;
+    fees[1] = 1 ether;
+    fees[2] = 1 ether;
+
+    // Set domains with reverter domain included
+    _rootManager.forTest_setDomains(_domains);
+
+    // Set stranger balance to 3 eth.
+    vm.deal(stranger, 3 ether);
+
+    vm.prank(stranger);
+    _rootManager.forTest_sendRootToHubs{value: 3 ether}(aggregateRoot, _connectors, fees, _encodedData);
+
+    // Since 1 of 3 sendMessage calls to the hub will fail, user should be refunded by the cost of one sendMessage (1 eth)
+    assertEq(stranger.balance, 1 ether);
+  }
+
+  function test_shouldSendMissingRoot(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot > _finalizedHash);
+
+    uint32 alreadySentDomain = _domains[0];
+    address missingSentConnector = _connectors[1]; // domain[1]
+
+    // Set lastPropagatedRoot of alreadySentDomain as it was already propagated.
+    _rootManager.forTest_setLastPropagatedRoot(alreadySentDomain, aggregateRoot);
+
+    // set domains
+    _rootManager.forTest_setDomains(_domains);
+
+    // Mock *a* call for the missingSentDomain
+    vm.mockCall(missingSentConnector, abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+
+    // first domain of domains should already be set as propagated but the second domain should not to ensure that
+    // only the missing domain gets called.
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 }
