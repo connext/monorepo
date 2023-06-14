@@ -26,7 +26,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@arbitrum/sdk": "3.0.0-beta.12",
+    "@arbitrum/sdk": "3.1.3",
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-relayer": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
@@ -45,7 +45,7 @@
     "pg": "8.9.0",
     "prom-client": "14.1.1",
     "zapatos": "6.1.4",
-    "zksync-web3": "^0.14.3"
+    "zksync-web3": "0.14.3"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "3.0.0",

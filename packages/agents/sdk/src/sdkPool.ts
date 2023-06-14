@@ -17,7 +17,7 @@ import memoize from "memoizee";
 import { SdkConfig, getConfig } from "./config";
 import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
-import { Pool, PoolAsset, AssetData } from "./interfaces";
+import { Pool, PoolAsset, AssetData, Options } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
 
@@ -108,11 +108,14 @@ export class SdkPool extends SdkShared {
     tokenIndexFrom: number,
     tokenIndexTo: number,
     amount: BigNumberish,
+    options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -347,11 +350,14 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amounts: string[],
     isDeposit = true,
+    options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -368,11 +374,18 @@ export class SdkPool extends SdkShared {
    * @param amount - The amount of the LP token to burn on withdrawal.
    * @returns Array containing amount of each underlying token returned, in correct index order.
    */
-  async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
+  async calculateRemoveSwapLiquidity(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    options?: Options,
+  ): Promise<BigNumber[]> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -395,11 +408,14 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amount: string,
     index: number,
+    options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -527,12 +543,15 @@ export class SdkPool extends SdkShared {
     amountX: string,
     tokenX: string,
     tokenY: string,
+    options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenX = utils.getAddress(tokenX);
     const _tokenY = utils.getAddress(tokenY);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, tokenX),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -593,10 +612,10 @@ export class SdkPool extends SdkShared {
    * @param tokenAddress - The address of the ERC20 token.
    * @returns The balance of the address.
    */
-  async getTokenSupply(domainId: string, tokenAddress: string): Promise<BigNumber> {
+  async getTokenSupply(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress, options);
     const amount = await erc20Contract.totalSupply();
 
     return amount;
@@ -610,10 +629,15 @@ export class SdkPool extends SdkShared {
    * @param userAddress - The address to get the balance of.
    * @returns The balance of the address.
    */
-  async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
+  async getTokenUserBalance(
+    domainId: string,
+    tokenAddress: string,
+    userAddress: string,
+    options?: Options,
+  ): Promise<BigNumber> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress, options);
     const balance = await erc20Contract.balanceOf(userAddress);
 
     return balance;
@@ -674,11 +698,14 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     poolTokenAddress: string,
     _index?: number,
+    options?: Options,
   ): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       _index ?? this.getPoolTokenIndex(domainId, _tokenAddress, poolTokenAddress),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
@@ -716,11 +743,13 @@ export class SdkPool extends SdkShared {
    * @param index - The index of the token in the pool.
    * @returns The virtual price, scaled to the pool's decimal precision (10^18).
    */
-  async getVirtualPrice(domainId: string, tokenAddress: string): Promise<BigNumber> {
+  async getVirtualPrice(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -909,9 +938,12 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     minToMint = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -921,7 +953,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -950,9 +982,12 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
     const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
@@ -963,7 +998,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -996,9 +1031,12 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmounts = ["0", "0"],
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -1008,7 +1046,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -1036,9 +1074,12 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     maxBurnAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityImbalance.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, maxBurnAmount, deadline });
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -1048,7 +1089,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -1094,6 +1135,7 @@ export class SdkPool extends SdkShared {
     amount: string,
     minDy = 0,
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.swap.name);
     this.logger.info("Method start", requestContext, methodContext, {
@@ -1105,6 +1147,8 @@ export class SdkPool extends SdkShared {
       deadline,
     });
 
+    this.providerSanityCheck({ domains: [domainId], options });
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const signerAddress = this.config.signerAddress;
@@ -1113,7 +1157,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId], tokenIndexFrom, tokenIndexTo] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
       this.getPoolTokenIndex(domainId, _tokenAddress, from),
       this.getPoolTokenIndex(domainId, _tokenAddress, to),

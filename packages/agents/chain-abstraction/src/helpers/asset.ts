@@ -1,8 +1,9 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 
 import { axiosGet } from "../mockable";
-import { UniswapToken, Asset, HoneyswapToken } from "../types";
+import { UniswapToken, Asset, HoneyswapToken, coingeckoTokenType } from "../types";
 import { HONEYSWAP_TOKENS, UNISWAP_GATEWAY } from "../helpers/api";
+import { BigNumberish, ethers } from "ethers";
 
 /**
  * Returns the `supportedAsset` which will be specific to chain ID
@@ -62,5 +63,37 @@ export const getSupportedAssets = async (chainID: number): Promise<Asset[] | nul
     }
   } catch (error: unknown) {
     throw new Error(`Getting supportedAsset from SDK failed, e: ${jsonifyError(error as Error).message}`);
+  }
+};
+
+export const getCoingeckoID = async (tokenAddress: string) => {
+  try {
+    const response = await axiosGet("https://api.coingecko.com/api/v3/coins/list?include_platform=true");
+    const tokenList = response.data;
+
+    const token: coingeckoTokenType = tokenList.find((token: coingeckoTokenType) =>
+      Object.values(token.platforms).includes(tokenAddress),
+    );
+
+    if (!token) {
+      throw new Error("Token not found");
+    }
+
+    return token.id;
+  } catch (err: unknown) {
+    throw Error(`Error in fetching coingecko tokenID ${(err as Error).message}`);
+  }
+};
+
+export const getTokenVSusdPrice = async (coingeckoId: string, amount: BigNumberish, decimal: number) => {
+  try {
+    const response = await axiosGet("https://api.coingecko.com/api/v3/simple/price", {
+      params: { ids: coingeckoId, vs_currencies: "usd" },
+    });
+    const priceInUSD: number = response.data[coingeckoId].usd;
+    const _amount = parseInt(ethers.utils.formatUnits(amount.toString(), decimal));
+    return priceInUSD * _amount;
+  } catch (err: unknown) {
+    throw Error(`Failed to get fetch the USD price ${(err as Error).message}`);
   }
 };
