@@ -124,6 +124,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_slowPropagate__OldAggregateRoot();
 
+  error RootManager_sendRootToHub__NoMessageSent();
+
   error RootManager_finalize__InvalidInputHash();
 
   error RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
@@ -573,10 +575,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes[] memory _encodedData
   ) internal {
     uint256 refund = msg.value;
+    bool sent;
     for (uint32 i; i < _connectors.length; ) {
-      // Sanity check: make sure we are not propagating a redundant aggregate root.
+      // Sanity check: skip propagating a redundant aggregate root.
       bytes32 previous = lastPropagatedRoot[domains[i]];
-      require(_aggregateRoot != previous, "redundant root");
+      if (previous == _aggregateRoot) {
+        unchecked {
+          ++i;
+        }
+        continue;
+      }
 
       // Set the last propagated root optimistically
       lastPropagatedRoot[domains[i]] = _aggregateRoot;
@@ -590,6 +598,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         // This will revert as soon as there are insufficient fees for call i, even if call n > i has
         // sufficient budget, this function will revert
         refund -= _fees[i];
+        // mark that the message was sent
+        sent = true;
       } catch {
         // unset updated domain on failure
         lastPropagatedRoot[domains[i]] = previous;
@@ -599,6 +609,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       unchecked {
         ++i;
       }
+    }
+
+    // Ensure *a* message was sent to prevent excess relayer spend
+    if (!sent) {
+      revert RootManager_sendRootToHub__NoMessageSent();
     }
 
     // Refund caller

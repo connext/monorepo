@@ -428,7 +428,7 @@ contract RootManager_General is Base {
 
     // The current root has already been sent, the following call should revert since sending
     // again would be redundant.
-    vm.expectRevert(bytes("redundant root"));
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
@@ -1135,11 +1135,20 @@ contract RootManager_Propagate is Base {
     bytes[] memory encodedData = new bytes[](1);
     encodedData[0] = bytes("");
 
+    // What we are expecting:
+    // - call to `propagate`
+    // - call to `sendMessage` on reentrant connector
+    // - connector calls `propagate`
+    // - second call to `propagate` fails because it skips
+    //   the reentrant connector and no messages are sent (sent = false)
+
     // Get root before attempt
     bytes32 _existing = _rootManager.lastPropagatedRoot(_domain);
 
     vm.expectEmit(true, true, true, true);
     emit PropagateFailed(_domain, _reentrant);
+
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
     _rootManager.propagate(connectors, fees, encodedData);
 
     // ensure `sendMessage` call did not succeed if reentrant
@@ -1277,7 +1286,7 @@ contract RootManager_SendRootToHubs is Base {
       _rootManager.forTest_setLastPropagatedRoot(_domains[i], aggregateRoot);
     }
 
-    vm.expectRevert(bytes("redundant root"));
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 
