@@ -11,4 +11,4 @@ export { updateStableSwap, updatePoolEvents, updateLpTransfers } from "./stables
 export { runMigration } from "./migrations";
 export { updateAssetPrices, updateHistoricAssetPrices } from "./prices";
 
-export const DEFAULT_LOAD_SIZE = 1500;
+export const DEFAULT_LOAD_SIZE = 3000;
