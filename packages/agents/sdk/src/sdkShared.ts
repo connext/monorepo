@@ -94,11 +94,11 @@ export class SdkShared {
 
     for (const domainId of domains) {
       if (!(domainId in chains)) {
-        throw new ProviderMissing(domainId);
+        return false;
       }
       const chain = chains[domainId];
       if ((chain.providers?.length ?? 0) <= 0) {
-        throw new ProviderMissing(domainId);
+        return false;
       }
     }
 
@@ -124,7 +124,10 @@ export class SdkShared {
    */
   getConnext = memoize(
     async (domainId: string, options?: Options): Promise<Connext> => {
-      this.providerSanityCheck({ domains: [domainId], options });
+      const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+      if (!isProviderValid) {
+        throw new ProviderMissing(domainId);
+      }
 
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
@@ -143,7 +146,10 @@ export class SdkShared {
    * @returns ERC20 Contract object.
    */
   async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const provider = options?.originProviderUrl
       ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
@@ -232,7 +238,10 @@ export class SdkShared {
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const signerAddress = this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {

@@ -127,11 +127,11 @@ describe("SdkShared", () => {
       expect(res).to.be.true;
     });
 
-    it("should throw with a domain not in existing config", async () => {
+    it("should return false with a domain not in existing config", async () => {
       const params = {
         domains: ["1000"],
       };
-      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
+      await expect(sdkShared.providerSanityCheck(params)).to.be.false;
     });
 
     it("should throw with a domain not in passed-in config", async () => {
@@ -145,7 +145,7 @@ describe("SdkShared", () => {
           },
         },
       };
-      await expect(sdkShared.providerSanityCheck(params)).to.be.rejectedWith(ProviderMissing);
+      await expect(sdkShared.providerSanityCheck(params)).to.be.false;
     });
   });
 
