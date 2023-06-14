@@ -891,11 +891,10 @@ describe("Database client", () => {
     }
     await saveMessages(messages, pool);
 
-    const _messages1 = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, 10000, pool);
-    expect(_messages1).to.deep.eq(messages.slice(1, 4).map((m) => m.leaf));
-
-    const _messages2 = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, 1, pool);
-    expect(_messages2).to.deep.eq(messages.slice(1, 4).map((m) => m.leaf));
+    const _messages1 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 10000, pool);
+    expect(_messages1).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
+    const _messages2 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 1, pool);
+    expect(_messages2).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
   });
 
   it("should get hub node", async () => {
