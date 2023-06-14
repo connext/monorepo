@@ -36,7 +36,7 @@ import { BigNumber } from "ethers";
 
 import { pool } from "./index";
 
-const DEFAULT_RECORDS_TO_STORE = 100;
+const DEFAULT_RECORDS_TO_STORE = 1000;
 // Max execution time backoff for a transfer
 const maxBackoff = 86400 * 7;
 
