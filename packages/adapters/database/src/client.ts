@@ -90,6 +90,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
     execute_tx_origin: transfer.destination?.execute?.txOrigin,
+    execute_tx_nonce: transfer.destination?.execute?.txNonce,
 
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,
@@ -98,6 +99,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     reconcile_gas_limit: transfer.destination?.reconcile?.gasLimit,
     reconcile_block_number: transfer.destination?.reconcile?.blockNumber,
     reconcile_tx_origin: transfer.destination?.reconcile?.txOrigin,
+    reconcile_tx_nonce: transfer.destination?.reconcile?.txNonce,
   };
 };
 
@@ -309,6 +311,27 @@ export const saveTransfers = async (
 
   // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
   await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
+};
+
+export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const result = await db.sql`WITH duplicates AS (
+        SELECT *,
+            ROW_NUMBER() OVER (
+              PARTITION BY origin_domain, nonce
+              ORDER BY xcall_timestamp desc nulls first) AS row_number
+        FROM transfers 
+        where nonce IS NOT NULL
+      )
+      DELETE FROM transfers
+      WHERE (transfer_id, origin_domain, nonce) IN (
+        SELECT transfer_id, origin_domain, nonce
+        FROM duplicates
+        WHERE row_number > 1
+      )
+      RETURNING *;
+  `.run(poolToUse);
+  return result.map((t) => t.transfer_id);
 };
 
 export const saveMessages = async (

@@ -49,23 +49,23 @@ describe("Transfers operations", () => {
     });
 
     it("initial condition: no destination transfers", async () => {
-      (mockContext.adapters.subgraph.getDestinationTransfersByDomainAndReconcileTimestamp as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getDestinationTransfersByDomainAndReconcileNonce as SinonStub).resolves([]);
       await updateTransfers();
 
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).is.not.calledWithExactly(
-        "destination_reconcile_timestamp_" + mockContext.domains[0],
+        "destination_reconcile_tx_nonce_" + mockContext.domains[0],
       );
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).is.not.calledWithExactly(
-        "destination_reconcile_timestamp_" + mockContext.domains[1],
+        "destination_reconcile_tx_nonce_" + mockContext.domains[1],
       );
     });
 
     it("should handle no reconcile", async () => {
       const response = [...mockDestinationSubgraphResponse];
-      response[0].destination.reconcile!.timestamp = 0;
+      response[0].destination.reconcile!.txNonce = 0;
       response[1].destination.reconcile = undefined;
       const response2 = [...mockOriginSubgraphResponse];
-      (mockContext.adapters.subgraph.getDestinationTransfersByDomainAndReconcileTimestamp as SinonStub).resolves([
+      (mockContext.adapters.subgraph.getDestinationTransfersByDomainAndReconcileNonce as SinonStub).resolves([
         ...response,
         ...response2,
       ]);

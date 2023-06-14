@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import { create, SdkConfig } from "@connext/sdk";
-import { ChainConfig } from "@connext/sdk/dist/config";
+import { create, SdkConfig, ChainConfig } from "@connext/sdk-core";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
 import { useWallet } from "../contexts/Wallet";

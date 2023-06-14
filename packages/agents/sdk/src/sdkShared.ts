@@ -14,8 +14,8 @@ import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/sma
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData, ConnextSupport } from "./interfaces";
-import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
+import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
+import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 declare global {
@@ -75,7 +75,34 @@ export class SdkShared {
     }
 
     this.logger.info(`Using static provider for domain: ${domainId}`);
-    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers?.[0]);
+  }
+
+  /**
+   * Checks if at least one provider is configured for all given domains.
+   *
+   * @param domainId - The domain ID.
+   * @returns Boolean.
+   */
+  async providerSanityCheck(params: ProviderSanityCheck): Promise<boolean> {
+    const { domains, options } = params;
+    let { chains } = this.config;
+
+    if (options && options.chains) {
+      chains = options.chains;
+    }
+
+    for (const domainId of domains) {
+      if (!(domainId in chains)) {
+        throw new ProviderMissing(domainId);
+      }
+      const chain = chains[domainId];
+      if ((chain.providers?.length ?? 0) <= 0) {
+        throw new ProviderMissing(domainId);
+      }
+    }
+
+    return true;
   }
 
   getDeploymentAddress = memoize(
@@ -96,10 +123,14 @@ export class SdkShared {
    * @returns Connext Contract object.
    */
   getConnext = memoize(
-    async (domainId: string): Promise<Connext> => {
+    async (domainId: string, options?: Options): Promise<Connext> => {
+      this.providerSanityCheck({ domains: [domainId], options });
+
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = await this.getProvider(domainId);
+      const provider = options?.originProviderUrl
+        ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+        : await this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -111,8 +142,12 @@ export class SdkShared {
    * @param domainId - The domain ID.
    * @returns ERC20 Contract object.
    */
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const provider = await this.getProvider(domainId);
+  async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    this.providerSanityCheck({ domains: [domainId], options });
+
+    const provider = options?.originProviderUrl
+      ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+      : await this.getProvider(domainId);
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
@@ -193,8 +228,11 @@ export class SdkShared {
     assetId: string,
     amount: string,
     infiniteApprove = true,
+    options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
+
+    this.providerSanityCheck({ domains: [domainId], options });
 
     const signerAddress = this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
@@ -208,8 +246,8 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const connextContract = await this.getConnext(domainId);
-    const erc20Contract = await this.getERC20(domainId, assetId);
+    const connextContract = await this.getConnext(domainId, options);
+    const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
       const approved = await erc20Contract.allowance(signerAddress, connextContract.address);
