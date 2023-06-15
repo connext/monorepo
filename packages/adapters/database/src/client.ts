@@ -36,6 +36,7 @@ import { BigNumber } from "ethers";
 
 import { pool } from "./index";
 
+const DEFAULT_RECORDS_TO_STORE = 1000;
 // Max execution time backoff for a transfer
 const maxBackoff = 86400 * 7;
 
@@ -272,45 +273,57 @@ const sanitizeNull = (obj: { [s: string]: any }): any => {
 };
 
 export const saveTransfers = async (
-  xtransfers: XTransfer[],
+  _xtransfers: XTransfer[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  let transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
-  const dbTransfers = await getTransfersByTransferIds(
-    xtransfers.map((xtransfer) => xtransfer.transferId),
-    poolToUse,
-  );
+  let start = 0;
+  let done = false;
+  while (!done) {
+    const xtransfers = _xtransfers.slice(start, start + DEFAULT_RECORDS_TO_STORE);
+    let transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
+    const dbTransfers = await getTransfersByTransferIds(
+      xtransfers.map((xtransfer) => xtransfer.transferId),
+      poolToUse,
+    );
 
-  transfers = transfers.map((_transfer) => {
-    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+    transfers = transfers.map((_transfer) => {
+      const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
 
-    if (dbTransfer !== undefined) {
-      // Special handling as boolean fields defualt to false, when upstream subgraph data is null
-      _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
-    }
+      if (dbTransfer !== undefined) {
+        // Special handling as boolean fields defualt to false, when upstream subgraph data is null
+        _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
+      }
 
-    if (_transfer.status === undefined) {
-      _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
-    } else if (
-      _transfer.status == XTransferStatus.Executed ||
-      _transfer.status == XTransferStatus.CompletedFast ||
-      _transfer.status == XTransferStatus.CompletedSlow
-    ) {
-      _transfer.error_status = undefined;
-    }
+      if (_transfer.status === undefined) {
+        _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
+      } else if (
+        _transfer.status == XTransferStatus.Executed ||
+        _transfer.status == XTransferStatus.CompletedFast ||
+        _transfer.status == XTransferStatus.CompletedSlow
+      ) {
+        _transfer.error_status = undefined;
+      }
 
-    if (!_transfer.message_status) {
-      _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
-    }
+      if (!_transfer.message_status) {
+        _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
+      }
 
-    const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
-    return transfer;
-  });
+      const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
+      return transfer;
+    });
 
-  // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
-  await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
+    const uniqueTransfers = transfers.filter((transfer, index) => {
+      return transfers.findIndex((it) => it.transfer_id == transfer.transfer_id) === index;
+    });
+
+    // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
+    await db.upsert("transfers", uniqueTransfers, ["transfer_id"]).run(poolToUse);
+
+    if (xtransfers.length == DEFAULT_RECORDS_TO_STORE) start += DEFAULT_RECORDS_TO_STORE;
+    else done = true;
+  }
 };
 
 export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<string[]> => {
@@ -335,14 +348,23 @@ export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepe
 };
 
 export const saveMessages = async (
-  xMessages: XMessage[],
+  _xMessages: XMessage[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   // The `xMessages` are the ones retrieved only from the origin or destination domain
   const poolToUse = _pool ?? pool;
-  const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-  await db.upsert("messages", messages, ["origin_domain", "index"]).run(poolToUse);
+  let start = 0;
+  let done = false;
+  while (!done) {
+    const xMessages = _xMessages.slice(start, start + DEFAULT_RECORDS_TO_STORE);
+    const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
+
+    await db.upsert("messages", messages, ["origin_domain", "index"]).run(poolToUse);
+
+    if (xMessages.length == DEFAULT_RECORDS_TO_STORE) start += DEFAULT_RECORDS_TO_STORE;
+    else done = true;
+  }
 };
 
 export const saveSentRootMessages = async (
@@ -767,7 +789,8 @@ export const getUnProcessedMessagesByDomains = async (
 export const getUnProcessedMessagesByIndex = async (
   origin_domain: string,
   destination_domain: string,
-  index: number,
+  startIndex: number,
+  endIndex: number,
   offset: number,
   limit = 100,
   orderDirection: "ASC" | "DESC" = "ASC",
@@ -777,7 +800,12 @@ export const getUnProcessedMessagesByIndex = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain: origin_domain, destination_domain: destination_domain, index: dc.lte(index) },
+      {
+        processed: false,
+        origin_domain: origin_domain,
+        destination_domain: destination_domain,
+        index: dc.and(dc.gte(startIndex), dc.lte(endIndex)),
+      },
       { offset, limit, order: { by: "index", direction: orderDirection } },
     )
     .run(poolToUse);
@@ -992,16 +1020,28 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const messages = await db
-    .select(
-      "messages",
-      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let messages: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subMessages = await db
+      .select(
+        "messages",
+        { origin_domain: domain, index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+    messages = messages.concat(subMessages);
+    if (subMessages.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return messages.map((message) => convertFromDbMessage(message).leaf);
 };
 
@@ -1021,16 +1061,29 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const roots = await db
-    .select(
-      "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "domain_index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let roots: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subRoots = await db
+      .select(
+        "aggregated_roots",
+        { domain_index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "domain_index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+
+    roots = roots.concat(subRoots);
+    if (subRoots.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
 
