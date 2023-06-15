@@ -334,18 +334,7 @@ locals {
         persistent     = true
         durable        = true
       }
-    }
-    messageQueue = {
-      connection = {
-        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
-      }
-      exchange = {
-        name           = "proverX"
-        type           = "direct"
-        publishTimeout = 1000
-        persistent     = true
-        durable        = true
-      }
+      prefetchSize = 5
     }
   })
 
