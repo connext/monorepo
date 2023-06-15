@@ -2181,7 +2181,7 @@ __metadata:
   resolution: "@connext/chain-abstraction@workspace:packages/agents/chain-abstraction"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@connext/sdk": "workspace:^"
+    "@connext/sdk-core": "workspace:*"
     "@sinclair/typebox": 0.25.21
     "@types/isomorphic-fetch": ^0.0.36
     "@types/memoizee": 0.4.8
@@ -2686,7 +2686,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/sdk@workspace:*, @connext/sdk@workspace:^, @connext/sdk@workspace:packages/agents/sdk-wrapper":
+"@connext/sdk@workspace:*, @connext/sdk@workspace:packages/agents/sdk-wrapper":
   version: 0.0.0-use.local
   resolution: "@connext/sdk@workspace:packages/agents/sdk-wrapper"
   dependencies:

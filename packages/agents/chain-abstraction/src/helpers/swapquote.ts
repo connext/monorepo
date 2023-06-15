@@ -1,6 +1,6 @@
 import { constants } from "ethers";
 import { jsonifyError } from "@connext/nxtp-utils";
-import { create, SdkConfig } from "@connext/sdk";
+import { create, SdkConfig } from "@connext/sdk-core";
 
 import { axiosGet, getContract, JsonRpcProvider } from "../mockable";
 

@@ -1,5 +1,5 @@
 import { axiosGet as _axiosGet } from "@connext/nxtp-utils";
-import { SdkConfig, create } from "@connext/sdk";
+import { SdkConfig, create } from "@connext/sdk-core";
 import { Contract, providers } from "ethers";
 
 export const axiosGet = _axiosGet;

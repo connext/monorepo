@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@connext/sdk": "workspace:^",
+    "@connext/sdk-core": "workspace:*",
     "@sinclair/typebox": "0.25.21",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",
