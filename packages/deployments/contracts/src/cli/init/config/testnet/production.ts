@@ -95,7 +95,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "alUSD",
+      name: "nextAlUSD",
       canonical: {
         domain: "1735353714",
         address: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
@@ -104,18 +104,18 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
-          adopted: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+          local: "0x2931b84D59f6f570EEBDAaaE182867C5E5D58075",
+          adopted: "0x2931b84D59f6f570EEBDAaaE182867C5E5D58075",
         },
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
-          adopted: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+          local: "0x6e56Cb72f4197b8155Cf8e1efaEFB682BC9ae5d1",
+          adopted: "0x6e56Cb72f4197b8155Cf8e1efaEFB682BC9ae5d1",
         },
       },
     },
     {
-      name: "alETH",
+      name: "nextAlETH",
       canonical: {
         domain: "1735353714",
         address: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
@@ -124,13 +124,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
-          adopted: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+          local: "0x92db1b41779493fB3103Ab7ACC20EFCc299A2005",
+          adopted: "0x92db1b41779493fB3103Ab7ACC20EFCc299A2005",
         },
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
-          adopted: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+          local: "0xD3A6D71a5D5DA264fd5a85D33f5b866BEE716698",
+          adopted: "0xD3A6D71a5D5DA264fd5a85D33f5b866BEE716698",
         },
       },
     }
