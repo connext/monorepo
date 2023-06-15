@@ -147,6 +147,15 @@ module "sdk-server" {
   domain                   = var.domain
 }
 
+module "sdk_server_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+}
+
 module "sdk_server_cache" {
   source                        = "../../../modules/redis"
   stage                         = var.stage
