@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
-import { TChainConfig, TChainDeployments } from "../config";
+import { TChainConfig } from "../config";
 
 export type Pool = {
   domainId: string;
