@@ -18,6 +18,7 @@ export const mockDatabase = (): Database => {
     saveRouterBalances: stub().resolves(),
     saveSentRootMessages: stub().resolves(),
     saveTransfers: stub().resolves(),
+    deleteNonExistTransfers: stub().resolves([]),
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
     getUnProcessedMessagesByIndex: stub().resolves([]),
