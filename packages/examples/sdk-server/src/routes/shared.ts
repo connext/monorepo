@@ -43,6 +43,7 @@ import {
   SdkCalculateCanonicalKeyParams,
   SdkGetCanonicalTokenIdParamsSchema,
   SdkGetCanonicalTokenIdParams,
+  Options,
 } from "@connext/sdk-core";
 import { BigNumber, providers } from "ethers";
 
@@ -91,30 +92,30 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
   );
 
-  s.get<{ Params: SdkGetConnextParams }>(
-    "/getConnext/:domainId",
+  s.post<{ Body: SdkGetConnextParams }>(
+    "/getConnext",
     {
       schema: {
-        params: SdkGetConnextParamsSchema,
+        body: SdkGetConnextParamsSchema,
       },
     },
     async (request, reply) => {
-      const { domainId } = request.params;
-      const txReq = await sdkSharedInstance.getConnext(domainId);
+      const { domainId, options } = request.body;
+      const txReq = await sdkSharedInstance.getConnext(domainId, options as Options);
       reply.status(200).send(txReq);
     },
   );
 
-  s.get<{ Params: SdkGetERC20Params }>(
-    "/getERC20/:domainId/:tokenAddress",
+  s.post<{ Body: SdkGetERC20Params }>(
+    "/getERC20",
     {
       schema: {
-        params: SdkGetERC20ParamsSchema,
+        body: SdkGetERC20ParamsSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.params;
-      const txReq = await sdkSharedInstance.getERC20(domainId, tokenAddress);
+      const { domainId, tokenAddress, options } = request.body;
+      const txReq = await sdkSharedInstance.getERC20(domainId, tokenAddress, options as Options);
       reply.status(200).send(txReq);
     },
   );
@@ -189,16 +190,22 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     },
   );
 
-  s.get<{ Params: SdkApproveIfNeededParams }>(
-    "/approveIfNeeded/:domainId/:assetId/:amount/:infiniteApprove",
+  s.post<{ Body: SdkApproveIfNeededParams }>(
+    "/approveIfNeeded",
     {
       schema: {
-        params: SdkApproveIfNeededParamsSchema,
+        body: SdkApproveIfNeededParamsSchema,
       },
     },
     async (request, reply) => {
-      const { domainId, assetId, amount, infiniteApprove } = request.params;
-      const txReq = await sdkSharedInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
+      const { domainId, assetId, amount, infiniteApprove, options } = request.body;
+      const txReq = await sdkSharedInstance.approveIfNeeded(
+        domainId,
+        assetId,
+        amount,
+        infiniteApprove,
+        options as Options,
+      );
       reply.status(200).send(txReq);
     },
   );

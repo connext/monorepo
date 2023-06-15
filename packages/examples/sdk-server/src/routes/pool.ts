@@ -76,6 +76,7 @@ import {
   SdkGetHourlySwapVolumeParams,
   SdkGetDailySwapVolumeParamsSchema,
   SdkGetDailySwapVolumeParams,
+  Options,
 } from "@connext/sdk-core";
 import { BigNumber } from "ethers";
 
@@ -90,8 +91,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount } = request.body;
-      const res = await sdkPoolInstance.calculateSwap(domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount);
+      const { domainId, tokenAddress, tokenIndexFrom, tokenIndexTo, amount, options } = request.body;
+      const res = await sdkPoolInstance.calculateSwap(
+        domainId,
+        tokenAddress,
+        tokenIndexFrom,
+        tokenIndexTo,
+        amount,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -218,8 +226,14 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amounts, isDeposit } = request.body;
-      const res = await sdkPoolInstance.calculateTokenAmount(domainId, tokenAddress, amounts, isDeposit);
+      const { domainId, tokenAddress, amounts, isDeposit, options } = request.body;
+      const res = await sdkPoolInstance.calculateTokenAmount(
+        domainId,
+        tokenAddress,
+        amounts,
+        isDeposit,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -232,8 +246,13 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amount } = request.body;
-      const res = await sdkPoolInstance.calculateRemoveSwapLiquidity(domainId, tokenAddress, amount);
+      const { domainId, tokenAddress, amount, options } = request.body;
+      const res = await sdkPoolInstance.calculateRemoveSwapLiquidity(
+        domainId,
+        tokenAddress,
+        amount,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -246,8 +265,14 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amount, index } = request.body;
-      const res = await sdkPoolInstance.calculateRemoveSwapLiquidityOneToken(domainId, tokenAddress, amount, index);
+      const { domainId, tokenAddress, amount, index, options } = request.body;
+      const res = await sdkPoolInstance.calculateRemoveSwapLiquidityOneToken(
+        domainId,
+        tokenAddress,
+        amount,
+        index,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -307,8 +332,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, amountX, tokenX, tokenY } = request.body;
-      const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY);
+      const { domainId, amountX, tokenX, tokenY, options } = request.body;
+      const res = await sdkPoolInstance.calculateSwapPriceImpact(domainId, amountX, tokenX, tokenY, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -405,8 +430,14 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, poolTokenAddress, _index } = request.body;
-      const res = await sdkPoolInstance.getPoolTokenBalance(domainId, tokenAddress, poolTokenAddress, _index);
+      const { domainId, tokenAddress, poolTokenAddress, _index, options } = request.body;
+      const res = await sdkPoolInstance.getPoolTokenBalance(
+        domainId,
+        tokenAddress,
+        poolTokenAddress,
+        _index,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -433,8 +464,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.body;
-      const res = await sdkPoolInstance.getVirtualPrice(domainId, tokenAddress);
+      const { domainId, tokenAddress, options } = request.body;
+      const res = await sdkPoolInstance.getVirtualPrice(domainId, tokenAddress, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -503,8 +534,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amounts, minToMint, deadline } = request.body;
-      const res = await sdkPoolInstance.addLiquidity(domainId, tokenAddress, amounts, minToMint, deadline);
+      const { domainId, tokenAddress, amounts, minToMint, deadline, options } = request.body;
+      const res = await sdkPoolInstance.addLiquidity(
+        domainId,
+        tokenAddress,
+        amounts,
+        minToMint,
+        deadline,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -517,7 +555,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, withdrawTokenAddress, amount, minAmount, deadline } = request.body;
+      const { domainId, tokenAddress, withdrawTokenAddress, amount, minAmount, deadline, options } = request.body;
       const res = await sdkPoolInstance.removeLiquidityOneToken(
         domainId,
         tokenAddress,
@@ -525,6 +563,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
         amount,
         minAmount,
         deadline,
+        options as Options,
       );
       reply.status(200).send(res);
     },
@@ -538,8 +577,15 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amount, minAmounts, deadline } = request.body;
-      const res = await sdkPoolInstance.removeLiquidity(domainId, tokenAddress, amount, minAmounts, deadline);
+      const { domainId, tokenAddress, amount, minAmounts, deadline, options } = request.body;
+      const res = await sdkPoolInstance.removeLiquidity(
+        domainId,
+        tokenAddress,
+        amount,
+        minAmounts,
+        deadline,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
@@ -552,13 +598,14 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, amounts, maxBurnAmount, deadline } = request.body;
+      const { domainId, tokenAddress, amounts, maxBurnAmount, deadline, options } = request.body;
       const res = await sdkPoolInstance.removeLiquidityImbalance(
         domainId,
         tokenAddress,
         amounts,
         maxBurnAmount,
         deadline,
+        options as Options,
       );
       reply.status(200).send(res);
     },
@@ -572,8 +619,17 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, from, to, amount, minDy, deadline } = request.body;
-      const res = await sdkPoolInstance.swap(domainId, tokenAddress, from, to, amount, minDy, deadline);
+      const { domainId, tokenAddress, from, to, amount, minDy, deadline, options } = request.body;
+      const res = await sdkPoolInstance.swap(
+        domainId,
+        tokenAddress,
+        from,
+        to,
+        amount,
+        minDy,
+        deadline,
+        options as Options,
+      );
       reply.status(200).send(res);
     },
   );
