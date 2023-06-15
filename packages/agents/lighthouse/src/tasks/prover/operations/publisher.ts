@@ -96,6 +96,7 @@ export const enqueue = async () => {
                 let offset = 0;
                 let end = false;
                 while (!end) {
+                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
                   logger.info(
                     "Getting unprocessed messages for origin and destination pair",
                     requestContext,
@@ -106,16 +107,17 @@ export const enqueue = async () => {
                       offset,
                       originDomain,
                       destinationDomain,
-                      index: latestMessageRoot.count,
+                      startIndex: cachedNonce + 1,
+                      endIndex: latestMessageRoot.count,
                     },
                   );
-                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
-                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
+
                   const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
                     originDomain,
                     destinationDomain,
-                    index,
-                    offset,
+                    cachedNonce + 1,
+                    latestMessageRoot.count,
+                    0,
                     batchSize,
                   );
                   const subContext = createRequestContext(
@@ -127,6 +129,8 @@ export const enqueue = async () => {
                       unprocessed,
                       originDomain,
                       destinationDomain,
+                      startIndex: cachedNonce + 1,
+                      endIndex: latestMessageRoot.count,
                       offset,
                     });
 
@@ -155,6 +159,8 @@ export const enqueue = async () => {
                         {
                           originDomain,
                           destinationDomain,
+                          startIndex: cachedNonce + 1,
+                          endIndex: latestMessageRoot.count,
                           offset,
                           brokerMessage,
                         },
@@ -184,10 +190,11 @@ export const enqueue = async () => {
                 }
               } catch (err: unknown) {
                 logger.error(
-                  "Error processing messages",
+                  "Error processing messages on origin",
                   requestContext,
                   methodContext,
                   jsonifyError(err as NxtpError),
+                  { originDomain, destinationDomain },
                 );
               }
             }),

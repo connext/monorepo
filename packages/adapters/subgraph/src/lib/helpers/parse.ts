@@ -234,6 +234,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
             txOrigin: entity.executedTxOrigin,
+            txNonce: BigNumber.from(entity.executedTxNonce ?? "0").toNumber(),
           }
         : undefined,
 
@@ -248,6 +249,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.reconciledGasLimit,
             blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
             txOrigin: entity.reconciledTxOrigin,
+            txNonce: BigNumber.from(entity.reconciledTxNonce ?? "0").toNumber(),
           }
         : undefined,
     },

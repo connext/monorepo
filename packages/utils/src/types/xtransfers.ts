@@ -37,6 +37,7 @@ export const XTransferMethodCallSchema = Type.Object({
   gasLimit: TIntegerString,
   blockNumber: Type.Number(),
   txOrigin: Type.Optional(TAddress),
+  txNonce: Type.Number(),
 });
 
 export const XTransferOriginSchema = Type.Object({
@@ -66,7 +67,7 @@ export const XTransferOriginSchema = Type.Object({
   relayerFees: Type.Record(Type.String(), TIntegerString),
 
   // XCall Transaction
-  xcall: Type.Intersect([XTransferMethodCallSchema]),
+  xcall: Type.Omit(XTransferMethodCallSchema, ["txNonce"]),
 });
 
 export const XTransferDestinationSchema = Type.Object({
