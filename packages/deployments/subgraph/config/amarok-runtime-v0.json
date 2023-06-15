@@ -241,13 +241,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8ab0903e4E6aE8BD82FB88D409A8d9d940299bb5",
-        "startBlock": 88564
+        "address": "0xF0C0EdEEBD96bE4aa3c2800aB46caf235F9B4833",
+        "startBlock": 914902
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
-        "startBlock": 88563
+        "address": "0xBeD9700C61B1284734ce4262707aeB6F68b156EB",
+        "startBlock": 914901
       }
     ]
   },
