@@ -8,7 +8,7 @@ describe("Helpers: Consensys", () => {
     it("should get params", async () => {
       const res = await getSendOutboundRootParams(mock.domain.A);
       expect(res).to.deep.eq({
-        _fee: utils.parseEther("0.01").toString(),
+        _fee: utils.parseEther("0.001").toString(),
         _encodedData: "0x",
       });
     });
