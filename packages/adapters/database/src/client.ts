@@ -358,10 +358,15 @@ export const saveMessages = async (
   let done = false;
   while (!done) {
     const xMessages = _xMessages.slice(start, start + DEFAULT_RECORDS_TO_STORE);
-    const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
+    const _messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-    await db.upsert("messages", messages, ["origin_domain", "index"]).run(poolToUse);
+    const uniqueMessages = _messages.filter((_message, index) => {
+      return (
+        _messages.findIndex((it) => it.origin_domain == _message.origin_domain && it.index == _message.index) === index
+      );
+    });
 
+    await db.upsert("messages", uniqueMessages, ["origin_domain", "index"]).run(poolToUse);
     if (xMessages.length == DEFAULT_RECORDS_TO_STORE) start += DEFAULT_RECORDS_TO_STORE;
     else done = true;
   }
@@ -1064,6 +1069,7 @@ export const getHubNodes = async (
   pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
+  console.log({ start, end, count });
   const poolToUse = _pool ?? pool;
   let roots: any[] = [];
   let _start = start;
