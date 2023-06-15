@@ -1,9 +1,10 @@
 import { jsonifyError } from "@connext/nxtp-utils";
+import { BigNumberish, ethers } from "ethers";
 
 import { axiosGet } from "../mockable";
 import { UniswapToken, Asset, HoneyswapToken, coingeckoTokenType } from "../types";
 import { HONEYSWAP_TOKENS, UNISWAP_GATEWAY } from "../helpers/api";
-import { BigNumberish, ethers } from "ethers";
+
 
 /**
  * Returns the `supportedAsset` which will be specific to chain ID

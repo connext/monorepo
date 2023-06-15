@@ -36,7 +36,7 @@ export const prepareSwapAndXCall = async (
       amountIn,
       to,
       delegate: _delegate,
-      slippage: _slippage,
+      slippage: _slippage, // total slippage
       route: _route,
       callData: _callData,
       relayerFeeInNativeAsset: _relayerFeeInNativeAsset,
@@ -64,7 +64,7 @@ export const prepareSwapAndXCall = async (
 
     const isSameAsset = utils.getAddress(toAsset) === utils.getAddress(fromAsset);
     const originRoute = !isSameAsset
-      ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress))
+      ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress)) // pass origin slippage
       : null;
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
@@ -87,8 +87,8 @@ export const prepareSwapAndXCall = async (
         destinationDomain,
         to,
         delegate,
-        slippage,
-        callData,
+        slippage, // total - origin - destination
+        callData, // all the params + forwaded call data -> destination swaps data
       ];
 
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
@@ -158,6 +158,7 @@ export const calculateRouteForSwapAndXCall = async (
   toAsset: string,
   amountIn: string,
   fromAddress: string,
+  // add slippage here origin
 ): Promise<{ swapper: string; swapData: string }> => {
   // TODO: The `swapper` is the smart contract interacting with different types of DEXes and DEX aggregators such as UniV2, UniV3, 1inch Aggregator
   // so we can have more than one `swapper` contract deployed on each domain.

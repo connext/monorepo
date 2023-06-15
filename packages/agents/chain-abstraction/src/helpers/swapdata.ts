@@ -42,7 +42,7 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
-    const slippage = args.slippage ?? 1;
+    const slippage = args.slippage ?? 1; // origin slippage
     const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${args.amountIn}&fromAddress=${args.fromAddress}&slippage=${slippage}&disableEstimate=true`;
 
     const res = await axiosGet(apiEndpoint);
@@ -65,6 +65,7 @@ export const getDestinationSwapDataForUniV2 = async (_args: any): Promise<string
  * Returns the `swapData` which will be used on the destination univ3 swapper
  */
 export const getDestinationSwapDataForUniV3 = async (_args: any): Promise<string> => {
+  // destination slippage here
   const args = _args as UniV3SwapperParams;
   return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
 };
