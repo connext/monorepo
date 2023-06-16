@@ -6,4 +6,5 @@ export {
   getSwapAmountOut,
   getSwapAndXcallAddress,
   getSwapperConfig,
+  getEstimateAmountRecieved,
 } from "./libs";
