@@ -1,11 +1,11 @@
 import { reset, restore, stub } from "sinon";
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, utils } from "ethers";
 import { mock } from "./mock";
 import { SdkRouter } from "../src/sdkRouter";
 import { getEnvConfig } from "../src/config";
-import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
+import { ProviderMissing, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -42,20 +42,19 @@ describe("SdkRouter", () => {
       expect(sdkRouter.addLiquidityForRouter).to.be.a("function");
       expect(sdkRouter.removeRouterLiquidity).to.be.a("function");
       expect(sdkRouter.removeRouterLiquidityFor).to.be.a("function");
-      expect(sdkRouter.changeSignerAddress).to.be.a("function");
     });
   });
 
   describe("#addLiquidityForRouter", () => {
+    const mockAddLiquidityParams = {
+      domainId: mock.domain.A,
+      amount: "1",
+      tokenAddress: mock.asset.A.address,
+      router: mock.address.router,
+    };
+
     it("happy: should work if ERC20", async () => {
       sdkRouter.config.signerAddress = mockConfig.signerAddress;
-      const mockAddLiquidityParams = {
-        domainId: mock.domain.A,
-        amount: "1",
-        tokenAddress: mock.asset.A.address,
-        router: mock.address.router,
-      };
-
       const data = getConnextInterface().encodeFunctionData("addRouterLiquidityFor", [
         mockAddLiquidityParams.amount,
         mockAddLiquidityParams.tokenAddress,
@@ -73,12 +72,6 @@ describe("SdkRouter", () => {
 
     it("happy: should work if Native", async () => {
       sdkRouter.config.signerAddress = mockConfig.signerAddress;
-      const mockAddLiquidityParams = {
-        domainId: mock.domain.A,
-        amount: "1",
-        tokenAddress: constants.AddressZero,
-        router: mock.address.router,
-      };
       const data = getConnextInterface().encodeFunctionData("addRouterLiquidityFor", [
         mockAddLiquidityParams.amount,
         constants.AddressZero,
@@ -89,19 +82,16 @@ describe("SdkRouter", () => {
         data,
       };
 
-      const res = await sdkRouter.addLiquidityForRouter(mockAddLiquidityParams);
+      const res = await sdkRouter.addLiquidityForRouter({
+        ...mockAddLiquidityParams,
+        tokenAddress: constants.AddressZero,
+      });
 
       expect(res).to.be.deep.eq(mockAddLiquidityForRouterRequest);
     });
 
     it("happy: should work if signerAddress is passed into options", async () => {
       sdkRouter.config.signerAddress = undefined;
-      const mockAddLiquidityParams = {
-        domainId: mock.domain.A,
-        amount: "1",
-        tokenAddress: constants.AddressZero,
-        router: mock.address.router,
-      };
       const options = {
         signerAddress: mkAddress("0xabc"),
       };
@@ -112,15 +102,22 @@ describe("SdkRouter", () => {
     });
 
     it("should error if signerAddress is undefined", async () => {
+      sdkRouter.config.signerAddress = undefined;
+
+      await expect(sdkRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
+    });
+
+    it("should error if provider sanity check returns false", async () => {
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
         amount: "1",
         tokenAddress: mock.asset.A.address,
         router: mock.address.router,
       };
-      (sdkRouter as any).config.signerAddress = undefined;
 
-      await expect(sdkRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
+      stub(sdkRouter, "providerSanityCheck").resolves(false);
+
+      await expect(sdkRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(ProviderMissing);
     });
   });
 
@@ -135,7 +132,7 @@ describe("SdkRouter", () => {
     const canonicalId = utils.formatBytes32String("0");
 
     it("happy: should work if ERC20", async () => {
-      (sdkRouter as any).config.signerAddress = mockConfig.signerAddress;
+      sdkRouter.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
         { domain: mockRemoveRouterLiquidityParams.domainId, id: canonicalId },
         mockRemoveRouterLiquidityParams.amount,
@@ -154,7 +151,7 @@ describe("SdkRouter", () => {
     });
 
     it("happy: should work if Native", async () => {
-      (sdkRouter as any).config.signerAddress = mockConfig.signerAddress;
+      sdkRouter.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidity", [
         { domain: mockRemoveRouterLiquidityParams.domainId, id: canonicalId },
         mockRemoveRouterLiquidityParams.amount,
@@ -168,19 +165,14 @@ describe("SdkRouter", () => {
         data,
       };
 
-      const res = await sdkRouter.removeRouterLiquidity(mockRemoveRouterLiquidityParams);
+      const res = await sdkRouter.removeRouterLiquidity({
+        ...mockRemoveRouterLiquidityParams,
+        tokenAddress: constants.AddressZero,
+      });
       expect(res).to.be.deep.eq(mockRemoveRouterLiquidityRequest);
     });
 
     it("happy: should work if signerAddress is passed into options", async () => {
-      sdkRouter.config.signerAddress = undefined;
-      const mockRemoveRouterLiquidityParams = {
-        domainId: mock.domain.A,
-        amount: "1",
-        tokenAddress: mock.asset.A.address,
-        recipient: mock.address.router,
-        router: mock.address.router,
-      };
       const options = {
         signerAddress: mkAddress("0xabc"),
       };
@@ -191,10 +183,18 @@ describe("SdkRouter", () => {
     });
 
     it("should error if signerAddress is undefined", async () => {
-      (sdkRouter as any).config.signerAddress = undefined;
+      sdkRouter.config.signerAddress = undefined;
 
       await expect(sdkRouter.removeRouterLiquidity(mockRemoveRouterLiquidityParams)).to.be.rejectedWith(
         SignerAddressMissing,
+      );
+    });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkRouter, "providerSanityCheck").resolves(false);
+
+      await expect(sdkRouter.removeRouterLiquidity(mockRemoveRouterLiquidityParams)).to.be.rejectedWith(
+        ProviderMissing,
       );
     });
   });
@@ -211,7 +211,7 @@ describe("SdkRouter", () => {
     const canonicalId = utils.formatBytes32String("0");
 
     it("happy: should work if ERC20", async () => {
-      (sdkRouter as any).config.signerAddress = mockConfig.signerAddress;
+      sdkRouter.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidityFor", [
         { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
         mockRemoveLiquidityForParams.amount,
@@ -230,7 +230,7 @@ describe("SdkRouter", () => {
     });
 
     it("happy: should work if Native", async () => {
-      (sdkRouter as any).config.signerAddress = mockConfig.signerAddress;
+      sdkRouter.config.signerAddress = mockConfig.signerAddress;
       const data = getConnextInterface().encodeFunctionData("removeRouterLiquidityFor", [
         { domain: mockRemoveLiquidityForParams.domainId, id: canonicalId },
         mockRemoveLiquidityForParams.amount,
@@ -260,10 +260,18 @@ describe("SdkRouter", () => {
     });
 
     it("should error if signerAddress is undefined", async () => {
-      (sdkRouter as any).config.signerAddress = undefined;
+      sdkRouter.config.signerAddress = undefined;
 
       await expect(sdkRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams)).to.be.rejectedWith(
         SignerAddressMissing,
+      );
+    });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkRouter, "providerSanityCheck").resolves(false);
+
+      await expect(sdkRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams)).to.be.rejectedWith(
+        ProviderMissing,
       );
     });
   });
