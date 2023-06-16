@@ -98,6 +98,12 @@ describe("SdkShared", () => {
 
       expect(res).to.not.be.undefined;
     });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkShared, "providerSanityCheck").resolves(false);
+
+      await expect(sdkShared.getConnext(mock.domain.A)).to.be.rejectedWith(ProviderMissing);
+    });
   });
 
   describe("#getERC20", () => {
@@ -115,6 +121,12 @@ describe("SdkShared", () => {
       const res = await sdkShared.getERC20(mock.domain.A, mock.asset.A.address, options);
 
       expect(res).to.not.be.undefined;
+    });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkShared, "providerSanityCheck").resolves(false);
+
+      await expect(sdkShared.getERC20(mock.domain.A, mock.asset.A.address)).to.be.rejectedWith(ProviderMissing);
     });
   });
 
