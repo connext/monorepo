@@ -52,7 +52,7 @@ export const prepareSwapAndXCall = async (
       ? BigNumber.from(_relayerFeeInTransactingAsset)
       : constants.Zero;
 
-    const callData = _callData ?? "0x";
+    const callData = _callData ?? "0x"; // can decode it here for slippage distribution
 
     const swapAndXCallInterface = getSwapAndXCallInterface();
 

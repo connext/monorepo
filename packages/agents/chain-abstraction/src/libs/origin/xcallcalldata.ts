@@ -31,7 +31,7 @@ export const getXCallCallData = async (
 ): Promise<string> => {
   const swapperConfig = DestinationSwapperPerDomain[domainId];
   const destinationSwapDataCallbackFn = DestinationSwapDataFns[swapper];
-  const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
+  const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData); // destinaton slippage
 
   const swapForwarderData = defaultAbiCoder.encode(
     ["address", "address", "bytes", "bytes"],

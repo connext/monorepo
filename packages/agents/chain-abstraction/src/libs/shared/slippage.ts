@@ -1,4 +1,4 @@
-import { BigNumberish } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { getCoingeckoID, getTokenVSusdPrice } from "../../helpers/asset";
@@ -7,7 +7,7 @@ import { getEstimateAmountRecieved } from "./quote";
 import { DEPLOYED_ADDRESSES } from "../../helpers";
 
 /**
- * Returns the `price` from the swaps
+ * Returns the `priceImpact` from the swaps
  */
 export const getPriceImpactForSwaps = async (
   inputToken: string,
@@ -47,6 +47,9 @@ export const getPriceImpactForSwaps = async (
   }
 };
 
+/**
+ * Returns the `slippgae Distribution` among the swaps
+ */
 export const getSlippageDistribution = async (
   _slippage: string = "300",
   inputToken: string,
@@ -106,4 +109,37 @@ export const getSlippageDistribution = async (
     destinationSlippage,
     connextSlippage,
   };
+};
+
+/**
+ * Returns the `amountOutMin` from the uniswap V3.
+ * Should be passed in getXCallCallData in destination params
+ */
+export const getAmountOutMinForUniV3 = async (
+  inputToken: string,
+  outputToken: string,
+  rpc: string,
+  domainID: number,
+  amountIn: BigNumberish,
+  signerAddress: string,
+  slippage: number, // slippage needs to pass after slippage calculation
+) => {
+  try {
+    const quoteAmountOut = await getEstimateAmountRecieved({
+      originDomain: domainID,
+      destinationDomain: domainID,
+      amountIn: amountIn.toString(),
+      originRpc: rpc,
+      destinationRpc: rpc,
+      fromAsset: inputToken,
+      toAsset: outputToken,
+      signerAddress,
+    });
+
+    return BigNumber.from(quoteAmountOut)
+      .mul(1 - slippage)
+      .toString();
+  } catch (err) {
+    throw Error("Failed to get Minimum Amount Out for UniV3");
+  }
 };
