@@ -9,10 +9,10 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { validateUri, axiosGetRequest, Transfer } from "./lib/helpers";
+import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
-import { RouterBalance } from "./interfaces";
+import { RouterBalance, Transfer } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating utility functions.

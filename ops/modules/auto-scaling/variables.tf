@@ -20,3 +20,15 @@ variable "stage" {
 variable "environment" {
   description = "env we're deploying to"
 }
+
+variable "max_capacity" {
+  description = "Maximum number of tasks to run"
+  type        = number
+  default     = 30
+}
+
+variable "min_capacity" {
+  description = "Minimum number of tasks to run"
+  type        = number
+  default     = 10
+}

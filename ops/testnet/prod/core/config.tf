@@ -213,6 +213,7 @@ locals {
         }
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -278,7 +279,7 @@ locals {
         providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
+        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}", "https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
@@ -315,7 +316,12 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10
+      "1668247156" = 10,
+      "9991"       = 10,
+      "1735353714" = 10,
+      "2053862260" = 10,
+      "1734439522" = 10,
+      "1735356532" = 10
     }
     messageQueue = {
       connection = {
@@ -328,6 +334,7 @@ locals {
         persistent     = true
         durable        = true
       }
+      prefetchSize = 5
     }
   })
 

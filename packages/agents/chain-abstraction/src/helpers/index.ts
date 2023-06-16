@@ -14,10 +14,17 @@ import {
   getDestinationSwapDataForUniV3,
   getDestinationSwapDataForOneInch,
 } from "./swapdata";
-import { SwapQuoteCallback, getSwapQuoteForOneInch, getSwapQuoteForUniV2, getSwapQuoteForUniV3 } from "./swapquote";
+import {
+  SwapQuoteCallback,
+  getSwapQuoteForOneInch,
+  getSwapQuoteForUniV2,
+  getSwapQuoteForUniV3,
+  initCoreSDK as _initCoreSDK,
+} from "./swapquote";
 import { DEPLOYED_ADDRESSES as _DEPLOYED_ADDRESSES } from "./address";
 
 export const DEPLOYED_ADDRESSES = _DEPLOYED_ADDRESSES;
+export const initCoreSDK = _initCoreSDK;
 
 export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
   UniV2: getOriginSwapDataForUniV2,

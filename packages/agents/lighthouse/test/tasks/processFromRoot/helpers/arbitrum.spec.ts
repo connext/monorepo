@@ -41,22 +41,26 @@ describe("Helpers: Arbitrum", () => {
     isDataAvailableStub = stub().resolves(true);
     l2ToL1MessageReader = createStubInstance(L2ToL1MessageReader, {
       getOutboxProof: Promise.resolve(["hello", "world"]),
-      getBlockFromNodeLog: Promise.resolve({
-        blockNumber: constants.One,
-        nodeNum: constants.One,
-        sendRoot: mkHash("0x123"),
-        sendCount: constants.One,
-        hash: mkHash("0x456"),
-      } as any),
-      getBlockFromNodeNum: Promise.resolve({
-        blockNumber: constants.One,
-        nodeNum: constants.One,
-        sendRoot: mkHash("0x123"),
-        sendCount: constants.One,
-        hash: mkHash("0x456"),
-      } as any),
     } as any);
-    (l2ToL1MessageReader as any).event = { position: constants.One, ethBlockNum: constants.One };
+    (l2ToL1MessageReader as any).nitroReader = {
+      getBlockFromNodeNum: (...args: any) =>
+        Promise.resolve({
+          blockNumber: constants.One,
+          nodeNum: constants.One,
+          sendRoot: mkHash("0x123"),
+          sendCount: constants.One,
+          hash: mkHash("0x456"),
+        } as any),
+      getBlockFromNodeLog: (...args: any) =>
+        Promise.resolve({
+          blockNumber: constants.One,
+          nodeNum: constants.One,
+          sendRoot: mkHash("0x123"),
+          sendCount: constants.One,
+          hash: mkHash("0x456"),
+        } as any),
+      event: { position: constants.One, ethBlockNum: constants.One },
+    };
     stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);

@@ -3,13 +3,13 @@ import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import Broker from "amqplib";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 import { NxtpLighthouseConfig } from "../../config";
 
 import { ProverContext } from "./context";
 import { enqueue, consume } from "./operations";
 import { bindHealthServer } from "./bindings";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;

@@ -8,6 +8,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -29,31 +30,31 @@ import type {
 
 export interface ConsensysAmbInterface extends utils.Interface {
   functions: {
-    "deliverMessage(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
-    "dispatchMessage(address,uint256,uint256,bytes)": FunctionFragment;
+    "claimMessage(address,address,uint256,uint256,address,bytes,uint256)": FunctionFragment;
+    "sendMessage(address,uint256,bytes)": FunctionFragment;
     "sender()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "deliverMessage" | "dispatchMessage" | "sender"
+    nameOrSignatureOrTopic: "claimMessage" | "sendMessage" | "sender"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "deliverMessage",
+    functionFragment: "claimMessage",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "dispatchMessage",
+    functionFragment: "sendMessage",
     values: [
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
@@ -61,55 +62,49 @@ export interface ConsensysAmbInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "sender", values?: undefined): string;
 
   decodeFunctionResult(
-    functionFragment: "deliverMessage",
+    functionFragment: "claimMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "dispatchMessage",
+    functionFragment: "sendMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sender", data: BytesLike): Result;
 
   events: {
-    "MessageDelivered(address,address,uint256,uint256,uint256,bytes)": EventFragment;
-    "MessageDispatched(address,address,uint256,uint256,uint256,bytes)": EventFragment;
+    "MessageClaimed(bytes32)": EventFragment;
+    "MessageSent(address,address,uint256,uint256,uint256,bytes,bytes32)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "MessageDelivered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MessageDispatched"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MessageClaimed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
 }
 
-export interface MessageDeliveredEventObject {
+export interface MessageClaimedEventObject {
+  _messageHash: string;
+}
+export type MessageClaimedEvent = TypedEvent<
+  [string],
+  MessageClaimedEventObject
+>;
+
+export type MessageClaimedEventFilter = TypedEventFilter<MessageClaimedEvent>;
+
+export interface MessageSentEventObject {
   _from: string;
   _to: string;
   _fee: BigNumber;
   _value: BigNumber;
-  _deadline: BigNumber;
+  _nonce: BigNumber;
   _calldata: string;
+  _messageHash: string;
 }
-export type MessageDeliveredEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, BigNumber, string],
-  MessageDeliveredEventObject
+export type MessageSentEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber, string, string],
+  MessageSentEventObject
 >;
 
-export type MessageDeliveredEventFilter =
-  TypedEventFilter<MessageDeliveredEvent>;
-
-export interface MessageDispatchedEventObject {
-  _from: string;
-  _to: string;
-  _fee: BigNumber;
-  _value: BigNumber;
-  _deadline: BigNumber;
-  _calldata: string;
-}
-export type MessageDispatchedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, BigNumber, string],
-  MessageDispatchedEventObject
->;
-
-export type MessageDispatchedEventFilter =
-  TypedEventFilter<MessageDispatchedEvent>;
+export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
 export interface ConsensysAmb extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -138,20 +133,20 @@ export interface ConsensysAmb extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    deliverMessage(
+    claimMessage(
       _from: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
       _value: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
+      _feeRecipient: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    dispatchMessage(
+    sendMessage(
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -159,20 +154,20 @@ export interface ConsensysAmb extends BaseContract {
     sender(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  deliverMessage(
+  claimMessage(
     _from: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
     _fee: PromiseOrValue<BigNumberish>,
     _value: PromiseOrValue<BigNumberish>,
-    _deadline: PromiseOrValue<BigNumberish>,
+    _feeRecipient: PromiseOrValue<string>,
     _calldata: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    _nonce: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  dispatchMessage(
+  sendMessage(
     _to: PromiseOrValue<string>,
     _fee: PromiseOrValue<BigNumberish>,
-    _deadline: PromiseOrValue<BigNumberish>,
     _calldata: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -180,20 +175,20 @@ export interface ConsensysAmb extends BaseContract {
   sender(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    deliverMessage(
+    claimMessage(
       _from: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
       _value: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
+      _feeRecipient: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
+      _nonce: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    dispatchMessage(
+    sendMessage(
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -202,56 +197,48 @@ export interface ConsensysAmb extends BaseContract {
   };
 
   filters: {
-    "MessageDelivered(address,address,uint256,uint256,uint256,bytes)"(
-      _from?: null,
-      _to?: null,
-      _fee?: null,
-      _value?: null,
-      _deadline?: null,
-      _calldata?: null
-    ): MessageDeliveredEventFilter;
-    MessageDelivered(
-      _from?: null,
-      _to?: null,
-      _fee?: null,
-      _value?: null,
-      _deadline?: null,
-      _calldata?: null
-    ): MessageDeliveredEventFilter;
+    "MessageClaimed(bytes32)"(
+      _messageHash?: PromiseOrValue<BytesLike> | null
+    ): MessageClaimedEventFilter;
+    MessageClaimed(
+      _messageHash?: PromiseOrValue<BytesLike> | null
+    ): MessageClaimedEventFilter;
 
-    "MessageDispatched(address,address,uint256,uint256,uint256,bytes)"(
-      _from?: null,
-      _to?: null,
+    "MessageSent(address,address,uint256,uint256,uint256,bytes,bytes32)"(
+      _from?: PromiseOrValue<string> | null,
+      _to?: PromiseOrValue<string> | null,
       _fee?: null,
       _value?: null,
-      _deadline?: null,
-      _calldata?: null
-    ): MessageDispatchedEventFilter;
-    MessageDispatched(
-      _from?: null,
-      _to?: null,
+      _nonce?: null,
+      _calldata?: null,
+      _messageHash?: PromiseOrValue<BytesLike> | null
+    ): MessageSentEventFilter;
+    MessageSent(
+      _from?: PromiseOrValue<string> | null,
+      _to?: PromiseOrValue<string> | null,
       _fee?: null,
       _value?: null,
-      _deadline?: null,
-      _calldata?: null
-    ): MessageDispatchedEventFilter;
+      _nonce?: null,
+      _calldata?: null,
+      _messageHash?: PromiseOrValue<BytesLike> | null
+    ): MessageSentEventFilter;
   };
 
   estimateGas: {
-    deliverMessage(
+    claimMessage(
       _from: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
       _value: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
+      _feeRecipient: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    dispatchMessage(
+    sendMessage(
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -260,20 +247,20 @@ export interface ConsensysAmb extends BaseContract {
   };
 
   populateTransaction: {
-    deliverMessage(
+    claimMessage(
       _from: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
       _value: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
+      _feeRecipient: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    dispatchMessage(
+    sendMessage(
       _to: PromiseOrValue<string>,
       _fee: PromiseOrValue<BigNumberish>,
-      _deadline: PromiseOrValue<BigNumberish>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

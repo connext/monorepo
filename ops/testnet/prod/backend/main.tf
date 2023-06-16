@@ -157,10 +157,11 @@ module "sdk-server" {
   internal_lb              = false
   docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
+  health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment
@@ -172,6 +173,18 @@ module "sdk-server" {
   container_env_vars       = local.sdk_server_env_vars
   domain                   = var.domain
 }
+
+module "sdk_server_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sdk-server.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 2
+  max_capacity     = 10
+}
+
 
 module "sdk_server_cache" {
   source                        = "../../../modules/redis"

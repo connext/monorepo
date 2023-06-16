@@ -223,6 +223,8 @@ module "sequencer_publisher_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_publisher.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 300 
 }
 
 module "sequencer_subscriber" {
@@ -244,8 +246,8 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8083
   loadbalancer_port        = 80
-  cpu                      = 8192
-  memory                   = 16384
+  cpu                      = 256
+  memory                   = 1024
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -262,6 +264,8 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 300 
 }
 
 
@@ -333,8 +337,8 @@ module "lighthouse_prover_subscriber" {
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 4096
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -350,6 +354,8 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.lighthouse_prover_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 300 
 }
 
 module "lighthouse_process_from_root_cron" {

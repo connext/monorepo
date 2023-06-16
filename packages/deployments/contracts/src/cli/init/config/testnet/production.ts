@@ -133,7 +133,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0xD3A6D71a5D5DA264fd5a85D33f5b866BEE716698",
         },
       },
-    }
+    },
     // {
     //   name: "WETH",
     //   canonical: {
