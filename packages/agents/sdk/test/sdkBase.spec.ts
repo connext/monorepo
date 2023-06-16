@@ -1,12 +1,5 @@
 import { reset, restore, stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
-import {
-  encodeMultisendCall,
-  expect,
-  MultisendTransaction,
-  WETHAbi,
-  mkAddress,
-  DEFAULT_ROUTER_FEE,
-} from "@connext/nxtp-utils";
+import { encodeMultisendCall, expect, MultisendTransaction, WETHAbi, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface, ChainReader } from "@connext/nxtp-txservice";
 import { providers, BigNumber, utils, constants } from "ethers";
 import { mock } from "./mock";
@@ -15,7 +8,7 @@ import { SdkUtils } from "../src/sdkUtils";
 import { SdkPool } from "../src/sdkPool";
 import { PoolAsset, Pool, Transfer } from "../src/interfaces";
 import { getEnvConfig } from "../src/config";
-import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing } from "../src/lib/errors";
+import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing, ProviderMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -461,6 +454,12 @@ describe("SdkBase", () => {
         }),
       ).to.be.rejectedWith(CannotUnwrapOnDestination);
     });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkBase, "providerSanityCheck").resolves(false);
+
+      await expect(sdkBase.xcall(sdkXCallArgs)).to.be.rejectedWith(ProviderMissing);
+    });
   });
 
   describe("#bumpTransfer", () => {
@@ -522,6 +521,12 @@ describe("SdkBase", () => {
 
       expect(res).to.not.be.undefined;
     });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkBase, "providerSanityCheck").resolves(false);
+
+      await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(ProviderMissing);
+    });
   });
 
   describe("#updateSlippage", () => {
@@ -580,6 +585,12 @@ describe("SdkBase", () => {
       sdkBase.config.signerAddress = undefined;
 
       await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(SignerAddressMissing);
+    });
+
+    it("should error if provider sanity check returns false", async () => {
+      stub(sdkBase, "providerSanityCheck").resolves(false);
+
+      await expect(sdkBase.updateSlippage(mockUpdateSlippageParams)).to.be.rejectedWith(ProviderMissing);
     });
   });
 
