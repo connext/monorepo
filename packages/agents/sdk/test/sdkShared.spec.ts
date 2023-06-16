@@ -13,7 +13,6 @@ const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockAssetId = mock.asset.A.address;
 const mockAssetKey = utils.formatBytes32String("13337");
 
@@ -88,12 +87,34 @@ describe("SdkShared", () => {
       const connext = sdkShared.getConnext(mock.domain.A);
       expect(connext).to.not.be.undefined;
     });
+
+    it("happy: should work if origin provider is passed into options", async () => {
+      stub(sdkShared, "getProvider").resolves(undefined);
+      const options = {
+        originProviderUrl: "http://example.com",
+      };
+
+      const res = await sdkShared.getConnext(mock.domain.A, options);
+
+      expect(res).to.not.be.undefined;
+    });
   });
 
   describe("#getERC20", () => {
     it("happy: should work", async () => {
       const erc20 = sdkShared.getERC20(mock.domain.A, mock.asset.A.address);
       expect(erc20).to.not.be.undefined;
+    });
+
+    it("happy: should work if origin provider is passed into options", async () => {
+      stub(sdkShared, "getProvider").resolves(undefined);
+      const options = {
+        originProviderUrl: "http://example.com",
+      };
+
+      const res = await sdkShared.getERC20(mock.domain.A, mock.asset.A.address, options);
+
+      expect(res).to.not.be.undefined;
     });
   });
 
@@ -177,6 +198,7 @@ describe("SdkShared", () => {
 
     it("happy: should work for Native", async () => {
       const res = await sdkShared.approveIfNeeded(mock.domain.A, constants.AddressZero, "1");
+
       expect(res).to.be.undefined;
     });
 
@@ -186,11 +208,11 @@ describe("SdkShared", () => {
           return 1;
         },
       };
-
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockERC20 as any);
 
       const res = await sdkShared.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1");
+
       expect(res).to.be.undefined;
     });
 
@@ -208,13 +230,39 @@ describe("SdkShared", () => {
           },
         },
       };
-
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockERC20 as any);
-
       const approve = spy(mockERC20.populateTransaction, "approve");
-      const res = await sdkShared.approveIfNeeded(mock.domain.A, mockAssetId, "1");
+
+      await sdkShared.approveIfNeeded(mock.domain.A, mockAssetId, "1");
+
       expect(approve).calledOnce;
+    });
+
+    it("happy: should work if origin provider is passed into options", async () => {
+      const mockERC20 = {
+        allowance: function (): number {
+          return 0;
+        },
+        populateTransaction: {
+          approve(spender: string, amount: number, overrides?): { data: string; to: string } {
+            return {
+              data: "0x",
+              to: connextContract.address,
+            };
+          },
+        },
+      };
+      stub(sdkShared, "getProvider").resolves(undefined);
+      stub(sdkShared, "getConnext").resolves(connextContract);
+      stub(sdkShared, "getERC20").resolves(mockERC20 as any);
+      const options = {
+        originProviderUrl: "http://example.com",
+      };
+
+      const res = await sdkShared.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1", true, options);
+
+      expect(res).to.not.be.undefined;
     });
 
     it("should error if signerAddress is undefined", async () => {

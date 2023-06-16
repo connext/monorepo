@@ -243,15 +243,15 @@ export class SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const signerAddress = this.config.signerAddress;
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
       domainId,
       assetId,
       amount,
-      signerAddress,
+      _signerAddress,
     });
 
-    if (!signerAddress) {
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
@@ -259,7 +259,7 @@ export class SdkShared {
     const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
-      const approved = await erc20Contract.allowance(signerAddress, connextContract.address);
+      const approved = await erc20Contract.allowance(_signerAddress, connextContract.address);
 
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
