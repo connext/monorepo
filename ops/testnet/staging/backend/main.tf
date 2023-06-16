@@ -129,7 +129,7 @@ module "sdk_server_auto_scaling" {
   stage            = var.stage
   environment      = var.environment
   domain           = var.domain
-  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_service_name = module.sdk-server.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
 }
 
