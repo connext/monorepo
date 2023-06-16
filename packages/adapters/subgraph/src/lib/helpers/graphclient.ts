@@ -6,7 +6,7 @@ import { getMeshOptions, getBuiltGraphClient } from "../../../.graphclient";
  */
 export const getSubgraphNames = async (): Promise<string[]> => {
   const meshOptions = await getMeshOptions();
-  const names = meshOptions.sources.map((source) => source.name);
+  const names = meshOptions.sources.map((source: { name: string }) => source.name);
   return names;
 };
 
