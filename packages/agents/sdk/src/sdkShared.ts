@@ -38,7 +38,7 @@ export class SdkShared {
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
   protected readonly chainreader: ChainReader;
-  protected readonly logger: Logger;
+  readonly logger: Logger;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
