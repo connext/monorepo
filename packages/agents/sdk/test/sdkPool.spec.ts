@@ -1,4 +1,4 @@
-import { reset, restore, stub } from "sinon";
+import { reset, restore, stub, spy, match } from "sinon";
 import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
@@ -9,7 +9,7 @@ import { getEnvConfig } from "../src/config";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import { UriInvalid } from "../src/lib/errors";
+import { UriInvalid, ParamsInvalid } from "../src/lib/errors";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -362,7 +362,28 @@ describe("SdkPool", () => {
 
       expect(res).to.be.deep.eq(mockRequest);
     });
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+
+    it("happy: should work if signerAddress is passed into options", async () => {
+      sdkPool.config.signerAddress = undefined;
+      const options = {
+        signerAddress: mkAddress("0xabc"),
+      };
+
+      stub(sdkPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
+
+      const res = await sdkPool.swap(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.from,
+        mockParams.to,
+        mockParams.amount,
+        mockParams.minDy,
+        mockParams.deadline,
+        options,
+      );
+
+      expect(res).to.not.be.undefined;
+    });
   });
 
   describe("#getPool", () => {
@@ -573,6 +594,48 @@ describe("SdkPool", () => {
 
       expect(res).to.have.lengthOf(0);
     });
+
+    it("happy: should log info if no pool found for asset", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
+
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const loggerInfoSpy = spy(sdkPool.logger, "info");
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(0);
+      expect(loggerInfoSpy).to.have.been.calledWith(
+        "No pool for asset",
+        match.any,
+        match.any,
+        match({ data: mockAssetData }),
+      );
+
+      loggerInfoSpy.restore();
+    });
+
+    it("should log error if an error occurs while processing assetData", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
+
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkPool, "getPool").throws(new Error("Some error"));
+
+      const loggerErrorSpy = spy(sdkPool.logger, "error");
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(0);
+      expect(loggerErrorSpy).to.have.been.calledOnceWithExactly(
+        "Error while processing assetData",
+        match.object, // requestContext
+        match.object, // methodContext
+        match.object, // Error object
+      );
+
+      loggerErrorSpy.restore();
+    });
   });
 
   describe("#calculateSwap", () => {
@@ -780,6 +843,55 @@ describe("SdkPool", () => {
 
       expect(result).to.be.undefined;
     });
+
+    it("happy: should calculate yield stats for 1 day using hourly swap volume", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 1;
+
+      const hourlySwapVolumeStub = stub(sdkPool, "getHourlySwapVolume").resolves([]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+
+      await sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
+
+      expect(hourlySwapVolumeStub).to.have.been.calledOnceWithExactly({
+        key: mockPool.canonicalHash,
+        domainId: mockPool.domainId,
+        endTimestamp: unixTimestamp,
+        range: { limit: 24 },
+      });
+    });
+
+    it("happy: should calculate yield stats for more than 1 day using daily swap volume", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 10;
+
+      const dailySwapVolumeStub = stub(sdkPool, "getDailySwapVolume").resolves([]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+
+      await sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
+
+      expect(dailySwapVolumeStub).to.have.been.calledOnceWithExactly({
+        key: mockPool.canonicalHash,
+        domainId: mockPool.domainId,
+        endTimestamp: unixTimestamp,
+        range: { limit: days },
+      });
+    });
+
+    it("should throw ParamsInvalid if days is less than 1", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 0;
+
+      await expect(sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days)).to.be.rejectedWith(
+        ParamsInvalid,
+      );
+    });
   });
 
   describe("#calculateYield", () => {
@@ -788,6 +900,28 @@ describe("SdkPool", () => {
 
       expect(yieldData.apr).closeTo(0.0365, 0.001);
       expect(yieldData.apy).closeTo(0.03706870443, 0.001);
+    });
+  });
+
+  describe("#getYieldData", () => {
+    it("happy: should return the correct apr, apy", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const days = 1;
+      const yieldStats = {
+        totalFeesFormatted: 1,
+        totalLiquidityFormatted: 10000,
+        totalVolume: BigNumber.from(100),
+        totalVolumeFormatted: 100,
+      };
+
+      stub(sdkPool, "getYieldStatsForDays").resolves(yieldStats);
+
+      const yieldData = await sdkPool.getYieldData(domainId, tokenAddress, days);
+
+      expect(yieldData).to.not.be.undefined;
+      expect(yieldData!.apr).closeTo(0.0365, 0.001);
+      expect(yieldData!.apy).closeTo(0.03706870443, 0.001);
     });
   });
 
