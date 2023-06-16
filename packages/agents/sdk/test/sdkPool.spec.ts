@@ -1,5 +1,5 @@
 import { reset, restore, stub } from "sinon";
-import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
+import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
 import { mock } from "./mock";
@@ -299,6 +299,24 @@ describe("SdkPool", () => {
       );
       expect(res).to.be.deep.eq(mockRequest);
     });
+
+    it("happy: should work if signerAddress is passed into options", async () => {
+      sdkPool.config.signerAddress = undefined;
+      const options = {
+        signerAddress: mkAddress("0xabc"),
+      };
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+        options,
+      );
+
+      expect(res).to.not.be.undefined;
+    });
   });
 
   describe("#swap", () => {
@@ -341,8 +359,10 @@ describe("SdkPool", () => {
         mockParams.minDy,
         mockParams.deadline,
       );
+
       expect(res).to.be.deep.eq(mockRequest);
     });
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
   });
 
   describe("#getPool", () => {
