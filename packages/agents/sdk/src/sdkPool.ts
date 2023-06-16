@@ -1116,8 +1116,8 @@ export class SdkPool extends SdkShared {
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
@@ -1133,7 +1133,7 @@ export class SdkPool extends SdkShared {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
       }
       const poolData = poolDataResults[0]; // there should only be one pool
-      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), signerAddress)).toString();
+      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), _signerAddress)).toString();
     }
 
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidityImbalance(
@@ -1187,8 +1187,8 @@ export class SdkPool extends SdkShared {
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
