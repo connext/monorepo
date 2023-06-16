@@ -181,6 +181,8 @@ module "sdk_server_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sdk-server.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 2
+  max_capacity     = 10
 }
 
 
