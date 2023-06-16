@@ -2181,6 +2181,7 @@ __metadata:
   resolution: "@connext/chain-abstraction@workspace:packages/agents/chain-abstraction"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
+    "@connext/sdk-core": "workspace:*"
     "@sinclair/typebox": 0.25.21
     "@types/isomorphic-fetch": ^0.0.36
     "@types/memoizee": 0.4.8

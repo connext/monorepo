@@ -1,5 +1,6 @@
 import { constants } from "ethers";
 import { jsonifyError } from "@connext/nxtp-utils";
+import { create, SdkConfig } from "@connext/sdk-core";
 
 import { axiosGet, getContract, JsonRpcProvider } from "../mockable";
 
@@ -15,6 +16,23 @@ export type SwapQuoteCallbackArgs = {
   fee?: string;
   sqrtPriceLimitX96?: string;
 };
+
+export type EstimateQuoteAmountArgs = {
+  originDomain: number;
+  destinationDomain: number;
+  originRpc: string;
+  destinationRpc: string;
+  fromAsset: string;
+  toAsset: string;
+  underlyingAsset?: string;
+  amountIn: string;
+  swapper: string;
+  signerAddress: string;
+  fee?: string;
+  originDecimals?: number;
+  destinationDecimals?: number;
+};
+
 export type SwapQuoteCallback = (args: SwapQuoteCallbackArgs) => Promise<string>;
 
 /**
@@ -35,7 +53,6 @@ export const getSwapQuoteForUniV3 = async (_args: SwapQuoteCallbackArgs): Promis
   const { amountIn, quoter, rpc, fromAsset, toAsset, fee, sqrtPriceLimitX96: _sqrtPriceLimitX96 } = _args;
   const rpcProvider = new JsonRpcProvider(rpc);
   const v3QuoterV2Contract = getContract(quoter, UniV3QuoterABI, rpcProvider);
-
   const res = await v3QuoterV2Contract.callStatic.quoteExactInputSingle({
     tokenIn: fromAsset,
     tokenOut: toAsset,
@@ -61,4 +78,25 @@ export const getSwapQuoteForOneInch = async (args: SwapQuoteCallbackArgs): Promi
   } catch (error: unknown) {
     throw new Error(`Getting quote from 1inch failed, e: ${jsonifyError(error as Error).message}`);
   }
+};
+
+export const initCoreSDK = async (
+  signerAddress: string,
+  originDomain: number,
+  destinationDomain: number,
+  originRPC: string,
+  destinationRPC: string,
+) => {
+  const domainConfig: { [domainId: string]: { providers: string[] } } = {};
+  domainConfig[originDomain.toString()] = { providers: [originRPC] };
+  domainConfig[destinationDomain.toString()] = { providers: [destinationRPC] };
+
+  const sdkConfig: SdkConfig = {
+    signerAddress,
+    network: "mainnet", // can change it to testnet as well
+    chains: domainConfig,
+  };
+
+  const { sdkBase } = await create(sdkConfig);
+  return { sdkBase };
 };
