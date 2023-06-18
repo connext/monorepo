@@ -115,7 +115,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
   const originUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain.toString()];
   const destinationUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain.toString()];
 
-  const _toAsset = originUnderlyingAsset; // origin Side
+  const _toAsset = originDomain === destinationDomain ? toAsset : originUnderlyingAsset; // origin Side
   try {
     let _fee = fee;
     if (originQuoter.type === Swapper.UniV3 && !_fee) {
@@ -157,7 +157,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     if (!amountReceived) {
       throw Error("Failed to fetch estimate bridging amountOut");
     }
-
     if (toAsset === destinationUnderlyingAsset) return amountReceived.toString();
 
     if (destinationQuoter.type === Swapper.UniV3 && !_fee) {

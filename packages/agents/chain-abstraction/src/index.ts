@@ -7,4 +7,7 @@ export {
   getSwapAndXcallAddress,
   getSwapperConfig,
   getEstimateAmountRecieved,
+  getPriceImpactForSwaps,
+  getSlippageDistribution,
+  getAmountOutMinForUniV3,
 } from "./libs";
