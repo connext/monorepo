@@ -1069,7 +1069,6 @@ export const getHubNodes = async (
   pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
-  console.log({ start, end, count });
   const poolToUse = _pool ?? pool;
   let roots: any[] = [];
   let _start = start;
