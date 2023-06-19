@@ -11,6 +11,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [42161, 0x6172626f], // Arbitrum One ('arbo interpreted as int) 1634886255
   [324, 0x7a6b7363], // zkSync2 Mainnet ('zksc interpreted as int) 2053862243
   [1101, 0x707a6b6d], // Polygon zkEvm Mainnet (pzkm interpreted as int) 1887071085
+  [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
