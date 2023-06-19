@@ -10,7 +10,7 @@ import {
   SdkGetRouterLiquidityParams,
   SdkGetRoutersDataParams,
   SdkGetTransfersParams,
-} from "@connext/sdk-core";
+} from "../types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();

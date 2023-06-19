@@ -8,8 +8,10 @@ import {
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
-import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
 
+import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments } from "../types";
+
+import { domainsToChainNames } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
 
 export class SdkShared {
@@ -32,9 +34,9 @@ export class SdkShared {
         ? "http://localhost:8080"
         : this.config.network === "testnet"
         ? this.config.environment === "staging"
-          ? "sdk-server.testnet.staging.connext.ninja"
-          : "sdk-server.testnet.connext.ninja"
-        : "sdk-server.mainnet.connext.ninja";
+          ? "https://sdk-server.testnet.staging.connext.ninja"
+          : "https://sdk-server.testnet.connext.ninja"
+        : "https://sdk-server.mainnet.connext.ninja";
   }
 
   async getConversionRate(chainId: number) {
@@ -94,9 +96,14 @@ export class SdkShared {
     amount: string,
     infiniteApprove = true,
   ): Promise<providers.TransactionRequest | undefined> {
-    const response = await axiosGet(
-      `${this.baseUri}/approveIfNeeded/${domainId}/${assetId}/${amount}/${infiniteApprove}`,
-    );
+    const params = {
+      domainId,
+      assetId,
+      amount,
+      infiniteApprove,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/approveIfNeeded/`, params);
     return response.data;
   }
 

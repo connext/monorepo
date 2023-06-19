@@ -1,5 +1,5 @@
 import { Logger, ChainData } from "@connext/nxtp-utils";
-import { SdkConfig } from "@connext/sdk-core/src/config";
+import type { SdkConfig } from "../types";
 
 import { SdkUtils } from "./sdkUtils";
 import { SdkBase } from "./sdkBase";

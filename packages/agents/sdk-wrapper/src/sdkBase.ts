@@ -1,12 +1,13 @@
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { providers, BigNumber, BigNumberish } from "ethers";
-import {
+
+import type {
   SdkConfig,
   SdkXCallParams,
   SdkBumpTransferParams,
   SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParams,
-} from "@connext/sdk-core";
+} from "../types";
 
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";

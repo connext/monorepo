@@ -8,7 +8,7 @@ import {
   SdkAddLiquidityForRouterParams,
   SdkRemoveRouterLiquidityForParams,
   SdkRemoveRouterLiquidityParams,
-} from "@connext/sdk-core";
+} from "../types";
 import { expect, mkAddress } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();

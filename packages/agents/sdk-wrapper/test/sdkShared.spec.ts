@@ -21,7 +21,7 @@ import {
   SdkGetERC20Params,
   SdkGetProviderParams,
   SdkIsNextAssetParams,
-} from "@connext/sdk-core";
+} from "../types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
