@@ -719,6 +719,7 @@ describe("Database client", () => {
     const pendingMessages = await getUnProcessedMessagesByIndex(
       mock.domain.A,
       mock.domain.B,
+      0,
       batchSize,
       0,
       100,
@@ -890,8 +891,10 @@ describe("Database client", () => {
     }
     await saveMessages(messages, pool);
 
-    const _messages = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, pool);
-    expect(_messages).to.deep.eq(messages.slice(1, 4).map((m) => m.leaf));
+    const _messages1 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 10000, pool);
+    expect(_messages1).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
+    const _messages2 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 1, pool);
+    expect(_messages2).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
   });
 
   it("should get hub node", async () => {
@@ -916,8 +919,11 @@ describe("Database client", () => {
     }
     await saveAggregatedRoots(roots, pool);
 
-    const dbRoots = await getHubNodes(3, 7, batchSize, pool);
-    expect(dbRoots).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
+    const dbRoots1 = await getHubNodes(3, 7, batchSize, 10000, pool);
+    expect(dbRoots1).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
+
+    const dbRoots2 = await getHubNodes(3, 7, batchSize, 1, pool);
+    expect(dbRoots2).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
   });
 
   it("should get getLatestMessageRoot", async () => {

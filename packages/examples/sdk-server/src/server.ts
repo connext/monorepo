@@ -1,5 +1,5 @@
 import fastify, { FastifyInstance } from "fastify";
-import { createLoggingContext, Logger, getBestProvider } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, getBestProvider, jsonifyError } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk-core";
@@ -63,6 +63,11 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       });
     }
 
+    server.setErrorHandler(function (error, request, reply) {
+      context.logger.error(`Error: ${error.message}`, requestContext, methodContext);
+      reply.status(500).send(jsonifyError(error as Error));
+    });
+
     server.get("/ping", async (_, reply) => {
       return reply.status(200).send("pong\n");
     });
@@ -85,7 +90,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     server.register(routerRoutes, sdkRouter);
     server.register(sharedRoutes, sdkShared);
 
-    server.listen({ port: 8080 }, (err, address) => {
+    server.listen({ host: context.config.server.http.host, port: context.config.server.http.port }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

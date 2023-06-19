@@ -13,7 +13,13 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 export type logger = Logger;
 
 import { calculateRelayerFee } from "./lib/helpers";
-import { SignerAddressMissing, CannotUnwrapOnDestination, ParamsInvalid, SlippageInvalid } from "./lib/errors";
+import {
+  SignerAddressMissing,
+  CannotUnwrapOnDestination,
+  ParamsInvalid,
+  SlippageInvalid,
+  ProviderMissing,
+} from "./lib/errors";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
@@ -172,7 +178,16 @@ export class SdkBase extends SdkShared {
       unwrapNativeOnDestination,
       options,
     } = params;
-    this.providerSanityCheck({ domains: [origin], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [origin], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(origin);
+    }
+
+    // Ensure signer is provided.
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     let { to, callData } = params;
 
@@ -189,12 +204,6 @@ export class SdkBase extends SdkShared {
     const relayerFeeInNativeAsset = _relayerFee ? BigNumber.from(_relayerFee) : constants.Zero;
 
     const receiveLocal = _receiveLocal ?? false;
-
-    // Ensure signer is provided.
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     // Input validation
     if (asset == constants.AddressZero && amount != "0") {
@@ -335,7 +344,7 @@ export class SdkBase extends SdkShared {
         to: multisendContractAddress,
         value: amountBN.add(relayerFeeInNativeAsset), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
-        from: signerAddress,
+        from: _signerAddress,
         chainId,
       };
     } else {
@@ -348,14 +357,14 @@ export class SdkBase extends SdkShared {
           to: connextContractAddress,
           value,
           data: xcallData,
-          from: signerAddress,
+          from: _signerAddress,
           chainId,
         };
       } else {
         txRequest = {
           to: connextContractAddress,
           data: xcallData,
-          from: signerAddress,
+          from: _signerAddress,
           chainId,
         };
       }
@@ -398,14 +407,17 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.updateSlippage.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     const { domainId, transferId, slippage: _newSlippage, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     // Input validation
     if (parseInt(_newSlippage) < 0 || parseInt(_newSlippage) > 10000) {
@@ -445,11 +457,11 @@ export class SdkBase extends SdkShared {
     }
 
     // Check to make sure it is being sent from delegate
-    if (transfer.delegate.toLowerCase() !== signerAddress.toLowerCase()) {
+    if (transfer.delegate.toLowerCase() !== _signerAddress.toLowerCase()) {
       throw new ParamsInvalid({
         paramsError: "Must update slippage with delegate",
         delegate: transfer.delegate,
-        signer: this.config.signerAddress,
+        signer: _signerAddress,
         transferId,
       });
     }
@@ -473,12 +485,15 @@ export class SdkBase extends SdkShared {
       canonicalId: transfer.canonical_id,
     };
 
-    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [transferInfo, _newSlippage]);
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [
+      transferInfo,
+      utils.parseUnits(_newSlippage),
+    ]);
 
     const txRequest = {
       to: ConnextContractAddress,
       data,
-      from: signerAddress,
+      from: _signerAddress,
       chainId,
     };
 
@@ -516,14 +531,17 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     const { domainId, transferId, asset, relayerFee, options } = params;
 
-    this.providerSanityCheck({ domains: [domainId], options });
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     // Input validation
     if (parseInt(relayerFee) <= 0) {
@@ -560,13 +578,13 @@ export class SdkBase extends SdkShared {
             to: ConnextContractAddress,
             value,
             data,
-            from: signerAddress,
+            from: _signerAddress,
             chainId,
           }
         : {
             to: ConnextContractAddress,
             data,
-            from: signerAddress,
+            from: _signerAddress,
             chainId,
           };
 
