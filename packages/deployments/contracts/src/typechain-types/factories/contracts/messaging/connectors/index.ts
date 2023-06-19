@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as arbitrum from "./arbitrum";
+export * as axelar from "./axelar";
 export * as consensys from "./consensys";
 export * as gnosis from "./gnosis";
 export * as mainnet from "./mainnet";

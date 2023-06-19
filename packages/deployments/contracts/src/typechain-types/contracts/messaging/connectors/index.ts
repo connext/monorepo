@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
+import type * as axelar from "./axelar";
+export type { axelar };
 import type * as consensys from "./consensys";
 export type { consensys };
 import type * as gnosis from "./gnosis";

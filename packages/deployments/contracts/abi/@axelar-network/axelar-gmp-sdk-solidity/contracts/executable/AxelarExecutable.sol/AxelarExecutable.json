@@ -1,0 +1,8 @@
+[
+  "constructor(address gateway_)",
+  "error InvalidAddress()",
+  "error NotApprovedByGateway()",
+  "function execute(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload)",
+  "function executeWithToken(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload, string tokenSymbol, uint256 amount)",
+  "function gateway() view returns (address)"
+]
