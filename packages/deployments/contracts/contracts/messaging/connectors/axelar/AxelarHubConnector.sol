@@ -7,7 +7,7 @@ import {HubConnector, Connector} from "../HubConnector.sol";
 
 import {BaseAxelar} from "./BaseAxelar.sol";
 
-contract MultichainHubConnector is HubConnector, BaseAxelar {
+contract AxelarHubConnector is HubConnector, BaseAxelar {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -15,12 +15,11 @@ contract MultichainHubConnector is HubConnector, BaseAxelar {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _gasCap,
     address _gasReceiver,
     string memory _mirrorChainId
   )
     HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    BaseAxelar(_amb, _gasCap, _gasReceiver, _mirrorChainId)
+    BaseAxelar(_amb, _gasReceiver, _mirrorChainId)
   {}
 
   // ============ Private fns ============
@@ -33,6 +32,7 @@ contract MultichainHubConnector is HubConnector, BaseAxelar {
 
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
+
     // set the outbound root for BSC domain
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
 

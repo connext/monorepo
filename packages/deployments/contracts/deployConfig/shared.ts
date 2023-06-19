@@ -243,31 +243,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      // 97: {
-      //   prefix: "Multichain",
-      //   networkName: "Chapel",
-      //   ambs: {
-      //     // AnyCallV6Proxy on goerli
-      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-      //     // AnyCallV6Proxy on chapel/bsc testnet
-      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      //   custom: {
-      //     hub: {
-      //       mirrorChainId: "97",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-      //     },
-      //     spoke: {
-      //       mirrorChainId: "5",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-      //     },
-      //   },
-      // },
+      97: {
+        prefix: "Axelar",
+        networkName: "Chapel",
+        ambs: {
+          // Axelar Gateway on goerli
+          // https://docs.axelar.dev/dev/reference/testnet-contract-addresses
+          // https://goerli.etherscan.io/address/0xe432150cce91c13a887f7D836923d5597adD8E31
+          hub: "0xe432150cce91c13a887f7D836923d5597adD8E31",
+          // Axelar Gateway on chapel/bsc testnet
+          // https://testnet.bscscan.com/address/0x4D147dCb984e6affEEC47e44293DA442580A3Ec0
+          spoke: "0x4D147dCb984e6affEEC47e44293DA442580A3Ec0",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        custom: {
+          hub: {
+            gasReceiver: "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+            mirrorChainId: "binance",
+          },
+          spoke: {
+            gasReceiver: "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+            mirrorChainId: "ethereum-2",
+          },
+        },
+      },
       1442: {
         prefix: "PolygonZk",
         ambs: {
@@ -407,27 +408,28 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       },
       // BNB Chain
       56: {
-        prefix: "Multichain",
+        prefix: "Axelar",
         networkName: "Bnb",
         ambs: {
-          // AnyCallV6Proxy on Mainnet
-          // https://etherscan.io/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-          hub: "0xC10Ef9F491C9B59f936957026020C321651ac078",
-          // AnyCallV6Proxy on BNB Chain
-          // https://bscscan.com/address/0xC10Ef9F491C9B59f936957026020C321651ac078
-          spoke: "0xC10Ef9F491C9B59f936957026020C321651ac078",
+          // https://docs.axelar.dev/dev/reference/mainnet-contract-addresses
+          // Axelar gateway on Mainnet
+          // https://etherscan.io/address/0x4F4495243837681061C4743b74B3eEdf548D56A5
+          hub: "0x4F4495243837681061C4743b74B3eEdf548D56A5",
+          // Axelar gateway on BNB Chain
+          // https://bscscan.com/address/0x304acf330bbE08d1e512eefaa92F6a57871fD895
+          spoke: "0x304acf330bbE08d1e512eefaa92F6a57871fD895",
         },
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         custom: {
           hub: {
-            mirrorChainId: "56",
-            gasCap: "520000000000000", // calcSrcFee: 516960000000000
+            gasReceiver: "0x2d5d7d31F671F86C782533cc367F14109a082712",
+            mirrorChainId: "binance",
           },
           spoke: {
-            mirrorChainId: "1",
-            gasCap: "150000000000000000", // calcSrcFee: 140112000000000000
+            gasReceiver: "0x2d5d7d31F671F86C782533cc367F14109a082712",
+            mirrorChainId: "Ethereum",
           },
         },
       },

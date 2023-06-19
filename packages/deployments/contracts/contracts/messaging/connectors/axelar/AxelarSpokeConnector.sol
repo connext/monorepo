@@ -19,7 +19,6 @@ contract AxelarSpokeConnector is SpokeConnector, BaseAxelar {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    uint256 _gasCap,
     address _gasReceiver,
     string memory _mirrorChainId
   )
@@ -35,15 +34,10 @@ contract AxelarSpokeConnector is SpokeConnector, BaseAxelar {
       _merkle,
       _watcherManager
     )
-    BaseAxelar(_amb, _gasCap, _gasReceiver, _mirrorChainId)
+    BaseAxelar(_amb, _gasReceiver, _mirrorChainId)
   {}
 
   // ============ Admin fns ============
-
-  /**
-   * @notice Should not be able to renounce ownership
-   */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
 
   // ============ Private fns ============
   /**

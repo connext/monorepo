@@ -6,9 +6,7 @@ import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {StringToAddress, AddressToString} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/utils/AddressString.sol";
 
-import {GasCap} from "../GasCap.sol";
-
-abstract contract BaseAxelar is GasCap, AxelarExecutable {
+abstract contract BaseAxelar is AxelarExecutable {
   using StringToAddress for string;
   using AddressToString for address;
 
@@ -19,12 +17,7 @@ abstract contract BaseAxelar is GasCap, AxelarExecutable {
   string public MIRROR_CHAIN_ID;
 
   // ============ Constructor ============
-  constructor(
-    address _amb,
-    uint256 _gasCap, // max fee on destination chain
-    address _gasReceiver,
-    string memory _mirrorChainId
-  ) GasCap(_gasCap) AxelarExecutable(_amb) {
+  constructor(address _amb, address _gasReceiver, string memory _mirrorChainId) AxelarExecutable(_amb) {
     // sanity checks
     require(bytes(_mirrorChainId).length != 0, "!mirrorChainId");
 
@@ -61,13 +54,10 @@ abstract contract BaseAxelar is GasCap, AxelarExecutable {
     // Should not include any gas info
     require(_encodedData.length == 0, "!data length");
 
-    // Get the max fee supplied
-    uint256 supplied = _getGas(msg.value); // fee paid on origin chain, up to cap
-
     string memory mirrorConnectorStr = _mirrorConnector.toString();
 
     // Get the min fees
-    gasService.payNativeGasForContractCall{value: supplied}(
+    gasService.payNativeGasForContractCall{value: msg.value}(
       address(this),
       MIRROR_CHAIN_ID,
       mirrorConnectorStr,

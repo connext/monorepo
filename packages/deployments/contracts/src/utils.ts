@@ -95,6 +95,11 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
     contractName = contractName.replace("Multichain", networkName);
   }
 
+  if (contractName.includes("Axelar")) {
+    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
+    contractName = contractName.replace("Axelar", networkName);
+  }
+
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
     return contractName;
   }
