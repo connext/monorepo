@@ -104,13 +104,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0x2931b84D59f6f570EEBDAaaE182867C5E5D58075",
-          adopted: "0x2931b84D59f6f570EEBDAaaE182867C5E5D58075",
+          local: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
+          adopted: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
         },
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0x6e56Cb72f4197b8155Cf8e1efaEFB682BC9ae5d1",
-          adopted: "0x6e56Cb72f4197b8155Cf8e1efaEFB682BC9ae5d1",
+          local: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
+          adopted: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
         },
       },
     },
@@ -124,13 +124,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0x92db1b41779493fB3103Ab7ACC20EFCc299A2005",
-          adopted: "0x92db1b41779493fB3103Ab7ACC20EFCc299A2005",
+          local: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
+          adopted: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
         },
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0xD3A6D71a5D5DA264fd5a85D33f5b866BEE716698",
-          adopted: "0xD3A6D71a5D5DA264fd5a85D33f5b866BEE716698",
+          local: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
+          adopted: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
         },
       },
     },
