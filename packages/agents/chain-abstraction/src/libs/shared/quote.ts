@@ -132,7 +132,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
       quoter: originQuoter.quoter,
       rpc: originRpc,
       fromAsset,
-      toAsset: _toAsset, // fix need here
+      toAsset: _toAsset,
       amountIn,
       fee: _fee,
     };

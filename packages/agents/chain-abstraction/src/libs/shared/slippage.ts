@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { getCoingeckoID, getTokenVSusdPrice } from "../../helpers/asset";
@@ -93,7 +93,7 @@ export const getSlippageDistribution = async (
     outputDecimal,
     quoteDestinationAmount,
     signerAddress,
-  ); // error here
+  );
 
   const destinationSlippage = destinationPriceImpact + destinationPriceImpact * 0.2;
 
@@ -117,6 +117,7 @@ export const getAmountOutMinForUniV3 = async (
   amountIn: BigNumberish,
   signerAddress: string,
   slippage: number, // slippage needs to pass after slippage calculation
+  outputDecimal: number,
 ) => {
   try {
     const quoteAmountOut = await getEstimateAmountRecieved({
@@ -130,9 +131,7 @@ export const getAmountOutMinForUniV3 = async (
       signerAddress,
     });
 
-    return BigNumber.from(quoteAmountOut)
-      .mul(1 - slippage)
-      .toString();
+    return parseFloat(ethers.utils.formatUnits(quoteAmountOut, outputDecimal)) * (1 - slippage);
   } catch (err: unknown) {
     throw Error("Failed to get Minimum Amount Out for UniV3");
   }
