@@ -174,8 +174,8 @@ export type { ArbitrumHubConnector } from "./contracts/messaging/connectors/arbi
 export { ArbitrumHubConnector__factory } from "./factories/contracts/messaging/connectors/arbitrum/ArbitrumHubConnector__factory";
 export type { ArbitrumSpokeConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector";
 export { ArbitrumSpokeConnector__factory } from "./factories/contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector__factory";
-export type { MultichainHubConnector } from "./contracts/messaging/connectors/axelar/AxelarHubConnector.sol/MultichainHubConnector";
-export { MultichainHubConnector__factory } from "./factories/contracts/messaging/connectors/axelar/AxelarHubConnector.sol/MultichainHubConnector__factory";
+export type { AxelarHubConnector } from "./contracts/messaging/connectors/axelar/AxelarHubConnector";
+export { AxelarHubConnector__factory } from "./factories/contracts/messaging/connectors/axelar/AxelarHubConnector__factory";
 export type { AxelarSpokeConnector } from "./contracts/messaging/connectors/axelar/AxelarSpokeConnector";
 export { AxelarSpokeConnector__factory } from "./factories/contracts/messaging/connectors/axelar/AxelarSpokeConnector__factory";
 export type { BaseAxelar } from "./contracts/messaging/connectors/axelar/BaseAxelar";
@@ -202,6 +202,8 @@ export type { MainnetSpokeConnector } from "./contracts/messaging/connectors/mai
 export { MainnetSpokeConnector__factory } from "./factories/contracts/messaging/connectors/mainnet/MainnetSpokeConnector__factory";
 export type { BaseMultichain } from "./contracts/messaging/connectors/multichain/BaseMultichain";
 export { BaseMultichain__factory } from "./factories/contracts/messaging/connectors/multichain/BaseMultichain__factory";
+export type { MultichainHubConnector } from "./contracts/messaging/connectors/multichain/MultichainHubConnector";
+export { MultichainHubConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainHubConnector__factory";
 export type { MultichainSpokeConnector } from "./contracts/messaging/connectors/multichain/MultichainSpokeConnector";
 export { MultichainSpokeConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainSpokeConnector__factory";
 export type { BaseOptimism } from "./contracts/messaging/connectors/optimism/BaseOptimism";

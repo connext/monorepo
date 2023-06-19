@@ -15,12 +15,8 @@ contract AxelarHubConnector is HubConnector, BaseAxelar {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    address _gasReceiver,
-    string memory _mirrorChainId
-  )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    BaseAxelar(_amb, _gasReceiver, _mirrorChainId)
-  {}
+    bytes memory _axelarParams
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseAxelar(_amb, _axelarParams) {}
 
   // ============ Private fns ============
   /**

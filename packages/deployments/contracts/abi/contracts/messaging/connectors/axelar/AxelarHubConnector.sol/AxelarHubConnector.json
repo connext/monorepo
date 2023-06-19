@@ -1,5 +1,5 @@
 [
-  "constructor(uint32 _domain, uint32 _mirrorDomain, address _amb, address _rootManager, address _mirrorConnector, uint256 _gasCap, address _gasReceiver, string _mirrorChainId)",
+  "constructor(uint32 _domain, uint32 _mirrorDomain, address _amb, address _rootManager, address _mirrorConnector, bytes _axelarParams)",
   "error Connector__processMessage_notUsed()",
   "error InvalidAddress()",
   "error InvalidAddressString()",
@@ -11,7 +11,6 @@
   "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "event GasCapUpdated(uint256 _previous, uint256 _updated)",
   "event MessageProcessed(bytes data, address caller)",
   "event MessageSent(bytes data, bytes encodedData, address caller)",
   "event MirrorConnectorUpdated(address previous, address current)",
@@ -38,7 +37,6 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function sendMessage(bytes _data, bytes _encodedData) payable",
-  "function setGasCap(uint256 _gasCap)",
   "function setMirrorConnector(address _mirrorConnector)",
   "function verifySender(address _expected) returns (bool)"
 ]

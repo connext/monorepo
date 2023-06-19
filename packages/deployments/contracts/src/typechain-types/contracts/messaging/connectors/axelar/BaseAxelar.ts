@@ -13,11 +13,7 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -30,48 +26,25 @@ import type {
 export interface BaseAxelarInterface extends utils.Interface {
   functions: {
     "MIRROR_CHAIN_ID()": FunctionFragment;
-    "acceptProposedOwner()": FunctionFragment;
-    "delay()": FunctionFragment;
     "execute(bytes32,string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;
     "gasService()": FunctionFragment;
     "gateway()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "proposeNewOwner(address)": FunctionFragment;
-    "proposed()": FunctionFragment;
-    "proposedTimestamp()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "renounced()": FunctionFragment;
-    "setGasCap(uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "MIRROR_CHAIN_ID"
-      | "acceptProposedOwner"
-      | "delay"
       | "execute"
       | "executeWithToken"
       | "gasService"
       | "gateway"
-      | "owner"
-      | "proposeNewOwner"
-      | "proposed"
-      | "proposedTimestamp"
-      | "renounceOwnership"
-      | "renounced"
-      | "setGasCap"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "MIRROR_CHAIN_ID",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "acceptProposedOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [
@@ -97,35 +70,11 @@ export interface BaseAxelarInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "gateway", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "proposeNewOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "proposedTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "MIRROR_CHAIN_ID",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "acceptProposedOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "executeWithToken",
@@ -133,67 +82,9 @@ export interface BaseAxelarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "gasService", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gateway", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposeNewOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposedTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
 
-  events: {
-    "GasCapUpdated(uint256,uint256)": EventFragment;
-    "OwnershipProposed(address)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  events: {};
 }
-
-export interface GasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
-}
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
->;
-
-export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
-
-export interface OwnershipProposedEventObject {
-  proposedOwner: string;
-}
-export type OwnershipProposedEvent = TypedEvent<
-  [string],
-  OwnershipProposedEventObject
->;
-
-export type OwnershipProposedEventFilter =
-  TypedEventFilter<OwnershipProposedEvent>;
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface BaseAxelar extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -224,12 +115,6 @@ export interface BaseAxelar extends BaseContract {
   functions: {
     MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[string]>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     execute(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -251,37 +136,9 @@ export interface BaseAxelar extends BaseContract {
     gasService(overrides?: CallOverrides): Promise<[string]>;
 
     gateway(overrides?: CallOverrides): Promise<[string]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    proposed(overrides?: CallOverrides): Promise<[string]>;
-
-    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<[boolean]>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
   MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<string>;
-
-  acceptProposedOwner(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   execute(
     commandId: PromiseOrValue<BytesLike>,
@@ -305,34 +162,8 @@ export interface BaseAxelar extends BaseContract {
 
   gateway(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  proposeNewOwner(
-    newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  proposed(overrides?: CallOverrides): Promise<string>;
-
-  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(overrides?: CallOverrides): Promise<boolean>;
-
-  setGasCap(
-    _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<string>;
-
-    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
-
-    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
       commandId: PromiseOrValue<BytesLike>,
@@ -355,60 +186,12 @@ export interface BaseAxelar extends BaseContract {
     gasService(overrides?: CallOverrides): Promise<string>;
 
     gateway(overrides?: CallOverrides): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    proposed(overrides?: CallOverrides): Promise<string>;
-
-    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
-  filters: {
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
-    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
-
-    "OwnershipProposed(address)"(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
-    OwnershipProposed(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
       commandId: PromiseOrValue<BytesLike>,
@@ -431,38 +214,10 @@ export interface BaseAxelar extends BaseContract {
     gasService(overrides?: CallOverrides): Promise<BigNumber>;
 
     gateway(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    proposed(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounced(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     execute(
       commandId: PromiseOrValue<BytesLike>,
@@ -485,27 +240,5 @@ export interface BaseAxelar extends BaseContract {
     gasService(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     gateway(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
   };
 }

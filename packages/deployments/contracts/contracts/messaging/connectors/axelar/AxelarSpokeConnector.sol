@@ -19,8 +19,7 @@ contract AxelarSpokeConnector is SpokeConnector, BaseAxelar {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    address _gasReceiver,
-    string memory _mirrorChainId
+    bytes memory _axelarParams
   )
     SpokeConnector(
       _domain,
@@ -34,7 +33,7 @@ contract AxelarSpokeConnector is SpokeConnector, BaseAxelar {
       _merkle,
       _watcherManager
     )
-    BaseAxelar(_amb, _gasReceiver, _mirrorChainId)
+    BaseAxelar(_amb, _axelarParams)
   {}
 
   // ============ Admin fns ============

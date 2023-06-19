@@ -17,7 +17,8 @@ abstract contract BaseAxelar is AxelarExecutable {
   string public MIRROR_CHAIN_ID;
 
   // ============ Constructor ============
-  constructor(address _amb, address _gasReceiver, string memory _mirrorChainId) AxelarExecutable(_amb) {
+  constructor(address _amb, bytes memory _axelarParams) AxelarExecutable(_amb) {
+    (address _gasReceiver, string memory _mirrorChainId) = abi.decode(_axelarParams, (address, string));
     // sanity checks
     require(bytes(_mirrorChainId).length != 0, "!mirrorChainId");
 

@@ -1,5 +1,5 @@
 [
-  "constructor(uint32 _domain, uint32 _mirrorDomain, address _amb, address _rootManager, address _mirrorConnector, uint256 _processGas, uint256 _reserveGas, uint256 _delayBlocks, address _merkle, address _watcherManager, uint256 _gasCap, address _gasReceiver, string _mirrorChainId)",
+  "constructor(uint32 _domain, uint32 _mirrorDomain, address _amb, address _rootManager, address _mirrorConnector, uint256 _processGas, uint256 _reserveGas, uint256 _delayBlocks, address _merkle, address _watcherManager, bytes _axelarParams)",
   "error Connector__processMessage_notUsed()",
   "error InvalidAddress()",
   "error InvalidAddressString()",
@@ -23,7 +23,6 @@
   "event DelayBlocksUpdated(uint256 indexed updated, address caller)",
   "event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message)",
   "event FundsWithdrawn(address indexed to, uint256 amount)",
-  "event GasCapUpdated(uint256 _previous, uint256 _updated)",
   "event MessageProcessed(bytes data, address caller)",
   "event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex)",
   "event MessageSent(bytes data, bytes encodedData, address caller)",
@@ -83,7 +82,6 @@
   "function send(bytes _encodedData) payable",
   "function sentMessageRoots(bytes32) view returns (bool)",
   "function setDelayBlocks(uint256 _delayBlocks)",
-  "function setGasCap(uint256 _gasCap)",
   "function setMirrorConnector(address _mirrorConnector)",
   "function setRateLimitBlocks(uint256 _rateLimit)",
   "function setWatcherManager(address _watcherManager)",

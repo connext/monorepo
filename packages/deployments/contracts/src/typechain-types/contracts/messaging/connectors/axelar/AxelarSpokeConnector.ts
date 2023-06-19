@@ -89,7 +89,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
     "send(bytes)": FunctionFragment;
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
-    "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
@@ -146,7 +145,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
       | "send"
       | "sentMessageRoots"
       | "setDelayBlocks"
-      | "setGasCap"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
@@ -325,10 +323,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setGasCap",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -477,7 +471,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setDelayBlocks",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
@@ -511,7 +504,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
     "DelayBlocksUpdated(uint256,address)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "FundsWithdrawn(address,uint256)": EventFragment;
-    "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageProven(bytes32,bytes32,uint256)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
@@ -534,7 +526,6 @@ export interface AxelarSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProven"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -619,17 +610,6 @@ export type FundsWithdrawnEvent = TypedEvent<
 >;
 
 export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
-
-export interface GasCapUpdatedEventObject {
-  _previous: BigNumber;
-  _updated: BigNumber;
-}
-export type GasCapUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  GasCapUpdatedEventObject
->;
-
-export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -972,11 +952,6 @@ export interface AxelarSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1175,11 +1150,6 @@ export interface AxelarSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setGasCap(
-    _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1372,11 +1342,6 @@ export interface AxelarSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1455,12 +1420,6 @@ export interface AxelarSpokeConnector extends BaseContract {
       to?: PromiseOrValue<string> | null,
       amount?: null
     ): FundsWithdrawnEventFilter;
-
-    "GasCapUpdated(uint256,uint256)"(
-      _previous?: null,
-      _updated?: null
-    ): GasCapUpdatedEventFilter;
-    GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -1733,11 +1692,6 @@ export interface AxelarSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1934,11 +1888,6 @@ export interface AxelarSpokeConnector extends BaseContract {
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setGasCap(
-      _gasCap: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
