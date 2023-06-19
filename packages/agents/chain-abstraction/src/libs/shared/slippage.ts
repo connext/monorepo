@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { getCoingeckoID, getTokenVSusdPrice } from "../../helpers/asset";
