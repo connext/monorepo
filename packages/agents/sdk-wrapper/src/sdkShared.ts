@@ -9,7 +9,7 @@ import {
 import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 
-import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments } from "../types";
+import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "../types";
 
 import { domainsToChainNames } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
@@ -94,13 +94,15 @@ export class SdkShared {
     domainId: string,
     assetId: string,
     amount: string,
-    infiniteApprove = true,
+    infiniteApprove?: boolean,
+    options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const params = {
       domainId,
       assetId,
       amount,
-      infiniteApprove,
+      infiniteApprove: infiniteApprove ?? true,
+      options,
     };
 
     const response = await axiosPost(`${this.baseUri}/approveIfNeeded/`, params);
