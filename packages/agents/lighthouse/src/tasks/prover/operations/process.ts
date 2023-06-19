@@ -5,7 +5,6 @@ import {
   SparseMerkleTree,
   GELATO_RELAYER_ADDRESS,
   RequestContext,
-  XMessage,
 } from "@connext/nxtp-utils";
 
 import { NoDestinationDomainForProof, NoMessageRootProof, NoMessageProof } from "../../../errors";
