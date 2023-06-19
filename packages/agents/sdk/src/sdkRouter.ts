@@ -78,16 +78,17 @@ export class SdkRouter extends SdkShared {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidityForRouter.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const { domainId, amount, tokenAddress, router, options } = params;
 
     const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
     if (!isProviderValid) {
       throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
     }
 
     const connextContract = await this.getConnext(domainId, options);
@@ -125,16 +126,17 @@ export class SdkRouter extends SdkShared {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeRouterLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const { domainId, amount, tokenAddress, recipient, options } = params;
 
     const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
     if (!isProviderValid) {
       throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
@@ -168,16 +170,17 @@ export class SdkRouter extends SdkShared {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeRouterLiquidityFor.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const { domainId, amount, tokenAddress, recipient, router, options } = params;
 
     const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
     if (!isProviderValid) {
       throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([

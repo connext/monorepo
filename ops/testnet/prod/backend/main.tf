@@ -174,6 +174,18 @@ module "sdk-server" {
   domain                   = var.domain
 }
 
+module "sdk_server_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sdk-server.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 2
+  max_capacity     = 10
+}
+
+
 module "sdk_server_cache" {
   source                        = "../../../modules/redis"
   stage                         = var.stage

@@ -110,8 +110,8 @@ module "sdk-server" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment
@@ -133,6 +133,18 @@ module "sdk_server_cache" {
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
 }
+
+module "sdk_server_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sdk-server.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 2
+  max_capacity     = 3
+}
+
 
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"

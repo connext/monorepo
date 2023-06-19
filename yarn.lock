@@ -2204,6 +2204,7 @@ __metadata:
   resolution: "@connext/chain-abstraction@workspace:packages/agents/chain-abstraction"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
+    "@connext/sdk-core": "workspace:*"
     "@sinclair/typebox": 0.25.21
     "@types/isomorphic-fetch": ^0.0.36
     "@types/memoizee": 0.4.8
@@ -2765,7 +2766,7 @@ __metadata:
     hardhat: 2.12.7
     hardhat-abi-exporter: 2.10.1
     hardhat-contract-sizer: 2.8.0
-    hardhat-deploy: 0.11.24
+    hardhat-deploy: 0.11.30
     hardhat-diamond-abi: 3.0.1
     hardhat-gas-reporter: 1.0.9
     prettier: 2.8.4
@@ -3483,7 +3484,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.7.0":
+"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.7.0, @ethersproject/providers@npm:^5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -3556,7 +3557,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/solidity@npm:5.7.0":
+"@ethersproject/solidity@npm:5.7.0, @ethersproject/solidity@npm:^5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/solidity@npm:5.7.0"
   dependencies:
@@ -3609,7 +3610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/wallet@npm:5.7.0":
+"@ethersproject/wallet@npm:5.7.0, @ethersproject/wallet@npm:^5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/wallet@npm:5.7.0"
   dependencies:
@@ -13127,7 +13128,7 @@ __metadata:
     es6-iterator: ^2.0.3
     es6-symbol: ^3.1.3
     next-tick: ^1.1.0
-  checksum: 25f42f6068cfc6e393cf670bc5bba249132c5f5ec2dd0ed6e200e6274aca2fed8e9aec8a31c76031744c78ca283c57f0b41c7e737804c6328c7b8d3fbcba7983
+  checksum: 721bcd16406872c934c54dcfc870a18544ff88d0633a271aab15235d06148d6c0eff8b5230a8e21556692c555ac7d64fb94439fcdbd99690eaaec84c80a19ad0
   languageName: node
   linkType: hard
 
@@ -16253,10 +16254,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:0.11.24":
-  version: 0.11.24
-  resolution: "hardhat-deploy@npm:0.11.24"
+"hardhat-deploy@npm:0.11.30":
+  version: 0.11.30
+  resolution: "hardhat-deploy@npm:0.11.30"
   dependencies:
+    "@ethersproject/abi": ^5.7.0
+    "@ethersproject/abstract-signer": ^5.7.0
+    "@ethersproject/address": ^5.7.0
+    "@ethersproject/bignumber": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/constants": ^5.7.0
+    "@ethersproject/contracts": ^5.7.0
+    "@ethersproject/providers": ^5.7.2
+    "@ethersproject/solidity": ^5.7.0
+    "@ethersproject/transactions": ^5.7.0
+    "@ethersproject/wallet": ^5.7.0
     "@types/qs": ^6.9.7
     axios: ^0.21.1
     chalk: ^4.1.2
@@ -16269,8 +16281,8 @@ __metadata:
     match-all: ^1.2.6
     murmur-128: ^0.2.1
     qs: ^6.9.4
-    zksync-web3: ^0.8.1
-  checksum: b7c0076889d8f775c8bdd7ae00c14f6eae9032979dd88bb4b95511af9e928f2006606fd7e179281b84543383853b26b075bc2a65254143cada7b060177d8eb1a
+    zksync-web3: ^0.14.3
+  checksum: 7b9ac9d856097be1df88ed86cbec88e5bdeb6258c7167c097d6ad4e80a1131b9288fc7704ff6457253f293f57c9992d83383f15ce8f22190d94966b8bb05d832
   languageName: node
   linkType: hard
 
@@ -29298,12 +29310,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zksync-web3@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "zksync-web3@npm:0.8.1"
+"zksync-web3@npm:^0.14.3":
+  version: 0.14.4
+  resolution: "zksync-web3@npm:0.14.4"
   peerDependencies:
-    ethers: ~5.7.0
-  checksum: 613ebe822df1bef0af4d62386f3aaf65917d45dd80932b0ddf5b81eba6b0a46376f3e74263d153915dcfb8be954f730ded2e34d7806b6b199bbc74e0f124a0fb
+    ethers: ^5.7.0
+  checksum: f702a3437f48a8d42c4bb35b8dd13671a168aadfc4e23ce723d62959220ccb6bf9c529c60331fe5b91afaa622147c6a37490551474fe3e35c06ac476524b5160
   languageName: node
   linkType: hard
 
