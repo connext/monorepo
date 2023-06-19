@@ -338,7 +338,7 @@ module "lighthouse_prover_subscriber" {
   container_port           = 7072
   loadbalancer_port        = 80
   cpu                      = 2048
-  memory                   = 4096
+  memory                   = 8192
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
