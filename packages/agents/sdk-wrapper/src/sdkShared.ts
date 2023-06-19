@@ -105,7 +105,7 @@ export class SdkShared {
       options,
     };
 
-    const response = await axiosPost(`${this.baseUri}/approveIfNeeded/`, params);
+    const response = await axiosPost(`${this.baseUri}/approveIfNeeded`, params);
     return response.data;
   }
 
