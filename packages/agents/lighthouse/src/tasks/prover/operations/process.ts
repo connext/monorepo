@@ -26,7 +26,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(processMessages.name, _requestContext);
   const {
-    messages: _messages,
+    messages,
     originDomain,
     destinationDomain,
     messageRoot,
@@ -59,32 +59,6 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
     throw new NoDestinationDomainForProof(destinationDomain);
-  }
-
-  // In worst case, the message status couldn't get reflected to the database properly.
-  // To avoid the failure in case we do proveAndProcess in batch, that wouldn't make sense that the unprocessed messages fail due to any processed messages but not reflected to the db.
-  // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
-  // The quick way to verify them is to add a sanitation check against the spoke connector.
-  const messages: XMessage[] = [];
-  for (const message of _messages) {
-    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
-    try {
-      const messageResultData = await chainreader.readTx({
-        domain: +destinationDomain,
-        to: destinationSpokeConnector,
-        data: messageEncodedData,
-      });
-
-      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
-      if (messageStatus == 0) messages.push(message);
-    } catch (err: unknown) {
-      logger.debug(
-        "Failed to read the message status from onchain",
-        requestContext,
-        methodContext,
-        jsonifyError(err as NxtpError),
-      );
-    }
   }
 
   // process messages
