@@ -1,8 +1,7 @@
 import { providers, BigNumber, BigNumberish, constants } from "ethers";
 import { Logger, ChainData, StableSwapExchange } from "@connext/nxtp-utils";
 
-import type { SdkConfig, Pool } from "../types";
-
+import type { SdkConfig, Pool } from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 import { PriceFeed } from "./lib/priceFeed";

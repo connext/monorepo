@@ -1,7 +1,7 @@
 import { providers } from "ethers";
 import { Logger, ChainData } from "@connext/nxtp-utils";
-import type { SdkConfig } from "../types";
 
+import type { SdkConfig } from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 

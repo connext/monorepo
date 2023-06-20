@@ -21,7 +21,7 @@ import {
   SdkGetERC20Params,
   SdkGetProviderParams,
   SdkIsNextAssetParams,
-} from "../types";
+} from "../src/sdk-types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();

@@ -4,7 +4,7 @@ import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
 import { ConnextAbi } from "@connext/smart-contracts";
 
-import { SdkConfig } from "../types";
+import { SdkConfig } from "../src/sdk-types";
 
 // Used for stubbing functions at the bottom of this file:
 

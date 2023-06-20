@@ -10,7 +10,7 @@ import {
   SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParams,
   SdkCalculateAmountReceivedParams,
-} from "../types";
+} from "../src/sdk-types";
 import { expect } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();

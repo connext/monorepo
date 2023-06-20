@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "copy-sdk-types": "cpx \"../sdk/dist/**/*.d.ts*\" ./types",
+    "copy-sdk-types": "cpx \"../sdk/dist/**/*.d.ts*\" ./src/sdk-types",
     "build": "yarn copy-sdk-types && tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",

@@ -9,8 +9,7 @@ import {
 import { providers } from "ethers";
 import { Connext, IERC20 } from "@connext/smart-contracts";
 
-import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "../types";
-
+import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "./sdk-types";
 import { domainsToChainNames } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
 

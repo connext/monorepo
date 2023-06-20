@@ -40,7 +40,7 @@ import {
   SdkRemoveLiquidityOneTokenParams,
   SdkRemoveLiquidityParams,
   SdkSwapParams,
-} from "../types";
+} from "../src/sdk-types";
 import { expect } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();

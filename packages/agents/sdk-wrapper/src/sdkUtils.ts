@@ -1,8 +1,7 @@
 import { BigNumber } from "ethers";
 import { Logger, ChainData, XTransferStatus, XTransferErrorStatus } from "@connext/nxtp-utils";
 
-import type { SdkConfig, RouterBalance, Transfer } from "../types";
-
+import type { SdkConfig, RouterBalance, Transfer } from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 

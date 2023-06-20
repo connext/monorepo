@@ -7,8 +7,7 @@ import type {
   SdkBumpTransferParams,
   SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParams,
-} from "../types";
-
+} from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 

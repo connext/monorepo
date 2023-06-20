@@ -10,7 +10,7 @@ import {
   SdkGetRouterLiquidityParams,
   SdkGetRoutersDataParams,
   SdkGetTransfersParams,
-} from "../types";
+} from "../src/sdk-types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
