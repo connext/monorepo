@@ -9,8 +9,19 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [137, 0x706f6c79], // Polygon (poly interpreted as int) 1886350457
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int) 1650811245
   [42161, 0x6172626f], // Arbitrum One ('arbo interpreted as int) 1634886255
+  [42170, 0x6172626e], // Arbitrum Nova ('arbn interpreted as int) 1634886262
   [324, 0x7a6b7363], // zkSync2 Mainnet ('zksc interpreted as int) 2053862243
   [1101, 0x707a6b6d], // Polygon zkEvm Mainnet (pzkm interpreted as int) 1887071085
+  [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
+  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1634886247
+  [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 2053862243
+  [25, 0x63726f], // Cronos Mainnet (cro interpreted as int) 6573045
+  [9001, 0x65766d6f], // Evmos Mainnet (evmo interpreted as int) 6648936
+  [122, 0x66757365], // Fuse Mainnet (fuse interpreted as int) 1802465399
+  [192837465, 0x67617468], // Gather Mainnet (gath interpreted as int) 6778472
+  [1666600000, 0x686d79], // Harmony Mainnet (hmy interpreted as int) 6778479
+  [2001, 0x6d696c6b], // Milkomeda Mainnet (milk interpreted as int)
+  [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
