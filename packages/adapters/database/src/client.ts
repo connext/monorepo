@@ -1113,6 +1113,11 @@ export const putRoot = async (
   await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
 };
 
+export const deleteCache = async (domain: string, _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.deletes("merkle_cache", { domain }).run(poolToUse);
+};
+
 export const saveReceivedAggregateRoot = async (
   _roots: ReceivedAggregateRoot[],
   _pool?: Pool | db.TxnClientForRepeatableRead,

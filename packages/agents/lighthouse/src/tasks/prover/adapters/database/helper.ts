@@ -45,6 +45,14 @@ export class SpokeDBHelper implements DBHelper {
   public async putRoot(path: string, hash: string): Promise<void> {
     return await this.db.putRoot(this.domain, path, hash);
   }
+
+  public async clearCache(): Promise<void> {
+    this.cachedNode = {};
+    this.cachedNodes = {};
+    this.cachedRoot = {};
+
+    return await this.db.deleteCache(this.domain);
+  }
 }
 
 export class HubDBHelper implements DBHelper {
@@ -90,5 +98,13 @@ export class HubDBHelper implements DBHelper {
 
   public async putRoot(path: string, hash: string): Promise<void> {
     return await this.db.putRoot(this.domain, path, hash);
+  }
+
+  public async clearCache(): Promise<void> {
+    this.cachedNode = {};
+    this.cachedNodes = {};
+    this.cachedRoot = {};
+
+    return await this.db.deleteCache(this.domain);
   }
 }
