@@ -22,6 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@axelar-network/axelarjs-sdk": "^0.12.8",
     "@maticnetwork/maticjs": "3.6.0-beta.11",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.21",

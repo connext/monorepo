@@ -56,6 +56,7 @@ import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
 import "./tasks/connector/claimPolygonZk";
+import "./tasks/connector/sendAxelar";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
