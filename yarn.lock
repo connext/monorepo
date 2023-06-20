@@ -2544,7 +2544,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-txservice@workspace:packages/adapters/txservice"
   dependencies:
-    "@connext/nxtp-utils": "file:/Users/eddie/utils.tgz"
+    "@connext/nxtp-utils": "workspace:*"
     "@connext/smart-contracts": "workspace:*"
     "@sinclair/typebox": 0.25.21
     "@types/chai": 4.3.4
@@ -2572,78 +2572,6 @@ __metadata:
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
-
-"@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fnxtp-txservice%40workspace%3Apackages%2Fadapters%2Ftxservice":
-  version: 2.1.0-alpha.1
-  resolution: "@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fnxtp-txservice%40workspace%3Apackages%2Fadapters%2Ftxservice"
-  dependencies:
-    "@maticnetwork/maticjs": 3.6.0-beta.11
-    "@maticnetwork/maticjs-web3": 1.0.4
-    "@sinclair/typebox": 0.25.21
-    ajv: 8.12.0
-    ajv-formats: 2.1.1
-    axios: 1.3.3
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    ethers: 5.7.2
-    hyperid: 3.1.1
-    interval-promise: 1.4.0
-    merkletreejs: 0.3.9
-    pino: 8.10.0
-    secp256k1: 4.0.3
-    sinon-chai: 3.7.0
-  checksum: d8f7b250f2e1ed89221f13aea98720ead938e480517f21700a4df37ca45142a1574439fa04ff56a29cc150ac52745a751823f6e1795a379b9b0b2067d3399fc0
-  languageName: node
-  linkType: hard
-
-"@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fsdk%40workspace%3Apackages%2Fagents%2Fsdk-wrapper":
-  version: 2.1.0-alpha.1
-  resolution: "@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fsdk%40workspace%3Apackages%2Fagents%2Fsdk-wrapper"
-  dependencies:
-    "@maticnetwork/maticjs": 3.6.0-beta.11
-    "@maticnetwork/maticjs-web3": 1.0.4
-    "@sinclair/typebox": 0.25.21
-    ajv: 8.12.0
-    ajv-formats: 2.1.1
-    axios: 1.3.3
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    ethers: 5.7.2
-    hyperid: 3.1.1
-    interval-promise: 1.4.0
-    merkletreejs: 0.3.9
-    pino: 8.10.0
-    secp256k1: 4.0.3
-    sinon-chai: 3.7.0
-  checksum: d8f7b250f2e1ed89221f13aea98720ead938e480517f21700a4df37ca45142a1574439fa04ff56a29cc150ac52745a751823f6e1795a379b9b0b2067d3399fc0
-  languageName: node
-  linkType: hard
-
-"@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fsdk-core%40workspace%3Apackages%2Fagents%2Fsdk":
-  version: 2.1.0-alpha.1
-  resolution: "@connext/nxtp-utils@file:/Users/eddie/utils.tgz::locator=%40connext%2Fsdk-core%40workspace%3Apackages%2Fagents%2Fsdk"
-  dependencies:
-    "@maticnetwork/maticjs": 3.6.0-beta.11
-    "@maticnetwork/maticjs-web3": 1.0.4
-    "@sinclair/typebox": 0.25.21
-    ajv: 8.12.0
-    ajv-formats: 2.1.1
-    axios: 1.3.3
-    chai: 4.3.7
-    chai-as-promised: 7.1.1
-    chai-subset: 1.6.0
-    ethers: 5.7.2
-    hyperid: 3.1.1
-    interval-promise: 1.4.0
-    merkletreejs: 0.3.9
-    pino: 8.10.0
-    secp256k1: 4.0.3
-    sinon-chai: 3.7.0
-  checksum: d8f7b250f2e1ed89221f13aea98720ead938e480517f21700a4df37ca45142a1574439fa04ff56a29cc150ac52745a751823f6e1795a379b9b0b2067d3399fc0
-  languageName: node
-  linkType: hard
 
 "@connext/nxtp-utils@workspace:*, @connext/nxtp-utils@workspace:packages/utils":
   version: 0.0.0-use.local
@@ -2736,7 +2664,7 @@ __metadata:
   resolution: "@connext/sdk-core@workspace:packages/agents/sdk"
   dependencies:
     "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "file:/Users/eddie/utils.tgz"
+    "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": 0.25.21
     "@types/isomorphic-fetch": 0.0.36
     "@types/memoizee": 0.4.8
@@ -2784,7 +2712,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/sdk@workspace:packages/agents/sdk-wrapper"
   dependencies:
-    "@connext/nxtp-utils": "file:/Users/eddie/utils.tgz"
+    "@connext/nxtp-utils": "workspace:*"
     "@types/cpx": 1
     "@types/isomorphic-fetch": 0.0.36
     cpx: 1.5.0
@@ -12907,14 +12835,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.0.0":
-  version: 16.1.4
-  resolution: "dotenv@npm:16.1.4"
-  checksum: c1b2e13df4d374a6a29e134c56c7b040ba20500677fe8b9939ea654f3b3badb9aaa0b172e40e4dfa1233a4177dbb8fb79d84cc79a50ac9c9641fe2ad98c14876
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.0.3":
+"dotenv@npm:^16.0.0, dotenv@npm:^16.0.3":
   version: 16.3.1
   resolution: "dotenv@npm:16.3.1"
   checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
@@ -29766,11 +29687,11 @@ __metadata:
   linkType: hard
 
 "zod-to-json-schema@npm:^3.20.5":
-  version: 3.21.1
-  resolution: "zod-to-json-schema@npm:3.21.1"
+  version: 3.21.2
+  resolution: "zod-to-json-schema@npm:3.21.2"
   peerDependencies:
     zod: ^3.21.4
-  checksum: 70a00a0cb48f855962b6fef3191ac6c36bd1d809a343b22142390374aae511e7adfd8906d7d8ace6d6ad9fd646e29c22fdf3cb220c751f37b071efb2b21a512b
+  checksum: a1bd7c077dc556c48740d57b67d5880f6d2ecfed460a9d142fb370a70dea24fc3875311c1685a6b512e0442d8dd04fb8d7e11d6d997193b030a32f3931979746
   languageName: node
   linkType: hard
 
