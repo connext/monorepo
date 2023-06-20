@@ -1,5 +1,6 @@
 import { BigNumber, constants, utils } from "ethers";
 import { getDeploymentName } from "../src";
+import { defaultAbiCoder } from "ethers/lib/utils";
 
 export type AMBInfo = {
   hub: string;
@@ -260,12 +261,17 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         custom: {
           hub: {
-            gasReceiver: "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-            mirrorChainId: "binance",
+            // abi.encode(gasReceiverAddr, mirrorChainId)
+            axelarParams: defaultAbiCoder.encode(
+              ["address", "string"],
+              ["0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6", "binance"],
+            ),
           },
           spoke: {
-            gasReceiver: "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-            mirrorChainId: "ethereum-2",
+            axelarParams: defaultAbiCoder.encode(
+              ["address", "string"],
+              ["0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6", "ethereum-2"],
+            ),
           },
         },
       },
@@ -424,12 +430,17 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         custom: {
           hub: {
-            gasReceiver: "0x2d5d7d31F671F86C782533cc367F14109a082712",
-            mirrorChainId: "binance",
+            // abi.encode(gasReceiverAddr, mirrorChainId)
+            axelarParams: defaultAbiCoder.encode(
+              ["address", "string"],
+              ["0x2d5d7d31F671F86C782533cc367F14109a082712", "binance"],
+            ),
           },
           spoke: {
-            gasReceiver: "0x2d5d7d31F671F86C782533cc367F14109a082712",
-            mirrorChainId: "Ethereum",
+            axelarParams: defaultAbiCoder.encode(
+              ["address", "string"],
+              ["0x2d5d7d31F671F86C782533cc367F14109a082712", "Ethereum"],
+            ),
           },
         },
       },

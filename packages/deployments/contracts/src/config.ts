@@ -140,7 +140,7 @@ export const hardhatNetworks = {
   chapel: {
     accounts: { mnemonic },
     chainId: 97,
-    url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    url: "https://bsc-testnet.publicnode.com",
     companionNetworks: {
       hub: "goerli",
     },
