@@ -19,6 +19,10 @@ export const chainIdToAxelarName: Map<number, string> = new Map([
   [97, CHAINS.TESTNET.BINANCE], // chapel
 ]);
 
+export const createAxelarQueryAPI = (env: Environment) => {
+  return new AxelarQueryAPI({ environment: env });
+};
+
 /**
  * Calculate the gas amount for a transaction using axelarjs-sdk.
  * @param {*} sourceDomain - The source chain domain.
@@ -41,8 +45,8 @@ export const calculateAxelarBridgeFee = async (
   }
 
   const env = mainnetDomains.includes(+sourceDomain) ? Environment.MAINNET : Environment.TESTNET;
-  const api = new AxelarQueryAPI({ environment: env });
+  const api = createAxelarQueryAPI(env);
 
-  const res = api.estimateGasFee(sourceChainId, destChainId, "", gasLimit, gasMultiplier);
+  const res = await api.estimateGasFee(sourceChainId, destChainId, "", gasLimit, gasMultiplier);
   return res as unknown as string;
 };
