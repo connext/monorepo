@@ -41,6 +41,29 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [13338, 13338],
 ]);
 
+export const mainnetDomains: number[] = [
+  0x657468, // Ethereum ('eth interpreted as int) 6648936
+  0x6f707469, // Optimism (opti interpreted as int) 1869640809
+  0x626e62, // BNB Chain ('bnb interpreted as int) 6450786
+  0x676e6f, // Gnosis Chain ('gno interpreted as int) 6778479
+  0x706f6c79, // Polygon (poly interpreted as int) 1886350457
+  0x6265616d, // Moonbeam ('beam interpreted as int) 1650811245
+  0x6172626f, // Arbitrum One ('arbo interpreted as int) 1634886255
+  0x6172626e, // Arbitrum Nova ('arbn interpreted as int) 1634886262
+  0x7a6b7363, // zkSync2 Mainnet ('zksc interpreted as int) 2053862243
+  0x707a6b6d, // Polygon zkEvm Mainnet (pzkm interpreted as int) 1887071085
+  0x66746d, // Fantom Opera (ftm interpreted as int) 6573045
+  0x61766178, // Avalanche C-Chain (avax interpreted as int) 1634886247
+  0x626f6261, // Boba Mainnet (boba interpreted as int) 2053862243
+  0x63726f, // Cronos Mainnet (cro interpreted as int) 6573045
+  0x65766d6f, // Evmos Mainnet (evmo interpreted as int) 6648936
+  0x66757365, // Fuse Mainnet (fuse interpreted as int) 1802465399
+  0x67617468, // Gather Mainnet (gath interpreted as int) 6778472
+  0x686d79, // Harmony Mainnet (hmy interpreted as int) 6778479
+  0x6d696c6b, // Milkomeda Mainnet (milk interpreted as int)
+  0x6d6f6f6e, // Moonriver Mainnet (moon interpreted as int)
+];
+
 /**
  * Converts a chain id (listed at at chainlist.org) to a domain.
  *

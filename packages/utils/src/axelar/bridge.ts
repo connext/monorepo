@@ -1,6 +1,6 @@
 import { AxelarQueryAPI, CHAINS, Environment } from "@axelar-network/axelarjs-sdk";
 
-import { domainToChainId } from "../helpers";
+import { domainToChainId, mainnetDomains } from "../helpers";
 
 export const chainIdToAxelarName: Map<number, string> = new Map([
   [1, CHAINS.MAINNET.ETHEREUM],
@@ -40,12 +40,9 @@ export const calculateAxelarBridgeFee = async (
     throw new Error("Invalid networks");
   }
 
-  const env =
-    Object.values(CHAINS.MAINNET).findIndex((name) => name === sourceChainId) > -1
-      ? Environment.MAINNET
-      : Environment.TESTNET;
+  const env = mainnetDomains.includes(+sourceDomain) ? Environment.MAINNET : Environment.TESTNET;
   const api = new AxelarQueryAPI({ environment: env });
 
-  const res = api.estimateGasFee(sourceChainId, destChainId, "0x", gasLimit, gasMultiplier);
+  const res = api.estimateGasFee(sourceChainId, destChainId, "", gasLimit, gasMultiplier);
   return res as unknown as string;
 };
