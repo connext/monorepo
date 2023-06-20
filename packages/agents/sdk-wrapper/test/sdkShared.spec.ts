@@ -435,25 +435,11 @@ describe("#SDKShared", () => {
     });
   });
 
-  describe("#changeSignerAddress", async () => {
-    it("happy: should send request with correct params", async () => {
-      const expectedEndpoint = "/changeSignerAddress";
-      const expectedArgs: SdkChangeSignerAddressParams = {
-        signerAddress: mkAddress("0x1234"),
-      };
-      const expectedRes = {};
-
-      axiosGetStub.resolves({
-        data: expectedRes,
-        status: 200,
-      });
-
-      const res = await sdkShared.changeSignerAddress(expectedArgs.signerAddress);
-
-      expect(axiosGetStub).to.have.been.calledWithExactly(
-        expectedBaseUri + expectedEndpoint + `/${expectedArgs.signerAddress}`,
-      );
-      expect(res).to.be.deep.eq(expectedRes);
+  describe("#changeSignerAddress", () => {
+    it("happy: should work", async () => {
+      const mockSignerAddress = mkAddress("0xabcdef456");
+      await sdkShared.changeSignerAddress(mockSignerAddress);
+      expect(sdkShared.config.signerAddress).to.be.eq(mockSignerAddress);
     });
   });
 

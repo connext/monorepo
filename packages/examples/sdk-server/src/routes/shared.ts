@@ -35,8 +35,6 @@ import {
   SdkGetAssetsDataByDomainAndKeyParams,
   SdkIsNextAssetParamsSchema,
   SdkIsNextAssetParams,
-  SdkChangeSignerAddressParamsSchema,
-  SdkChangeSignerAddressParams,
   SdkParseConnextTransactionReceiptParamsSchema,
   SdkParseConnextTransactionReceiptParams,
   SdkCalculateCanonicalKeyParamsSchema,
@@ -286,20 +284,6 @@ export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: S
     async (request, reply) => {
       const { tokenAddress } = request.params;
       const txReq = await sdkSharedInstance.isNextAsset(tokenAddress);
-      reply.status(200).send(txReq);
-    },
-  );
-
-  s.get<{ Params: SdkChangeSignerAddressParams }>(
-    "/changeSignerAddress/:signerAddress",
-    {
-      schema: {
-        params: SdkChangeSignerAddressParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const { signerAddress } = request.params;
-      const txReq = await sdkSharedInstance.changeSignerAddress(signerAddress);
       reply.status(200).send(txReq);
     },
   );

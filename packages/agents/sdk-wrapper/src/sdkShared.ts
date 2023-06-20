@@ -143,9 +143,8 @@ export class SdkShared {
     return response.data;
   }
 
-  async changeSignerAddress(signerAddress: string): Promise<AssetData[]> {
-    const response = await axiosGet(`${this.baseUri}/changeSignerAddress/${signerAddress}`);
-    return response.data;
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 
   async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt) {
