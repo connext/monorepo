@@ -1,8 +1,8 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+import { ConnextContractDeployments, ContractPostfix } from "./txservice-types";
 import { getChainData } from "./lib/helpers";
 
 export const TAssetDescription = Type.Object({

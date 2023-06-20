@@ -1,8 +1,8 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
-import { ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, mock as _mock } from "@connext/nxtp-utils";
 
+import { ConnextContractDeployments, ConnextContractInterfaces } from "../src/txservice-types";
 import { ConnextAbi } from "../src/typechain-types";
 import { SdkConfig } from "../src/sdk-types";
 

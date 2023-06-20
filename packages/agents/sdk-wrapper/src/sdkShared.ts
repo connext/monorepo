@@ -1,4 +1,3 @@
-import { getContractInterfaces, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
   Logger,
   ChainData,
@@ -16,7 +15,6 @@ import { axiosPost, axiosGet } from "./mockable";
 export class SdkShared {
   readonly config: SdkConfig;
   readonly chainData: Map<string, ChainData>;
-  readonly contracts: ConnextContractInterfaces;
   protected readonly logger: Logger;
 
   readonly baseUri: string;
@@ -25,7 +23,6 @@ export class SdkShared {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
-    this.contracts = getContractInterfaces();
     this.baseUri =
       this.config.network === "local"
         ? "http://localhost:8080"

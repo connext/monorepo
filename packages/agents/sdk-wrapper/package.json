@@ -21,7 +21,6 @@
     "types/**/*"
   ],
   "dependencies": {
-    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "5.7.2",
     "isomorphic-fetch": "3.0.0"
