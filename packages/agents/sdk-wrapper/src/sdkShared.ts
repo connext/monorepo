@@ -7,8 +7,8 @@ import {
   domainToChainId as _domainToChainId,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
-import { Connext, IERC20 } from "@connext/smart-contracts";
 
+import { Connext, IERC20 } from "./typechain-types";
 import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "./sdk-types";
 import { domainsToChainNames } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
