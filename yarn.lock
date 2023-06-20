@@ -2713,6 +2713,7 @@ __metadata:
   resolution: "@connext/sdk@workspace:packages/agents/sdk-wrapper"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
+    "@connext/sdk": "workspace:*"
     "@types/cpx": 1
     "@types/isomorphic-fetch": 0.0.36
     cpx: 1.5.0
