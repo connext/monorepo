@@ -1,5 +1,6 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
+import { calculateAxelarBridgeFee, chainIdToDomain } from "@connext/nxtp-utils";
 
 import {
   Env,
@@ -33,7 +34,8 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
     const network = await ethers.provider.getNetwork();
     const protocolConfig = getMessagingProtocolConfig(networkType as ProtocolNetwork);
 
-    const deploymentName = getDeploymentName(getConnectorName(protocolConfig, +network.chainId), env);
+    const connectorName = getConnectorName(protocolConfig, +network.chainId);
+    const deploymentName = getDeploymentName(connectorName, env, protocolConfig.configs[network.chainId].networkName);
     const deployment = await deployments.get(deploymentName);
     const address = deployment.address;
     console.log(deploymentName, "connector:", address);
@@ -41,7 +43,17 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
     const connector = new Contract(address, deployment.abi, deployer);
 
     const data = _data ?? "0x";
-    const tx = await connector.send(data);
+    let fee = "0";
+    if (connectorName.includes("Axelar")) {
+      fee = await calculateAxelarBridgeFee(
+        String(chainIdToDomain(network.chainId)),
+        String(chainIdToDomain(protocolConfig.hub)),
+      );
+      console.log("estimated bridge fee", fee);
+    }
+    const tx = await connector.send(data, {
+      value: fee,
+    });
     console.log("connector send tx: ", tx);
     const receipt = await tx.wait();
     console.log("connector send tx mined: ", receipt.transactionHash);
