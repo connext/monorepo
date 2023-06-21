@@ -279,8 +279,7 @@ locals {
         providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers     = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"],
-        confirmations = 200
+        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
