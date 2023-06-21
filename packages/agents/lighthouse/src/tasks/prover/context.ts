@@ -15,6 +15,7 @@ export type ProverContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
+    databaseWriter: Database;
     cache: StoreManager;
     mqClient: Broker.Connection;
   };

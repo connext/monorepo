@@ -80,6 +80,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  databaseWriter: TDatabaseConfig,
   redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
@@ -182,6 +183,9 @@ export const getEnvConfig = (
       : configFile.relayers,
     database: {
       url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
+    },
+    databaseWriter: {
+      url: process.env.DATABASE_WRITER_URL || configJson.databaseWriter?.url || configFile.databaseWriter?.url,
     },
     redis: {
       host: process.env.REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "127.0.0.1",

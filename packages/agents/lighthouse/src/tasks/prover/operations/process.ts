@@ -22,7 +22,7 @@ import { BrokerMessage, ProofStruct } from "./types";
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader, database },
+    adapters: { contracts, relayers, chainreader, database, databaseWriter },
     config,
     chainData,
   } = getContext();
@@ -38,10 +38,16 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
   } = brokerMessage;
 
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, {
+    reader: database,
+    writer: databaseWriter,
+  });
   const spokeSMT = new SparseMerkleTree(spokeStore);
 
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
+  const hubStore = new HubDBHelper("hub", aggregateRootCount, {
+    reader: database,
+    writer: databaseWriter,
+  });
   const hubSMT = new SparseMerkleTree(hubStore);
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
