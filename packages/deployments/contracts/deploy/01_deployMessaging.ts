@@ -219,8 +219,7 @@ const handleDeploySpoke = async (
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
       !contract.includes("Consensys") &&
-      !contract.includes("Axelar") &&
-      !contract.includes("Multichain")) ||
+      !contract.includes("Axelar")) ||
     contract.includes("Mainnet")
   ) {
     return;
