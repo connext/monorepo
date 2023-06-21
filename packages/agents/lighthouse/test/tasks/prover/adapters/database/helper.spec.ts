@@ -8,8 +8,14 @@ describe("#Database helper", () => {
   let spokeHelper: SpokeDBHelper;
 
   beforeEach(() => {
-    hubHelper = new HubDBHelper("hub", 10, proverCtxMock.adapters.database);
-    spokeHelper = new SpokeDBHelper("spoke", 10, proverCtxMock.adapters.database);
+    hubHelper = new HubDBHelper("hub", 10, {
+      reader: proverCtxMock.adapters.database,
+      writer: proverCtxMock.adapters.database,
+    });
+    spokeHelper = new SpokeDBHelper("spoke", 10, {
+      reader: proverCtxMock.adapters.database,
+      writer: proverCtxMock.adapters.database,
+    });
   });
 
   it("hub helper should operate", async () => {

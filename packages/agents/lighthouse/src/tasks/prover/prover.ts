@@ -66,6 +66,11 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     context.config.chains,
   );
   context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+  // Default to database url if no writer url is provided.
+  const databaseWriter = context.config.databaseWriter
+    ? context.config.databaseWriter.url
+    : context.config.database.url;
+  context.adapters.databaseWriter = await getDatabase(databaseWriter, context.logger);
   context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
   context.adapters.cache = StoreManager.getInstance({
     redis: { host: context.config.redis.host, port: context.config.redis.port, instance: undefined },

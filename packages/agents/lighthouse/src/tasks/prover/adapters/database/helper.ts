@@ -5,7 +5,7 @@ export class SpokeDBHelper implements DBHelper {
   private cachedNode: Record<string, string> = {};
   private cachedNodes: Record<string, string[]> = {};
   private cachedRoot: Record<string, string> = {};
-  constructor(private domain: string, private count: number, private db: Database) {}
+  constructor(private domain: string, private count: number, private db: { reader: Database; writer: Database }) {}
 
   public async getCount(): Promise<number> {
     return this.count;
@@ -14,7 +14,7 @@ export class SpokeDBHelper implements DBHelper {
   public async getNode(index: number): Promise<string | undefined> {
     let node: string | undefined = this.cachedNode[`${index}`];
     if (!node) {
-      node = await this.db.getSpokeNode(this.domain, index, this.count);
+      node = await this.db.reader.getSpokeNode(this.domain, index, this.count);
       if (node) {
         this.cachedNode[`${index}`] = node;
       }
@@ -25,7 +25,7 @@ export class SpokeDBHelper implements DBHelper {
   public async getNodes(start: number, end: number): Promise<string[]> {
     let nodes: string[] = this.cachedNodes[`${start}-${end}`];
     if (!nodes || nodes.length == 0) {
-      nodes = await this.db.getSpokeNodes(this.domain, start, end, this.count);
+      nodes = await this.db.reader.getSpokeNodes(this.domain, start, end, this.count);
       // Store in cache if all nodes are returned.
       if (nodes.length == end - start + 1) this.cachedNodes[`${start}-${end}`] = nodes;
     }
@@ -35,7 +35,7 @@ export class SpokeDBHelper implements DBHelper {
   public async getRoot(path: string): Promise<string | undefined> {
     let root: string | undefined = this.cachedRoot[path];
     if (!root) {
-      root = await this.db.getRoot(this.domain, path);
+      root = await this.db.reader.getRoot(this.domain, path);
       if (root) {
         this.cachedRoot[path] = root;
       }
@@ -44,7 +44,7 @@ export class SpokeDBHelper implements DBHelper {
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    return await this.db.putRoot(this.domain, path, hash);
+    return await this.db.writer.putRoot(this.domain, path, hash);
   }
 
   public async clearCache(): Promise<void> {
@@ -52,7 +52,7 @@ export class SpokeDBHelper implements DBHelper {
     this.cachedNodes = {};
     this.cachedRoot = {};
 
-    return await this.db.deleteCache(this.domain);
+    return await this.db.writer.deleteCache(this.domain);
   }
 }
 
@@ -60,7 +60,7 @@ export class HubDBHelper implements DBHelper {
   private cachedNode: Record<string, string> = {};
   private cachedNodes: Record<string, string[]> = {};
   private cachedRoot: Record<string, string> = {};
-  constructor(private domain: string, private count: number, private db: Database) {}
+  constructor(private domain: string, private count: number, private db: { reader: Database; writer: Database }) {}
 
   public async getCount(): Promise<number> {
     return this.count;
@@ -69,7 +69,7 @@ export class HubDBHelper implements DBHelper {
   public async getNode(index: number): Promise<string | undefined> {
     let node: string | undefined = this.cachedNode[`${index}`];
     if (!node) {
-      node = await this.db.getHubNode(index, this.count);
+      node = await this.db.reader.getHubNode(index, this.count);
       if (node) {
         this.cachedNode[`${index}`] = node;
       }
@@ -80,7 +80,7 @@ export class HubDBHelper implements DBHelper {
   public async getNodes(start: number, end: number): Promise<string[]> {
     let nodes: string[] = this.cachedNodes[`${start}-${end}`];
     if (!nodes || nodes.length == 0) {
-      nodes = await this.db.getHubNodes(start, end, this.count);
+      nodes = await this.db.reader.getHubNodes(start, end, this.count);
       // Store in cache if all nodes are returned.
       if (nodes.length == end - start + 1) this.cachedNodes[`${start}-${end}`] = nodes;
     }
@@ -90,7 +90,7 @@ export class HubDBHelper implements DBHelper {
   public async getRoot(path: string): Promise<string | undefined> {
     let root: string | undefined = this.cachedRoot[path];
     if (!root) {
-      root = await this.db.getRoot(this.domain, path);
+      root = await this.db.reader.getRoot(this.domain, path);
       if (root) {
         this.cachedRoot[path] = root;
       }
@@ -99,7 +99,7 @@ export class HubDBHelper implements DBHelper {
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    return await this.db.putRoot(this.domain, path, hash);
+    return await this.db.writer.putRoot(this.domain, path, hash);
   }
 
   public async clearCache(): Promise<void> {
@@ -107,6 +107,6 @@ export class HubDBHelper implements DBHelper {
     this.cachedNodes = {};
     this.cachedRoot = {};
 
-    return await this.db.deleteCache(this.domain);
+    return await this.db.writer.deleteCache(this.domain);
   }
 }
