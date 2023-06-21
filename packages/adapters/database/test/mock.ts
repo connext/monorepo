@@ -1,7 +1,13 @@
 import { mkAddress, mkHash, mock } from "@connext/nxtp-utils";
+import { Pool } from "pg";
 import { stub } from "sinon";
 
 import { Database } from "../src/index";
+
+export const mockDatabasePool = (): Pool => {
+  let pool: Pool = undefined as any;
+  return pool;
+};
 
 export const mockDatabase = (): Database => {
   return {

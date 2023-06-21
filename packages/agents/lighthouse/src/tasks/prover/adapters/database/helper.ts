@@ -1,11 +1,16 @@
 import { Database } from "@connext/nxtp-adapters-database";
 import { DBHelper } from "@connext/nxtp-utils";
+import { Pool } from "pg";
 
 export class SpokeDBHelper implements DBHelper {
   private cachedNode: Record<string, string> = {};
   private cachedNodes: Record<string, string[]> = {};
   private cachedRoot: Record<string, string> = {};
-  constructor(private domain: string, private count: number, private db: { reader: Database; writer: Database }) {}
+  constructor(
+    private domain: string,
+    private count: number,
+    private db: { reader: Database; writer: { database: Database; pool: Pool } },
+  ) {}
 
   public async getCount(): Promise<number> {
     return this.count;
@@ -44,7 +49,7 @@ export class SpokeDBHelper implements DBHelper {
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    return await this.db.writer.putRoot(this.domain, path, hash);
+    return await this.db.writer.database.putRoot(this.domain, path, hash, this.db.writer.pool);
   }
 
   public async clearCache(): Promise<void> {
@@ -52,7 +57,7 @@ export class SpokeDBHelper implements DBHelper {
     this.cachedNodes = {};
     this.cachedRoot = {};
 
-    return await this.db.writer.deleteCache(this.domain);
+    return await this.db.writer.database.deleteCache(this.domain, this.db.writer.pool);
   }
 }
 
@@ -60,7 +65,11 @@ export class HubDBHelper implements DBHelper {
   private cachedNode: Record<string, string> = {};
   private cachedNodes: Record<string, string[]> = {};
   private cachedRoot: Record<string, string> = {};
-  constructor(private domain: string, private count: number, private db: { reader: Database; writer: Database }) {}
+  constructor(
+    private domain: string,
+    private count: number,
+    private db: { reader: Database; writer: { database: Database; pool: Pool } },
+  ) {}
 
   public async getCount(): Promise<number> {
     return this.count;
@@ -99,7 +108,7 @@ export class HubDBHelper implements DBHelper {
   }
 
   public async putRoot(path: string, hash: string): Promise<void> {
-    return await this.db.writer.putRoot(this.domain, path, hash);
+    return await this.db.writer.database.putRoot(this.domain, path, hash, this.db.writer.pool);
   }
 
   public async clearCache(): Promise<void> {
@@ -107,6 +116,6 @@ export class HubDBHelper implements DBHelper {
     this.cachedNodes = {};
     this.cachedRoot = {};
 
-    return await this.db.writer.deleteCache(this.domain);
+    return await this.db.writer.database.deleteCache(this.domain, this.db.writer.pool);
   }
 }

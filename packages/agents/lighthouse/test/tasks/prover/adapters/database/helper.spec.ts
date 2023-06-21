@@ -10,11 +10,11 @@ describe("#Database helper", () => {
   beforeEach(() => {
     hubHelper = new HubDBHelper("hub", 10, {
       reader: proverCtxMock.adapters.database,
-      writer: proverCtxMock.adapters.database,
+      writer: proverCtxMock.adapters.databaseWriter,
     });
     spokeHelper = new SpokeDBHelper("spoke", 10, {
       reader: proverCtxMock.adapters.database,
-      writer: proverCtxMock.adapters.database,
+      writer: proverCtxMock.adapters.databaseWriter,
     });
   });
 

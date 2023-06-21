@@ -1,6 +1,6 @@
 import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
+import { closeDatabase, getDatabase, getDatabaseAndPool } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import Broker from "amqplib";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
@@ -36,6 +36,9 @@ export const makeProverSubscriber = async (config: NxtpLighthouseConfig, chainDa
     await bindHealthServer();
   } catch (e: unknown) {
     console.error("Error starting Prover-Subscriber. Sad! :(", e);
+  } finally {
+    await closeDatabase(context.adapters.databaseWriter.pool);
+    process.exit();
   }
 };
 
@@ -70,7 +73,7 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
   const databaseWriter = context.config.databaseWriter
     ? context.config.databaseWriter.url
     : context.config.database.url;
-  context.adapters.databaseWriter = await getDatabase(databaseWriter, context.logger);
+  context.adapters.databaseWriter = await getDatabaseAndPool(databaseWriter, context.logger);
   context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
   context.adapters.cache = StoreManager.getInstance({
     redis: { host: context.config.redis.host, port: context.config.redis.port, instance: undefined },
