@@ -889,7 +889,7 @@ export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDom
 };
 
 export const getOriginMessagesByDomainAndIndexQuery = (
-  params: { domain: string; offset: number; limit: number }[],
+  params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
 ): string => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -901,7 +901,9 @@ export const getOriginMessagesByDomainAndIndexQuery = (
       where: { 
         index_gte: ${param.offset}, 
         transferId_not: null, 
-        destinationDomain_not: null
+        destinationDomain_not: null,
+        ${param.maxBlockNumber ? `, blockNumber_lte: ${param.maxBlockNumber}` : ""}
+
       },
       orderBy: index, 
       orderDirection: asc
