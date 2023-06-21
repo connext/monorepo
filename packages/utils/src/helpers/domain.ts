@@ -41,7 +41,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [13338, 13338],
 ]);
 
-export const mainnetDomains: number[] = [
+export const MAINNET_DOMAINS: number[] = [
   0x657468, // Ethereum ('eth interpreted as int) 6648936
   0x6f707469, // Optimism (opti interpreted as int) 1869640809
   0x626e62, // BNB Chain ('bnb interpreted as int) 6450786
