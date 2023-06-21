@@ -48,13 +48,32 @@ export class SdkShared {
     return response.data;
   }
 
-  async getConnext(domainId: string): Promise<Connext> {
-    const response = await axiosGet(`${this.baseUri}/getConnext/${domainId}`);
+  async getConnext(domainId: string, options?: Options): Promise<Connext> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
+      domainId,
+      options: _options,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/getConnext`, params);
     return response.data;
   }
 
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const response = await axiosGet(`${this.baseUri}/getERC20/${domainId}/${tokenAddress}`);
+  async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
+      domainId,
+      tokenAddress,
+      options: _options,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/getERC20`, params);
     return response.data;
   }
 
@@ -91,12 +110,16 @@ export class SdkShared {
     infiniteApprove?: boolean,
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
     const params = {
       domainId,
       assetId,
       amount,
       infiniteApprove: infiniteApprove ?? true,
-      options,
+      options: _options,
     };
 
     const response = await axiosPost(`${this.baseUri}/approveIfNeeded`, params);
@@ -143,9 +166,8 @@ export class SdkShared {
     return response.data;
   }
 
-  async changeSignerAddress(signerAddress: string): Promise<AssetData[]> {
-    const response = await axiosGet(`${this.baseUri}/changeSignerAddress/${signerAddress}`);
-    return response.data;
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 
   async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt) {

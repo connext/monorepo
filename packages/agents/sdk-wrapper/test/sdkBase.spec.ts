@@ -10,8 +10,9 @@ import {
   SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParams,
   SdkCalculateAmountReceivedParams,
+  Options,
 } from "../src/sdk-types";
-import { expect } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -68,6 +69,10 @@ describe("SdkBase", () => {
         receiveLocal: false,
         wrapNativeOnOrigin: false,
         unwrapNativeOnDestination: false,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -80,9 +85,42 @@ describe("SdkBase", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overidden options", async () => {
+      const expectedEndpoint = "/xcall";
+      const expectedArgs: SdkXCallParams = {
+        ...mock.entity.xcallArgs(),
+        origin: mock.entity.callParams().originDomain,
+        relayerFee: relayerFee.toString(),
+        receiveLocal: false,
+        wrapNativeOnOrigin: false,
+        unwrapNativeOnDestination: false,
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkBase.xcall({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
-  describe("#bumpTransfer", () => {
+  describe.only("#bumpTransfer", () => {
     it("happy: should send request with correct params", async () => {
       const expectedEndpoint = "/bumpTransfer";
       const expectedArgs: SdkBumpTransferParams = {
@@ -90,6 +128,10 @@ describe("SdkBase", () => {
         transferId: mockXTransfer.transferId,
         asset: mockXTransfer.origin!.assets.transacting.asset,
         relayerFee: relayerFee.toString(),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -102,6 +144,41 @@ describe("SdkBase", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/bumpTransfer";
+      const expectedArgs: SdkBumpTransferParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        transferId: mockXTransfer.transferId,
+        asset: mockXTransfer.origin!.assets.transacting.asset,
+        relayerFee: relayerFee.toString(),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkBase.bumpTransfer({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#updateSlippage", () => {
@@ -111,6 +188,10 @@ describe("SdkBase", () => {
         domainId: mockXTransfer.xparams.originDomain,
         transferId: mockXTransfer.transferId,
         slippage: "100",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -121,6 +202,36 @@ describe("SdkBase", () => {
       const res = await sdkBase.updateSlippage(expectedArgs);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/updateSlippage";
+      const expectedArgs: SdkUpdateSlippageParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        transferId: mockXTransfer.transferId,
+        slippage: "100",
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkBase.updateSlippage({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });

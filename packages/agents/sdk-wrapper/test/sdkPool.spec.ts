@@ -40,8 +40,9 @@ import {
   SdkRemoveLiquidityOneTokenParams,
   SdkRemoveLiquidityParams,
   SdkSwapParams,
+  Options,
 } from "../src/sdk-types";
-import { expect } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -124,7 +125,7 @@ const mockPoolBN: Pool = {
   adminFee: "0",
 };
 
-describe.only("#SDKPool", () => {
+describe("#SDKPool", () => {
   let sdkPool: SdkPool;
   let axiosPostStub: SinonStub;
   let expectedBaseUri: string;
@@ -196,6 +197,10 @@ describe.only("#SDKPool", () => {
         tokenIndexFrom: 0,
         tokenIndexTo: 1,
         amount: "100",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -213,6 +218,50 @@ describe.only("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/calculateSwap";
+      const expectedArgs: SdkCalculateSwapParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        tokenIndexFrom: 0,
+        tokenIndexTo: 1,
+        amount: "100",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.calculateSwap(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.tokenIndexFrom,
+        expectedArgs.tokenIndexTo,
+        expectedArgs.amount,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -299,6 +348,10 @@ describe.only("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amounts: ["100", "100"],
         isDeposit: true,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -317,6 +370,48 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/calculateTokenAmount";
+      const expectedArgs: SdkCalculateTokenAmountParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amounts: ["100", "100"],
+        isDeposit: true,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.calculateTokenAmount(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amounts,
+        expectedArgs.isDeposit,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#calculateRemoveSwapLiquidity", async () => {
@@ -326,6 +421,10 @@ describe.only("#SDKPool", () => {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amount: "100",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -343,6 +442,46 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/calculateRemoveSwapLiquidity";
+      const expectedArgs: SdkCalculateRemoveSwapLiquidityParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amount: "100",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.calculateRemoveSwapLiquidity(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amount,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#calculateRemoveSwapLiquidityOneToken", async () => {
@@ -353,6 +492,10 @@ describe.only("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amount: "100",
         index: 0,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -369,6 +512,48 @@ describe.only("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/calculateRemoveSwapLiquidityOneToken";
+      const expectedArgs: SdkCalculateRemoveSwapLiquidityOneTokenParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amount: "100",
+        index: 0,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.calculateRemoveSwapLiquidityOneToken(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amount,
+        expectedArgs.index,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -447,6 +632,10 @@ describe.only("#SDKPool", () => {
         amountX: "100",
         tokenX: mock.asset.A.address,
         tokenY: mock.asset.B.address,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -463,6 +652,48 @@ describe.only("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/calculateSwapPriceImpact";
+      const expectedArgs: SdkCalculateSwapPriceImpactParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amountX: "100",
+        tokenX: mock.asset.A.address,
+        tokenY: mock.asset.B.address,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.calculateSwapPriceImpact(
+        expectedArgs.domainId,
+        expectedArgs.amountX,
+        expectedArgs.tokenX,
+        expectedArgs.tokenY,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -615,6 +846,10 @@ describe.only("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         _index: 0,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -631,6 +866,48 @@ describe.only("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getPoolTokenBalance";
+      const expectedArgs: SdkGetPoolTokenBalanceParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        _index: 0,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.getPoolTokenBalance(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.poolTokenAddress,
+        expectedArgs._index,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -667,6 +944,10 @@ describe.only("#SDKPool", () => {
       const expectedArgs: SdkGetVirtualPriceParams = {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -678,6 +959,40 @@ describe.only("#SDKPool", () => {
       const res = await sdkPool.getVirtualPrice(expectedArgs.domainId, expectedArgs.tokenAddress);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getVirtualPrice";
+      const expectedArgs: SdkGetVirtualPriceParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.getVirtualPrice(expectedArgs.domainId, expectedArgs.tokenAddress, options);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -769,6 +1084,10 @@ describe.only("#SDKPool", () => {
         amounts: ["100", "100"],
         minToMint: "0",
         deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -787,6 +1106,49 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/addLiquidity";
+      const expectedArgs: SdkAddLiquidityParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amounts: ["100", "100"],
+        minToMint: "0",
+        deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkPool.addLiquidity(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amounts,
+        expectedArgs.minToMint,
+        expectedArgs.deadline,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#removeLiquidityOneToken", async () => {
@@ -799,6 +1161,10 @@ describe.only("#SDKPool", () => {
         amount: "100",
         minAmount: "0",
         deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -818,6 +1184,51 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/removeLiquidityOneToken";
+      const expectedArgs: SdkRemoveLiquidityOneTokenParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        withdrawTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amount: "100",
+        minAmount: "0",
+        deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkPool.removeLiquidityOneToken(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.withdrawTokenAddress,
+        expectedArgs.amount,
+        expectedArgs.minAmount,
+        expectedArgs.deadline,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#removeLiquidity", async () => {
@@ -829,6 +1240,10 @@ describe.only("#SDKPool", () => {
         amount: "100",
         minAmounts: ["100", "100"],
         deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -847,6 +1262,49 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/removeLiquidity";
+      const expectedArgs: SdkRemoveLiquidityParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amount: "100",
+        minAmounts: ["100", "100"],
+        deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkPool.removeLiquidity(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amount,
+        expectedArgs.minAmounts,
+        expectedArgs.deadline,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#removeLiquidityImbalance", async () => {
@@ -858,6 +1316,10 @@ describe.only("#SDKPool", () => {
         amounts: ["100", "100"],
         maxBurnAmount: "0",
         deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -876,6 +1338,49 @@ describe.only("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/removeLiquidityImbalance";
+      const expectedArgs: SdkRemoveLiquidityImbalanceParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        amounts: ["100", "100"],
+        maxBurnAmount: "0",
+        deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.amounts,
+        expectedArgs.maxBurnAmount,
+        expectedArgs.deadline,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#swap", async () => {
@@ -889,6 +1394,10 @@ describe.only("#SDKPool", () => {
         amount: "1000",
         minDy: 0,
         deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -907,6 +1416,53 @@ describe.only("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/swap";
+      const expectedArgs: SdkSwapParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        from: mockXTransfer.origin!.assets.transacting.asset,
+        to: mockXTransfer.origin!.assets.bridged.asset,
+        amount: "1000",
+        minDy: 0,
+        deadline: 100000,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkPool.swap(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.from,
+        expectedArgs.to,
+        expectedArgs.amount,
+        expectedArgs.minDy,
+        expectedArgs.deadline,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });
