@@ -8,7 +8,8 @@ import {
   SdkAddLiquidityForRouterParams,
   SdkRemoveRouterLiquidityForParams,
   SdkRemoveRouterLiquidityParams,
-} from "@connext/sdk-core";
+  Options,
+} from "../src/sdk-types";
 import { expect, mkAddress } from "@connext/nxtp-utils";
 
 const mockConfig = mock.config();
@@ -62,6 +63,10 @@ describe("#SDKRouter", () => {
         amount: "100",
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         router: mkAddress("0x1234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -74,6 +79,41 @@ describe("#SDKRouter", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/addLiquidityForRouter";
+      const expectedArgs: SdkAddLiquidityForRouterParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        router: mkAddress("0x1234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkRouter.addLiquidityForRouter({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
   });
 
   describe("#removeRouterLiquidity", async () => {
@@ -84,6 +124,10 @@ describe("#SDKRouter", () => {
         amount: "100",
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         recipient: mkAddress("0x1234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = BigNumber.from(1);
 
@@ -97,6 +141,42 @@ describe("#SDKRouter", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/removeRouterLiquidity";
+      const expectedArgs: SdkRemoveRouterLiquidityParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        recipient: mkAddress("0x1234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = BigNumber.from(1);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkRouter.removeRouterLiquidity({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#removeRouterLiquidityFor", async () => {
@@ -108,6 +188,10 @@ describe("#SDKRouter", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         recipient: mkAddress("0x1234"),
         router: mkAddress("0x2234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
       axiosPostStub.resolves({
@@ -118,6 +202,42 @@ describe("#SDKRouter", () => {
       const res = await sdkRouter.removeRouterLiquidityFor(expectedArgs);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/removeRouterLiquidityFor";
+      const expectedArgs: SdkRemoveRouterLiquidityForParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        amount: "100",
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        recipient: mkAddress("0x1234"),
+        router: mkAddress("0x2234"),
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkRouter.removeRouterLiquidityFor({ ...expectedArgs, options: options });
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });

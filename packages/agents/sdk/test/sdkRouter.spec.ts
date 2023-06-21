@@ -176,7 +176,7 @@ describe("SdkRouter", () => {
       const options = {
         signerAddress: mkAddress("0xabc"),
       };
-
+      stub(sdkRouter, "getCanonicalTokenId").resolves([mockRemoveRouterLiquidityParams.domainId, canonicalId]);
       const res = await sdkRouter.removeRouterLiquidity({ ...mockRemoveRouterLiquidityParams, options });
 
       expect(res).to.not.be.undefined;
@@ -253,6 +253,8 @@ describe("SdkRouter", () => {
       const options = {
         signerAddress: mkAddress("0xabc"),
       };
+
+      stub(sdkRouter, "getCanonicalTokenId").resolves([mockRemoveLiquidityForParams.domainId, canonicalId]);
 
       const res = await sdkRouter.removeRouterLiquidityFor({ ...mockRemoveLiquidityForParams, options });
 
