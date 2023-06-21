@@ -18,7 +18,7 @@ import {
   NoReceivedAggregateRoot,
 } from "../../../errors";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
@@ -41,6 +41,11 @@ export const enqueue = async () => {
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
+
+  // Set a max limit on the number of messages published to the queue in this iteration.
+  const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
+  // Track the number of messages published to the queue in this iteration.
+  let publishedCount = 0;
 
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
@@ -171,6 +176,22 @@ export const enqueue = async () => {
                     }
 
                     offset += unprocessed.length;
+                    publishedCount += unprocessed.length;
+                    if (publishedCount >= proverPubMax) {
+                      end = true;
+                      logger.info(
+                        "Reached max limit on published messages for this iteration",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                          publishedCount,
+                          maxLimit: proverPubMax,
+                        },
+                      );
+                    }
                   } else {
                     // End the loop if no more messages are found
                     end = true;
