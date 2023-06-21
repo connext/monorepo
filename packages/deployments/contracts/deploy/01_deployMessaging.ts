@@ -283,17 +283,6 @@ const handleDeploySpoke = async (
   );
   console.log(`${contract} deployed to ${deployment.address}`);
 
-  // setArborist to Merkle
-  const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
-  console.log("merkleContract: ", merkleContract.address);
-
-  const arborist = await merkleContract.arborist();
-  console.log("arborst for spoke merkle ", arborist);
-  if (arborist == constants.AddressZero) {
-    const tx = await merkleContract.setArborist(deployment.address);
-    console.log(`setArborist tx submitted:`, tx.hash);
-    await tx.wait();
-  }
   return deployment;
 };
 
