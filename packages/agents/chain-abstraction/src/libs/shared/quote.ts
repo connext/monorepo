@@ -139,7 +139,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
 
     // Step 1: Calculate amountOut after origin swaps
 
-    const originSwapAmountOut = await originSwapFunction(args);
+    const originSwapAmountOut = fromAsset !== _toAsset ? await originSwapFunction(args) : amountIn;
     if (originDomain === destinationDomain) return originSwapAmountOut;
 
     // initing the core sdk for calculating amount recieved after bridging
@@ -180,7 +180,10 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
       fee: _fee,
     };
     const destinationSwapFunction = SwapQuoteFns[destinationQuoter.type];
-    const amountOut = await destinationSwapFunction(destinationArgs);
+    const amountOut =
+      destinationUnderlyingAsset !== toAsset
+        ? await destinationSwapFunction(destinationArgs)
+        : amountReceived.toString();
     return amountOut;
   } catch (err: unknown) {
     throw Error(`Failed to swap with Error: ${(err as Error).message}`);

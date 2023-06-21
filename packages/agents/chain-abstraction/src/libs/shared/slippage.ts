@@ -45,7 +45,6 @@ export const getPriceImpactForSwaps = async (
  * Returns the `slippgae Distribution` among the swaps
  */
 export const getSlippageDistribution = async (
-  _slippage = "300",
   inputToken: string,
   originDomain: number,
   destinationDomain: number,
@@ -56,22 +55,38 @@ export const getSlippageDistribution = async (
   amountIn: BigNumberish,
   signerAddress: string,
   inputDecimal: number,
+  _slippage?: string,
 ) => {
-  const slippage = +_slippage;
+  if (inputToken === outputToken) {
+    throw new Error("Slippgae cannot be calculated in same tokens");
+  }
+  const slippage = _slippage ?? "300";
   const _underlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain];
   const _underlyingAssetDecimal = 6;
-  const originPriceImpact = await getPriceImpactForSwaps(
-    inputToken,
-    inputDecimal,
-    domainToChainId(+originDomain),
-    originRpc,
-    _underlyingAsset,
-    _underlyingAssetDecimal,
-    amountIn.toString(),
-    signerAddress,
-  );
+  console.log(inputToken, _underlyingAsset, "tokens");
+  const originPriceImpact =
+    inputToken !== _underlyingAsset
+      ? await getPriceImpactForSwaps(
+          inputToken,
+          inputDecimal,
+          domainToChainId(+originDomain),
+          originRpc,
+          _underlyingAsset,
+          _underlyingAssetDecimal,
+          amountIn.toString(),
+          signerAddress,
+        )
+      : 0;
   const originSlippage = originPriceImpact + originPriceImpact * 0.2; // origin slippage
+  if (originDomain === destinationDomain) {
+    return {
+      originSlippage,
+      destinationSlippage: 0,
+      connextSlippage: 0,
+    };
+  }
   const _destinationUnderlying = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain];
+  console.log(inputToken, _destinationUnderlying, "destination estimate");
 
   const quoteDestinationAmount = await getEstimateAmountRecieved({
     originDomain,
@@ -84,20 +99,23 @@ export const getSlippageDistribution = async (
     signerAddress,
   });
 
-  const destinationPriceImpact = await getPriceImpactForSwaps(
-    _destinationUnderlying,
-    6,
-    domainToChainId(+destinationDomain),
-    destinationRpc,
-    outputToken,
-    outputDecimal,
-    quoteDestinationAmount,
-    signerAddress,
-  );
+  const destinationPriceImpact =
+    _destinationUnderlying !== outputToken
+      ? await getPriceImpactForSwaps(
+          _destinationUnderlying,
+          6,
+          domainToChainId(+destinationDomain),
+          destinationRpc,
+          outputToken,
+          outputDecimal,
+          quoteDestinationAmount,
+          signerAddress,
+        )
+      : 0;
 
   const destinationSlippage = destinationPriceImpact + destinationPriceImpact * 0.2;
 
-  const connextSlippage = slippage - originSlippage - destinationSlippage;
+  const connextSlippage = +slippage - originSlippage - destinationSlippage;
   return {
     originSlippage,
     destinationSlippage,
