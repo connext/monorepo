@@ -48,7 +48,12 @@ abstract contract BaseAxelar is AxelarExecutable {
   /**
    * @dev Sends `outboundRoot` to root manager on the mirror chain
    */
-  function _sendMessage(address _mirrorConnector, bytes memory _data, bytes memory _encodedData) internal {
+  function _sendMessage(
+    address _mirrorConnector,
+    address _refund,
+    bytes memory _data,
+    bytes memory _encodedData
+  ) internal {
     // Should always be sending a merkle root
     require(_data.length == 32, "!data length");
 
@@ -58,13 +63,15 @@ abstract contract BaseAxelar is AxelarExecutable {
     string memory mirrorConnectorStr = _mirrorConnector.toString();
 
     // Get the min fees
-    gasService.payNativeGasForContractCall{value: msg.value}(
-      address(this),
-      MIRROR_CHAIN_ID,
-      mirrorConnectorStr,
-      _data,
-      msg.sender
-    );
+    if (msg.value > 0) {
+      gasService.payNativeGasForContractCall{value: msg.value}(
+        address(this),
+        MIRROR_CHAIN_ID,
+        mirrorConnectorStr,
+        _data,
+        _refund
+      );
+    }
 
     gateway.callContract(
       MIRROR_CHAIN_ID,

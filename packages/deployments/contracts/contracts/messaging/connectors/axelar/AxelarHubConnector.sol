@@ -36,7 +36,7 @@ contract AxelarHubConnector is HubConnector, BaseAxelar {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(mirrorConnector, _data, _encodedData);
+    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {
