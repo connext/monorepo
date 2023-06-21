@@ -1,13 +1,13 @@
 import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { providers, BigNumber, BigNumberish } from "ethers";
-import {
+
+import type {
   SdkConfig,
   SdkXCallParams,
   SdkBumpTransferParams,
   SdkUpdateSlippageParams,
   SdkEstimateRelayerFeeParams,
-} from "@connext/sdk-core";
-
+} from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 
@@ -28,7 +28,12 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const response = await axiosPost(`${this.baseUri}/xcall`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/xcall`, { ...params, options: _options });
     return response.data;
   }
 
@@ -36,7 +41,12 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.updateSlippage.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const response = await axiosPost(`${this.baseUri}/updateSlippage`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/updateSlippage`, { ...params, options: _options });
     return response.data;
   }
 
@@ -44,7 +54,12 @@ export class SdkBase extends SdkShared {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const response = await axiosPost(`${this.baseUri}/bumpTransfer`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/bumpTransfer`, { ...params, options: _options });
     return response.data;
   }
 
