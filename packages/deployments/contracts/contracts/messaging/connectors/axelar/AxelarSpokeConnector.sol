@@ -57,7 +57,7 @@ contract AxelarSpokeConnector is SpokeConnector, BaseAxelar {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(mirrorConnector, msg.sender, _data, _encodedData);
+    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
   }
 
   function _verifySender(address _expected) internal view override returns (bool) {
