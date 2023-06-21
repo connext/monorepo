@@ -40,9 +40,11 @@ export const retrieveOriginMessages = async () => {
       continue;
     }
 
-    const { confirmations } = config.chains
-      ? (config.chains[domain] as { confirmations: number })
-      : { confirmations: DEFAULT_SAFE_CONFIRMATIONS };
+    let confirmations = DEFAULT_SAFE_CONFIRMATIONS;
+    if (config.chains[domain]) {
+      confirmations = (config.chains[domain] as { confirmations: number | undefined }).confirmations ?? confirmations;
+    }
+
     const maxBlockNumber = latestBlockNumber - confirmations;
     const offset = await database.getCheckPoint("message_" + domain);
     const limit = 1000;
@@ -171,9 +173,10 @@ export const retrieveSentRootMessages = async () => {
       continue;
     }
 
-    const { confirmations } = config.chains
-      ? (config.chains[domain] as { confirmations: number })
-      : { confirmations: DEFAULT_SAFE_CONFIRMATIONS };
+    let confirmations = DEFAULT_SAFE_CONFIRMATIONS;
+    if (config.chains[domain]) {
+      confirmations = (config.chains[domain] as { confirmations: number | undefined }).confirmations ?? confirmations;
+    }
     const maxBlockNumber = latestBlockNumber - confirmations;
     const offset = await database.getCheckPoint("sent_root_message_" + domain);
     const limit = 100;
