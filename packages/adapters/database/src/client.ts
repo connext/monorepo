@@ -1025,7 +1025,7 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 10000,
+  pageSize = 100000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
@@ -1066,7 +1066,7 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 10000,
+  pageSize = 100000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
