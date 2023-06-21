@@ -10,6 +10,12 @@ export class NoDestinationDomainForProof extends NxtpError {
   }
 }
 
+export class MessageRootVerificationFailed extends NxtpError {
+  constructor(context: any = {}) {
+    super(`MessageRoot verification failed.`, context, MessageRootVerificationFailed.name);
+  }
+}
+
 export class NoAggregatedRoot extends NxtpError {
   constructor(context: any = {}) {
     super(`No Aggregated Root found.`, context, NoAggregatedRoot.name);
