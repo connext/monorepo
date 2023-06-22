@@ -30,7 +30,6 @@
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",
     "memoizee": "0.4.15",
-    "simple-uniswap-sdk": "^3.7.0",
     "typedoc": "0.23.25"
   },
   "devDependencies": {

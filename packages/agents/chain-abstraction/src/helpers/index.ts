@@ -22,17 +22,12 @@ import {
   initCoreSDK as _initCoreSDK,
 } from "./swapquote";
 
-import {
-  getSwapPathForUniswap as _getSwapPathForUniswap,
-  getSwapPathForUniV3 as _getSwapPathForUniV3,
-  getSwapPathForUniV2 as _getSwapPathForUniV2,
-} from "./swapUtils";
+import { getSwapPathForUniV3 as _getSwapPathForUniV3, getSwapPathForUniV2 as _getSwapPathForUniV2 } from "./swapUtils";
 
 import { DEPLOYED_ADDRESSES as _DEPLOYED_ADDRESSES } from "./address";
 
 export const DEPLOYED_ADDRESSES = _DEPLOYED_ADDRESSES;
 export const initCoreSDK = _initCoreSDK;
-export const getSwapPathForUniswap = _getSwapPathForUniswap;
 export const getSwapPathForUniV3 = _getSwapPathForUniV3;
 export const getSwapPathForUniV2 = _getSwapPathForUniV2;
 
