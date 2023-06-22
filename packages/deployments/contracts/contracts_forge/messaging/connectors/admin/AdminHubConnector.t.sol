@@ -30,11 +30,7 @@ contract AdminHubConnectorTest is ForgeHelper {
 
   // ============ Setup ============
   function setUp() public {
-    uint256 forkId = vm.createSelectFork(
-      "https://eth-mainnet.g.alchemy.com/v2/CAtB_bTRwPneOAh_xLABggG3yUOR2wsV",
-      // 17528353
-      17464115
-    );
+    uint256 forkId = vm.createSelectFork("https://eth.llamarpc.com", 17528353);
     adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(rootManager));
   }
 
