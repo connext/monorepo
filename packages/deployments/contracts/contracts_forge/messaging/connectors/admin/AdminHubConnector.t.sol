@@ -52,20 +52,7 @@ contract AdminHubConnectorTest is ForgeHelper {
   }
 
   function test_AdminHubConnector__addSpokeRootToAggregate_works() public {
-    // add root from this tx: https://bscscan.com/tx/0xa09d0aa6ec6c12888c89d06f59a6d3bdce4b323b2cee4b1d99b47b076c27a6e3#eventlog
-    vm.prank(watcher);
-    ROOT_MANAGER.removeConnector(BNB_DOMAIN);
-    vm.prank(owner);
-    ROOT_MANAGER.addConnector(BNB_DOMAIN, address(adminHubConnector));
-    vm.prank(owner);
-    adminHubConnector.addSpokeRootToAggregate(
-      bytes32(0x80E1EE5091DFA6F8B129E28436D323ED6DA70F0A6D39B722323272017001F7E7)
-    );
-
-    vm.roll(block.number + ROOT_MANAGER.delayBlocks() + 1); // roll enough blocks to pass delay
-
     address[] memory connectors = new address[](6);
-    ROOT_MANAGER.domains(0);
     connectors[0] = ROOT_MANAGER.connectors(0);
     connectors[1] = ROOT_MANAGER.connectors(1);
     connectors[2] = ROOT_MANAGER.connectors(2);
@@ -82,6 +69,43 @@ contract AdminHubConnectorTest is ForgeHelper {
     fees[5] = 0;
 
     bytes[] memory encodedData = new bytes[](6);
+    encodedData[0] = hex"";
+    encodedData[1] = hex"";
+    encodedData[2] = hex"";
+    encodedData[3] = hex"";
+    encodedData[4] = hex"";
+    encodedData[5] = hex"";
+    vm.expectRevert("redundant root");
+    ROOT_MANAGER.propagate(connectors, fees, encodedData);
+
+    vm.prank(watcher);
+    ROOT_MANAGER.removeConnector(BNB_DOMAIN);
+    vm.prank(owner);
+    ROOT_MANAGER.addConnector(BNB_DOMAIN, address(adminHubConnector));
+    vm.prank(owner);
+    adminHubConnector.addSpokeRootToAggregate(
+      bytes32(0x80E1EE5091DFA6F8B129E28436D323ED6DA70F0A6D39B722323272017001F7E7)
+    );
+
+    vm.roll(block.number + ROOT_MANAGER.delayBlocks() + 1); // roll enough blocks to pass delay
+
+    connectors = new address[](6);
+    connectors[0] = ROOT_MANAGER.connectors(0);
+    connectors[1] = ROOT_MANAGER.connectors(1);
+    connectors[2] = ROOT_MANAGER.connectors(2);
+    connectors[3] = ROOT_MANAGER.connectors(3);
+    connectors[4] = ROOT_MANAGER.connectors(4);
+    connectors[5] = ROOT_MANAGER.connectors(5);
+
+    fees = new uint256[](6);
+    fees[0] = 0;
+    fees[1] = 0;
+    fees[2] = 0;
+    fees[3] = 0;
+    fees[4] = 0;
+    fees[5] = 0;
+
+    encodedData = new bytes[](6);
     encodedData[0] = hex"";
     encodedData[1] = hex"";
     encodedData[2] = hex"";
