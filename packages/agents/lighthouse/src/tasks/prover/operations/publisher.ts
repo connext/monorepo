@@ -221,7 +221,7 @@ export const createBrokerMessage = async (
 ): Promise<BrokerMessage | undefined> => {
   const {
     logger,
-    adapters: { contracts, chainreader, database },
+    adapters: { contracts, chainreader, databaseWriter },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
@@ -265,7 +265,7 @@ export const createBrokerMessage = async (
 
   if (processedMessages.length > 0) {
     logger.info("Saving the processed messages", requestContext, methodContext, { count: processedMessages.length });
-    await database.saveMessages(processedMessages);
+    await databaseWriter.database.saveMessages(processedMessages, databaseWriter.pool);
   }
 
   if (messages.length === 0) {

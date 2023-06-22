@@ -36,9 +36,6 @@ export const makeProverSubscriber = async (config: NxtpLighthouseConfig, chainDa
     await bindHealthServer();
   } catch (e: unknown) {
     console.error("Error starting Prover-Subscriber. Sad! :(", e);
-  } finally {
-    await closeDatabase(context.adapters.databaseWriter.pool);
-    process.exit();
   }
 };
 
