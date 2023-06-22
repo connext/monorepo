@@ -7,6 +7,9 @@ import {
   SwapQuoteFns,
   DEPLOYED_ADDRESSES,
   initCoreSDK,
+  getSwapPathForUniswap as _getSwapPathForUniswap,
+  getSwapPathForUniV3 as _getSwapPathForUniV3,
+  getSwapPathForUniV2 as _getSwapPathForUniV2,
 } from "../../helpers";
 import { SwapQuoteParams, Swapper, EstimateQuoteAmountArgs, SwapQuoteCallbackArgs } from "../../types";
 import { getPoolFeeForUniV3 } from "../origin";
@@ -16,6 +19,11 @@ import { getPoolFeeForUniV3 } from "../origin";
  *
  * @param params: SwapQuoteParams object
  */
+
+export const getSwapPathForUniswap = _getSwapPathForUniswap;
+export const getSwapPathForUniV3 = _getSwapPathForUniV3;
+export const getSwapPathForUniV2 = _getSwapPathForUniV2;
+
 export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true): Promise<string> => {
   const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
 

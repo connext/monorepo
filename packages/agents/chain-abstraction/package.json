@@ -24,9 +24,13 @@
     "@connext/nxtp-utils": "workspace:*",
     "@connext/sdk-core": "workspace:*",
     "@sinclair/typebox": "0.25.21",
+    "@uniswap/sdk": "^3.0.3",
+    "@uniswap/sdk-core": "^3.2.6",
+    "@uniswap/smart-order-router": "^3.13.4",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",
     "memoizee": "0.4.15",
+    "simple-uniswap-sdk": "^3.7.0",
     "typedoc": "0.23.25"
   },
   "devDependencies": {
