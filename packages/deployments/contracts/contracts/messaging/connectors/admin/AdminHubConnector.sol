@@ -29,6 +29,10 @@ contract AdminHubConnector is ProposedOwnable, HubConnector {
    * @param _data The data to be added to the merkle tree
    */
   function addSpokeRootToAggregate(bytes32 _data) external onlyOwner {
+    // Sanity check: ensure the _data is nonzero
+    require(_data != bytes32(0), "empty");
+
+    // Aggregate on the root manager
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _data);
 
     // Emit event
@@ -37,9 +41,18 @@ contract AdminHubConnector is ProposedOwnable, HubConnector {
 
   // ============ Private fns ============
 
-  // function included to match interface but is not used internally, therefore is a no op.
-  function _verifySender(address _expected) internal view override returns (bool) {}
+  /**
+   * @notice Should not be used as this contract has no crosschain counterpart.
+   * @dev Reverts if `Connector.verifySender` is called
+   */
+  function _verifySender(address) internal pure override returns (bool) {
+    require(false, "!supported");
+  }
 
-  // function included to match interface but is not used internally, therefore is a no op.
+  /**
+   * @notice This function is a no-op as this connector does NOT send messages across
+   * chains.
+   * @dev Is a no-op over a revert so `RootManager.sendMessage` does not revert.
+   */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {}
 }
