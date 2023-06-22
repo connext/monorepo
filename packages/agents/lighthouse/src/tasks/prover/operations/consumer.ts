@@ -6,6 +6,8 @@ import { PROVER_QUEUE, BrokerMessage } from "./types";
 import { processMessages } from "./process";
 
 const DEFAULT_PREFETCH_SIZE = 1;
+const DEFAULT_REDELIVERY_TIMEOUT = 1000 * 60 * 1;
+
 export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
@@ -36,6 +38,14 @@ export const consume = async () => {
       if (message) {
         try {
           const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
+          if (message.fields.redelivered) {
+            logger.info("Waiting for timeout to process a redelivered message", requestContext, methodContext, {
+              message: brokerMessage,
+              timeout: DEFAULT_REDELIVERY_TIMEOUT,
+            });
+            await new Promise((f) => setTimeout(f, DEFAULT_REDELIVERY_TIMEOUT));
+            logger.info("Processing an redilivered message", requestContext, methodContext, { message: brokerMessage });
+          }
           logger.info("Processing an unprocessed message", requestContext, methodContext, { message: brokerMessage });
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);

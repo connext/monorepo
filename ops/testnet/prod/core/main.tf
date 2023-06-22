@@ -337,8 +337,8 @@ module "lighthouse_prover_subscriber" {
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 8192
-  memory                   = 16384
+  cpu                      = 4096
+  memory                   = 8192
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -354,7 +354,7 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.lighthouse_prover_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  min_capacity               = 50
+  min_capacity               = 10
   max_capacity               = 100
   avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 15

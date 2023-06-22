@@ -337,7 +337,7 @@ locals {
         persistent     = true
         durable        = true
       }
-      prefetchSize = 5
+      prefetchSize = 2
     }
   })
 

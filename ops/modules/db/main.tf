@@ -79,4 +79,14 @@ resource "aws_db_parameter_group" "rds_postgres" {
     value        = var.name
     apply_method = "pending-reboot"
   }
+  parameter {
+    name = "max_standby_archive_delay"
+    # 30 minutes in milliseconds
+    value = "1800000"
+  }
+  parameter {
+    name = "max_standby_streaming_delay"
+    # 30 minutes in milliseconds
+    value = "1800000"
+  }
 }
