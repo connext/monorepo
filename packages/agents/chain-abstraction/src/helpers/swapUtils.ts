@@ -1,4 +1,4 @@
-import { UniswapPair, ChainId, UniswapVersion, ETH, UniswapPairSettings } from "simple-uniswap-sdk";
+// import { UniswapPair, ChainId, UniswapVersion, ETH, UniswapPairSettings } from "simple-uniswap-sdk";
 import { AlphaRouter } from "@uniswap/smart-order-router";
 import { ethers } from "ethers";
 import { CurrencyAmount, Token, TradeType } from "@uniswap/sdk-core";
