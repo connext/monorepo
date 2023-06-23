@@ -2,7 +2,7 @@ import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
 import { getSupportedAssets, getCoingeckoIDs } from "../../src/helpers/asset";
 import * as MockableFns from "../../src/mockable";
-import { asset } from "../../src/types";
+import { Asset } from "../../src/types";
 
 const mockUniswapResponse = [
   {
@@ -64,7 +64,7 @@ const mockHoneySwap = [
 ];
 
 describe("Helpers:asset", () => {
-  describe("#getSupportedAssets", () => {
+  describe.only("#getSupportedAssets", () => {
     let axiosGetStub: SinonStub;
     beforeEach(() => {
       axiosGetStub = stub(MockableFns, "axiosGet");
@@ -76,28 +76,28 @@ describe("Helpers:asset", () => {
     it("Should work with getting supported asset", async () => {
       const mockChainID = 1;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("1INCH");
     });
     it("Should work with Polygon asset", async () => {
       const mockChainID = 137;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("1INCH");
     });
     it("Should get null with different chain id", async () => {
       const mockChainID = 45;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset).to.be.null;
     });
     it("Should work for gnosis with honeyswap api", async () => {
       const mockChainID = 100;
       axiosGetStub.resolves({ data: { tokens: mockHoneySwap } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("0xMR");
     });
-    it("should throw if axioGet fails", async () => {
+    it("should throw if axiosGet fails", async () => {
       const mockChainID = 56;
       axiosGetStub.throws();
       await expect(getSupportedAssets(mockChainID)).to.eventually.be.rejectedWith(Error);
