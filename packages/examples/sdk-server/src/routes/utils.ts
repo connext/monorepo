@@ -9,24 +9,34 @@ import {
   SdkCheckRouterLiquidityParamsSchema,
   SdkCheckRouterLiquidityParams,
 } from "@connext/sdk-core";
+import { createLoggingContext, Logger, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
-export const utilsRoutes = async (server: FastifyInstance, sdkUtilsInstance: SdkUtils): Promise<any> => {
-  const s = server.withTypeProvider<TypeBoxTypeProvider>();
+interface UtilsRoutesOptions {
+  sdkUtilsInstance: SdkUtils;
+  logger: Logger;
+  cacheConfig?: {
+    enabled?: boolean;
+    expirationTime?: number;
+  };
+}
 
-  s.post<{ Body: SdkGetRoutersDataParams }>(
-    "/getRoutersData",
-    {
-      schema: {
-        body: SdkGetRoutersDataParamsSchema,
-      },
-    },
-    async (request, reply) => {
-      const res = await sdkUtilsInstance.getRoutersData(request.body);
-      reply.status(200).send(res);
-    },
-  );
+export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesOptions): Promise<any> => {
+  const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkUtilsInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(utilsRoutes.name);
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
+
+  s.post<{ Body: SdkGetRoutersDataParams }>("/getRoutersData", async (request, reply) => {
+    console.log(request.body); // Log the request body
+    const res = await sdkUtilsInstance.getRoutersData(request.body);
+    reply.status(200).send(res);
+  });
 
   s.post<{ Body: SdkGetRouterLiquidityParams }>(
     "/getRouterLiquidity",

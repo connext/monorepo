@@ -1,6 +1,7 @@
 import fastify, { FastifyInstance } from "fastify";
 import { createLoggingContext, Logger, getBestProvider, jsonifyError } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
+import cors from "@fastify/cors";
 import { ethers, providers } from "ethers";
 import { SdkConfig, create } from "@connext/sdk-core";
 
@@ -53,7 +54,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
 
     const { sdkBase, sdkPool, sdkUtils, sdkRouter, sdkShared } = await create(nxtpConfig);
 
-    // Server configuration - setup redis plugin if enabled, register routes
+    // Server configuration - setup redis plugin if enabled, CORS, register routes
     const server = fastify();
 
     if (context.config.redis?.enabled) {
@@ -62,6 +63,10 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
         port: context.config.redis?.port,
       });
     }
+
+    server.register(cors, {
+      origin: "*",
+    });
 
     server.setErrorHandler(function (error, request, reply) {
       context.logger.error(`Error: ${error.message}`, requestContext, methodContext);
@@ -86,7 +91,7 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
 
     server.register(baseRoutes, { sdkBaseInstance: sdkBase, cacheConfig: context.config.redis });
     server.register(poolRoutes, sdkPool);
-    server.register(utilsRoutes, sdkUtils);
+    server.register(utilsRoutes, { sdkUtilsInstance: sdkUtils, logger: context.logger });
     server.register(routerRoutes, sdkRouter);
     server.register(sharedRoutes, sdkShared);
 
