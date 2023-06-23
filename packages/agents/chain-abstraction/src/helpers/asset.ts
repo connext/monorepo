@@ -66,30 +66,26 @@ export const getSupportedAssets = async (chainID: number): Promise<Asset[] | nul
   }
 };
 
-export const getCoingeckoID = async (inputTokenAddress: string, outputTokenAddress: string) => {
+export const getCoingeckoIDs = async (tokenAddresses: string[]) => {
   try {
     const response = await axiosGet("https://api.coingecko.com/api/v3/coins/list?include_platform=true");
-    const tokenList = response.data;
-    const IDs: string[] = [];
-    // adding two different loops for matching the index in array
-    tokenList.forEach((token: coingeckoTokenType) => {
-      if (Object.values(token.platforms).includes(inputTokenAddress.toLowerCase())) {
-        IDs.push(token.id);
-      }
+    const tokens = response.data;
+    const ids: Record<string, string> = {};
+
+    tokens.forEach((token: coingeckoTokenType) => {
+      tokenAddresses.forEach((address) => {
+        if (Object.values(token.platforms).includes(address.toLowerCase())) {
+          ids[address] = token.id;
+        }
+      });
     });
 
-    tokenList.forEach((token: coingeckoTokenType) => {
-      if (Object.values(token.platforms).includes(outputTokenAddress.toLowerCase())) {
-        IDs.push(token.id);
-      }
-    });
-
-    if (!IDs.length) {
-      throw new Error("Token not found");
+    if (Object.keys(ids).length === 0) {
+      throw new Error("No tokens found");
     }
-    return IDs;
+    return ids;
   } catch (err: unknown) {
-    throw Error(`Error in fetching coingecko tokenID ${(err as Error).message}`);
+    throw Error(`Error in fetching Coingecko token IDs: ${(err as Error).message}`);
   }
 };
 

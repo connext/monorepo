@@ -1,7 +1,7 @@
 import { BigNumberish, ethers } from "ethers";
 import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
-import { getCoingeckoID, getTokenVSusdPrice } from "../../helpers/asset";
+import { getCoingeckoIDs, getTokenVSusdPrice } from "../../helpers/asset";
 import { DEPLOYED_ADDRESSES } from "../../helpers";
 
 import { getEstimateAmountReceived } from "./quote";
@@ -32,9 +32,9 @@ export const getPriceImpactForSwaps = async (
       signerAddress,
     });
     // get coingecko tokenID against address
-    const tokens = await getCoingeckoID(inputToken, outputToken);
-    const initialPriceInUSD = await getTokenVSusdPrice(tokens[0], amountIn, inputDecimal);
-    const finalPriceInUSD = await getTokenVSusdPrice(tokens[1], quoteAmountOut, outputDecimal);
+    const tokenIds = await getCoingeckoIDs([inputToken, outputToken]);
+    const initialPriceInUSD = await getTokenVSusdPrice(tokenIds[inputToken], amountIn, inputDecimal);
+    const finalPriceInUSD = await getTokenVSusdPrice(tokenIds[outputToken], quoteAmountOut, outputDecimal);
     return (Math.abs(initialPriceInUSD - finalPriceInUSD) * 100) / initialPriceInUSD;
   } catch (err: unknown) {
     throw Error(`Failed to get Price Impact ${(err as Error).message}`);

@@ -1,6 +1,6 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
-import { getSupportedAssets } from "../../src/helpers/asset";
+import { getSupportedAssets, getCoingeckoIDs } from "../../src/helpers/asset";
 import * as MockableFns from "../../src/mockable";
 import { asset } from "../../src/types";
 
@@ -101,6 +101,74 @@ describe("Helpers:asset", () => {
       const mockChainID = 56;
       axiosGetStub.throws();
       await expect(getSupportedAssets(mockChainID)).to.eventually.be.rejectedWith(Error);
+    });
+  });
+
+  describe("#getCoingeckoIDs", () => {
+    let axiosGetStub: SinonStub;
+
+    beforeEach(() => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("should work with getting a single token", async () => {
+      const mockTokens = [mkAddress("0xa")];
+      const mockResponse = {
+        data: [
+          {
+            id: "mock-coin",
+            symbol: "MOCK",
+            name: "Mock Coin",
+            platforms: {
+              ethereum: mkAddress("0xa"),
+            },
+          },
+        ],
+      };
+      axiosGetStub.resolves(mockResponse);
+
+      const res = await getCoingeckoIDs(mockTokens);
+
+      expect(res).to.deep.equal({
+        [mockTokens[0]]: "mock-coin",
+      });
+    });
+
+    it("should work with getting multiple tokens", async () => {
+      const mockTokens = [mkAddress("0xA"), mkAddress("0xB"), mkAddress("0xC")];
+      const mockResponse = {
+        data: [
+          {
+            id: "mock-coin-1",
+            symbol: "MOCK1",
+            name: "Mock Coin 1",
+            platforms: {
+              ethereum: mkAddress("0xa"),
+            },
+          },
+          {
+            id: "mock-coin-2",
+            symbol: "MOCK2",
+            name: "Mock Coin 2",
+            platforms: {
+              ethereum: mkAddress("0xb"),
+            },
+          },
+        ],
+      };
+      axiosGetStub.resolves(mockResponse);
+
+      const res = await getCoingeckoIDs(mockTokens);
+
+      expect(res).to.deep.equal({
+        [mockTokens[0]]: "mock-coin-1",
+        [mockTokens[1]]: "mock-coin-2",
+      });
     });
   });
 });
