@@ -49,6 +49,7 @@ export const TMQConfig = Type.Object({
   subscriber: Type.Optional(Type.String()),
   queueLimit: Type.Optional(Type.Number()),
   prefetchSize: Type.Optional(Type.Number()),
+  publisherWaitTime: Type.Optional(Type.Number()),
 });
 
 export const TRedisConfig = Type.Object({

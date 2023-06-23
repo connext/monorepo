@@ -54,7 +54,8 @@ export const prefetch = async () => {
       {
         originDomain,
         startIndex: cachedNonce + 1,
-        nonces: indexes.sort((a, b) => a - b),
+        min: Math.min(...indexes),
+        max: Math.max(...indexes),
       },
     );
 
@@ -75,9 +76,11 @@ export const getUnProcessedMessagesByIndex = async (
   endIndex: number,
 ): Promise<XMessage[]> => {
   const {
+    config,
     adapters: { cache },
   } = getContext();
   const pendingMessages: XMessage[] = [];
+  const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_REPLICA_SYNC_TIME;
   let offset = 0;
   const limit = 1000;
   let end = false;
@@ -87,7 +90,7 @@ export const getUnProcessedMessagesByIndex = async (
       const message = await cache.messages.getMessage(leaf);
       if (
         message &&
-        getNtpTimeSeconds() - message.timestamp > DEFAULT_REPLICA_SYNC_TIME * 2 ** message.attempt &&
+        getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
         message.data.origin.index < endIndex
       ) {
         pendingMessages.push(message.data);
