@@ -1,6 +1,7 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
-import { getSupportedAssets, getCoingeckoIDs } from "../../src/helpers/asset";
+import { ethers } from "ethers";
+import { getSupportedAssets, getTokenVSusdPrice, getCoingeckoIDs } from "../../src/helpers/asset";
 import * as MockableFns from "../../src/mockable";
 import { Asset } from "../../src/types";
 
@@ -64,7 +65,7 @@ const mockHoneySwap = [
 ];
 
 describe("Helpers:asset", () => {
-  describe.only("#getSupportedAssets", () => {
+  describe("#getSupportedAssets", () => {
     let axiosGetStub: SinonStub;
     beforeEach(() => {
       axiosGetStub = stub(MockableFns, "axiosGet");
@@ -169,6 +170,46 @@ describe("Helpers:asset", () => {
         [mockTokens[0]]: "mock-coin-1",
         [mockTokens[1]]: "mock-coin-2",
       });
+    });
+  });
+
+  describe("#getTokenVSusdPrice", () => {
+    let axiosGetStub: SinonStub;
+
+    beforeEach(() => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("should return the correct USD price for the given amount", async () => {
+      const mockCoinGeckoId = "mock-coin";
+      const mockAmount = ethers.utils.parseUnits("5", 18);
+      const mockPriceInUsd = 1000; // Assume 1 token is 1000 USD
+      const mockResponse = {
+        data: {
+          [mockCoinGeckoId]: {
+            usd: mockPriceInUsd,
+          },
+        },
+      };
+
+      axiosGetStub.resolves(mockResponse);
+
+      const usdPrice = await getTokenVSusdPrice(mockCoinGeckoId, mockAmount, 18);
+      expect(usdPrice).to.equal(5000); // 5 tokens * 1000 USD each
+    });
+
+    it("should throw an error if the API call fails", async () => {
+      const mockCoinGeckoId = "mock-coin";
+      const mockAmount = ethers.utils.parseUnits("5", 18);
+
+      axiosGetStub.throws();
+
+      await expect(getTokenVSusdPrice(mockCoinGeckoId, mockAmount, 18)).to.eventually.be.rejectedWith(Error);
     });
   });
 });
