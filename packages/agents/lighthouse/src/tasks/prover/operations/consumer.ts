@@ -11,7 +11,7 @@ export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
     logger,
-    adapters: { mqClient, cache },
+    adapters: { mqClient },
     config,
   } = getContext();
   const prefetchSize = config.messageQueue.prefetchSize ?? DEFAULT_PREFETCH_SIZE;
