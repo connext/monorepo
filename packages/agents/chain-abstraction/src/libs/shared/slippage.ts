@@ -4,7 +4,7 @@ import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 import { getCoingeckoID, getTokenVSusdPrice } from "../../helpers/asset";
 import { DEPLOYED_ADDRESSES } from "../../helpers";
 
-import { getEstimateAmountRecieved } from "./quote";
+import { getEstimateAmountReceived } from "./quote";
 
 /**
  * Returns the `priceImpact` from the swaps
@@ -21,7 +21,7 @@ export const getPriceImpactForSwaps = async (
 ) => {
   try {
     const domainID = chainIdToDomain(chainID);
-    const quoteAmountOut = await getEstimateAmountRecieved({
+    const quoteAmountOut = await getEstimateAmountReceived({
       originDomain: domainID,
       destinationDomain: domainID,
       amountIn: amountIn.toString(),
@@ -88,7 +88,7 @@ export const getSlippageDistribution = async (
   const _destinationUnderlying = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain];
   console.log(inputToken, _destinationUnderlying, "destination estimate");
 
-  const quoteDestinationAmount = await getEstimateAmountRecieved({
+  const quoteDestinationAmount = await getEstimateAmountReceived({
     originDomain,
     destinationDomain,
     originRpc,
@@ -138,7 +138,7 @@ export const getAmountOutMinForUniV3 = async (
   outputDecimal: number,
 ) => {
   try {
-    const quoteAmountOut = await getEstimateAmountRecieved({
+    const quoteAmountOut = await getEstimateAmountReceived({
       originDomain: domainID,
       destinationDomain: domainID,
       amountIn: amountIn.toString(),

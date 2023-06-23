@@ -89,7 +89,7 @@ export const getBridgeAmountOut = async (
   return amountOut;
 };
 
-export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): Promise<string> => {
+export const getEstimateAmountReceived = async (args: EstimateQuoteAmountArgs): Promise<string> => {
   const {
     originDomain,
     destinationDomain,
@@ -142,7 +142,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     const originSwapAmountOut = fromAsset !== _toAsset ? await originSwapFunction(args) : amountIn;
     if (originDomain === destinationDomain) return originSwapAmountOut;
 
-    // initing the core sdk for calculating amount recieved after bridging
+    // initing the core sdk for calculating amount Received after bridging
     const { sdkBase } = await initCoreSDK(signerAddress, originDomain, destinationDomain, originRpc, destinationRpc);
 
     // Step 2: Calculate amount after bridge.
