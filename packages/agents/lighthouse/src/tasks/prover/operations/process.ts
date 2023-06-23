@@ -5,6 +5,7 @@ import {
   SparseMerkleTree,
   GELATO_RELAYER_ADDRESS,
   RequestContext,
+  XMessage,
 } from "@connext/nxtp-utils";
 
 import {
@@ -37,6 +38,13 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRoot,
     aggregateRootCount,
   } = brokerMessage;
+
+  // First step. Mark messages as attempted
+  for (const message of messages) {
+    await cache.messages.increaseAttempt(message.leaf);
+  }
+
+  const provenMessages: XMessage[] = [];
 
   const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, {
     reader: database,
@@ -100,6 +108,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       }
     }
     messageProofs.push(messageProof);
+    provenMessages.push(message);
   }
 
   if (messageProofs.length === 0) {
@@ -172,7 +181,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     ]);
 
     logger.debug("Proving and processing messages", requestContext, methodContext, {
-      messages,
+      provenMessages,
       proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
@@ -211,13 +220,10 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       await cache.messages.removePending(
         originDomain,
         destinationDomain,
-        messages.map((it) => it.leaf),
+        provenMessages.map((it) => it.leaf),
       );
     }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
-    for (const message of messages) {
-      await cache.messages.increaseAttempt(message.leaf);
-    }
   }
 };

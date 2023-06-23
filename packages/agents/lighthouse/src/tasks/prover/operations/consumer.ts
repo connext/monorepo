@@ -43,10 +43,6 @@ export const consume = async () => {
         } catch (err: unknown) {
           logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
           channel.reject(message, false);
-          const messages = brokerMessage.messages;
-          for (const message of messages) {
-            await cache.messages.increaseAttempt(message.leaf);
-          }
         }
       }
     },
