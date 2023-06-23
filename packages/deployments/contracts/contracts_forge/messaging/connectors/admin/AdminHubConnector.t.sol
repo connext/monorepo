@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {MockSpokeConnector} from "../../../utils/Mock.sol";
+import {MockHubConnector} from "../../../utils/Mock.sol";
 import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {AdminHubConnector} from "../../../../contracts/messaging/connectors/admin/AdminHubConnector.sol";
 import {RootManager, ProposedOwnable} from "../../../../contracts/messaging/RootManager.sol";
@@ -17,54 +17,90 @@ contract AdminHubConnectorTest is ForgeHelper {
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
-  // error ProposedOwnable__onlyOwner_notOwner();
-
-  using stdStorage for StdStorage;
-
   // ============ Storage ============
   uint32 BNB_DOMAIN = 6450786;
   uint32 ETH_DOMAIN = 6648936;
-  address watcher = 0x43DB577bB3DD02989Dc3DC8e65E61a27d6914386;
-  SpokeConnector ETH_SPOKE_CONNECTOR = SpokeConnector(payable(0xF7c4d7dcEc2c09A15f2Db5831d6d25eAEf0a296c));
-  RootManager ROOT_MANAGER = RootManager(0xd5d61E9dfb6680Cba8353988Ba0337802811C2e1);
-  address owner;
+  // NOTE: if domains are changed, update the DOMAINS array
+  uint32[] DOMAINS = [BNB_DOMAIN, ETH_DOMAIN];
+  address watcher = address(123123123132);
+  address owner = address(45454545454);
 
-  // ============ config
+  MerkleTreeManager mirror;
+  MerkleTreeManager merkleTreeManager;
+  RootManager rootManager;
   AdminHubConnector adminHubConnector;
+
+  MockHubConnector bnbHubConnector;
+  MockHubConnector ethHubConnector;
 
   // ============ Setup ============
   function setUp() public {
-    vm.createSelectFork("https://eth.llamarpc.com", 17528353);
-    owner = ROOT_MANAGER.owner();
+    // deploy merkle trees
+    mirror = new MerkleTreeManager();
+    merkleTreeManager = new MerkleTreeManager();
     vm.prank(owner);
-    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(ROOT_MANAGER));
+    mirror.initialize(owner);
+
+    // deploy watcher manager
+    vm.prank(owner);
+    WatcherManager manager = new WatcherManager();
+    // enroll watcher
+    vm.prank(owner);
+    manager.addWatcher(watcher);
+
+    // deploy root manager
+    vm.prank(owner);
+    rootManager = new RootManager(0, address(merkleTreeManager), address(manager));
+    vm.prank(address(rootManager));
+    merkleTreeManager.initialize(address(rootManager));
+
+    // deploy admin connector
+    vm.prank(owner);
+    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(rootManager));
+
+    // deploy mock hub connectors (mirrors and ambs set to empty for both)
+    vm.prank(owner);
+    bnbHubConnector = new MockHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(0), address(rootManager), address(0));
+    vm.prank(owner);
+    ethHubConnector = new MockHubConnector(ETH_DOMAIN, ETH_DOMAIN, address(0), address(rootManager), address(0));
+
+    // enroll connectors
+    utils_enrollConnector(BNB_DOMAIN, address(bnbHubConnector));
+    utils_enrollConnector(ETH_DOMAIN, address(ethHubConnector));
   }
 
   // ============ Utils ============
   function utils_insertAdminConnector(uint32 _domain) internal {
-    vm.prank(watcher);
-    ROOT_MANAGER.removeConnector(_domain);
+    utils_unenrollConnector(_domain);
+    utils_enrollConnector(_domain, address(adminHubConnector));
+  }
+
+  // NOTE: only connectors enrolled via this method will properly update the
+  // mapping stored for the test
+  function utils_enrollConnector(uint32 _domain, address _connector) internal {
     vm.prank(owner);
-    ROOT_MANAGER.addConnector(_domain, address(adminHubConnector));
+    rootManager.addConnector(_domain, _connector);
+  }
+
+  function utils_unenrollConnector(uint32 _domain) internal {
+    vm.prank(watcher);
+    rootManager.removeConnector(_domain);
   }
 
   function utils_getConnectors() internal view returns (address[] memory) {
-    address[] memory connectors = new address[](6);
-    connectors[0] = ROOT_MANAGER.connectors(0);
-    connectors[1] = ROOT_MANAGER.connectors(1);
-    connectors[2] = ROOT_MANAGER.connectors(2);
-    connectors[3] = ROOT_MANAGER.connectors(3);
-    connectors[4] = ROOT_MANAGER.connectors(4);
-    connectors[5] = ROOT_MANAGER.connectors(5);
-    return connectors;
+    address[] memory ret = new address[](DOMAINS.length);
+    for (uint256 i = 0; i < DOMAINS.length; i++) {
+      // get the index for the domain in the connectors array
+      uint256 idx = rootManager.getDomainIndex(DOMAINS[i]);
+      ret[idx] = rootManager.connectors(idx);
+    }
+    return ret;
   }
 
-  function utils_getFeesAndEncodedData(
-    uint256 _numConnectors
-  ) internal pure returns (uint256[] memory, bytes[] memory) {
-    uint256[] memory fees = new uint256[](_numConnectors);
-    bytes[] memory encodedData = new bytes[](_numConnectors);
-    for (uint256 i = 0; i < _numConnectors; i++) {
+  function utils_getFeesAndEncodedData() internal view returns (uint256[] memory, bytes[] memory) {
+    uint256[] memory fees = new uint256[](DOMAINS.length);
+    bytes[] memory encodedData = new bytes[](DOMAINS.length);
+    for (uint256 i = 0; i < DOMAINS.length; i++) {
       encodedData[i] = hex"";
       fees[i] = 0;
     }
@@ -98,23 +134,16 @@ contract AdminHubConnectorTest is ForgeHelper {
   function test_AdminHubConnector__addSpokeRootToAggregate_works(bytes32 _rootToInsert) public {
     vm.assume(_rootToInsert != bytes32(0));
 
+    // enlist the admin connector
+    utils_insertAdminConnector(BNB_DOMAIN);
+
     // get all inputs to root manager
     address[] memory connectors = utils_getConnectors();
-    (uint256[] memory fees, bytes[] memory encodedData) = utils_getFeesAndEncodedData(connectors.length);
-
-    // ensure the rm will not propagate without a new spoke root added
-    vm.expectRevert("redundant root");
-    ROOT_MANAGER.propagate(connectors, fees, encodedData);
-
-    // add the admin connector
-    utils_insertAdminConnector(BNB_DOMAIN);
-    // Refresh the connectors
-    connectors = utils_getConnectors();
+    (uint256[] memory fees, bytes[] memory encodedData) = utils_getFeesAndEncodedData();
 
     // use admin connector to insert on spoke root (and assert events)
-    (, uint128 last) = ROOT_MANAGER.pendingInboundRoots();
-    vm.expectEmit(true, true, true, true, address(ROOT_MANAGER));
-    emit RootReceived(BNB_DOMAIN, _rootToInsert, last + 1);
+    vm.expectEmit(true, true, true, true, address(rootManager));
+    emit RootReceived(BNB_DOMAIN, _rootToInsert, 1);
 
     vm.expectEmit(true, true, true, true, address(adminHubConnector));
     emit MessageProcessed(abi.encode(_rootToInsert), owner);
@@ -122,12 +151,16 @@ contract AdminHubConnectorTest is ForgeHelper {
     vm.prank(owner);
     adminHubConnector.addSpokeRootToAggregate(_rootToInsert);
 
-    // Ensure added root is propagated
-    vm.roll(block.number + ROOT_MANAGER.delayBlocks() + 1); // roll enough blocks to pass delay
+    // Generate the proper event args
+    bytes32[] memory leaves = new bytes32[](1);
+    leaves[0] = _rootToInsert;
+    vm.prank(owner);
+    (bytes32 aggregateRoot, uint256 count) = mirror.insert(leaves);
+
     // NOTE: this event check ensures the root manager emitted the event, but not the data within
     // the event payload
-    vm.expectEmit(true, false, false, false, address(ROOT_MANAGER));
-    emit RootsAggregated(bytes32(0), 0, new bytes32[](1));
-    ROOT_MANAGER.propagate(connectors, fees, encodedData);
+    vm.expectEmit(true, true, true, true, address(rootManager));
+    emit RootsAggregated(aggregateRoot, count, leaves);
+    rootManager.propagate(connectors, fees, encodedData);
   }
 }
