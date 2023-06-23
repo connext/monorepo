@@ -6,7 +6,6 @@ import { PROVER_QUEUE, BrokerMessage } from "./types";
 import { processMessages } from "./process";
 
 const DEFAULT_PREFETCH_SIZE = 1;
-const DEFAULT_REDELIVERY_TIMEOUT = 1000 * 60 * 1;
 
 export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
